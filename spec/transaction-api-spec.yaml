@@ -1,0 +1,1039 @@
+openapi: '3.0.3'
+info:
+  title: Transaction API.
+  version: '1.0'
+paths: {}
+components:
+  schemas:
+    # =======================
+    # Requests and Responses
+    # =======================
+
+    # Information Request
+    InformationRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 0
+      maxProperties: 0
+      example: {}
+    InformationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - package_version
+      properties:
+        package_version:
+          type: string
+      example:
+        package_version: "0.1.0"
+
+    # =============
+    # Instructions
+    # =============
+
+    Instruction:
+      title: "Instruction"
+      oneOf:
+        - $ref: "#/components/schemas/CallFunction"
+        - $ref: "#/components/schemas/CallMethod"
+        - $ref: "#/components/schemas/CallMethodWithAllResources"
+
+        - $ref: "#/components/schemas/TakeFromWorktop"
+        - $ref: "#/components/schemas/TakeFromWorktopByAmount"
+        - $ref: "#/components/schemas/TakeFromWorktopByIds"
+
+        - $ref: "#/components/schemas/ReturnToWorktop"
+
+        - $ref: "#/components/schemas/AssertWorktopContains"
+        - $ref: "#/components/schemas/AssertWorktopContainsByAmount"
+        - $ref: "#/components/schemas/AssertWorktopContainsByIds"
+
+        - $ref: "#/components/schemas/PopFromAuthZone"
+        - $ref: "#/components/schemas/PushToAuthZone"
+
+        - $ref: "#/components/schemas/ClearAuthZone"
+
+        - $ref: "#/components/schemas/CreateProofFromAuthZone"
+        - $ref: "#/components/schemas/CreateProofFromAuthZoneByAmount"
+        - $ref: "#/components/schemas/CreateProofFromAuthZoneByIds"
+
+        - $ref: "#/components/schemas/CreateProofFromBucket"
+
+        - $ref: "#/components/schemas/CloneProof"
+        - $ref: "#/components/schemas/DropProof"
+        - $ref: "#/components/schemas/DropAllProofs"
+
+        - $ref: "#/components/schemas/PublishPackage"
+
+    CallFunction:
+      title: Call Function
+      type: object
+      required:
+        - type
+        - package_address
+        - blueprint_name
+        - function_name
+      properties:
+        type:
+          type: string
+          enum:
+            - CallFunction 
+        package_address:
+          $ref: "#/components/schemas/PackageAddress"
+        blueprint_name:
+          $ref: "#/components/schemas/String"
+        function_name:
+          $ref: "#/components/schemas/String"
+        arguments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+    
+    CallMethod:
+      title: Call Method
+      type: object
+      required:
+        - type
+        - component_address
+        - method_name
+      properties:
+        type:
+          type: string
+          enum:
+            - CallMethod 
+        component_address:
+          $ref: "#/components/schemas/ComponentAddress"
+        method_name:
+          $ref: "#/components/schemas/String"
+        arguments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+    
+    CallMethodWithAllResources:
+      title: Call Method With All Resources 
+      type: object
+      required:
+        - type
+        - component_address
+        - method_name
+      properties:
+        type:
+          type: string
+          enum:
+            - CallMethodWithAllResources
+        component_address:
+          $ref: "#/components/schemas/ComponentAddress"
+        method_name:
+          $ref: "#/components/schemas/String"
+    
+    TakeFromWorktop:
+      title: Take from Worktop
+      type: object
+      required:
+        - type
+        - resource_address
+        - into_bucket
+      properties:
+        type:
+          type: string
+          enum:
+            - TakeFromWorktop
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_bucket:
+          $ref: "#/components/schemas/Bucket"
+    
+    TakeFromWorktopByAmount:
+      title: Take from Worktop
+      type: object
+      required:
+        - type
+        - amount
+        - resource_address
+        - into_bucket
+      properties:
+        type:
+          type: string
+          enum:
+            - TakeFromWorktopByAmount
+        amount:
+          $ref: "#/components/schemas/Decimal"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_bucket:
+          $ref: "#/components/schemas/Bucket"
+    
+    TakeFromWorktopByIds:
+      title: Take from Worktop by Ids
+      type: object
+      required:
+        - type
+        - ids
+        - resource_address
+        - into_bucket
+      properties:
+        type:
+          type: string
+          enum:
+            - TakeFromWorktopByIds
+        ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/NonFungibleId"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_bucket:
+          $ref: "#/components/schemas/Bucket"
+    
+    ReturnToWorktop:
+      title: Return to Worktop
+      type: object
+      required:
+        - type
+        - bucket
+      properties:
+        type:
+          type: string
+          enum:
+            - ReturnToWorktop
+        bucket:
+          $ref: "#/components/schemas/Bucket"
+
+    AssertWorktopContains:
+      title: Assert Worktop Contains
+      type: object
+      required:
+        - type
+        - resource_address
+      properties:
+        type:
+          type: string
+          enum:
+            - AssertWorktopContains
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+    
+    AssertWorktopContainsByAmount:
+      title: Assert Worktop Contains
+      type: object
+      required:
+        - type
+        - amount
+        - resource_address
+      properties:
+        type:
+          type: string
+          enum:
+            - AssertWorktopContainsByAmount
+        amount:
+          $ref: "#/components/schemas/Decimal"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+    
+    AssertWorktopContainsByIds:
+      title: Assert Worktop Contains by Ids
+      type: object
+      required:
+        - type
+        - ids
+        - resource_address
+      properties:
+        type:
+          type: string
+          enum:
+            - AssertWorktopContainsByIds
+        ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/NonFungibleId"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+
+    PopFromAuthZone:
+      title: Pop from Auth Zone
+      type: object
+      required:
+        - type
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - PopFromAuthZone
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+
+    PushToAuthZone:
+      title: Pop from Auth Zone
+      type: object
+      required:
+        - type
+        - proof
+      properties:
+        type:
+          type: string
+          enum:
+            - PushToAuthZone
+        proof:
+          $ref: "#/components/schemas/Proof"
+
+    ClearAuthZone:
+      title: Pop from Auth Zone
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - ClearAuthZone
+
+    CreateProofFromAuthZone:
+      title: Create Proof from Auth Zone
+      type: object
+      required:
+        - type
+        - resource_address
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - CreateProofFromAuthZone
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+    
+    CreateProofFromAuthZoneByAmount:
+      title: Create Proof from Auth Zone
+      type: object
+      required:
+        - type
+        - amount
+        - resource_address
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - CreateProofFromAuthZoneByAmount
+        amount:
+          $ref: "#/components/schemas/Decimal"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+    
+    CreateProofFromAuthZoneByIds:
+      title: Create Proof from Auth Zone by Ids
+      type: object
+      required:
+        - type
+        - ids
+        - resource_address
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - CreateProofFromAuthZoneByIds
+        ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/NonFungibleId"
+        resource_address:
+          $ref: "#/components/schemas/ResourceAddress"
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+    
+    CreateProofFromBucket:
+      title: Create Proof from Bucket
+      type: object
+      required:
+        - type
+        - bucket
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - CreateProofFromBucket
+        bucket:
+          $ref: "#/components/schemas/Bucket"
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+    
+    CloneProof:
+      title: Clone Proof
+      type: object
+      required:
+        - type
+        - proof
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - CloneProof
+        proof:
+          $ref: "#/components/schemas/Proof"
+        into_proof:
+          $ref: "#/components/schemas/Proof"
+
+    DropProof:
+      title: Drop Proof
+      type: object
+      required:
+        - type
+        - proof
+        - into_proof
+      properties:
+        type:
+          type: string
+          enum:
+            - DropProof
+        proof:
+          $ref: "#/components/schemas/Proof"
+        
+    DropAllProofs:
+      title: Pop from Auth Zone
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - DropAllProofs
+
+    PublishPackage:
+      title: Drop Proof
+      type: object
+      required:
+        - type
+        - package
+      properties:
+        type:
+          type: string
+          enum:
+            - PublishPackage
+        package:
+          $ref: "#/components/schemas/Bytes"
+
+    # =================
+    # Value Definition
+    # =================
+
+    # The main type that defined the `Value` type
+    Value:
+      title: "Value"
+      oneOf:
+        - $ref: "#/components/schemas/Unit"
+        - $ref: "#/components/schemas/Bool"
+
+        - $ref: "#/components/schemas/I8"
+        - $ref: "#/components/schemas/I16"
+        - $ref: "#/components/schemas/I32"
+        - $ref: "#/components/schemas/I64"
+        - $ref: "#/components/schemas/I128"
+
+        - $ref: "#/components/schemas/U8"
+        - $ref: "#/components/schemas/U16"
+        - $ref: "#/components/schemas/U32"
+        - $ref: "#/components/schemas/U64"
+        - $ref: "#/components/schemas/U128"
+
+        - $ref: "#/components/schemas/String"
+
+        - $ref: "#/components/schemas/Struct"
+        - $ref: "#/components/schemas/Enum"
+
+        - $ref: "#/components/schemas/Option"
+        - $ref: "#/components/schemas/Array"
+        - $ref: "#/components/schemas/Tuple"
+        - $ref: "#/components/schemas/Result"
+
+        - $ref: "#/components/schemas/List"
+        - $ref: "#/components/schemas/Set"
+        - $ref: "#/components/schemas/Map"
+
+        - $ref: "#/components/schemas/Decimal"
+        - $ref: "#/components/schemas/PreciseDecimal"
+
+        - $ref: "#/components/schemas/PackageAddress"
+        - $ref: "#/components/schemas/ComponentAddress"
+        - $ref: "#/components/schemas/ResourceAddress"
+
+        - $ref: "#/components/schemas/Hash"
+
+        - $ref: "#/components/schemas/Bucket"
+        - $ref: "#/components/schemas/Proof"
+
+        - $ref: "#/components/schemas/NonFungibleId"
+        - $ref: "#/components/schemas/NonFungibleAddress"
+
+        - $ref: "#/components/schemas/Bytes"
+
+    # The ValueKind enum used in collections
+    ValueKind:
+      title: "ValueKind"
+      type: string
+      enum:
+        - Unit
+        - Bool
+
+        - I8
+        - I16
+        - I32
+        - I64
+        - I128
+
+        - U8
+        - U16
+        - U32
+        - U64
+        - U128
+
+        - String
+
+        - Struct
+        - Enum
+
+        - Option
+        - Array
+        - Tuple
+        - Result
+
+        - List
+        - Set
+        - Map
+
+        - Decimal
+        - PreciseDecimal
+
+        - PackageAddress
+        - ComponentAddress
+        - ResourceAddress
+
+        - Hash
+
+        - Bucket
+        - Proof
+
+        - NonFungibleId
+        - NonFungibleAddress
+
+        - Bytes
+
+    Unit:
+      title: Unit
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - Unit
+    
+    Bool:
+      title: Bool
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Bool
+        value:
+          type: boolean
+    
+    U8:
+      title: U8
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - U8
+        value:
+          $ref: "#/components/schemas/IntegerString" # TODO: Consider using a unsigned integer type
+
+    U16:
+      title: U16
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - U16
+        value:
+          $ref: "#/components/schemas/IntegerString" # TODO: Consider using a unsigned integer type
+    
+    U32:
+      title: U32
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - U32
+        value:
+          $ref: "#/components/schemas/IntegerString" # TODO: Consider using a unsigned integer type
+    
+    U64:
+      title: U64
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - U64
+        value:
+          $ref: "#/components/schemas/IntegerString" # TODO: Consider using a unsigned integer type
+    
+    U128:
+      title: U128
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - U128
+        value:
+          $ref: "#/components/schemas/IntegerString" # TODO: Consider using a unsigned integer type
+
+    I8:
+      title: I8
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - I8
+        value:
+          $ref: "#/components/schemas/IntegerString"
+
+    I16:
+      title: I16
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - I16
+        value:
+          $ref: "#/components/schemas/IntegerString"
+    
+    I32:
+      title: I32
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - I32
+        value:
+          $ref: "#/components/schemas/IntegerString"
+    
+    I64:
+      title: I64
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - I64
+        value:
+          $ref: "#/components/schemas/IntegerString"
+    
+    I128:
+      title: I128
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - I128
+        value:
+          $ref: "#/components/schemas/IntegerString"
+    
+    Decimal:
+      title: Decimal
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Decimal
+        value:
+          $ref: "#/components/schemas/DecimalString"
+    
+    PreciseDecimal:
+      title: PreciseDecimal
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - PreciseDecimal
+        value:
+          $ref: "#/components/schemas/DecimalString"
+    
+    String:
+      title: String
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - String
+        value:
+          type: string
+
+    Struct:
+      title: Struct
+      type: object
+      required:
+        - type
+        - fields
+      properties:
+        type:
+          type: string
+          enum:
+            - Struct
+        fields:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Value"
+    
+    Enum:
+      title: Enum
+      type: object
+      required:
+        - type
+        - variant_name
+      properties:
+        type:
+          type: string
+          enum:
+            - Enum
+        variant_name:
+          type: string
+        fields:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Value"
+    
+    # TODO: Need to verify that this is the correct format.
+    Option:
+      title: Option
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Option
+        value:
+          $ref: "#/components/schemas/Value"
+    
+    # TODO: Need to verify that this is the correct format.
+    Result:
+      title: Result
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Result
+        value:
+          $ref: "#/components/schemas/Value"
+    
+    Array:
+      title: Array
+      type: object
+      required:
+        - type
+        - element_type
+        - elements
+      properties:
+        type:
+          type: string
+          enum:
+            - Array
+        element_type:
+          $ref: "#/components/schemas/ValueKind"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+    
+    Tuple:
+      title: Tuple
+      type: object
+      required:
+        - type
+        - elements
+      properties:
+        type:
+          type: string
+          enum:
+            - Tuple
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+
+    List:
+      title: List
+      type: object
+      required:
+        - type
+        - element_type
+        - elements
+      properties:
+        type:
+          type: string
+          enum:
+            - List
+        element_type:
+          $ref: "#/components/schemas/ValueKind"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+    
+    Set:
+      title: Set
+      type: object
+      required:
+        - type
+        - element_type
+        - elements
+      properties:
+        type:
+          type: string
+          enum:
+            - Set
+        element_type:
+          $ref: "#/components/schemas/ValueKind"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+    
+    Map:
+      title: Map
+      type: object
+      required:
+        - type
+        - key_type
+        - value_type
+        - elements
+      properties:
+        type:
+          type: string
+          enum:
+            - Map
+        key_type:
+          $ref: "#/components/schemas/ValueKind"
+        value_type:
+          $ref: "#/components/schemas/ValueKind"
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Value"
+
+    ComponentAddress:
+      title: ComponentAddress
+      type: object
+      required:
+        - type
+        - address
+      properties:
+        type:
+          type: string
+          enum:
+            - ComponentAddress
+        address:
+          type: string
+    
+    ResourceAddress:
+      title: ResourceAddress
+      type: object
+      required:
+        - type
+        - address
+      properties:
+        type:
+          type: string
+          enum:
+            - ResourceAddress
+        address:
+          type: string
+    
+    PackageAddress:
+      title: PackageAddress
+      type: object
+      required:
+        - type
+        - address
+      properties:
+        type:
+          type: string
+          enum:
+            - PackageAddress
+        address:
+          type: string
+    
+    Hash:
+      title: Hash
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Hash
+        value:
+          type: string
+    
+    Bucket:
+      title: Bucket
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          type: string
+          enum:
+            - Bucket
+        identifier:
+          oneOf:
+            - type: string
+            - type: integer
+              minimum: 0x00
+              maximum: 0xFFFFFFFF
+    
+    Proof:
+      title: Proof
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          type: string
+          enum:
+            - Proof
+        identifier:
+          oneOf:
+            - type: string
+            - type: integer
+              minimum: 0x00
+              maximum: 0xFFFFFFFF
+
+    NonFungibleId:
+      title: NonFungibleId
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - NonFungibleId
+        value:
+          type: string
+
+    NonFungibleAddress:
+      title: NonFungibleAddress
+      type: object
+      required:
+        - type
+        - address
+      properties:
+        type:
+          type: string
+          enum:
+            - NonFungibleAddress
+        address:
+          type: string
+    
+    Bytes:
+      title: Bytes
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          enum:
+            - Bytes
+        value:
+          type: string
+      
+    # ================
+    # Primitive Types
+    # ================
+
+    IntegerString:
+      type: string
+      pattern: "^-?[0-9]+$"
+    DecimalString:
+      type: string
+      pattern: "^-?[0-9]+.?[0-9]+$"

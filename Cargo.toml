@@ -1,0 +1,25 @@
+[package]
+name = "transaction-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hex = { version = "0.4.3", features = ["serde"] }
+
+serde = { version = "1.0.144", features = ["serde_derive"] }
+serde_json = { version = "1.0.85" }
+serde_with = { version = "2.0.0", features = ["hex"] }
+
+sbor = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/sbor" }
+scrypto = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/scrypto" }
+transaction = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/transaction" }
+
+[profile.release]
+opt-level = 's'
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = "debuginfo"
+
+[lib]
+crate-type = ["cdylib", "lib"]
