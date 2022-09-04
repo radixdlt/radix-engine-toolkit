@@ -21,6 +21,9 @@ def main() -> None:
     spec: Dict[Any, Any] = yaml.safe_load(io.StringIO(spec_string)) # type: ignore
 
     # Adding additional properties to the spec to make it a proper OpenAPI file
+    # TODO: In the current implementation, the components are not sorted in any local way. Example,
+    # we have `Bool` coming right after `AssertWorktopContains` which is not at the end of the 
+    # instruction list. We need to order these in a more friendly way.
     spec: Dict[Any, Any] = {
         'openapi': '3.1.0',
         'info': {
