@@ -39,7 +39,7 @@ fn handle_convert_manifest(
     let converted_manifest: Manifest = {
         match request.manifest_output_format {
             ManifestKind::JSON => request.manifest.to_json_manifest(network_id)?,
-            ManifestKind::String => request.manifest.to_string_manifest(network_id)?
+            ManifestKind::String => request.manifest.to_string_manifest(network_id)?,
         }
     };
 

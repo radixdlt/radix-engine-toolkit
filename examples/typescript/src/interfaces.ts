@@ -1,3 +1,5 @@
+import { Instruction } from "./instruction";
+
 // ===================
 // Request & Response
 // ===================
@@ -10,6 +12,38 @@ export interface InformationRequest {}
 
 export interface InformationResponse {
 	package_version: string;
+}
+
+export interface ConvertManifestRequest {
+	transaction_version: number
+	network_id: number
+	manifest_output_format: ManifestKind
+	manifest: Manifest
+}
+
+export type ConvertManifestResponse = Manifest;
+
+// =======
+// Models
+// =======
+
+export enum ManifestKind {
+	String = "String",
+	JSON = "JSON",
+}
+
+export type Manifest = 
+	| ManifestJSON
+	| ManifestString ;
+
+export interface ManifestString {
+	readonly type: ManifestKind.String;
+	value: string;
+}
+
+export interface ManifestJSON {
+	readonly type: ManifestJSON;
+	value: Instruction[];
 }
 
 // ============

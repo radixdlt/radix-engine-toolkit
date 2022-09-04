@@ -1,6 +1,8 @@
 "use strict";
 
 import {
+	ConvertManifestRequest,
+	ConvertManifestResponse,
 	InformationRequest,
 	InformationResponse,
 	Request,
@@ -49,6 +51,12 @@ export default class TransactionAPI {
 	information(): InformationResponse | Error {
 		return this.callWasmFunction({} as InformationRequest, this.internal_service.information) as
 			| InformationResponse
+			| Error;
+	}
+
+	convertManifest(request: ConvertManifestRequest): ConvertManifestResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.convert_manifest) as
+			| ConvertManifestResponse
 			| Error;
 	}
 

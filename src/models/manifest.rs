@@ -91,7 +91,8 @@ impl Manifest {
                         &bech32_decoder,
                     )
                     .map_err(transaction::manifest::CompileError::GeneratorError)?;
-                let manifest_string: String = transaction::manifest::decompile(&manifest, &bech32_encoder)?;
+                let manifest_string: String =
+                    transaction::manifest::decompile(&manifest, &bech32_encoder)?;
                 Ok(Self::String(manifest_string))
             }
         }
