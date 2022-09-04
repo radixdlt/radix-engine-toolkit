@@ -110,17 +110,16 @@ macro_rules! define_network_aware_address {
             where
                 D: Deserializer<'de>,
             {
-                // TODO: This is incorrect and needs to be changed. We need to be able to get the
-                // network id from the network specifier in the address. However, this is not yet
-                // implemented. So, we always assume that the current network is the local sim.
-                let network_id: u8 = 0xF2;
+                let address_string: &str = Deserialize::deserialize(deserializer)?;
+
+                let network_id: u8 = crate::utils::network_id_from_address_string(address_string)
+                    .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
                 let network_definition: scrypto::core::NetworkDefinition =
-                    crate::utils::network_id_to_network_definition(network_id);
+                    crate::utils::network_definition_from_network_id(network_id);
                 let bech32_decoder = scrypto::address::Bech32Decoder::new(&network_definition);
 
-                let address: &str = Deserialize::deserialize(deserializer)?;
                 let address: $underlying_type = bech32_decoder
-                    .$decoding_method_ident(address)
+                    .$decoding_method_ident(address_string)
                     .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
 
                 Ok(Self {
@@ -136,7 +135,7 @@ macro_rules! define_network_aware_address {
                 S: Serializer,
             {
                 let network_definition: scrypto::core::NetworkDefinition =
-                    crate::utils::network_id_to_network_definition(self.network_id);
+                    crate::utils::network_definition_from_network_id(self.network_id);
                 let bech32_encoder: scrypto::address::Bech32Encoder =
                     scrypto::address::Bech32Encoder::new(&network_definition);
                 let encoded_address: String = bech32_encoder.$encoding_method_ident(&self.address);

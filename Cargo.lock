@@ -808,6 +808,7 @@ dependencies = [
 name = "transaction-service"
 version = "0.1.0"
 dependencies = [
+ "bech32",
  "hex",
  "sbor",
  "scrypto",

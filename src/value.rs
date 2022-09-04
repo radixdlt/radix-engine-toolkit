@@ -6,7 +6,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
-use crate::utils::{network_id_to_network_definition};
+use crate::utils::{network_definition_from_network_id};
 use crate::models::serde::*;
 use crate::error::Error;
 
@@ -379,7 +379,7 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
     // addresses. So, to create an AstValue from a value, we will need to have the Bech32 encoded
     // strings inside the AstValue variant.
     let bech32_encoder: Bech32Encoder =
-        Bech32Encoder::new(&network_id_to_network_definition(network_id));
+        Bech32Encoder::new(&network_definition_from_network_id(network_id));
 
     let ast_value: AstValue = match value {
         Value::Unit => AstValue::Unit,
@@ -520,7 +520,7 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
     // A Bech32 decoder and network id are required for the network aware addresses. This is because
     // AstValue::*Address contains a string which we need to decode into the actual address.
     let bech32_decoder: Bech32Decoder =
-        Bech32Decoder::new(&network_id_to_network_definition(network_id));
+        Bech32Decoder::new(&network_definition_from_network_id(network_id));
 
     let value: Value = match ast_value {
         AstValue::Unit => Value::Unit,
