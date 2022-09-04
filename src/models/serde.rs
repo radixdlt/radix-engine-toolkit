@@ -6,7 +6,7 @@ use scrypto::engine::types::VaultId;
 use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash, Vault};
 use transaction::model::TransactionHeader;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "TransactionHeader")]
 pub struct TransactionHeaderDef {
     pub version: u8,
@@ -29,12 +29,12 @@ pub struct EcdsaPublicKeyDef(#[serde(with = "hex::serde")] pub [u8; EcdsaPublicK
 #[serde(remote = "EcdsaSignature")]
 pub struct EcdsaSignatureDef(#[serde(with = "hex::serde")] pub [u8; EcdsaSignature::LENGTH]);
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "Hash")]
 pub struct HashDef(#[serde(with = "hex::serde")] pub [u8; Hash::LENGTH]);
 
 #[serde_as]
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "Vault")]
 pub struct VaultDef(#[serde_as(as = "FromInto<VaultIdProxy>")] pub VaultId);
 
@@ -112,8 +112,9 @@ macro_rules! define_network_aware_address {
             {
                 let address_string: &str = Deserialize::deserialize(deserializer)?;
 
-                let network_id: u8 = crate::utils::network_id_from_address_string(address_string)
-                    .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
+                let network_id: u8 =
+                    crate::utils::network_id_from_address_string(address_string)
+                        .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
                 let network_definition: scrypto::core::NetworkDefinition =
                     crate::utils::network_definition_from_network_id(network_id);
                 let bech32_decoder = scrypto::address::Bech32Decoder::new(&network_definition);

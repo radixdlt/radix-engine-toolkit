@@ -1,14 +1,14 @@
-use scrypto::prelude::{Decimal, PreciseDecimal, Hash, NonFungibleAddress, NonFungibleId};
-use scrypto::address::{Bech32Encoder, Bech32Decoder};
-use transaction::manifest::ast::Value as AstValue;
+use scrypto::address::{Bech32Decoder, Bech32Encoder};
+use scrypto::prelude::{Decimal, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal};
 use std::str::FromStr;
+use transaction::manifest::ast::Value as AstValue;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
-use crate::utils::{network_definition_from_network_id};
-use crate::models::serde::*;
 use crate::error::Error;
+use crate::models::serde::*;
+use crate::utils::network_definition_from_network_id;
 
 // ======
 // Value
@@ -1504,12 +1504,19 @@ mod tests {
             key_type: ValueKind::String,
             value_type: ValueKind::Decimal,
             elements: vec![
-                Value::String { value: "Toyota Camry".into() },
-                Value::Decimal { value: dec!("80000") },
-
-                Value::String { value: "Ford Raptor".into() },
-                Value::Decimal { value: dec!("170000") },
-            ]
+                Value::String {
+                    value: "Toyota Camry".into(),
+                },
+                Value::Decimal {
+                    value: dec!("80000"),
+                },
+                Value::String {
+                    value: "Ford Raptor".into(),
+                },
+                Value::Decimal {
+                    value: dec!("170000"),
+                },
+            ],
         };
 
         // Act

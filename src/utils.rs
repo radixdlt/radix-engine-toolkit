@@ -1,7 +1,7 @@
 use scrypto::prelude::NetworkDefinition;
 
-use serde::Deserialize;
 use bech32;
+use serde::Deserialize;
 
 use crate::error::Error;
 
@@ -83,10 +83,12 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, scrypto::address::AddressErr
     let splitted_hrp: Vec<&str> = hrp.split("_").collect();
     let network_specifier: String = {
         match splitted_hrp.get(1) {
-            Some(_) => {
-                Ok(splitted_hrp.into_iter().skip(1).collect::<Vec<&str>>().join("_"))
-            }
-            None => Err(scrypto::address::AddressError::InvalidHrp)
+            Some(_) => Ok(splitted_hrp
+                .into_iter()
+                .skip(1)
+                .collect::<Vec<&str>>()
+                .join("_")),
+            None => Err(scrypto::address::AddressError::InvalidHrp),
         }
     }?;
 
@@ -96,22 +98,18 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, scrypto::address::AddressErr
         "sim" => NetworkDefinition::local_simulator().id,
         numeric_network_specifier => {
             match numeric_network_specifier.split('_').skip(1).next() {
-                Some(network_id_string) => {
-                    Ok(u8::from_str_radix(network_id_string, 16)
-                        .map_err(|_| scrypto::address::AddressError::InvalidHrp)?)
-                }
-                None => {
-                    Err(scrypto::address::AddressError::InvalidHrp)
-                }
+                Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
+                    .map_err(|_| scrypto::address::AddressError::InvalidHrp)?),
+                None => Err(scrypto::address::AddressError::InvalidHrp),
             }
-        }?
+        }?,
     };
     Ok(network_id)
 }
 
 pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::address::AddressError> {
     // Attempt to Bech32m decode this address to get the hrp and the data type (will not be used).
-    // The decoding process also yields a variant. We will not be verifying that this is bech32m 
+    // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
     let (hrp, _, _): (String, _, _) = bech32::decode(address)
         .map_err(|error| scrypto::address::AddressError::DecodingError(error))?;
@@ -138,7 +136,7 @@ mod tests {
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
     }
-    
+
     #[test]
     fn local_simulator_hrp_to_network_id_succeeds() {
         // Arrange
@@ -151,7 +149,7 @@ mod tests {
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
     }
-    
+
     #[test]
     fn numeric_test_network_hrp_to_network_id_succeeds() {
         // Arrange
@@ -177,7 +175,7 @@ mod tests {
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
     }
-    
+
     #[test]
     fn local_simulator_address_to_network_id_succeeds() {
         // Arrange
@@ -190,7 +188,7 @@ mod tests {
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
     }
-    
+
     #[test]
     fn numeric_test_network_address_to_network_id_succeeds() {
         // Arrange
