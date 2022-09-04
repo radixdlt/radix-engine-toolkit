@@ -1,3 +1,8 @@
+//! Defines the request and response models for the convert manifest request. This request is made 
+//! when the client has a manifest in one format (JSON as an example) and they wish to convert
+//! the manifest to another format (String as an example). The conversion between the supported 
+//! formats is dependent on two main factors: the transaction version, and the network id. 
+
 use crate::models::manifest::{Manifest, ManifestKind};
 use serde::{Deserialize, Serialize};
 

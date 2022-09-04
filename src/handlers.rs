@@ -2,7 +2,7 @@ use crate::error::Error;
 use crate::link_handler;
 use crate::models::{
     ConvertManifestRequest, ConvertManifestResponse, InformationRequest, InformationResponse,
-    Instruction, Manifest, ManifestKind,
+    Manifest, ManifestKind,
 };
 use crate::validation::{validate_request, validate_response};
 
