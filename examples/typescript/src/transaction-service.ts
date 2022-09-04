@@ -75,8 +75,8 @@ export default class TransactionAPI {
 		let parsedResponse: Response | Error = JSON.parse(returnedString);
 
 		// Free up the memory needed in this operation
-		this.internal_service.free_mem(requestStringPointer);
-		this.internal_service.free_mem(responsePointer);
+		this.internal_service.__transaction_lib_free(requestStringPointer);
+		this.internal_service.__transaction_lib_free(responsePointer);
 
 		return parsedResponse;
 	}
@@ -112,7 +112,7 @@ export default class TransactionAPI {
 	private allocateMemory(string: string): number {
 		// Take the string and convert it into a byte array to determine its length
 		let byteArray: Uint8Array = new TextEncoder().encode(string);
-		let pointer: number = this.internal_service.alloc(byteArray.length + 1);
+		let pointer: number = this.internal_service.__transaction_lib_alloc(byteArray.length + 1);
 		return pointer;
 	}
 }

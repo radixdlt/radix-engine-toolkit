@@ -1,6 +1,11 @@
 import TransactionService from "./transaction-service";
 import fs from "fs";
-import { ConvertManifestRequest, Manifest, ManifestKind } from "./interfaces";
+import {
+	ConvertManifestRequest,
+	ConvertManifestResponse,
+	Manifest,
+	ManifestKind,
+} from "./interfaces";
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
@@ -24,11 +29,14 @@ const main = async (): Promise<void> => {
 
 	let manifestConversionRequest: ConvertManifestRequest = {
 		transaction_version: 1,
-		network_id: 0xF2,
+		network_id: 0xf2,
 		manifest_output_format: ManifestKind.JSON,
 		manifest,
 	};
-	console.log(transactionService.convertManifest(manifestConversionRequest));
+	let manifestConversionResponse: ConvertManifestResponse = transactionService.convertManifest(
+		manifestConversionRequest
+	) as ConvertManifestResponse;
+	console.log(JSON.stringify(manifestConversionResponse, null, 4));
 };
 
 main();

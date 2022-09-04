@@ -15,10 +15,10 @@ export interface InformationResponse {
 }
 
 export interface ConvertManifestRequest {
-	transaction_version: number
-	network_id: number
-	manifest_output_format: ManifestKind
-	manifest: Manifest
+	transaction_version: number;
+	network_id: number;
+	manifest_output_format: ManifestKind;
+	manifest: Manifest;
 }
 
 export type ConvertManifestResponse = Manifest;
@@ -32,9 +32,7 @@ export enum ManifestKind {
 	JSON = "JSON",
 }
 
-export type Manifest = 
-	| ManifestJSON
-	| ManifestString ;
+export type Manifest = ManifestJSON | ManifestString;
 
 export interface ManifestString {
 	readonly type: ManifestKind.String;
@@ -61,6 +59,6 @@ export interface TransactionServiceInterface {
 
 	information(requestStringPointer: number): number;
 
-	alloc(capacity: number): number;
-	free_mem(pointer: number): void;
+	__transaction_lib_alloc(capacity: number): number;
+	__transaction_lib_free(pointer: number): void;
 }
