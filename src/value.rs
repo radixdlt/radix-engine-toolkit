@@ -232,6 +232,13 @@ impl Value {
                     .collect::<Result<Vec<()>, _>>()?;
                 Ok(())
             }
+            Self::Tuple { elements } => {
+                elements
+                    .iter()
+                    .map(|item| item.validate_if_collection())
+                    .collect::<Result<Vec<()>, _>>()?;
+                Ok(())
+            }
             Self::Map {
                 key_type,
                 value_type,
@@ -366,9 +373,7 @@ define_value_kind! {
 mod tests {
     use super::{Value, ValueKind};
     use crate::models::serde::{
-        NetworkAwareComponentAddress, 
-        NetworkAwareResourceAddress,
-        NetworkAwarePackageAddress, 
+        NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
     };
     use scrypto::prelude::*;
 
@@ -394,7 +399,7 @@ mod tests {
     }
 
     #[test]
-    fn test_primitive_types() {
+    fn value_serialization_and_deserialization_succeeds() {
         test_value! {
             r#"
             {
@@ -738,7 +743,7 @@ mod tests {
                 ],
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -768,7 +773,7 @@ mod tests {
                 ],
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -802,13 +807,13 @@ mod tests {
                 elements: vec![
                     Value::String { value: "Toyota Camry".into() },
                     Value::Decimal { value: dec!("80000") },
-                    
+
                     Value::String { value: "Ford Raptor".into() },
                     Value::Decimal { value: dec!("170000") },
                 ]
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -816,7 +821,7 @@ mod tests {
                 "value": "100"
             }
             "#,
-            Value::Decimal { 
+            Value::Decimal {
                 value: dec!("100")
             }
         };
@@ -827,7 +832,7 @@ mod tests {
                 "value": "100"
             }
             "#,
-            Value::PreciseDecimal { 
+            Value::PreciseDecimal {
                 value: pdec!("100")
             }
         };
@@ -839,13 +844,13 @@ mod tests {
                 "address": "account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr"
             }
             "#,
-            Value::ComponentAddress { 
+            Value::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
                         .unwrap()
-                }    
+                }
             }
         };
         test_value! {
@@ -855,13 +860,13 @@ mod tests {
                 "address": "package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n"
             }
             "#,
-            Value::PackageAddress { 
+            Value::PackageAddress {
                 address: NetworkAwarePackageAddress {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_package_address("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n")
                         .unwrap()
-                }    
+                }
             }
         };
         test_value! {
@@ -871,16 +876,16 @@ mod tests {
                 "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
             }
             "#,
-            Value::ResourceAddress { 
+            Value::ResourceAddress {
                 address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_resource_address("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h")
                         .unwrap()
-                }    
+                }
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -888,11 +893,11 @@ mod tests {
                 "value": "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d"
             }
             "#,
-            Value::Hash { 
+            Value::Hash {
                 value: Hash::from_str("910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d").unwrap()
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -900,7 +905,7 @@ mod tests {
                 "identifier": 192
             }
             "#,
-            Value::Bucket { 
+            Value::Bucket {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
         };
@@ -911,11 +916,11 @@ mod tests {
                 "identifier": "HelloBucket"
             }
             "#,
-            Value::Bucket { 
+            Value::Bucket {
                 identifier: crate::models::serde::Identifier::String("HelloBucket".into())
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -923,7 +928,7 @@ mod tests {
                 "identifier": 192
             }
             "#,
-            Value::Proof { 
+            Value::Proof {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
         };
@@ -934,7 +939,7 @@ mod tests {
                 "identifier": "HelloProof"
             }
             "#,
-            Value::Proof { 
+            Value::Proof {
                 identifier: crate::models::serde::Identifier::String("HelloProof".into())
             }
         };
@@ -950,7 +955,7 @@ mod tests {
                 value: NonFungibleId::from_str("3007100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
             }
         };
-        
+
         test_value! {
             r#"
             {
@@ -962,5 +967,150 @@ mod tests {
                 value: hex::decode("0307100000000b3ce8b6056e62b902e029623df6df5c0307100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
             }
         };
+    }
+
+    #[test]
+    fn non_collection_validation_succeeds() {
+        // Arrange
+        let value: Value = Value::Bool { value: false };
+
+        // Act
+        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+
+        // Assert
+        assert!(matches!(result, Ok(())))
+    }
+
+    #[test]
+    fn array_of_decimals_validation_succeeds() {
+        // Arrange
+        let value: Value = Value::Array {
+            element_type: ValueKind::Decimal,
+            elements: vec![
+                Value::Decimal { value: dec!("20") },
+                Value::Decimal { value: dec!("100") },
+                Value::Decimal {
+                    value: dec!("192.31"),
+                },
+            ],
+        };
+
+        // Act
+        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+
+        // Assert
+        assert!(matches!(result, Ok(())))
+    }
+
+    #[test]
+    fn array_of_decimal_and_precise_decimal_validation_fails() {
+        // Arrange
+        let value: Value = Value::Array {
+            element_type: ValueKind::Decimal,
+            elements: vec![
+                Value::Decimal { value: dec!("20") },
+                Value::Decimal { value: dec!("100") },
+                Value::Decimal {
+                    value: dec!("192.31"),
+                },
+                Value::PreciseDecimal {
+                    value: pdec!("192.31"),
+                },
+            ],
+        };
+
+        // Act
+        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+
+        // Assert
+        assert!(matches!(
+            result,
+            Err(crate::error::Error::InvalidType {
+                expected_type: ValueKind::Decimal,
+                actual_type: ValueKind::PreciseDecimal
+            })
+        ))
+    }
+
+    #[test]
+    fn validation_of_deeply_nested_tuple_with_non_matching_types_fails() {
+        // Arrange
+        let value: Value = Value::Tuple {
+            elements: vec![
+                Value::Decimal { value: dec!("10") },
+                Value::PreciseDecimal { value: pdec!("10") },
+                Value::String {
+                    value: "Hello World!".into(),
+                },
+                Value::Tuple {
+                    elements: vec![
+                        Value::Decimal { value: dec!("10") },
+                        Value::PreciseDecimal { value: pdec!("10") },
+                        Value::String {
+                            value: "Hello World!".into(),
+                        },
+                        Value::Tuple {
+                            elements: vec![
+                                Value::Decimal { value: dec!("10") },
+                                Value::PreciseDecimal { value: pdec!("10") },
+                                Value::String {
+                                    value: "Hello World!".into(),
+                                },
+                                Value::Tuple {
+                                    elements: vec![
+                                        Value::Decimal { value: dec!("10") },
+                                        Value::PreciseDecimal { value: pdec!("10") },
+                                        Value::String {
+                                            value: "Hello World!".into(),
+                                        },
+                                        Value::Array {
+                                            element_type: ValueKind::Decimal,
+                                            elements: vec![
+                                                Value::Decimal { value: dec!("20") },
+                                                Value::Decimal { value: dec!("100") },
+                                                Value::Decimal {
+                                                    value: dec!("192.31"),
+                                                },
+                                                Value::PreciseDecimal {
+                                                    value: pdec!("192.31"),
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        // Act
+        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+
+        // Assert
+        assert!(matches!(result, Err(_)))
+    }
+
+    #[test]
+    fn validation_of_valid_map_succeeds() {
+        // Arrange
+        let value: Value = Value::Map {
+            key_type: ValueKind::String,
+            value_type: ValueKind::Decimal,
+            elements: vec![
+                Value::String { value: "Toyota Camry".into() },
+                Value::Decimal { value: dec!("80000") },
+
+                Value::String { value: "Ford Raptor".into() },
+                Value::Decimal { value: dec!("170000") },
+            ]
+        };
+
+        // Act
+        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+
+        // Assert
+        assert!(matches!(result, Ok(())))
     }
 }
