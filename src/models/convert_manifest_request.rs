@@ -1,7 +1,7 @@
 use crate::models::manifest::{Manifest, ManifestKind};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConvertManifestRequest {
     /// The version of the passed transaction manifest. Used to determine how the manifest is
     /// interpreted by the library.
@@ -19,7 +19,7 @@ pub struct ConvertManifestRequest {
     pub manifest: Manifest,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConvertManifestResponse {
     /// The manifest after it has been converted to the type specified in the [ConvertManifestRequest]
     #[serde(flatten)]

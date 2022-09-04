@@ -61,10 +61,7 @@ pub enum Error {
     },
 
     /// An error emitted when the parsing of a value from string fails.
-    ParseError {
-        kind: ValueKind,
-        error: String,
-    },
+    ParseError { kind: ValueKind, error: String },
 
     // ==============================
     // Instruction Conversion Errors
@@ -75,12 +72,17 @@ pub enum Error {
     /// An error when an error encountered during transaction manifest decompilation.
     TransactionDecompileError(String),
 
-    /// An error emitted when the transaction version passed is not supported.
+    /// An error emitted when a transaction version is specified but the library has no support for
+    /// this transaction version.
     UnsupportedTransactionVersion(u8),
+
+    /// An error emitted during the conversion of ast::Instructions to a `TransactionManifest`
+    GeneratorError(String),
 
     // ===========================
     // Internal Operations Errors
     // ===========================
+    /// An error emitted when the conversion to a specific request or response type fails
     RequestResponseConversionError(String),
 }
 
@@ -128,4 +130,5 @@ impl_from_error! {
 
     transaction::manifest::CompileError => TransactionCompileError,
     transaction::manifest::DecompileError => TransactionDecompileError,
+    transaction::manifest::generator::GeneratorError => GeneratorError,
 }
