@@ -799,8 +799,8 @@ mod tests {
     }
 
     fn assert_deserialization_matches(string: &str, value: Value) {
-        let deserialized_value: Value = serde_json::from_str(string)
-            .expect("Deserialization failed.");
+        let deserialized_value: Value =
+            serde_json::from_str(string).expect("Deserialization failed.");
         assert_eq!(value, deserialized_value);
     }
 

@@ -272,6 +272,8 @@ impl Instruction {
 // Conversions
 // ============
 
+// TODO: This function should be transaction version dependent and should require the transaction
+// version of its operations.
 pub fn ast_instruction_from_instruction(
     instruction: &Instruction,
     network_id: u8,
@@ -444,6 +446,9 @@ pub fn ast_instruction_from_instruction(
     Ok(ast_instruction)
 }
 
+// TODO: This function should be transaction version dependent and should require the transaction
+// version of its operations.
+// TODO: Investigate if this function should output a version-aware instruction.
 pub fn instruction_from_ast_instruction(
     ast_instruction: &AstInstruction,
     network_id: u8,

@@ -1,10 +1,13 @@
+pub mod convert_manifest_request;
 pub mod information_request;
+
 pub mod instruction;
 pub mod manifest;
 pub mod request;
 pub mod serde;
 pub mod value;
 
+pub use convert_manifest_request::{ConvertManifestRequest, ConvertManifestResponse};
 pub use information_request::{InformationRequest, InformationResponse};
 pub use instruction::{
     ast_instruction_from_instruction, instruction_from_ast_instruction, Instruction,

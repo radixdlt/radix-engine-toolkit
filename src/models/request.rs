@@ -43,11 +43,13 @@ macro_rules! define_request_response_enum{
 define_request_response_enum! {
     pub enum Request {
         InformationRequest(InformationRequest),
+        ConvertManifestRequest(ConvertManifestRequest),
     }
 }
 
 define_request_response_enum! {
     pub enum Response {
         InformationResponse(InformationResponse),
+        ConvertManifestResponse(ConvertManifestResponse)
     }
 }
