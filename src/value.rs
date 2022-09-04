@@ -517,6 +517,8 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
 }
 
 pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Value, Error> {
+    // A Bech32 decoder and network id are required for the network aware addresses. This is because
+    // AstValue::*Address contains a string which we need to decode into the actual address.
     let bech32_decoder: Bech32Decoder =
         Bech32Decoder::new(&network_id_to_network_definition(network_id));
 
