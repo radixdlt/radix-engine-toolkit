@@ -1,9 +1,14 @@
-use scrypto::prelude::{Decimal, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal};
+use scrypto::prelude::{Decimal, PreciseDecimal, Hash, NonFungibleAddress, NonFungibleId};
+use scrypto::address::{Bech32Encoder, Bech32Decoder};
+use transaction::manifest::ast::Value as AstValue;
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
-use crate::error::Error;
+use crate::utils::{network_id_to_network_definition};
 use crate::models::serde::*;
+use crate::error::Error;
 
 // ======
 // Value
@@ -270,9 +275,9 @@ impl Value {
     }
 }
 
-// ===============================
-// ValueKind Type and Conversions
-// ===============================
+// ==========
+// ValueKind
+// ==========
 
 macro_rules! define_value_kind{
     (
@@ -363,6 +368,404 @@ define_value_kind! {
 
         Bytes,
     }
+}
+
+// ==================
+// Value Conversions
+// ==================
+
+pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, Error> {
+    // A Bech32 encoder is required since the AstValue of the addresses consists of strings of the
+    // addresses. So, to create an AstValue from a value, we will need to have the Bech32 encoded
+    // strings inside the AstValue variant.
+    let bech32_encoder: Bech32Encoder =
+        Bech32Encoder::new(&network_id_to_network_definition(network_id));
+
+    let ast_value: AstValue = match value {
+        Value::Unit => AstValue::Unit,
+        Value::Bool { value } => AstValue::Bool(*value),
+
+        Value::I8 { value } => AstValue::I8(*value),
+        Value::I16 { value } => AstValue::I16(*value),
+        Value::I32 { value } => AstValue::I32(*value),
+        Value::I64 { value } => AstValue::I64(*value),
+        Value::I128 { value } => AstValue::I128(*value),
+
+        Value::U8 { value } => AstValue::U8(*value),
+        Value::U16 { value } => AstValue::U16(*value),
+        Value::U32 { value } => AstValue::U32(*value),
+        Value::U64 { value } => AstValue::U64(*value),
+        Value::U128 { value } => AstValue::U128(*value),
+
+        Value::String { value } => AstValue::String(value.clone()),
+
+        Value::Struct { fields } => AstValue::Struct(
+            fields
+                .iter()
+                .map(|v| ast_value_from_value(v, network_id))
+                .collect::<Result<Vec<AstValue>, _>>()?,
+        ),
+        Value::Enum {
+            variant_name,
+            fields,
+        } => AstValue::Enum(
+            variant_name.clone(),
+            fields
+                .clone()
+                .unwrap_or_default()
+                .iter()
+                .map(|v| ast_value_from_value(v, network_id))
+                .collect::<Result<Vec<AstValue>, _>>()?,
+        ),
+        Value::Option { value } => AstValue::Option(Box::new(match &**value {
+            Some(value) => Some(ast_value_from_value(&value, network_id)?),
+            None => None,
+        })),
+        Value::Result { value } => AstValue::Result(Box::new(match &**value {
+            Ok(value) => Ok(ast_value_from_value(&value, network_id)?),
+            Err(value) => Err(ast_value_from_value(&value, network_id)?),
+        })),
+
+        Value::Array {
+            element_type,
+            elements,
+        } => AstValue::Array((*element_type).into(), {
+            value.validate_if_collection()?;
+            elements
+                .iter()
+                .map(|id| ast_value_from_value(id, network_id))
+                .collect::<Result<Vec<AstValue>, Error>>()
+        }?),
+        Value::Tuple { elements } => AstValue::Tuple(
+            elements
+                .iter()
+                .map(|v| ast_value_from_value(v, network_id))
+                .collect::<Result<Vec<AstValue>, _>>()?,
+        ),
+
+        Value::List {
+            element_type,
+            elements,
+        } => AstValue::List((*element_type).into(), {
+            value.validate_if_collection()?;
+            elements
+                .iter()
+                .map(|id| ast_value_from_value(id, network_id))
+                .collect::<Result<Vec<AstValue>, Error>>()
+        }?),
+        Value::Set {
+            element_type,
+            elements,
+        } => AstValue::Set((*element_type).into(), {
+            value.validate_if_collection()?;
+            elements
+                .iter()
+                .map(|id| ast_value_from_value(id, network_id))
+                .collect::<Result<Vec<AstValue>, Error>>()
+        }?),
+        Value::Map {
+            key_type: keys_type,
+            value_type: values_type,
+            elements,
+        } => AstValue::Map(
+            (*keys_type).into(),
+            (*values_type).into(),
+            // TODO: Validate keys and values types
+            elements
+                .iter()
+                .map(|v| ast_value_from_value(v, network_id))
+                .collect::<Result<Vec<AstValue>, _>>()?,
+        ),
+
+        Value::Decimal { value } => {
+            AstValue::Decimal(Box::new(AstValue::String(value.to_string())))
+        }
+        Value::PreciseDecimal { value } => {
+            AstValue::PreciseDecimal(Box::new(AstValue::String(value.to_string())))
+        }
+
+        Value::PackageAddress { address: value } => AstValue::PackageAddress(Box::new(
+            AstValue::String(bech32_encoder.encode_package_address(&value.address)),
+        )),
+        Value::ComponentAddress { address: value } => AstValue::ComponentAddress(Box::new(
+            AstValue::String(bech32_encoder.encode_component_address(&value.address)),
+        )),
+        Value::ResourceAddress { address: value } => AstValue::ResourceAddress(Box::new(
+            AstValue::String(bech32_encoder.encode_resource_address(&value.address)),
+        )),
+
+        Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
+        Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
+            Identifier::String(string) => AstValue::String(string.clone()),
+            Identifier::U32(number) => AstValue::U32(*number),
+        })),
+        Value::Proof { identifier: value } => AstValue::Proof(Box::new(match value {
+            Identifier::String(string) => AstValue::String(string.clone()),
+            Identifier::U32(number) => AstValue::U32(*number),
+        })),
+
+        Value::NonFungibleId { value } => {
+            AstValue::NonFungibleId(Box::new(AstValue::String(value.to_string())))
+        }
+        Value::NonFungibleAddress { address: value } => {
+            AstValue::NonFungibleAddress(Box::new(AstValue::String(value.to_string())))
+        }
+
+        Value::Bytes { value } => AstValue::Bytes(value.clone()),
+    };
+    Ok(ast_value)
+}
+
+pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Value, Error> {
+    let bech32_decoder: Bech32Decoder =
+        Bech32Decoder::new(&network_id_to_network_definition(network_id));
+
+    let value: Value = match ast_value {
+        AstValue::Unit => Value::Unit,
+        AstValue::Bool(value) => Value::Bool { value: *value },
+
+        AstValue::I8(value) => Value::I8 { value: *value },
+        AstValue::I16(value) => Value::I16 { value: *value },
+        AstValue::I32(value) => Value::I32 { value: *value },
+        AstValue::I64(value) => Value::I64 { value: *value },
+        AstValue::I128(value) => Value::I128 { value: *value },
+
+        AstValue::U8(value) => Value::U8 { value: *value },
+        AstValue::U16(value) => Value::U16 { value: *value },
+        AstValue::U32(value) => Value::U32 { value: *value },
+        AstValue::U64(value) => Value::U64 { value: *value },
+        AstValue::U128(value) => Value::U128 { value: *value },
+
+        AstValue::String(value) => Value::String {
+            value: value.clone(),
+        },
+
+        AstValue::Struct(fields) => Value::Struct {
+            fields: fields
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+        AstValue::Enum(variant_name, fields) => Value::Enum {
+            variant_name: variant_name.clone(),
+            fields: {
+                let fields = fields
+                    .iter()
+                    .map(|v| value_from_ast_value(v, network_id))
+                    .collect::<Result<Vec<Value>, _>>()?;
+                match fields.len() {
+                    0 => None,
+                    _ => Some(fields),
+                }
+            },
+        },
+        AstValue::Option(value) => Value::Option {
+            value: Box::new(match &**value {
+                Some(value) => Some(value_from_ast_value(&value, network_id)?),
+                None => None,
+            }),
+        },
+        AstValue::Result(value) => Value::Result {
+            value: Box::new(match &**value {
+                Ok(value) => Ok(value_from_ast_value(&value, network_id)?),
+                Err(value) => Err(value_from_ast_value(&value, network_id)?),
+            }),
+        },
+
+        AstValue::Array(ast_type, elements) => Value::Array {
+            element_type: (*ast_type).into(),
+            elements: elements
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+        AstValue::Tuple(elements) => Value::Tuple {
+            elements: elements
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+
+        AstValue::List(ast_type, elements) => Value::List {
+            element_type: (*ast_type).into(),
+            elements: elements
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+        AstValue::Set(ast_type, elements) => Value::Set {
+            element_type: (*ast_type).into(),
+            elements: elements
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+        AstValue::Map(key_ast_type, value_ast_type, elements) => Value::Map {
+            key_type: (*key_ast_type).into(),
+            value_type: (*value_ast_type).into(),
+            elements: elements
+                .iter()
+                .map(|v| value_from_ast_value(v, network_id))
+                .collect::<Result<Vec<Value>, _>>()?,
+        },
+
+        AstValue::Decimal(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Decimal {
+                    value: Decimal::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Decimal,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::PreciseDecimal(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::PreciseDecimal {
+                    value: PreciseDecimal::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::PreciseDecimal,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::PackageAddress(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::PackageAddress {
+                    address: NetworkAwarePackageAddress {
+                        network_id: network_id,
+                        address: bech32_decoder.validate_and_decode_package_address(value)?,
+                    },
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::PackageAddress,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::ComponentAddress(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::ComponentAddress {
+                    address: NetworkAwareComponentAddress {
+                        network_id: network_id,
+                        address: bech32_decoder.validate_and_decode_component_address(value)?,
+                    },
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::ComponentAddress,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::ResourceAddress(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::ResourceAddress {
+                    address: NetworkAwareResourceAddress {
+                        network_id: network_id,
+                        address: bech32_decoder.validate_and_decode_resource_address(value)?,
+                    },
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::ResourceAddress,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::Hash(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Hash {
+                    value: Hash::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Hash,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::Bucket(value) => {
+            if let AstValue::U32(value) = &**value {
+                Value::Bucket {
+                    identifier: Identifier::U32(*value),
+                }
+            } else if let AstValue::String(value) = &**value {
+                Value::Bucket {
+                    identifier: Identifier::String(value.clone()),
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Bucket,
+                    expected: vec![ValueKind::U32, ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::Proof(value) => {
+            if let AstValue::U32(value) = &**value {
+                Value::Proof {
+                    identifier: Identifier::U32(*value),
+                }
+            } else if let AstValue::String(value) = &**value {
+                Value::Proof {
+                    identifier: Identifier::String(value.clone()),
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Proof,
+                    expected: vec![ValueKind::U32, ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::NonFungibleId(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::NonFungibleId {
+                    value: NonFungibleId::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::NonFungibleId,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::NonFungibleAddress(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::NonFungibleAddress {
+                    address: NonFungibleAddress::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::NonFungibleAddress,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::Bytes(value) => Value::Bytes {
+            value: value.clone(),
+        },
+    };
+    Ok(value)
 }
 
 // ===========
