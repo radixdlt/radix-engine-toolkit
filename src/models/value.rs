@@ -799,7 +799,8 @@ mod tests {
     }
 
     fn assert_deserialization_matches(string: &str, value: Value) {
-        let deserialized_value: Value = serde_json::from_str(string).unwrap();
+        let deserialized_value: Value = serde_json::from_str(string)
+            .expect("Deserialization failed.");
         assert_eq!(value, deserialized_value);
     }
 
@@ -1254,7 +1255,7 @@ mod tests {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
-                        .unwrap()
+                        .expect("Decoding of a trusted address string failed")
                 }
             }
         };
@@ -1270,7 +1271,7 @@ mod tests {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_package_address("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n")
-                        .unwrap()
+                        .expect("Decoding of a trusted address string failed")
                 }
             }
         };
@@ -1286,7 +1287,7 @@ mod tests {
                     network_id: 0xf2,
                     address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
                         .validate_and_decode_resource_address("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h")
-                        .unwrap()
+                        .expect("Decoding of a trusted address string failed")
                 }
             }
         };
