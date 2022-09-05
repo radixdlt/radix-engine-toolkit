@@ -5,6 +5,7 @@ pub mod convert_manifest_request;
 pub mod decompile_notarized_transaction_intent_request;
 pub mod decompile_signed_transaction_intent_request;
 pub mod decompile_transaction_intent_request;
+pub mod decompile_unknown_transaction_intent_request;
 pub mod information_request;
 
 pub mod instruction;
@@ -31,6 +32,9 @@ pub use decompile_signed_transaction_intent_request::{
 };
 pub use decompile_transaction_intent_request::{
     DecompileTransactionIntentRequest, DecompileTransactionIntentResponse,
+};
+pub use decompile_unknown_transaction_intent_request::{
+    DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse,
 };
 pub use information_request::{InformationRequest, InformationResponse};
 

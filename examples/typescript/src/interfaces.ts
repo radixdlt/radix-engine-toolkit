@@ -96,6 +96,16 @@ export interface DecompileNotarizedTransactionIntentResponse {
 	notary_signature: EcdsaSignature;
 }
 
+export interface DecompileUnknownTransactionIntentRequest {
+	manifest_output_format: ManifestKind;
+	compiled_unknown_intent: string;
+}
+
+export type DecompileUnknownTransactionIntentResponse =
+	| DecompileTransactionIntentResponse
+	| DecompileSignedTransactionIntentResponse
+	| DecompileNotarizedTransactionIntentResponse;
+
 // =======
 // Models
 // =======
@@ -162,6 +172,8 @@ export interface TransactionServiceInterface {
 
 	compile_notarized_transaction_intent(requestStringPointer: number): number;
 	decompile_notarized_transaction_intent(requestStringPointer: number): number;
+
+	decompile_unknown_transaction_intent(requestStringPointer: number): number;
 
 	information(requestStringPointer: number): number;
 

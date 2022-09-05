@@ -20,6 +20,8 @@ import {
 	CompileNotarizedTransactionIntentResponse,
 	DecompileNotarizedTransactionIntentRequest,
 	DecompileNotarizedTransactionIntentResponse,
+	DecompileUnknownTransactionIntentRequest,
+	DecompileUnknownTransactionIntentResponse,
 } from "./interfaces";
 import fs from "fs";
 
@@ -122,6 +124,15 @@ export default class TransactionAPI {
 			request,
 			this.internal_service.decompile_notarized_transaction_intent
 		) as DecompileNotarizedTransactionIntentResponse | Error;
+	}
+
+	decompileUnknownTransactionIntent(
+		request: DecompileUnknownTransactionIntentRequest
+	): DecompileUnknownTransactionIntentResponse | Error {
+		return this.callWasmFunction(
+			request,
+			this.internal_service.decompile_unknown_transaction_intent
+		) as DecompileUnknownTransactionIntentResponse | Error;
 	}
 
 	private callWasmFunction(

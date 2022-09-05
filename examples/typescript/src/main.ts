@@ -19,6 +19,8 @@ import {
 	CompileNotarizedTransactionIntentResponse,
 	DecompileNotarizedTransactionIntentRequest,
 	DecompileNotarizedTransactionIntentResponse,
+	DecompileUnknownTransactionIntentRequest,
+	DecompileUnknownTransactionIntentResponse,
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
@@ -201,6 +203,21 @@ const main = async (): Promise<void> => {
 			decompileNotarizedTransactionIntentRequest
 		) as DecompileNotarizedTransactionIntentResponse;
 	console.log(JSON.stringify(decompileNotarizedTransactionIntentResponse, null, 4));
+
+	// Example 8: There are cases where we might have some blob which we suspect to be a transaction
+	// intent of some sort. However, there is no easy way to tell whether this is an unsigned,
+	// signed, or notarized transaction compiled transaction intent blob. For this specific use
+	// case, this library provides a function for the decompilation of a compiled transaction intent
+	// which we are not sure what type it is.
+	let decompileUnknownTransactionIntentRequest: DecompileUnknownTransactionIntentRequest = {
+		manifest_output_format: ManifestKind.JSON,
+		compiled_unknown_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
+	};
+	let decompileUnknownTransactionIntentResponse: DecompileUnknownTransactionIntentResponse =
+		transactionService.decompileUnknownTransactionIntent(
+			decompileUnknownTransactionIntentRequest
+		) as DecompileUnknownTransactionIntentResponse;
+	console.log(JSON.stringify(decompileUnknownTransactionIntentResponse, null, 4));
 };
 
 main();

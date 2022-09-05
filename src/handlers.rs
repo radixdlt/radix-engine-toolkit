@@ -17,7 +17,9 @@ link_handler! {
     decompile_signed_transaction_intent => handle_decompile_signed_transaction_intent,
 
     compile_notarized_transaction_intent => handle_compile_notarized_transaction_intent,
-    decompile_notarized_transaction_intent => handle_decompile_notarized_transaction_intent
+    decompile_notarized_transaction_intent => handle_decompile_notarized_transaction_intent,
+
+    decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent
 }
 
 fn handle_information(request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -273,6 +275,30 @@ fn handle_decompile_notarized_transaction_intent(
             },
             notary_signature: notarized_transaction_intent.notary_signature,
         };
+
+    // Validate the response
+    validate_response(&response)?;
+    Ok(response)
+}
+
+fn handle_decompile_unknown_transaction_intent(
+    request: DecompileUnknownTransactionIntentRequest,
+) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
+    // Validate the passed request
+    validate_request(&request)?;
+
+    let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
+        handle_decompile_transaction_intent(request.clone().into())
+    {
+        Ok(response.into())
+    } else if let Ok(response) = handle_decompile_signed_transaction_intent(request.clone().into())
+    {
+        Ok(response.into())
+    } else if let Ok(response) = handle_decompile_notarized_transaction_intent(request.into()) {
+        Ok(response.into())
+    } else {
+        Err(Error::UnrecognizedCompiledIntentFormat)
+    }?;
 
     // Validate the response
     validate_response(&response)?;

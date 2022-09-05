@@ -84,6 +84,10 @@ pub enum Error {
     // ===========================
     /// An error emitted when the conversion to a specific request or response type fails
     RequestResponseConversionError(String),
+
+    /// An error emitted when attempting to decompile a transaction intent but the format is not
+    /// known to the library.
+    UnrecognizedCompiledIntentFormat,
 }
 
 macro_rules! impl_from_error {
