@@ -24,6 +24,8 @@ def main() -> None:
     # TODO: In the current implementation, the components are not sorted in any local way. Example,
     # we have `Bool` coming right after `AssertWorktopContains` which is not at the end of the 
     # instruction list. We need to order these in a more friendly way.
+    # TODO: The tool I'm using generates a 3.1 OpenAPI spec which has no support with generators and
+    # editors. Consider using another tool.
     spec: Dict[Any, Any] = {
         'openapi': '3.1.0',
         'info': {
