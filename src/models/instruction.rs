@@ -8,7 +8,7 @@ use crate::models::value::*;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
+#[serde(tag = "instruction", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Instruction {
     CallFunction {
         package_address: Value,

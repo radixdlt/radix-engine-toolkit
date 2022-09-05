@@ -34,141 +34,141 @@ export type Instruction =
 	| PublishPackage;
 
 export interface CallFunction {
-	readonly type: InstructionKind.CallFunction;
+	readonly instruction: InstructionKind.CallFunction;
 	package_address: PackageAddress;
 	blueprint_name: String;
 	function_name: String;
 	arguments?: Value[];
 }
 export interface CallMethod {
-	readonly type: InstructionKind.CallMethod;
+	readonly instruction: InstructionKind.CallMethod;
 	component_address: ComponentAddress;
 	method_name: String;
 	arguments?: Value[];
 }
 export interface CallMethodWithAllResources {
-	readonly type: InstructionKind.CallMethodWithAllResources;
+	readonly instruction: InstructionKind.CallMethodWithAllResources;
 	component_address: ComponentAddress;
 	method_name: String;
 }
 
 export interface TakeFromWorktop {
-	readonly type: InstructionKind.TakeFromWorktop;
+	readonly instruction: InstructionKind.TakeFromWorktop;
 	resource_address: ResourceAddress;
 	into_bucket: Bucket;
 }
 export interface TakeFromWorktopByAmount {
-	readonly type: InstructionKind.TakeFromWorktopByAmount;
+	readonly instruction: InstructionKind.TakeFromWorktopByAmount;
 	resource_address: ResourceAddress;
 	into_bucket: Bucket;
 	amount: Decimal;
 }
 export interface TakeFromWorktopByIds {
-	readonly type: InstructionKind.TakeFromWorktopByIds;
+	readonly instruction: InstructionKind.TakeFromWorktopByIds;
 	resource_address: ResourceAddress;
 	into_bucket: Bucket;
 	ids: NonFungibleId[];
 }
 export interface ReturnToWorktop {
-	readonly type: InstructionKind.ReturnToWorktop;
+	readonly instruction: InstructionKind.ReturnToWorktop;
 	bucket: Bucket;
 }
 
 export interface AssertWorktopContains {
-	readonly type: InstructionKind.AssertWorktopContains;
+	readonly instruction: InstructionKind.AssertWorktopContains;
 	resource_address: ResourceAddress;
 }
 export interface AssertWorktopContainsByAmount {
-	readonly type: InstructionKind.AssertWorktopContainsByAmount;
+	readonly instruction: InstructionKind.AssertWorktopContainsByAmount;
 	resource_address: ResourceAddress;
 	amount: Decimal;
 }
 export interface AssertWorktopContainsByIds {
-	readonly type: InstructionKind.AssertWorktopContainsByIds;
+	readonly instruction: InstructionKind.AssertWorktopContainsByIds;
 	resource_address: ResourceAddress;
 	ids: NonFungibleId[];
 }
 export interface PopFromAuthZone {
-	readonly type: InstructionKind.PopFromAuthZone;
+	readonly instruction: InstructionKind.PopFromAuthZone;
 	into_proof: Proof;
 }
 export interface PushToAuthZone {
-	readonly type: InstructionKind.PushToAuthZone;
+	readonly instruction: InstructionKind.PushToAuthZone;
 	proof: Proof;
 }
 export interface ClearAuthZone {
-	readonly type: InstructionKind.ClearAuthZone;
+	readonly instruction: InstructionKind.ClearAuthZone;
 }
 
 export interface CreateProofFromAuthZone {
-	readonly type: InstructionKind.CreateProofFromAuthZone;
+	readonly instruction: InstructionKind.CreateProofFromAuthZone;
 	resource_address: ResourceAddress;
 	into_proof: Proof;
 }
 export interface CreateProofFromAuthZoneByAmount {
-	readonly type: InstructionKind.CreateProofFromAuthZoneByAmount;
+	readonly instruction: InstructionKind.CreateProofFromAuthZoneByAmount;
 	resource_address: ResourceAddress;
 	into_proof: Proof;
 	amount: Decimal;
 }
 export interface CreateProofFromAuthZoneByIds {
-	readonly type: InstructionKind.CreateProofFromAuthZoneByIds;
+	readonly instruction: InstructionKind.CreateProofFromAuthZoneByIds;
 	resource_address: ResourceAddress;
 	into_proof: Proof;
 	ids: NonFungibleId[];
 }
 
 export interface CreateProofFromBucket {
-	readonly type: InstructionKind.CreateProofFromBucket;
+	readonly instruction: InstructionKind.CreateProofFromBucket;
 	bucket: Bucket;
 	into_proof: Proof;
 }
 
 export interface CloneProof {
-	readonly type: InstructionKind.CloneProof;
+	readonly instruction: InstructionKind.CloneProof;
 	proof: Proof;
 	into_proof: Proof;
 }
 export interface DropProof {
-	readonly type: InstructionKind.DropProof;
+	readonly instruction: InstructionKind.DropProof;
 	proof: Proof;
 }
 export interface DropAllProofs {
-	readonly type: InstructionKind.DropAllProofs;
+	readonly instruction: InstructionKind.DropAllProofs;
 }
 
 export interface PublishPackage {
-	readonly type: InstructionKind.PublishPackage;
+	readonly instruction: InstructionKind.PublishPackage;
 	package: Bytes;
 }
 
 export enum InstructionKind {
-	CallFunction = "CallFunction",
-	CallMethod = "CallMethod",
-	CallMethodWithAllResources = "CallMethodWithAllResources",
+	CallFunction = "CALL_FUNCTION",
+	CallMethod = "CALL_METHOD",
+	CallMethodWithAllResources = "CALL_METHOD_WITH_ALL_RESOURCES",
 
-	TakeFromWorktop = "TakeFromWorktop",
-	TakeFromWorktopByAmount = "TakeFromWorktopByAmount",
-	TakeFromWorktopByIds = "TakeFromWorktopByIds",
+	TakeFromWorktop = "TAKE_FROM_WORKTOP",
+	TakeFromWorktopByAmount = "TAKE_FROM_WORKTOP_BY_AMOUNT",
+	TakeFromWorktopByIds = "TAKE_FROM_WORKTOP_BY_IDS",
 
-	ReturnToWorktop = "ReturnToWorktop",
+	ReturnToWorktop = "RETURN_TO_WORKTOP",
 
-	AssertWorktopContains = "AssertWorktopContains",
-	AssertWorktopContainsByAmount = "AssertWorktopContainsByAmount",
-	AssertWorktopContainsByIds = "AssertWorktopContainsByIds",
+	AssertWorktopContains = "ASSERT_WORKTOP_CONTAINS",
+	AssertWorktopContainsByAmount = "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
+	AssertWorktopContainsByIds = "ASSERT_WORKTOP_CONTAINS_BY_IDS",
 
-	PopFromAuthZone = "PopFromAuthZone",
-	PushToAuthZone = "PushToAuthZone",
-	ClearAuthZone = "ClearAuthZone",
+	PopFromAuthZone = "POP_FROM_AUTH_ZOME",
+	PushToAuthZone = "PUSH_TO_AUTH_ZOME",
+	ClearAuthZone = "CLEAR_AUTH_ZOME",
 
-	CreateProofFromAuthZone = "CreateProofFromAuthZone",
-	CreateProofFromAuthZoneByAmount = "CreateProofFromAuthZoneByAmount",
-	CreateProofFromAuthZoneByIds = "CreateProofFromAuthZoneByIds",
-	CreateProofFromBucket = "CreateProofFromBucket",
+	CreateProofFromAuthZone = "CREATE_PROOF_FROM_AUTH_ZONE",
+	CreateProofFromAuthZoneByAmount = "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
+	CreateProofFromAuthZoneByIds = "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
+	CreateProofFromBucket = "CREATE_PROOF_FROM_BUCKET",
 
-	CloneProof = "CloneProof",
-	DropProof = "DropProof",
-	DropAllProofs = "DropAllProofs",
+	CloneProof = "CLONE_PROOF",
+	DropProof = "DROP_PROOF",
+	DropAllProofs = "DROP_ALL_PROOFS",
 
-	PublishPackage = "PublishPackage",
+	PublishPackage = "PUBLISH_PACKAGE",
 }
