@@ -12,7 +12,8 @@ export type Request =
 	| CompileSignedTransactionIntentRequest
 	| DecompileSignedTransactionIntentRequest
 	| CompileNotarizedTransactionIntentRequest
-	| DecompileNotarizedTransactionIntentRequest;
+	| DecompileNotarizedTransactionIntentRequest
+	| DecompileUnknownTransactionIntentRequest;
 
 export type Response =
 	| InformationResponse
@@ -22,7 +23,8 @@ export type Response =
 	| CompileSignedTransactionIntentResponse
 	| DecompileSignedTransactionIntentResponse
 	| CompileNotarizedTransactionIntentResponse
-	| DecompileNotarizedTransactionIntentResponse;
+	| DecompileNotarizedTransactionIntentResponse
+	| DecompileUnknownTransactionIntentResponse;
 
 export interface InformationRequest {}
 
