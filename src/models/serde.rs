@@ -184,6 +184,12 @@ pub struct TransactionIntent {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SignedTransactionIntent {
+    pub transaction_intent: TransactionIntent,
+    pub signatures: Vec<Signature>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Signature {
     #[serde(with = "EcdsaPublicKeyDef")]
     pub public_key: EcdsaPublicKey,

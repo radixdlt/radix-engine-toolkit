@@ -8,13 +8,21 @@ export type Request =
 	| InformationRequest
 	| ConvertManifestRequest
 	| CompileTransactionIntentRequest
-	| DecompileTransactionIntentRequest;
+	| DecompileTransactionIntentRequest
+	| CompileSignedTransactionIntentRequest
+	| DecompileSignedTransactionIntentRequest
+	| CompileNotarizedTransactionIntentRequest
+	| DecompileNotarizedTransactionIntentRequest;
 
 export type Response =
 	| InformationResponse
 	| ConvertManifestResponse
 	| CompileTransactionIntentResponse
-	| DecompileTransactionIntentResponse;
+	| DecompileTransactionIntentResponse
+	| CompileSignedTransactionIntentResponse
+	| DecompileSignedTransactionIntentResponse
+	| CompileNotarizedTransactionIntentResponse
+	| DecompileNotarizedTransactionIntentResponse;
 
 export interface InformationRequest {}
 
@@ -69,6 +77,25 @@ export interface DecompileSignedTransactionIntentResponse {
 	signatures: Signature[];
 }
 
+export interface CompileNotarizedTransactionIntentRequest {
+	signed_intent: SignedTransactionIntent;
+	notary_signature: EcdsaSignature;
+}
+
+export interface CompileNotarizedTransactionIntentResponse {
+	compiled_notarized_intent: string;
+}
+
+export interface DecompileNotarizedTransactionIntentRequest {
+	manifest_output_format: ManifestKind;
+	compiled_notarized_intent: string;
+}
+
+export interface DecompileNotarizedTransactionIntentResponse {
+	signed_intent: SignedTransactionIntent;
+	notary_signature: EcdsaSignature;
+}
+
 // =======
 // Models
 // =======
@@ -110,6 +137,11 @@ export interface TransactionIntent {
 	manifest: Manifest;
 }
 
+export interface SignedTransactionIntent {
+	transaction_intent: TransactionIntent;
+	signatures: Signature[];
+}
+
 export interface Signature {
 	public_key: EcdsaPublicKey;
 	signature: EcdsaSignature;
@@ -127,6 +159,9 @@ export interface TransactionServiceInterface {
 
 	compile_signed_transaction_intent(requestStringPointer: number): number;
 	decompile_signed_transaction_intent(requestStringPointer: number): number;
+
+	compile_notarized_transaction_intent(requestStringPointer: number): number;
+	decompile_notarized_transaction_intent(requestStringPointer: number): number;
 
 	information(requestStringPointer: number): number;
 

@@ -1,10 +1,10 @@
-use crate::models::serde::{Signature, TransactionIntent};
+use crate::models::serde::SignedTransactionIntent;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CompileSignedTransactionIntentRequest {
-    pub transaction_intent: TransactionIntent,
-    pub signatures: Vec<Signature>,
+    #[serde(flatten)]
+    pub signed_intent: SignedTransactionIntent,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

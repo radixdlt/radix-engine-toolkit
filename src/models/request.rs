@@ -47,7 +47,9 @@ define_request_response_enum! {
         CompileTransactionIntentRequest(CompileTransactionIntentRequest),
         DecompileTransactionIntentRequest(DecompileTransactionIntentRequest),
         CompileSignedTransactionIntentRequest(CompileSignedTransactionIntentRequest),
-        DecompileSignedTransactionIntentRequest(DecompileSignedTransactionIntentRequest)
+        DecompileSignedTransactionIntentRequest(DecompileSignedTransactionIntentRequest),
+        CompileNotarizedTransactionIntentRequest(CompileNotarizedTransactionIntentRequest),
+        DecompileNotarizedTransactionIntentRequest(DecompileNotarizedTransactionIntentRequest),
     }
 }
 
@@ -58,6 +60,8 @@ define_request_response_enum! {
         CompileTransactionIntentResponse(CompileTransactionIntentResponse),
         DecompileTransactionIntentResponse(DecompileTransactionIntentResponse),
         CompileSignedTransactionIntentResponse(CompileSignedTransactionIntentResponse),
-        DecompileSignedTransactionIntentResponse(DecompileSignedTransactionIntentResponse)
+        DecompileSignedTransactionIntentResponse(DecompileSignedTransactionIntentResponse),
+        CompileNotarizedTransactionIntentResponse(CompileNotarizedTransactionIntentResponse),
+        DecompileNotarizedTransactionIntentResponse(DecompileNotarizedTransactionIntentResponse),
     }
 }

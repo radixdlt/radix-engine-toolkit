@@ -14,7 +14,10 @@ link_handler! {
     decompile_transaction_intent => handle_decompile_transaction_intent,
 
     compile_signed_transaction_intent => handle_compile_signed_transaction_intent,
-    decompile_signed_transaction_intent => handle_decompile_signed_transaction_intent
+    decompile_signed_transaction_intent => handle_decompile_signed_transaction_intent,
+
+    compile_notarized_transaction_intent => handle_compile_notarized_transaction_intent,
+    decompile_notarized_transaction_intent => handle_decompile_notarized_transaction_intent
 }
 
 fn handle_information(request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -113,16 +116,20 @@ fn handle_compile_signed_transaction_intent(
     validate_request(&request)?;
 
     let manifest: transaction::model::TransactionManifest = request
+        .signed_intent
         .transaction_intent
         .manifest
-        .to_scrypto_transaction_manifest(request.transaction_intent.header.network_id)?;
+        .to_scrypto_transaction_manifest(
+            request.signed_intent.transaction_intent.header.network_id,
+        )?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
-            header: request.transaction_intent.header,
+            header: request.signed_intent.transaction_intent.header,
             manifest,
         };
 
     let signatures: Vec<(_, _)> = request
+        .signed_intent
         .signatures
         .into_iter()
         .map(|signature| (signature.public_key, signature.signature))
@@ -168,11 +175,103 @@ fn handle_decompile_signed_transaction_intent(
 
     let response: DecompileSignedTransactionIntentResponse =
         DecompileSignedTransactionIntentResponse {
-            signatures,
-            transaction_intent: TransactionIntent {
-                header: signed_transaction_intent.intent.header,
-                manifest,
+            signed_intent: SignedTransactionIntent {
+                signatures,
+                transaction_intent: TransactionIntent {
+                    header: signed_transaction_intent.intent.header,
+                    manifest,
+                },
             },
+        };
+
+    // Validate the response
+    validate_response(&response)?;
+    Ok(response)
+}
+
+fn handle_compile_notarized_transaction_intent(
+    request: CompileNotarizedTransactionIntentRequest,
+) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
+    // Validate the passed request
+    validate_request(&request)?;
+
+    let manifest: transaction::model::TransactionManifest = request
+        .signed_intent
+        .transaction_intent
+        .manifest
+        .to_scrypto_transaction_manifest(
+            request.signed_intent.transaction_intent.header.network_id,
+        )?;
+    let transaction_intent: transaction::model::TransactionIntent =
+        transaction::model::TransactionIntent {
+            header: request.signed_intent.transaction_intent.header,
+            manifest,
+        };
+
+    let signatures: Vec<(_, _)> = request
+        .signed_intent
+        .signatures
+        .into_iter()
+        .map(|signature| (signature.public_key, signature.signature))
+        .collect();
+    let notarized_transaction: transaction::model::NotarizedTransaction =
+        transaction::model::NotarizedTransaction {
+            signed_intent: transaction::model::SignedTransactionIntent {
+                intent: transaction_intent,
+                intent_signatures: signatures,
+            },
+            notary_signature: request.notary_signature,
+        };
+    let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
+
+    let response: CompileNotarizedTransactionIntentResponse =
+        CompileNotarizedTransactionIntentResponse {
+            compiled_notarized_intent,
+        };
+
+    // Validate the response
+    validate_response(&response)?;
+    Ok(response)
+}
+
+fn handle_decompile_notarized_transaction_intent(
+    request: DecompileNotarizedTransactionIntentRequest,
+) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
+    // Validate the passed request
+    validate_request(&request)?;
+
+    let notarized_transaction_intent: transaction::model::NotarizedTransaction =
+        scrypto_decode(&request.compiled_notarized_intent)?;
+
+    let signatures: Vec<Signature> = notarized_transaction_intent
+        .signed_intent
+        .intent_signatures
+        .into_iter()
+        .map(|(public_key, signature)| Signature {
+            signature,
+            public_key,
+        })
+        .collect();
+    let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
+        notarized_transaction_intent.signed_intent.intent.manifest,
+        notarized_transaction_intent
+            .signed_intent
+            .intent
+            .header
+            .network_id,
+        request.manifest_output_format,
+    )?;
+
+    let response: DecompileNotarizedTransactionIntentResponse =
+        DecompileNotarizedTransactionIntentResponse {
+            signed_intent: SignedTransactionIntent {
+                signatures,
+                transaction_intent: TransactionIntent {
+                    header: notarized_transaction_intent.signed_intent.intent.header,
+                    manifest,
+                },
+            },
+            notary_signature: notarized_transaction_intent.notary_signature,
         };
 
     // Validate the response

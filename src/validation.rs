@@ -23,6 +23,8 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::DecompileTransactionIntentRequest(_) => Ok(()),
         Request::CompileSignedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
         Request::DecompileSignedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
+        Request::CompileNotarizedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
+        Request::DecompileNotarizedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
     }
 }
 
@@ -58,6 +60,8 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::DecompileTransactionIntentResponse(_) => Ok(()),
         Response::CompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
         Response::DecompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
+        Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
+        Response::DecompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
     }
 }
 

@@ -15,6 +15,10 @@ import {
 	CompileSignedTransactionIntentResponse,
 	DecompileSignedTransactionIntentRequest,
 	DecompileSignedTransactionIntentResponse,
+	CompileNotarizedTransactionIntentRequest,
+	CompileNotarizedTransactionIntentResponse,
+	DecompileNotarizedTransactionIntentRequest,
+	DecompileNotarizedTransactionIntentResponse,
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
@@ -60,7 +64,7 @@ const main = async (): Promise<void> => {
 		start_epoch_inclusive: 0x00,
 		end_epoch_exclusive: 0x00,
 		nonce: 0x00,
-		notary_public_key: "03e53e0f0c9c934efc7b81eb1a9c339615aeadbefba4dc94db5a196c76fcbdd8b1",
+		notary_public_key: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
 		notary_as_signatory: false,
 		cost_unit_limit: 0x0,
 		tip_percentage: 0x0,
@@ -141,11 +145,11 @@ const main = async (): Promise<void> => {
 	console.log(JSON.stringify(compileSignedTransactionIntentResponse, null, 4));
 
 	// Example 6: Just like we have done with the previous examples, anything that is compiled down
-	// can be decompiled again. In this case, the compiled signed transaction intent can be 
+	// can be decompiled again. In this case, the compiled signed transaction intent can be
 	// decompiled.
 	let decompileSignedTransactionIntentRequest: DecompileSignedTransactionIntentRequest = {
 		compiled_signed_intent: compileSignedTransactionIntentResponse.compiled_signed_intent,
-		manifest_output_format: ManifestKind.JSON
+		manifest_output_format: ManifestKind.JSON,
 	};
 	let decompileSignedTransactionIntentResponse: DecompileSignedTransactionIntentResponse =
 		transactionService.decompileSignedTransactionIntent(
@@ -153,6 +157,50 @@ const main = async (): Promise<void> => {
 		) as DecompileSignedTransactionIntentResponse;
 	console.log(JSON.stringify(decompileSignedTransactionIntentResponse, null, 4));
 
+	// Example 7: Compiling and decompiling of notarized transactions
+	let compiledSignedTransactionIntent: CryptoJS.lib.WordArray = CryptoJS.enc.Hex.parse(
+		compileSignedTransactionIntentResponse.compiled_signed_intent
+	);
+	let doubleSignedIntentHash: CryptoJS.lib.WordArray = CryptoJS.SHA256(
+		CryptoJS.SHA256(compiledSignedTransactionIntent)
+	);
+	let doubleSignedIntentHashBytes: Uint8Array = Uint8Array.from(
+		Buffer.from(doubleSignedIntentHash.toString(), "hex")
+	);
+
+	const notaryPrivateKeyString: string =
+		"0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622";
+	let notaryPrivateKey: Uint8Array = Uint8Array.from(Buffer.from(notaryPrivateKeyString, "hex"));
+	let notarySignature = secp256k1.ecdsaSign(
+		doubleSignedIntentHashBytes,
+		notaryPrivateKey
+	).signature;
+
+	let compileNotarizedTransactionIntentRequest: CompileNotarizedTransactionIntentRequest = {
+		signed_intent: {
+			transaction_intent: {
+				header: transactionHeader,
+				manifest,
+			},
+			signatures,
+		},
+		notary_signature: Buffer.from(notarySignature).toString("hex"),
+	};
+	let compileNotarizedTransactionIntentResponse: CompileNotarizedTransactionIntentResponse =
+		transactionService.compileNotarizedTransactionIntent(
+			compileNotarizedTransactionIntentRequest
+		) as CompileNotarizedTransactionIntentResponse;
+	console.log(JSON.stringify(compileNotarizedTransactionIntentResponse, null, 4));
+
+	let decompileNotarizedTransactionIntentRequest: DecompileNotarizedTransactionIntentRequest = {
+		manifest_output_format: ManifestKind.JSON,
+		compiled_notarized_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
+	};
+	let decompileNotarizedTransactionIntentResponse: DecompileNotarizedTransactionIntentResponse =
+		transactionService.decompileNotarizedTransactionIntent(
+			decompileNotarizedTransactionIntentRequest
+		) as DecompileNotarizedTransactionIntentResponse;
+	console.log(JSON.stringify(decompileNotarizedTransactionIntentResponse, null, 4));
 };
 
 main();
