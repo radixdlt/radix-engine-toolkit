@@ -1,5 +1,7 @@
+pub mod compile_signed_transaction_intent_request;
 pub mod compile_transaction_intent_request;
 pub mod convert_manifest_request;
+pub mod decompile_signed_transaction_intent_request;
 pub mod decompile_transaction_intent_request;
 pub mod information_request;
 
@@ -9,15 +11,22 @@ pub mod request;
 pub mod serde;
 pub mod value;
 
+pub use compile_signed_transaction_intent_request::{
+    CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse,
+};
 pub use compile_transaction_intent_request::{
     CompileTransactionIntentRequest, CompileTransactionIntentResponse,
 };
 pub use convert_manifest_request::{ConvertManifestRequest, ConvertManifestResponse};
+pub use decompile_signed_transaction_intent_request::{
+    DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse,
+};
 pub use decompile_transaction_intent_request::{
     DecompileTransactionIntentRequest, DecompileTransactionIntentResponse,
 };
 pub use information_request::{InformationRequest, InformationResponse};
 
+pub use crate::models::serde::{Signature, TransactionIntent};
 pub use instruction::{
     ast_instruction_from_instruction, instruction_from_ast_instruction, Instruction,
 };

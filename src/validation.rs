@@ -21,6 +21,8 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
             validate_compile_transaction_intent_request(&request)
         }
         Request::DecompileTransactionIntentRequest(_) => Ok(()),
+        Request::CompileSignedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
+        Request::DecompileSignedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
     }
 }
 
@@ -33,8 +35,13 @@ pub fn validate_convert_manifest_request(request: &ConvertManifestRequest) -> Re
 pub fn validate_compile_transaction_intent_request(
     request: &CompileTransactionIntentRequest,
 ) -> Result<(), Error> {
-    validate_transaction_version(request.header.version)?;
-    validate_manifest(&request.manifest, request.header.network_id)?;
+    // TODO: Add transaction intent validation through the `TransactionValidator` struct from the
+    // scrypto library.
+    validate_transaction_version(request.transaction_intent.header.version)?;
+    validate_manifest(
+        &request.transaction_intent.manifest,
+        request.transaction_intent.header.network_id,
+    )?;
     Ok(())
 }
 
@@ -42,7 +49,6 @@ pub fn validate_compile_transaction_intent_request(
 // Response
 // =========
 
-// TODO: Implement response validation if needed. Remove if not needed.
 pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), Error> {
     let response: Response = response.clone().into();
     match response {
@@ -50,14 +56,21 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::ConvertManifestResponse(_) => Ok(()),
         Response::CompileTransactionIntentResponse(_) => Ok(()),
         Response::DecompileTransactionIntentResponse(_) => Ok(()),
+        Response::CompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
+        Response::DecompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
     }
 }
 
 pub fn validate_decompile_transaction_intent_response(
     response: &DecompileTransactionIntentResponse,
 ) -> Result<(), Error> {
-    validate_transaction_version(response.header.version)?;
-    validate_manifest(&response.manifest, response.header.network_id)?;
+    // TODO: Add transaction intent validation through the `TransactionValidator` struct from the
+    // scrypto library.
+    validate_transaction_version(response.transaction_intent.header.version)?;
+    validate_manifest(
+        &response.transaction_intent.manifest,
+        response.transaction_intent.header.network_id,
+    )?;
     Ok(())
 }
 

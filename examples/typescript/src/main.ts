@@ -9,8 +9,15 @@ import {
 	DecompileTransactionIntentResponse,
 	Manifest,
 	ManifestKind,
+	Signature,
 	TransactionHeader,
+	CompileSignedTransactionIntentRequest,
+	CompileSignedTransactionIntentResponse,
+	DecompileSignedTransactionIntentRequest,
+	DecompileSignedTransactionIntentResponse,
 } from "./interfaces";
+import * as CryptoJS from "crypto-js";
+import * as secp256k1 from "secp256k1";
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
@@ -69,10 +76,10 @@ const main = async (): Promise<void> => {
 		) as CompileTransactionIntentResponse;
 	console.log(JSON.stringify(compileTransactionIntentResponse, null, 4));
 
-	// Example 4: There are certain cases where you might the compiled transaction intent and you 
-    // wish to understand what exactly you might be signing. In this case, you would need to 
-    // decompile the byte-representation of the transaction intent into something that you can 
-    // understand (in code or as a human). 
+	// Example 4: There are certain cases where you might the compiled transaction intent and you
+	// wish to understand what exactly you might be signing. In this case, you would need to
+	// decompile the byte-representation of the transaction intent into something that you can
+	// understand (in code or as a human).
 	let decompileTransactionIntentRequest: DecompileTransactionIntentRequest = {
 		compiled_intent: compileTransactionIntentResponse.compiled_intent,
 		manifest_output_format: ManifestKind.String,
@@ -82,6 +89,70 @@ const main = async (): Promise<void> => {
 			decompileTransactionIntentRequest
 		) as DecompileTransactionIntentResponse;
 	console.log(JSON.stringify(decompileTransactionIntentResponse, null, 4));
+
+	// Example 5: In example 3, we compiled a manifest down to its SBOR bytes representation, which
+	// we need when signing transactions. In this example, we will sign a transaction with multiple
+	// private keys and then request a compiled signed transaction intent from the transactions API.
+
+	// The private keys that we will be using to sign the transaction.
+	let privateKeyStrings: string[] = [
+		"d54b4de65b9bb6b076c248e4d3d14ef29875a241e1245f54e6601b0827123fd4",
+		"08724d6795c40488df15c653c5ac4831c466482ec65846723add17ee2b67c610",
+		"c98b96a1263b8b8506c71590357214e2e064ed36b7bf780c40a6a81d51b80916",
+		"85657258fbf0a5751c3fc89e0cff88d7ac0801d6b5216a028c37085a179e2451",
+	];
+	let privateKeys: Uint8Array[] = privateKeyStrings.map((privateKeyString: string) =>
+		Uint8Array.from(Buffer.from(privateKeyString, "hex"))
+	);
+
+	// The compiled transaction intent that we will be signing. We will first double hash it and then sign it.
+	let compiledTransactionIntent: CryptoJS.lib.WordArray = CryptoJS.enc.Hex.parse(
+		compileTransactionIntentResponse.compiled_intent
+	);
+	let doubleIntentHash: CryptoJS.lib.WordArray = CryptoJS.SHA256(
+		CryptoJS.SHA256(compiledTransactionIntent)
+	);
+	let doubleIntentHashBytes: Uint8Array = Uint8Array.from(
+		Buffer.from(doubleIntentHash.toString(), "hex")
+	);
+
+	// Signing the compiled transaction intent.
+	let signatures: Signature[] = privateKeys.map((privateKey: Uint8Array): Signature => {
+		let publicKey: Uint8Array = secp256k1.publicKeyCreate(privateKey, true);
+		let signature: Uint8Array = secp256k1.ecdsaSign(doubleIntentHashBytes, privateKey).signature;
+
+		return {
+			public_key: Buffer.from(publicKey).toString("hex"),
+			signature: Buffer.from(signature).toString("hex"),
+		};
+	});
+
+	let compileSignedTransactionIntentRequest: CompileSignedTransactionIntentRequest = {
+		transaction_intent: {
+			header: transactionHeader,
+			manifest,
+		},
+		signatures,
+	};
+	let compileSignedTransactionIntentResponse: CompileSignedTransactionIntentResponse =
+		transactionService.compileSignedTransactionIntent(
+			compileSignedTransactionIntentRequest
+		) as CompileSignedTransactionIntentResponse;
+	console.log(JSON.stringify(compileSignedTransactionIntentResponse, null, 4));
+
+	// Example 5: Just like we have done with the previous examples, anything that is compiled down
+	// can be decompiled again. In this case, the compiled signed transaction intent can be 
+	// decompiled.
+	let decompileSignedTransactionIntentRequest: DecompileSignedTransactionIntentRequest = {
+		compiled_signed_intent: compileSignedTransactionIntentResponse.compiled_signed_intent,
+		manifest_output_format: ManifestKind.JSON
+	};
+	let decompileSignedTransactionIntentResponse: DecompileSignedTransactionIntentResponse =
+		transactionService.decompileSignedTransactionIntent(
+			decompileSignedTransactionIntentRequest
+		) as DecompileSignedTransactionIntentResponse;
+	console.log(JSON.stringify(decompileSignedTransactionIntentResponse, null, 4));
+
 };
 
 main();

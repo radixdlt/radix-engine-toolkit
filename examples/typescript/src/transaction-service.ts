@@ -12,6 +12,10 @@ import {
 	Request,
 	Response,
 	TransactionServiceInterface,
+	CompileSignedTransactionIntentRequest,
+	CompileSignedTransactionIntentResponse,
+	DecompileSignedTransactionIntentRequest,
+	DecompileSignedTransactionIntentResponse,
 } from "./interfaces";
 import fs from "fs";
 
@@ -75,10 +79,27 @@ export default class TransactionAPI {
 	decompileTransactionIntent(
 		request: DecompileTransactionIntentRequest
 	): DecompileTransactionIntentResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.decompile_transaction_intent) as
+			| DecompileTransactionIntentResponse
+			| Error;
+	}
+
+	compileSignedTransactionIntent(
+		request: CompileSignedTransactionIntentRequest
+	): CompileSignedTransactionIntentResponse | Error {
 		return this.callWasmFunction(
 			request,
-			this.internal_service.decompile_transaction_intent
-		) as DecompileTransactionIntentResponse | Error;
+			this.internal_service.compile_signed_transaction_intent
+		) as CompileSignedTransactionIntentResponse | Error;
+	}
+
+	decompileSignedTransactionIntent(
+		request: DecompileSignedTransactionIntentRequest
+	): DecompileSignedTransactionIntentResponse | Error {
+		return this.callWasmFunction(
+			request,
+			this.internal_service.decompile_signed_transaction_intent
+		) as DecompileSignedTransactionIntentResponse | Error;
 	}
 
 	private callWasmFunction(

@@ -46,6 +46,8 @@ define_request_response_enum! {
         ConvertManifestRequest(ConvertManifestRequest),
         CompileTransactionIntentRequest(CompileTransactionIntentRequest),
         DecompileTransactionIntentRequest(DecompileTransactionIntentRequest),
+        CompileSignedTransactionIntentRequest(CompileSignedTransactionIntentRequest),
+        DecompileSignedTransactionIntentRequest(DecompileSignedTransactionIntentRequest)
     }
 }
 
@@ -55,5 +57,7 @@ define_request_response_enum! {
         ConvertManifestResponse(ConvertManifestResponse),
         CompileTransactionIntentResponse(CompileTransactionIntentResponse),
         DecompileTransactionIntentResponse(DecompileTransactionIntentResponse),
+        CompileSignedTransactionIntentResponse(CompileSignedTransactionIntentResponse),
+        DecompileSignedTransactionIntentResponse(DecompileSignedTransactionIntentResponse)
     }
 }

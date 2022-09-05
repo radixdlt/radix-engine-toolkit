@@ -50,6 +50,25 @@ export interface DecompileTransactionIntentResponse {
 	manifest: Manifest;
 }
 
+export interface CompileSignedTransactionIntentRequest {
+	transaction_intent: TransactionIntent;
+	signatures: Signature[];
+}
+
+export interface CompileSignedTransactionIntentResponse {
+	compiled_signed_intent: string;
+}
+
+export interface DecompileSignedTransactionIntentRequest {
+	manifest_output_format: ManifestKind;
+	compiled_signed_intent: string;
+}
+
+export interface DecompileSignedTransactionIntentResponse {
+	transaction_intent: TransactionIntent;
+	signatures: Signature[];
+}
+
 // =======
 // Models
 // =======
@@ -89,6 +108,11 @@ export type EcdsaSignature = string;
 export interface TransactionIntent {
 	header: TransactionHeader;
 	manifest: Manifest;
+}
+
+export interface Signature {
+	public_key: EcdsaPublicKey;
+	signature: EcdsaSignature;
 }
 
 // ============

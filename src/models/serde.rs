@@ -6,6 +6,8 @@ use scrypto::engine::types::VaultId;
 use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash, Vault};
 use transaction::model::TransactionHeader;
 
+use crate::models::manifest::Manifest;
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "TransactionHeader")]
 pub struct TransactionHeaderDef {
@@ -173,3 +175,18 @@ define_network_aware_address!(
     encode_resource_address,
     validate_and_decode_resource_address
 );
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TransactionIntent {
+    #[serde(with = "crate::models::serde::TransactionHeaderDef")]
+    pub header: transaction::model::TransactionHeader,
+    pub manifest: Manifest,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Signature {
+    #[serde(with = "EcdsaPublicKeyDef")]
+    pub public_key: EcdsaPublicKey,
+    #[serde(with = "EcdsaSignatureDef")]
+    pub signature: EcdsaSignature,
+}

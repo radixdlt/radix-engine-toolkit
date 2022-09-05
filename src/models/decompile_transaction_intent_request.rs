@@ -1,4 +1,5 @@
-use crate::models::manifest::{Manifest, ManifestKind};
+use crate::models::manifest::ManifestKind;
+use crate::models::serde::TransactionIntent;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -14,10 +15,6 @@ pub struct DecompileTransactionIntentRequest {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileTransactionIntentResponse {
-    /// The transaction header of the intent
-    #[serde(with = "crate::models::serde::TransactionHeaderDef")]
-    pub header: transaction::model::TransactionHeader,
-
-    /// The transaction manifest that will be compiled
-    pub manifest: Manifest,
+    #[serde(flatten)]
+    pub transaction_intent: TransactionIntent,
 }
