@@ -33,7 +33,9 @@ const main = async (): Promise<void> => {
 	// Example 1: Printing the information of the transaction service. This is essentially the
 	// "Hello World" of this project. If the information of the package is printed correctly, then
 	// this means that the calls to the WASM modules are happening without any issues.
+	console.log("======= Example 1 =======");
 	console.log(transactionService.information());
+	console.log("=========================", '\n');
 
 	// Example 2: One of the functions that are exposed by this library is one which allows clients
 	// to convert manifests from one format to another. In this example, we will read the manifest
@@ -54,7 +56,9 @@ const main = async (): Promise<void> => {
 	let manifestConversionResponse: ConvertManifestResponse = transactionService.convertManifest(
 		manifestConversionRequest
 	) as ConvertManifestResponse;
+	console.log("======= Example 2 =======");
 	console.log(JSON.stringify(manifestConversionResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 3: When signing a transaction, the compiled intent of a transaction is what gets
 	// signed. Obtaining this compiled intent requires SBOR encoding the intent and therefore
@@ -80,7 +84,9 @@ const main = async (): Promise<void> => {
 		transactionService.compileTransactionIntent(
 			compileTransactionIntentRequest
 		) as CompileTransactionIntentResponse;
+	console.log("======= Example 3 =======");
 	console.log(JSON.stringify(compileTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 4: There are certain cases where you might the compiled transaction intent and you
 	// wish to understand what exactly you might be signing. In this case, you would need to
@@ -94,7 +100,9 @@ const main = async (): Promise<void> => {
 		transactionService.decompileTransactionIntent(
 			decompileTransactionIntentRequest
 		) as DecompileTransactionIntentResponse;
+	console.log("======= Example 4 =======");
 	console.log(JSON.stringify(decompileTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 5: In example 3, we compiled a manifest down to its SBOR bytes representation, which
 	// we need when signing transactions. In this example, we will sign a transaction with multiple
@@ -144,7 +152,9 @@ const main = async (): Promise<void> => {
 		transactionService.compileSignedTransactionIntent(
 			compileSignedTransactionIntentRequest
 		) as CompileSignedTransactionIntentResponse;
+	console.log("======= Example 5 =======");
 	console.log(JSON.stringify(compileSignedTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 6: Just like we have done with the previous examples, anything that is compiled down
 	// can be decompiled again. In this case, the compiled signed transaction intent can be
@@ -157,7 +167,9 @@ const main = async (): Promise<void> => {
 		transactionService.decompileSignedTransactionIntent(
 			decompileSignedTransactionIntentRequest
 		) as DecompileSignedTransactionIntentResponse;
+	console.log("======= Example 6 =======");
 	console.log(JSON.stringify(decompileSignedTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 7: Compiling and decompiling of notarized transactions
 	let compiledSignedTransactionIntent: CryptoJS.lib.WordArray = CryptoJS.enc.Hex.parse(
@@ -192,7 +204,9 @@ const main = async (): Promise<void> => {
 		transactionService.compileNotarizedTransactionIntent(
 			compileNotarizedTransactionIntentRequest
 		) as CompileNotarizedTransactionIntentResponse;
+	console.log("======= Example 7 =======");
 	console.log(JSON.stringify(compileNotarizedTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	let decompileNotarizedTransactionIntentRequest: DecompileNotarizedTransactionIntentRequest = {
 		manifest_output_format: ManifestKind.JSON,
@@ -202,7 +216,9 @@ const main = async (): Promise<void> => {
 		transactionService.decompileNotarizedTransactionIntent(
 			decompileNotarizedTransactionIntentRequest
 		) as DecompileNotarizedTransactionIntentResponse;
+	console.log("======= Example 7 =======");
 	console.log(JSON.stringify(decompileNotarizedTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 
 	// Example 8: There are cases where we might have some blob which we suspect to be a transaction
 	// intent of some sort. However, there is no easy way to tell whether this is an unsigned,
@@ -217,7 +233,9 @@ const main = async (): Promise<void> => {
 		transactionService.decompileUnknownTransactionIntent(
 			decompileUnknownTransactionIntentRequest
 		) as DecompileUnknownTransactionIntentResponse;
+	console.log("======= Example 8 =======");
 	console.log(JSON.stringify(decompileUnknownTransactionIntentResponse, null, 4));
+	console.log("=========================", '\n');
 };
 
 main();
