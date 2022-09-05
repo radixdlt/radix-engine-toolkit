@@ -23,6 +23,7 @@ import {
 	DecompileUnknownTransactionIntentRequest,
 	DecompileUnknownTransactionIntentResponse,
 } from "./interfaces";
+import { Error } from "./error";
 import fs from "fs";
 
 export default class TransactionAPI {

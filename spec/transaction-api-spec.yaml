@@ -5,16 +5,28 @@ info:
 version: 0.1.0
 components:
   schemas:
+    AddressError:
+      additionalProperties: false
+      properties:
+        error:
+          const: AddressError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
     AssertWorktopContains:
       additionalProperties: false
       properties:
+        instruction:
+          const: ASSERT_WORKTOP_CONTAINS
+          type: string
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: AssertWorktopContains
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       type: object
     AssertWorktopContainsByAmount:
@@ -22,13 +34,13 @@ components:
       properties:
         amount:
           $ref: '#/components/schemas/Decimal'
+        instruction:
+          const: ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
+          type: string
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: AssertWorktopContainsByAmount
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - amount
       type: object
@@ -39,13 +51,13 @@ components:
           items:
             $ref: '#/components/schemas/NonFungibleId'
           type: array
+        instruction:
+          const: ASSERT_WORKTOP_CONTAINS_BY_IDS
+          type: string
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: AssertWorktopContainsByIds
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - ids
       type: object
@@ -110,13 +122,13 @@ components:
           required:
           - length
           type: object
+        instruction:
+          const: CALL_FUNCTION
+          type: string
         package_address:
           $ref: '#/components/schemas/PackageAddress'
-        type:
-          const: CallFunction
-          type: string
       required:
-      - type
+      - instruction
       - package_address
       - blueprint_name
       - function_name
@@ -130,6 +142,9 @@ components:
           type: array
         component_address:
           $ref: '#/components/schemas/ComponentAddress'
+        instruction:
+          const: CALL_METHOD
+          type: string
         method_name:
           additionalProperties:
             type: string
@@ -139,11 +154,8 @@ components:
           required:
           - length
           type: object
-        type:
-          const: CallMethod
-          type: string
       required:
-      - type
+      - instruction
       - component_address
       - method_name
       type: object
@@ -152,6 +164,9 @@ components:
       properties:
         component_address:
           $ref: '#/components/schemas/ComponentAddress'
+        instruction:
+          const: CALL_METHOD_WITH_ALL_RESOURCES
+          type: string
         method_name:
           additionalProperties:
             type: string
@@ -161,37 +176,53 @@ components:
           required:
           - length
           type: object
-        type:
-          const: CallMethodWithAllResources
-          type: string
       required:
-      - type
+      - instruction
       - component_address
       - method_name
       type: object
     ClearAuthZone:
       additionalProperties: false
       properties:
-        type:
-          const: ClearAuthZone
+        instruction:
+          const: CLEAR_AUTH_ZOME
           type: string
       required:
-      - type
+      - instruction
       type: object
     CloneProof:
       additionalProperties: false
       properties:
+        instruction:
+          const: CLONE_PROOF
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
         proof:
           $ref: '#/components/schemas/Proof'
-        type:
-          const: CloneProof
-          type: string
       required:
-      - type
+      - instruction
       - proof
       - into_proof
+      type: object
+    CompileNotarizedTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        notary_signature:
+          $ref: '#/components/schemas/EcdsaSignature'
+        signed_intent:
+          $ref: '#/components/schemas/SignedTransactionIntent'
+      required:
+      - signed_intent
+      - notary_signature
+      type: object
+    CompileNotarizedTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        compiled_notarized_intent:
+          type: string
+      required:
+      - compiled_notarized_intent
       type: object
     CompileSignedTransactionIntentRequest:
       additionalProperties: false
@@ -267,15 +298,15 @@ components:
     CreateProofFromAuthZone:
       additionalProperties: false
       properties:
+        instruction:
+          const: CREATE_PROOF_FROM_AUTH_ZONE
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: CreateProofFromAuthZone
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_proof
       type: object
@@ -284,15 +315,15 @@ components:
       properties:
         amount:
           $ref: '#/components/schemas/Decimal'
+        instruction:
+          const: CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: CreateProofFromAuthZoneByAmount
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_proof
       - amount
@@ -304,15 +335,15 @@ components:
           items:
             $ref: '#/components/schemas/NonFungibleId'
           type: array
+        instruction:
+          const: CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: CreateProofFromAuthZoneByIds
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_proof
       - ids
@@ -322,13 +353,13 @@ components:
       properties:
         bucket:
           $ref: '#/components/schemas/Bucket'
+        instruction:
+          const: CREATE_PROOF_FROM_BUCKET
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
-        type:
-          const: CreateProofFromBucket
-          type: string
       required:
-      - type
+      - instruction
       - bucket
       - into_proof
       type: object
@@ -343,6 +374,40 @@ components:
       required:
       - type
       - value
+      type: object
+    DecodeError:
+      additionalProperties: false
+      properties:
+        error:
+          const: DecodeError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
+    DecompileNotarizedTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        compiled_notarized_intent:
+          type: string
+        manifest_output_format:
+          $ref: '#/components/schemas/ManifestKind'
+      required:
+      - manifest_output_format
+      - compiled_notarized_intent
+      type: object
+    DecompileNotarizedTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        notary_signature:
+          $ref: '#/components/schemas/EcdsaSignature'
+        signed_intent:
+          $ref: '#/components/schemas/SignedTransactionIntent'
+      required:
+      - signed_intent
+      - notary_signature
       type: object
     DecompileSignedTransactionIntentRequest:
       additionalProperties: false
@@ -390,25 +455,53 @@ components:
       - header
       - manifest
       type: object
+    DecompileUnknownTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        compiled_unknown_intent:
+          type: string
+        manifest_output_format:
+          $ref: '#/components/schemas/ManifestKind'
+      required:
+      - manifest_output_format
+      - compiled_unknown_intent
+      type: object
+    DecompileUnknownTransactionIntentResponse:
+      anyOf:
+      - $ref: '#/components/schemas/DecompileTransactionIntentResponse'
+      - $ref: '#/components/schemas/DecompileSignedTransactionIntentResponse'
+      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentResponse'
+    DeserializationError:
+      additionalProperties: false
+      properties:
+        error:
+          const: DeserializationError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
     DropAllProofs:
       additionalProperties: false
       properties:
-        type:
-          const: DropAllProofs
+        instruction:
+          const: DROP_ALL_PROOFS
           type: string
       required:
-      - type
+      - instruction
       type: object
     DropProof:
       additionalProperties: false
       properties:
+        instruction:
+          const: DROP_PROOF
+          type: string
         proof:
           $ref: '#/components/schemas/Proof'
-        type:
-          const: DropProof
-          type: string
       required:
-      - type
+      - instruction
       - proof
       type: object
     EcdsaPublicKey:
@@ -430,6 +523,49 @@ components:
       required:
       - type
       - variant_name
+      type: object
+    Error:
+      anyOf:
+      - $ref: '#/components/schemas/AddressError'
+      - $ref: '#/components/schemas/DecodeError'
+      - $ref: '#/components/schemas/DeserializationError'
+      - $ref: '#/components/schemas/InvalidRequestString'
+      - $ref: '#/components/schemas/UnexpectedContents'
+      - $ref: '#/components/schemas/InvalidType'
+      - $ref: '#/components/schemas/ParseError'
+      - $ref: '#/components/schemas/TransactionCompileError'
+      - $ref: '#/components/schemas/TransactionDecompileError'
+      - $ref: '#/components/schemas/UnsupportedTransactionVersion'
+      - $ref: '#/components/schemas/GeneratorError'
+      - $ref: '#/components/schemas/RequestResponseConversionError'
+      - $ref: '#/components/schemas/UnrecognizedCompiledIntentFormat'
+    ErrorKind:
+      enum:
+      - AddressError
+      - DecodeError
+      - DeserializationError
+      - InvalidRequestString
+      - UnexpectedContents
+      - InvalidType
+      - ParseError
+      - TransactionCompileError
+      - TransactionDecompileError
+      - UnsupportedTransactionVersion
+      - GeneratorError
+      - RequestResponseConversionError
+      - UnrecognizedCompiledIntentFormat
+      type: string
+    GeneratorError:
+      additionalProperties: false
+      properties:
+        error:
+          const: GeneratorError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
       type: object
     Hash:
       additionalProperties: false
@@ -539,28 +675,61 @@ components:
       - $ref: '#/components/schemas/PublishPackage'
     InstructionKind:
       enum:
-      - CallFunction
-      - CallMethod
-      - CallMethodWithAllResources
-      - TakeFromWorktop
-      - TakeFromWorktopByAmount
-      - TakeFromWorktopByIds
-      - ReturnToWorktop
-      - AssertWorktopContains
-      - AssertWorktopContainsByAmount
-      - AssertWorktopContainsByIds
-      - PopFromAuthZone
-      - PushToAuthZone
-      - ClearAuthZone
-      - CreateProofFromAuthZone
-      - CreateProofFromAuthZoneByAmount
-      - CreateProofFromAuthZoneByIds
-      - CreateProofFromBucket
-      - CloneProof
-      - DropProof
-      - DropAllProofs
-      - PublishPackage
+      - CALL_FUNCTION
+      - CALL_METHOD
+      - CALL_METHOD_WITH_ALL_RESOURCES
+      - TAKE_FROM_WORKTOP
+      - TAKE_FROM_WORKTOP_BY_AMOUNT
+      - TAKE_FROM_WORKTOP_BY_IDS
+      - RETURN_TO_WORKTOP
+      - ASSERT_WORKTOP_CONTAINS
+      - ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
+      - ASSERT_WORKTOP_CONTAINS_BY_IDS
+      - POP_FROM_AUTH_ZOME
+      - PUSH_TO_AUTH_ZOME
+      - CLEAR_AUTH_ZOME
+      - CREATE_PROOF_FROM_AUTH_ZONE
+      - CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT
+      - CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
+      - CREATE_PROOF_FROM_BUCKET
+      - CLONE_PROOF
+      - DROP_PROOF
+      - DROP_ALL_PROOFS
+      - PUBLISH_PACKAGE
       type: string
+    InvalidRequestString:
+      additionalProperties: false
+      properties:
+        error:
+          const: InvalidRequestString
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
+    InvalidType:
+      additionalProperties: false
+      properties:
+        error:
+          const: InvalidType
+          type: string
+        value:
+          additionalProperties: false
+          properties:
+            actual_type:
+              $ref: '#/components/schemas/ValueKind'
+            expected_type:
+              $ref: '#/components/schemas/ValueKind'
+          required:
+          - expected_type
+          - actual_type
+          type: object
+      required:
+      - error
+      - value
+      type: object
     List:
       additionalProperties: false
       properties:
@@ -679,16 +848,37 @@ components:
       - type
       - value
       type: object
+    ParseError:
+      additionalProperties: false
+      properties:
+        error:
+          const: ParseError
+          type: string
+        value:
+          additionalProperties: false
+          properties:
+            error:
+              type: string
+            kind:
+              $ref: '#/components/schemas/ValueKind'
+          required:
+          - kind
+          - error
+          type: object
+      required:
+      - error
+      - value
+      type: object
     PopFromAuthZone:
       additionalProperties: false
       properties:
+        instruction:
+          const: POP_FROM_AUTH_ZOME
+          type: string
         into_proof:
           $ref: '#/components/schemas/Proof'
-        type:
-          const: PopFromAuthZone
-          type: string
       required:
-      - type
+      - instruction
       - into_proof
       type: object
     PreciseDecimal:
@@ -718,25 +908,25 @@ components:
     PublishPackage:
       additionalProperties: false
       properties:
+        instruction:
+          const: PUBLISH_PACKAGE
+          type: string
         package:
           $ref: '#/components/schemas/Bytes'
-        type:
-          const: PublishPackage
-          type: string
       required:
-      - type
+      - instruction
       - package
       type: object
     PushToAuthZone:
       additionalProperties: false
       properties:
+        instruction:
+          const: PUSH_TO_AUTH_ZOME
+          type: string
         proof:
           $ref: '#/components/schemas/Proof'
-        type:
-          const: PushToAuthZone
-          type: string
       required:
-      - type
+      - instruction
       - proof
       type: object
     Request:
@@ -745,6 +935,22 @@ components:
       - $ref: '#/components/schemas/ConvertManifestRequest'
       - $ref: '#/components/schemas/CompileTransactionIntentRequest'
       - $ref: '#/components/schemas/DecompileTransactionIntentRequest'
+      - $ref: '#/components/schemas/CompileSignedTransactionIntentRequest'
+      - $ref: '#/components/schemas/DecompileSignedTransactionIntentRequest'
+      - $ref: '#/components/schemas/CompileNotarizedTransactionIntentRequest'
+      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentRequest'
+    RequestResponseConversionError:
+      additionalProperties: false
+      properties:
+        error:
+          const: RequestResponseConversionError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
     ResourceAddress:
       additionalProperties: false
       properties:
@@ -763,6 +969,10 @@ components:
       - $ref: '#/components/schemas/ConvertManifestResponse'
       - $ref: '#/components/schemas/CompileTransactionIntentResponse'
       - $ref: '#/components/schemas/DecompileTransactionIntentResponse'
+      - $ref: '#/components/schemas/CompileSignedTransactionIntentResponse'
+      - $ref: '#/components/schemas/DecompileSignedTransactionIntentResponse'
+      - $ref: '#/components/schemas/CompileNotarizedTransactionIntentResponse'
+      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentResponse'
     Result:
       additionalProperties: false
       properties:
@@ -779,11 +989,11 @@ components:
       properties:
         bucket:
           $ref: '#/components/schemas/Bucket'
-        type:
-          const: ReturnToWorktop
+        instruction:
+          const: RETURN_TO_WORKTOP
           type: string
       required:
-      - type
+      - instruction
       - bucket
       type: object
     Set:
@@ -814,6 +1024,19 @@ components:
       - public_key
       - signature
       type: object
+    SignedTransactionIntent:
+      additionalProperties: false
+      properties:
+        signatures:
+          items:
+            $ref: '#/components/schemas/Signature'
+          type: array
+        transaction_intent:
+          $ref: '#/components/schemas/TransactionIntent'
+      required:
+      - transaction_intent
+      - signatures
+      type: object
     String:
       additionalProperties: false
       properties:
@@ -843,15 +1066,15 @@ components:
     TakeFromWorktop:
       additionalProperties: false
       properties:
+        instruction:
+          const: TAKE_FROM_WORKTOP
+          type: string
         into_bucket:
           $ref: '#/components/schemas/Bucket'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: TakeFromWorktop
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_bucket
       type: object
@@ -860,15 +1083,15 @@ components:
       properties:
         amount:
           $ref: '#/components/schemas/Decimal'
+        instruction:
+          const: TAKE_FROM_WORKTOP_BY_AMOUNT
+          type: string
         into_bucket:
           $ref: '#/components/schemas/Bucket'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: TakeFromWorktopByAmount
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_bucket
       - amount
@@ -880,21 +1103,45 @@ components:
           items:
             $ref: '#/components/schemas/NonFungibleId'
           type: array
+        instruction:
+          const: TAKE_FROM_WORKTOP_BY_IDS
+          type: string
         into_bucket:
           $ref: '#/components/schemas/Bucket'
         resource_address:
           $ref: '#/components/schemas/ResourceAddress'
-        type:
-          const: TakeFromWorktopByIds
-          type: string
       required:
-      - type
+      - instruction
       - resource_address
       - into_bucket
       - ids
       type: object
     TransactionAPI:
       additionalProperties: false
+      type: object
+    TransactionCompileError:
+      additionalProperties: false
+      properties:
+        error:
+          const: TransactionCompileError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
+      type: object
+    TransactionDecompileError:
+      additionalProperties: false
+      properties:
+        error:
+          const: TransactionDecompileError
+          type: string
+        value:
+          type: string
+      required:
+      - error
+      - value
       type: object
     TransactionHeader:
       additionalProperties: false
@@ -1016,6 +1263,32 @@ components:
       - type
       - value
       type: object
+    UnexpectedContents:
+      additionalProperties: false
+      properties:
+        error:
+          const: UnexpectedContents
+          type: string
+        value:
+          additionalProperties: false
+          properties:
+            expected:
+              items:
+                $ref: '#/components/schemas/ValueKind'
+              type: array
+            found:
+              $ref: '#/components/schemas/ValueKind'
+            kind:
+              $ref: '#/components/schemas/ValueKind'
+          required:
+          - kind
+          - expected
+          - found
+          type: object
+      required:
+      - error
+      - value
+      type: object
     Unit:
       additionalProperties: false
       properties:
@@ -1024,6 +1297,27 @@ components:
           type: string
       required:
       - type
+      type: object
+    UnrecognizedCompiledIntentFormat:
+      additionalProperties: false
+      properties:
+        error:
+          const: UnrecognizedCompiledIntentFormat
+          type: string
+      required:
+      - error
+      type: object
+    UnsupportedTransactionVersion:
+      additionalProperties: false
+      properties:
+        error:
+          const: UnsupportedTransactionVersion
+          type: string
+        value:
+          type: number
+      required:
+      - error
+      - value
       type: object
     Value:
       anyOf:
