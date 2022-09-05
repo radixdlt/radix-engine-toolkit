@@ -193,6 +193,46 @@ components:
       - proof
       - into_proof
       type: object
+    CompileSignedTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        signatures:
+          items:
+            $ref: '#/components/schemas/Signature'
+          type: array
+        transaction_intent:
+          $ref: '#/components/schemas/TransactionIntent'
+      required:
+      - transaction_intent
+      - signatures
+      type: object
+    CompileSignedTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        compiled_signed_intent:
+          type: string
+      required:
+      - compiled_signed_intent
+      type: object
+    CompileTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        header:
+          $ref: '#/components/schemas/TransactionHeader'
+        manifest:
+          $ref: '#/components/schemas/Manifest'
+      required:
+      - header
+      - manifest
+      type: object
+    CompileTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        compiled_intent:
+          type: string
+      required:
+      - compiled_intent
+      type: object
     ComponentAddress:
       additionalProperties: false
       properties:
@@ -304,6 +344,52 @@ components:
       - type
       - value
       type: object
+    DecompileSignedTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        compiled_signed_intent:
+          type: string
+        manifest_output_format:
+          $ref: '#/components/schemas/ManifestKind'
+      required:
+      - manifest_output_format
+      - compiled_signed_intent
+      type: object
+    DecompileSignedTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        signatures:
+          items:
+            $ref: '#/components/schemas/Signature'
+          type: array
+        transaction_intent:
+          $ref: '#/components/schemas/TransactionIntent'
+      required:
+      - transaction_intent
+      - signatures
+      type: object
+    DecompileTransactionIntentRequest:
+      additionalProperties: false
+      properties:
+        compiled_intent:
+          type: string
+        manifest_output_format:
+          $ref: '#/components/schemas/ManifestKind'
+      required:
+      - manifest_output_format
+      - compiled_intent
+      type: object
+    DecompileTransactionIntentResponse:
+      additionalProperties: false
+      properties:
+        header:
+          $ref: '#/components/schemas/TransactionHeader'
+        manifest:
+          $ref: '#/components/schemas/Manifest'
+      required:
+      - header
+      - manifest
+      type: object
     DropAllProofs:
       additionalProperties: false
       properties:
@@ -325,6 +411,10 @@ components:
       - type
       - proof
       type: object
+    EcdsaPublicKey:
+      type: string
+    EcdsaSignature:
+      type: string
     Enum:
       additionalProperties: false
       properties:
@@ -650,7 +740,11 @@ components:
       - proof
       type: object
     Request:
-      $ref: '#/components/schemas/InformationRequest'
+      anyOf:
+      - $ref: '#/components/schemas/InformationRequest'
+      - $ref: '#/components/schemas/ConvertManifestRequest'
+      - $ref: '#/components/schemas/CompileTransactionIntentRequest'
+      - $ref: '#/components/schemas/DecompileTransactionIntentRequest'
     ResourceAddress:
       additionalProperties: false
       properties:
@@ -664,7 +758,11 @@ components:
       - value
       type: object
     Response:
-      $ref: '#/components/schemas/InformationResponse'
+      anyOf:
+      - $ref: '#/components/schemas/InformationResponse'
+      - $ref: '#/components/schemas/ConvertManifestResponse'
+      - $ref: '#/components/schemas/CompileTransactionIntentResponse'
+      - $ref: '#/components/schemas/DecompileTransactionIntentResponse'
     Result:
       additionalProperties: false
       properties:
@@ -704,6 +802,17 @@ components:
       - type
       - element_type
       - elements
+      type: object
+    Signature:
+      additionalProperties: false
+      properties:
+        public_key:
+          $ref: '#/components/schemas/EcdsaPublicKey'
+        signature:
+          $ref: '#/components/schemas/EcdsaSignature'
+      required:
+      - public_key
+      - signature
       type: object
     String:
       additionalProperties: false
@@ -786,6 +895,49 @@ components:
       type: object
     TransactionAPI:
       additionalProperties: false
+      type: object
+    TransactionHeader:
+      additionalProperties: false
+      properties:
+        cost_unit_limit:
+          type: number
+        end_epoch_exclusive:
+          type: number
+        network_id:
+          type: number
+        nonce:
+          type: number
+        notary_as_signatory:
+          type: boolean
+        notary_public_key:
+          $ref: '#/components/schemas/EcdsaPublicKey'
+        start_epoch_inclusive:
+          type: number
+        tip_percentage:
+          type: number
+        version:
+          type: number
+      required:
+      - version
+      - network_id
+      - start_epoch_inclusive
+      - end_epoch_exclusive
+      - nonce
+      - notary_public_key
+      - notary_as_signatory
+      - cost_unit_limit
+      - tip_percentage
+      type: object
+    TransactionIntent:
+      additionalProperties: false
+      properties:
+        header:
+          $ref: '#/components/schemas/TransactionHeader'
+        manifest:
+          $ref: '#/components/schemas/Manifest'
+      required:
+      - header
+      - manifest
       type: object
     TransactionServiceInterface:
       additionalProperties: false
