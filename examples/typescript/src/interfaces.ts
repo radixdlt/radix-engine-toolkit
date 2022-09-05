@@ -4,9 +4,17 @@ import { Instruction } from "./instruction";
 // Request & Response
 // ===================
 
-export type Request = InformationRequest;
+export type Request =
+	| InformationRequest
+	| ConvertManifestRequest
+	| CompileTransactionIntentRequest
+	| DecompileTransactionIntentRequest;
 
-export type Response = InformationResponse;
+export type Response =
+	| InformationResponse
+	| ConvertManifestResponse
+	| CompileTransactionIntentResponse
+	| DecompileTransactionIntentResponse;
 
 export interface InformationRequest {}
 
@@ -22,6 +30,25 @@ export interface ConvertManifestRequest {
 }
 
 export type ConvertManifestResponse = Manifest;
+
+export interface CompileTransactionIntentRequest {
+	header: TransactionHeader;
+	manifest: Manifest;
+}
+
+export interface CompileTransactionIntentResponse {
+	compiled_intent: string;
+}
+
+export interface DecompileTransactionIntentRequest {
+	manifest_output_format: ManifestKind;
+	compiled_intent: string;
+}
+
+export interface DecompileTransactionIntentResponse {
+	header: TransactionHeader;
+	manifest: Manifest;
+}
 
 // =======
 // Models
@@ -42,6 +69,26 @@ export interface ManifestString {
 export interface ManifestJSON {
 	readonly type: ManifestJSON;
 	value: Instruction[];
+}
+
+export interface TransactionHeader {
+	version: number;
+	network_id: number;
+	start_epoch_inclusive: number;
+	end_epoch_exclusive: number;
+	nonce: number;
+	notary_public_key: EcdsaPublicKey;
+	notary_as_signatory: boolean;
+	cost_unit_limit: number;
+	tip_percentage: number;
+}
+
+export type EcdsaPublicKey = string;
+export type EcdsaSignature = string;
+
+export interface TransactionIntent {
+	header: TransactionHeader;
+	manifest: Manifest;
 }
 
 // ============

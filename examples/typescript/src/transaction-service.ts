@@ -1,8 +1,12 @@
 "use strict";
 
 import {
+	CompileTransactionIntentRequest,
+	CompileTransactionIntentResponse,
 	ConvertManifestRequest,
 	ConvertManifestResponse,
+	DecompileTransactionIntentRequest,
+	DecompileTransactionIntentResponse,
 	InformationRequest,
 	InformationResponse,
 	Request,
@@ -58,6 +62,23 @@ export default class TransactionAPI {
 		return this.callWasmFunction(request, this.internal_service.convert_manifest) as
 			| ConvertManifestResponse
 			| Error;
+	}
+
+	compileTransactionIntent(
+		request: CompileTransactionIntentRequest
+	): CompileTransactionIntentResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.compile_transaction_intent) as
+			| CompileTransactionIntentResponse
+			| Error;
+	}
+
+	decompileTransactionIntent(
+		request: DecompileTransactionIntentRequest
+	): DecompileTransactionIntentResponse | Error {
+		return this.callWasmFunction(
+			request,
+			this.internal_service.decompile_transaction_intent
+		) as DecompileTransactionIntentResponse | Error;
 	}
 
 	private callWasmFunction(

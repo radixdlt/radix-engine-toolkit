@@ -44,12 +44,16 @@ define_request_response_enum! {
     pub enum Request {
         InformationRequest(InformationRequest),
         ConvertManifestRequest(ConvertManifestRequest),
+        CompileTransactionIntentRequest(CompileTransactionIntentRequest),
+        DecompileTransactionIntentRequest(DecompileTransactionIntentRequest),
     }
 }
 
 define_request_response_enum! {
     pub enum Response {
         InformationResponse(InformationResponse),
-        ConvertManifestResponse(ConvertManifestResponse)
+        ConvertManifestResponse(ConvertManifestResponse),
+        CompileTransactionIntentResponse(CompileTransactionIntentResponse),
+        DecompileTransactionIntentResponse(DecompileTransactionIntentResponse),
     }
 }
