@@ -1026,7 +1026,7 @@ components:
         properties:
           proof:
             $ref: "#/components/schemas/Proof"
-    DropAllProof:
+    DropAllProofs:
       allOf:
       - $ref: "#/components/schemas/Instruction"
       - type: object
@@ -1046,7 +1046,7 @@ components:
     # Error
     # ======
     
-    Error:
+    ErrorResponse:
       type: object
       required:
       - error
@@ -1072,7 +1072,7 @@ components:
           UnrecognizedCompiledIntentFormat: "#/components/schemas/UnrecognizedCompiledIntentFormat"
     AddressError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1082,7 +1082,7 @@ components:
             type: string
     DecodeError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1092,7 +1092,7 @@ components:
             type: string
     DeserializationError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1102,7 +1102,7 @@ components:
             type: string
     InvalidRequestString:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1112,7 +1112,7 @@ components:
             type: string
     UnexpectedContents:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1130,7 +1130,7 @@ components:
             $ref: "#/components/schemas/ValueKind"
     InvalidType:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1143,7 +1143,7 @@ components:
             $ref: "#/components/schemas/ValueKind"
     ParseError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1156,7 +1156,7 @@ components:
             type: string
     TransactionCompileError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1166,7 +1166,7 @@ components:
             type: string
     TransactionDecompileError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1176,7 +1176,7 @@ components:
             type: string
     UnsupportedTransactionVersion:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1186,7 +1186,7 @@ components:
             type: number
     GeneratorError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1196,7 +1196,7 @@ components:
             type: string
     RequestResponseConversionError:
       allOf:
-      - $ref: "#/components/schemas/Error"
+      - $ref: "#/components/schemas/ErrorResponse"
       - type: object
         additionalProperties: false
         required:
@@ -1205,4 +1205,4 @@ components:
           value:
             type: string
     UnrecognizedCompiledIntentFormat:
-      $ref: "#/components/schemas/Error"
+      $ref: "#/components/schemas/ErrorResponse"
