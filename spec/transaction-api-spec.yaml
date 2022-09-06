@@ -274,7 +274,6 @@ components:
       properties:
         type:
           type: string
-          readOnly: true
       discriminator:
         propertyName: type
         mapping:
@@ -358,7 +357,6 @@ components:
       properties:
         type:
           type: string
-          readOnly: true
       discriminator:
         propertyName: type
         mapping:
@@ -745,7 +743,6 @@ components:
       properties:
         instruction:
           type: string
-          readOnly: true
       discriminator:
         propertyName: instruction
         mapping:
@@ -1053,7 +1050,6 @@ components:
       properties:
         error:
           type: string
-          readOnly: true
       discriminator:
         propertyName: error
         mapping:
