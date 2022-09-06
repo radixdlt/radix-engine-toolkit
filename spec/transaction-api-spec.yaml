@@ -1,1359 +1,321 @@
-openapi: 3.1.0
+---
+openapi: 3.0.2
 info:
   title: Transaction Lib
   version: 0.1.0
-version: 0.1.0
+servers: []
+paths: {}
 components:
   schemas:
-    AddressError:
-      additionalProperties: false
-      properties:
-        error:
-          const: AddressError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    AssertWorktopContains:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: ASSERT_WORKTOP_CONTAINS
-          type: string
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      type: object
-    AssertWorktopContainsByAmount:
-      additionalProperties: false
-      properties:
-        amount:
-          $ref: '#/components/schemas/Decimal'
-        instruction:
-          const: ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
-          type: string
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - amount
-      type: object
-    AssertWorktopContainsByIds:
-      additionalProperties: false
-      properties:
-        ids:
-          items:
-            $ref: '#/components/schemas/NonFungibleId'
-          type: array
-        instruction:
-          const: ASSERT_WORKTOP_CONTAINS_BY_IDS
-          type: string
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - ids
-      type: object
-    Bool:
-      additionalProperties: false
-      properties:
-        type:
-          const: Bool
-          type: string
-        value:
-          type: boolean
-      required:
-      - type
-      - value
-      type: object
-    Bucket:
-      additionalProperties: false
-      properties:
-        type:
-          const: Bucket
-          type: string
-        value:
-          type: number
-      required:
-      - type
-      - value
-      type: object
-    Bytes:
-      additionalProperties: false
-      properties:
-        type:
-          const: Bytes
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    CallFunction:
-      additionalProperties: false
-      properties:
-        arguments:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        blueprint_name:
-          additionalProperties:
-            type: string
-          properties:
-            length:
-              type: number
-          required:
-          - length
-          type: object
-        function_name:
-          additionalProperties:
-            type: string
-          properties:
-            length:
-              type: number
-          required:
-          - length
-          type: object
-        instruction:
-          const: CALL_FUNCTION
-          type: string
-        package_address:
-          $ref: '#/components/schemas/PackageAddress'
-      required:
-      - instruction
-      - package_address
-      - blueprint_name
-      - function_name
-      type: object
-    CallMethod:
-      additionalProperties: false
-      properties:
-        arguments:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        component_address:
-          $ref: '#/components/schemas/ComponentAddress'
-        instruction:
-          const: CALL_METHOD
-          type: string
-        method_name:
-          additionalProperties:
-            type: string
-          properties:
-            length:
-              type: number
-          required:
-          - length
-          type: object
-      required:
-      - instruction
-      - component_address
-      - method_name
-      type: object
-    CallMethodWithAllResources:
-      additionalProperties: false
-      properties:
-        component_address:
-          $ref: '#/components/schemas/ComponentAddress'
-        instruction:
-          const: CALL_METHOD_WITH_ALL_RESOURCES
-          type: string
-        method_name:
-          additionalProperties:
-            type: string
-          properties:
-            length:
-              type: number
-          required:
-          - length
-          type: object
-      required:
-      - instruction
-      - component_address
-      - method_name
-      type: object
-    ClearAuthZone:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: CLEAR_AUTH_ZOME
-          type: string
-      required:
-      - instruction
-      type: object
-    CloneProof:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: CLONE_PROOF
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-        proof:
-          $ref: '#/components/schemas/Proof'
-      required:
-      - instruction
-      - proof
-      - into_proof
-      type: object
-    CompileNotarizedTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        notary_signature:
-          $ref: '#/components/schemas/EcdsaSignature'
-        signed_intent:
-          $ref: '#/components/schemas/SignedTransactionIntent'
-      required:
-      - signed_intent
-      - notary_signature
-      type: object
-    CompileNotarizedTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        compiled_notarized_intent:
-          type: string
-      required:
-      - compiled_notarized_intent
-      type: object
-    CompileSignedTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        signatures:
-          items:
-            $ref: '#/components/schemas/Signature'
-          type: array
-        transaction_intent:
-          $ref: '#/components/schemas/TransactionIntent'
-      required:
-      - transaction_intent
-      - signatures
-      type: object
-    CompileSignedTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        compiled_signed_intent:
-          type: string
-      required:
-      - compiled_signed_intent
-      type: object
-    CompileTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        header:
-          $ref: '#/components/schemas/TransactionHeader'
-        manifest:
-          $ref: '#/components/schemas/Manifest'
-      required:
-      - header
-      - manifest
-      type: object
-    CompileTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        compiled_intent:
-          type: string
-      required:
-      - compiled_intent
-      type: object
-    ComponentAddress:
-      additionalProperties: false
-      properties:
-        type:
-          const: ComponentAddress
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    ConvertManifestRequest:
-      additionalProperties: false
-      properties:
-        manifest:
-          $ref: '#/components/schemas/Manifest'
-        manifest_output_format:
-          $ref: '#/components/schemas/ManifestKind'
-        network_id:
-          type: number
-        transaction_version:
-          type: number
-      required:
-      - transaction_version
-      - network_id
-      - manifest_output_format
-      - manifest
-      type: object
-    ConvertManifestResponse:
-      $ref: '#/components/schemas/Manifest'
-    CreateProofFromAuthZone:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: CREATE_PROOF_FROM_AUTH_ZONE
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_proof
-      type: object
-    CreateProofFromAuthZoneByAmount:
-      additionalProperties: false
-      properties:
-        amount:
-          $ref: '#/components/schemas/Decimal'
-        instruction:
-          const: CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_proof
-      - amount
-      type: object
-    CreateProofFromAuthZoneByIds:
-      additionalProperties: false
-      properties:
-        ids:
-          items:
-            $ref: '#/components/schemas/NonFungibleId'
-          type: array
-        instruction:
-          const: CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_proof
-      - ids
-      type: object
-    CreateProofFromBucket:
-      additionalProperties: false
-      properties:
-        bucket:
-          $ref: '#/components/schemas/Bucket'
-        instruction:
-          const: CREATE_PROOF_FROM_BUCKET
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-      required:
-      - instruction
-      - bucket
-      - into_proof
-      type: object
-    Decimal:
-      additionalProperties: false
-      properties:
-        type:
-          const: Decimal
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    DecodeError:
-      additionalProperties: false
-      properties:
-        error:
-          const: DecodeError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    DecompileNotarizedTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        compiled_notarized_intent:
-          type: string
-        manifest_output_format:
-          $ref: '#/components/schemas/ManifestKind'
-      required:
-      - manifest_output_format
-      - compiled_notarized_intent
-      type: object
-    DecompileNotarizedTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        notary_signature:
-          $ref: '#/components/schemas/EcdsaSignature'
-        signed_intent:
-          $ref: '#/components/schemas/SignedTransactionIntent'
-      required:
-      - signed_intent
-      - notary_signature
-      type: object
-    DecompileSignedTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        compiled_signed_intent:
-          type: string
-        manifest_output_format:
-          $ref: '#/components/schemas/ManifestKind'
-      required:
-      - manifest_output_format
-      - compiled_signed_intent
-      type: object
-    DecompileSignedTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        signatures:
-          items:
-            $ref: '#/components/schemas/Signature'
-          type: array
-        transaction_intent:
-          $ref: '#/components/schemas/TransactionIntent'
-      required:
-      - transaction_intent
-      - signatures
-      type: object
-    DecompileTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        compiled_intent:
-          type: string
-        manifest_output_format:
-          $ref: '#/components/schemas/ManifestKind'
-      required:
-      - manifest_output_format
-      - compiled_intent
-      type: object
-    DecompileTransactionIntentResponse:
-      additionalProperties: false
-      properties:
-        header:
-          $ref: '#/components/schemas/TransactionHeader'
-        manifest:
-          $ref: '#/components/schemas/Manifest'
-      required:
-      - header
-      - manifest
-      type: object
-    DecompileUnknownTransactionIntentRequest:
-      additionalProperties: false
-      properties:
-        compiled_unknown_intent:
-          type: string
-        manifest_output_format:
-          $ref: '#/components/schemas/ManifestKind'
-      required:
-      - manifest_output_format
-      - compiled_unknown_intent
-      type: object
-    DecompileUnknownTransactionIntentResponse:
-      anyOf:
-      - $ref: '#/components/schemas/DecompileTransactionIntentResponse'
-      - $ref: '#/components/schemas/DecompileSignedTransactionIntentResponse'
-      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentResponse'
-    DeserializationError:
-      additionalProperties: false
-      properties:
-        error:
-          const: DeserializationError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    DropAllProofs:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: DROP_ALL_PROOFS
-          type: string
-      required:
-      - instruction
-      type: object
-    DropProof:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: DROP_PROOF
-          type: string
-        proof:
-          $ref: '#/components/schemas/Proof'
-      required:
-      - instruction
-      - proof
-      type: object
-    EcdsaPublicKey:
-      type: string
-    EcdsaSignature:
-      type: string
-    Enum:
-      additionalProperties: false
-      properties:
-        fields:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        type:
-          const: Enum
-          type: string
-        variant_name:
-          type: string
-      required:
-      - type
-      - variant_name
-      type: object
-    Error:
-      anyOf:
-      - $ref: '#/components/schemas/AddressError'
-      - $ref: '#/components/schemas/DecodeError'
-      - $ref: '#/components/schemas/DeserializationError'
-      - $ref: '#/components/schemas/InvalidRequestString'
-      - $ref: '#/components/schemas/UnexpectedContents'
-      - $ref: '#/components/schemas/InvalidType'
-      - $ref: '#/components/schemas/ParseError'
-      - $ref: '#/components/schemas/TransactionCompileError'
-      - $ref: '#/components/schemas/TransactionDecompileError'
-      - $ref: '#/components/schemas/UnsupportedTransactionVersion'
-      - $ref: '#/components/schemas/GeneratorError'
-      - $ref: '#/components/schemas/RequestResponseConversionError'
-      - $ref: '#/components/schemas/UnrecognizedCompiledIntentFormat'
-    ErrorKind:
-      enum:
-      - AddressError
-      - DecodeError
-      - DeserializationError
-      - InvalidRequestString
-      - UnexpectedContents
-      - InvalidType
-      - ParseError
-      - TransactionCompileError
-      - TransactionDecompileError
-      - UnsupportedTransactionVersion
-      - GeneratorError
-      - RequestResponseConversionError
-      - UnrecognizedCompiledIntentFormat
-      type: string
-    GeneratorError:
-      additionalProperties: false
-      properties:
-        error:
-          const: GeneratorError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    Hash:
-      additionalProperties: false
-      properties:
-        type:
-          const: Hash
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    I128:
-      additionalProperties: false
-      properties:
-        type:
-          const: I128
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    I16:
-      additionalProperties: false
-      properties:
-        type:
-          const: I16
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    I32:
-      additionalProperties: false
-      properties:
-        type:
-          const: I32
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    I64:
-      additionalProperties: false
-      properties:
-        type:
-          const: I64
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    I8:
-      additionalProperties: false
-      properties:
-        type:
-          const: I8
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
+
+    # ===================
+    # Request & Response 
+    # ===================
+
+    # Information
     InformationRequest:
-      additionalProperties: false
       type: object
-    InformationResponse:
       additionalProperties: false
+
+    InformationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - package_version
       properties:
         package_version:
           type: string
-      required:
-      - package_version
+
+    # Convert Manifest
+    ConvertManifestRequest:
       type: object
-    Instruction:
-      anyOf:
-      - $ref: '#/components/schemas/CallFunction'
-      - $ref: '#/components/schemas/CallMethod'
-      - $ref: '#/components/schemas/CallMethodWithAllResources'
-      - $ref: '#/components/schemas/TakeFromWorktop'
-      - $ref: '#/components/schemas/TakeFromWorktopByAmount'
-      - $ref: '#/components/schemas/TakeFromWorktopByIds'
-      - $ref: '#/components/schemas/ReturnToWorktop'
-      - $ref: '#/components/schemas/AssertWorktopContains'
-      - $ref: '#/components/schemas/AssertWorktopContainsByAmount'
-      - $ref: '#/components/schemas/AssertWorktopContainsByIds'
-      - $ref: '#/components/schemas/PopFromAuthZone'
-      - $ref: '#/components/schemas/PushToAuthZone'
-      - $ref: '#/components/schemas/ClearAuthZone'
-      - $ref: '#/components/schemas/CreateProofFromAuthZone'
-      - $ref: '#/components/schemas/CreateProofFromAuthZoneByAmount'
-      - $ref: '#/components/schemas/CreateProofFromAuthZoneByIds'
-      - $ref: '#/components/schemas/CreateProofFromBucket'
-      - $ref: '#/components/schemas/CloneProof'
-      - $ref: '#/components/schemas/DropProof'
-      - $ref: '#/components/schemas/DropAllProofs'
-      - $ref: '#/components/schemas/PublishPackage'
-    InstructionKind:
-      enum:
-      - CALL_FUNCTION
-      - CALL_METHOD
-      - CALL_METHOD_WITH_ALL_RESOURCES
-      - TAKE_FROM_WORKTOP
-      - TAKE_FROM_WORKTOP_BY_AMOUNT
-      - TAKE_FROM_WORKTOP_BY_IDS
-      - RETURN_TO_WORKTOP
-      - ASSERT_WORKTOP_CONTAINS
-      - ASSERT_WORKTOP_CONTAINS_BY_AMOUNT
-      - ASSERT_WORKTOP_CONTAINS_BY_IDS
-      - POP_FROM_AUTH_ZOME
-      - PUSH_TO_AUTH_ZOME
-      - CLEAR_AUTH_ZOME
-      - CREATE_PROOF_FROM_AUTH_ZONE
-      - CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT
-      - CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
-      - CREATE_PROOF_FROM_BUCKET
-      - CLONE_PROOF
-      - DROP_PROOF
-      - DROP_ALL_PROOFS
-      - PUBLISH_PACKAGE
-      type: string
-    InvalidRequestString:
       additionalProperties: false
-      properties:
-        error:
-          const: InvalidRequestString
-          type: string
-        value:
-          type: string
       required:
-      - error
-      - value
-      type: object
-    InvalidType:
-      additionalProperties: false
+        - transaction_version
+        - network_id
+        - manifest_output_format
+        - manifest
       properties:
-        error:
-          const: InvalidType
+        transaction_version:
+          $ref: "#/components/schemas/Byte"
+        network_id:
+          $ref: "#/components/schemas/Byte"
+        manifest_output_format:
+          $ref: "#/components/schemas/ManifestKind"
+        manifest:
+          $ref: "#/components/schemas/Manifest"
+
+    ConvertManifestResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - manifest
+      properties:
+        manifest:
+          $ref: "#/components/schemas/Manifest"
+
+    # Compile Transaction Intent
+    CompileTransactionIntentRequest:
+      $ref: "#/components/schemas/TransactionIntent"
+
+    CompileTransactionIntentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - compiled_intent
+      properties:
+        compiled_intent:
           type: string
-        value:
+
+    # Decompile Transaction Intent
+    DecompileTransactionIntentRequest:
+      allOf:
+        - $ref: "#/components/schemas/CompileTransactionIntentResponse"
+        - type: object
           additionalProperties: false
-          properties:
-            actual_type:
-              $ref: '#/components/schemas/ValueKind'
-            expected_type:
-              $ref: '#/components/schemas/ValueKind'
           required:
-          - expected_type
-          - actual_type
-          type: object
-      required:
-      - error
-      - value
+            - manifest_output_format
+          properties:
+            manifest_output_format:
+              $ref: "#/components/schemas/ManifestKind"
+    
+    DecompileTransactionIntentResponse:
+      $ref: "#/components/schemas/TransactionIntent"
+
+    # Compile Signed Transaction Intent
+    CompileSignedTransactionIntentRequest:
+      $ref: "#/components/schemas/SignedTransactionIntent"
+
+    CompileSignedTransactionIntentResponse:
       type: object
-    List:
       additionalProperties: false
+      required:
+        - compiled_signed_intent
       properties:
-        element_type:
-          $ref: '#/components/schemas/ValueKind'
-        elements:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        type:
-          const: List
+        compiled_signed_intent:
           type: string
-      required:
-      - type
-      - element_type
-      - elements
+
+    # Decompile Signed Transaction Intent
+    DecompileSignedTransactionIntentRequest:
+      allOf:
+        - $ref: "#/components/schemas/CompileSignedTransactionIntentResponse"
+        - type: object
+          additionalProperties: false
+          required:
+            - manifest_output_format
+          properties:
+            manifest_output_format:
+              $ref: "#/components/schemas/ManifestKind"
+    
+    DecompileSignedTransactionIntentResponse:
+      $ref: "#/components/schemas/SignedTransactionIntent"
+
+    # Compile Notarized Transaction Intent
+    CompileNotarizedTransactionIntentRequest:
+      $ref: "#/components/schemas/NotarizedTransactionIntent"
+
+    CompileNotarizedTransactionIntentResponse:
       type: object
-    Manifest:
-      anyOf:
-      - $ref: '#/components/schemas/ManifestJSON'
-      - $ref: '#/components/schemas/ManifestString'
-    ManifestJSON:
       additionalProperties: false
-      properties:
-        type:
-          $ref: '#/components/schemas/ManifestJSON'
-        value:
-          items:
-            $ref: '#/components/schemas/Instruction'
-          type: array
       required:
-      - type
-      - value
+        - compiled_notarized_intent
+      properties:
+        compiled_notarized_intent:
+          type: string
+
+    # Decompile Notarized Transaction Intent
+    DecompileNotarizedTransactionIntentRequest:
+      allOf:
+        - $ref: "#/components/schemas/CompileNotarizedTransactionIntentResponse"
+        - type: object
+          additionalProperties: false
+          required:
+            - manifest_output_format
+          properties:
+            manifest_output_format:
+              $ref: "#/components/schemas/ManifestKind"
+    
+    DecompileNotarizedTransactionIntentResponse:
+      $ref: "#/components/schemas/NotarizedTransactionIntent"
+    
+    # Decompile Unknown Transaction Intent
+    DecompileUnknownTransactionIntentRequest:
       type: object
+      additionalProperties: false
+      required:
+        - manifest_output_format
+        - compiled_unknown_intent
+      properties:
+        manifest_output_format:
+          $ref: "#/components/schemas/ManifestKind"
+        compiled_unknown_intent:
+          type: string
+    
+    DecompileUnknownTransactionIntentResponse:
+      anyOf:
+        - $ref: "#/components/schemas/DecompileTransactionIntentResponse"
+        - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
+        - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
+
+    # ================================
+    # Request & Response Dependencies
+    # ================================
+
+    TransactionIntent:
+      type: object
+      additionalProperties: false
+      required:
+        - header
+        - manifest
+      properties:
+        header:
+          $ref: "#/components/schemas/TransactionHeader"
+        manifest:
+          $ref: "#/components/schemas/Manifest"
+    
+    SignedTransactionIntent:
+      type: object
+      additionalProperties: false
+      required:
+        - transaction_intent
+        - signatures
+      properties:
+        transaction_intent:
+          $ref: "#/components/schemas/TransactionIntent"
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Signature"
+    
+    NotarizedTransactionIntent:
+      type: object
+      additionalProperties: false
+      required:
+        - signed_intent
+        - notary_signature
+      properties:
+        signed_intent:
+          $ref: "#/components/schemas/SignedTransactionIntent"
+        notary_signature:
+          $ref: "#/components/schemas/EcdsaSignature"
+    
+    TransactionHeader:
+      type: object
+      additionalProperties: false
+      required:
+        - version
+        - network_id
+        - start_epoch_inclusive
+        - end_epoch_exclusive
+        - nonce
+        - notary_public_key
+        - notary_as_signatory
+        - cost_unit_limit
+        - tip_percentage
+      properties:
+        version:
+          $ref: "#/components/schemas/Byte"
+        network_id:
+          $ref: "#/components/schemas/Byte"
+        start_epoch_inclusive:
+          type: number
+          minimum: 0x00
+          maximum: 0xFFFFFFFFFFFFFFFF
+        end_epoch_exclusive:
+          type: number
+          minimum: 0x00
+          maximum: 0xFFFFFFFFFFFFFFFF
+        nonce:
+          type: number
+          minimum: 0x00
+          maximum: 0xFFFFFFFFFFFFFFFF
+        notary_public_key:
+          $ref: "#/components/schemas/EcdsaPublicKey"
+        notary_as_signatory:
+          type: boolean
+        cost_unit_limit:
+          type: number
+          minimum: 0x00
+          maximum: 0xFFFFFFFF
+        tip_percentage:
+          type: number
+          minimum: 0x00
+          maximum: 0xFFFFFFFF
+
+    Signature:
+      type: object
+      additionalProperties: false
+      required:
+        - public_key
+        - signature
+      properties:
+        public_key:
+          $ref: "#/components/schemas/EcdsaPublicKey"
+        signature:
+          $ref: "#/components/schemas/EcdsaSignature"
+
+    EcdsaPublicKey:
+      type: string
+    
+    EcdsaSignature:
+      type: string
+
     ManifestKind:
+      type: string
       enum:
       - String
       - JSON
-      type: string
+
+    Manifest:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          String: "#/components/schemas/ManifestString"
+          JSON: "#/components/schemas/ManifestJson"
+
     ManifestString:
-      additionalProperties: false
-      properties:
-        type:
-          const: String
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    Map:
-      additionalProperties: false
-      properties:
-        elements:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        key_type:
-          $ref: '#/components/schemas/ValueKind'
-        type:
-          const: Map
-          type: string
-        value_type:
-          $ref: '#/components/schemas/ValueKind'
-      required:
-      - type
-      - key_type
-      - value_type
-      - elements
-      type: object
-    NonFungibleAddress:
-      additionalProperties: false
-      properties:
-        type:
-          const: NonFungibleAddress
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    NonFungibleId:
-      additionalProperties: false
-      properties:
-        type:
-          const: NonFungibleId
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    Option:
-      additionalProperties: false
-      properties:
-        type:
-          const: Option
-          type: string
-        value:
-          $ref: '#/components/schemas/Value'
-      required:
-      - type
-      type: object
-    PackageAddress:
-      additionalProperties: false
-      properties:
-        type:
-          const: PackageAddress
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    ParseError:
-      additionalProperties: false
-      properties:
-        error:
-          const: ParseError
-          type: string
-        value:
-          additionalProperties: false
-          properties:
-            error:
-              type: string
-            kind:
-              $ref: '#/components/schemas/ValueKind'
-          required:
-          - kind
-          - error
-          type: object
-      required:
-      - error
-      - value
-      type: object
-    PopFromAuthZone:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: POP_FROM_AUTH_ZOME
-          type: string
-        into_proof:
-          $ref: '#/components/schemas/Proof'
-      required:
-      - instruction
-      - into_proof
-      type: object
-    PreciseDecimal:
-      additionalProperties: false
-      properties:
-        type:
-          const: PreciseDecimal
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    Proof:
-      additionalProperties: false
-      properties:
-        type:
-          const: Proof
-          type: string
-        value:
-          type: number
-      required:
-      - type
-      - value
-      type: object
-    PublishPackage:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: PUBLISH_PACKAGE
-          type: string
-        package:
-          $ref: '#/components/schemas/Bytes'
-      required:
-      - instruction
-      - package
-      type: object
-    PushToAuthZone:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: PUSH_TO_AUTH_ZOME
-          type: string
-        proof:
-          $ref: '#/components/schemas/Proof'
-      required:
-      - instruction
-      - proof
-      type: object
-    Request:
-      anyOf:
-      - $ref: '#/components/schemas/InformationRequest'
-      - $ref: '#/components/schemas/ConvertManifestRequest'
-      - $ref: '#/components/schemas/CompileTransactionIntentRequest'
-      - $ref: '#/components/schemas/DecompileTransactionIntentRequest'
-      - $ref: '#/components/schemas/CompileSignedTransactionIntentRequest'
-      - $ref: '#/components/schemas/DecompileSignedTransactionIntentRequest'
-      - $ref: '#/components/schemas/CompileNotarizedTransactionIntentRequest'
-      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentRequest'
-    RequestResponseConversionError:
-      additionalProperties: false
-      properties:
-        error:
-          const: RequestResponseConversionError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    ResourceAddress:
-      additionalProperties: false
-      properties:
-        type:
-          const: ResourceAddress
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    Response:
-      anyOf:
-      - $ref: '#/components/schemas/InformationResponse'
-      - $ref: '#/components/schemas/ConvertManifestResponse'
-      - $ref: '#/components/schemas/CompileTransactionIntentResponse'
-      - $ref: '#/components/schemas/DecompileTransactionIntentResponse'
-      - $ref: '#/components/schemas/CompileSignedTransactionIntentResponse'
-      - $ref: '#/components/schemas/DecompileSignedTransactionIntentResponse'
-      - $ref: '#/components/schemas/CompileNotarizedTransactionIntentResponse'
-      - $ref: '#/components/schemas/DecompileNotarizedTransactionIntentResponse'
-    Result:
-      additionalProperties: false
-      properties:
-        type:
-          const: Result
-          type: string
-        value:
-          $ref: '#/components/schemas/Value'
-      required:
-      - type
-      type: object
-    ReturnToWorktop:
-      additionalProperties: false
-      properties:
-        bucket:
-          $ref: '#/components/schemas/Bucket'
-        instruction:
-          const: RETURN_TO_WORKTOP
-          type: string
-      required:
-      - instruction
-      - bucket
-      type: object
-    Set:
-      additionalProperties: false
-      properties:
-        element_type:
-          $ref: '#/components/schemas/ValueKind'
-        elements:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        type:
-          const: Set
-          type: string
-      required:
-      - type
-      - element_type
-      - elements
-      type: object
-    Signature:
-      additionalProperties: false
-      properties:
-        public_key:
-          $ref: '#/components/schemas/EcdsaPublicKey'
-        signature:
-          $ref: '#/components/schemas/EcdsaSignature'
-      required:
-      - public_key
-      - signature
-      type: object
-    SignedTransactionIntent:
-      additionalProperties: false
-      properties:
-        signatures:
-          items:
-            $ref: '#/components/schemas/Signature'
-          type: array
-        transaction_intent:
-          $ref: '#/components/schemas/TransactionIntent'
-      required:
-      - transaction_intent
-      - signatures
-      type: object
-    String:
-      additionalProperties: false
-      properties:
-        type:
-          const: String
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    Struct:
-      additionalProperties: false
-      properties:
-        fields:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        type:
-          const: Struct
-          type: string
-      required:
-      - type
-      - fields
-      type: object
-    TakeFromWorktop:
-      additionalProperties: false
-      properties:
-        instruction:
-          const: TAKE_FROM_WORKTOP
-          type: string
-        into_bucket:
-          $ref: '#/components/schemas/Bucket'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_bucket
-      type: object
-    TakeFromWorktopByAmount:
-      additionalProperties: false
-      properties:
-        amount:
-          $ref: '#/components/schemas/Decimal'
-        instruction:
-          const: TAKE_FROM_WORKTOP_BY_AMOUNT
-          type: string
-        into_bucket:
-          $ref: '#/components/schemas/Bucket'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_bucket
-      - amount
-      type: object
-    TakeFromWorktopByIds:
-      additionalProperties: false
-      properties:
-        ids:
-          items:
-            $ref: '#/components/schemas/NonFungibleId'
-          type: array
-        instruction:
-          const: TAKE_FROM_WORKTOP_BY_IDS
-          type: string
-        into_bucket:
-          $ref: '#/components/schemas/Bucket'
-        resource_address:
-          $ref: '#/components/schemas/ResourceAddress'
-      required:
-      - instruction
-      - resource_address
-      - into_bucket
-      - ids
-      type: object
-    TransactionAPI:
-      additionalProperties: false
-      type: object
-    TransactionCompileError:
-      additionalProperties: false
-      properties:
-        error:
-          const: TransactionCompileError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    TransactionDecompileError:
-      additionalProperties: false
-      properties:
-        error:
-          const: TransactionDecompileError
-          type: string
-        value:
-          type: string
-      required:
-      - error
-      - value
-      type: object
-    TransactionHeader:
-      additionalProperties: false
-      properties:
-        cost_unit_limit:
-          type: number
-        end_epoch_exclusive:
-          type: number
-        network_id:
-          type: number
-        nonce:
-          type: number
-        notary_as_signatory:
-          type: boolean
-        notary_public_key:
-          $ref: '#/components/schemas/EcdsaPublicKey'
-        start_epoch_inclusive:
-          type: number
-        tip_percentage:
-          type: number
-        version:
-          type: number
-      required:
-      - version
-      - network_id
-      - start_epoch_inclusive
-      - end_epoch_exclusive
-      - nonce
-      - notary_public_key
-      - notary_as_signatory
-      - cost_unit_limit
-      - tip_percentage
-      type: object
-    TransactionIntent:
-      additionalProperties: false
-      properties:
-        header:
-          $ref: '#/components/schemas/TransactionHeader'
-        manifest:
-          $ref: '#/components/schemas/Manifest'
-      required:
-      - header
-      - manifest
-      type: object
-    TransactionServiceInterface:
-      additionalProperties: false
-      type: object
-    Tuple:
-      additionalProperties: false
-      properties:
-        elements:
-          items:
-            $ref: '#/components/schemas/Value'
-          type: array
-        type:
-          const: Tuple
-          type: string
-      required:
-      - type
-      - elements
-      type: object
-    U128:
-      additionalProperties: false
-      properties:
-        type:
-          const: U128
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    U16:
-      additionalProperties: false
-      properties:
-        type:
-          const: U16
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    U32:
-      additionalProperties: false
-      properties:
-        type:
-          const: U32
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    U64:
-      additionalProperties: false
-      properties:
-        type:
-          const: U64
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    U8:
-      additionalProperties: false
-      properties:
-        type:
-          const: U8
-          type: string
-        value:
-          type: string
-      required:
-      - type
-      - value
-      type: object
-    UnexpectedContents:
-      additionalProperties: false
-      properties:
-        error:
-          const: UnexpectedContents
-          type: string
-        value:
-          additionalProperties: false
-          properties:
-            expected:
-              items:
-                $ref: '#/components/schemas/ValueKind'
-              type: array
-            found:
-              $ref: '#/components/schemas/ValueKind'
-            kind:
-              $ref: '#/components/schemas/ValueKind'
-          required:
-          - kind
-          - expected
-          - found
-          type: object
-      required:
-      - error
-      - value
-      type: object
-    Unit:
-      additionalProperties: false
-      properties:
-        type:
-          const: Unit
-          type: string
-      required:
-      - type
-      type: object
-    UnrecognizedCompiledIntentFormat:
-      additionalProperties: false
-      properties:
-        error:
-          const: UnrecognizedCompiledIntentFormat
-          type: string
-      required:
-      - error
-      type: object
-    UnsupportedTransactionVersion:
-      additionalProperties: false
-      properties:
-        error:
-          const: UnsupportedTransactionVersion
-          type: string
-        value:
-          type: number
-      required:
-      - error
-      - value
-      type: object
-    Value:
-      anyOf:
-      - $ref: '#/components/schemas/Unit'
-      - $ref: '#/components/schemas/Bool'
-      - $ref: '#/components/schemas/U8'
-      - $ref: '#/components/schemas/U16'
-      - $ref: '#/components/schemas/U32'
-      - $ref: '#/components/schemas/U64'
-      - $ref: '#/components/schemas/U128'
-      - $ref: '#/components/schemas/I8'
-      - $ref: '#/components/schemas/I16'
-      - $ref: '#/components/schemas/I32'
-      - $ref: '#/components/schemas/I64'
-      - $ref: '#/components/schemas/I128'
-      - $ref: '#/components/schemas/String'
-      - $ref: '#/components/schemas/Struct'
-      - $ref: '#/components/schemas/Enum'
-      - $ref: '#/components/schemas/Option'
-      - $ref: '#/components/schemas/Result'
-      - $ref: '#/components/schemas/Tuple'
-      - $ref: '#/components/schemas/List'
-      - $ref: '#/components/schemas/Set'
-      - $ref: '#/components/schemas/Map'
-      - $ref: '#/components/schemas/Decimal'
-      - $ref: '#/components/schemas/PreciseDecimal'
-      - $ref: '#/components/schemas/ComponentAddress'
-      - $ref: '#/components/schemas/PackageAddress'
-      - $ref: '#/components/schemas/ResourceAddress'
-      - $ref: '#/components/schemas/Hash'
-      - $ref: '#/components/schemas/Bucket'
-      - $ref: '#/components/schemas/Proof'
-      - $ref: '#/components/schemas/NonFungibleId'
-      - $ref: '#/components/schemas/NonFungibleAddress'
-      - $ref: '#/components/schemas/Bytes'
+      allOf:
+      - $ref: "#/components/schemas/Manifest"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    
+    ManifestJson:
+      allOf:
+      - $ref: "#/components/schemas/Manifest"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: array
+            items: 
+              $ref: "#/components/schemas/Instruction"
+
+    Byte:
+      type: number
+      minimum: 0x00
+      maximum: 0xFF
+
+    # ======
+    # Value
+    # ======
+    
     ValueKind:
+      type: string
       enum:
       - Unit
       - Bool
@@ -1388,4 +350,859 @@ components:
       - NonFungibleId
       - NonFungibleAddress
       - Bytes
-      type: string
+    
+    Value:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          U8: "#/components/schemas/U8"
+          U16: "#/components/schemas/U16"
+          U32: "#/components/schemas/U32"
+          U64: "#/components/schemas/U64"
+          U128: "#/components/schemas/U128"
+          I8: "#/components/schemas/I8"
+          I16: "#/components/schemas/I16"
+          I32: "#/components/schemas/I32"
+          I64: "#/components/schemas/I64"
+          I128: "#/components/schemas/I128"
+          String: "#/components/schemas/String"
+          Struct: "#/components/schemas/Struct"
+          Enum: "#/components/schemas/Enum"
+          Option: "#/components/schemas/Option"
+          Result: "#/components/schemas/Result"
+          Array: "#/components/schemas/Array"
+          Tuple: "#/components/schemas/Tuple"
+          List: "#/components/schemas/List"
+          Set: "#/components/schemas/Set"
+          Map: "#/components/schemas/Map"
+          Decimal: "#/components/schemas/Decimal"
+          PreciseDecimal: "#/components/schemas/PreciseDecimal"
+          ComponentAddress: "#/components/schemas/ComponentAddress"
+          ResourceAddress: "#/components/schemas/ResourceAddress"
+          PackageAddress: "#/components/schemas/PackageAddress"
+          Hash: "#/components/schemas/Hash"
+          Bytes: "#/components/schemas/Bytes"
+          Bucket: "#/components/schemas/Bucket"
+          Proof: "#/components/schemas/Proof"
+          NonFungibleId: "#/components/schemas/NonFungibleId"
+          NonFungibleAddress: "#/components/schemas/NonFungibleAddress"
+    U8:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    U16:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    U32:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    U64:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    U128:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    I8:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    I16:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    I32:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    I64:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    I128:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    String:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    Struct:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - fields
+        properties:
+          fields:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    Enum:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - variant_name
+        - fields
+        properties:
+          variant_name:
+            type: string
+          fields:
+            type: array
+            nullable: true
+            items:
+              $ref: "#/components/schemas/Value"
+    Option:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            nullable: true
+            $ref: "#/components/schemas/Value"
+    Result:
+      description: 'TODO: Need to add this.'
+    Array:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - element_type
+        - elements
+        properties:
+          element_type:
+            $ref: "#/components/schemas/ValueKind"
+          elements:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    Tuple:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - elements
+        properties:
+          elements:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    List:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - element_type
+        - elements
+        properties:
+          element_type:
+            $ref: "#/components/schemas/ValueKind"
+          elements:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    Set:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - element_type
+        - elements
+        properties:
+          element_type:
+            $ref: "#/components/schemas/ValueKind"
+          elements:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    Map:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - key_type
+        - value_type
+        - elements
+        properties:
+          key_type:
+            $ref: "#/components/schemas/ValueKind"
+          value_type:
+            $ref: "#/components/schemas/ValueKind"
+          elements:
+            type: array
+            items:
+              $ref: "#/components/schemas/Value"
+    Decimal:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    PreciseDecimal:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    ComponentAddress:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
+    ResourceAddress:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
+    PackageAddress:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
+    Hash:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
+    Bucket:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - identifier
+        properties:
+          identifier:
+            oneOf:
+            - type: string
+            - type: integer
+    Proof:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - identifier
+        properties:
+          identifier:
+            oneOf:
+            - type: string
+            - type: integer
+    NonFungibleId:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    NonFungibleAddress:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
+    Bytes:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    
+    # =============
+    # Instructions
+    # =============
+    
+    Instruction:
+      type: object
+      required:
+      - instruction
+      properties:
+        instruction:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: instruction
+        mapping:
+          CALL_FUNCTION: "#/components/schemas/CallFunction"
+          CALL_METHOD: "#/components/schemas/CallMethod"
+          CALL_METHOD_WITH_ALL_RESOURCES: "#/components/schemas/CallMethodWithAllResources"
+          TAKE_FROM_WORKTOP: "#/components/schemas/TakeFromWorktop"
+          TAKE_FROM_WORKTOP_BY_AMOUNT: "#/components/schemas/TakeFromWorktopByAmount"
+          TAKE_FROM_WORKTOP_BY_IDS: "#/components/schemas/TakeFromWorktopByIds"
+          ASSERT_WORKTOP_CONTAINS: "#/components/schemas/AssertWorktopContains"
+          ASSERT_WORKTOP_CONTAINS_BY_AMOUNT: "#/components/schemas/AssertWorktopContainsByAmount"
+          ASSERT_WORKTOP_CONTAINS_BY_IDS: "#/components/schemas/AssertWorktopContainsByIds"
+          POP_FROM_AUTH_ZONE: "#/components/schemas/PopFromAuthZone"
+          PUSH_TO_AUTH_ZONE: "#/components/schemas/PushToAuthZone"
+          CLEAR_AUTH_ZONE: "#/components/schemas/ClearAuthZone"
+          CREATE_PROOF_FROM_AUTH_ZONE: "#/components/schemas/CreateProofFromAuthZone"
+          CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT: "#/components/schemas/CreateProofFromAuthZoneByAmount"
+          CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS: "#/components/schemas/CreateProofFromAuthZoneByIds"
+          CREATE_PROOF_FROM_BUCKET: "#/components/schemas/CreateProofFromBucket"
+          CLONE_PROOF: "#/components/schemas/CloneProof"
+          DROP_PROOF: "#/components/schemas/DropProof"
+          DROP_ALL_PROOF: "#/components/schemas/DropAllProofs"
+          PUBLISH_PACKAGE: "#/components/schemas/PublishPackage"
+    CallFunction:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - package_address
+        - blueprint_name
+        - function_name
+        - arguments
+        properties:
+          package_address:
+            $ref: "#/components/schemas/PackageAddress"
+          blueprint_name:
+            $ref: "#/components/schemas/String"
+          function_name:
+            $ref: "#/components/schemas/String"
+          arguments:
+            type: array
+            nullable: true
+            items:
+              $ref: "#/components/schemas/Value"
+    CallMethod:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - component_address
+        - method_name
+        - arguments
+        properties:
+          component_address:
+            $ref: "#/components/schemas/ComponentAddress"
+          method_name:
+            $ref: "#/components/schemas/String"
+          arguments:
+            type: array
+            nullable: true
+            items:
+              $ref: "#/components/schemas/Value"
+    CallMethodWithAllResources:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - component_address
+        - method_name
+        properties:
+          component_address:
+            $ref: "#/components/schemas/ComponentAddress"
+          method_name:
+            $ref: "#/components/schemas/String"
+    TakeFromWorktop:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_bucket
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          into_bucket:
+            $ref: "#/components/schemas/Bucket"
+    TakeFromWorktopByAmount:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_bucket
+        - amount
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          amount:
+            $ref: "#/components/schemas/Decimal"
+          into_bucket:
+            $ref: "#/components/schemas/Bucket"
+    TakeFromWorktopByIds:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_bucket
+        - ids
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          ids:
+            type: array
+            items:
+              $ref: "#/components/schemas/NonFungibleId"
+          into_bucket:
+            $ref: "#/components/schemas/Bucket"
+    ReturnToWorktop:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - bucket
+        properties:
+          bucket:
+            $ref: "#/components/schemas/Bucket"
+    AssertWorktopContains:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+    AssertWorktopContainsByAmount:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - amount
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          amount:
+            $ref: "#/components/schemas/Decimal"
+    AssertWorktopContainsByIds:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - ids
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          ids:
+            type: array
+            items:
+              $ref: "#/components/schemas/NonFungibleId"
+    PopFromAuthZone:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - into_proof
+        properties:
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    PushToAuthZone:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - proof
+        properties:
+          proof:
+            $ref: "#/components/schemas/Proof"
+    ClearAuthZone:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+    CreateProofFromAuthZone:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_proof
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    CreateProofFromAuthZoneByAmount:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_proof
+        - amount
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          amount:
+            $ref: "#/components/schemas/Decimal"
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    CreateProofFromAuthZoneByIds:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - resource_address
+        - into_proof
+        - ids
+        properties:
+          resource_address:
+            $ref: "#/components/schemas/ResourceAddress"
+          ids:
+            type: array
+            items:
+              $ref: "#/components/schemas/NonFungibleId"
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    CreateProofFromBucket:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - bucket
+        - into_proof
+        properties:
+          bucket:
+            $ref: "#/components/schemas/Bucket"
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    CloneProof:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - proof
+        - into_proof
+        properties:
+          proof:
+            $ref: "#/components/schemas/Proof"
+          into_proof:
+            $ref: "#/components/schemas/Proof"
+    DropProof:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - proof
+        properties:
+          proof:
+            $ref: "#/components/schemas/Proof"
+    DropAllProof:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+    PublishPackage:
+      allOf:
+      - $ref: "#/components/schemas/Instruction"
+      - type: object
+        additionalProperties: false
+        required:
+        - package
+        properties:
+          package:
+            $ref: "#/components/schemas/Bytes"
+    
+    # ======
+    # Error
+    # ======
+    
+    Error:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: error
+        mapping:
+          AddressError: "#/components/schemas/AddressError"
+          DecodeError: "#/components/schemas/DecodeError"
+          DeserializationError: "#/components/schemas/DeserializationError"
+          InvalidRequestString: "#/components/schemas/InvalidRequestString"
+          UnexpectedContents: "#/components/schemas/UnexpectedContents"
+          InvalidType: "#/components/schemas/InvalidType"
+          ParseError: "#/components/schemas/ParseError"
+          TransactionCompileError: "#/components/schemas/TransactionCompileError"
+          TransactionDecompileError: "#/components/schemas/TransactionDecompileError"
+          UnsupportedTransactionVersion: "#/components/schemas/UnsupportedTransactionVersion"
+          GeneratorError: "#/components/schemas/GeneratorError"
+          RequestResponseConversionError: "#/components/schemas/RequestResponseConversionError"
+          UnrecognizedCompiledIntentFormat: "#/components/schemas/UnrecognizedCompiledIntentFormat"
+    AddressError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    DecodeError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    DeserializationError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    InvalidRequestString:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    UnexpectedContents:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - expected
+        - found
+        properties:
+          kind:
+            $ref: "#/components/schemas/ValueKind"
+          expected:
+            type: array
+            items:
+              $ref: "#/components/schemas/ValueKind"
+          found:
+            $ref: "#/components/schemas/ValueKind"
+    InvalidType:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - expected_type
+        - actual_type
+        properties:
+          expected_type:
+            $ref: "#/components/schemas/ValueKind"
+          actual_type:
+            $ref: "#/components/schemas/ValueKind"
+    ParseError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - error
+        properties:
+          kind:
+            $ref: "#/components/schemas/ValueKind"
+          error:
+            type: string
+    TransactionCompileError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    TransactionDecompileError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    UnsupportedTransactionVersion:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: number
+    GeneratorError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    RequestResponseConversionError:
+      allOf:
+      - $ref: "#/components/schemas/Error"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string
+    UnrecognizedCompiledIntentFormat:
+      $ref: "#/components/schemas/Error"
