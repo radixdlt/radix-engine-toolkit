@@ -7,7 +7,8 @@
 //    doesn't have anything equivalent to Rust's `Result<T, E>`, what is coded here is just the 
 //    "happy" path without any error handling or exceptions.
 // 2- Bucket and proof identifiers should either be strings of u32. However, the OpenAPI generator
-//    I'm using failed to generate this. We should look into this.
+//    I'm using failed to generate this. So, all that the C# code supports (for the time being) is
+//    string identifiers for buckets and proofs. We should look into this.
 
 using System.Security.Cryptography;  
 using Nethereum.Hex.HexConvertors.Extensions;
