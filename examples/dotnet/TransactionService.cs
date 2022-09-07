@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using WebAssembly;
 using WebAssembly.Runtime;
 using Newtonsoft.Json;
-using Org.OpenAPITools.Model;
+using Model;
 
 public class TransactionService {
     private WebAssembly.Instance<dynamic> serviceInstance;
