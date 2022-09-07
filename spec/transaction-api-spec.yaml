@@ -46,13 +46,7 @@ components:
           $ref: "#/components/schemas/Manifest"
 
     ConvertManifestResponse:
-      type: object
-      additionalProperties: false
-      required:
-        - manifest
-      properties:
-        manifest:
-          $ref: "#/components/schemas/Manifest"
+      $ref: "#/components/schemas/Manifest"
 
     # Compile Transaction Intent
     CompileTransactionIntentRequest:
@@ -218,15 +212,15 @@ components:
         network_id:
           $ref: "#/components/schemas/Byte"
         start_epoch_inclusive:
-          type: number
+          type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
         end_epoch_exclusive:
-          type: number
+          type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
         nonce:
-          type: number
+          type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
         notary_public_key:
@@ -234,11 +228,11 @@ components:
         notary_as_signatory:
           type: boolean
         cost_unit_limit:
-          type: number
+          type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFF
         tip_percentage:
-          type: number
+          type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFF
 
@@ -274,6 +268,7 @@ components:
       properties:
         type:
           type: string
+          readOnly: true
       discriminator:
         propertyName: type
         mapping:
@@ -305,7 +300,7 @@ components:
               $ref: "#/components/schemas/Instruction"
 
     Byte:
-      type: number
+      type: integer
       minimum: 0x00
       maximum: 0xFF
 
@@ -357,6 +352,7 @@ components:
       properties:
         type:
           type: string
+          readOnly: true
       discriminator:
         propertyName: type
         mapping:
@@ -743,6 +739,7 @@ components:
       properties:
         instruction:
           type: string
+          readOnly: true
       discriminator:
         propertyName: instruction
         mapping:
@@ -765,6 +762,7 @@ components:
           CLONE_PROOF: "#/components/schemas/CloneProof"
           DROP_PROOF: "#/components/schemas/DropProof"
           DROP_ALL_PROOF: "#/components/schemas/DropAllProofs"
+          RETURN_TO_WORKTOP: "#/components/schemas/ReturnToWorktop"
           PUBLISH_PACKAGE: "#/components/schemas/PublishPackage"
     CallFunction:
       allOf:
@@ -1050,6 +1048,7 @@ components:
       properties:
         error:
           type: string
+          readOnly: true
       discriminator:
         propertyName: error
         mapping:
