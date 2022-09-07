@@ -1,4 +1,15 @@
-﻿using System.Security.Cryptography;  
+﻿// This implementation is meant to be a reference implementation and an example and not a production
+// ready implementation as the C# implementation has not been tested very thoroughly. You can use 
+// this as a starting point for your integration.
+//
+// There are two main things missing from this C# implementation:
+// 1- All requests to the transaction library either retrun a valid response or an error. Since C#
+//    doesn't have anything equivalent to Rust's `Result<T, E>`, what is coded here is just the 
+//    "happy" path without any error handling or exceptions.
+// 2- Bucket and proof identifiers should either be strings of u32. However, the OpenAPI generator
+//    I'm using failed to generate this. We should look into this.
+
+using System.Security.Cryptography;  
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
 using Nethereum.Signer.Crypto;
