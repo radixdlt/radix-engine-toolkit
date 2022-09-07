@@ -3,7 +3,6 @@ use scrypto::prelude::{scrypto_decode, scrypto_encode};
 use crate::error::Error;
 use crate::link_handler;
 use crate::models::*;
-use crate::validation::{validate_request, validate_response};
 
 // Links the extern functions to the handlers that will handle their requests.
 link_handler! {
