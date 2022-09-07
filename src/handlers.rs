@@ -1,5 +1,6 @@
 use scrypto::prelude::{scrypto_decode, scrypto_encode};
 
+use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::link_handler;
 use crate::models::*;
@@ -34,12 +35,14 @@ fn handle_information(_request: InformationRequest) -> Result<InformationRespons
 fn handle_convert_manifest(
     request: ConvertManifestRequest,
 ) -> Result<ConvertManifestResponse, Error> {
+    let bech32_manager: Bech32Manager = Bech32Manager::new(request.network_id);
+
     // Process the request Convert between the manifest formats.
     // TODO: This needs to be dependent on the version of the manifest. For now, the
     // `transaction_version` in the request is ignored.
     let converted_manifest: Manifest = request
         .manifest
-        .to(request.manifest_output_format, request.network_id)?;
+        .to(request.manifest_output_format, &bech32_manager)?;
 
     let response: ConvertManifestResponse = ConvertManifestResponse {
         manifest: converted_manifest,
@@ -52,12 +55,15 @@ fn handle_convert_manifest(
 fn handle_compile_transaction_intent(
     request: CompileTransactionIntentRequest,
 ) -> Result<CompileTransactionIntentResponse, Error> {
+    let bech32_manager: Bech32Manager =
+        Bech32Manager::new(request.transaction_intent.header.network_id);
+
     // Convert the instructions to a transaction manifest to then create a scrypto transaction
     // intent from it.
     let manifest: transaction::model::TransactionManifest = request
         .transaction_intent
         .manifest
-        .to_scrypto_transaction_manifest(request.transaction_intent.header.network_id)?;
+        .to_scrypto_transaction_manifest(&bech32_manager)?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.transaction_intent.header,
@@ -79,7 +85,7 @@ fn handle_decompile_transaction_intent(
         scrypto_decode(&request.compiled_intent)?;
     let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
         transaction_intent.manifest,
-        transaction_intent.header.network_id,
+        &Bech32Manager::new(transaction_intent.header.network_id),
         request.manifest_output_format,
     )?;
 
@@ -97,13 +103,14 @@ fn handle_decompile_transaction_intent(
 fn handle_compile_signed_transaction_intent(
     request: CompileSignedTransactionIntentRequest,
 ) -> Result<CompileSignedTransactionIntentResponse, Error> {
+    let bech32_manager: Bech32Manager =
+        Bech32Manager::new(request.signed_intent.transaction_intent.header.network_id);
+
     let manifest: transaction::model::TransactionManifest = request
         .signed_intent
         .transaction_intent
         .manifest
-        .to_scrypto_transaction_manifest(
-            request.signed_intent.transaction_intent.header.network_id,
-        )?;
+        .to_scrypto_transaction_manifest(&bech32_manager)?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.signed_intent.transaction_intent.header,
@@ -147,7 +154,7 @@ fn handle_decompile_signed_transaction_intent(
         .collect();
     let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
         signed_transaction_intent.intent.manifest,
-        signed_transaction_intent.intent.header.network_id,
+        &Bech32Manager::new(signed_transaction_intent.intent.header.network_id),
         request.manifest_output_format,
     )?;
 
@@ -169,13 +176,14 @@ fn handle_decompile_signed_transaction_intent(
 fn handle_compile_notarized_transaction_intent(
     request: CompileNotarizedTransactionIntentRequest,
 ) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
+    let bech32_manager: Bech32Manager =
+        Bech32Manager::new(request.signed_intent.transaction_intent.header.network_id);
+
     let manifest: transaction::model::TransactionManifest = request
         .signed_intent
         .transaction_intent
         .manifest
-        .to_scrypto_transaction_manifest(
-            request.signed_intent.transaction_intent.header.network_id,
-        )?;
+        .to_scrypto_transaction_manifest(&bech32_manager)?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.signed_intent.transaction_intent.header,
@@ -224,11 +232,13 @@ fn handle_decompile_notarized_transaction_intent(
         .collect();
     let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
         notarized_transaction_intent.signed_intent.intent.manifest,
-        notarized_transaction_intent
-            .signed_intent
-            .intent
-            .header
-            .network_id,
+        &Bech32Manager::new(
+            notarized_transaction_intent
+                .signed_intent
+                .intent
+                .header
+                .network_id,
+        ),
         request.manifest_output_format,
     )?;
 

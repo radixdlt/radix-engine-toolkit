@@ -1,6 +1,9 @@
+// TODO: Convert to use Bech32 manager
+
 use scrypto::address::Bech32Decoder;
 use transaction::manifest::ast::Instruction as AstInstruction;
 
+use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::{
     CompileTransactionIntentRequest, ConvertManifestRequest, DecompileTransactionIntentResponse,
@@ -98,7 +101,8 @@ pub fn validate_manifest(manifest: &Manifest, network_id: u8) -> Result<(), Erro
     // the instructions to a different format. In this case, the instruction conversion is not what
     // we are after, but the validation that it performs. If the conversion succeeds, then this
     // validation step is completed
-    let ast_instructions: Vec<AstInstruction> = manifest.to_ast_instructions(network_id)?;
+    let ast_instructions: Vec<AstInstruction> =
+        manifest.to_ast_instructions(&Bech32Manager::new(network_id))?;
     let bech32_decoder: Bech32Decoder =
         Bech32Decoder::new(&network_definition_from_network_id(network_id));
     transaction::manifest::generator::generate_manifest(&ast_instructions, &bech32_decoder)?;

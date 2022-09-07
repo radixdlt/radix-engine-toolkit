@@ -1,4 +1,3 @@
-use scrypto::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::prelude::{Decimal, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal};
 use std::str::FromStr;
 use transaction::manifest::ast::Value as AstValue;
@@ -6,9 +5,9 @@ use transaction::manifest::ast::Value as AstValue;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
+use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::serde::*;
-use crate::utils::network_definition_from_network_id;
 
 // ======
 // Value
@@ -374,13 +373,10 @@ define_value_kind! {
 // Value Conversions
 // ==================
 
-pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, Error> {
-    // A Bech32 encoder is required since the AstValue of the addresses consists of strings of the
-    // addresses. So, to create an AstValue from a value, we will need to have the Bech32 encoded
-    // strings inside the AstValue variant.
-    let bech32_encoder: Bech32Encoder =
-        Bech32Encoder::new(&network_definition_from_network_id(network_id));
-
+pub fn ast_value_from_value(
+    value: &Value,
+    bech32_manager: &Bech32Manager,
+) -> Result<AstValue, Error> {
     let ast_value: AstValue = match value {
         Value::Unit => AstValue::Unit,
         Value::Bool { value } => AstValue::Bool(*value),
@@ -402,7 +398,7 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
         Value::Struct { fields } => AstValue::Struct(
             fields
                 .iter()
-                .map(|v| ast_value_from_value(v, network_id))
+                .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
         Value::Enum {
@@ -414,16 +410,16 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
                 .clone()
                 .unwrap_or_default()
                 .iter()
-                .map(|v| ast_value_from_value(v, network_id))
+                .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
         Value::Option { value } => AstValue::Option(Box::new(match &**value {
-            Some(value) => Some(ast_value_from_value(&value, network_id)?),
+            Some(value) => Some(ast_value_from_value(&value, bech32_manager)?),
             None => None,
         })),
         Value::Result { value } => AstValue::Result(Box::new(match &**value {
-            Ok(value) => Ok(ast_value_from_value(&value, network_id)?),
-            Err(value) => Err(ast_value_from_value(&value, network_id)?),
+            Ok(value) => Ok(ast_value_from_value(&value, bech32_manager)?),
+            Err(value) => Err(ast_value_from_value(&value, bech32_manager)?),
         })),
 
         Value::Array {
@@ -433,13 +429,13 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
             value.validate_if_collection()?;
             elements
                 .iter()
-                .map(|id| ast_value_from_value(id, network_id))
+                .map(|id| ast_value_from_value(id, bech32_manager))
                 .collect::<Result<Vec<AstValue>, Error>>()
         }?),
         Value::Tuple { elements } => AstValue::Tuple(
             elements
                 .iter()
-                .map(|v| ast_value_from_value(v, network_id))
+                .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
 
@@ -450,7 +446,7 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
             value.validate_if_collection()?;
             elements
                 .iter()
-                .map(|id| ast_value_from_value(id, network_id))
+                .map(|id| ast_value_from_value(id, bech32_manager))
                 .collect::<Result<Vec<AstValue>, Error>>()
         }?),
         Value::Set {
@@ -460,7 +456,7 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
             value.validate_if_collection()?;
             elements
                 .iter()
-                .map(|id| ast_value_from_value(id, network_id))
+                .map(|id| ast_value_from_value(id, bech32_manager))
                 .collect::<Result<Vec<AstValue>, Error>>()
         }?),
         Value::Map {
@@ -473,7 +469,7 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
             // TODO: Validate keys and values types
             elements
                 .iter()
-                .map(|v| ast_value_from_value(v, network_id))
+                .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
 
@@ -484,15 +480,27 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
             AstValue::PreciseDecimal(Box::new(AstValue::String(value.to_string())))
         }
 
-        Value::PackageAddress { address: value } => AstValue::PackageAddress(Box::new(
-            AstValue::String(bech32_encoder.encode_package_address(&value.address)),
-        )),
-        Value::ComponentAddress { address: value } => AstValue::ComponentAddress(Box::new(
-            AstValue::String(bech32_encoder.encode_component_address(&value.address)),
-        )),
-        Value::ResourceAddress { address: value } => AstValue::ResourceAddress(Box::new(
-            AstValue::String(bech32_encoder.encode_resource_address(&value.address)),
-        )),
+        Value::PackageAddress { address: value } => {
+            AstValue::PackageAddress(Box::new(AstValue::String(
+                bech32_manager
+                    .encoder
+                    .encode_package_address(&value.address),
+            )))
+        }
+        Value::ComponentAddress { address: value } => {
+            AstValue::ComponentAddress(Box::new(AstValue::String(
+                bech32_manager
+                    .encoder
+                    .encode_component_address(&value.address),
+            )))
+        }
+        Value::ResourceAddress { address: value } => {
+            AstValue::ResourceAddress(Box::new(AstValue::String(
+                bech32_manager
+                    .encoder
+                    .encode_resource_address(&value.address),
+            )))
+        }
 
         Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
         Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
@@ -516,12 +524,10 @@ pub fn ast_value_from_value(value: &Value, network_id: u8) -> Result<AstValue, E
     Ok(ast_value)
 }
 
-pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Value, Error> {
-    // A Bech32 decoder and network id are required for the network aware addresses. This is because
-    // AstValue::*Address contains a string which we need to decode into the actual address.
-    let bech32_decoder: Bech32Decoder =
-        Bech32Decoder::new(&network_definition_from_network_id(network_id));
-
+pub fn value_from_ast_value(
+    ast_value: &AstValue,
+    bech32_manager: &Bech32Manager,
+) -> Result<Value, Error> {
     let value: Value = match ast_value {
         AstValue::Unit => Value::Unit,
         AstValue::Bool(value) => Value::Bool { value: *value },
@@ -545,7 +551,7 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
         AstValue::Struct(fields) => Value::Struct {
             fields: fields
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
         AstValue::Enum(variant_name, fields) => Value::Enum {
@@ -553,7 +559,7 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             fields: {
                 let fields = fields
                     .iter()
-                    .map(|v| value_from_ast_value(v, network_id))
+                    .map(|v| value_from_ast_value(v, bech32_manager))
                     .collect::<Result<Vec<Value>, _>>()?;
                 match fields.len() {
                     0 => None,
@@ -563,14 +569,14 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
         },
         AstValue::Option(value) => Value::Option {
             value: Box::new(match &**value {
-                Some(value) => Some(value_from_ast_value(&value, network_id)?),
+                Some(value) => Some(value_from_ast_value(&value, bech32_manager)?),
                 None => None,
             }),
         },
         AstValue::Result(value) => Value::Result {
             value: Box::new(match &**value {
-                Ok(value) => Ok(value_from_ast_value(&value, network_id)?),
-                Err(value) => Err(value_from_ast_value(&value, network_id)?),
+                Ok(value) => Ok(value_from_ast_value(&value, bech32_manager)?),
+                Err(value) => Err(value_from_ast_value(&value, bech32_manager)?),
             }),
         },
 
@@ -578,13 +584,13 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             element_type: (*ast_type).into(),
             elements: elements
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
         AstValue::Tuple(elements) => Value::Tuple {
             elements: elements
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
 
@@ -592,14 +598,14 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             element_type: (*ast_type).into(),
             elements: elements
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
         AstValue::Set(ast_type, elements) => Value::Set {
             element_type: (*ast_type).into(),
             elements: elements
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
         AstValue::Map(key_ast_type, value_ast_type, elements) => Value::Map {
@@ -607,7 +613,7 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             value_type: (*value_ast_type).into(),
             elements: elements
                 .iter()
-                .map(|v| value_from_ast_value(v, network_id))
+                .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
 
@@ -642,8 +648,10 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             if let AstValue::String(value) = &**value {
                 Value::PackageAddress {
                     address: NetworkAwarePackageAddress {
-                        network_id: network_id,
-                        address: bech32_decoder.validate_and_decode_package_address(value)?,
+                        network_id: bech32_manager.network_id,
+                        address: bech32_manager
+                            .decoder
+                            .validate_and_decode_package_address(value)?,
                     },
                 }
             } else {
@@ -658,8 +666,10 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             if let AstValue::String(value) = &**value {
                 Value::ComponentAddress {
                     address: NetworkAwareComponentAddress {
-                        network_id: network_id,
-                        address: bech32_decoder.validate_and_decode_component_address(value)?,
+                        network_id: bech32_manager.network_id,
+                        address: bech32_manager
+                            .decoder
+                            .validate_and_decode_component_address(value)?,
                     },
                 }
             } else {
@@ -674,8 +684,10 @@ pub fn value_from_ast_value(ast_value: &AstValue, network_id: u8) -> Result<Valu
             if let AstValue::String(value) = &**value {
                 Value::ResourceAddress {
                     address: NetworkAwareResourceAddress {
-                        network_id: network_id,
-                        address: bech32_decoder.validate_and_decode_resource_address(value)?,
+                        network_id: bech32_manager.network_id,
+                        address: bech32_manager
+                            .decoder
+                            .validate_and_decode_resource_address(value)?,
                     },
                 }
             } else {
