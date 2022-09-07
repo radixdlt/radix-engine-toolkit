@@ -22,26 +22,19 @@ link_handler! {
     decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent
 }
 
-fn handle_information(request: InformationRequest) -> Result<InformationResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
+fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
     // Process the request
     let response: InformationResponse = InformationResponse {
         package_version: env!("CARGO_PKG_VERSION").into(),
     };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_convert_manifest(
     request: ConvertManifestRequest,
 ) -> Result<ConvertManifestResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     // Process the request Convert between the manifest formats.
     // TODO: This needs to be dependent on the version of the manifest. For now, the
     // `transaction_version` in the request is ignored.
@@ -53,17 +46,13 @@ fn handle_convert_manifest(
         manifest: converted_manifest,
     };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_compile_transaction_intent(
     request: CompileTransactionIntentRequest,
 ) -> Result<CompileTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     // Convert the instructions to a transaction manifest to then create a scrypto transaction
     // intent from it.
     let manifest: transaction::model::TransactionManifest = request
@@ -80,17 +69,13 @@ fn handle_compile_transaction_intent(
     let response: CompileTransactionIntentResponse =
         CompileTransactionIntentResponse { compiled_intent };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_decompile_transaction_intent(
     request: DecompileTransactionIntentRequest,
 ) -> Result<DecompileTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let transaction_intent: transaction::model::TransactionIntent =
         scrypto_decode(&request.compiled_intent)?;
     let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
@@ -106,17 +91,13 @@ fn handle_decompile_transaction_intent(
         },
     };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_compile_signed_transaction_intent(
     request: CompileSignedTransactionIntentRequest,
 ) -> Result<CompileSignedTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let manifest: transaction::model::TransactionManifest = request
         .signed_intent
         .transaction_intent
@@ -147,17 +128,13 @@ fn handle_compile_signed_transaction_intent(
         compiled_signed_intent,
     };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_decompile_signed_transaction_intent(
     request: DecompileSignedTransactionIntentRequest,
 ) -> Result<DecompileSignedTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let signed_transaction_intent: transaction::model::SignedTransactionIntent =
         scrypto_decode(&request.compiled_signed_intent)?;
 
@@ -186,17 +163,13 @@ fn handle_decompile_signed_transaction_intent(
             },
         };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_compile_notarized_transaction_intent(
     request: CompileNotarizedTransactionIntentRequest,
 ) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let manifest: transaction::model::TransactionManifest = request
         .signed_intent
         .transaction_intent
@@ -231,17 +204,13 @@ fn handle_compile_notarized_transaction_intent(
             compiled_notarized_intent,
         };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_decompile_notarized_transaction_intent(
     request: DecompileNotarizedTransactionIntentRequest,
 ) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let notarized_transaction_intent: transaction::model::NotarizedTransaction =
         scrypto_decode(&request.compiled_notarized_intent)?;
 
@@ -276,17 +245,13 @@ fn handle_decompile_notarized_transaction_intent(
             notary_signature: notarized_transaction_intent.notary_signature,
         };
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
 
 fn handle_decompile_unknown_transaction_intent(
     request: DecompileUnknownTransactionIntentRequest,
 ) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
-    // Validate the passed request
-    validate_request(&request)?;
-
     let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
         handle_decompile_transaction_intent(request.clone().into())
     {
@@ -300,7 +265,6 @@ fn handle_decompile_unknown_transaction_intent(
         Err(Error::UnrecognizedCompiledIntentFormat)
     }?;
 
-    // Validate the response
-    validate_response(&response)?;
+    // Return the response
     Ok(response)
 }
