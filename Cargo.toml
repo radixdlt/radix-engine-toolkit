@@ -1,5 +1,5 @@
 [package]
-name = "transaction-service"
+name = "transaction-library"
 version = "0.1.0"
 edition = "2021"
 

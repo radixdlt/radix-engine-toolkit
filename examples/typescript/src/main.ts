@@ -27,7 +27,7 @@ import * as secp256k1 from "secp256k1";
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
-	const path: string = "../../target/wasm32-unknown-unknown/release/transaction_service.wasm";
+	const path: string = "../../target/wasm32-unknown-unknown/release/transaction_library.wasm";
 	const transactionService: TransactionService = await TransactionService.fromPath(path);
 
 	// Example 1: Printing the information of the transaction service. This is essentially the

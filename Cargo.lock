@@ -805,7 +805,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "transaction-service"
+name = "transaction-library"
 version = "0.1.0"
 dependencies = [
  "bech32",

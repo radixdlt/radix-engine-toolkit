@@ -23,7 +23,7 @@ byte[] computeDoubleHash(byte[] array) {
 }
 
 // Defining the paths where the WASM module and the sample complex.rtm file are at
-const System.String wasmModulePath = "../../target/wasm32-unknown-unknown/release/transaction_service.wasm";
+const System.String wasmModulePath = "../../target/wasm32-unknown-unknown/release/transaction_library.wasm";
 const System.String manifestFilePath = "../complex.rtm";
 
 System.String manifestStr = File.ReadAllText(manifestFilePath);
