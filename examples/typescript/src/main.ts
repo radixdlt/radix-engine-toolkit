@@ -237,7 +237,11 @@ const main = async (): Promise<void> => {
 	console.log(JSON.stringify(decompileUnknownTransactionIntentResponse, null, 4));
 	console.log("=========================", "\n");
 
-	console.log(transactionService.addressInformation({address: "system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n"}))
+	console.log(
+		transactionService.addressInformation({
+			address: "system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n",
+		})
+	);
 };
 
 main();

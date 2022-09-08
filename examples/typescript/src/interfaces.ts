@@ -110,15 +110,15 @@ export type DecompileUnknownTransactionIntentResponse =
 	| DecompileNotarizedTransactionIntentResponse;
 
 export interface AddressInformationRequest {
-	address: string
+	address: string;
 }
 
 export interface AddressInformationResponse {
-	network_id: number,
-	entity_type: AddressKind,
-	data: string,
-	hrp: string,
-	address: Address
+	network_id: number;
+	entity_type: AddressKind;
+	data: string;
+	hrp: string;
+	address: Address;
 }
 
 // =======
@@ -172,10 +172,7 @@ export interface Signature {
 	signature: EcdsaSignature;
 }
 
-export type Address = 
-	| ComponentAddress
-	| ResourceAddress
-	| PackageAddress ;
+export type Address = ComponentAddress | ResourceAddress | PackageAddress;
 
 export enum AddressKind {
 	Resource = "Resource",
@@ -204,7 +201,7 @@ export interface TransactionServiceInterface {
 	decompile_unknown_transaction_intent(requestStringPointer: number): number;
 
 	information(requestStringPointer: number): number;
-	
+
 	address_information(requestStringPointer: number): number;
 
 	__transaction_lib_alloc(capacity: number): number;

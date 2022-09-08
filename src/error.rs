@@ -30,7 +30,7 @@ pub enum Error {
     /// An error emitted if the encoding or decoding of Bech32 addresses fails.
     AddressError(String),
 
-    /// An error emitted when attempting to get information on an address but its format could not 
+    /// An error emitted when attempting to get information on an address but its format could not
     /// be established.
     UnrecognizedAddressFormat,
 

@@ -288,8 +288,8 @@ fn handle_address_information(
     let bech32_manager: Bech32Manager = Bech32Manager::new_from_hrp(&hrp)?;
 
     match variant {
-        Variant::Bech32m => {Ok(())}
-        variant => Err(scrypto::address::AddressError::InvalidVariant(variant))
+        Variant::Bech32m => Ok(()),
+        variant => Err(scrypto::address::AddressError::InvalidVariant(variant)),
     }?;
 
     let address: Address = {

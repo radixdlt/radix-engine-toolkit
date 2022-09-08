@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
 using Nethereum.Signer.Crypto;
-using Model;
+using Models;
 
 byte[] computeDoubleHash(byte[] array) {
     using (SHA256 sha256 = SHA256.Create()) {
