@@ -1,4 +1,5 @@
 import { Instruction } from "./instruction";
+import { ComponentAddress, PackageAddress, ResourceAddress } from "./value";
 
 // ===================
 // Request & Response
@@ -108,6 +109,18 @@ export type DecompileUnknownTransactionIntentResponse =
 	| DecompileSignedTransactionIntentResponse
 	| DecompileNotarizedTransactionIntentResponse;
 
+export interface AddressInformationRequest {
+	address: string
+}
+
+export interface AddressInformationResponse {
+	network_id: number,
+	entity_type: AddressKind,
+	data: string,
+	hrp: string,
+	address: Address
+}
+
 // =======
 // Models
 // =======
@@ -159,6 +172,19 @@ export interface Signature {
 	signature: EcdsaSignature;
 }
 
+export type Address = 
+	| ComponentAddress
+	| ResourceAddress
+	| PackageAddress ;
+
+export enum AddressKind {
+	Resource = "Resource",
+	Package = "Package",
+	AccountComponent = "AccountComponent",
+	SystemComponent = "SystemComponent",
+	NormalComponent = "NormalComponent",
+}
+
 // ============
 // WASM Module
 // ============
@@ -178,6 +204,8 @@ export interface TransactionServiceInterface {
 	decompile_unknown_transaction_intent(requestStringPointer: number): number;
 
 	information(requestStringPointer: number): number;
+	
+	address_information(requestStringPointer: number): number;
 
 	__transaction_lib_alloc(capacity: number): number;
 	__transaction_lib_free(pointer: number): void;

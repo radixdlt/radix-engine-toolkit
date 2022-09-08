@@ -151,9 +151,64 @@ components:
         - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
         - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
 
+    # Address Information
+    AddressInformationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - address
+      properties:
+        address:
+          type: string
+
+    AddressInformationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - network_id
+        - entity_type
+        - data
+        - hrp
+        - address
+      properties:
+        network_id:
+          $ref: "#/components/schemas/Byte"
+        entity_type:
+          $ref: "#/components/schemas/AddressKind"
+        data:
+          type: string
+        hrp:
+          type: string
+        address:
+          $ref: "#/components/schemas/Address"
+
     # ================================
     # Request & Response Dependencies
     # ================================
+
+    AddressKind:
+      type: string
+      enum:
+        - Resource
+        - Package
+        - AccountComponent
+        - SystemComponent
+        - NormalComponent
+
+    Address:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          PackageAddress: "#/components/schemas/PackageAddress"
+          ResourceAddress: "#/components/schemas/ResourceAddress"
+          ComponentAddress: "#/components/schemas/ComponentAddress"
 
     TransactionIntent:
       type: object
@@ -1053,6 +1108,7 @@ components:
         propertyName: error
         mapping:
           AddressError: "#/components/schemas/AddressError"
+          UnrecognizedAddressFormat: "#/components/schemas/UnrecognizedAddressFormat"
           DecodeError: "#/components/schemas/DecodeError"
           DeserializationError: "#/components/schemas/DeserializationError"
           InvalidRequestString: "#/components/schemas/InvalidRequestString"
@@ -1075,6 +1131,11 @@ components:
         properties:
           value:
             type: string
+    UnrecognizedAddressFormat:
+      allOf:
+      - $ref: "#/components/schemas/ErrorResponse"
+      - type: object
+        additionalProperties: false
     DecodeError:
       allOf:
       - $ref: "#/components/schemas/ErrorResponse"

@@ -1,3 +1,4 @@
+pub mod address_information_request;
 pub mod compile_notarized_transaction_intent_request;
 pub mod compile_signed_transaction_intent_request;
 pub mod compile_transaction_intent_request;
@@ -14,6 +15,7 @@ pub mod request;
 pub mod serde;
 pub mod value;
 
+pub use address_information_request::{AddressInformationRequest, AddressInformationResponse};
 pub use compile_notarized_transaction_intent_request::{
     CompileNotarizedTransactionIntentRequest, CompileNotarizedTransactionIntentResponse,
 };
@@ -38,7 +40,9 @@ pub use decompile_unknown_transaction_intent_request::{
 };
 pub use information_request::{InformationRequest, InformationResponse};
 
-pub use crate::models::serde::{Signature, SignedTransactionIntent, TransactionIntent};
+pub use crate::models::serde::{
+    Address, AddressKind, Signature, SignedTransactionIntent, TransactionIntent,
+};
 pub use instruction::{
     ast_instruction_from_instruction, instruction_from_ast_instruction, Instruction,
 };

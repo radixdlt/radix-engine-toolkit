@@ -51,6 +51,7 @@ define_request_response_enum! {
         CompileNotarizedTransactionIntentRequest(CompileNotarizedTransactionIntentRequest),
         DecompileNotarizedTransactionIntentRequest(DecompileNotarizedTransactionIntentRequest),
         DecompileUnknownTransactionIntentRequest(DecompileUnknownTransactionIntentRequest),
+        AddressInformationRequest(AddressInformationRequest)
     }
 }
 
@@ -65,5 +66,6 @@ define_request_response_enum! {
         CompileNotarizedTransactionIntentResponse(CompileNotarizedTransactionIntentResponse),
         DecompileNotarizedTransactionIntentResponse(DecompileNotarizedTransactionIntentResponse),
         DecompileUnknownTransactionIntentResponse(DecompileUnknownTransactionIntentResponse),
+        AddressInformationResponse(AddressInformationResponse)
     }
 }

@@ -29,6 +29,7 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::CompileNotarizedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
         Request::DecompileNotarizedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
         Request::DecompileUnknownTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
+        Request::AddressInformationRequest(_) => Ok(()), //TODO: Implement.
     }
 }
 
@@ -67,6 +68,7 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
         Response::DecompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
         Response::DecompileUnknownTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
+        Response::AddressInformationResponse(_) => Ok(()), //TODO: Implement.
     }
 }
 

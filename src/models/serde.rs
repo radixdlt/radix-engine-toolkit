@@ -196,3 +196,57 @@ pub struct Signature {
     #[serde(with = "EcdsaSignatureDef")]
     pub signature: EcdsaSignature,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(tag = "type", content = "address")]
+pub enum Address {
+    ComponentAddress(NetworkAwareComponentAddress),
+    ResourceAddress(NetworkAwareResourceAddress),
+    PackageAddress(NetworkAwarePackageAddress),
+}
+
+impl Address {
+    pub fn kind(&self) -> AddressKind {
+        match self {
+            Self::ComponentAddress(component_address) => match component_address.address {
+                scrypto::prelude::ComponentAddress::Account(_) => AddressKind::AccountComponent,
+                scrypto::prelude::ComponentAddress::System(_) => AddressKind::SystemComponent,
+                scrypto::prelude::ComponentAddress::Normal(_) => AddressKind::NormalComponent,
+            },
+            Self::ResourceAddress(resource_address) => match resource_address.address {
+                scrypto::prelude::ResourceAddress::Normal(_) => AddressKind::Resource,
+            },
+            Self::PackageAddress(package_address) => match package_address.address {
+                scrypto::prelude::PackageAddress::Normal(_) => AddressKind::Package,
+            },
+        }
+    }
+}
+
+impl From<NetworkAwareComponentAddress> for Address {
+    fn from(address: NetworkAwareComponentAddress) -> Self {
+        Self::ComponentAddress(address)
+    }
+}
+
+impl From<NetworkAwareResourceAddress> for Address {
+    fn from(address: NetworkAwareResourceAddress) -> Self {
+        Self::ResourceAddress(address)
+    }
+}
+
+impl From<NetworkAwarePackageAddress> for Address {
+    fn from(address: NetworkAwarePackageAddress) -> Self {
+        Self::PackageAddress(address)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum AddressKind {
+    Resource,
+    Package,
+
+    AccountComponent,
+    SystemComponent,
+    NormalComponent,
+}

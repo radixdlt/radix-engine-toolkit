@@ -1,8 +1,13 @@
+use bech32::Variant;
+use bech32::{self, u5, FromBase32};
 use scrypto::prelude::{scrypto_decode, scrypto_encode};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::link_handler;
+use crate::models::serde::{
+    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
+};
 use crate::models::*;
 
 // Links the extern functions to the handlers that will handle their requests.
@@ -19,7 +24,9 @@ link_handler! {
     compile_notarized_transaction_intent => handle_compile_notarized_transaction_intent,
     decompile_notarized_transaction_intent => handle_decompile_notarized_transaction_intent,
 
-    decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent
+    decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent,
+
+    address_information => handle_address_information
 }
 
 fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -28,7 +35,6 @@ fn handle_information(_request: InformationRequest) -> Result<InformationRespons
         package_version: env!("CARGO_PKG_VERSION").into(),
     };
 
-    // Return the response
     Ok(response)
 }
 
@@ -48,7 +54,6 @@ fn handle_convert_manifest(
         manifest: converted_manifest,
     };
 
-    // Return the response
     Ok(response)
 }
 
@@ -74,7 +79,6 @@ fn handle_compile_transaction_intent(
     let response: CompileTransactionIntentResponse =
         CompileTransactionIntentResponse { compiled_intent };
 
-    // Return the response
     Ok(response)
 }
 
@@ -96,7 +100,6 @@ fn handle_decompile_transaction_intent(
         },
     };
 
-    // Return the response
     Ok(response)
 }
 
@@ -134,7 +137,6 @@ fn handle_compile_signed_transaction_intent(
         compiled_signed_intent,
     };
 
-    // Return the response
     Ok(response)
 }
 
@@ -169,7 +171,6 @@ fn handle_decompile_signed_transaction_intent(
             },
         };
 
-    // Return the response
     Ok(response)
 }
 
@@ -211,7 +212,6 @@ fn handle_compile_notarized_transaction_intent(
             compiled_notarized_intent,
         };
 
-    // Return the response
     Ok(response)
 }
 
@@ -254,7 +254,6 @@ fn handle_decompile_notarized_transaction_intent(
             notary_signature: notarized_transaction_intent.notary_signature,
         };
 
-    // Return the response
     Ok(response)
 }
 
@@ -274,6 +273,65 @@ fn handle_decompile_unknown_transaction_intent(
         Err(Error::UnrecognizedCompiledIntentFormat)
     }?;
 
-    // Return the response
+    Ok(response)
+}
+
+fn handle_address_information(
+    request: AddressInformationRequest,
+) -> Result<AddressInformationResponse, Error> {
+    // We need to deduce the network from the HRP of the passed address. Therefore, we need to begin
+    // by decoding the address, and getting the HRP.
+    let (hrp, data, variant): (String, Vec<u5>, Variant) =
+        bech32::decode(&request.address).map_err(scrypto::address::AddressError::DecodingError)?;
+    let data: Vec<u8> =
+        Vec::<u8>::from_base32(&data).map_err(scrypto::address::AddressError::DecodingError)?;
+    let bech32_manager: Bech32Manager = Bech32Manager::new_from_hrp(&hrp)?;
+
+    match variant {
+        Variant::Bech32m => {Ok(())}
+        variant => Err(scrypto::address::AddressError::InvalidVariant(variant))
+    }?;
+
+    let address: Address = {
+        if let Ok(resource_address) = bech32_manager
+            .decoder
+            .validate_and_decode_resource_address(&request.address)
+        {
+            Ok(NetworkAwareResourceAddress {
+                address: resource_address,
+                network_id: bech32_manager.network_id,
+            }
+            .into())
+        } else if let Ok(component_address) = bech32_manager
+            .decoder
+            .validate_and_decode_component_address(&request.address)
+        {
+            Ok(NetworkAwareComponentAddress {
+                address: component_address,
+                network_id: bech32_manager.network_id,
+            }
+            .into())
+        } else if let Ok(package_address) = bech32_manager
+            .decoder
+            .validate_and_decode_package_address(&request.address)
+        {
+            Ok(NetworkAwarePackageAddress {
+                address: package_address,
+                network_id: bech32_manager.network_id,
+            }
+            .into())
+        } else {
+            Err(Error::UnrecognizedAddressFormat)
+        }
+    }?;
+
+    let response: AddressInformationResponse = AddressInformationResponse {
+        network_id: bech32_manager.network_id,
+        hrp,
+        data,
+        entity_type: address.kind(),
+        address,
+    };
+
     Ok(response)
 }
