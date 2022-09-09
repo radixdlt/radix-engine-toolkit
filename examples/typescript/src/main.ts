@@ -238,8 +238,9 @@ const main = async (): Promise<void> => {
 	console.log("=========================", "\n");
 
 	console.log(
-		transactionService.decodeAddress({
-			address: "system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n",
+		transactionService.encodeAddress({
+			address: "040000000000000000000000000000000000000000000000000001",
+			network_id: 0xF2
 		})
 	);
 };

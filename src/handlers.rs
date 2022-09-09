@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+
 use bech32::Variant;
 use bech32::{self, u5, FromBase32};
 use scrypto::prelude::{scrypto_decode, scrypto_encode};
@@ -26,7 +28,8 @@ link_handler! {
 
     decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent,
 
-    decode_address => handle_decode_address
+    decode_address => handle_decode_address,
+    encode_address => handle_encode_address
 }
 
 fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -276,9 +279,7 @@ fn handle_decompile_unknown_transaction_intent(
     Ok(response)
 }
 
-fn handle_decode_address(
-    request: DecodeAddressRequest,
-) -> Result<DecodeAddressResponse, Error> {
+fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddressResponse, Error> {
     // We need to deduce the network from the HRP of the passed address. Therefore, we need to begin
     // by decoding the address, and getting the HRP.
     let (hrp, data, variant): (String, Vec<u5>, Variant) =
@@ -333,6 +334,35 @@ fn handle_decode_address(
         entity_type: address.kind(),
         address,
     };
+
+    Ok(response)
+}
+
+fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressResponse, Error> {
+    let address: &[u8] = &request.address;
+    let response: Address = if let Ok(resource_address) =
+        scrypto::prelude::ResourceAddress::try_from(address)
+    {
+        Ok(NetworkAwareResourceAddress {
+            address: resource_address,
+            network_id: request.network_id,
+        }
+        .into())
+    } else if let Ok(component_address) = scrypto::prelude::ComponentAddress::try_from(address) {
+        Ok(NetworkAwareComponentAddress {
+            address: component_address,
+            network_id: request.network_id,
+        }
+        .into())
+    } else if let Ok(package_address) = scrypto::prelude::PackageAddress::try_from(address) {
+        Ok(NetworkAwarePackageAddress {
+            address: package_address,
+            network_id: request.network_id,
+        }
+        .into())
+    } else {
+        Err(Error::UnrecognizedAddressFormat)
+    }?;
 
     Ok(response)
 }

@@ -151,7 +151,7 @@ components:
         - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
         - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
 
-    # Address Information
+    # Address Decoding
     DecodeAddressRequest:
       type: object
       additionalProperties: false
@@ -181,6 +181,21 @@ components:
           type: string
         address:
           $ref: "#/components/schemas/Address"
+
+    EncodeAddressRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - address
+        - network_id
+      properties:
+        address:
+          type: string
+        network_id:
+          $ref: "#/components/schemas/Byte"
+
+    EncodeAddressResponse:
+      $ref: "#/components/schemas/Address"
 
     # ================================
     # Request & Response Dependencies

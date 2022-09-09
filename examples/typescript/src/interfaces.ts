@@ -121,6 +121,13 @@ export interface DecodeAddressResponse {
 	address: Address;
 }
 
+export interface EncodeAddressRequest {
+	address: string,
+	network_id: number;
+}
+
+export type EncodeAddressResponse = Address;
+
 // =======
 // Models
 // =======
@@ -202,6 +209,7 @@ export interface TransactionServiceInterface {
 
 	information(requestStringPointer: number): number;
 
+	encode_address(requestStringPointer: number): number;
 	decode_address(requestStringPointer: number): number;
 
 	__transaction_lib_alloc(capacity: number): number;

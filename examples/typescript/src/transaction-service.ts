@@ -22,6 +22,8 @@ import {
 	DecompileNotarizedTransactionIntentResponse,
 	DecompileUnknownTransactionIntentRequest,
 	DecompileUnknownTransactionIntentResponse,
+	EncodeAddressRequest,
+	EncodeAddressResponse,
 	DecodeAddressRequest,
 	DecodeAddressResponse,
 } from "./interfaces";
@@ -138,6 +140,12 @@ export default class TransactionAPI {
 		) as DecompileUnknownTransactionIntentResponse | Error;
 	}
 
+	encodeAddress(request: EncodeAddressRequest): EncodeAddressResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.encode_address) as
+			| EncodeAddressResponse
+			| Error;
+	}
+	
 	decodeAddress(request: DecodeAddressRequest): DecodeAddressResponse | Error {
 		return this.callWasmFunction(request, this.internal_service.decode_address) as
 			| DecodeAddressResponse
