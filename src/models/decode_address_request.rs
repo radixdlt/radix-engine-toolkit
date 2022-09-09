@@ -9,6 +9,7 @@ pub struct DecodeAddressRequest {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecodeAddressResponse {
     pub network_id: u8,
+    pub network_name: String,
     pub entity_type: AddressKind,
     #[serde(with = "hex::serde")]
     pub data: Vec<u8>,

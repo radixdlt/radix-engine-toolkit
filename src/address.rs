@@ -4,7 +4,7 @@ use crate::utils::{
 };
 
 pub struct Bech32Manager {
-    pub network_id: u8,
+    pub network_definition: scrypto::core::NetworkDefinition,
     pub encoder: scrypto::address::Bech32Encoder,
     pub decoder: scrypto::address::Bech32Decoder,
 }
@@ -14,10 +14,14 @@ impl Bech32Manager {
         let network_definition: scrypto::core::NetworkDefinition =
             network_definition_from_network_id(network_id);
         Self {
-            network_id,
+            network_definition: network_definition.clone(),
             encoder: scrypto::address::Bech32Encoder::new(&network_definition),
             decoder: scrypto::address::Bech32Decoder::new(&network_definition),
         }
+    }
+
+    pub fn network_id(&self) -> u8 {
+        self.network_definition.id
     }
 
     pub fn new_from_hrp(hrp: &str) -> Result<Self, Error> {

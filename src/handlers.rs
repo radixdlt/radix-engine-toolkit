@@ -299,7 +299,7 @@ fn handle_decode_address(
         {
             Ok(NetworkAwareResourceAddress {
                 address: resource_address,
-                network_id: bech32_manager.network_id,
+                network_id: bech32_manager.network_id(),
             }
             .into())
         } else if let Ok(component_address) = bech32_manager
@@ -308,7 +308,7 @@ fn handle_decode_address(
         {
             Ok(NetworkAwareComponentAddress {
                 address: component_address,
-                network_id: bech32_manager.network_id,
+                network_id: bech32_manager.network_id(),
             }
             .into())
         } else if let Ok(package_address) = bech32_manager
@@ -317,7 +317,7 @@ fn handle_decode_address(
         {
             Ok(NetworkAwarePackageAddress {
                 address: package_address,
-                network_id: bech32_manager.network_id,
+                network_id: bech32_manager.network_id(),
             }
             .into())
         } else {
@@ -326,7 +326,8 @@ fn handle_decode_address(
     }?;
 
     let response: DecodeAddressResponse = DecodeAddressResponse {
-        network_id: bech32_manager.network_id,
+        network_id: bech32_manager.network_id(),
+        network_name: bech32_manager.network_definition.logical_name,
         hrp,
         data,
         entity_type: address.kind(),

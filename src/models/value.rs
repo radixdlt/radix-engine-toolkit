@@ -648,7 +648,7 @@ pub fn value_from_ast_value(
             if let AstValue::String(value) = &**value {
                 Value::PackageAddress {
                     address: NetworkAwarePackageAddress {
-                        network_id: bech32_manager.network_id,
+                        network_id: bech32_manager.network_id(),
                         address: bech32_manager
                             .decoder
                             .validate_and_decode_package_address(value)?,
@@ -666,7 +666,7 @@ pub fn value_from_ast_value(
             if let AstValue::String(value) = &**value {
                 Value::ComponentAddress {
                     address: NetworkAwareComponentAddress {
-                        network_id: bech32_manager.network_id,
+                        network_id: bech32_manager.network_id(),
                         address: bech32_manager
                             .decoder
                             .validate_and_decode_component_address(value)?,
@@ -684,7 +684,7 @@ pub fn value_from_ast_value(
             if let AstValue::String(value) = &**value {
                 Value::ResourceAddress {
                     address: NetworkAwareResourceAddress {
-                        network_id: bech32_manager.network_id,
+                        network_id: bech32_manager.network_id(),
                         address: bech32_manager
                             .decoder
                             .validate_and_decode_resource_address(value)?,
