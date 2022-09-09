@@ -27,7 +27,7 @@ namespace Models
     /// CallFunction
     /// </summary>
     [DataContract]
-    public partial class CallFunction : Instruction, IEquatable<CallFunction>, IValidatableObject
+    public partial class CallFunction : Instruction,  IEquatable<CallFunction>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CallFunction" /> class.
@@ -41,7 +41,7 @@ namespace Models
         /// <param name="blueprintName">blueprintName (required).</param>
         /// <param name="functionName">functionName (required).</param>
         /// <param name="arguments">arguments (required).</param>
-        public CallFunction(PackageAddress packageAddress = default(PackageAddress), String blueprintName = default(String), String functionName = default(String), List<Value> arguments = default(List<Value>)) : base("CALL_FUNCTION")
+        public CallFunction (PackageAddress packageAddress = default(PackageAddress), String blueprintName = default(String), String functionName = default(String), List<Value> arguments = default(List<Value>)) : base ("CALL_FUNCTION")
         {
             // to ensure "packageAddress" is required (not null)
             if (packageAddress == null)
@@ -89,25 +89,25 @@ namespace Models
         /// <summary>
         /// Gets or Sets PackageAddress
         /// </summary>
-        [DataMember(Name = "package_address", EmitDefaultValue = true)]
+        [DataMember(Name="package_address", EmitDefaultValue=true)]
         public PackageAddress PackageAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets BlueprintName
         /// </summary>
-        [DataMember(Name = "blueprint_name", EmitDefaultValue = true)]
+        [DataMember(Name="blueprint_name", EmitDefaultValue=true)]
         public String BlueprintName { get; set; }
 
         /// <summary>
         /// Gets or Sets FunctionName
         /// </summary>
-        [DataMember(Name = "function_name", EmitDefaultValue = true)]
+        [DataMember(Name="function_name", EmitDefaultValue=true)]
         public String FunctionName { get; set; }
 
         /// <summary>
         /// Gets or Sets Arguments
         /// </summary>
-        [DataMember(Name = "arguments", EmitDefaultValue = true)]
+        [DataMember(Name="arguments", EmitDefaultValue=true)]
         public List<Value> Arguments { get; set; }
 
         /// <summary>
@@ -156,22 +156,22 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.PackageAddress == input.PackageAddress ||
                     (this.PackageAddress != null &&
                     this.PackageAddress.Equals(input.PackageAddress))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.BlueprintName == input.BlueprintName ||
                     (this.BlueprintName != null &&
                     this.BlueprintName.Equals(input.BlueprintName))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.FunctionName == input.FunctionName ||
                     (this.FunctionName != null &&
                     this.FunctionName.Equals(input.FunctionName))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.Arguments == input.Arguments ||
                     this.Arguments != null &&
@@ -208,7 +208,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

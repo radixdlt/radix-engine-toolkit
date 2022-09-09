@@ -27,7 +27,7 @@ namespace Models
     /// CreateProofFromAuthZoneAllOf
     /// </summary>
     [DataContract]
-    public partial class CreateProofFromAuthZoneAllOf : IEquatable<CreateProofFromAuthZoneAllOf>, IValidatableObject
+    public partial class CreateProofFromAuthZoneAllOf :  IEquatable<CreateProofFromAuthZoneAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateProofFromAuthZoneAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
+        [DataMember(Name="into_proof", EmitDefaultValue=true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) &&
+                ) && 
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&

@@ -27,7 +27,7 @@ namespace Models
     /// CompileSignedTransactionIntentResponse
     /// </summary>
     [DataContract]
-    public partial class CompileSignedTransactionIntentResponse : IEquatable<CompileSignedTransactionIntentResponse>, IValidatableObject
+    public partial class CompileSignedTransactionIntentResponse :  IEquatable<CompileSignedTransactionIntentResponse>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CompileSignedTransactionIntentResponse" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets CompiledSignedIntent
         /// </summary>
-        [DataMember(Name = "compiled_signed_intent", EmitDefaultValue = true)]
+        [DataMember(Name="compiled_signed_intent", EmitDefaultValue=true)]
         public string CompiledSignedIntent { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.CompiledSignedIntent == input.CompiledSignedIntent ||
                     (this.CompiledSignedIntent != null &&

@@ -27,7 +27,7 @@ namespace Models
     /// TransactionIntent
     /// </summary>
     [DataContract]
-    public partial class TransactionIntent : IEquatable<TransactionIntent>, IValidatableObject
+    public partial class TransactionIntent :  IEquatable<TransactionIntent>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionIntent" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets Header
         /// </summary>
-        [DataMember(Name = "header", EmitDefaultValue = true)]
+        [DataMember(Name="header", EmitDefaultValue=true)]
         public TransactionHeader Header { get; set; }
 
         /// <summary>
         /// Gets or Sets Manifest
         /// </summary>
-        [DataMember(Name = "manifest", EmitDefaultValue = true)]
+        [DataMember(Name="manifest", EmitDefaultValue=true)]
         public Manifest Manifest { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Header == input.Header ||
                     (this.Header != null &&
                     this.Header.Equals(input.Header))
-                ) &&
+                ) && 
                 (
                     this.Manifest == input.Manifest ||
                     (this.Manifest != null &&

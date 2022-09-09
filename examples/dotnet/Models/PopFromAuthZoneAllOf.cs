@@ -27,7 +27,7 @@ namespace Models
     /// PopFromAuthZoneAllOf
     /// </summary>
     [DataContract]
-    public partial class PopFromAuthZoneAllOf : IEquatable<PopFromAuthZoneAllOf>, IValidatableObject
+    public partial class PopFromAuthZoneAllOf :  IEquatable<PopFromAuthZoneAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PopFromAuthZoneAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
+        [DataMember(Name="into_proof", EmitDefaultValue=true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&

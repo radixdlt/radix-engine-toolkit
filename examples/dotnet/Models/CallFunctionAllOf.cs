@@ -27,7 +27,7 @@ namespace Models
     /// CallFunctionAllOf
     /// </summary>
     [DataContract]
-    public partial class CallFunctionAllOf : IEquatable<CallFunctionAllOf>, IValidatableObject
+    public partial class CallFunctionAllOf :  IEquatable<CallFunctionAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CallFunctionAllOf" /> class.
@@ -89,25 +89,25 @@ namespace Models
         /// <summary>
         /// Gets or Sets PackageAddress
         /// </summary>
-        [DataMember(Name = "package_address", EmitDefaultValue = true)]
+        [DataMember(Name="package_address", EmitDefaultValue=true)]
         public PackageAddress PackageAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets BlueprintName
         /// </summary>
-        [DataMember(Name = "blueprint_name", EmitDefaultValue = true)]
+        [DataMember(Name="blueprint_name", EmitDefaultValue=true)]
         public String BlueprintName { get; set; }
 
         /// <summary>
         /// Gets or Sets FunctionName
         /// </summary>
-        [DataMember(Name = "function_name", EmitDefaultValue = true)]
+        [DataMember(Name="function_name", EmitDefaultValue=true)]
         public String FunctionName { get; set; }
 
         /// <summary>
         /// Gets or Sets Arguments
         /// </summary>
-        [DataMember(Name = "arguments", EmitDefaultValue = true)]
+        [DataMember(Name="arguments", EmitDefaultValue=true)]
         public List<Value> Arguments { get; set; }
 
         /// <summary>
@@ -155,22 +155,22 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.PackageAddress == input.PackageAddress ||
                     (this.PackageAddress != null &&
                     this.PackageAddress.Equals(input.PackageAddress))
-                ) &&
+                ) && 
                 (
                     this.BlueprintName == input.BlueprintName ||
                     (this.BlueprintName != null &&
                     this.BlueprintName.Equals(input.BlueprintName))
-                ) &&
+                ) && 
                 (
                     this.FunctionName == input.FunctionName ||
                     (this.FunctionName != null &&
                     this.FunctionName.Equals(input.FunctionName))
-                ) &&
+                ) && 
                 (
                     this.Arguments == input.Arguments ||
                     this.Arguments != null &&

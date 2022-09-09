@@ -27,7 +27,7 @@ namespace Models
     /// TakeFromWorktopAllOf
     /// </summary>
     [DataContract]
-    public partial class TakeFromWorktopAllOf : IEquatable<TakeFromWorktopAllOf>, IValidatableObject
+    public partial class TakeFromWorktopAllOf :  IEquatable<TakeFromWorktopAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TakeFromWorktopAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoBucket
         /// </summary>
-        [DataMember(Name = "into_bucket", EmitDefaultValue = true)]
+        [DataMember(Name="into_bucket", EmitDefaultValue=true)]
         public Bucket IntoBucket { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) &&
+                ) && 
                 (
                     this.IntoBucket == input.IntoBucket ||
                     (this.IntoBucket != null &&

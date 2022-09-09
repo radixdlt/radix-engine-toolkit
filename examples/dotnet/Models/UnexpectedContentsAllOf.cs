@@ -27,17 +27,17 @@ namespace Models
     /// UnexpectedContentsAllOf
     /// </summary>
     [DataContract]
-    public partial class UnexpectedContentsAllOf : IEquatable<UnexpectedContentsAllOf>, IValidatableObject
+    public partial class UnexpectedContentsAllOf :  IEquatable<UnexpectedContentsAllOf>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets Kind
         /// </summary>
-        [DataMember(Name = "kind", EmitDefaultValue = true)]
+        [DataMember(Name="kind", EmitDefaultValue=true)]
         public ValueKind Kind { get; set; }
         /// <summary>
         /// Gets or Sets Found
         /// </summary>
-        [DataMember(Name = "found", EmitDefaultValue = true)]
+        [DataMember(Name="found", EmitDefaultValue=true)]
         public ValueKind Found { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="UnexpectedContentsAllOf" /> class.
@@ -88,7 +88,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Expected
         /// </summary>
-        [DataMember(Name = "expected", EmitDefaultValue = true)]
+        [DataMember(Name="expected", EmitDefaultValue=true)]
         public List<ValueKind> Expected { get; set; }
 
 
@@ -136,18 +136,18 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Kind == input.Kind ||
                     (this.Kind != null &&
                     this.Kind.Equals(input.Kind))
-                ) &&
+                ) && 
                 (
                     this.Expected == input.Expected ||
                     this.Expected != null &&
                     input.Expected != null &&
                     this.Expected.SequenceEqual(input.Expected)
-                ) &&
+                ) && 
                 (
                     this.Found == input.Found ||
                     (this.Found != null &&

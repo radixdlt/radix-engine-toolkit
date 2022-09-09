@@ -27,7 +27,7 @@ namespace Models
     /// AssertWorktopContainsByIdsAllOf
     /// </summary>
     [DataContract]
-    public partial class AssertWorktopContainsByIdsAllOf : IEquatable<AssertWorktopContainsByIdsAllOf>, IValidatableObject
+    public partial class AssertWorktopContainsByIdsAllOf :  IEquatable<AssertWorktopContainsByIdsAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertWorktopContainsByIdsAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Ids
         /// </summary>
-        [DataMember(Name = "ids", EmitDefaultValue = true)]
+        [DataMember(Name="ids", EmitDefaultValue=true)]
         public List<NonFungibleId> Ids { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) &&
+                ) && 
                 (
                     this.Ids == input.Ids ||
                     this.Ids != null &&

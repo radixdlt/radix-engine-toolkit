@@ -27,7 +27,7 @@ namespace Models
     /// TakeFromWorktopByAmountAllOf
     /// </summary>
     [DataContract]
-    public partial class TakeFromWorktopByAmountAllOf : IEquatable<TakeFromWorktopByAmountAllOf>, IValidatableObject
+    public partial class TakeFromWorktopByAmountAllOf :  IEquatable<TakeFromWorktopByAmountAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TakeFromWorktopByAmountAllOf" /> class.
@@ -77,19 +77,19 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name = "amount", EmitDefaultValue = true)]
+        [DataMember(Name="amount", EmitDefaultValue=true)]
         public Decimal Amount { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoBucket
         /// </summary>
-        [DataMember(Name = "into_bucket", EmitDefaultValue = true)]
+        [DataMember(Name="into_bucket", EmitDefaultValue=true)]
         public Bucket IntoBucket { get; set; }
 
         /// <summary>
@@ -136,17 +136,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) &&
+                ) && 
                 (
                     this.Amount == input.Amount ||
                     (this.Amount != null &&
                     this.Amount.Equals(input.Amount))
-                ) &&
+                ) && 
                 (
                     this.IntoBucket == input.IntoBucket ||
                     (this.IntoBucket != null &&

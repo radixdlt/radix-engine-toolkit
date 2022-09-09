@@ -27,7 +27,7 @@ namespace Models
     /// UnsupportedTransactionVersionAllOf
     /// </summary>
     [DataContract]
-    public partial class UnsupportedTransactionVersionAllOf : IEquatable<UnsupportedTransactionVersionAllOf>, IValidatableObject
+    public partial class UnsupportedTransactionVersionAllOf :  IEquatable<UnsupportedTransactionVersionAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UnsupportedTransactionVersionAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Value
         /// </summary>
-        [DataMember(Name = "value", EmitDefaultValue = true)]
+        [DataMember(Name="value", EmitDefaultValue=true)]
         public decimal Value { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Value == input.Value ||
                     (this.Value != null &&

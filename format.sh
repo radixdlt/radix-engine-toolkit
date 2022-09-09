@@ -6,4 +6,4 @@
 
 # Examples
 (cd examples/typescript; prettier --use-tabs true --print-width 100 --write . )
-(cd examples/dotnet; dotnet format)
+(cd examples/dotnet; prettier --use-tabs true --print-width 100 --write . )

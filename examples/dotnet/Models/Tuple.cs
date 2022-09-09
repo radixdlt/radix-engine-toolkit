@@ -27,7 +27,7 @@ namespace Models
     /// Tuple
     /// </summary>
     [DataContract]
-    public partial class Tuple : Value, IEquatable<Tuple>, IValidatableObject
+    public partial class Tuple : Value,  IEquatable<Tuple>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Tuple" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="Tuple" /> class.
         /// </summary>
         /// <param name="elements">elements (required).</param>
-        public Tuple(List<Value> elements = default(List<Value>)) : base("Tuple")
+        public Tuple (List<Value> elements = default(List<Value>)) : base ("Tuple")
         {
             // to ensure "elements" is required (not null)
             if (elements == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name = "elements", EmitDefaultValue = true)]
+        [DataMember(Name="elements", EmitDefaultValue=true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&
@@ -132,7 +132,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,7 +27,7 @@ namespace Models
     /// DropProof
     /// </summary>
     [DataContract]
-    public partial class DropProof : Instruction, IEquatable<DropProof>, IValidatableObject
+    public partial class DropProof : Instruction,  IEquatable<DropProof>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DropProof" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="DropProof" /> class.
         /// </summary>
         /// <param name="proof">proof (required).</param>
-        public DropProof(Proof proof = default(Proof)) : base("DROP_PROOF")
+        public DropProof (Proof proof = default(Proof)) : base ("DROP_PROOF")
         {
             // to ensure "proof" is required (not null)
             if (proof == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Proof
         /// </summary>
-        [DataMember(Name = "proof", EmitDefaultValue = true)]
+        [DataMember(Name="proof", EmitDefaultValue=true)]
         public Proof Proof { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Proof == input.Proof ||
                     (this.Proof != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,7 +27,7 @@ namespace Models
     /// Proof
     /// </summary>
     [DataContract]
-    public partial class Proof : Value, IEquatable<Proof>, IValidatableObject
+    public partial class Proof : Value,  IEquatable<Proof>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Proof" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="Proof" /> class.
         /// </summary>
         /// <param name="identifier">identifier (required).</param>
-        public Proof(string identifier = default(string)) : base("Proof")
+        public Proof (string identifier = default(string)) : base ("Proof")
         {
             // to ensure "identifier" is required (not null)
             if (identifier == null)
@@ -56,7 +56,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Identifier
         /// </summary>
-        [DataMember(Name = "identifier", EmitDefaultValue = true)]
+        [DataMember(Name="identifier", EmitDefaultValue=true)]
         public string Identifier { get; set; }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Identifier == input.Identifier ||
                     (this.Identifier != null &&
@@ -132,7 +132,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

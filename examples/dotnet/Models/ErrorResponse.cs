@@ -42,21 +42,20 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(UnexpectedContents), "UnexpectedContents")]
     [JsonSubtypes.KnownSubType(typeof(UnrecognizedAddressFormat), "UnrecognizedAddressFormat")]
     [JsonSubtypes.KnownSubType(typeof(UnsupportedTransactionVersion), "UnsupportedTransactionVersion")]
-    public partial class ErrorResponse : IEquatable<ErrorResponse>, IValidatableObject
+    public partial class ErrorResponse :  IEquatable<ErrorResponse>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorResponse" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public ErrorResponse(string value = default(string))
-        {
-            this.Error = value;
-        }
+        public ErrorResponse(string value = default(string)){
+			this.Error = value;
+		}
 
         /// <summary>
         /// Gets or Sets Error
         /// </summary>
-        [DataMember(Name = "error", EmitDefaultValue = true)]
+        [DataMember(Name="error", EmitDefaultValue=true)]
         public string Error { get; private set; }
 
         /// <summary>
@@ -101,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Error == input.Error ||
                     (this.Error != null &&

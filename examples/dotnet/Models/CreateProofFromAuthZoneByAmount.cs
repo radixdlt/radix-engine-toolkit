@@ -27,7 +27,7 @@ namespace Models
     /// CreateProofFromAuthZoneByAmount
     /// </summary>
     [DataContract]
-    public partial class CreateProofFromAuthZoneByAmount : Instruction, IEquatable<CreateProofFromAuthZoneByAmount>, IValidatableObject
+    public partial class CreateProofFromAuthZoneByAmount : Instruction,  IEquatable<CreateProofFromAuthZoneByAmount>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateProofFromAuthZoneByAmount" /> class.
@@ -40,7 +40,7 @@ namespace Models
         /// <param name="resourceAddress">resourceAddress (required).</param>
         /// <param name="amount">amount (required).</param>
         /// <param name="intoProof">intoProof (required).</param>
-        public CreateProofFromAuthZoneByAmount(ResourceAddress resourceAddress = default(ResourceAddress), Decimal amount = default(Decimal), Proof intoProof = default(Proof)) : base("CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT")
+        public CreateProofFromAuthZoneByAmount (ResourceAddress resourceAddress = default(ResourceAddress), Decimal amount = default(Decimal), Proof intoProof = default(Proof)) : base ("CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT")
         {
             // to ensure "resourceAddress" is required (not null)
             if (resourceAddress == null)
@@ -77,19 +77,19 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name = "amount", EmitDefaultValue = true)]
+        [DataMember(Name="amount", EmitDefaultValue=true)]
         public Decimal Amount { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
+        [DataMember(Name="into_proof", EmitDefaultValue=true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -137,17 +137,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.Amount == input.Amount ||
                     (this.Amount != null &&
                     this.Amount.Equals(input.Amount))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&
@@ -181,7 +181,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

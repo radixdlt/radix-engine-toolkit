@@ -27,7 +27,7 @@ namespace Models
     /// Struct
     /// </summary>
     [DataContract]
-    public partial class Struct : Value, IEquatable<Struct>, IValidatableObject
+    public partial class Struct : Value,  IEquatable<Struct>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Struct" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="Struct" /> class.
         /// </summary>
         /// <param name="fields">fields (required).</param>
-        public Struct(List<Value> fields = default(List<Value>)) : base("Struct")
+        public Struct (List<Value> fields = default(List<Value>)) : base ("Struct")
         {
             // to ensure "fields" is required (not null)
             if (fields == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Fields
         /// </summary>
-        [DataMember(Name = "fields", EmitDefaultValue = true)]
+        [DataMember(Name="fields", EmitDefaultValue=true)]
         public List<Value> Fields { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Fields == input.Fields ||
                     this.Fields != null &&
@@ -132,7 +132,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

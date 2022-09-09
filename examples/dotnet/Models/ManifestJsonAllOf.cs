@@ -27,7 +27,7 @@ namespace Models
     /// ManifestJsonAllOf
     /// </summary>
     [DataContract]
-    public partial class ManifestJsonAllOf : IEquatable<ManifestJsonAllOf>, IValidatableObject
+    public partial class ManifestJsonAllOf :  IEquatable<ManifestJsonAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ManifestJsonAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Value
         /// </summary>
-        [DataMember(Name = "value", EmitDefaultValue = true)]
+        [DataMember(Name="value", EmitDefaultValue=true)]
         public List<Instruction> Value { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Value == input.Value ||
                     this.Value != null &&

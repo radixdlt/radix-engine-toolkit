@@ -27,7 +27,7 @@ namespace Models
     /// TupleAllOf
     /// </summary>
     [DataContract]
-    public partial class TupleAllOf : IEquatable<TupleAllOf>, IValidatableObject
+    public partial class TupleAllOf :  IEquatable<TupleAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TupleAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name = "elements", EmitDefaultValue = true)]
+        [DataMember(Name="elements", EmitDefaultValue=true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&

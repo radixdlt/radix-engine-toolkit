@@ -27,12 +27,12 @@ namespace Models
     /// ArrayAllOf
     /// </summary>
     [DataContract]
-    public partial class ArrayAllOf : IEquatable<ArrayAllOf>, IValidatableObject
+    public partial class ArrayAllOf :  IEquatable<ArrayAllOf>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ElementType
         /// </summary>
-        [DataMember(Name = "element_type", EmitDefaultValue = true)]
+        [DataMember(Name="element_type", EmitDefaultValue=true)]
         public ValueKind ElementType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ArrayAllOf" /> class.
@@ -72,7 +72,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name = "elements", EmitDefaultValue = true)]
+        [DataMember(Name="elements", EmitDefaultValue=true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ElementType == input.ElementType ||
                     (this.ElementType != null &&
                     this.ElementType.Equals(input.ElementType))
-                ) &&
+                ) && 
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&

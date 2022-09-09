@@ -27,12 +27,12 @@ namespace Models
     /// DecompileTransactionIntentRequest
     /// </summary>
     [DataContract]
-    public partial class DecompileTransactionIntentRequest : IEquatable<DecompileTransactionIntentRequest>, IValidatableObject
+    public partial class DecompileTransactionIntentRequest :  IEquatable<DecompileTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ManifestOutputFormat
         /// </summary>
-        [DataMember(Name = "manifest_output_format", EmitDefaultValue = true)]
+        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
         public ManifestKind ManifestOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequest" /> class.
@@ -71,7 +71,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets CompiledIntent
         /// </summary>
-        [DataMember(Name = "compiled_intent", EmitDefaultValue = true)]
+        [DataMember(Name="compiled_intent", EmitDefaultValue=true)]
         public string CompiledIntent { get; set; }
 
 
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.CompiledIntent == input.CompiledIntent ||
                     (this.CompiledIntent != null &&
                     this.CompiledIntent.Equals(input.CompiledIntent))
-                ) &&
+                ) && 
                 (
                     this.ManifestOutputFormat == input.ManifestOutputFormat ||
                     (this.ManifestOutputFormat != null &&

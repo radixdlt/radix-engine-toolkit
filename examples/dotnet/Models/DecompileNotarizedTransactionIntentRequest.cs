@@ -27,12 +27,12 @@ namespace Models
     /// DecompileNotarizedTransactionIntentRequest
     /// </summary>
     [DataContract]
-    public partial class DecompileNotarizedTransactionIntentRequest : IEquatable<DecompileNotarizedTransactionIntentRequest>, IValidatableObject
+    public partial class DecompileNotarizedTransactionIntentRequest :  IEquatable<DecompileNotarizedTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ManifestOutputFormat
         /// </summary>
-        [DataMember(Name = "manifest_output_format", EmitDefaultValue = true)]
+        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
         public ManifestKind ManifestOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileNotarizedTransactionIntentRequest" /> class.
@@ -71,7 +71,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets CompiledNotarizedIntent
         /// </summary>
-        [DataMember(Name = "compiled_notarized_intent", EmitDefaultValue = true)]
+        [DataMember(Name="compiled_notarized_intent", EmitDefaultValue=true)]
         public string CompiledNotarizedIntent { get; set; }
 
 
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.CompiledNotarizedIntent == input.CompiledNotarizedIntent ||
                     (this.CompiledNotarizedIntent != null &&
                     this.CompiledNotarizedIntent.Equals(input.CompiledNotarizedIntent))
-                ) &&
+                ) && 
                 (
                     this.ManifestOutputFormat == input.ManifestOutputFormat ||
                     (this.ManifestOutputFormat != null &&

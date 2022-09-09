@@ -27,7 +27,7 @@ namespace Models
     /// AssertWorktopContainsByAmountAllOf
     /// </summary>
     [DataContract]
-    public partial class AssertWorktopContainsByAmountAllOf : IEquatable<AssertWorktopContainsByAmountAllOf>, IValidatableObject
+    public partial class AssertWorktopContainsByAmountAllOf :  IEquatable<AssertWorktopContainsByAmountAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertWorktopContainsByAmountAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name = "amount", EmitDefaultValue = true)]
+        [DataMember(Name="amount", EmitDefaultValue=true)]
         public Decimal Amount { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) &&
+                ) && 
                 (
                     this.Amount == input.Amount ||
                     (this.Amount != null &&

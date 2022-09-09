@@ -27,7 +27,7 @@ namespace Models
     /// CreateProofFromBucket
     /// </summary>
     [DataContract]
-    public partial class CreateProofFromBucket : Instruction, IEquatable<CreateProofFromBucket>, IValidatableObject
+    public partial class CreateProofFromBucket : Instruction,  IEquatable<CreateProofFromBucket>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateProofFromBucket" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="bucket">bucket (required).</param>
         /// <param name="intoProof">intoProof (required).</param>
-        public CreateProofFromBucket(Bucket bucket = default(Bucket), Proof intoProof = default(Proof)) : base("CREATE_PROOF_FROM_BUCKET")
+        public CreateProofFromBucket (Bucket bucket = default(Bucket), Proof intoProof = default(Proof)) : base ("CREATE_PROOF_FROM_BUCKET")
         {
             // to ensure "bucket" is required (not null)
             if (bucket == null)
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets Bucket
         /// </summary>
-        [DataMember(Name = "bucket", EmitDefaultValue = true)]
+        [DataMember(Name="bucket", EmitDefaultValue=true)]
         public Bucket Bucket { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
+        [DataMember(Name="into_proof", EmitDefaultValue=true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Bucket == input.Bucket ||
                     (this.Bucket != null &&
                     this.Bucket.Equals(input.Bucket))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

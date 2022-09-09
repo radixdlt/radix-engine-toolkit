@@ -27,7 +27,7 @@ namespace Models
     /// PushToAuthZoneAllOf
     /// </summary>
     [DataContract]
-    public partial class PushToAuthZoneAllOf : IEquatable<PushToAuthZoneAllOf>, IValidatableObject
+    public partial class PushToAuthZoneAllOf :  IEquatable<PushToAuthZoneAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PushToAuthZoneAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Proof
         /// </summary>
-        [DataMember(Name = "proof", EmitDefaultValue = true)]
+        [DataMember(Name="proof", EmitDefaultValue=true)]
         public Proof Proof { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Proof == input.Proof ||
                     (this.Proof != null &&

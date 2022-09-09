@@ -27,17 +27,17 @@ namespace Models
     /// Map
     /// </summary>
     [DataContract]
-    public partial class Map : Value, IEquatable<Map>, IValidatableObject
+    public partial class Map : Value,  IEquatable<Map>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets KeyType
         /// </summary>
-        [DataMember(Name = "key_type", EmitDefaultValue = true)]
+        [DataMember(Name="key_type", EmitDefaultValue=true)]
         public ValueKind KeyType { get; set; }
         /// <summary>
         /// Gets or Sets ValueType
         /// </summary>
-        [DataMember(Name = "value_type", EmitDefaultValue = true)]
+        [DataMember(Name="value_type", EmitDefaultValue=true)]
         public ValueKind ValueType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="Map" /> class.
@@ -50,7 +50,7 @@ namespace Models
         /// <param name="keyType">keyType (required).</param>
         /// <param name="valueType">valueType (required).</param>
         /// <param name="elements">elements (required).</param>
-        public Map(ValueKind keyType = default(ValueKind), ValueKind valueType = default(ValueKind), List<Value> elements = default(List<Value>)) : base("Map")
+        public Map (ValueKind keyType = default(ValueKind), ValueKind valueType = default(ValueKind), List<Value> elements = default(List<Value>)) : base ("Map")
         {
             // to ensure "keyType" is required (not null)
             if (keyType == null)
@@ -89,7 +89,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name = "elements", EmitDefaultValue = true)]
+        [DataMember(Name="elements", EmitDefaultValue=true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -137,17 +137,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.KeyType == input.KeyType ||
                     (this.KeyType != null &&
                     this.KeyType.Equals(input.KeyType))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.ValueType == input.ValueType ||
                     (this.ValueType != null &&
                     this.ValueType.Equals(input.ValueType))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&
@@ -182,7 +182,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

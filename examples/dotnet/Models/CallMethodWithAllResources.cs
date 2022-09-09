@@ -27,7 +27,7 @@ namespace Models
     /// CallMethodWithAllResources
     /// </summary>
     [DataContract]
-    public partial class CallMethodWithAllResources : Instruction, IEquatable<CallMethodWithAllResources>, IValidatableObject
+    public partial class CallMethodWithAllResources : Instruction,  IEquatable<CallMethodWithAllResources>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CallMethodWithAllResources" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="componentAddress">componentAddress (required).</param>
         /// <param name="methodName">methodName (required).</param>
-        public CallMethodWithAllResources(ComponentAddress componentAddress = default(ComponentAddress), String methodName = default(String)) : base("CALL_METHOD_WITH_ALL_RESOURCES")
+        public CallMethodWithAllResources (ComponentAddress componentAddress = default(ComponentAddress), String methodName = default(String)) : base ("CALL_METHOD_WITH_ALL_RESOURCES")
         {
             // to ensure "componentAddress" is required (not null)
             if (componentAddress == null)
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ComponentAddress
         /// </summary>
-        [DataMember(Name = "component_address", EmitDefaultValue = true)]
+        [DataMember(Name="component_address", EmitDefaultValue=true)]
         public ComponentAddress ComponentAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets MethodName
         /// </summary>
-        [DataMember(Name = "method_name", EmitDefaultValue = true)]
+        [DataMember(Name="method_name", EmitDefaultValue=true)]
         public String MethodName { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.ComponentAddress == input.ComponentAddress ||
                     (this.ComponentAddress != null &&
                     this.ComponentAddress.Equals(input.ComponentAddress))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.MethodName == input.MethodName ||
                     (this.MethodName != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,13 +27,13 @@ namespace Models
     /// ClearAuthZone
     /// </summary>
     [DataContract]
-    public partial class ClearAuthZone : Instruction, IEquatable<ClearAuthZone>, IValidatableObject
+    public partial class ClearAuthZone : Instruction,  IEquatable<ClearAuthZone>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ClearAuthZone" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public ClearAuthZone() : base("CLEAR_AUTH_ZONE")
+        public ClearAuthZone () : base ("CLEAR_AUTH_ZONE")
         {
         }
 
@@ -102,7 +102,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

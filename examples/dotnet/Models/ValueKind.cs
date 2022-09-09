@@ -26,9 +26,9 @@ namespace Models
     /// <summary>
     /// Defines ValueKind
     /// </summary>
-
+    
     [JsonConverter(typeof(StringEnumConverter))]
-
+    
     public enum ValueKind
     {
         /// <summary>

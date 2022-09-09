@@ -26,9 +26,9 @@ namespace Models
     /// <summary>
     /// Defines AddressKind
     /// </summary>
-
+    
     [JsonConverter(typeof(StringEnumConverter))]
-
+    
     public enum AddressKind
     {
         /// <summary>

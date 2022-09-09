@@ -27,7 +27,7 @@ namespace Models
     /// AssertWorktopContainsByAmount
     /// </summary>
     [DataContract]
-    public partial class AssertWorktopContainsByAmount : Instruction, IEquatable<AssertWorktopContainsByAmount>, IValidatableObject
+    public partial class AssertWorktopContainsByAmount : Instruction,  IEquatable<AssertWorktopContainsByAmount>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertWorktopContainsByAmount" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="resourceAddress">resourceAddress (required).</param>
         /// <param name="amount">amount (required).</param>
-        public AssertWorktopContainsByAmount(ResourceAddress resourceAddress = default(ResourceAddress), Decimal amount = default(Decimal)) : base("ASSERT_WORKTOP_CONTAINS_BY_AMOUNT")
+        public AssertWorktopContainsByAmount (ResourceAddress resourceAddress = default(ResourceAddress), Decimal amount = default(Decimal)) : base ("ASSERT_WORKTOP_CONTAINS_BY_AMOUNT")
         {
             // to ensure "resourceAddress" is required (not null)
             if (resourceAddress == null)
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
+        [DataMember(Name="resource_address", EmitDefaultValue=true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name = "amount", EmitDefaultValue = true)]
+        [DataMember(Name="amount", EmitDefaultValue=true)]
         public Decimal Amount { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.Amount == input.Amount ||
                     (this.Amount != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

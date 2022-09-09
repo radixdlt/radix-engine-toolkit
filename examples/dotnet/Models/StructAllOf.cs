@@ -27,7 +27,7 @@ namespace Models
     /// StructAllOf
     /// </summary>
     [DataContract]
-    public partial class StructAllOf : IEquatable<StructAllOf>, IValidatableObject
+    public partial class StructAllOf :  IEquatable<StructAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StructAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Fields
         /// </summary>
-        [DataMember(Name = "fields", EmitDefaultValue = true)]
+        [DataMember(Name="fields", EmitDefaultValue=true)]
         public List<Value> Fields { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.Fields == input.Fields ||
                     this.Fields != null &&

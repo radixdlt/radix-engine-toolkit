@@ -27,17 +27,17 @@ namespace Models
     /// InvalidTypeAllOf
     /// </summary>
     [DataContract]
-    public partial class InvalidTypeAllOf : IEquatable<InvalidTypeAllOf>, IValidatableObject
+    public partial class InvalidTypeAllOf :  IEquatable<InvalidTypeAllOf>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ExpectedType
         /// </summary>
-        [DataMember(Name = "expected_type", EmitDefaultValue = true)]
+        [DataMember(Name="expected_type", EmitDefaultValue=true)]
         public ValueKind ExpectedType { get; set; }
         /// <summary>
         /// Gets or Sets ActualType
         /// </summary>
-        [DataMember(Name = "actual_type", EmitDefaultValue = true)]
+        [DataMember(Name="actual_type", EmitDefaultValue=true)]
         public ValueKind ActualType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidTypeAllOf" /> class.
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ExpectedType == input.ExpectedType ||
                     (this.ExpectedType != null &&
                     this.ExpectedType.Equals(input.ExpectedType))
-                ) &&
+                ) && 
                 (
                     this.ActualType == input.ActualType ||
                     (this.ActualType != null &&

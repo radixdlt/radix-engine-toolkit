@@ -27,7 +27,7 @@ namespace Models
     /// Enum
     /// </summary>
     [DataContract]
-    public partial class Enum : Value, IEquatable<Enum>, IValidatableObject
+    public partial class Enum : Value,  IEquatable<Enum>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Enum" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="variantName">variantName (required).</param>
         /// <param name="fields">fields (required).</param>
-        public Enum(string variantName = default(string), List<Value> fields = default(List<Value>)) : base("Enum")
+        public Enum (string variantName = default(string), List<Value> fields = default(List<Value>)) : base ("Enum")
         {
             // to ensure "variantName" is required (not null)
             if (variantName == null)
@@ -67,13 +67,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets VariantName
         /// </summary>
-        [DataMember(Name = "variant_name", EmitDefaultValue = true)]
+        [DataMember(Name="variant_name", EmitDefaultValue=true)]
         public string VariantName { get; set; }
 
         /// <summary>
         /// Gets or Sets Fields
         /// </summary>
-        [DataMember(Name = "fields", EmitDefaultValue = true)]
+        [DataMember(Name="fields", EmitDefaultValue=true)]
         public List<Value> Fields { get; set; }
 
         /// <summary>
@@ -120,12 +120,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.VariantName == input.VariantName ||
                     (this.VariantName != null &&
                     this.VariantName.Equals(input.VariantName))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.Fields == input.Fields ||
                     this.Fields != null &&
@@ -158,7 +158,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

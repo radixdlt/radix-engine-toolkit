@@ -27,7 +27,7 @@ namespace Models
     /// CallMethodWithAllResourcesAllOf
     /// </summary>
     [DataContract]
-    public partial class CallMethodWithAllResourcesAllOf : IEquatable<CallMethodWithAllResourcesAllOf>, IValidatableObject
+    public partial class CallMethodWithAllResourcesAllOf :  IEquatable<CallMethodWithAllResourcesAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CallMethodWithAllResourcesAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ComponentAddress
         /// </summary>
-        [DataMember(Name = "component_address", EmitDefaultValue = true)]
+        [DataMember(Name="component_address", EmitDefaultValue=true)]
         public ComponentAddress ComponentAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets MethodName
         /// </summary>
-        [DataMember(Name = "method_name", EmitDefaultValue = true)]
+        [DataMember(Name="method_name", EmitDefaultValue=true)]
         public String MethodName { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.ComponentAddress == input.ComponentAddress ||
                     (this.ComponentAddress != null &&
                     this.ComponentAddress.Equals(input.ComponentAddress))
-                ) &&
+                ) && 
                 (
                     this.MethodName == input.MethodName ||
                     (this.MethodName != null &&

@@ -27,7 +27,7 @@ namespace Models
     /// ReturnToWorktop
     /// </summary>
     [DataContract]
-    public partial class ReturnToWorktop : Instruction, IEquatable<ReturnToWorktop>, IValidatableObject
+    public partial class ReturnToWorktop : Instruction,  IEquatable<ReturnToWorktop>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReturnToWorktop" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="ReturnToWorktop" /> class.
         /// </summary>
         /// <param name="bucket">bucket (required).</param>
-        public ReturnToWorktop(Bucket bucket = default(Bucket)) : base("RETURN_TO_WORKTOP")
+        public ReturnToWorktop (Bucket bucket = default(Bucket)) : base ("RETURN_TO_WORKTOP")
         {
             // to ensure "bucket" is required (not null)
             if (bucket == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Bucket
         /// </summary>
-        [DataMember(Name = "bucket", EmitDefaultValue = true)]
+        [DataMember(Name="bucket", EmitDefaultValue=true)]
         public Bucket Bucket { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Bucket == input.Bucket ||
                     (this.Bucket != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,7 +27,7 @@ namespace Models
     /// SignedTransactionIntent
     /// </summary>
     [DataContract]
-    public partial class SignedTransactionIntent : IEquatable<SignedTransactionIntent>, IValidatableObject
+    public partial class SignedTransactionIntent :  IEquatable<SignedTransactionIntent>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SignedTransactionIntent" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets TransactionIntent
         /// </summary>
-        [DataMember(Name = "transaction_intent", EmitDefaultValue = true)]
+        [DataMember(Name="transaction_intent", EmitDefaultValue=true)]
         public TransactionIntent TransactionIntent { get; set; }
 
         /// <summary>
         /// Gets or Sets Signatures
         /// </summary>
-        [DataMember(Name = "signatures", EmitDefaultValue = true)]
+        [DataMember(Name="signatures", EmitDefaultValue=true)]
         public List<Signature> Signatures { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return
+            return 
                 (
                     this.TransactionIntent == input.TransactionIntent ||
                     (this.TransactionIntent != null &&
                     this.TransactionIntent.Equals(input.TransactionIntent))
-                ) &&
+                ) && 
                 (
                     this.Signatures == input.Signatures ||
                     this.Signatures != null &&

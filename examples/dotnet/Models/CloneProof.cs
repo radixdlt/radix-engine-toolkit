@@ -27,7 +27,7 @@ namespace Models
     /// CloneProof
     /// </summary>
     [DataContract]
-    public partial class CloneProof : Instruction, IEquatable<CloneProof>, IValidatableObject
+    public partial class CloneProof : Instruction,  IEquatable<CloneProof>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CloneProof" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="proof">proof (required).</param>
         /// <param name="intoProof">intoProof (required).</param>
-        public CloneProof(Proof proof = default(Proof), Proof intoProof = default(Proof)) : base("CLONE_PROOF")
+        public CloneProof (Proof proof = default(Proof), Proof intoProof = default(Proof)) : base ("CLONE_PROOF")
         {
             // to ensure "proof" is required (not null)
             if (proof == null)
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets Proof
         /// </summary>
-        [DataMember(Name = "proof", EmitDefaultValue = true)]
+        [DataMember(Name="proof", EmitDefaultValue=true)]
         public Proof Proof { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
+        [DataMember(Name="into_proof", EmitDefaultValue=true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) &&
+            return base.Equals(input) && 
                 (
                     this.Proof == input.Proof ||
                     (this.Proof != null &&
                     this.Proof.Equals(input.Proof))
-                ) && base.Equals(input) &&
+                ) && base.Equals(input) && 
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach (var x in base.BaseValidate(validationContext)) yield return x;
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }
