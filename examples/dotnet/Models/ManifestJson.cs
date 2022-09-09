@@ -30,15 +30,15 @@ namespace Models
     public partial class ManifestJson : Manifest, IEquatable<ManifestJson>, IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ManifestJson" /> class.
+        /// Initializes a new instance of the <see cref="JSON" /> class.
         /// </summary>
         [JsonConstructorAttribute]
         protected ManifestJson() { }
         /// <summary>
-        /// Initializes a new instance of the <see cref="ManifestJson" /> class.
+        /// Initializes a new instance of the <see cref="JSON" /> class.
         /// </summary>
         /// <param name="value">value (required).</param>
-        public ManifestJson(List<Instruction> value = default(List<Instruction>)) : base("ManifestJson")
+        public ManifestJson(List<Instruction> value = default(List<Instruction>)) : base("JSON")
         {
             // to ensure "value" is required (not null)
             if (value == null)

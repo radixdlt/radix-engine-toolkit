@@ -110,6 +110,7 @@ class CSharpModelGenerator(LanguageModelGenerator):
         self.__fix_unavailable_imports()
         self.__fix_namespace_name()
         self.__fix_incorrect_types()
+        self.__fix_manifest_string_json_naming()
         self.__fix_model_path()
 
     def internal_generate_models(self, open_api_generator_jar_path: str):
@@ -272,6 +273,23 @@ class CSharpModelGenerator(LanguageModelGenerator):
                     .replace(
                         "int tipPercentage = default(int)",
                         "uint tipPercentage = default(uint)",
+                    )
+                )
+
+    def __fix_manifest_string_json_naming(self):
+        models_directory: str = os.path.join(
+            self.output_path, "src", "Org.OpenAPITools", "Model"
+        )
+        for model_name in sorted(os.listdir(models_directory)):
+            model_file_path: str = os.path.join(models_directory, model_name)
+
+            with open(model_file_path, "r") as file:
+                content: str = file.read()
+
+            with open(model_file_path, "w") as file:
+                file.write(
+                    content.replace('"ManifestString"', '"String"').replace(
+                        '"ManifestJson"', '"JSON"'
                     )
                 )
 

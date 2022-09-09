@@ -29,8 +29,8 @@ namespace Models
     /// </summary>
     [DataContract]
     [JsonConverter(typeof(JsonSubtypes), "type")]
-    [JsonSubtypes.KnownSubType(typeof(ManifestJson), "ManifestJson")]
-    [JsonSubtypes.KnownSubType(typeof(ManifestString), "ManifestString")]
+    [JsonSubtypes.KnownSubType(typeof(ManifestJson), "JSON")]
+    [JsonSubtypes.KnownSubType(typeof(ManifestString), "String")]
     public partial class Manifest : IEquatable<Manifest>, IValidatableObject
     {
         /// <summary>

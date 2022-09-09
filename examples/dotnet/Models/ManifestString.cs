@@ -30,15 +30,15 @@ namespace Models
     public partial class ManifestString : Manifest, IEquatable<ManifestString>, IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ManifestString" /> class.
+        /// Initializes a new instance of the <see cref="String" /> class.
         /// </summary>
         [JsonConstructorAttribute]
         protected ManifestString() { }
         /// <summary>
-        /// Initializes a new instance of the <see cref="ManifestString" /> class.
+        /// Initializes a new instance of the <see cref="String" /> class.
         /// </summary>
         /// <param name="value">value (required).</param>
-        public ManifestString(string value = default(string)) : base("ManifestString")
+        public ManifestString(string value = default(string)) : base("String")
         {
             // to ensure "value" is required (not null)
             if (value == null)
