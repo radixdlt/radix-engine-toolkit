@@ -22,8 +22,8 @@ import {
 	DecompileNotarizedTransactionIntentResponse,
 	DecompileUnknownTransactionIntentRequest,
 	DecompileUnknownTransactionIntentResponse,
-	AddressInformationRequest,
-	AddressInformationResponse,
+	DecodeAddressRequest,
+	DecodeAddressResponse,
 } from "./interfaces";
 import { Error } from "./error";
 import fs from "fs";
@@ -138,9 +138,9 @@ export default class TransactionAPI {
 		) as DecompileUnknownTransactionIntentResponse | Error;
 	}
 
-	addressInformation(request: AddressInformationRequest): AddressInformationResponse | Error {
-		return this.callWasmFunction(request, this.internal_service.address_information) as
-			| AddressInformationResponse
+	decodeAddress(request: DecodeAddressRequest): DecodeAddressResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.decode_address) as
+			| DecodeAddressResponse
 			| Error;
 	}
 

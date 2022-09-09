@@ -26,7 +26,7 @@ link_handler! {
 
     decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent,
 
-    address_information => handle_address_information
+    decode_address => handle_decode_address
 }
 
 fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -276,9 +276,9 @@ fn handle_decompile_unknown_transaction_intent(
     Ok(response)
 }
 
-fn handle_address_information(
-    request: AddressInformationRequest,
-) -> Result<AddressInformationResponse, Error> {
+fn handle_decode_address(
+    request: DecodeAddressRequest,
+) -> Result<DecodeAddressResponse, Error> {
     // We need to deduce the network from the HRP of the passed address. Therefore, we need to begin
     // by decoding the address, and getting the HRP.
     let (hrp, data, variant): (String, Vec<u5>, Variant) =
@@ -325,7 +325,7 @@ fn handle_address_information(
         }
     }?;
 
-    let response: AddressInformationResponse = AddressInformationResponse {
+    let response: DecodeAddressResponse = DecodeAddressResponse {
         network_id: bech32_manager.network_id,
         hrp,
         data,

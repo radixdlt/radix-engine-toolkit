@@ -2,12 +2,12 @@ use crate::models::{Address, AddressKind};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AddressInformationRequest {
+pub struct DecodeAddressRequest {
     pub address: String,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AddressInformationResponse {
+pub struct DecodeAddressResponse {
     pub network_id: u8,
     pub entity_type: AddressKind,
     #[serde(with = "hex::serde")]

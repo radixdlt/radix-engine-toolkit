@@ -238,7 +238,7 @@ const main = async (): Promise<void> => {
 	console.log("=========================", "\n");
 
 	console.log(
-		transactionService.addressInformation({
+		transactionService.decodeAddress({
 			address: "system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs9fh54n",
 		})
 	);

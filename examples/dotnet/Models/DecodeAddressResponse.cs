@@ -24,10 +24,10 @@ using System.ComponentModel.DataAnnotations;
 namespace Models
 {
     /// <summary>
-    /// AddressInformationResponse
+    /// DecodeAddressResponse
     /// </summary>
     [DataContract]
-    public partial class AddressInformationResponse :  IEquatable<AddressInformationResponse>, IValidatableObject
+    public partial class DecodeAddressResponse :  IEquatable<DecodeAddressResponse>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets EntityType
@@ -35,24 +35,24 @@ namespace Models
         [DataMember(Name="entity_type", EmitDefaultValue=true)]
         public AddressKind EntityType { get; set; }
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddressInformationResponse" /> class.
+        /// Initializes a new instance of the <see cref="DecodeAddressResponse" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        protected AddressInformationResponse() { }
+        protected DecodeAddressResponse() { }
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddressInformationResponse" /> class.
+        /// Initializes a new instance of the <see cref="DecodeAddressResponse" /> class.
         /// </summary>
         /// <param name="networkId">networkId (required).</param>
         /// <param name="entityType">entityType (required).</param>
         /// <param name="data">data (required).</param>
         /// <param name="hrp">hrp (required).</param>
         /// <param name="address">address (required).</param>
-        public AddressInformationResponse(int networkId = default(int), AddressKind entityType = default(AddressKind), string data = default(string), string hrp = default(string), Address address = default(Address))
+        public DecodeAddressResponse(int networkId = default(int), AddressKind entityType = default(AddressKind), string data = default(string), string hrp = default(string), Address address = default(Address))
         {
             // to ensure "networkId" is required (not null)
             if (networkId == null)
             {
-                throw new InvalidDataException("networkId is a required property for AddressInformationResponse and cannot be null");
+                throw new InvalidDataException("networkId is a required property for DecodeAddressResponse and cannot be null");
             }
             else
             {
@@ -62,7 +62,7 @@ namespace Models
             // to ensure "entityType" is required (not null)
             if (entityType == null)
             {
-                throw new InvalidDataException("entityType is a required property for AddressInformationResponse and cannot be null");
+                throw new InvalidDataException("entityType is a required property for DecodeAddressResponse and cannot be null");
             }
             else
             {
@@ -72,7 +72,7 @@ namespace Models
             // to ensure "data" is required (not null)
             if (data == null)
             {
-                throw new InvalidDataException("data is a required property for AddressInformationResponse and cannot be null");
+                throw new InvalidDataException("data is a required property for DecodeAddressResponse and cannot be null");
             }
             else
             {
@@ -82,7 +82,7 @@ namespace Models
             // to ensure "hrp" is required (not null)
             if (hrp == null)
             {
-                throw new InvalidDataException("hrp is a required property for AddressInformationResponse and cannot be null");
+                throw new InvalidDataException("hrp is a required property for DecodeAddressResponse and cannot be null");
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Models
             // to ensure "address" is required (not null)
             if (address == null)
             {
-                throw new InvalidDataException("address is a required property for AddressInformationResponse and cannot be null");
+                throw new InvalidDataException("address is a required property for DecodeAddressResponse and cannot be null");
             }
             else
             {
@@ -133,7 +133,7 @@ namespace Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AddressInformationResponse {\n");
+            sb.Append("class DecodeAddressResponse {\n");
             sb.Append("  NetworkId: ").Append(NetworkId).Append("\n");
             sb.Append("  EntityType: ").Append(EntityType).Append("\n");
             sb.Append("  Data: ").Append(Data).Append("\n");
@@ -159,15 +159,15 @@ namespace Models
         /// <returns>Boolean</returns>
         public override bool Equals(object input)
         {
-            return this.Equals(input as AddressInformationResponse);
+            return this.Equals(input as DecodeAddressResponse);
         }
 
         /// <summary>
-        /// Returns true if AddressInformationResponse instances are equal
+        /// Returns true if DecodeAddressResponse instances are equal
         /// </summary>
-        /// <param name="input">Instance of AddressInformationResponse to be compared</param>
+        /// <param name="input">Instance of DecodeAddressResponse to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AddressInformationResponse input)
+        public bool Equals(DecodeAddressResponse input)
         {
             if (input == null)
                 return false;

@@ -1,4 +1,4 @@
-pub mod address_information_request;
+pub mod decode_address_request;
 pub mod compile_notarized_transaction_intent_request;
 pub mod compile_signed_transaction_intent_request;
 pub mod compile_transaction_intent_request;
@@ -15,7 +15,7 @@ pub mod request;
 pub mod serde;
 pub mod value;
 
-pub use address_information_request::{AddressInformationRequest, AddressInformationResponse};
+pub use decode_address_request::{DecodeAddressRequest, DecodeAddressResponse};
 pub use compile_notarized_transaction_intent_request::{
     CompileNotarizedTransactionIntentRequest, CompileNotarizedTransactionIntentResponse,
 };

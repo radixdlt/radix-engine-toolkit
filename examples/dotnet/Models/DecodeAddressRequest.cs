@@ -24,26 +24,26 @@ using System.ComponentModel.DataAnnotations;
 namespace Models
 {
     /// <summary>
-    /// AddressInformationRequest
+    /// DecodeAddressRequest
     /// </summary>
     [DataContract]
-    public partial class AddressInformationRequest :  IEquatable<AddressInformationRequest>, IValidatableObject
+    public partial class DecodeAddressRequest :  IEquatable<DecodeAddressRequest>, IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddressInformationRequest" /> class.
+        /// Initializes a new instance of the <see cref="DecodeAddressRequest" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        protected AddressInformationRequest() { }
+        protected DecodeAddressRequest() { }
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddressInformationRequest" /> class.
+        /// Initializes a new instance of the <see cref="DecodeAddressRequest" /> class.
         /// </summary>
         /// <param name="address">address (required).</param>
-        public AddressInformationRequest(string address = default(string))
+        public DecodeAddressRequest(string address = default(string))
         {
             // to ensure "address" is required (not null)
             if (address == null)
             {
-                throw new InvalidDataException("address is a required property for AddressInformationRequest and cannot be null");
+                throw new InvalidDataException("address is a required property for DecodeAddressRequest and cannot be null");
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AddressInformationRequest {\n");
+            sb.Append("class DecodeAddressRequest {\n");
             sb.Append("  Address: ").Append(Address).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -87,15 +87,15 @@ namespace Models
         /// <returns>Boolean</returns>
         public override bool Equals(object input)
         {
-            return this.Equals(input as AddressInformationRequest);
+            return this.Equals(input as DecodeAddressRequest);
         }
 
         /// <summary>
-        /// Returns true if AddressInformationRequest instances are equal
+        /// Returns true if DecodeAddressRequest instances are equal
         /// </summary>
-        /// <param name="input">Instance of AddressInformationRequest to be compared</param>
+        /// <param name="input">Instance of DecodeAddressRequest to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AddressInformationRequest input)
+        public bool Equals(DecodeAddressRequest input)
         {
             if (input == null)
                 return false;

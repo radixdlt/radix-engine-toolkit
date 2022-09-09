@@ -152,7 +152,7 @@ components:
         - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
 
     # Address Information
-    AddressInformationRequest:
+    DecodeAddressRequest:
       type: object
       additionalProperties: false
       required:
@@ -161,7 +161,7 @@ components:
         address:
           type: string
 
-    AddressInformationResponse:
+    DecodeAddressResponse:
       type: object
       additionalProperties: false
       required:

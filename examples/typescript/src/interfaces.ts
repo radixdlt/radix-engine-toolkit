@@ -109,11 +109,11 @@ export type DecompileUnknownTransactionIntentResponse =
 	| DecompileSignedTransactionIntentResponse
 	| DecompileNotarizedTransactionIntentResponse;
 
-export interface AddressInformationRequest {
+export interface DecodeAddressRequest {
 	address: string;
 }
 
-export interface AddressInformationResponse {
+export interface DecodeAddressResponse {
 	network_id: number;
 	entity_type: AddressKind;
 	data: string;
@@ -202,7 +202,7 @@ export interface TransactionServiceInterface {
 
 	information(requestStringPointer: number): number;
 
-	address_information(requestStringPointer: number): number;
+	decode_address(requestStringPointer: number): number;
 
 	__transaction_lib_alloc(capacity: number): number;
 	__transaction_lib_free(pointer: number): void;
