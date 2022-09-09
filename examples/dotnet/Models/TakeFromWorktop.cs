@@ -27,7 +27,7 @@ namespace Models
     /// TakeFromWorktop
     /// </summary>
     [DataContract]
-    public partial class TakeFromWorktop : Instruction,  IEquatable<TakeFromWorktop>, IValidatableObject
+    public partial class TakeFromWorktop : Instruction, IEquatable<TakeFromWorktop>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TakeFromWorktop" /> class.
@@ -39,7 +39,7 @@ namespace Models
         /// </summary>
         /// <param name="resourceAddress">resourceAddress (required).</param>
         /// <param name="intoBucket">intoBucket (required).</param>
-        public TakeFromWorktop (ResourceAddress resourceAddress = default(ResourceAddress), Bucket intoBucket = default(Bucket)) : base ("TAKE_FROM_WORKTOP")
+        public TakeFromWorktop(ResourceAddress resourceAddress = default(ResourceAddress), Bucket intoBucket = default(Bucket)) : base("TAKE_FROM_WORKTOP")
         {
             // to ensure "resourceAddress" is required (not null)
             if (resourceAddress == null)
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name="resource_address", EmitDefaultValue=true)]
+        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoBucket
         /// </summary>
-        [DataMember(Name="into_bucket", EmitDefaultValue=true)]
+        [DataMember(Name = "into_bucket", EmitDefaultValue = true)]
         public Bucket IntoBucket { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.IntoBucket == input.IntoBucket ||
                     (this.IntoBucket != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

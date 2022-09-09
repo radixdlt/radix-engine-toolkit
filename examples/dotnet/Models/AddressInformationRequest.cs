@@ -27,7 +27,7 @@ namespace Models
     /// AddressInformationRequest
     /// </summary>
     [DataContract]
-    public partial class AddressInformationRequest :  IEquatable<AddressInformationRequest>, IValidatableObject
+    public partial class AddressInformationRequest : IEquatable<AddressInformationRequest>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressInformationRequest" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Address
         /// </summary>
-        [DataMember(Name="address", EmitDefaultValue=true)]
+        [DataMember(Name = "address", EmitDefaultValue = true)]
         public string Address { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Address == input.Address ||
                     (this.Address != null &&

@@ -27,17 +27,17 @@ namespace Models
     /// InvalidType
     /// </summary>
     [DataContract]
-    public partial class InvalidType : ErrorResponse,  IEquatable<InvalidType>, IValidatableObject
+    public partial class InvalidType : ErrorResponse, IEquatable<InvalidType>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ExpectedType
         /// </summary>
-        [DataMember(Name="expected_type", EmitDefaultValue=true)]
+        [DataMember(Name = "expected_type", EmitDefaultValue = true)]
         public ValueKind ExpectedType { get; set; }
         /// <summary>
         /// Gets or Sets ActualType
         /// </summary>
-        [DataMember(Name="actual_type", EmitDefaultValue=true)]
+        [DataMember(Name = "actual_type", EmitDefaultValue = true)]
         public ValueKind ActualType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidType" /> class.
@@ -49,7 +49,7 @@ namespace Models
         /// </summary>
         /// <param name="expectedType">expectedType (required).</param>
         /// <param name="actualType">actualType (required).</param>
-        public InvalidType (ValueKind expectedType = default(ValueKind), ValueKind actualType = default(ValueKind)) : base ("InvalidType")
+        public InvalidType(ValueKind expectedType = default(ValueKind), ValueKind actualType = default(ValueKind)) : base("InvalidType")
         {
             // to ensure "expectedType" is required (not null)
             if (expectedType == null)
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.ExpectedType == input.ExpectedType ||
                     (this.ExpectedType != null &&
                     this.ExpectedType.Equals(input.ExpectedType))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.ActualType == input.ActualType ||
                     (this.ActualType != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

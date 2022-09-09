@@ -27,7 +27,7 @@ namespace Models
     /// CreateProofFromBucketAllOf
     /// </summary>
     [DataContract]
-    public partial class CreateProofFromBucketAllOf :  IEquatable<CreateProofFromBucketAllOf>, IValidatableObject
+    public partial class CreateProofFromBucketAllOf : IEquatable<CreateProofFromBucketAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateProofFromBucketAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets Bucket
         /// </summary>
-        [DataMember(Name="bucket", EmitDefaultValue=true)]
+        [DataMember(Name = "bucket", EmitDefaultValue = true)]
         public Bucket Bucket { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name="into_proof", EmitDefaultValue=true)]
+        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Bucket == input.Bucket ||
                     (this.Bucket != null &&
                     this.Bucket.Equals(input.Bucket))
-                ) && 
+                ) &&
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&

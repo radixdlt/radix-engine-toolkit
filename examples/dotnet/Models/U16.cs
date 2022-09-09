@@ -27,7 +27,7 @@ namespace Models
     /// U16
     /// </summary>
     [DataContract]
-    public partial class U16 : Value,  IEquatable<U16>, IValidatableObject
+    public partial class U16 : Value, IEquatable<U16>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="U16" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="U16" /> class.
         /// </summary>
         /// <param name="value">value (required).</param>
-        public U16 (string value = default(string)) : base ("U16")
+        public U16(string value = default(string)) : base("U16")
         {
             // to ensure "value" is required (not null)
             if (value == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Value
         /// </summary>
-        [DataMember(Name="value", EmitDefaultValue=true)]
+        [DataMember(Name = "value", EmitDefaultValue = true)]
         public string Value { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Value == input.Value ||
                     (this.Value != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,7 +27,7 @@ namespace Models
     /// ComponentAddressAllOf
     /// </summary>
     [DataContract]
-    public partial class ComponentAddressAllOf :  IEquatable<ComponentAddressAllOf>, IValidatableObject
+    public partial class ComponentAddressAllOf : IEquatable<ComponentAddressAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ComponentAddressAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Address
         /// </summary>
-        [DataMember(Name="address", EmitDefaultValue=true)]
+        [DataMember(Name = "address", EmitDefaultValue = true)]
         public string Address { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Address == input.Address ||
                     (this.Address != null &&

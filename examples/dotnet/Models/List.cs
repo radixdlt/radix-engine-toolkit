@@ -27,12 +27,12 @@ namespace Models
     /// List
     /// </summary>
     [DataContract]
-    public partial class List : Value,  IEquatable<List>, IValidatableObject
+    public partial class List : Value, IEquatable<List>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ElementType
         /// </summary>
-        [DataMember(Name="element_type", EmitDefaultValue=true)]
+        [DataMember(Name = "element_type", EmitDefaultValue = true)]
         public ValueKind ElementType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="List" /> class.
@@ -44,7 +44,7 @@ namespace Models
         /// </summary>
         /// <param name="elementType">elementType (required).</param>
         /// <param name="elements">elements (required).</param>
-        public List (ValueKind elementType = default(ValueKind), List<Value> elements = default(List<Value>)) : base ("List")
+        public List(ValueKind elementType = default(ValueKind), List<Value> elements = default(List<Value>)) : base("List")
         {
             // to ensure "elementType" is required (not null)
             if (elementType == null)
@@ -72,7 +72,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name="elements", EmitDefaultValue=true)]
+        [DataMember(Name = "elements", EmitDefaultValue = true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.ElementType == input.ElementType ||
                     (this.ElementType != null &&
                     this.ElementType.Equals(input.ElementType))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&
@@ -157,7 +157,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

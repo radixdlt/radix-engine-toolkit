@@ -29,7 +29,7 @@ namespace Models
     /// </summary>
     [DataContract]
     [JsonConverter(typeof(JsonSubtypes), "type")]
-    public partial class Address :  IEquatable<Address>, IValidatableObject
+    public partial class Address : IEquatable<Address>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Address" /> class.
@@ -42,7 +42,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Type
         /// </summary>
-        [DataMember(Name="type", EmitDefaultValue=true)]
+        [DataMember(Name = "type", EmitDefaultValue = true)]
         public string Type { get; private set; }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Type == input.Type ||
                     (this.Type != null &&

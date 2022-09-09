@@ -27,7 +27,7 @@ namespace Models
     /// EnumAllOf
     /// </summary>
     [DataContract]
-    public partial class EnumAllOf :  IEquatable<EnumAllOf>, IValidatableObject
+    public partial class EnumAllOf : IEquatable<EnumAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumAllOf" /> class.
@@ -67,13 +67,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets VariantName
         /// </summary>
-        [DataMember(Name="variant_name", EmitDefaultValue=true)]
+        [DataMember(Name = "variant_name", EmitDefaultValue = true)]
         public string VariantName { get; set; }
 
         /// <summary>
         /// Gets or Sets Fields
         /// </summary>
-        [DataMember(Name="fields", EmitDefaultValue=true)]
+        [DataMember(Name = "fields", EmitDefaultValue = true)]
         public List<Value> Fields { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.VariantName == input.VariantName ||
                     (this.VariantName != null &&
                     this.VariantName.Equals(input.VariantName))
-                ) && 
+                ) &&
                 (
                     this.Fields == input.Fields ||
                     this.Fields != null &&

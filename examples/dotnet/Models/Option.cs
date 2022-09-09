@@ -27,7 +27,7 @@ namespace Models
     /// Option
     /// </summary>
     [DataContract]
-    public partial class Option : Value,  IEquatable<Option>, IValidatableObject
+    public partial class Option : Value, IEquatable<Option>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Option" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="Option" /> class.
         /// </summary>
         /// <param name="value">value (required).</param>
-        public Option (Value value = default(Value)) : base ("Option")
+        public Option(Value value = default(Value)) : base("Option")
         {
             // to ensure "value" is required (not null)
             if (value == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Value
         /// </summary>
-        [DataMember(Name="value", EmitDefaultValue=true)]
+        [DataMember(Name = "value", EmitDefaultValue = true)]
         public Value Value { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Value == input.Value ||
                     (this.Value != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

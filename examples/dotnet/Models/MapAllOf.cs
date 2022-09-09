@@ -27,17 +27,17 @@ namespace Models
     /// MapAllOf
     /// </summary>
     [DataContract]
-    public partial class MapAllOf :  IEquatable<MapAllOf>, IValidatableObject
+    public partial class MapAllOf : IEquatable<MapAllOf>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets KeyType
         /// </summary>
-        [DataMember(Name="key_type", EmitDefaultValue=true)]
+        [DataMember(Name = "key_type", EmitDefaultValue = true)]
         public ValueKind KeyType { get; set; }
         /// <summary>
         /// Gets or Sets ValueType
         /// </summary>
-        [DataMember(Name="value_type", EmitDefaultValue=true)]
+        [DataMember(Name = "value_type", EmitDefaultValue = true)]
         public ValueKind ValueType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="MapAllOf" /> class.
@@ -89,7 +89,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Elements
         /// </summary>
-        [DataMember(Name="elements", EmitDefaultValue=true)]
+        [DataMember(Name = "elements", EmitDefaultValue = true)]
         public List<Value> Elements { get; set; }
 
         /// <summary>
@@ -136,17 +136,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.KeyType == input.KeyType ||
                     (this.KeyType != null &&
                     this.KeyType.Equals(input.KeyType))
-                ) && 
+                ) &&
                 (
                     this.ValueType == input.ValueType ||
                     (this.ValueType != null &&
                     this.ValueType.Equals(input.ValueType))
-                ) && 
+                ) &&
                 (
                     this.Elements == input.Elements ||
                     this.Elements != null &&

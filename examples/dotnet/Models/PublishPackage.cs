@@ -27,7 +27,7 @@ namespace Models
     /// PublishPackage
     /// </summary>
     [DataContract]
-    public partial class PublishPackage : Instruction,  IEquatable<PublishPackage>, IValidatableObject
+    public partial class PublishPackage : Instruction, IEquatable<PublishPackage>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PublishPackage" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="PublishPackage" /> class.
         /// </summary>
         /// <param name="package">package (required).</param>
-        public PublishPackage (Bytes package = default(Bytes)) : base ("PUBLISH_PACKAGE")
+        public PublishPackage(Bytes package = default(Bytes)) : base("PUBLISH_PACKAGE")
         {
             // to ensure "package" is required (not null)
             if (package == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Package
         /// </summary>
-        [DataMember(Name="package", EmitDefaultValue=true)]
+        [DataMember(Name = "package", EmitDefaultValue = true)]
         public Bytes Package { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Package == input.Package ||
                     (this.Package != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,17 +27,17 @@ namespace Models
     /// UnexpectedContents
     /// </summary>
     [DataContract]
-    public partial class UnexpectedContents : ErrorResponse,  IEquatable<UnexpectedContents>, IValidatableObject
+    public partial class UnexpectedContents : ErrorResponse, IEquatable<UnexpectedContents>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets Kind
         /// </summary>
-        [DataMember(Name="kind", EmitDefaultValue=true)]
+        [DataMember(Name = "kind", EmitDefaultValue = true)]
         public ValueKind Kind { get; set; }
         /// <summary>
         /// Gets or Sets Found
         /// </summary>
-        [DataMember(Name="found", EmitDefaultValue=true)]
+        [DataMember(Name = "found", EmitDefaultValue = true)]
         public ValueKind Found { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="UnexpectedContents" /> class.
@@ -50,7 +50,7 @@ namespace Models
         /// <param name="kind">kind (required).</param>
         /// <param name="expected">expected (required).</param>
         /// <param name="found">found (required).</param>
-        public UnexpectedContents (ValueKind kind = default(ValueKind), List<ValueKind> expected = default(List<ValueKind>), ValueKind found = default(ValueKind)) : base ("UnexpectedContents")
+        public UnexpectedContents(ValueKind kind = default(ValueKind), List<ValueKind> expected = default(List<ValueKind>), ValueKind found = default(ValueKind)) : base("UnexpectedContents")
         {
             // to ensure "kind" is required (not null)
             if (kind == null)
@@ -88,7 +88,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Expected
         /// </summary>
-        [DataMember(Name="expected", EmitDefaultValue=true)]
+        [DataMember(Name = "expected", EmitDefaultValue = true)]
         public List<ValueKind> Expected { get; set; }
 
 
@@ -137,18 +137,18 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Kind == input.Kind ||
                     (this.Kind != null &&
                     this.Kind.Equals(input.Kind))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.Expected == input.Expected ||
                     this.Expected != null &&
                     input.Expected != null &&
                     this.Expected.SequenceEqual(input.Expected)
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.Found == input.Found ||
                     (this.Found != null &&
@@ -182,7 +182,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

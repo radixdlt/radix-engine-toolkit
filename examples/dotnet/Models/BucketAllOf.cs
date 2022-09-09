@@ -27,7 +27,7 @@ namespace Models
     /// BucketAllOf
     /// </summary>
     [DataContract]
-    public partial class BucketAllOf :  IEquatable<BucketAllOf>, IValidatableObject
+    public partial class BucketAllOf : IEquatable<BucketAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BucketAllOf" /> class.
@@ -56,7 +56,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Identifier
         /// </summary>
-        [DataMember(Name="identifier", EmitDefaultValue=true)]
+        [DataMember(Name = "identifier", EmitDefaultValue = true)]
         public string Identifier { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Identifier == input.Identifier ||
                     (this.Identifier != null &&

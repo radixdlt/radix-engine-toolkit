@@ -50,20 +50,21 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(TakeFromWorktop), "TakeFromWorktop")]
     [JsonSubtypes.KnownSubType(typeof(TakeFromWorktopByAmount), "TakeFromWorktopByAmount")]
     [JsonSubtypes.KnownSubType(typeof(TakeFromWorktopByIds), "TakeFromWorktopByIds")]
-    public partial class Instruction :  IEquatable<Instruction>, IValidatableObject
+    public partial class Instruction : IEquatable<Instruction>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Instruction" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public Instruction(string value = default(string)){
-			this._Instruction = value;
-		}
+        public Instruction(string value = default(string))
+        {
+            this._Instruction = value;
+        }
 
         /// <summary>
         /// Gets or Sets _Instruction
         /// </summary>
-        [DataMember(Name="instruction", EmitDefaultValue=true)]
+        [DataMember(Name = "instruction", EmitDefaultValue = true)]
         public string _Instruction { get; private set; }
 
         /// <summary>
@@ -108,7 +109,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this._Instruction == input._Instruction ||
                     (this._Instruction != null &&

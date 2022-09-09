@@ -27,13 +27,13 @@ namespace Models
     /// UnrecognizedAddressFormat
     /// </summary>
     [DataContract]
-    public partial class UnrecognizedAddressFormat : ErrorResponse,  IEquatable<UnrecognizedAddressFormat>, IValidatableObject
+    public partial class UnrecognizedAddressFormat : ErrorResponse, IEquatable<UnrecognizedAddressFormat>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="UnrecognizedAddressFormat" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public UnrecognizedAddressFormat () : base ("UnrecognizedAddressFormat")
+        public UnrecognizedAddressFormat() : base("UnrecognizedAddressFormat")
         {
         }
 
@@ -102,7 +102,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

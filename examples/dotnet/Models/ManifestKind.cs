@@ -26,9 +26,9 @@ namespace Models
     /// <summary>
     /// Defines ManifestKind
     /// </summary>
-    
+
     [JsonConverter(typeof(StringEnumConverter))]
-    
+
     public enum ManifestKind
     {
         /// <summary>

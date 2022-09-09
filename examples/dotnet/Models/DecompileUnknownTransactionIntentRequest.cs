@@ -27,12 +27,12 @@ namespace Models
     /// DecompileUnknownTransactionIntentRequest
     /// </summary>
     [DataContract]
-    public partial class DecompileUnknownTransactionIntentRequest :  IEquatable<DecompileUnknownTransactionIntentRequest>, IValidatableObject
+    public partial class DecompileUnknownTransactionIntentRequest : IEquatable<DecompileUnknownTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ManifestOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
+        [DataMember(Name = "manifest_output_format", EmitDefaultValue = true)]
         public ManifestKind ManifestOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileUnknownTransactionIntentRequest" /> class.
@@ -72,7 +72,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets CompiledUnknownIntent
         /// </summary>
-        [DataMember(Name="compiled_unknown_intent", EmitDefaultValue=true)]
+        [DataMember(Name = "compiled_unknown_intent", EmitDefaultValue = true)]
         public string CompiledUnknownIntent { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.ManifestOutputFormat == input.ManifestOutputFormat ||
                     (this.ManifestOutputFormat != null &&
                     this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
-                ) && 
+                ) &&
                 (
                     this.CompiledUnknownIntent == input.CompiledUnknownIntent ||
                     (this.CompiledUnknownIntent != null &&

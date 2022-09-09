@@ -27,7 +27,7 @@ namespace Models
     /// Signature
     /// </summary>
     [DataContract]
-    public partial class Signature :  IEquatable<Signature>, IValidatableObject
+    public partial class Signature : IEquatable<Signature>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Signature" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets PublicKey
         /// </summary>
-        [DataMember(Name="public_key", EmitDefaultValue=true)]
+        [DataMember(Name = "public_key", EmitDefaultValue = true)]
         public string PublicKey { get; set; }
 
         /// <summary>
         /// Gets or Sets _Signature
         /// </summary>
-        [DataMember(Name="signature", EmitDefaultValue=true)]
+        [DataMember(Name = "signature", EmitDefaultValue = true)]
         public string _Signature { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.PublicKey == input.PublicKey ||
                     (this.PublicKey != null &&
                     this.PublicKey.Equals(input.PublicKey))
-                ) && 
+                ) &&
                 (
                     this._Signature == input._Signature ||
                     (this._Signature != null &&

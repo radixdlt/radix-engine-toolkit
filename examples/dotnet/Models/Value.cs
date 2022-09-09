@@ -59,20 +59,21 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(U32), "U32")]
     [JsonSubtypes.KnownSubType(typeof(U64), "U64")]
     [JsonSubtypes.KnownSubType(typeof(U8), "U8")]
-    public partial class Value :  IEquatable<Value>, IValidatableObject
+    public partial class Value : IEquatable<Value>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Value" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public Value(string value = default(string)){
-			this.Type = value;
-		}
+        public Value(string value = default(string))
+        {
+            this.Type = value;
+        }
 
         /// <summary>
         /// Gets or Sets Type
         /// </summary>
-        [DataMember(Name="type", EmitDefaultValue=true)]
+        [DataMember(Name = "type", EmitDefaultValue = true)]
         public string Type { get; private set; }
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Type == input.Type ||
                     (this.Type != null &&

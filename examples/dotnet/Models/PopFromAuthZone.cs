@@ -27,7 +27,7 @@ namespace Models
     /// PopFromAuthZone
     /// </summary>
     [DataContract]
-    public partial class PopFromAuthZone : Instruction,  IEquatable<PopFromAuthZone>, IValidatableObject
+    public partial class PopFromAuthZone : Instruction, IEquatable<PopFromAuthZone>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PopFromAuthZone" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="PopFromAuthZone" /> class.
         /// </summary>
         /// <param name="intoProof">intoProof (required).</param>
-        public PopFromAuthZone (Proof intoProof = default(Proof)) : base ("POP_FROM_AUTH_ZONE")
+        public PopFromAuthZone(Proof intoProof = default(Proof)) : base("POP_FROM_AUTH_ZONE")
         {
             // to ensure "intoProof" is required (not null)
             if (intoProof == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name="into_proof", EmitDefaultValue=true)]
+        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

@@ -27,7 +27,7 @@ namespace Models
     /// TransactionHeader
     /// </summary>
     [DataContract]
-    public partial class TransactionHeader :  IEquatable<TransactionHeader>, IValidatableObject
+    public partial class TransactionHeader : IEquatable<TransactionHeader>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TransactionHeader" /> class.
@@ -143,55 +143,55 @@ namespace Models
         /// <summary>
         /// Gets or Sets _Version
         /// </summary>
-        [DataMember(Name="version", EmitDefaultValue=true)]
+        [DataMember(Name = "version", EmitDefaultValue = true)]
         public int _Version { get; set; }
 
         /// <summary>
         /// Gets or Sets NetworkId
         /// </summary>
-        [DataMember(Name="network_id", EmitDefaultValue=true)]
+        [DataMember(Name = "network_id", EmitDefaultValue = true)]
         public int NetworkId { get; set; }
 
         /// <summary>
         /// Gets or Sets StartEpochInclusive
         /// </summary>
-        [DataMember(Name="start_epoch_inclusive", EmitDefaultValue=true)]
+        [DataMember(Name = "start_epoch_inclusive", EmitDefaultValue = true)]
         public int StartEpochInclusive { get; set; }
 
         /// <summary>
         /// Gets or Sets EndEpochExclusive
         /// </summary>
-        [DataMember(Name="end_epoch_exclusive", EmitDefaultValue=true)]
+        [DataMember(Name = "end_epoch_exclusive", EmitDefaultValue = true)]
         public int EndEpochExclusive { get; set; }
 
         /// <summary>
         /// Gets or Sets Nonce
         /// </summary>
-        [DataMember(Name="nonce", EmitDefaultValue=true)]
+        [DataMember(Name = "nonce", EmitDefaultValue = true)]
         public int Nonce { get; set; }
 
         /// <summary>
         /// Gets or Sets NotaryPublicKey
         /// </summary>
-        [DataMember(Name="notary_public_key", EmitDefaultValue=true)]
+        [DataMember(Name = "notary_public_key", EmitDefaultValue = true)]
         public string NotaryPublicKey { get; set; }
 
         /// <summary>
         /// Gets or Sets NotaryAsSignatory
         /// </summary>
-        [DataMember(Name="notary_as_signatory", EmitDefaultValue=true)]
+        [DataMember(Name = "notary_as_signatory", EmitDefaultValue = true)]
         public bool NotaryAsSignatory { get; set; }
 
         /// <summary>
         /// Gets or Sets CostUnitLimit
         /// </summary>
-        [DataMember(Name="cost_unit_limit", EmitDefaultValue=true)]
+        [DataMember(Name = "cost_unit_limit", EmitDefaultValue = true)]
         public uint CostUnitLimit { get; set; }
 
         /// <summary>
         /// Gets or Sets TipPercentage
         /// </summary>
-        [DataMember(Name="tip_percentage", EmitDefaultValue=true)]
+        [DataMember(Name = "tip_percentage", EmitDefaultValue = true)]
         public uint TipPercentage { get; set; }
 
         /// <summary>
@@ -244,47 +244,47 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this._Version == input._Version ||
                     (this._Version != null &&
                     this._Version.Equals(input._Version))
-                ) && 
+                ) &&
                 (
                     this.NetworkId == input.NetworkId ||
                     (this.NetworkId != null &&
                     this.NetworkId.Equals(input.NetworkId))
-                ) && 
+                ) &&
                 (
                     this.StartEpochInclusive == input.StartEpochInclusive ||
                     (this.StartEpochInclusive != null &&
                     this.StartEpochInclusive.Equals(input.StartEpochInclusive))
-                ) && 
+                ) &&
                 (
                     this.EndEpochExclusive == input.EndEpochExclusive ||
                     (this.EndEpochExclusive != null &&
                     this.EndEpochExclusive.Equals(input.EndEpochExclusive))
-                ) && 
+                ) &&
                 (
                     this.Nonce == input.Nonce ||
                     (this.Nonce != null &&
                     this.Nonce.Equals(input.Nonce))
-                ) && 
+                ) &&
                 (
                     this.NotaryPublicKey == input.NotaryPublicKey ||
                     (this.NotaryPublicKey != null &&
                     this.NotaryPublicKey.Equals(input.NotaryPublicKey))
-                ) && 
+                ) &&
                 (
                     this.NotaryAsSignatory == input.NotaryAsSignatory ||
                     (this.NotaryAsSignatory != null &&
                     this.NotaryAsSignatory.Equals(input.NotaryAsSignatory))
-                ) && 
+                ) &&
                 (
                     this.CostUnitLimit == input.CostUnitLimit ||
                     (this.CostUnitLimit != null &&
                     this.CostUnitLimit.Equals(input.CostUnitLimit))
-                ) && 
+                ) &&
                 (
                     this.TipPercentage == input.TipPercentage ||
                     (this.TipPercentage != null &&
@@ -333,99 +333,99 @@ namespace Models
 
 
             // _Version (int) maximum
-            if(this._Version > (int)255)
+            if (this._Version > (int)255)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for _Version, must be a value less than or equal to 255.", new [] { "_Version" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for _Version, must be a value less than or equal to 255.", new[] { "_Version" });
             }
 
             // _Version (int) minimum
-            if(this._Version < (int)0)
+            if (this._Version < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for _Version, must be a value greater than or equal to 0.", new [] { "_Version" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for _Version, must be a value greater than or equal to 0.", new[] { "_Version" });
             }
 
 
 
             // NetworkId (int) maximum
-            if(this.NetworkId > (int)255)
+            if (this.NetworkId > (int)255)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new[] { "NetworkId" });
             }
 
             // NetworkId (int) minimum
-            if(this.NetworkId < (int)0)
+            if (this.NetworkId < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new[] { "NetworkId" });
             }
 
 
 
             // StartEpochInclusive (int) maximum
-            if(this.StartEpochInclusive > (int)-1)
+            if (this.StartEpochInclusive > (int)-1)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for StartEpochInclusive, must be a value less than or equal to -1.", new [] { "StartEpochInclusive" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for StartEpochInclusive, must be a value less than or equal to -1.", new[] { "StartEpochInclusive" });
             }
 
             // StartEpochInclusive (int) minimum
-            if(this.StartEpochInclusive < (int)0)
+            if (this.StartEpochInclusive < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for StartEpochInclusive, must be a value greater than or equal to 0.", new [] { "StartEpochInclusive" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for StartEpochInclusive, must be a value greater than or equal to 0.", new[] { "StartEpochInclusive" });
             }
 
 
 
             // EndEpochExclusive (int) maximum
-            if(this.EndEpochExclusive > (int)-1)
+            if (this.EndEpochExclusive > (int)-1)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for EndEpochExclusive, must be a value less than or equal to -1.", new [] { "EndEpochExclusive" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for EndEpochExclusive, must be a value less than or equal to -1.", new[] { "EndEpochExclusive" });
             }
 
             // EndEpochExclusive (int) minimum
-            if(this.EndEpochExclusive < (int)0)
+            if (this.EndEpochExclusive < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for EndEpochExclusive, must be a value greater than or equal to 0.", new [] { "EndEpochExclusive" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for EndEpochExclusive, must be a value greater than or equal to 0.", new[] { "EndEpochExclusive" });
             }
 
 
 
             // Nonce (int) maximum
-            if(this.Nonce > (int)-1)
+            if (this.Nonce > (int)-1)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for Nonce, must be a value less than or equal to -1.", new [] { "Nonce" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for Nonce, must be a value less than or equal to -1.", new[] { "Nonce" });
             }
 
             // Nonce (int) minimum
-            if(this.Nonce < (int)0)
+            if (this.Nonce < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for Nonce, must be a value greater than or equal to 0.", new [] { "Nonce" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for Nonce, must be a value greater than or equal to 0.", new[] { "Nonce" });
             }
 
 
 
             // CostUnitLimit (int) maximum
-            if(this.CostUnitLimit > (uint)4294967295)
+            if (this.CostUnitLimit > (uint)4294967295)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for CostUnitLimit, must be a value less than or equal to 4294967295.", new [] { "CostUnitLimit" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for CostUnitLimit, must be a value less than or equal to 4294967295.", new[] { "CostUnitLimit" });
             }
 
             // CostUnitLimit (int) minimum
-            if(this.CostUnitLimit < (int)0)
+            if (this.CostUnitLimit < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for CostUnitLimit, must be a value greater than or equal to 0.", new [] { "CostUnitLimit" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for CostUnitLimit, must be a value greater than or equal to 0.", new[] { "CostUnitLimit" });
             }
 
 
 
             // TipPercentage (int) maximum
-            if(this.TipPercentage > (uint)4294967295)
+            if (this.TipPercentage > (uint)4294967295)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TipPercentage, must be a value less than or equal to 4294967295.", new [] { "TipPercentage" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TipPercentage, must be a value less than or equal to 4294967295.", new[] { "TipPercentage" });
             }
 
             // TipPercentage (int) minimum
-            if(this.TipPercentage < (int)0)
+            if (this.TipPercentage < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TipPercentage, must be a value greater than or equal to 0.", new [] { "TipPercentage" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TipPercentage, must be a value greater than or equal to 0.", new[] { "TipPercentage" });
             }
 
             yield break;

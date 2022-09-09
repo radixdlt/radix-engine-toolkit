@@ -27,7 +27,7 @@ namespace Models
     /// PushToAuthZone
     /// </summary>
     [DataContract]
-    public partial class PushToAuthZone : Instruction,  IEquatable<PushToAuthZone>, IValidatableObject
+    public partial class PushToAuthZone : Instruction, IEquatable<PushToAuthZone>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PushToAuthZone" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="PushToAuthZone" /> class.
         /// </summary>
         /// <param name="proof">proof (required).</param>
-        public PushToAuthZone (Proof proof = default(Proof)) : base ("PUSH_TO_AUTH_ZONE")
+        public PushToAuthZone(Proof proof = default(Proof)) : base("PUSH_TO_AUTH_ZONE")
         {
             // to ensure "proof" is required (not null)
             if (proof == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Proof
         /// </summary>
-        [DataMember(Name="proof", EmitDefaultValue=true)]
+        [DataMember(Name = "proof", EmitDefaultValue = true)]
         public Proof Proof { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Proof == input.Proof ||
                     (this.Proof != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

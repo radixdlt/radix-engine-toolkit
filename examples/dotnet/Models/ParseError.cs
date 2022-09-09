@@ -27,12 +27,12 @@ namespace Models
     /// ParseError
     /// </summary>
     [DataContract]
-    public partial class ParseError : ErrorResponse,  IEquatable<ParseError>, IValidatableObject
+    public partial class ParseError : ErrorResponse, IEquatable<ParseError>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets Kind
         /// </summary>
-        [DataMember(Name="kind", EmitDefaultValue=true)]
+        [DataMember(Name = "kind", EmitDefaultValue = true)]
         public ValueKind Kind { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseError" /> class.
@@ -72,7 +72,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Error
         /// </summary>
-        [DataMember(Name="error", EmitDefaultValue=true)]
+        [DataMember(Name = "error", EmitDefaultValue = true)]
         public string Error { get; set; }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Kind == input.Kind ||
                     (this.Kind != null &&
                     this.Kind.Equals(input.Kind))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.Error == input.Error ||
                     (this.Error != null &&
@@ -156,7 +156,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

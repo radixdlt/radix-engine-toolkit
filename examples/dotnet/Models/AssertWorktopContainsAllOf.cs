@@ -27,7 +27,7 @@ namespace Models
     /// AssertWorktopContainsAllOf
     /// </summary>
     [DataContract]
-    public partial class AssertWorktopContainsAllOf :  IEquatable<AssertWorktopContainsAllOf>, IValidatableObject
+    public partial class AssertWorktopContainsAllOf : IEquatable<AssertWorktopContainsAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AssertWorktopContainsAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name="resource_address", EmitDefaultValue=true)]
+        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&

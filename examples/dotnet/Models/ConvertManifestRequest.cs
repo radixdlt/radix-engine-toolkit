@@ -27,12 +27,12 @@ namespace Models
     /// ConvertManifestRequest
     /// </summary>
     [DataContract]
-    public partial class ConvertManifestRequest :  IEquatable<ConvertManifestRequest>, IValidatableObject
+    public partial class ConvertManifestRequest : IEquatable<ConvertManifestRequest>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets ManifestOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
+        [DataMember(Name = "manifest_output_format", EmitDefaultValue = true)]
         public ManifestKind ManifestOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertManifestRequest" /> class.
@@ -93,20 +93,20 @@ namespace Models
         /// <summary>
         /// Gets or Sets TransactionVersion
         /// </summary>
-        [DataMember(Name="transaction_version", EmitDefaultValue=true)]
+        [DataMember(Name = "transaction_version", EmitDefaultValue = true)]
         public int TransactionVersion { get; set; }
 
         /// <summary>
         /// Gets or Sets NetworkId
         /// </summary>
-        [DataMember(Name="network_id", EmitDefaultValue=true)]
+        [DataMember(Name = "network_id", EmitDefaultValue = true)]
         public int NetworkId { get; set; }
 
 
         /// <summary>
         /// Gets or Sets Manifest
         /// </summary>
-        [DataMember(Name="manifest", EmitDefaultValue=true)]
+        [DataMember(Name = "manifest", EmitDefaultValue = true)]
         public Manifest Manifest { get; set; }
 
         /// <summary>
@@ -154,22 +154,22 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.TransactionVersion == input.TransactionVersion ||
                     (this.TransactionVersion != null &&
                     this.TransactionVersion.Equals(input.TransactionVersion))
-                ) && 
+                ) &&
                 (
                     this.NetworkId == input.NetworkId ||
                     (this.NetworkId != null &&
                     this.NetworkId.Equals(input.NetworkId))
-                ) && 
+                ) &&
                 (
                     this.ManifestOutputFormat == input.ManifestOutputFormat ||
                     (this.ManifestOutputFormat != null &&
                     this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
-                ) && 
+                ) &&
                 (
                     this.Manifest == input.Manifest ||
                     (this.Manifest != null &&
@@ -208,29 +208,29 @@ namespace Models
 
 
             // TransactionVersion (int) maximum
-            if(this.TransactionVersion > (int)255)
+            if (this.TransactionVersion > (int)255)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TransactionVersion, must be a value less than or equal to 255.", new [] { "TransactionVersion" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TransactionVersion, must be a value less than or equal to 255.", new[] { "TransactionVersion" });
             }
 
             // TransactionVersion (int) minimum
-            if(this.TransactionVersion < (int)0)
+            if (this.TransactionVersion < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TransactionVersion, must be a value greater than or equal to 0.", new [] { "TransactionVersion" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for TransactionVersion, must be a value greater than or equal to 0.", new[] { "TransactionVersion" });
             }
 
 
 
             // NetworkId (int) maximum
-            if(this.NetworkId > (int)255)
+            if (this.NetworkId > (int)255)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new[] { "NetworkId" });
             }
 
             // NetworkId (int) minimum
-            if(this.NetworkId < (int)0)
+            if (this.NetworkId < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new[] { "NetworkId" });
             }
 
             yield break;

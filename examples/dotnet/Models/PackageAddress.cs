@@ -27,7 +27,7 @@ namespace Models
     /// PackageAddress
     /// </summary>
     [DataContract]
-    public partial class PackageAddress : Value,  IEquatable<PackageAddress>, IValidatableObject
+    public partial class PackageAddress : Value, IEquatable<PackageAddress>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageAddress" /> class.
@@ -38,7 +38,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="PackageAddress" /> class.
         /// </summary>
         /// <param name="address">address (required).</param>
-        public PackageAddress (string address = default(string)) : base ("PackageAddress")
+        public PackageAddress(string address = default(string)) : base("PackageAddress")
         {
             // to ensure "address" is required (not null)
             if (address == null)
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Address
         /// </summary>
-        [DataMember(Name="address", EmitDefaultValue=true)]
+        [DataMember(Name = "address", EmitDefaultValue = true)]
         public string Address { get; set; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.Address == input.Address ||
                     (this.Address != null &&
@@ -131,7 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

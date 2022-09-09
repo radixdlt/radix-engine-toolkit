@@ -259,16 +259,17 @@ class CSharpModelGenerator(LanguageModelGenerator):
                     content.replace(
                         "public int CostUnitLimit { get; set; }",
                         "public uint CostUnitLimit { get; set; }",
-                    ).replace(
+                    )
+                    .replace(
                         "public int TipPercentage { get; set; }",
                         "public uint TipPercentage { get; set; }",
-                    ).replace(
-                        "(int)4294967295",
-                        "(uint)4294967295"
-                    ).replace(
+                    )
+                    .replace("(int)4294967295", "(uint)4294967295")
+                    .replace(
                         "int costUnitLimit = default(int)",
                         "uint costUnitLimit = default(uint)",
-                    ).replace(
+                    )
+                    .replace(
                         "int tipPercentage = default(int)",
                         "uint tipPercentage = default(uint)",
                     )

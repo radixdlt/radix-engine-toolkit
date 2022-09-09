@@ -27,7 +27,7 @@ namespace Models
     /// PublishPackageAllOf
     /// </summary>
     [DataContract]
-    public partial class PublishPackageAllOf :  IEquatable<PublishPackageAllOf>, IValidatableObject
+    public partial class PublishPackageAllOf : IEquatable<PublishPackageAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PublishPackageAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Package
         /// </summary>
-        [DataMember(Name="package", EmitDefaultValue=true)]
+        [DataMember(Name = "package", EmitDefaultValue = true)]
         public Bytes Package { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Package == input.Package ||
                     (this.Package != null &&

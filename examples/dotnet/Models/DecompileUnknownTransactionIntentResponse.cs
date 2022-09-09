@@ -27,7 +27,7 @@ namespace Models
     /// DecompileUnknownTransactionIntentResponse
     /// </summary>
     [DataContract]
-    public partial class DecompileUnknownTransactionIntentResponse :  IEquatable<DecompileUnknownTransactionIntentResponse>, IValidatableObject
+    public partial class DecompileUnknownTransactionIntentResponse : IEquatable<DecompileUnknownTransactionIntentResponse>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileUnknownTransactionIntentResponse" /> class.
@@ -110,37 +110,37 @@ namespace Models
         /// <summary>
         /// Gets or Sets Header
         /// </summary>
-        [DataMember(Name="header", EmitDefaultValue=true)]
+        [DataMember(Name = "header", EmitDefaultValue = true)]
         public TransactionHeader Header { get; set; }
 
         /// <summary>
         /// Gets or Sets Manifest
         /// </summary>
-        [DataMember(Name="manifest", EmitDefaultValue=true)]
+        [DataMember(Name = "manifest", EmitDefaultValue = true)]
         public Manifest Manifest { get; set; }
 
         /// <summary>
         /// Gets or Sets TransactionIntent
         /// </summary>
-        [DataMember(Name="transaction_intent", EmitDefaultValue=true)]
+        [DataMember(Name = "transaction_intent", EmitDefaultValue = true)]
         public TransactionIntent TransactionIntent { get; set; }
 
         /// <summary>
         /// Gets or Sets Signatures
         /// </summary>
-        [DataMember(Name="signatures", EmitDefaultValue=true)]
+        [DataMember(Name = "signatures", EmitDefaultValue = true)]
         public List<Signature> Signatures { get; set; }
 
         /// <summary>
         /// Gets or Sets SignedIntent
         /// </summary>
-        [DataMember(Name="signed_intent", EmitDefaultValue=true)]
+        [DataMember(Name = "signed_intent", EmitDefaultValue = true)]
         public SignedTransactionIntent SignedIntent { get; set; }
 
         /// <summary>
         /// Gets or Sets NotarySignature
         /// </summary>
-        [DataMember(Name="notary_signature", EmitDefaultValue=true)]
+        [DataMember(Name = "notary_signature", EmitDefaultValue = true)]
         public string NotarySignature { get; set; }
 
         /// <summary>
@@ -190,33 +190,33 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Header == input.Header ||
                     (this.Header != null &&
                     this.Header.Equals(input.Header))
-                ) && 
+                ) &&
                 (
                     this.Manifest == input.Manifest ||
                     (this.Manifest != null &&
                     this.Manifest.Equals(input.Manifest))
-                ) && 
+                ) &&
                 (
                     this.TransactionIntent == input.TransactionIntent ||
                     (this.TransactionIntent != null &&
                     this.TransactionIntent.Equals(input.TransactionIntent))
-                ) && 
+                ) &&
                 (
                     this.Signatures == input.Signatures ||
                     this.Signatures != null &&
                     input.Signatures != null &&
                     this.Signatures.SequenceEqual(input.Signatures)
-                ) && 
+                ) &&
                 (
                     this.SignedIntent == input.SignedIntent ||
                     (this.SignedIntent != null &&
                     this.SignedIntent.Equals(input.SignedIntent))
-                ) && 
+                ) &&
                 (
                     this.NotarySignature == input.NotarySignature ||
                     (this.NotarySignature != null &&

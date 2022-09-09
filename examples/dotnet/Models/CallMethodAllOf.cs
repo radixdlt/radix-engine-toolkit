@@ -27,7 +27,7 @@ namespace Models
     /// CallMethodAllOf
     /// </summary>
     [DataContract]
-    public partial class CallMethodAllOf :  IEquatable<CallMethodAllOf>, IValidatableObject
+    public partial class CallMethodAllOf : IEquatable<CallMethodAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CallMethodAllOf" /> class.
@@ -78,19 +78,19 @@ namespace Models
         /// <summary>
         /// Gets or Sets ComponentAddress
         /// </summary>
-        [DataMember(Name="component_address", EmitDefaultValue=true)]
+        [DataMember(Name = "component_address", EmitDefaultValue = true)]
         public ComponentAddress ComponentAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets MethodName
         /// </summary>
-        [DataMember(Name="method_name", EmitDefaultValue=true)]
+        [DataMember(Name = "method_name", EmitDefaultValue = true)]
         public String MethodName { get; set; }
 
         /// <summary>
         /// Gets or Sets Arguments
         /// </summary>
-        [DataMember(Name="arguments", EmitDefaultValue=true)]
+        [DataMember(Name = "arguments", EmitDefaultValue = true)]
         public List<Value> Arguments { get; set; }
 
         /// <summary>
@@ -137,17 +137,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.ComponentAddress == input.ComponentAddress ||
                     (this.ComponentAddress != null &&
                     this.ComponentAddress.Equals(input.ComponentAddress))
-                ) && 
+                ) &&
                 (
                     this.MethodName == input.MethodName ||
                     (this.MethodName != null &&
                     this.MethodName.Equals(input.MethodName))
-                ) && 
+                ) &&
                 (
                     this.Arguments == input.Arguments ||
                     this.Arguments != null &&

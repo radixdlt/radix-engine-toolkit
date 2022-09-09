@@ -31,20 +31,21 @@ namespace Models
     [JsonConverter(typeof(JsonSubtypes), "type")]
     [JsonSubtypes.KnownSubType(typeof(ManifestJson), "ManifestJson")]
     [JsonSubtypes.KnownSubType(typeof(ManifestString), "ManifestString")]
-    public partial class Manifest :  IEquatable<Manifest>, IValidatableObject
+    public partial class Manifest : IEquatable<Manifest>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Manifest" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public Manifest(string value = default(string)){
-			this.Type = value;
-		}
+        public Manifest(string value = default(string))
+        {
+            this.Type = value;
+        }
 
         /// <summary>
         /// Gets or Sets Type
         /// </summary>
-        [DataMember(Name="type", EmitDefaultValue=true)]
+        [DataMember(Name = "type", EmitDefaultValue = true)]
         public string Type { get; private set; }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Type == input.Type ||
                     (this.Type != null &&

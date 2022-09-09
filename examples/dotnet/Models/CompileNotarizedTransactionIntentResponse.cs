@@ -27,7 +27,7 @@ namespace Models
     /// CompileNotarizedTransactionIntentResponse
     /// </summary>
     [DataContract]
-    public partial class CompileNotarizedTransactionIntentResponse :  IEquatable<CompileNotarizedTransactionIntentResponse>, IValidatableObject
+    public partial class CompileNotarizedTransactionIntentResponse : IEquatable<CompileNotarizedTransactionIntentResponse>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CompileNotarizedTransactionIntentResponse" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets CompiledNotarizedIntent
         /// </summary>
-        [DataMember(Name="compiled_notarized_intent", EmitDefaultValue=true)]
+        [DataMember(Name = "compiled_notarized_intent", EmitDefaultValue = true)]
         public string CompiledNotarizedIntent { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.CompiledNotarizedIntent == input.CompiledNotarizedIntent ||
                     (this.CompiledNotarizedIntent != null &&

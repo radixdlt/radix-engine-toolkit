@@ -27,7 +27,7 @@ namespace Models
     /// CloneProofAllOf
     /// </summary>
     [DataContract]
-    public partial class CloneProofAllOf :  IEquatable<CloneProofAllOf>, IValidatableObject
+    public partial class CloneProofAllOf : IEquatable<CloneProofAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CloneProofAllOf" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets Proof
         /// </summary>
-        [DataMember(Name="proof", EmitDefaultValue=true)]
+        [DataMember(Name = "proof", EmitDefaultValue = true)]
         public Proof Proof { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name="into_proof", EmitDefaultValue=true)]
+        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Proof == input.Proof ||
                     (this.Proof != null &&
                     this.Proof.Equals(input.Proof))
-                ) && 
+                ) &&
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&

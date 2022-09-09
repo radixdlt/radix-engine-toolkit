@@ -27,7 +27,7 @@ namespace Models
     /// NotarizedTransactionIntent
     /// </summary>
     [DataContract]
-    public partial class NotarizedTransactionIntent :  IEquatable<NotarizedTransactionIntent>, IValidatableObject
+    public partial class NotarizedTransactionIntent : IEquatable<NotarizedTransactionIntent>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="NotarizedTransactionIntent" /> class.
@@ -66,13 +66,13 @@ namespace Models
         /// <summary>
         /// Gets or Sets SignedIntent
         /// </summary>
-        [DataMember(Name="signed_intent", EmitDefaultValue=true)]
+        [DataMember(Name = "signed_intent", EmitDefaultValue = true)]
         public SignedTransactionIntent SignedIntent { get; set; }
 
         /// <summary>
         /// Gets or Sets NotarySignature
         /// </summary>
-        [DataMember(Name="notary_signature", EmitDefaultValue=true)]
+        [DataMember(Name = "notary_signature", EmitDefaultValue = true)]
         public string NotarySignature { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.SignedIntent == input.SignedIntent ||
                     (this.SignedIntent != null &&
                     this.SignedIntent.Equals(input.SignedIntent))
-                ) && 
+                ) &&
                 (
                     this.NotarySignature == input.NotarySignature ||
                     (this.NotarySignature != null &&

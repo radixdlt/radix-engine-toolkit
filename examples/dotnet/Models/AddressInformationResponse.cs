@@ -27,12 +27,12 @@ namespace Models
     /// AddressInformationResponse
     /// </summary>
     [DataContract]
-    public partial class AddressInformationResponse :  IEquatable<AddressInformationResponse>, IValidatableObject
+    public partial class AddressInformationResponse : IEquatable<AddressInformationResponse>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets EntityType
         /// </summary>
-        [DataMember(Name="entity_type", EmitDefaultValue=true)]
+        [DataMember(Name = "entity_type", EmitDefaultValue = true)]
         public AddressKind EntityType { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressInformationResponse" /> class.
@@ -104,26 +104,26 @@ namespace Models
         /// <summary>
         /// Gets or Sets NetworkId
         /// </summary>
-        [DataMember(Name="network_id", EmitDefaultValue=true)]
+        [DataMember(Name = "network_id", EmitDefaultValue = true)]
         public int NetworkId { get; set; }
 
 
         /// <summary>
         /// Gets or Sets Data
         /// </summary>
-        [DataMember(Name="data", EmitDefaultValue=true)]
+        [DataMember(Name = "data", EmitDefaultValue = true)]
         public string Data { get; set; }
 
         /// <summary>
         /// Gets or Sets Hrp
         /// </summary>
-        [DataMember(Name="hrp", EmitDefaultValue=true)]
+        [DataMember(Name = "hrp", EmitDefaultValue = true)]
         public string Hrp { get; set; }
 
         /// <summary>
         /// Gets or Sets Address
         /// </summary>
-        [DataMember(Name="address", EmitDefaultValue=true)]
+        [DataMember(Name = "address", EmitDefaultValue = true)]
         public Address Address { get; set; }
 
         /// <summary>
@@ -172,27 +172,27 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.NetworkId == input.NetworkId ||
                     (this.NetworkId != null &&
                     this.NetworkId.Equals(input.NetworkId))
-                ) && 
+                ) &&
                 (
                     this.EntityType == input.EntityType ||
                     (this.EntityType != null &&
                     this.EntityType.Equals(input.EntityType))
-                ) && 
+                ) &&
                 (
                     this.Data == input.Data ||
                     (this.Data != null &&
                     this.Data.Equals(input.Data))
-                ) && 
+                ) &&
                 (
                     this.Hrp == input.Hrp ||
                     (this.Hrp != null &&
                     this.Hrp.Equals(input.Hrp))
-                ) && 
+                ) &&
                 (
                     this.Address == input.Address ||
                     (this.Address != null &&
@@ -233,15 +233,15 @@ namespace Models
 
 
             // NetworkId (int) maximum
-            if(this.NetworkId > (int)255)
+            if (this.NetworkId > (int)255)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value less than or equal to 255.", new[] { "NetworkId" });
             }
 
             // NetworkId (int) minimum
-            if(this.NetworkId < (int)0)
+            if (this.NetworkId < (int)0)
             {
-                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new [] { "NetworkId" });
+                yield return new System.ComponentModel.DataAnnotations.ValidationResult("Invalid value for NetworkId, must be a value greater than or equal to 0.", new[] { "NetworkId" });
             }
 
             yield break;

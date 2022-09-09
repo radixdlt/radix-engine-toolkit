@@ -27,7 +27,7 @@ namespace Models
     /// ReturnToWorktopAllOf
     /// </summary>
     [DataContract]
-    public partial class ReturnToWorktopAllOf :  IEquatable<ReturnToWorktopAllOf>, IValidatableObject
+    public partial class ReturnToWorktopAllOf : IEquatable<ReturnToWorktopAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ReturnToWorktopAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Bucket
         /// </summary>
-        [DataMember(Name="bucket", EmitDefaultValue=true)]
+        [DataMember(Name = "bucket", EmitDefaultValue = true)]
         public Bucket Bucket { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Bucket == input.Bucket ||
                     (this.Bucket != null &&

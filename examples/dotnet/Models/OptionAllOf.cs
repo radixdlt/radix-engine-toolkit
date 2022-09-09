@@ -27,7 +27,7 @@ namespace Models
     /// OptionAllOf
     /// </summary>
     [DataContract]
-    public partial class OptionAllOf :  IEquatable<OptionAllOf>, IValidatableObject
+    public partial class OptionAllOf : IEquatable<OptionAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="OptionAllOf" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Value
         /// </summary>
-        [DataMember(Name="value", EmitDefaultValue=true)]
+        [DataMember(Name = "value", EmitDefaultValue = true)]
         public Value Value { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Value == input.Value ||
                     (this.Value != null &&

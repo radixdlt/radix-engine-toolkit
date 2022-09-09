@@ -27,7 +27,7 @@ namespace Models
     /// TakeFromWorktopByIds
     /// </summary>
     [DataContract]
-    public partial class TakeFromWorktopByIds : Instruction,  IEquatable<TakeFromWorktopByIds>, IValidatableObject
+    public partial class TakeFromWorktopByIds : Instruction, IEquatable<TakeFromWorktopByIds>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TakeFromWorktopByIds" /> class.
@@ -40,7 +40,7 @@ namespace Models
         /// <param name="resourceAddress">resourceAddress (required).</param>
         /// <param name="ids">ids (required).</param>
         /// <param name="intoBucket">intoBucket (required).</param>
-        public TakeFromWorktopByIds (ResourceAddress resourceAddress = default(ResourceAddress), List<NonFungibleId> ids = default(List<NonFungibleId>), Bucket intoBucket = default(Bucket)) : base ("TAKE_FROM_WORKTOP_BY_IDS")
+        public TakeFromWorktopByIds(ResourceAddress resourceAddress = default(ResourceAddress), List<NonFungibleId> ids = default(List<NonFungibleId>), Bucket intoBucket = default(Bucket)) : base("TAKE_FROM_WORKTOP_BY_IDS")
         {
             // to ensure "resourceAddress" is required (not null)
             if (resourceAddress == null)
@@ -77,19 +77,19 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name="resource_address", EmitDefaultValue=true)]
+        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Ids
         /// </summary>
-        [DataMember(Name="ids", EmitDefaultValue=true)]
+        [DataMember(Name = "ids", EmitDefaultValue = true)]
         public List<NonFungibleId> Ids { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoBucket
         /// </summary>
-        [DataMember(Name="into_bucket", EmitDefaultValue=true)]
+        [DataMember(Name = "into_bucket", EmitDefaultValue = true)]
         public Bucket IntoBucket { get; set; }
 
         /// <summary>
@@ -137,18 +137,18 @@ namespace Models
             if (input == null)
                 return false;
 
-            return base.Equals(input) && 
+            return base.Equals(input) &&
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.Ids == input.Ids ||
                     this.Ids != null &&
                     input.Ids != null &&
                     this.Ids.SequenceEqual(input.Ids)
-                ) && base.Equals(input) && 
+                ) && base.Equals(input) &&
                 (
                     this.IntoBucket == input.IntoBucket ||
                     (this.IntoBucket != null &&
@@ -182,7 +182,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

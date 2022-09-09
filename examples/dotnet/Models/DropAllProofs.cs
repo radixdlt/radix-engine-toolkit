@@ -27,13 +27,13 @@ namespace Models
     /// DropAllProofs
     /// </summary>
     [DataContract]
-    public partial class DropAllProofs : Instruction,  IEquatable<DropAllProofs>, IValidatableObject
+    public partial class DropAllProofs : Instruction, IEquatable<DropAllProofs>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DropAllProofs" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        public DropAllProofs () : base ("DROP_ALL_PROOF")
+        public DropAllProofs() : base("DROP_ALL_PROOF")
         {
         }
 
@@ -102,7 +102,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
-            foreach(var x in base.BaseValidate(validationContext)) yield return x;
+            foreach (var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }

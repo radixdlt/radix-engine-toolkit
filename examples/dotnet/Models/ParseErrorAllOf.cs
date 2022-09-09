@@ -27,12 +27,12 @@ namespace Models
     /// ParseErrorAllOf
     /// </summary>
     [DataContract]
-    public partial class ParseErrorAllOf :  IEquatable<ParseErrorAllOf>, IValidatableObject
+    public partial class ParseErrorAllOf : IEquatable<ParseErrorAllOf>, IValidatableObject
     {
         /// <summary>
         /// Gets or Sets Kind
         /// </summary>
-        [DataMember(Name="kind", EmitDefaultValue=true)]
+        [DataMember(Name = "kind", EmitDefaultValue = true)]
         public ValueKind Kind { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseErrorAllOf" /> class.
@@ -72,7 +72,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets Error
         /// </summary>
-        [DataMember(Name="error", EmitDefaultValue=true)]
+        [DataMember(Name = "error", EmitDefaultValue = true)]
         public string Error { get; set; }
 
         /// <summary>
@@ -118,12 +118,12 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.Kind == input.Kind ||
                     (this.Kind != null &&
                     this.Kind.Equals(input.Kind))
-                ) && 
+                ) &&
                 (
                     this.Error == input.Error ||
                     (this.Error != null &&

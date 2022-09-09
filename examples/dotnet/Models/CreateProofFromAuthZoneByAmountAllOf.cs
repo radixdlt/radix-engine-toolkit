@@ -27,7 +27,7 @@ namespace Models
     /// CreateProofFromAuthZoneByAmountAllOf
     /// </summary>
     [DataContract]
-    public partial class CreateProofFromAuthZoneByAmountAllOf :  IEquatable<CreateProofFromAuthZoneByAmountAllOf>, IValidatableObject
+    public partial class CreateProofFromAuthZoneByAmountAllOf : IEquatable<CreateProofFromAuthZoneByAmountAllOf>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateProofFromAuthZoneByAmountAllOf" /> class.
@@ -77,19 +77,19 @@ namespace Models
         /// <summary>
         /// Gets or Sets ResourceAddress
         /// </summary>
-        [DataMember(Name="resource_address", EmitDefaultValue=true)]
+        [DataMember(Name = "resource_address", EmitDefaultValue = true)]
         public ResourceAddress ResourceAddress { get; set; }
 
         /// <summary>
         /// Gets or Sets Amount
         /// </summary>
-        [DataMember(Name="amount", EmitDefaultValue=true)]
+        [DataMember(Name = "amount", EmitDefaultValue = true)]
         public Decimal Amount { get; set; }
 
         /// <summary>
         /// Gets or Sets IntoProof
         /// </summary>
-        [DataMember(Name="into_proof", EmitDefaultValue=true)]
+        [DataMember(Name = "into_proof", EmitDefaultValue = true)]
         public Proof IntoProof { get; set; }
 
         /// <summary>
@@ -136,17 +136,17 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.ResourceAddress == input.ResourceAddress ||
                     (this.ResourceAddress != null &&
                     this.ResourceAddress.Equals(input.ResourceAddress))
-                ) && 
+                ) &&
                 (
                     this.Amount == input.Amount ||
                     (this.Amount != null &&
                     this.Amount.Equals(input.Amount))
-                ) && 
+                ) &&
                 (
                     this.IntoProof == input.IntoProof ||
                     (this.IntoProof != null &&

@@ -27,7 +27,7 @@ namespace Models
     /// InformationResponse
     /// </summary>
     [DataContract]
-    public partial class InformationResponse :  IEquatable<InformationResponse>, IValidatableObject
+    public partial class InformationResponse : IEquatable<InformationResponse>, IValidatableObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InformationResponse" /> class.
@@ -55,7 +55,7 @@ namespace Models
         /// <summary>
         /// Gets or Sets PackageVersion
         /// </summary>
-        [DataMember(Name="package_version", EmitDefaultValue=true)]
+        [DataMember(Name = "package_version", EmitDefaultValue = true)]
         public string PackageVersion { get; set; }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Models
             if (input == null)
                 return false;
 
-            return 
+            return
                 (
                     this.PackageVersion == input.PackageVersion ||
                     (this.PackageVersion != null &&
