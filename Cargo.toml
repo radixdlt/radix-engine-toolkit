@@ -11,9 +11,9 @@ serde = { version = "1.0.144", features = ["serde_derive"] }
 serde_json = { version = "1.0.85" }
 serde_with = { version = "2.0.0", features = ["hex"] }
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "main" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
 
 [profile.release]
 opt-level = 's'
