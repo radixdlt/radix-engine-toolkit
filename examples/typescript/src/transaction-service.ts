@@ -145,7 +145,7 @@ export default class TransactionAPI {
 			| EncodeAddressResponse
 			| Error;
 	}
-	
+
 	decodeAddress(request: DecodeAddressRequest): DecodeAddressResponse | Error {
 		return this.callWasmFunction(request, this.internal_service.decode_address) as
 			| DecodeAddressResponse

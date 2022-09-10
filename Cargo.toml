@@ -14,6 +14,7 @@ serde_with = { version = "2.0.0", features = ["hex"] }
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temp/public-tx-validation-functions" }
 
 [profile.release]
 opt-level = 's'

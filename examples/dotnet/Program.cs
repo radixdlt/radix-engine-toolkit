@@ -63,7 +63,7 @@ var transactionHeader = new TransactionHeader(
     version: 0x01,
     networkId: 0xF2,
     startEpochInclusive: 0x00,
-    endEpochExclusive: 0x00,
+    endEpochExclusive: 0x20,
     nonce: 0x00,
     notaryPublicKey: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
     notaryAsSignatory: false,

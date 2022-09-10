@@ -141,6 +141,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "colored"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3616f750b84d8f0de8a58bda93e08e2a81ad3f523089b05f1dffecab48c6cbd"
+dependencies = [
+ "atty",
+ "lazy_static",
+ "winapi",
+]
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -231,6 +242,12 @@ dependencies = [
  "block-buffer 0.10.3",
  "crypto-common",
 ]
+
+[[package]]
+name = "downcast-rs"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "ed25519"
@@ -382,10 +399,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f9b7d56ba4a8344d6be9729995e6b06f928af29998cdf79fe390cbf6b1fee838"
 
 [[package]]
+name = "lazy_static"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
 name = "libc"
 version = "0.2.132"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8371e4e5341c3a96db127eb2465ac681ced4c433e01dd0e938adbef26ba93ba5"
+
+[[package]]
+name = "libm"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "292a948cd991e376cf75541fe5b97a1081d713c618b4f1b9500f8844e49eb565"
 
 [[package]]
 name = "log"
@@ -395,6 +424,12 @@ checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
 ]
+
+[[package]]
+name = "memory_units"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71d96e3f3c0b6325d8ccd83c33b28acb183edcb6c67938ba104ec546854b0882"
 
 [[package]]
 name = "num-bigint"
@@ -414,6 +449,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9"
 dependencies = [
  "autocfg",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0638a1c9d0a3c0914158145bc76cff373a75a627e6ecbfb71cbe6f453a5a19b0"
+dependencies = [
+ "autocfg",
+ "num-bigint",
+ "num-integer",
  "num-traits",
 ]
 
@@ -452,6 +499,12 @@ name = "os_str_bytes"
 version = "6.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ff7415e9ae3fff1225851df9e0d9e4e5479f947619774677a63572e55e80eff"
+
+[[package]]
+name = "parity-wasm"
+version = "0.42.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be5e13c266502aadf83426d87d81a0f5d1ef45b8027f5a471c360abfe4bfae92"
 
 [[package]]
 name = "paste"
@@ -508,6 +561,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "radix-engine"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
+dependencies = [
+ "colored",
+ "hex",
+ "indexmap",
+ "parity-wasm",
+ "sbor",
+ "scrypto",
+ "transaction",
+ "wasm-instrument",
+ "wasmi",
+ "wasmi-validation",
+]
+
+[[package]]
 name = "rand"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -556,8 +626,8 @@ checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
 
 [[package]]
 name = "sbor"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "hex",
  "sbor-derive",
@@ -566,8 +636,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -577,8 +647,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "bech32",
  "forward_ref",
@@ -596,8 +666,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-abi"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "sbor",
  "serde",
@@ -605,8 +675,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-derive"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -669,9 +739,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "2.0.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89df7a26519371a3cce44fbb914c2819c84d9b897890987fa3ab096491cc0ea8"
+checksum = "368f2d60d049ea019a84dcd6687b0d1e0030fe663ae105039bdf967ed5e6a9a7"
 dependencies = [
  "base64",
  "chrono",
@@ -685,9 +755,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with_macros"
-version = "2.0.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de337f322382fcdfbb21a014f7c224ee041a23785651db67b9827403178f698f"
+checksum = "1ccadfacf6cf10faad22bbadf55986bdd0856edfb5d9210aa1dcf1f516e84e93"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -799,8 +869,8 @@ dependencies = [
 
 [[package]]
 name = "transaction"
-version = "0.5.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=main#7783f3d4d430657c3e5bd372a5625a233690fcc4"
+version = "0.5.1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=temp/public-tx-validation-functions#e350ae924695c0052fe270a7c8fffa051694c257"
 dependencies = [
  "clap",
  "ed25519-dalek",
@@ -816,6 +886,7 @@ version = "0.1.0"
 dependencies = [
  "bech32",
  "hex",
+ "radix-engine",
  "sbor",
  "scrypto",
  "serde",
@@ -922,6 +993,39 @@ name = "wasm-bindgen-shared"
 version = "0.2.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6598dd0bd3c7d51095ff6531a5b23e02acdc81804e30d8f07afb77b7215a140a"
+
+[[package]]
+name = "wasm-instrument"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "962e5b0401bbb6c887f54e69b8c496ea36f704df65db73e81fd5ff8dc3e63a9f"
+dependencies = [
+ "parity-wasm",
+]
+
+[[package]]
+name = "wasmi"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a3cb58f98e4d6c944af18c2c9002f22d0b928dfbb8b6c2b7d78a8573a5216bf"
+dependencies = [
+ "downcast-rs",
+ "libm",
+ "memory_units",
+ "num-rational",
+ "num-traits",
+ "parity-wasm",
+ "wasmi-validation",
+]
+
+[[package]]
+name = "wasmi-validation"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "165343ecd6c018fc09ebcae280752702c9a2ef3e6f8d02f1cfcbdb53ef6d7937"
+dependencies = [
+ "parity-wasm",
+]
 
 [[package]]
 name = "winapi"

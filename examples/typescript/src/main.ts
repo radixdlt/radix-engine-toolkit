@@ -68,7 +68,7 @@ const main = async (): Promise<void> => {
 		version: 0x01,
 		network_id: 0xf2,
 		start_epoch_inclusive: 0x00,
-		end_epoch_exclusive: 0x00,
+		end_epoch_exclusive: 0x20,
 		nonce: 0x00,
 		notary_public_key: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
 		notary_as_signatory: false,
@@ -240,7 +240,7 @@ const main = async (): Promise<void> => {
 	console.log(
 		transactionService.encodeAddress({
 			address: "040000000000000000000000000000000000000000000000000001",
-			network_id: 0xF2
+			network_id: 0xf2,
 		})
 	);
 };

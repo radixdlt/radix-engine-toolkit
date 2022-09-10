@@ -92,6 +92,9 @@ pub enum Error {
     /// An error emitted when attempting to decompile a transaction intent but the format is not
     /// known to the library.
     UnrecognizedCompiledIntentFormat,
+
+    /// An error emitted when attempting to validate a transaction fails.
+    TransactionValidationError(String),
 }
 
 macro_rules! impl_from_error {
@@ -139,4 +142,6 @@ impl_from_error! {
     transaction::manifest::CompileError => TransactionCompileError,
     transaction::manifest::DecompileError => TransactionDecompileError,
     transaction::manifest::generator::GeneratorError => GeneratorError,
+    transaction::errors::TransactionValidationError => TransactionValidationError,
+    transaction::errors::SignatureValidationError => TransactionValidationError,
 }

@@ -122,7 +122,7 @@ export interface DecodeAddressResponse {
 }
 
 export interface EncodeAddressRequest {
-	address: string,
+	address: string;
 	network_id: number;
 }
 
