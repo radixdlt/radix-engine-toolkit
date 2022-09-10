@@ -466,7 +466,6 @@ pub fn ast_value_from_value(
         } => AstValue::Map(
             (*keys_type).into(),
             (*values_type).into(),
-            // TODO: Validate keys and values types
             elements
                 .iter()
                 .map(|v| ast_value_from_value(v, bech32_manager))

@@ -30,10 +30,10 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::CompileNotarizedTransactionIntentRequest(request) => {
             validate_compile_notarized_transaction_intent_request(&request)
         }
-        Request::DecompileNotarizedTransactionIntentRequest(_) => Ok(()), //TODO: Implement.
-        Request::DecompileUnknownTransactionIntentRequest(_) => Ok(()),   //TODO: Implement.
-        Request::DecodeAddressRequest(_) => Ok(()),                       //TODO: Implement.
-        Request::EncodeAddressRequest(_) => Ok(()),                       //TODO: Implement.
+        Request::DecompileNotarizedTransactionIntentRequest(_) => Ok(()),
+        Request::DecompileUnknownTransactionIntentRequest(_) => Ok(()),
+        Request::DecodeAddressRequest(_) => Ok(()),
+        Request::EncodeAddressRequest(_) => Ok(()),
     }
 }
 
@@ -182,21 +182,19 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
             validate_decompile_transaction_intent_response(&response)?;
             Ok(())
         },
-        Response::CompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
-        Response::DecompileSignedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
-        Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
-        Response::DecompileNotarizedTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
-        Response::DecompileUnknownTransactionIntentResponse(_) => Ok(()), //TODO: Implement.
-        Response::DecodeAddressResponse(_) => Ok(()),                  //TODO: Implement.
-        Response::EncodeAddressResponse(_) => Ok(()),                  //TODO: Implement.
+        Response::CompileSignedTransactionIntentResponse(_) => Ok(()),
+        Response::DecompileSignedTransactionIntentResponse(_) => Ok(()),
+        Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()),
+        Response::DecompileNotarizedTransactionIntentResponse(_) => Ok(()),
+        Response::DecompileUnknownTransactionIntentResponse(_) => Ok(()),
+        Response::DecodeAddressResponse(_) => Ok(()),
+        Response::EncodeAddressResponse(_) => Ok(()),
     }
 }
 
 fn validate_decompile_transaction_intent_response(
     response: &DecompileTransactionIntentResponse,
 ) -> Result<(), Error> {
-    // TODO: Add transaction intent validation through the `TransactionValidator` struct from the
-    // scrypto library.
     validate_transaction_version(response.transaction_intent.header.version)?;
     validate_manifest(
         &response.transaction_intent.manifest,
