@@ -199,7 +199,7 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::DecompileUnknownTransactionIntentResponse(response) => {
             validate_decompile_unknown_transaction_intent_response(&response)?;
             Ok(())
-        },
+        }
         Response::DecodeAddressResponse(_) => Ok(()),
         Response::EncodeAddressResponse(_) => Ok(()),
         Response::SBOREncodeResponse(_) => Ok(()),

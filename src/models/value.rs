@@ -17,8 +17,8 @@ use radix_engine::types::ScryptoType;
 use sbor::type_id::*;
 use sbor::{decode_any, encode_any, Value as SborValue};
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Decimal, Hash, NonFungibleAddress, NonFungibleId,
-    PreciseDecimal,
+    scrypto_decode, scrypto_encode, Decimal, EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey,
+    Ed25519Signature, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal,
 };
 use std::str::FromStr;
 use transaction::manifest::ast::Value as AstValue;
@@ -131,6 +131,16 @@ pub enum Value {
         elements: Vec<Value>,
     },
 
+    Bytes {
+        #[serde(with = "hex::serde")]
+        value: Vec<u8>,
+    },
+
+    // Scrypto Values
+    KeyValueStore {
+        identifier: KeyValueStoreId,
+    },
+
     Decimal {
         #[serde_as(as = "DisplayFromStr")]
         value: Decimal,
@@ -138,6 +148,10 @@ pub enum Value {
     PreciseDecimal {
         #[serde_as(as = "DisplayFromStr")]
         value: PreciseDecimal,
+    },
+
+    Component {
+        address: NetworkAwareComponentAddress,
     },
 
     ComponentAddress {
@@ -154,11 +168,31 @@ pub enum Value {
         #[serde(with = "HashDef")]
         value: Hash,
     },
+    EcdsaPublicKey {
+        #[serde(with = "EcdsaPublicKeyDef")]
+        public_key: EcdsaPublicKey,
+    },
+    EcdsaSignature {
+        #[serde(with = "EcdsaSignatureDef")]
+        signature: EcdsaSignature,
+    },
+    Ed25519PublicKey {
+        #[serde(with = "Ed25519PublicKeyDef")]
+        public_key: Ed25519PublicKey,
+    },
+    Ed25519Signature {
+        #[serde(with = "Ed25519SignatureDef")]
+        signature: EcdsaSignature,
+    },
+
     Bucket {
         identifier: Identifier,
     },
     Proof {
         identifier: Identifier,
+    },
+    Vault {
+        identifier: VaultId,
     },
     NonFungibleId {
         #[serde_as(as = "DisplayFromStr")]
@@ -167,11 +201,6 @@ pub enum Value {
     NonFungibleAddress {
         #[serde_as(as = "DisplayFromStr")]
         address: NonFungibleAddress,
-    },
-
-    Bytes {
-        #[serde(with = "hex::serde")]
-        value: Vec<u8>,
     },
 }
 

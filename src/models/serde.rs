@@ -1,9 +1,9 @@
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_with::{serde_as, FromInto};
 
-use scrypto::engine::types::VaultId;
-use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash, Vault};
+use scrypto::prelude::{
+    EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey, Ed25519Signature, Hash, Vault,
+};
 use transaction::model::TransactionHeader;
 
 use crate::models::manifest::Manifest;
@@ -31,30 +31,37 @@ pub struct EcdsaPublicKeyDef(#[serde(with = "hex::serde")] pub [u8; EcdsaPublicK
 #[serde(remote = "EcdsaSignature")]
 pub struct EcdsaSignatureDef(#[serde(with = "hex::serde")] pub [u8; EcdsaSignature::LENGTH]);
 
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(remote = "EcdsaPublicKey")]
+pub struct Ed25519PublicKeyDef(#[serde(with = "hex::serde")] pub [u8; Ed25519PublicKey::LENGTH]);
+
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(remote = "EcdsaSignature")]
+pub struct Ed25519SignatureDef(#[serde(with = "hex::serde")] pub [u8; Ed25519Signature::LENGTH]);
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "Hash")]
 pub struct HashDef(#[serde(with = "hex::serde")] pub [u8; Hash::LENGTH]);
 
-#[serde_as]
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(remote = "Vault")]
-pub struct VaultDef(#[serde_as(as = "FromInto<VaultIdProxy>")] pub VaultId);
+pub type VaultId = RENodeId;
+pub type KeyValueStoreId = RENodeId;
 
-pub struct VaultIdProxy(pub VaultId);
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct RENodeId(pub (Hash, u32));
 
-impl From<VaultId> for VaultIdProxy {
-    fn from(value: VaultId) -> Self {
+impl From<(Hash, u32)> for RENodeId {
+    fn from(value: (Hash, u32)) -> Self {
         Self(value)
     }
 }
 
-impl Into<VaultId> for VaultIdProxy {
-    fn into(self) -> VaultId {
+impl Into<(Hash, u32)> for RENodeId {
+    fn into(self) -> (Hash, u32) {
         self.0
     }
 }
 
-impl Serialize for VaultIdProxy {
+impl Serialize for RENodeId {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -63,7 +70,7 @@ impl Serialize for VaultIdProxy {
     }
 }
 
-impl<'de> Deserialize<'de> for VaultIdProxy {
+impl<'de> Deserialize<'de> for RENodeId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -82,7 +89,7 @@ impl<'de> Deserialize<'de> for VaultIdProxy {
             ))
         })?;
 
-        Ok(VaultIdProxy(vault.0))
+        Ok(RENodeId(vault.0))
     }
 }
 
