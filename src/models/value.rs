@@ -1890,6 +1890,22 @@ mod tests {
         test_value! {
             r#"
             {
+                "type": "Component",
+                "address": "account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr"
+            }
+            "#,
+            Value::Component {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0xf2,
+                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
+                        .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
+                        .expect("Decoding of a trusted address string failed")
+                }
+            }
+        };
+        test_value! {
+            r#"
+            {
                 "type": "ComponentAddress",
                 "address": "account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr"
             }

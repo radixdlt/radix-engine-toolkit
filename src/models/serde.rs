@@ -43,34 +43,36 @@ pub struct Ed25519SignatureDef(#[serde(with = "hex::serde")] pub [u8; Ed25519Sig
 #[serde(remote = "Hash")]
 pub struct HashDef(#[serde(with = "hex::serde")] pub [u8; Hash::LENGTH]);
 
-pub type VaultId = RENodeId;
-pub type KeyValueStoreId = RENodeId;
+pub type VaultId = EntityId;
+pub type KeyValueStoreId = EntityId;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct RENodeId(pub (Hash, u32));
+pub struct EntityId(pub (Hash, u32));
 
-impl From<(Hash, u32)> for RENodeId {
+impl From<(Hash, u32)> for EntityId {
     fn from(value: (Hash, u32)) -> Self {
         Self(value)
     }
 }
 
-impl Into<(Hash, u32)> for RENodeId {
+impl Into<(Hash, u32)> for EntityId {
     fn into(self) -> (Hash, u32) {
         self.0
     }
 }
 
-impl Serialize for RENodeId {
+impl Serialize for EntityId {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        Ok(serializer.serialize_str(&hex::encode(&Vault(self.0).to_vec()))?)
+        let mut v = self.0 .0.to_vec();
+        v.extend(self.0 .1.to_le_bytes());
+        Ok(serializer.serialize_str(&hex::encode(&v))?)
     }
 }
 
-impl<'de> Deserialize<'de> for RENodeId {
+impl<'de> Deserialize<'de> for EntityId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -78,18 +80,20 @@ impl<'de> Deserialize<'de> for RENodeId {
         let vault_id_string: &str = Deserialize::deserialize(deserializer)?;
         let decoded_vault_id: Vec<u8> = hex::decode(vault_id_string).map_err(|_| {
             DeserializationError::custom(format!(
-                "Could not decode vault id as hex. Vault id: {}",
+                "Could not decode entity identifier as hex: {}",
                 vault_id_string
             ))
         })?;
-        let vault: Vault = Vault::try_from(decoded_vault_id.as_slice()).map_err(|_| {
-            DeserializationError::custom(format!(
-                "Could not create vault from the given vault id. Vault id: {}",
+        match decoded_vault_id.len() {
+            36 => Ok(Self((
+                Hash(scrypto::misc::copy_u8_array(&decoded_vault_id[0..32])),
+                u32::from_le_bytes(scrypto::misc::copy_u8_array(&decoded_vault_id[32..])),
+            ))),
+            _ => Err(DeserializationError::custom(format!(
+                "Could not create vault from the given entity identifier: {}",
                 vault_id_string
-            ))
-        })?;
-
-        Ok(RENodeId(vault.0))
+            ))),
+        }
     }
 }
 
