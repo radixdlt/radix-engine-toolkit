@@ -24,6 +24,7 @@ import {
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
+import { ValueKind } from "./value";
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
@@ -236,13 +237,6 @@ const main = async (): Promise<void> => {
 	console.log("======= Example 8 =======");
 	console.log(JSON.stringify(decompileUnknownTransactionIntentResponse, null, 4));
 	console.log("=========================", "\n");
-
-	console.log(
-		transactionService.encodeAddress({
-			address: "040000000000000000000000000000000000000000000000000001",
-			network_id: 0xf2,
-		})
-	);
 };
 
 main();

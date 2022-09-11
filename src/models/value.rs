@@ -1,4 +1,25 @@
-use scrypto::prelude::{Decimal, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal};
+//! This module implements the [Value] struct as well as all of its related methods for conversion
+//! and validation.
+//!
+//! This module implements [Value] conversions into two main types:
+//!
+//! 1. [transaction::manifest::ast::Value]: Conversion into and from this type is supported since
+//! this the type that values need to be in for the creation of transaction manifest instructions
+//! and because it is the type that values are found in when a manifest is decompiled. Therefore,
+//! the functions [value_from_ast_value] and [ast_value_from_value] can be used to convert a [Value]
+//! from and to [transaction::manifest::ast::Value].
+//! 2. [sbor::Value]: Easy conversions from and to this type are needed since this type is needed
+//! since this type is often times used as an intermediary type for the SBOR Encode and Decode
+//! requests to this library. The conversion back in forth is done through the functions
+//! [value_from_sbor_value] and [sbor_value_from_value].
+
+use radix_engine::types::ScryptoType;
+use sbor::type_id::*;
+use sbor::{decode_any, encode_any, Value as SborValue};
+use scrypto::prelude::{
+    scrypto_decode, scrypto_encode, Decimal, Hash, NonFungibleAddress, NonFungibleId,
+    PreciseDecimal,
+};
 use std::str::FromStr;
 use transaction::manifest::ast::Value as AstValue;
 
@@ -17,6 +38,9 @@ use crate::models::serde::*;
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
 
+// TODO: Consider extending the value type to support all `ScryptoType`s even if they do not have
+// a manifest representation. Their manifest compatibility can be evaluated at runtime in the
+// `value_from_ast_value` and `ast_value_from_value` functions.
 pub enum Value {
     Unit,
     Bool {
@@ -272,6 +296,14 @@ impl Value {
             _ => Ok(()),
         }
     }
+
+    pub fn encode(&self) -> Result<Vec<u8>, Error> {
+        Ok(encode_any(&sbor_value_from_value(self)?))
+    }
+
+    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
+        Ok(value_from_sbor_value(&decode_any(bytes)?, network_id)?)
+    }
 }
 
 // ==========
@@ -366,6 +398,126 @@ define_value_kind! {
         NonFungibleAddress,
 
         Bytes,
+    }
+}
+
+impl ValueKind {
+    pub fn type_id(&self) -> u8 {
+        match self {
+            Self::Unit => TYPE_UNIT,
+            Self::Bool => TYPE_BOOL,
+
+            Self::U8 => TYPE_U8,
+            Self::U16 => TYPE_U16,
+            Self::U32 => TYPE_U32,
+            Self::U64 => TYPE_U64,
+            Self::U128 => TYPE_U128,
+
+            Self::I8 => TYPE_I8,
+            Self::I16 => TYPE_I16,
+            Self::I32 => TYPE_I32,
+            Self::I64 => TYPE_I64,
+            Self::I128 => TYPE_I128,
+
+            Self::String => TYPE_STRING,
+
+            Self::Struct => TYPE_STRUCT,
+            Self::Enum => TYPE_ENUM,
+
+            Self::Option => TYPE_OPTION,
+            Self::Array => TYPE_ARRAY,
+            Self::Tuple => TYPE_TUPLE,
+            Self::Result => TYPE_OPTION,
+
+            Self::List => TYPE_LIST,
+            Self::Set => TYPE_SET,
+            Self::Map => TYPE_MAP,
+
+            Self::Bytes => TYPE_LIST,
+
+            Self::Decimal => ScryptoType::Decimal.id(),
+            Self::PreciseDecimal => ScryptoType::PreciseDecimal.id(),
+
+            Self::PackageAddress => ScryptoType::PackageAddress.id(),
+            Self::ResourceAddress => ScryptoType::ResourceAddress.id(),
+            Self::ComponentAddress => ScryptoType::ComponentAddress.id(),
+
+            Self::Hash => ScryptoType::Hash.id(),
+
+            Self::Bucket => ScryptoType::Bucket.id(),
+            Self::Proof => ScryptoType::Proof.id(),
+
+            Self::NonFungibleId => ScryptoType::NonFungibleId.id(),
+            Self::NonFungibleAddress => ScryptoType::NonFungibleAddress.id(),
+        }
+    }
+
+    pub fn from_type_id(type_id: u8) -> Result<Self, Error> {
+        let value_kind: Self = match type_id {
+            TYPE_UNIT => Self::Unit,
+            TYPE_BOOL => Self::Bool,
+
+            TYPE_U8 => Self::U8,
+            TYPE_U16 => Self::U16,
+            TYPE_U32 => Self::U32,
+            TYPE_U64 => Self::U64,
+            TYPE_U128 => Self::U128,
+
+            TYPE_I8 => Self::I8,
+            TYPE_I16 => Self::I16,
+            TYPE_I32 => Self::I32,
+            TYPE_I64 => Self::I64,
+            TYPE_I128 => Self::I128,
+
+            TYPE_STRING => Self::String,
+
+            TYPE_STRUCT => Self::Struct,
+            TYPE_ENUM => Self::Enum,
+
+            TYPE_OPTION => Self::Option,
+            TYPE_ARRAY => Self::Array,
+            TYPE_TUPLE => Self::Tuple,
+            TYPE_RESULT => Self::Result,
+
+            TYPE_LIST => Self::List,
+            TYPE_SET => Self::Set,
+            TYPE_MAP => Self::Map,
+
+            type_id => {
+                match ScryptoType::from_id(type_id) {
+                    Some(scrypto_type) => {
+                        match scrypto_type {
+                            ScryptoType::Decimal => Self::Decimal,
+                            ScryptoType::PreciseDecimal => Self::PreciseDecimal,
+                            ScryptoType::PackageAddress => Self::PackageAddress,
+                            ScryptoType::ResourceAddress => Self::ResourceAddress,
+                            ScryptoType::ComponentAddress => Self::ComponentAddress,
+                            ScryptoType::Hash => Self::Hash,
+                            ScryptoType::Bucket => Self::Bucket,
+                            ScryptoType::Proof => Self::Proof,
+                            ScryptoType::NonFungibleId => Self::NonFungibleId,
+                            ScryptoType::NonFungibleAddress => Self::NonFungibleAddress,
+
+                            // The following Scrypto types do not map to any `ValueKind` since they
+                            // are not currently supported in the transaction manifest. Once they
+                            // are supported, they should be added to the `Value` and `ValueKind`
+                            // enums and have this fixed here.
+                            ScryptoType::Component
+                            | ScryptoType::Vault
+                            | ScryptoType::EcdsaPublicKey
+                            | ScryptoType::EcdsaSignature
+                            | ScryptoType::Ed25519PublicKey
+                            | ScryptoType::Ed25519Signature
+                            | ScryptoType::KeyValueStore => {
+                                return Err(Error::UnknownTypeId { type_id })
+                            }
+                        }
+                    }
+                    None => return Err(Error::UnknownTypeId { type_id }),
+                }
+            }
+        };
+        Ok(value_kind)
     }
 }
 
@@ -778,6 +930,323 @@ pub fn value_from_ast_value(
             value: value.clone(),
         },
     };
+    Ok(value)
+}
+
+pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
+    value.validate_if_collection()?;
+    let value: SborValue = match value {
+        Value::Unit => SborValue::Unit,
+        Value::Bool { value } => SborValue::Bool { value: *value },
+
+        Value::U8 { value } => SborValue::U8 { value: *value },
+        Value::U16 { value } => SborValue::U16 { value: *value },
+        Value::U32 { value } => SborValue::U32 { value: *value },
+        Value::U64 { value } => SborValue::U64 { value: *value },
+        Value::U128 { value } => SborValue::U128 { value: *value },
+
+        Value::I8 { value } => SborValue::I8 { value: *value },
+        Value::I16 { value } => SborValue::I16 { value: *value },
+        Value::I32 { value } => SborValue::I32 { value: *value },
+        Value::I64 { value } => SborValue::I64 { value: *value },
+        Value::I128 { value } => SborValue::I128 { value: *value },
+
+        Value::String { value } => SborValue::String {
+            value: value.clone(),
+        },
+
+        Value::Struct { fields } => SborValue::Struct {
+            fields: fields
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::Enum {
+            variant_name,
+            fields,
+        } => SborValue::Enum {
+            name: variant_name.clone(),
+            fields: fields
+                .clone()
+                .unwrap_or_default()
+                .iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::Option { value } => SborValue::Option {
+            value: Box::new(match &**value {
+                Some(value) => Some(sbor_value_from_value(&value)?),
+                None => None,
+            }),
+        },
+        Value::Result { value } => SborValue::Result {
+            value: Box::new(match &**value {
+                Ok(value) => Ok(sbor_value_from_value(&value)?),
+                Err(value) => Err(sbor_value_from_value(&value)?),
+            }),
+        },
+
+        Value::Array {
+            element_type,
+            elements,
+        } => SborValue::Array {
+            element_type_id: element_type.type_id(),
+            elements: elements
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::Tuple { elements } => SborValue::Tuple {
+            elements: elements
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::List {
+            element_type,
+            elements,
+        } => SborValue::List {
+            element_type_id: element_type.type_id(),
+            elements: elements
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::Set {
+            element_type,
+            elements,
+        } => SborValue::Set {
+            element_type_id: element_type.type_id(),
+            elements: elements
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        Value::Map {
+            key_type,
+            value_type,
+            elements,
+        } => SborValue::Map {
+            key_type_id: key_type.type_id(),
+            value_type_id: value_type.type_id(),
+            elements: elements
+                .into_iter()
+                .map(sbor_value_from_value)
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+
+        Value::Decimal { value } => decode_any(&scrypto_encode(value))?,
+        Value::PreciseDecimal { value } => decode_any(&scrypto_encode(value))?,
+
+        Value::ComponentAddress { address } => decode_any(&scrypto_encode(&address.address))?,
+        Value::ResourceAddress { address } => decode_any(&scrypto_encode(&address.address))?,
+        Value::PackageAddress { address } => decode_any(&scrypto_encode(&address.address))?,
+
+        Value::Hash { value } => decode_any(&scrypto_encode(value))?,
+        Value::Bucket { identifier } => {
+            if let Identifier::U32(value) = identifier {
+                Ok(decode_any(&scrypto_encode(&scrypto::prelude::Bucket(
+                    *value,
+                )))?)
+            } else {
+                // TODO: Temporary error. Need a better way to deal with this.
+                Err(Error::DecodeError(
+                    "Unable to encode a Bucket with a string identifier".into(),
+                ))
+            }?
+        }
+        Value::Proof { identifier } => {
+            if let Identifier::U32(value) = identifier {
+                Ok(decode_any(&scrypto_encode(&scrypto::prelude::Proof(
+                    *value,
+                )))?)
+            } else {
+                // TODO: Temporary error. Need a better way to deal with this.
+                Err(Error::DecodeError(
+                    "Unable to encode a Proof with a string identifier".into(),
+                ))
+            }?
+        }
+
+        Value::NonFungibleId { value } => decode_any(&scrypto_encode(value))?,
+        Value::NonFungibleAddress { address } => decode_any(&scrypto_encode(address))?,
+
+        Value::Bytes { value } => decode_any(&scrypto_encode(value))?,
+    };
+    Ok(value)
+}
+
+pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value, Error> {
+    let value: Value = match value {
+        SborValue::Unit => Value::Unit,
+        SborValue::Bool { value } => Value::Bool { value: *value },
+
+        SborValue::U8 { value } => Value::U8 { value: *value },
+        SborValue::U16 { value } => Value::U16 { value: *value },
+        SborValue::U32 { value } => Value::U32 { value: *value },
+        SborValue::U64 { value } => Value::U64 { value: *value },
+        SborValue::U128 { value } => Value::U128 { value: *value },
+
+        SborValue::I8 { value } => Value::I8 { value: *value },
+        SborValue::I16 { value } => Value::I16 { value: *value },
+        SborValue::I32 { value } => Value::I32 { value: *value },
+        SborValue::I64 { value } => Value::I64 { value: *value },
+        SborValue::I128 { value } => Value::I128 { value: *value },
+
+        SborValue::String { value } => Value::String {
+            value: value.clone(),
+        },
+
+        SborValue::Struct { fields } => Value::Struct {
+            fields: fields
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        SborValue::Enum { name, fields } => Value::Enum {
+            variant_name: name.clone(),
+            fields: match fields.len() {
+                0 => None,
+                _ => Some(
+                    fields
+                        .clone()
+                        .iter()
+                        .map(|value| value_from_sbor_value(value, network_id))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ),
+            },
+        },
+
+        SborValue::Option { value } => Value::Option {
+            value: Box::new(match &**value {
+                Some(value) => Some(value_from_sbor_value(&value, network_id)?),
+                None => None,
+            }),
+        },
+        SborValue::Result { value } => Value::Result {
+            value: Box::new(match &**value {
+                Ok(value) => Ok(value_from_sbor_value(&value, network_id)?),
+                Err(value) => Err(value_from_sbor_value(&value, network_id)?),
+            }),
+        },
+
+        SborValue::Array {
+            element_type_id,
+            elements,
+        } => Value::Array {
+            element_type: ValueKind::from_type_id(*element_type_id)?,
+            elements: elements
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        SborValue::Tuple { elements } => Value::Tuple {
+            elements: elements
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        SborValue::List {
+            element_type_id,
+            elements,
+        } => Value::List {
+            element_type: ValueKind::from_type_id(*element_type_id)?,
+            elements: elements
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        SborValue::Set {
+            element_type_id,
+            elements,
+        } => Value::Set {
+            element_type: ValueKind::from_type_id(*element_type_id)?,
+            elements: elements
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+        SborValue::Map {
+            key_type_id,
+            value_type_id,
+            elements,
+        } => Value::Map {
+            key_type: ValueKind::from_type_id(*key_type_id)?,
+            value_type: ValueKind::from_type_id(*value_type_id)?,
+            elements: elements
+                .into_iter()
+                .map(|value| value_from_sbor_value(value, network_id))
+                .collect::<Result<Vec<_>, _>>()?,
+        },
+
+        SborValue::Custom { type_id, bytes: _ } => {
+            match ScryptoType::from_id(*type_id) {
+                Some(scrypto_type) => {
+                    match scrypto_type {
+                        ScryptoType::Decimal => Value::Decimal {
+                            value: scrypto_decode(&encode_any(&value))?,
+                        },
+                        ScryptoType::PreciseDecimal => Value::PreciseDecimal {
+                            value: scrypto_decode(&encode_any(&value))?,
+                        },
+                        ScryptoType::PackageAddress => Value::PackageAddress {
+                            address: NetworkAwarePackageAddress {
+                                address: scrypto_decode(&encode_any(&value))?,
+                                network_id,
+                            },
+                        },
+                        ScryptoType::ComponentAddress => Value::ComponentAddress {
+                            address: NetworkAwareComponentAddress {
+                                address: scrypto_decode(&encode_any(&value))?,
+                                network_id,
+                            },
+                        },
+                        ScryptoType::ResourceAddress => Value::ResourceAddress {
+                            address: NetworkAwareResourceAddress {
+                                address: scrypto_decode(&encode_any(&value))?,
+                                network_id,
+                            },
+                        },
+                        ScryptoType::Hash => Value::Hash {
+                            value: scrypto_decode(&encode_any(&value))?,
+                        },
+                        ScryptoType::Bucket => Value::Bucket {
+                            identifier: Identifier::U32(
+                                scrypto_decode::<scrypto::prelude::Bucket>(&encode_any(&value))?.0,
+                            ),
+                        },
+                        ScryptoType::Proof => Value::Proof {
+                            identifier: Identifier::U32(
+                                scrypto_decode::<scrypto::prelude::Proof>(&encode_any(&value))?.0,
+                            ),
+                        },
+                        ScryptoType::NonFungibleId => Value::NonFungibleId {
+                            value: scrypto_decode(&encode_any(&value))?,
+                        },
+                        ScryptoType::NonFungibleAddress => Value::NonFungibleAddress {
+                            address: scrypto_decode(&encode_any(&value))?,
+                        },
+
+                        // The following Scrypto types do not map to any `ValueKind` since they
+                        // are not currently supported in the transaction manifest. Once they
+                        // are supported, they should be added to the `Value` and `ValueKind`
+                        // enums and have this fixed here.
+                        ScryptoType::Component
+                        | ScryptoType::Vault
+                        | ScryptoType::EcdsaPublicKey
+                        | ScryptoType::EcdsaSignature
+                        | ScryptoType::Ed25519PublicKey
+                        | ScryptoType::Ed25519Signature
+                        | ScryptoType::KeyValueStore => {
+                            return Err(Error::UnknownTypeId { type_id: *type_id })
+                        }
+                    }
+                }
+                None => return Err(Error::UnknownTypeId { type_id: *type_id }),
+            }
+        }
+    };
+    value.validate_if_collection()?;
     Ok(value)
 }
 

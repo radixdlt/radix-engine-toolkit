@@ -1,5 +1,6 @@
+import { type } from "os";
 import { Instruction } from "./instruction";
-import { ComponentAddress, PackageAddress, ResourceAddress } from "./value";
+import { Value, ComponentAddress, PackageAddress, ResourceAddress } from "./value";
 
 // ===================
 // Request & Response
@@ -14,7 +15,9 @@ export type Request =
 	| DecompileSignedTransactionIntentRequest
 	| CompileNotarizedTransactionIntentRequest
 	| DecompileNotarizedTransactionIntentRequest
-	| DecompileUnknownTransactionIntentRequest;
+	| DecompileUnknownTransactionIntentRequest
+	| EncodeAddressRequest
+	| DecodeAddressRequest;
 
 export type Response =
 	| InformationResponse
@@ -25,7 +28,9 @@ export type Response =
 	| DecompileSignedTransactionIntentResponse
 	| CompileNotarizedTransactionIntentResponse
 	| DecompileNotarizedTransactionIntentResponse
-	| DecompileUnknownTransactionIntentResponse;
+	| DecompileUnknownTransactionIntentResponse
+	| EncodeAddressResponse
+	| DecodeAddressResponse;
 
 export interface InformationRequest {}
 
@@ -128,6 +133,19 @@ export interface EncodeAddressRequest {
 
 export type EncodeAddressResponse = Address;
 
+export type SBOREncodeRequest = Value;
+
+export interface SBOREncodeResponse {
+	encoded_value: string;
+}
+
+export interface SBORDecodeRequest {
+	encoded_value: string;
+	network_id: number;
+}
+
+export type SBORDecodeResponse = Value
+
 // =======
 // Models
 // =======
@@ -211,6 +229,9 @@ export interface TransactionServiceInterface {
 
 	encode_address(requestStringPointer: number): number;
 	decode_address(requestStringPointer: number): number;
+
+	sbor_encode(requestStringPointer: number): number;
+	sbor_decode(requestStringPointer: number): number;
 
 	__transaction_lib_alloc(capacity: number): number;
 	__transaction_lib_free(pointer: number): void;

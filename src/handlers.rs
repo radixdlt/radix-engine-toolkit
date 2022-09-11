@@ -29,7 +29,10 @@ link_handler! {
     decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent,
 
     decode_address => handle_decode_address,
-    encode_address => handle_encode_address
+    encode_address => handle_encode_address,
+
+    sbor_encode => handle_sbor_encode,
+    sbor_decode => handle_sbor_decode
 }
 
 fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -364,5 +367,19 @@ fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressR
         Err(Error::UnrecognizedAddressFormat)
     }?;
 
+    Ok(response)
+}
+
+fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeResponse, Error> {
+    let response: SBOREncodeResponse = SBOREncodeResponse {
+        encoded_value: request.value.encode()?,
+    };
+    Ok(response)
+}
+
+fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeResponse, Error> {
+    let response: SBORDecodeResponse = SBORDecodeResponse {
+        value: Value::decode(&request.encoded_value, request.network_id)?,
+    };
     Ok(response)
 }

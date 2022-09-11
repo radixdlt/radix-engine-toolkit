@@ -64,6 +64,9 @@ pub enum Error {
         actual_type: ValueKind,
     },
 
+    /// An error emitted when encountering an unknown SBOR type id during value conversion.
+    UnknownTypeId { type_id: u8 },
+
     /// An error emitted when the parsing of a value from string fails.
     ParseError { kind: ValueKind, error: String },
 

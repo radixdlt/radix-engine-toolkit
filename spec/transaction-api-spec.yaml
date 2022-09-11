@@ -151,6 +151,22 @@ components:
         - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
         - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
 
+    # Address Encoding
+    EncodeAddressRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - address
+        - network_id
+      properties:
+        address:
+          type: string
+        network_id:
+          $ref: "#/components/schemas/Byte"
+    
+    EncodeAddressResponse:
+      $ref: "#/components/schemas/Address"
+
     # Address Decoding
     DecodeAddressRequest:
       type: object
@@ -182,20 +198,34 @@ components:
         address:
           $ref: "#/components/schemas/Address"
 
-    EncodeAddressRequest:
+    # SBOR Encoding
+    SBOREncodeRequest:
+      $ref: "#/components/schemas/Value"
+    
+    SBOREncodeResponse:
       type: object
       additionalProperties: false
       required:
-        - address
+        - encoded_value
+      properties:
+        encoded_value:
+          type: string
+    
+    # SBOR Decoding
+    SBORDecodeRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - encoded_value
         - network_id
       properties:
-        address:
+        encoded_value:
           type: string
         network_id:
           $ref: "#/components/schemas/Byte"
-
-    EncodeAddressResponse:
-      $ref: "#/components/schemas/Address"
+    
+    SBORDecodeResponse:
+      $ref: "#/components/schemas/Value"
 
     # ================================
     # Request & Response Dependencies

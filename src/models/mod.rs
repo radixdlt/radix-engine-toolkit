@@ -9,6 +9,8 @@ pub mod decompile_transaction_intent_request;
 pub mod decompile_unknown_transaction_intent_request;
 pub mod encode_address_request;
 pub mod information_request;
+pub mod sbor_decode_request;
+pub mod sbor_encode_request;
 
 pub mod instruction;
 pub mod manifest;
@@ -27,6 +29,8 @@ pub use decompile_transaction_intent_request::*;
 pub use decompile_unknown_transaction_intent_request::*;
 pub use encode_address_request::*;
 pub use information_request::*;
+pub use sbor_decode_request::*;
+pub use sbor_encode_request::*;
 
 pub use crate::models::serde::{
     Address, AddressKind, Signature, SignedTransactionIntent, TransactionIntent,

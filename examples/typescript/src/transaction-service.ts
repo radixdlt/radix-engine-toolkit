@@ -26,6 +26,10 @@ import {
 	EncodeAddressResponse,
 	DecodeAddressRequest,
 	DecodeAddressResponse,
+	SBOREncodeRequest,
+	SBOREncodeResponse,
+	SBORDecodeRequest,
+	SBORDecodeResponse,
 } from "./interfaces";
 import { Error } from "./error";
 import fs from "fs";
@@ -149,6 +153,19 @@ export default class TransactionAPI {
 	decodeAddress(request: DecodeAddressRequest): DecodeAddressResponse | Error {
 		return this.callWasmFunction(request, this.internal_service.decode_address) as
 			| DecodeAddressResponse
+			| Error;
+	}
+
+	sborEncode(request: SBOREncodeRequest): SBOREncodeResponse | Error {
+		console.log(request);
+		return this.callWasmFunction(request, this.internal_service.sbor_encode) as
+			| SBOREncodeResponse
+			| Error;
+	}
+
+	sborDecode(request: SBORDecodeRequest): SBORDecodeResponse | Error {
+		return this.callWasmFunction(request, this.internal_service.sbor_decode) as
+			| SBORDecodeResponse
 			| Error;
 	}
 

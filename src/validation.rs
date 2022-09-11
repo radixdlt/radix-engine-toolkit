@@ -34,6 +34,8 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::DecompileUnknownTransactionIntentRequest(_) => Ok(()),
         Request::DecodeAddressRequest(_) => Ok(()),
         Request::EncodeAddressRequest(_) => Ok(()),
+        Request::SBOREncodeRequest(_) => Ok(()),
+        Request::SBORDecodeRequest(_) => Ok(()),
     }
 }
 
@@ -95,6 +97,8 @@ fn request_transaction_validation_config(request: &Request) -> Option<Validation
         Request::DecompileUnknownTransactionIntentRequest(_) => None,
         Request::DecodeAddressRequest(_) => None,
         Request::EncodeAddressRequest(_) => None,
+        Request::SBOREncodeRequest(_) => None,
+        Request::SBORDecodeRequest(_) => None,
     }
 }
 
@@ -181,7 +185,7 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::DecompileTransactionIntentResponse(response) => {
             validate_decompile_transaction_intent_response(&response)?;
             Ok(())
-        },
+        }
         Response::CompileSignedTransactionIntentResponse(_) => Ok(()),
         Response::DecompileSignedTransactionIntentResponse(_) => Ok(()),
         Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()),
@@ -189,6 +193,8 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::DecompileUnknownTransactionIntentResponse(_) => Ok(()),
         Response::DecodeAddressResponse(_) => Ok(()),
         Response::EncodeAddressResponse(_) => Ok(()),
+        Response::SBOREncodeResponse(_) => Ok(()),
+        Response::SBORDecodeResponse(_) => Ok(()),
     }
 }
 
