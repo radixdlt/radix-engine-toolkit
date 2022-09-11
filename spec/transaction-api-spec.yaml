@@ -291,7 +291,7 @@ components:
         signed_intent:
           $ref: "#/components/schemas/SignedTransactionIntent"
         notary_signature:
-          $ref: "#/components/schemas/EcdsaSignature"
+          $ref: "#/components/schemas/EcdsaSignatureString"
     
     TransactionHeader:
       type: object
@@ -324,7 +324,7 @@ components:
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
         notary_public_key:
-          $ref: "#/components/schemas/EcdsaPublicKey"
+          $ref: "#/components/schemas/EcdsaPublicKeyString"
         notary_as_signatory:
           type: boolean
         cost_unit_limit:
@@ -344,14 +344,14 @@ components:
         - signature
       properties:
         public_key:
-          $ref: "#/components/schemas/EcdsaPublicKey"
+          $ref: "#/components/schemas/EcdsaPublicKeyString"
         signature:
-          $ref: "#/components/schemas/EcdsaSignature"
+          $ref: "#/components/schemas/EcdsaSignatureString"
 
-    EcdsaPublicKey:
+    EcdsaPublicKeyString:
       type: string
     
-    EcdsaSignature:
+    EcdsaSignatureString:
       type: string
 
     ManifestKind:
@@ -435,15 +435,22 @@ components:
       - Map
       - Decimal
       - PreciseDecimal
+      - Component
       - PackageAddress
       - ComponentAddress
       - ResourceAddress
       - Hash
       - Bucket
       - Proof
+      - Vault
       - NonFungibleId
       - NonFungibleAddress
       - Bytes
+      - KeyValueStore
+      - EcdsaPublicKey
+      - EcdsaSignature
+      - Ed25519PublicKey
+      - Ed25519Signature
     
     Value:
       type: object
@@ -478,15 +485,22 @@ components:
           Map: "#/components/schemas/Map"
           Decimal: "#/components/schemas/Decimal"
           PreciseDecimal: "#/components/schemas/PreciseDecimal"
+          Component: "#/components/schemas/Component"
           ComponentAddress: "#/components/schemas/ComponentAddress"
           ResourceAddress: "#/components/schemas/ResourceAddress"
           PackageAddress: "#/components/schemas/PackageAddress"
           Hash: "#/components/schemas/Hash"
           Bytes: "#/components/schemas/Bytes"
+          KeyValueStore: "#/components/schemas/KeyValueStore"
           Bucket: "#/components/schemas/Bucket"
           Proof: "#/components/schemas/Proof"
+          Vault: "#/components/schemas/Vault"
           NonFungibleId: "#/components/schemas/NonFungibleId"
           NonFungibleAddress: "#/components/schemas/NonFungibleAddress"
+          EcdsaPublicKey: "#/components/schemas/EcdsaPublicKey"
+          EcdsaSignature: "#/components/schemas/EcdsaSignature"
+          Ed25519PublicKey: "#/components/schemas/Ed25519PublicKey"
+          Ed25519Signature: "#/components/schemas/Ed25519Signature"
     U8:
       allOf:
       - $ref: "#/components/schemas/Value"
@@ -733,6 +747,16 @@ components:
         properties:
           value:
             type: string
+    Component:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - address
+        properties:
+          address:
+            type: string
     ComponentAddress:
       allOf:
       - $ref: "#/components/schemas/Value"
@@ -797,6 +821,16 @@ components:
             oneOf:
             - type: string
             - type: integer
+    Vault:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - identifier
+        properties:
+          identifier:
+            type: string
     NonFungibleId:
       allOf:
       - $ref: "#/components/schemas/Value"
@@ -827,7 +861,57 @@ components:
         properties:
           value:
             type: string
-    
+    KeyValueStore:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - identifier
+        properties:
+          identifier:
+            type: string
+    EcdsaPublicKey:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - public_key
+        properties:
+          public_key:
+            type: string
+    EcdsaSignature:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - signature
+        properties:
+          signature:
+            type: string
+    Ed25519PublicKey:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - public_key
+        properties:
+          public_key:
+            type: string
+    Ed25519Signature:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - signature
+        properties:
+          signature:
+            type: string
+
     # =============
     # Instructions
     # =============
@@ -1159,13 +1243,16 @@ components:
           InvalidRequestString: "#/components/schemas/InvalidRequestString"
           UnexpectedContents: "#/components/schemas/UnexpectedContents"
           InvalidType: "#/components/schemas/InvalidType"
+          UnknownTypeId: "#/components/schemas/UnknownTypeId"
           ParseError: "#/components/schemas/ParseError"
+          NoManifestRepresentation: "#/components/schemas/NoManifestRepresentation"
           TransactionCompileError: "#/components/schemas/TransactionCompileError"
           TransactionDecompileError: "#/components/schemas/TransactionDecompileError"
           UnsupportedTransactionVersion: "#/components/schemas/UnsupportedTransactionVersion"
           GeneratorError: "#/components/schemas/GeneratorError"
           RequestResponseConversionError: "#/components/schemas/RequestResponseConversionError"
           UnrecognizedCompiledIntentFormat: "#/components/schemas/UnrecognizedCompiledIntentFormat"
+          TransactionValidationError: "#/components/schemas/TransactionValidationError"
     AddressError:
       allOf:
       - $ref: "#/components/schemas/ErrorResponse"
@@ -1242,6 +1329,16 @@ components:
             $ref: "#/components/schemas/ValueKind"
           actual_type:
             $ref: "#/components/schemas/ValueKind"
+    UnknownTypeId:
+      allOf:
+      - $ref: "#/components/schemas/ErrorResponse"
+      - type: object
+        additionalProperties: false
+        required:
+        - type_id
+        properties:
+          type_id:
+            type: integer
     ParseError:
       allOf:
       - $ref: "#/components/schemas/ErrorResponse"
@@ -1255,6 +1352,16 @@ components:
             $ref: "#/components/schemas/ValueKind"
           error:
             type: string
+    NoManifestRepresentation:
+      allOf:
+      - $ref: "#/components/schemas/ErrorResponse"
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        properties:
+          kind:
+            $ref: "#/components/schemas/ValueKind"
     TransactionCompileError:
       allOf:
       - $ref: "#/components/schemas/ErrorResponse"
@@ -1307,3 +1414,13 @@ components:
             type: string
     UnrecognizedCompiledIntentFormat:
       $ref: "#/components/schemas/ErrorResponse"
+    TransactionValidationError:
+      allOf:
+      - $ref: "#/components/schemas/ErrorResponse"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
+            type: string

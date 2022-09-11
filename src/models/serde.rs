@@ -1,9 +1,7 @@
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use scrypto::prelude::{
-    EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey, Ed25519Signature, Hash, Vault,
-};
+use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey, Ed25519Signature, Hash};
 use transaction::model::TransactionHeader;
 
 use crate::models::manifest::Manifest;

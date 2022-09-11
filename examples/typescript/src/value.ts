@@ -170,6 +170,10 @@ export interface Proof {
 	readonly type: ValueKind.Proof;
 	value: number; // 32-bit unsigned number
 }
+export interface Vault {
+	readonly type: ValueKind.Vault;
+	identifier: string;
+}
 
 export interface NonFungibleId {
 	readonly type: ValueKind.NonFungibleId;
@@ -183,6 +187,30 @@ export interface NonFungibleAddress {
 export interface Bytes {
 	readonly type: ValueKind.Bytes;
 	value: string;
+}
+export interface KeyValueStore {
+	readonly type: ValueKind.KeyValueStore;
+	identifier: string;
+}
+
+export interface EcdsaPublicKey {
+	readonly type: ValueKind.EcdsaPublicKey;
+	public_key: string;
+}
+
+export interface EcdsaSignature {
+	readonly type: ValueKind.EcdsaSignature;
+	signature: string;
+}
+
+export interface Ed25519PublicKey {
+	readonly type: ValueKind.Ed25519PublicKey;
+	public_key: string;
+}
+
+export interface Ed25519Signature {
+	readonly type: ValueKind.Ed25519Signature;
+	signature: string;
 }
 
 export enum ValueKind {
@@ -218,6 +246,7 @@ export enum ValueKind {
 	Decimal = "Decimal",
 	PreciseDecimal = "PreciseDecimal",
 
+	Component = "Component",
 	PackageAddress = "PackageAddress",
 	ComponentAddress = "ComponentAddress",
 	ResourceAddress = "ResourceAddress",
@@ -226,9 +255,16 @@ export enum ValueKind {
 
 	Bucket = "Bucket",
 	Proof = "Proof",
+	Vault = "Vault",
 
 	NonFungibleId = "NonFungibleId",
 	NonFungibleAddress = "NonFungibleAddress",
 
 	Bytes = "Bytes",
+	KeyValueStore = "KeyValueStore",
+
+	EcdsaPublicKey = "EcdsaPublicKey",
+	EcdsaSignature = "EcdsaSignature",
+	Ed25519PublicKey = "Ed25519PublicKey",
+	Ed25519Signature = "Ed25519Signature",
 }

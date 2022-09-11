@@ -32,8 +32,13 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(Array), "Array")]
     [JsonSubtypes.KnownSubType(typeof(Bucket), "Bucket")]
     [JsonSubtypes.KnownSubType(typeof(Bytes), "Bytes")]
+    [JsonSubtypes.KnownSubType(typeof(Component), "Component")]
     [JsonSubtypes.KnownSubType(typeof(ComponentAddress), "ComponentAddress")]
     [JsonSubtypes.KnownSubType(typeof(Decimal), "Decimal")]
+    [JsonSubtypes.KnownSubType(typeof(EcdsaPublicKey), "EcdsaPublicKey")]
+    [JsonSubtypes.KnownSubType(typeof(EcdsaSignature), "EcdsaSignature")]
+    [JsonSubtypes.KnownSubType(typeof(Ed25519PublicKey), "Ed25519PublicKey")]
+    [JsonSubtypes.KnownSubType(typeof(Ed25519Signature), "Ed25519Signature")]
     [JsonSubtypes.KnownSubType(typeof(Enum), "Enum")]
     [JsonSubtypes.KnownSubType(typeof(Hash), "Hash")]
     [JsonSubtypes.KnownSubType(typeof(I128), "I128")]
@@ -41,6 +46,7 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(I32), "I32")]
     [JsonSubtypes.KnownSubType(typeof(I64), "I64")]
     [JsonSubtypes.KnownSubType(typeof(I8), "I8")]
+    [JsonSubtypes.KnownSubType(typeof(KeyValueStore), "KeyValueStore")]
     [JsonSubtypes.KnownSubType(typeof(List), "List")]
     [JsonSubtypes.KnownSubType(typeof(Map), "Map")]
     [JsonSubtypes.KnownSubType(typeof(NonFungibleAddress), "NonFungibleAddress")]
@@ -59,6 +65,7 @@ namespace Models
     [JsonSubtypes.KnownSubType(typeof(U32), "U32")]
     [JsonSubtypes.KnownSubType(typeof(U64), "U64")]
     [JsonSubtypes.KnownSubType(typeof(U8), "U8")]
+    [JsonSubtypes.KnownSubType(typeof(Vault), "Vault")]
     public partial class Value :  IEquatable<Value>, IValidatableObject
     {
         /// <summary>

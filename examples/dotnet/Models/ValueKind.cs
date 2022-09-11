@@ -176,58 +176,100 @@ namespace Models
         PreciseDecimal = 24,
 
         /// <summary>
+        /// Enum Component for value: Component
+        /// </summary>
+        [EnumMember(Value = "Component")]
+        Component = 25,
+
+        /// <summary>
         /// Enum PackageAddress for value: PackageAddress
         /// </summary>
         [EnumMember(Value = "PackageAddress")]
-        PackageAddress = 25,
+        PackageAddress = 26,
 
         /// <summary>
         /// Enum ComponentAddress for value: ComponentAddress
         /// </summary>
         [EnumMember(Value = "ComponentAddress")]
-        ComponentAddress = 26,
+        ComponentAddress = 27,
 
         /// <summary>
         /// Enum ResourceAddress for value: ResourceAddress
         /// </summary>
         [EnumMember(Value = "ResourceAddress")]
-        ResourceAddress = 27,
+        ResourceAddress = 28,
 
         /// <summary>
         /// Enum Hash for value: Hash
         /// </summary>
         [EnumMember(Value = "Hash")]
-        Hash = 28,
+        Hash = 29,
 
         /// <summary>
         /// Enum Bucket for value: Bucket
         /// </summary>
         [EnumMember(Value = "Bucket")]
-        Bucket = 29,
+        Bucket = 30,
 
         /// <summary>
         /// Enum Proof for value: Proof
         /// </summary>
         [EnumMember(Value = "Proof")]
-        Proof = 30,
+        Proof = 31,
+
+        /// <summary>
+        /// Enum Vault for value: Vault
+        /// </summary>
+        [EnumMember(Value = "Vault")]
+        Vault = 32,
 
         /// <summary>
         /// Enum NonFungibleId for value: NonFungibleId
         /// </summary>
         [EnumMember(Value = "NonFungibleId")]
-        NonFungibleId = 31,
+        NonFungibleId = 33,
 
         /// <summary>
         /// Enum NonFungibleAddress for value: NonFungibleAddress
         /// </summary>
         [EnumMember(Value = "NonFungibleAddress")]
-        NonFungibleAddress = 32,
+        NonFungibleAddress = 34,
 
         /// <summary>
         /// Enum Bytes for value: Bytes
         /// </summary>
         [EnumMember(Value = "Bytes")]
-        Bytes = 33
+        Bytes = 35,
+
+        /// <summary>
+        /// Enum KeyValueStore for value: KeyValueStore
+        /// </summary>
+        [EnumMember(Value = "KeyValueStore")]
+        KeyValueStore = 36,
+
+        /// <summary>
+        /// Enum EcdsaPublicKey for value: EcdsaPublicKey
+        /// </summary>
+        [EnumMember(Value = "EcdsaPublicKey")]
+        EcdsaPublicKey = 37,
+
+        /// <summary>
+        /// Enum EcdsaSignature for value: EcdsaSignature
+        /// </summary>
+        [EnumMember(Value = "EcdsaSignature")]
+        EcdsaSignature = 38,
+
+        /// <summary>
+        /// Enum Ed25519PublicKey for value: Ed25519PublicKey
+        /// </summary>
+        [EnumMember(Value = "Ed25519PublicKey")]
+        Ed25519PublicKey = 39,
+
+        /// <summary>
+        /// Enum Ed25519Signature for value: Ed25519Signature
+        /// </summary>
+        [EnumMember(Value = "Ed25519Signature")]
+        Ed25519Signature = 40
 
     }
 

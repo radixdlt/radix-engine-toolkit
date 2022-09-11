@@ -17,7 +17,9 @@ export type Request =
 	| DecompileNotarizedTransactionIntentRequest
 	| DecompileUnknownTransactionIntentRequest
 	| EncodeAddressRequest
-	| DecodeAddressRequest;
+	| DecodeAddressRequest
+	| SBOREncodeRequest
+	| SBORDecodeRequest;
 
 export type Response =
 	| InformationResponse
@@ -30,7 +32,9 @@ export type Response =
 	| DecompileNotarizedTransactionIntentResponse
 	| DecompileUnknownTransactionIntentResponse
 	| EncodeAddressResponse
-	| DecodeAddressResponse;
+	| DecodeAddressResponse
+	| SBOREncodeResponse
+	| SBORDecodeResponse;
 
 export interface InformationRequest {}
 

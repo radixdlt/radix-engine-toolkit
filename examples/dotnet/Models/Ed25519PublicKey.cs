@@ -24,39 +24,39 @@ using System.ComponentModel.DataAnnotations;
 namespace Models
 {
     /// <summary>
-    /// ComponentAddressAllOf
+    /// Ed25519PublicKey
     /// </summary>
     [DataContract]
-    public partial class ComponentAddressAllOf :  IEquatable<ComponentAddressAllOf>, IValidatableObject
+    public partial class Ed25519PublicKey : Value,  IEquatable<Ed25519PublicKey>, IValidatableObject
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentAddressAllOf" /> class.
+        /// Initializes a new instance of the <see cref="Ed25519PublicKey" /> class.
         /// </summary>
         [JsonConstructorAttribute]
-        protected ComponentAddressAllOf() { }
+        protected Ed25519PublicKey() { }
         /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentAddressAllOf" /> class.
+        /// Initializes a new instance of the <see cref="Ed25519PublicKey" /> class.
         /// </summary>
-        /// <param name="address">address (required).</param>
-        public ComponentAddressAllOf(string address = default(string))
+        /// <param name="publicKey">publicKey (required).</param>
+        public Ed25519PublicKey (string publicKey = default(string)) : base ("Ed25519PublicKey")
         {
-            // to ensure "address" is required (not null)
-            if (address == null)
+            // to ensure "publicKey" is required (not null)
+            if (publicKey == null)
             {
-                throw new InvalidDataException("address is a required property for ComponentAddressAllOf and cannot be null");
+                throw new InvalidDataException("publicKey is a required property for Ed25519PublicKey and cannot be null");
             }
             else
             {
-                this.Address = address;
+                this.PublicKey = publicKey;
             }
 
         }
 
         /// <summary>
-        /// Gets or Sets Address
+        /// Gets or Sets PublicKey
         /// </summary>
-        [DataMember(Name="address", EmitDefaultValue=true)]
-        public string Address { get; set; }
+        [DataMember(Name="public_key", EmitDefaultValue=true)]
+        public string PublicKey { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -65,8 +65,9 @@ namespace Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ComponentAddressAllOf {\n");
-            sb.Append("  Address: ").Append(Address).Append("\n");
+            sb.Append("class Ed25519PublicKey {\n");
+            sb.Append("  ").Append(base.ToString().Replace("\n", "\n  ")).Append("\n");
+            sb.Append("  PublicKey: ").Append(PublicKey).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -75,7 +76,7 @@ namespace Models
         /// Returns the JSON string presentation of the object
         /// </summary>
         /// <returns>JSON string presentation of the object</returns>
-        public virtual string ToJson()
+        public override string ToJson()
         {
             return Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
         }
@@ -87,24 +88,24 @@ namespace Models
         /// <returns>Boolean</returns>
         public override bool Equals(object input)
         {
-            return this.Equals(input as ComponentAddressAllOf);
+            return this.Equals(input as Ed25519PublicKey);
         }
 
         /// <summary>
-        /// Returns true if ComponentAddressAllOf instances are equal
+        /// Returns true if Ed25519PublicKey instances are equal
         /// </summary>
-        /// <param name="input">Instance of ComponentAddressAllOf to be compared</param>
+        /// <param name="input">Instance of Ed25519PublicKey to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(ComponentAddressAllOf input)
+        public bool Equals(Ed25519PublicKey input)
         {
             if (input == null)
                 return false;
 
-            return 
+            return base.Equals(input) && 
                 (
-                    this.Address == input.Address ||
-                    (this.Address != null &&
-                    this.Address.Equals(input.Address))
+                    this.PublicKey == input.PublicKey ||
+                    (this.PublicKey != null &&
+                    this.PublicKey.Equals(input.PublicKey))
                 );
         }
 
@@ -116,9 +117,9 @@ namespace Models
         {
             unchecked // Overflow is fine, just wrap
             {
-                int hashCode = 41;
-                if (this.Address != null)
-                    hashCode = hashCode * 59 + this.Address.GetHashCode();
+                int hashCode = base.GetHashCode();
+                if (this.PublicKey != null)
+                    hashCode = hashCode * 59 + this.PublicKey.GetHashCode();
                 return hashCode;
             }
         }
@@ -130,6 +131,7 @@ namespace Models
         /// <returns>Validation Result</returns>
         IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> IValidatableObject.Validate(ValidationContext validationContext)
         {
+            foreach(var x in base.BaseValidate(validationContext)) yield return x;
             yield break;
         }
     }
