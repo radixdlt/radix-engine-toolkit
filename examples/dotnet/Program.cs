@@ -145,10 +145,15 @@ Console.WriteLine("=========================\n");
 var notaryPrivateKey = new EthECKey("0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622");
 
 var compiledSignedIntent = Convert.FromHexString(compileSignedTransactionIntentResponse.CompiledSignedIntent);
-var compiledSignedIntentDoubleHash = computeDoubleHash(compiledIntent);
+var compiledSignedIntentDoubleHash = computeDoubleHash(compiledSignedIntent);
 
-var notarySignature = notaryPrivateKey.Sign(compiledIntentDoubleHash);
-string notarySignatureString = notarySignature.R.ToHex() + notarySignature.S.ToHex();
+var notarySignature = notaryPrivateKey.Sign(compiledSignedIntentDoubleHash);
+string notarySignatureString = Enumerable
+    .Repeat<Byte>(0, 64 - (notarySignature.R.Length + notarySignature.S.Length))
+    .Concat(notarySignature.R)
+    .Concat(notarySignature.S)
+    .ToArray()
+    .ToHex();
 
 var compileNotarizedTransactionIntentRequest = new NotarizedTransactionIntent(
     signedTransactionIntent,

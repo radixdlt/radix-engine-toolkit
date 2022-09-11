@@ -193,6 +193,8 @@ class CSharpModelGenerator(LanguageModelGenerator):
                     rf"public \1(string value = default(string)){{\n\t\t\tthis.{value_name} = value;\n\t\t}}",
                     content,
                 )
+                for key, value in instruction_replace_dict.items():
+                    content = content.replace(f'"{key}"', f'"{value}"')
 
             with open(model_file_path, "w") as file:
                 file.write(content)
