@@ -35,7 +35,7 @@ use crate::models::serde::*;
 // ======
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, PartialOrd, Ord)]
 #[serde(tag = "type")]
 
 // TODO: Consider extending the value type to support all `ScryptoType`s even if they do not have
@@ -182,7 +182,7 @@ pub enum Value {
     },
     Ed25519Signature {
         #[serde(with = "Ed25519SignatureDef")]
-        signature: EcdsaSignature,
+        signature: Ed25519Signature,
     },
 
     Bucket {

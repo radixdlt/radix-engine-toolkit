@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::collections::HashSet;
+use std::collections::{BTreeSet};
 use transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
 
 use crate::address::Bech32Manager;
@@ -39,7 +39,7 @@ pub enum Instruction {
         into_bucket: Value,
     },
     TakeFromWorktopByIds {
-        ids: HashSet<Value>,
+        ids: BTreeSet<Value>,
         resource_address: Value,
         into_bucket: Value,
     },
@@ -55,7 +55,7 @@ pub enum Instruction {
         resource_address: Value,
     },
     AssertWorktopContainsByIds {
-        ids: HashSet<Value>,
+        ids: BTreeSet<Value>,
         resource_address: Value,
     },
 
@@ -77,7 +77,7 @@ pub enum Instruction {
         into_proof: Value,
     },
     CreateProofFromAuthZoneByIds {
-        ids: HashSet<Value>,
+        ids: BTreeSet<Value>,
         resource_address: Value,
         into_proof: Value,
     },
