@@ -144,7 +144,7 @@ export interface SBORDecodeRequest {
 	network_id: number;
 }
 
-export type SBORDecodeResponse = Value
+export type SBORDecodeResponse = Value;
 
 // =======
 // Models

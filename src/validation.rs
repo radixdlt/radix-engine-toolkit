@@ -187,14 +187,91 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
             Ok(())
         }
         Response::CompileSignedTransactionIntentResponse(_) => Ok(()),
-        Response::DecompileSignedTransactionIntentResponse(_) => Ok(()),
+        Response::DecompileSignedTransactionIntentResponse(response) => {
+            validate_decompile_signed_transaction_intent_response(&response)?;
+            Ok(())
+        }
         Response::CompileNotarizedTransactionIntentResponse(_) => Ok(()),
-        Response::DecompileNotarizedTransactionIntentResponse(_) => Ok(()),
-        Response::DecompileUnknownTransactionIntentResponse(_) => Ok(()),
+        Response::DecompileNotarizedTransactionIntentResponse(response) => {
+            validate_decompile_notarized_transaction_intent_response(&response)?;
+            Ok(())
+        }
+        Response::DecompileUnknownTransactionIntentResponse(response) => {
+            validate_decompile_unknown_transaction_intent_response(&response)?;
+            Ok(())
+        },
         Response::DecodeAddressResponse(_) => Ok(()),
         Response::EncodeAddressResponse(_) => Ok(()),
         Response::SBOREncodeResponse(_) => Ok(()),
         Response::SBORDecodeResponse(_) => Ok(()),
+    }
+}
+
+fn response_transaction_validation_config(response: &Response) -> Option<ValidationConfig> {
+    match response {
+        Response::InformationResponse(_) => None,
+        Response::ConvertManifestResponse(_) => None,
+        Response::DecompileTransactionIntentResponse(response) => Some(ValidationConfig {
+            network_id: response.transaction_intent.header.network_id,
+            // Putting it to the epoch upper limit since we have no way of knowing what epoch it
+            // currently is. So, the epoch validation is not performed by the library.
+            current_epoch: response.transaction_intent.header.end_epoch_exclusive - 1,
+            max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
+            // This depends on the current state of the network which we have no way of querying
+            // from the WASM. Therefore, we assume it to be zero and let this validation part be
+            // handled by the client.
+            min_tip_percentage: 0,
+        }),
+        Response::CompileTransactionIntentResponse(_) => None,
+        Response::DecompileSignedTransactionIntentResponse(response) => Some(ValidationConfig {
+            network_id: response.signed_intent.transaction_intent.header.network_id,
+            // Putting it to the epoch upper limit since we have no way of knowing what epoch it
+            // currently is. So, the epoch validation is not performed by the library.
+            current_epoch: response
+                .signed_intent
+                .transaction_intent
+                .header
+                .end_epoch_exclusive
+                - 1,
+            max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
+            // This depends on the current state of the network which we have no way of querying
+            // from the WASM. Therefore, we assume it to be zero and let this validation part be
+            // handled by the client.
+            min_tip_percentage: 0,
+        }),
+        Response::CompileSignedTransactionIntentResponse(_) => None,
+        Response::DecompileNotarizedTransactionIntentResponse(response) => Some(ValidationConfig {
+            network_id: response.signed_intent.transaction_intent.header.network_id,
+            // Putting it to the epoch upper limit since we have no way of knowing what epoch it
+            // currently is. So, the epoch validation is not performed by the library.
+            current_epoch: response
+                .signed_intent
+                .transaction_intent
+                .header
+                .end_epoch_exclusive
+                - 1,
+            max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
+            // This depends on the current state of the network which we have no way of querying
+            // from the WASM. Therefore, we assume it to be zero and let this validation part be
+            // handled by the client.
+            min_tip_percentage: 0,
+        }),
+        Response::CompileNotarizedTransactionIntentResponse(_) => None,
+        Response::DecompileUnknownTransactionIntentResponse(response) => match response {
+            DecompileUnknownTransactionIntentResponse::TransactionIntent(response) => {
+                response_transaction_validation_config(&response.clone().into())
+            }
+            DecompileUnknownTransactionIntentResponse::SignedTransactionIntent(response) => {
+                response_transaction_validation_config(&response.clone().into())
+            }
+            DecompileUnknownTransactionIntentResponse::NotarizedTransactionIntent(response) => {
+                response_transaction_validation_config(&response.clone().into())
+            }
+        },
+        Response::DecodeAddressResponse(_) => None,
+        Response::EncodeAddressResponse(_) => None,
+        Response::SBOREncodeResponse(_) => None,
+        Response::SBORDecodeResponse(_) => None,
     }
 }
 
@@ -206,6 +283,58 @@ fn validate_decompile_transaction_intent_response(
         &response.transaction_intent.manifest,
         response.transaction_intent.header.network_id,
     )?;
+    Ok(())
+}
+
+fn validate_decompile_signed_transaction_intent_response(
+    response: &DecompileSignedTransactionIntentResponse,
+) -> Result<(), Error> {
+    validate_transaction_version(response.signed_intent.transaction_intent.header.version)?;
+    validate_manifest(
+        &response.signed_intent.transaction_intent.manifest,
+        response.signed_intent.transaction_intent.header.network_id,
+    )?;
+    validate_transaction_intent(
+        &response.signed_intent.transaction_intent,
+        response.signed_intent.transaction_intent.header.network_id,
+        &response_transaction_validation_config(&response.clone().into())
+            .expect("Obtaining the validation configuration for this request should succeed"),
+    )?;
+    Ok(())
+}
+
+fn validate_decompile_notarized_transaction_intent_response(
+    response: &DecompileNotarizedTransactionIntentResponse,
+) -> Result<(), Error> {
+    validate_transaction_version(response.signed_intent.transaction_intent.header.version)?;
+    validate_manifest(
+        &response.signed_intent.transaction_intent.manifest,
+        response.signed_intent.transaction_intent.header.network_id,
+    )?;
+    validate_notarized_transaction(
+        &response.signed_intent,
+        &response.notary_signature,
+        response.signed_intent.transaction_intent.header.network_id,
+        &response_transaction_validation_config(&response.clone().into())
+            .expect("Obtaining the validation configuration for this response should succeed"),
+    )?;
+    Ok(())
+}
+
+fn validate_decompile_unknown_transaction_intent_response(
+    response: &DecompileUnknownTransactionIntentResponse,
+) -> Result<(), Error> {
+    match response {
+        DecompileUnknownTransactionIntentResponse::TransactionIntent(response) => {
+            validate_decompile_transaction_intent_response(&response.clone().into())?
+        }
+        DecompileUnknownTransactionIntentResponse::SignedTransactionIntent(response) => {
+            validate_decompile_signed_transaction_intent_response(&response.clone().into())?
+        }
+        DecompileUnknownTransactionIntentResponse::NotarizedTransactionIntent(response) => {
+            validate_decompile_notarized_transaction_intent_response(&response.clone().into())?
+        }
+    }
     Ok(())
 }
 
