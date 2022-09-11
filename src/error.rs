@@ -3,24 +3,27 @@ use serde::Serialize;
 
 /// Represents an error encountered by the operations of the crate.
 ///
-/// This is the main error type used throughout this crate to represent errors of all kinds. This error enum is not
-/// meant consist of other error types (as values of its variants) for three mains reasons:
+/// This is the main error type used throughout this crate to represent errors of all kinds. This
+/// error enum is not meant consist of other error types (as values of its variants) for three
+/// mains reasons:
 ///
-/// 1. When errors are nested a few levels deep, their serialized representation looks very unintuitive and is not very
-/// easy to understand.
-/// 2. Modeling of non-nested errors is easier in other languages (such as TypeScript) which will be consuming and
-/// making use of this API.
-/// 3. Some errors can not be nested since they do not implement the `Serialize` trait and therefore Serde can not
-/// serialize them.
+/// 1. When errors are nested a few levels deep, their serialized representation looks very
+/// unintuitive and is not very easy to understand.
+/// 2. Modeling of non-nested errors is easier in other languages (such as TypeScript) which will be
+/// consuming and making use of this API.
+/// 3. Some errors can not be nested since they do not implement the `Serialize` trait and therefore
+/// Serde can not serialize them.
 ///
-/// Therefore, it is fine for variants of this enum to have values as long as these values are not error enums which
-/// need to be serialized.
+/// Therefore, it is fine for variants of this enum to have values as long as these values are not
+/// error enums which need to be serialized.
 ///
-/// Regarding the issue with certain errors not being serializable. An easy (but perhaps temporary) way of dealing with
-/// this is to represent these errors as `String`s. As an example, a `DecimalParseError` can not be represented as the
-/// following variant: `DecimalParseError(DecimalParseError)` since the `DecimalParseError` type does not implement
-/// `Serialize`. But, a variant can be created which holds a `String` value and a `From<DecimalParseError>` trait can be
-/// implemented for this error type to allow for `DecimalParseError` errors to be represented through this type.
+/// Regarding the issue with certain errors not being serializable. An easy (but perhaps temporary)
+/// way of dealing with this is to represent these errors as `String`s. As an example, a
+/// `DecimalParseError` can not be represented as the following variant:
+/// `DecimalParseError(DecimalParseError)` since the `DecimalParseError` type does not implement
+/// `Serialize`. But, a variant can be created which holds a `String` value and a
+/// `From<DecimalParseError>` trait can be implemented for this error type to allow for
+/// `DecimalParseError` errors to be represented through this type.
 #[derive(Serialize, Debug)]
 #[serde(tag = "error", content = "value")]
 pub enum Error {
@@ -49,9 +52,9 @@ pub enum Error {
     // ========================
     // Value Conversion Errors
     // ========================
-    /// An error emitted during the conversion from transaction::ast::Value => crate::Value. This error typically means
-    /// that the contents of some value were unexpected. An example of this is a package address being found inside of
-    /// a `transaction::ast::Value::Decimal`.
+    /// An error emitted during the conversion from transaction::ast::Value => crate::Value. This
+    /// error typically means that the contents of some value were unexpected. An example of this is
+    /// a package address being found inside of a `transaction::ast::Value::Decimal`.
     UnexpectedContents {
         kind: ValueKind,
         expected: Vec<ValueKind>,
@@ -69,6 +72,10 @@ pub enum Error {
 
     /// An error emitted when the parsing of a value from string fails.
     ParseError { kind: ValueKind, error: String },
+
+    /// An error emitted when encountering a value that does not have a manifest representation and
+    /// therefore a manifest can not be created containing this type.
+    NoManifestRepresentation { kind: ValueKind },
 
     // ==============================
     // Instruction Conversion Errors

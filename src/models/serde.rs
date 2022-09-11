@@ -32,11 +32,11 @@ pub struct EcdsaPublicKeyDef(#[serde(with = "hex::serde")] pub [u8; EcdsaPublicK
 pub struct EcdsaSignatureDef(#[serde(with = "hex::serde")] pub [u8; EcdsaSignature::LENGTH]);
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "EcdsaPublicKey")]
+#[serde(remote = "Ed25519PublicKey")]
 pub struct Ed25519PublicKeyDef(#[serde(with = "hex::serde")] pub [u8; Ed25519PublicKey::LENGTH]);
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "EcdsaSignature")]
+#[serde(remote = "Ed25519Signature")]
 pub struct Ed25519SignatureDef(#[serde(with = "hex::serde")] pub [u8; Ed25519Signature::LENGTH]);
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -93,7 +93,7 @@ impl<'de> Deserialize<'de> for RENodeId {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone, PartialOrd, Ord)]
 #[serde(untagged)]
 pub enum Identifier {
     String(String),
@@ -108,7 +108,7 @@ macro_rules! define_network_aware_address {
         $encoding_method_ident: ident,
         $decoding_method_ident: ident
     ) => {
-        #[derive(Debug, Clone, Hash, Eq, PartialEq)]
+        #[derive(Debug, Clone, Hash, Eq, PartialEq, PartialOrd, Ord)]
         pub struct $network_aware_struct_ident {
             pub network_id: u8,
             pub address: $underlying_type,

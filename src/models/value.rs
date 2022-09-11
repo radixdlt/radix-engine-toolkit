@@ -20,6 +20,7 @@ use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Decimal, EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey,
     Ed25519Signature, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal,
 };
+use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;
 use transaction::manifest::ast::Value as AstValue;
 
@@ -35,7 +36,7 @@ use crate::models::serde::*;
 // ======
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
 
 // TODO: Consider extending the value type to support all `ScryptoType`s even if they do not have
@@ -239,6 +240,7 @@ impl Value {
             Self::Decimal { .. } => ValueKind::Decimal,
             Self::PreciseDecimal { .. } => ValueKind::PreciseDecimal,
 
+            Self::Component { .. } => ValueKind::Component,
             Self::PackageAddress { .. } => ValueKind::PackageAddress,
             Self::ComponentAddress { .. } => ValueKind::ComponentAddress,
             Self::ResourceAddress { .. } => ValueKind::ResourceAddress,
@@ -247,11 +249,18 @@ impl Value {
 
             Self::Bucket { .. } => ValueKind::Bucket,
             Self::Proof { .. } => ValueKind::Proof,
+            Self::Vault { .. } => ValueKind::Vault,
 
             Self::NonFungibleId { .. } => ValueKind::NonFungibleId,
             Self::NonFungibleAddress { .. } => ValueKind::NonFungibleAddress,
 
             Self::Bytes { .. } => ValueKind::Bytes,
+            Self::KeyValueStore { .. } => ValueKind::KeyValueStore,
+
+            Self::EcdsaPublicKey { .. } => ValueKind::EcdsaPublicKey,
+            Self::EcdsaSignature { .. } => ValueKind::EcdsaSignature,
+            Self::Ed25519PublicKey { .. } => ValueKind::Ed25519PublicKey,
+            Self::Ed25519Signature { .. } => ValueKind::Ed25519Signature,
         }
     }
 
@@ -339,95 +348,62 @@ impl Value {
 // ValueKind
 // ==========
 
-macro_rules! define_value_kind{
-    (
-     $(#[$meta:meta])*
-     $vis:vis enum $enum_ident:ident {
-        $(
-            $(#[$variant_metadata:meta])*
-            $variant_ident:ident
-        ),*$(,)*
-    }
-    ) => {
-        $(#[$meta])*
-        $vis enum $enum_ident {
-            $(
-                $(#[$variant_metadata])*
-                $variant_ident,
-            )*
-        }
+#[repr(C)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ValueKind {
+    Unit,
+    Bool,
 
-        impl Into<transaction::manifest::ast::Type> for $enum_ident {
-            fn into(self) -> transaction::manifest::ast::Type {
-                match self {
-                    $(
-                        Self::$variant_ident => transaction::manifest::ast::Type::$variant_ident,
-                    )*
-                }
-            }
-        }
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
 
-        impl From<transaction::manifest::ast::Type> for $enum_ident {
-            fn from(value: transaction::manifest::ast::Type) -> $enum_ident {
-                match value {
-                    $(
-                        transaction::manifest::ast::Type::$variant_ident => Self::$variant_ident,
-                    )*
-                }
-            }
-        }
-    }
-}
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
 
-define_value_kind! {
-    #[derive(Serialize, Deserialize, Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
-    pub enum ValueKind {
-        Unit,
-        Bool,
+    String,
 
-        I8,
-        I16,
-        I32,
-        I64,
-        I128,
+    Struct,
+    Enum,
 
-        U8,
-        U16,
-        U32,
-        U64,
-        U128,
+    Option,
+    Array,
+    Tuple,
+    Result,
 
-        String,
+    List,
+    Set,
+    Map,
 
-        Struct,
-        Enum,
+    Decimal,
+    PreciseDecimal,
 
-        Option,
-        Array,
-        Tuple,
-        Result,
+    Component,
+    PackageAddress,
+    ComponentAddress,
+    ResourceAddress,
 
-        List,
-        Set,
-        Map,
+    Hash,
 
-        Decimal,
-        PreciseDecimal,
+    Bucket,
+    Proof,
+    Vault,
 
-        PackageAddress,
-        ComponentAddress,
-        ResourceAddress,
+    NonFungibleId,
+    NonFungibleAddress,
 
-        Hash,
+    KeyValueStore,
+    Bytes,
 
-        Bucket,
-        Proof,
-
-        NonFungibleId,
-        NonFungibleAddress,
-
-        Bytes,
-    }
+    EcdsaPublicKey,
+    EcdsaSignature,
+    Ed25519PublicKey,
+    Ed25519Signature,
 }
 
 impl ValueKind {
@@ -463,10 +439,12 @@ impl ValueKind {
             Self::Map => TYPE_MAP,
 
             Self::Bytes => TYPE_LIST,
+            Self::KeyValueStore => ScryptoType::KeyValueStore.id(),
 
             Self::Decimal => ScryptoType::Decimal.id(),
             Self::PreciseDecimal => ScryptoType::PreciseDecimal.id(),
 
+            Self::Component => ScryptoType::Component.id(),
             Self::PackageAddress => ScryptoType::PackageAddress.id(),
             Self::ResourceAddress => ScryptoType::ResourceAddress.id(),
             Self::ComponentAddress => ScryptoType::ComponentAddress.id(),
@@ -475,9 +453,15 @@ impl ValueKind {
 
             Self::Bucket => ScryptoType::Bucket.id(),
             Self::Proof => ScryptoType::Proof.id(),
+            Self::Vault => ScryptoType::Vault.id(),
 
             Self::NonFungibleId => ScryptoType::NonFungibleId.id(),
             Self::NonFungibleAddress => ScryptoType::NonFungibleAddress.id(),
+
+            Self::EcdsaPublicKey => ScryptoType::EcdsaPublicKey.id(),
+            Self::EcdsaSignature => ScryptoType::EcdsaSignature.id(),
+            Self::Ed25519PublicKey => ScryptoType::Ed25519PublicKey.id(),
+            Self::Ed25519Signature => ScryptoType::Ed25519Signature.id(),
         }
     }
 
@@ -512,41 +496,143 @@ impl ValueKind {
             TYPE_SET => Self::Set,
             TYPE_MAP => Self::Map,
 
-            type_id => {
-                match ScryptoType::from_id(type_id) {
-                    Some(scrypto_type) => {
-                        match scrypto_type {
-                            ScryptoType::Decimal => Self::Decimal,
-                            ScryptoType::PreciseDecimal => Self::PreciseDecimal,
-                            ScryptoType::PackageAddress => Self::PackageAddress,
-                            ScryptoType::ResourceAddress => Self::ResourceAddress,
-                            ScryptoType::ComponentAddress => Self::ComponentAddress,
-                            ScryptoType::Hash => Self::Hash,
-                            ScryptoType::Bucket => Self::Bucket,
-                            ScryptoType::Proof => Self::Proof,
-                            ScryptoType::NonFungibleId => Self::NonFungibleId,
-                            ScryptoType::NonFungibleAddress => Self::NonFungibleAddress,
+            type_id => match ScryptoType::from_id(type_id) {
+                Some(scrypto_type) => match scrypto_type {
+                    ScryptoType::Decimal => Self::Decimal,
+                    ScryptoType::PreciseDecimal => Self::PreciseDecimal,
+                    ScryptoType::PackageAddress => Self::PackageAddress,
+                    ScryptoType::ResourceAddress => Self::ResourceAddress,
+                    ScryptoType::ComponentAddress => Self::ComponentAddress,
+                    ScryptoType::Hash => Self::Hash,
+                    ScryptoType::Bucket => Self::Bucket,
+                    ScryptoType::Proof => Self::Proof,
+                    ScryptoType::NonFungibleId => Self::NonFungibleId,
+                    ScryptoType::NonFungibleAddress => Self::NonFungibleAddress,
+                    ScryptoType::Component => Self::Component,
+                    ScryptoType::Vault => Self::Vault,
+                    ScryptoType::EcdsaPublicKey => Self::EcdsaPublicKey,
+                    ScryptoType::EcdsaSignature => Self::EcdsaSignature,
+                    ScryptoType::Ed25519PublicKey => Self::Ed25519PublicKey,
+                    ScryptoType::Ed25519Signature => Self::Ed25519Signature,
+                    ScryptoType::KeyValueStore => Self::KeyValueStore,
+                },
+                None => return Err(Error::UnknownTypeId { type_id }),
+            },
+        };
+        Ok(value_kind)
+    }
+}
 
-                            // The following Scrypto types do not map to any `ValueKind` since they
-                            // are not currently supported in the transaction manifest. Once they
-                            // are supported, they should be added to the `Value` and `ValueKind`
-                            // enums and have this fixed here.
-                            ScryptoType::Component
-                            | ScryptoType::Vault
-                            | ScryptoType::EcdsaPublicKey
-                            | ScryptoType::EcdsaSignature
-                            | ScryptoType::Ed25519PublicKey
-                            | ScryptoType::Ed25519Signature
-                            | ScryptoType::KeyValueStore => {
-                                return Err(Error::UnknownTypeId { type_id })
-                            }
-                        }
-                    }
-                    None => return Err(Error::UnknownTypeId { type_id }),
-                }
+impl TryInto<transaction::manifest::ast::Type> for ValueKind {
+    type Error = Error;
+
+    fn try_into(self) -> Result<transaction::manifest::ast::Type, Self::Error> {
+        let value_kind = match self {
+            Self::Unit => transaction::manifest::ast::Type::Unit,
+
+            Self::Bool => transaction::manifest::ast::Type::Bool,
+            Self::I8 => transaction::manifest::ast::Type::I8,
+            Self::I16 => transaction::manifest::ast::Type::I16,
+            Self::I32 => transaction::manifest::ast::Type::I32,
+            Self::I64 => transaction::manifest::ast::Type::I64,
+            Self::I128 => transaction::manifest::ast::Type::I128,
+
+            Self::U8 => transaction::manifest::ast::Type::U8,
+            Self::U16 => transaction::manifest::ast::Type::U16,
+            Self::U32 => transaction::manifest::ast::Type::U32,
+            Self::U64 => transaction::manifest::ast::Type::U64,
+            Self::U128 => transaction::manifest::ast::Type::U128,
+
+            Self::String => transaction::manifest::ast::Type::String,
+
+            Self::Struct => transaction::manifest::ast::Type::Struct,
+            Self::Enum => transaction::manifest::ast::Type::Enum,
+
+            Self::Option => transaction::manifest::ast::Type::Option,
+            Self::Array => transaction::manifest::ast::Type::Array,
+            Self::Tuple => transaction::manifest::ast::Type::Tuple,
+            Self::Result => transaction::manifest::ast::Type::Result,
+
+            Self::List => transaction::manifest::ast::Type::List,
+            Self::Set => transaction::manifest::ast::Type::Set,
+            Self::Map => transaction::manifest::ast::Type::Map,
+
+            Self::Decimal => transaction::manifest::ast::Type::Decimal,
+            Self::PreciseDecimal => transaction::manifest::ast::Type::PreciseDecimal,
+
+            Self::PackageAddress => transaction::manifest::ast::Type::PackageAddress,
+            Self::ComponentAddress => transaction::manifest::ast::Type::ComponentAddress,
+            Self::ResourceAddress => transaction::manifest::ast::Type::ResourceAddress,
+
+            Self::Hash => transaction::manifest::ast::Type::Hash,
+
+            Self::Bucket => transaction::manifest::ast::Type::Bucket,
+            Self::Proof => transaction::manifest::ast::Type::Proof,
+
+            Self::NonFungibleId => transaction::manifest::ast::Type::NonFungibleId,
+            Self::NonFungibleAddress => transaction::manifest::ast::Type::NonFungibleAddress,
+            Self::Bytes => transaction::manifest::ast::Type::Bytes,
+
+            Self::Component
+            | Self::Vault
+            | Self::EcdsaPublicKey
+            | Self::EcdsaSignature
+            | Self::Ed25519PublicKey
+            | Self::Ed25519Signature
+            | Self::KeyValueStore => {
+                return Err(Error::NoManifestRepresentation { kind: self.clone() })
             }
         };
         Ok(value_kind)
+    }
+}
+impl From<transaction::manifest::ast::Type> for ValueKind {
+    fn from(value: transaction::manifest::ast::Type) -> ValueKind {
+        match value {
+            transaction::manifest::ast::Type::Unit => Self::Unit,
+            transaction::manifest::ast::Type::Bool => Self::Bool,
+
+            transaction::manifest::ast::Type::I8 => Self::I8,
+            transaction::manifest::ast::Type::I16 => Self::I16,
+            transaction::manifest::ast::Type::I32 => Self::I32,
+            transaction::manifest::ast::Type::I64 => Self::I64,
+            transaction::manifest::ast::Type::I128 => Self::I128,
+            transaction::manifest::ast::Type::U8 => Self::U8,
+            transaction::manifest::ast::Type::U16 => Self::U16,
+            transaction::manifest::ast::Type::U32 => Self::U32,
+            transaction::manifest::ast::Type::U64 => Self::U64,
+            transaction::manifest::ast::Type::U128 => Self::U128,
+
+            transaction::manifest::ast::Type::String => Self::String,
+
+            transaction::manifest::ast::Type::Struct => Self::Struct,
+            transaction::manifest::ast::Type::Enum => Self::Enum,
+
+            transaction::manifest::ast::Type::Option => Self::Option,
+            transaction::manifest::ast::Type::Array => Self::Array,
+            transaction::manifest::ast::Type::Tuple => Self::Tuple,
+            transaction::manifest::ast::Type::Result => Self::Result,
+
+            transaction::manifest::ast::Type::List => Self::List,
+            transaction::manifest::ast::Type::Set => Self::Set,
+            transaction::manifest::ast::Type::Map => Self::Map,
+
+            transaction::manifest::ast::Type::Decimal => Self::Decimal,
+            transaction::manifest::ast::Type::PreciseDecimal => Self::PreciseDecimal,
+
+            transaction::manifest::ast::Type::PackageAddress => Self::PackageAddress,
+            transaction::manifest::ast::Type::ComponentAddress => Self::ComponentAddress,
+            transaction::manifest::ast::Type::ResourceAddress => Self::ResourceAddress,
+
+            transaction::manifest::ast::Type::Hash => Self::Hash,
+
+            transaction::manifest::ast::Type::Bucket => Self::Bucket,
+            transaction::manifest::ast::Type::Proof => Self::Proof,
+
+            transaction::manifest::ast::Type::NonFungibleId => Self::NonFungibleId,
+            transaction::manifest::ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
+            transaction::manifest::ast::Type::Bytes => Self::Bytes,
+        }
     }
 }
 
@@ -606,7 +692,7 @@ pub fn ast_value_from_value(
         Value::Array {
             element_type,
             elements,
-        } => AstValue::Array((*element_type).into(), {
+        } => AstValue::Array((*element_type).try_into()?, {
             value.validate_if_collection()?;
             elements
                 .iter()
@@ -623,7 +709,7 @@ pub fn ast_value_from_value(
         Value::List {
             element_type,
             elements,
-        } => AstValue::List((*element_type).into(), {
+        } => AstValue::List((*element_type).try_into()?, {
             value.validate_if_collection()?;
             elements
                 .iter()
@@ -633,7 +719,7 @@ pub fn ast_value_from_value(
         Value::Set {
             element_type,
             elements,
-        } => AstValue::Set((*element_type).into(), {
+        } => AstValue::Set((*element_type).try_into()?, {
             value.validate_if_collection()?;
             elements
                 .iter()
@@ -645,8 +731,8 @@ pub fn ast_value_from_value(
             value_type: values_type,
             elements,
         } => AstValue::Map(
-            (*keys_type).into(),
-            (*values_type).into(),
+            (*keys_type).try_into()?,
+            (*values_type).try_into()?,
             elements
                 .iter()
                 .map(|v| ast_value_from_value(v, bech32_manager))
@@ -700,6 +786,16 @@ pub fn ast_value_from_value(
         }
 
         Value::Bytes { value } => AstValue::Bytes(value.clone()),
+
+        Value::Component { .. }
+        | Value::Vault { .. }
+        | Value::EcdsaPublicKey { .. }
+        | Value::EcdsaSignature { .. }
+        | Value::Ed25519PublicKey { .. }
+        | Value::Ed25519Signature { .. }
+        | Value::KeyValueStore { .. } => {
+            return Err(Error::NoManifestRepresentation { kind: value.kind() })
+        }
     };
     Ok(ast_value)
 }
@@ -1067,6 +1163,9 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         Value::Decimal { value } => decode_any(&scrypto_encode(value))?,
         Value::PreciseDecimal { value } => decode_any(&scrypto_encode(value))?,
 
+        Value::Component { address } => decode_any(&scrypto_encode(
+            &scrypto::prelude::Component::from(address.address),
+        ))?,
         Value::ComponentAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::ResourceAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::PackageAddress { address } => decode_any(&scrypto_encode(&address.address))?,
@@ -1096,11 +1195,28 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 ))
             }?
         }
+        Value::Vault { identifier } => {
+            decode_any(&scrypto_encode(&scrypto::prelude::Vault(identifier.0)))?
+        }
 
         Value::NonFungibleId { value } => decode_any(&scrypto_encode(value))?,
         Value::NonFungibleAddress { address } => decode_any(&scrypto_encode(address))?,
 
         Value::Bytes { value } => decode_any(&scrypto_encode(value))?,
+        Value::KeyValueStore { identifier } => decode_any(&scrypto_encode(
+            // TODO: This might not be correct due to the generics. Required more investigation.
+            &scrypto::prelude::KeyValueStore {
+                id: identifier.0,
+                key: std::marker::PhantomData::<()>,
+                value: std::marker::PhantomData::<()>,
+            },
+        ))?,
+
+        Value::EcdsaPublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
+        Value::EcdsaSignature { signature } => decode_any(&scrypto_encode(signature))?,
+
+        Value::Ed25519PublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
+        Value::Ed25519Signature { signature } => decode_any(&scrypto_encode(signature))?,
     };
     Ok(value)
 }
@@ -1208,72 +1324,91 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                 .collect::<Result<Vec<_>, _>>()?,
         },
 
-        SborValue::Custom { type_id, bytes: _ } => {
-            match ScryptoType::from_id(*type_id) {
-                Some(scrypto_type) => {
-                    match scrypto_type {
-                        ScryptoType::Decimal => Value::Decimal {
-                            value: scrypto_decode(&encode_any(&value))?,
-                        },
-                        ScryptoType::PreciseDecimal => Value::PreciseDecimal {
-                            value: scrypto_decode(&encode_any(&value))?,
-                        },
-                        ScryptoType::PackageAddress => Value::PackageAddress {
-                            address: NetworkAwarePackageAddress {
-                                address: scrypto_decode(&encode_any(&value))?,
-                                network_id,
-                            },
-                        },
-                        ScryptoType::ComponentAddress => Value::ComponentAddress {
-                            address: NetworkAwareComponentAddress {
-                                address: scrypto_decode(&encode_any(&value))?,
-                                network_id,
-                            },
-                        },
-                        ScryptoType::ResourceAddress => Value::ResourceAddress {
-                            address: NetworkAwareResourceAddress {
-                                address: scrypto_decode(&encode_any(&value))?,
-                                network_id,
-                            },
-                        },
-                        ScryptoType::Hash => Value::Hash {
-                            value: scrypto_decode(&encode_any(&value))?,
-                        },
-                        ScryptoType::Bucket => Value::Bucket {
-                            identifier: Identifier::U32(
-                                scrypto_decode::<scrypto::prelude::Bucket>(&encode_any(&value))?.0,
-                            ),
-                        },
-                        ScryptoType::Proof => Value::Proof {
-                            identifier: Identifier::U32(
-                                scrypto_decode::<scrypto::prelude::Proof>(&encode_any(&value))?.0,
-                            ),
-                        },
-                        ScryptoType::NonFungibleId => Value::NonFungibleId {
-                            value: scrypto_decode(&encode_any(&value))?,
-                        },
-                        ScryptoType::NonFungibleAddress => Value::NonFungibleAddress {
-                            address: scrypto_decode(&encode_any(&value))?,
-                        },
+        SborValue::Custom { type_id, bytes: _ } => match ScryptoType::from_id(*type_id) {
+            Some(scrypto_type) => match scrypto_type {
+                ScryptoType::Decimal => Value::Decimal {
+                    value: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::PreciseDecimal => Value::PreciseDecimal {
+                    value: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::Component => {
+                    let component_address_ref: &[u8] =
+                        &scrypto_decode::<scrypto::prelude::ComponentAddress>(&encode_any(&value))?
+                            .to_vec();
 
-                        // The following Scrypto types do not map to any `ValueKind` since they
-                        // are not currently supported in the transaction manifest. Once they
-                        // are supported, they should be added to the `Value` and `ValueKind`
-                        // enums and have this fixed here.
-                        ScryptoType::Component
-                        | ScryptoType::Vault
-                        | ScryptoType::EcdsaPublicKey
-                        | ScryptoType::EcdsaSignature
-                        | ScryptoType::Ed25519PublicKey
-                        | ScryptoType::Ed25519Signature
-                        | ScryptoType::KeyValueStore => {
-                            return Err(Error::UnknownTypeId { type_id: *type_id })
-                        }
+                    Value::Component {
+                        address: NetworkAwareComponentAddress {
+                            network_id,
+                            address: scrypto::prelude::ComponentAddress::try_from(
+                                component_address_ref,
+                            )?,
+                        },
                     }
                 }
-                None => return Err(Error::UnknownTypeId { type_id: *type_id }),
-            }
-        }
+                ScryptoType::PackageAddress => Value::PackageAddress {
+                    address: NetworkAwarePackageAddress {
+                        network_id,
+                        address: scrypto_decode(&encode_any(&value))?,
+                    },
+                },
+                ScryptoType::ComponentAddress => Value::ComponentAddress {
+                    address: NetworkAwareComponentAddress {
+                        network_id,
+                        address: scrypto_decode(&encode_any(&value))?,
+                    },
+                },
+                ScryptoType::ResourceAddress => Value::ResourceAddress {
+                    address: NetworkAwareResourceAddress {
+                        network_id,
+                        address: scrypto_decode(&encode_any(&value))?,
+                    },
+                },
+                ScryptoType::Hash => Value::Hash {
+                    value: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::Bucket => Value::Bucket {
+                    identifier: Identifier::U32(
+                        scrypto_decode::<scrypto::prelude::Bucket>(&encode_any(&value))?.0,
+                    ),
+                },
+                ScryptoType::Proof => Value::Proof {
+                    identifier: Identifier::U32(
+                        scrypto_decode::<scrypto::prelude::Proof>(&encode_any(&value))?.0,
+                    ),
+                },
+                ScryptoType::Vault => Value::Vault {
+                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(&value))?
+                        .0
+                        .into(),
+                },
+                ScryptoType::NonFungibleId => Value::NonFungibleId {
+                    value: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::NonFungibleAddress => Value::NonFungibleAddress {
+                    address: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::KeyValueStore => Value::KeyValueStore {
+                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(&value))?
+                        .0
+                        .into(),
+                },
+
+                ScryptoType::EcdsaPublicKey => Value::EcdsaPublicKey {
+                    public_key: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::EcdsaSignature => Value::EcdsaSignature {
+                    signature: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::Ed25519PublicKey => Value::Ed25519PublicKey {
+                    public_key: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::Ed25519Signature => Value::Ed25519Signature {
+                    signature: scrypto_decode(&encode_any(&value))?,
+                },
+            },
+            None => return Err(Error::UnknownTypeId { type_id: *type_id }),
+        },
     };
     value.validate_if_collection()?;
     Ok(value)
