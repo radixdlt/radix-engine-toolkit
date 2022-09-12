@@ -155,11 +155,9 @@ const main = async (): Promise<void> => {
 		transactionService.compileSignedTransactionIntent(
 			compileSignedTransactionIntentRequest
 		) as CompileSignedTransactionIntentResponse;
-	console.log(JSON.stringify(compileSignedTransactionIntentRequest, null, 4));
 	console.log("======= Example 5 =======");
 	console.log(JSON.stringify(compileSignedTransactionIntentResponse, null, 4));
 	console.log("=========================", "\n");
-	return;
 
 	// Example 6: Just like we have done with the previous examples, anything that is compiled down
 	// can be decompiled again. In this case, the compiled signed transaction intent can be

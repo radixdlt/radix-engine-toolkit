@@ -164,11 +164,11 @@ export interface Hash {
 
 export interface Bucket {
 	readonly type: ValueKind.Bucket;
-	value: number; // 32-bit unsigned number
+	identifier: number | string; // 32-bit unsigned number
 }
 export interface Proof {
 	readonly type: ValueKind.Proof;
-	value: number; // 32-bit unsigned number
+	identifier: number | string; // 32-bit unsigned number
 }
 export interface Vault {
 	readonly type: ValueKind.Vault;
