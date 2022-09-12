@@ -46,9 +46,8 @@ This section lists all of the functions available in this library, what they are
 
 ### Convert Manifest
 
-| | |
-| ------------- | ------------------ |
 | Function Name | `convert_manifest` |
+| ------------- | ------------------ |
 | Functionality | Clients have a need to be able to read, parse, understand, and interrogate transaction manifests to get more information on what a transactions might be doing. Transaction manifests have so far existed in one format: as strings. While the string format is very human readable, it is not easily readable by machines as a lexer and parser are needed to make sense of them; thus, it is for clients to programmatically make sense of transactions. As such, there is a need for another transaction manifest format (to supplement, **NOT** replace) which machines can easily make sense of without the need to implement a lexer and parser.</br></br>Therefore, this library introduces a JSON format for transaction manifests which clients can use when wanting to read and interrogate their transaction manifests in code. The transaction manifest JSON format has a 1:1 mapping to the string format of transaction manifests, meaning that anything which can be done in the string format of transaction manifests, can be done in the JSON format as well.</br></br>This function allows the client the convert their manifest between the two supported manifest types: string and JSON. 
 | Request Type  | `ConvertManifestRequest` |
 | Response Type | `ConvertManifestResponse` |
