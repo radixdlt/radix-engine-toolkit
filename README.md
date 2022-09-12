@@ -1381,3 +1381,216 @@ This section lists all of the functions available in this library, what they are
 }
 ```
 </details>
+
+
+### Bech32m Encode Address
+
+| Function Name | `encode_address` |
+| ------------- | :----------------- |
+| Functionality | This function can be used when we have a byte array which we wish to do Bech32m encoding on. In this case, the HRP to use will be determined through the entity byte of the passed address hex string. |
+| Request Type  | `EncodeAddressRequest` |
+| Response Type | `EncodeAddressResponse` |
+
+<details>
+    <summary>Request Example</summary>
+  
+```json
+{
+    "network_id": 1,
+    "address": "01ce8be5eb98800c15e6942d27e373599c18a19e08a53378341d2a"
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+  
+```json
+{
+    "type": "PackageAddress",
+    "address": "package_rdx1q88ghe0tnzqqc90xjskj0cmntxwp3gv7pzjnx7p5r54q5e29qu"
+}
+```
+</details>
+
+
+### Bech32m Decode Address
+
+| Function Name | `decode_address` |
+| ------------- | :----------------- |
+| Functionality | This function can be used to decode a Bech32m encoded address string into its equivalent hrp and data. In addition to that, this function provides other useful information on the address such as the network id and name that it is used for, and the entity type of the address. |
+| Request Type  | `DecodeAddressRequest` |
+| Response Type | `DecodeAddressResponse` |
+
+<details>
+    <summary>Request Example</summary>
+  
+```json
+{
+    "address": "package_rdx1q88ghe0tnzqqc90xjskj0cmntxwp3gv7pzjnx7p5r54q5e29qu"
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+  
+```json
+{
+    "network_id": 1,
+    "network_name": "mainnet",
+    "entity_type": "Package",
+    "data": "01ce8be5eb98800c15e6942d27e373599c18a19e08a53378341d2a",
+    "hrp": "package_rdx",
+    "address": {
+        "type": "PackageAddress",
+        "address": "package_rdx1q88ghe0tnzqqc90xjskj0cmntxwp3gv7pzjnx7p5r54q5e29qu"
+    }
+}
+```
+</details>
+
+### SBOR Encode Value
+
+| Function Name | `sbor_encode` |
+| ------------- | :----------------- |
+| Functionality | This function takes in a `Value` and encodes it in SBOR. |
+| Request Type  | `SBOREncodeRequest` |
+| Response Type | `SBOREncodeResponse` |
+
+<details>
+    <summary>Request Example</summary>
+  
+```json
+{
+    "type": "Map",
+    "key_type": "String",
+    "value_type": "Decimal",
+    "elements": [
+        {
+            "type": "String",
+            "value": "Toyota Camry"
+        },
+        {
+            "type": "Decimal",
+            "value": "80000"
+        },
+        
+        {
+            "type": "String",
+            "value": "Ford Raptor"
+        },
+        {
+            "type": "Decimal",
+            "value": "170000"
+        }
+    ]
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+  
+```json
+{
+    "encoded_value": "320ca1020000000c000000546f796f74612043616d72792000000000000092d54d06cff010000000000000000000000000000000000000000000000b000000466f726420526170746f7220000000000040d66565edb7ff2300000000000000000000000000000000000000000000"
+}
+```
+</details>
+
+### SBOR Decode Value
+
+| Function Name | `sbor_decode` |
+| ------------- | :----------------- |
+| Functionality | This function takes in a hex string and attemps to decode it into a `Value`. |
+| Request Type  | `SBORDecodeRequest` |
+| Response Type | `SBORDecodeResponse` |
+
+<details>
+    <summary>Request Example</summary>
+  
+```json
+{
+    "encoded_value": "300710000000eb34e880acbd6ba9a67d0ed58d7122fa",
+    "network_id": 242
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+  
+```json
+{
+    "type": "List",
+    "element_type": "U8",
+    "elements": [
+        {
+            "type": "U8",
+            "value": "235"
+        },
+        {
+            "type": "U8",
+            "value": "52"
+        },
+        {
+            "type": "U8",
+            "value": "232"
+        },
+        {
+            "type": "U8",
+            "value": "128"
+        },
+        {
+            "type": "U8",
+            "value": "172"
+        },
+        {
+            "type": "U8",
+            "value": "189"
+        },
+        {
+            "type": "U8",
+            "value": "107"
+        },
+        {
+            "type": "U8",
+            "value": "169"
+        },
+        {
+            "type": "U8",
+            "value": "166"
+        },
+        {
+            "type": "U8",
+            "value": "125"
+        },
+        {
+            "type": "U8",
+            "value": "14"
+        },
+        {
+            "type": "U8",
+            "value": "213"
+        },
+        {
+            "type": "U8",
+            "value": "141"
+        },
+        {
+            "type": "U8",
+            "value": "113"
+        },
+        {
+            "type": "U8",
+            "value": "34"
+        },
+        {
+            "type": "U8",
+            "value": "250"
+        }
+    ]
+}
+```
+</details>

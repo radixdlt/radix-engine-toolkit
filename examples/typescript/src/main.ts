@@ -21,6 +21,10 @@ import {
 	DecompileNotarizedTransactionIntentResponse,
 	DecompileUnknownTransactionIntentRequest,
 	DecompileUnknownTransactionIntentResponse,
+	EncodeAddressRequest,
+	DecodeAddressRequest,
+	SBOREncodeRequest,
+	SBORDecodeRequest,
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";

@@ -28,8 +28,8 @@ link_handler! {
 
     decompile_unknown_transaction_intent => handle_decompile_unknown_transaction_intent,
 
-    decode_address => handle_decode_address,
     encode_address => handle_encode_address,
+    decode_address => handle_decode_address,
 
     sbor_encode => handle_sbor_encode,
     sbor_decode => handle_sbor_decode
