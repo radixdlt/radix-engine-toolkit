@@ -4,8 +4,8 @@ import * as Instruction from './instruction';
 export default class ManifestBuilder {
     instructions: Instruction.Instruction[];
     
-    constructor() {
-        this.instructions = [];
+    constructor(instructions?: Instruction.Instruction[]) {
+        this.instructions = instructions ?? [];
     }
 
     callFunction(
@@ -364,5 +364,9 @@ export default class ManifestBuilder {
             }
         })
         return this
+    }
+
+    build(): Instruction.Instruction[] {
+        return this.instructions
     }
 }
