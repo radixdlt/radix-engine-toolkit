@@ -80,8 +80,8 @@ const main = async (): Promise<void> => {
 	};
 
 	let compileTransactionIntentRequest: CompileTransactionIntentRequest = {
-		manifest,
 		header: transactionHeader,
+		manifest,
 	};
 	let compileTransactionIntentResponse: CompileTransactionIntentResponse =
 		transactionService.compileTransactionIntent(

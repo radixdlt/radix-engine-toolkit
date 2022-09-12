@@ -48,7 +48,7 @@ This section lists all of the functions available in this library, what they are
 
 | Function Name | `convert_manifest` |
 | ------------- | :----------------- |
-| Functionality | Clients have a need to be able to read, parse, understand, and interrogate transaction manifests to get more information on what a transactions might be doing. Transaction manifests have so far existed in one format: as strings. While the string format is very human readable, it is not easily readable by machines as a lexer and parser are needed to make sense of them; thus, it is for clients to programmatically make sense of transactions. As such, there is a need for another transaction manifest format (to supplement, **NOT** replace) which machines can easily make sense of without the need to implement a lexer and parser.</br></br>Therefore, this library introduces a JSON format for transaction manifests which clients can use when wanting to read and interrogate their transaction manifests in code. The transaction manifest JSON format has a 1:1 mapping to the string format of transaction manifests, meaning that anything which can be done in the string format of transaction manifests, can be done in the JSON format as well.</br></br>This function allows the client the convert their manifest between the two supported manifest types: string and JSON. 
+| Functionality | Clients have a need to be able to read, parse, understand, and interrogate transaction manifests to get more information on what a transactions might be doing. Transaction manifests have so far existed in one format: as strings. While the string format is very human readable, it is not easily readable by machines as a lexer and parser are needed to make sense of them; thus, it is for clients to programmatically make sense of transactions. As such, there is a need for another transaction manifest format (to supplement, **NOT** replace) which machines can easily make sense of without the need to implement a lexer and parser.</br></br>Therefore, this library introduces a JSON format for transaction manifests which clients can use when wanting to read and interrogate their transaction manifests in code. The transaction manifest JSON format has a 1:1 mapping to the string format of transaction manifests, meaning that anything which can be done in the string format of transaction manifests, can be done in the JSON format as well.</br></br>This function allows the client the convert their manifest between the two supported manifest types: string and JSON. |
 | Request Type  | `ConvertManifestRequest` |
 | Response Type | `ConvertManifestResponse` |
 
@@ -299,6 +299,48 @@ This section lists all of the functions available in this library, what they are
             ]
         }
     ]
+}
+```
+</details>
+
+### Compile Transaction Intent
+
+| Function Name | `compile_transaction_intent` |
+| ------------- | :----------------- |
+| Functionality | Takes a transaction intent and compiles it by SBOR encoding it and returning it back to the caller. This is mainly useful when creating a transaction. |
+| Request Type  | `CompileTransactionIntentRequest` |
+| Response Type | `CompileTransactionIntentResponse` |
+
+<details>
+    <summary>Request Example</summary>
+  
+```json
+{
+    "header": {
+        "version": 1,
+        "network_id": 242,
+        "start_epoch_inclusive": 0,
+        "end_epoch_exclusive": 32,
+        "nonce": 0,
+        "notary_public_key": "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
+        "notary_as_signatory": false,
+        "cost_unit_limit": 0,
+        "tip_percentage": 0
+    },
+    "manifest": {
+        "type": "String",
+        "value": "# Withdraw XRD from account\nCALL_METHOD\n\tComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n\t\"withdraw_by_amount\"\n\tDecimal(\"5.0\")\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\n\n# Buy GUM with XRD\nTAKE_FROM_WORKTOP_BY_AMOUNT\n\tDecimal(\"2.0\")\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n\tBucket(\"xrd\");\nCALL_METHOD\n\tComponentAddress(\"component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum\")\n\t\"buy_gumball\"\n\tBucket(\"xrd\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n\tDecimal(\"3.0\")\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nASSERT_WORKTOP_CONTAINS\n\tResourceAddress(\"resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6\");\n\n# Create a proof from bucket, clone it and drop both\nTAKE_FROM_WORKTOP\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n\tBucket(\"1u32\");\nCREATE_PROOF_FROM_BUCKET\n\tBucket(\"1u32\")\n\tProof(\"proof1\");\nCLONE_PROOF\n\tProof(\"proof1\")\n\tProof(\"proof2\");\nDROP_PROOF\n\tProof(\"proof1\");\nDROP_PROOF\n\tProof(\"proof2\");\n\n# Create a proof from account and drop it\nCALL_METHOD\n\tComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n\t\"create_proof_by_amount\"\n\tDecimal(\"5.0\")\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nPOP_FROM_AUTH_ZONE\n\tProof(\"proof3\");\nDROP_PROOF\n\tProof(\"proof3\");\n\n# Return a bucket to worktop\nRETURN_TO_WORKTOP\n\tBucket(\"1u32\");\nTAKE_FROM_WORKTOP_BY_IDS\n\tSet<NonFungibleId>(NonFungibleId(\"0905000000\"),NonFungibleId(\"0907000000\"))\n\tResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n\tBucket(\"nfts\");\n\n# Cancel all buckets and move resources to account\nCALL_METHOD_WITH_ALL_RESOURCES\n\tComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n\t\"deposit_batch\";\n\n# Drop all proofs\nDROP_ALL_PROOFS;\n\n# Two ways of publishing package through manifest\nPUBLISH_PACKAGE\n\tBytes(\"10020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c1000000000\");\n\n# Complicated method that takes all of the number types\nCALL_METHOD\n\tComponentAddress(\"component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum\")\n\t\"complicated_method\"\n\tDecimal(\"1\")\n\tPreciseDecimal(\"2\");"
+    }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+  
+```json
+{
+    "compiled_intent": "10020000001009000000070107f20a00000000000000000a20000000000000000a00000000000000009121000000031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f9396901000900000000090000000010010000003011130000000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c1200000077697468647261775f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000041700000054616b6546726f6d576f726b746f704279416d6f756e7402000000a1200000000000c84e676dc11b000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c0b0000006275795f67756d62616c6c30070e0000001001000000b104000000000200001d000000417373657274576f726b746f70436f6e7461696e734279416d6f756e7402000000a12000000000002cf61a24a229000000000000000000000000000000000000000000000000b61b00000000000000000000000000000000000000000000000000000000000415000000417373657274576f726b746f70436f6e7461696e7301000000b61b00000000aedb7960d1f87dc25138f4cd101da6c98d57323478d53c5fb9510f00000054616b6546726f6d576f726b746f7001000000b61b0000000000000000000000000000000000000000000000000000000000041500000043726561746550726f6f6646726f6d4275636b65740100000009010200000a000000436c6f6e6550726f6f660100000009020200000900000044726f7050726f6f660100000009020200000900000044726f7050726f6f660100000009030200000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c160000006372656174655f70726f6f665f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040f000000506f7046726f6d417574685a6f6e65000000000900000044726f7050726f6f660100000009040200000f00000052657475726e546f576f726b746f700100000009010200001400000054616b6546726f6d576f726b746f7042794964730200000031b402000000050000000905000000050000000907000000b61b0000000000000000000000000000000000000000000000000000000000041a00000043616c6c4d6574686f6457697468416c6c5265736f757263657302000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c0d0000006465706f7369745f62617463680d00000044726f70416c6c50726f6f6673000000000e0000005075626c6973685061636b616765010000003007d200000010020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c10000000000a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c12000000636f6d706c6963617465645f6d6574686f6430076f0000001002000000a120000000000064a7b3b6e00d000000000000000000000000000000000000000000000000a2400000000000000000000000023ed47ec9da71dcda2f4fb5e9f37fd2079e3000000000000000000000000000000000000000000000000000000000000000000000000000"
 }
 ```
 </details>
