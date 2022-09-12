@@ -11,6 +11,7 @@
 //    string identifiers for buckets and proofs. We should look into this.
 
 using System.Security.Cryptography;
+using System.Reflection;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Signer;
 using Nethereum.Signer.Crypto;
@@ -25,8 +26,9 @@ byte[] computeDoubleHash(byte[] array)
 }
 
 // Defining the paths where the WASM module and the sample complex.rtm file are at
-const System.String wasmModulePath = "../../target/wasm32-unknown-unknown/release/transaction_library.wasm";
-const System.String manifestFilePath = "../complex.rtm";
+var executableDirPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+var wasmModulePath = Path.Combine(executableDirPath, "wasm", "transaction_library.wasm");
+var manifestFilePath = Path.Combine(executableDirPath, "complex.rtm");
 
 var manifestStr = File.ReadAllText(manifestFilePath);
 var manifestString = new ManifestString(manifestStr);

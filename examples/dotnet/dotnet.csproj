@@ -12,6 +12,13 @@
     <PackageReference Include="Nethereum.Web3" Version="4.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="WebAssembly" Version="1.2.1" />
+
+    <Content Include="../complex.rtm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="wasm/transaction_library.wasm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

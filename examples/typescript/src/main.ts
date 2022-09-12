@@ -25,11 +25,13 @@ import {
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
 import { ValueKind } from "./value";
+import path from "path";
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
-	const path: string = "../../target/wasm32-unknown-unknown/release/transaction_library.wasm";
-	const transactionService: TransactionService = await TransactionService.fromPath(path);
+	const scriptDir = __dirname;
+	const wasmModulePath: string = path.join(scriptDir, "transaction_library.wasm")
+	const transactionService: TransactionService = await TransactionService.fromPath(wasmModulePath);
 
 	// Example 1: Printing the information of the transaction service. This is essentially the
 	// "Hello World" of this project. If the information of the package is printed correctly, then
@@ -42,7 +44,8 @@ const main = async (): Promise<void> => {
 	// to convert manifests from one format to another. In this example, we will read the manifest
 	// file in the `examples` directory and convert it to a JSON manifest through the transaction
 	// library.
-	let manifestString: string = fs.readFileSync("../complex.rtm", "utf-8");
+	const manifestFilePath: string = path.join(scriptDir, "complex.rtm")
+	let manifestString: string = fs.readFileSync(manifestFilePath, "utf-8");
 	let manifest: Manifest = {
 		type: ManifestKind.String,
 		value: manifestString,
