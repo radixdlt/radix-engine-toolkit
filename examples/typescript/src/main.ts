@@ -24,7 +24,6 @@ import {
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
-import { ValueKind } from "./value";
 import path from "path";
 
 const main = async (): Promise<void> => {
