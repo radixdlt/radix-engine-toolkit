@@ -35,7 +35,7 @@ link_handler! {
     sbor_decode => handle_sbor_decode
 }
 
-fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
+pub fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
     // Process the request
     let response: InformationResponse = InformationResponse {
         package_version: env!("CARGO_PKG_VERSION").into(),
@@ -44,7 +44,7 @@ fn handle_information(_request: InformationRequest) -> Result<InformationRespons
     Ok(response)
 }
 
-fn handle_convert_manifest(
+pub fn handle_convert_manifest(
     request: ConvertManifestRequest,
 ) -> Result<ConvertManifestResponse, Error> {
     let bech32_manager: Bech32Manager = Bech32Manager::new(request.network_id);
@@ -63,7 +63,7 @@ fn handle_convert_manifest(
     Ok(response)
 }
 
-fn handle_compile_transaction_intent(
+pub fn handle_compile_transaction_intent(
     request: CompileTransactionIntentRequest,
 ) -> Result<CompileTransactionIntentResponse, Error> {
     let bech32_manager: Bech32Manager =
@@ -88,7 +88,7 @@ fn handle_compile_transaction_intent(
     Ok(response)
 }
 
-fn handle_decompile_transaction_intent(
+pub fn handle_decompile_transaction_intent(
     request: DecompileTransactionIntentRequest,
 ) -> Result<DecompileTransactionIntentResponse, Error> {
     let transaction_intent: transaction::model::TransactionIntent =
@@ -109,7 +109,7 @@ fn handle_decompile_transaction_intent(
     Ok(response)
 }
 
-fn handle_compile_signed_transaction_intent(
+pub fn handle_compile_signed_transaction_intent(
     request: CompileSignedTransactionIntentRequest,
 ) -> Result<CompileSignedTransactionIntentResponse, Error> {
     let bech32_manager: Bech32Manager =
@@ -146,7 +146,7 @@ fn handle_compile_signed_transaction_intent(
     Ok(response)
 }
 
-fn handle_decompile_signed_transaction_intent(
+pub fn handle_decompile_signed_transaction_intent(
     request: DecompileSignedTransactionIntentRequest,
 ) -> Result<DecompileSignedTransactionIntentResponse, Error> {
     let signed_transaction_intent: transaction::model::SignedTransactionIntent =
@@ -180,7 +180,7 @@ fn handle_decompile_signed_transaction_intent(
     Ok(response)
 }
 
-fn handle_compile_notarized_transaction_intent(
+pub fn handle_compile_notarized_transaction_intent(
     request: CompileNotarizedTransactionIntentRequest,
 ) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
     let bech32_manager: Bech32Manager =
@@ -221,7 +221,7 @@ fn handle_compile_notarized_transaction_intent(
     Ok(response)
 }
 
-fn handle_decompile_notarized_transaction_intent(
+pub fn handle_decompile_notarized_transaction_intent(
     request: DecompileNotarizedTransactionIntentRequest,
 ) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
     let notarized_transaction_intent: transaction::model::NotarizedTransaction =
@@ -263,7 +263,7 @@ fn handle_decompile_notarized_transaction_intent(
     Ok(response)
 }
 
-fn handle_decompile_unknown_transaction_intent(
+pub fn handle_decompile_unknown_transaction_intent(
     request: DecompileUnknownTransactionIntentRequest,
 ) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
     let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
@@ -282,7 +282,7 @@ fn handle_decompile_unknown_transaction_intent(
     Ok(response)
 }
 
-fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddressResponse, Error> {
+pub fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddressResponse, Error> {
     // We need to deduce the network from the HRP of the passed address. Therefore, we need to begin
     // by decoding the address, and getting the HRP.
     let (hrp, data, variant): (String, Vec<u5>, Variant) =
@@ -341,7 +341,7 @@ fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddressR
     Ok(response)
 }
 
-fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressResponse, Error> {
+pub fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressResponse, Error> {
     let address: &[u8] = &request.address;
     let response: Address = if let Ok(resource_address) =
         scrypto::prelude::ResourceAddress::try_from(address)
@@ -370,14 +370,14 @@ fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressR
     Ok(response)
 }
 
-fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeResponse, Error> {
+pub fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeResponse, Error> {
     let response: SBOREncodeResponse = SBOREncodeResponse {
         encoded_value: request.value.encode()?,
     };
     Ok(response)
 }
 
-fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeResponse, Error> {
+pub fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeResponse, Error> {
     let response: SBORDecodeResponse = SBORDecodeResponse {
         value: Value::decode(&request.encoded_value, request.network_id)?,
     };
