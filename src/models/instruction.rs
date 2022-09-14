@@ -24,10 +24,6 @@ pub enum Instruction {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
-    CallMethodWithAllResources {
-        component_address: Value,
-        method: Value,
-    },
 
     TakeFromWorktop {
         resource_address: Value,
@@ -97,7 +93,8 @@ pub enum Instruction {
     DropAllProofs,
 
     PublishPackage {
-        package: Value,
+        code: Value,
+        abi: Value
     },
 }
 
@@ -134,14 +131,6 @@ impl Instruction {
                     .iter()
                     .map(|arg| arg.validate_if_collection())
                     .collect::<Result<Vec<()>, Error>>()?;
-                Ok(())
-            }
-            Self::CallMethodWithAllResources {
-                component_address,
-                method,
-            } => {
-                component_address.validate_kind(ValueKind::ComponentAddress)?;
-                method.validate_kind(ValueKind::String)?;
                 Ok(())
             }
 
@@ -261,8 +250,9 @@ impl Instruction {
             }
             Self::DropAllProofs => Ok(()),
 
-            Self::PublishPackage { package } => {
-                package.validate_kind(ValueKind::Bytes)?;
+            Self::PublishPackage { code, abi } => {
+                code.validate_kind(ValueKind::Blob)?;
+                abi.validate_kind(ValueKind::Blob)?;
                 Ok(())
             }
         }
@@ -309,13 +299,6 @@ pub fn ast_instruction_from_instruction(
                 .iter()
                 .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
-        },
-        Instruction::CallMethodWithAllResources {
-            component_address,
-            method,
-        } => AstInstruction::CallMethodWithAllResources {
-            component_address: ast_value_from_value(component_address, bech32_manager)?,
-            method: ast_value_from_value(method, bech32_manager)?,
         },
 
         Instruction::TakeFromWorktop {
@@ -440,8 +423,9 @@ pub fn ast_instruction_from_instruction(
             proof: ast_value_from_value(proof, bech32_manager)?,
         },
         Instruction::DropAllProofs => AstInstruction::DropAllProofs,
-        Instruction::PublishPackage { package } => AstInstruction::PublishPackage {
-            package: ast_value_from_value(package, bech32_manager)?,
+        Instruction::PublishPackage { code, abi } => AstInstruction::PublishPackage {
+            code: ast_value_from_value(code, bech32_manager)?,
+            abi: ast_value_from_value(abi, bech32_manager)?,
         },
     };
     Ok(ast_instruction)
@@ -492,13 +476,6 @@ pub fn instruction_from_ast_instruction(
                     _ => Some(arguments),
                 }
             },
-        },
-        AstInstruction::CallMethodWithAllResources {
-            component_address,
-            method,
-        } => Instruction::CallMethodWithAllResources {
-            component_address: value_from_ast_value(component_address, bech32_manager)?,
-            method: value_from_ast_value(method, bech32_manager)?,
         },
 
         AstInstruction::TakeFromWorktop {
@@ -622,8 +599,9 @@ pub fn instruction_from_ast_instruction(
             proof: value_from_ast_value(proof, bech32_manager)?,
         },
         AstInstruction::DropAllProofs => Instruction::DropAllProofs,
-        AstInstruction::PublishPackage { package } => Instruction::PublishPackage {
-            package: value_from_ast_value(package, bech32_manager)?,
+        AstInstruction::PublishPackage { code, abi } => Instruction::PublishPackage {
+            code: value_from_ast_value(code, bech32_manager)?,
+            abi: value_from_ast_value(abi, bech32_manager)?,
         },
     };
     Ok(instruction)
