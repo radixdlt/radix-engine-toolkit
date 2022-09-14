@@ -1,4 +1,3 @@
-use std::convert::TryFrom;
 use std::str::FromStr;
 
 use bech32::Variant;
@@ -8,9 +7,6 @@ use scrypto::prelude::{scrypto_decode, scrypto_encode};
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::link_handler;
-use crate::models::serde::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-};
 use crate::models::*;
 use crate::utils::*;
 
