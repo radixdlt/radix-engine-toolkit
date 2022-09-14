@@ -30,10 +30,10 @@ namespace Models
     public partial class DecompileTransactionIntentRequestAllOf :  IEquatable<DecompileTransactionIntentRequestAllOf>, IValidatableObject
     {
         /// <summary>
-        /// Gets or Sets ManifestOutputFormat
+        /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestOutputFormat { get; set; }
+        [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
+        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequestAllOf" /> class.
         /// </summary>
@@ -42,17 +42,17 @@ namespace Models
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequestAllOf" /> class.
         /// </summary>
-        /// <param name="manifestOutputFormat">manifestOutputFormat (required).</param>
-        public DecompileTransactionIntentRequestAllOf(ManifestKind manifestOutputFormat = default(ManifestKind))
+        /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
+        public DecompileTransactionIntentRequestAllOf(ManifestKind manifestInstructionsOutputFormat = default(ManifestKind))
         {
-            // to ensure "manifestOutputFormat" is required (not null)
-            if (manifestOutputFormat == null)
+            // to ensure "manifestInstructionsOutputFormat" is required (not null)
+            if (manifestInstructionsOutputFormat == null)
             {
-                throw new InvalidDataException("manifestOutputFormat is a required property for DecompileTransactionIntentRequestAllOf and cannot be null");
+                throw new InvalidDataException("manifestInstructionsOutputFormat is a required property for DecompileTransactionIntentRequestAllOf and cannot be null");
             }
             else
             {
-                this.ManifestOutputFormat = manifestOutputFormat;
+                this.ManifestInstructionsOutputFormat = manifestInstructionsOutputFormat;
             }
 
         }
@@ -66,7 +66,7 @@ namespace Models
         {
             var sb = new StringBuilder();
             sb.Append("class DecompileTransactionIntentRequestAllOf {\n");
-            sb.Append("  ManifestOutputFormat: ").Append(ManifestOutputFormat).Append("\n");
+            sb.Append("  ManifestInstructionsOutputFormat: ").Append(ManifestInstructionsOutputFormat).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -102,9 +102,9 @@ namespace Models
 
             return 
                 (
-                    this.ManifestOutputFormat == input.ManifestOutputFormat ||
-                    (this.ManifestOutputFormat != null &&
-                    this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
+                    this.ManifestInstructionsOutputFormat == input.ManifestInstructionsOutputFormat ||
+                    (this.ManifestInstructionsOutputFormat != null &&
+                    this.ManifestInstructionsOutputFormat.Equals(input.ManifestInstructionsOutputFormat))
                 );
         }
 
@@ -117,8 +117,8 @@ namespace Models
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                if (this.ManifestOutputFormat != null)
-                    hashCode = hashCode * 59 + this.ManifestOutputFormat.GetHashCode();
+                if (this.ManifestInstructionsOutputFormat != null)
+                    hashCode = hashCode * 59 + this.ManifestInstructionsOutputFormat.GetHashCode();
                 return hashCode;
             }
         }

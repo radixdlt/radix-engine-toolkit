@@ -105,6 +105,9 @@ pub enum Error {
 
     /// An error emitted when attempting to validate a transaction fails.
     TransactionValidationError(String),
+
+    /// An error emitted when the extraction of the package ABI fails.
+    ExtractAbiError(String),
 }
 
 macro_rules! impl_from_error {
@@ -156,4 +159,6 @@ impl_from_error! {
     transaction::manifest::generator::GeneratorError => GeneratorError,
     transaction::errors::TransactionValidationError => TransactionValidationError,
     transaction::errors::SignatureValidationError => TransactionValidationError,
+
+    radix_engine::model::ExtractAbiError => ExtractAbiError,
 }

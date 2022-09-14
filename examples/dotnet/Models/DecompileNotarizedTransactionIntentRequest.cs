@@ -30,10 +30,10 @@ namespace Models
     public partial class DecompileNotarizedTransactionIntentRequest :  IEquatable<DecompileNotarizedTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
-        /// Gets or Sets ManifestOutputFormat
+        /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestOutputFormat { get; set; }
+        [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
+        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileNotarizedTransactionIntentRequest" /> class.
         /// </summary>
@@ -43,8 +43,8 @@ namespace Models
         /// Initializes a new instance of the <see cref="DecompileNotarizedTransactionIntentRequest" /> class.
         /// </summary>
         /// <param name="compiledNotarizedIntent">compiledNotarizedIntent (required).</param>
-        /// <param name="manifestOutputFormat">manifestOutputFormat (required).</param>
-        public DecompileNotarizedTransactionIntentRequest(string compiledNotarizedIntent = default(string), ManifestKind manifestOutputFormat = default(ManifestKind))
+        /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
+        public DecompileNotarizedTransactionIntentRequest(string compiledNotarizedIntent = default(string), ManifestKind manifestInstructionsOutputFormat = default(ManifestKind))
         {
             // to ensure "compiledNotarizedIntent" is required (not null)
             if (compiledNotarizedIntent == null)
@@ -56,14 +56,14 @@ namespace Models
                 this.CompiledNotarizedIntent = compiledNotarizedIntent;
             }
 
-            // to ensure "manifestOutputFormat" is required (not null)
-            if (manifestOutputFormat == null)
+            // to ensure "manifestInstructionsOutputFormat" is required (not null)
+            if (manifestInstructionsOutputFormat == null)
             {
-                throw new InvalidDataException("manifestOutputFormat is a required property for DecompileNotarizedTransactionIntentRequest and cannot be null");
+                throw new InvalidDataException("manifestInstructionsOutputFormat is a required property for DecompileNotarizedTransactionIntentRequest and cannot be null");
             }
             else
             {
-                this.ManifestOutputFormat = manifestOutputFormat;
+                this.ManifestInstructionsOutputFormat = manifestInstructionsOutputFormat;
             }
 
         }
@@ -84,7 +84,7 @@ namespace Models
             var sb = new StringBuilder();
             sb.Append("class DecompileNotarizedTransactionIntentRequest {\n");
             sb.Append("  CompiledNotarizedIntent: ").Append(CompiledNotarizedIntent).Append("\n");
-            sb.Append("  ManifestOutputFormat: ").Append(ManifestOutputFormat).Append("\n");
+            sb.Append("  ManifestInstructionsOutputFormat: ").Append(ManifestInstructionsOutputFormat).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -125,9 +125,9 @@ namespace Models
                     this.CompiledNotarizedIntent.Equals(input.CompiledNotarizedIntent))
                 ) && 
                 (
-                    this.ManifestOutputFormat == input.ManifestOutputFormat ||
-                    (this.ManifestOutputFormat != null &&
-                    this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
+                    this.ManifestInstructionsOutputFormat == input.ManifestInstructionsOutputFormat ||
+                    (this.ManifestInstructionsOutputFormat != null &&
+                    this.ManifestInstructionsOutputFormat.Equals(input.ManifestInstructionsOutputFormat))
                 );
         }
 
@@ -142,8 +142,8 @@ namespace Models
                 int hashCode = 41;
                 if (this.CompiledNotarizedIntent != null)
                     hashCode = hashCode * 59 + this.CompiledNotarizedIntent.GetHashCode();
-                if (this.ManifestOutputFormat != null)
-                    hashCode = hashCode * 59 + this.ManifestOutputFormat.GetHashCode();
+                if (this.ManifestInstructionsOutputFormat != null)
+                    hashCode = hashCode * 59 + this.ManifestInstructionsOutputFormat.GetHashCode();
                 return hashCode;
             }
         }

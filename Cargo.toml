@@ -12,8 +12,8 @@ serde_json = { version = "1.0.85" }
 serde_with = { version = "2.0.0", features = ["hex"] }
 
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement" }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement", features = ["serde"] }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "misc/misc-alphanet-improvement" }
 
 [profile.release]

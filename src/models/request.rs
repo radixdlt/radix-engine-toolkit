@@ -55,6 +55,7 @@ define_request_response_enum! {
         EncodeAddressRequest(EncodeAddressRequest),
         SBOREncodeRequest(SBOREncodeRequest),
         SBORDecodeRequest(SBORDecodeRequest),
+        ExtractAbiRequest(ExtractAbiRequest)
     }
 }
 
@@ -73,5 +74,6 @@ define_request_response_enum! {
         EncodeAddressResponse(EncodeAddressResponse),
         SBOREncodeResponse(SBOREncodeResponse),
         SBORDecodeResponse(SBORDecodeResponse),
+        ExtractAbiResponse(ExtractAbiResponse)
     }
 }

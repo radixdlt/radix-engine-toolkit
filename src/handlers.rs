@@ -1,8 +1,11 @@
+use std::collections::HashMap;
 use std::str::FromStr;
 
 use bech32::Variant;
 use bech32::{self, u5, FromBase32};
-use scrypto::prelude::{scrypto_decode, scrypto_encode};
+
+use radix_engine::model::extract_abi as engine_extract_abi;
+use scrypto::prelude::{scrypto_decode, scrypto_encode, SignatureWithPublicKey};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -30,7 +33,9 @@ link_handler! {
     decode_address => handle_decode_address,
 
     sbor_encode => handle_sbor_encode,
-    sbor_decode => handle_sbor_decode
+    sbor_decode => handle_sbor_decode,
+
+    extract_abi => handle_extract_abi
 }
 
 pub fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -50,12 +55,17 @@ pub fn handle_convert_manifest(
     // Process the request Convert between the manifest formats.
     // TODO: This needs to be dependent on the version of the manifest. For now, the
     // `transaction_version` in the request is ignored.
-    let converted_manifest: Manifest = request
-        .manifest
-        .to(request.manifest_output_format, &bech32_manager)?;
+    let converted_manifest_instructions: ManifestInstructions = request.manifest.instructions.to(
+        request.manifest_instructions_output_format,
+        &bech32_manager,
+        request.manifest.blobs.clone(),
+    )?;
 
     let response: ConvertManifestResponse = ConvertManifestResponse {
-        manifest: converted_manifest,
+        manifest: TransactionManifest {
+            instructions: converted_manifest_instructions,
+            blobs: request.manifest.blobs,
+        },
     };
 
     Ok(response)
@@ -72,7 +82,11 @@ pub fn handle_compile_transaction_intent(
     let manifest: transaction::model::TransactionManifest = request
         .transaction_intent
         .manifest
-        .to_scrypto_transaction_manifest(&bech32_manager)?;
+        .instructions
+        .to_scrypto_transaction_manifest(
+            &bech32_manager,
+            request.transaction_intent.manifest.blobs,
+        )?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.transaction_intent.header,
@@ -91,16 +105,20 @@ pub fn handle_decompile_transaction_intent(
 ) -> Result<DecompileTransactionIntentResponse, Error> {
     let transaction_intent: transaction::model::TransactionIntent =
         scrypto_decode(&request.compiled_intent)?;
-    let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
-        transaction_intent.manifest,
-        &Bech32Manager::new(transaction_intent.header.network_id),
-        request.manifest_output_format,
-    )?;
+    let manifest_instructions: ManifestInstructions =
+        ManifestInstructions::from_scrypto_transaction_manifest(
+            &transaction_intent.manifest,
+            &Bech32Manager::new(transaction_intent.header.network_id),
+            request.manifest_instructions_output_format,
+        )?;
 
     let response: DecompileTransactionIntentResponse = DecompileTransactionIntentResponse {
         transaction_intent: TransactionIntent {
             header: transaction_intent.header,
-            manifest: manifest,
+            manifest: TransactionManifest {
+                instructions: manifest_instructions,
+                blobs: transaction_intent.manifest.blobs,
+            },
         },
     };
 
@@ -113,23 +131,17 @@ pub fn handle_compile_signed_transaction_intent(
     let bech32_manager: Bech32Manager =
         Bech32Manager::new(request.signed_intent.transaction_intent.header.network_id);
 
-    let manifest: transaction::model::TransactionManifest = request
-        .signed_intent
-        .transaction_intent
-        .manifest
-        .to_scrypto_transaction_manifest(&bech32_manager)?;
+    let manifest: TransactionManifest = request.signed_intent.transaction_intent.manifest;
+    let manifest: transaction::model::TransactionManifest = manifest
+        .instructions
+        .to_scrypto_transaction_manifest(&bech32_manager, manifest.blobs)?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.signed_intent.transaction_intent.header,
             manifest,
         };
 
-    let signatures: Vec<(_, _)> = request
-        .signed_intent
-        .signatures
-        .into_iter()
-        .map(|signature| (signature.public_key, signature.signature))
-        .collect();
+    let signatures: Vec<SignatureWithPublicKey> = request.signed_intent.signatures;
     let signed_transaction_intent: transaction::model::SignedTransactionIntent =
         transaction::model::SignedTransactionIntent {
             intent: transaction_intent,
@@ -150,19 +162,13 @@ pub fn handle_decompile_signed_transaction_intent(
     let signed_transaction_intent: transaction::model::SignedTransactionIntent =
         scrypto_decode(&request.compiled_signed_intent)?;
 
-    let signatures: Vec<Signature> = signed_transaction_intent
-        .intent_signatures
-        .into_iter()
-        .map(|(public_key, signature)| Signature {
-            signature,
-            public_key,
-        })
-        .collect();
-    let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
-        signed_transaction_intent.intent.manifest,
-        &Bech32Manager::new(signed_transaction_intent.intent.header.network_id),
-        request.manifest_output_format,
-    )?;
+    let signatures: Vec<SignatureWithPublicKey> = signed_transaction_intent.intent_signatures;
+    let manifest_instructions: ManifestInstructions =
+        ManifestInstructions::from_scrypto_transaction_manifest(
+            &signed_transaction_intent.intent.manifest,
+            &Bech32Manager::new(signed_transaction_intent.intent.header.network_id),
+            request.manifest_instructions_output_format,
+        )?;
 
     let response: DecompileSignedTransactionIntentResponse =
         DecompileSignedTransactionIntentResponse {
@@ -170,7 +176,10 @@ pub fn handle_decompile_signed_transaction_intent(
                 signatures,
                 transaction_intent: TransactionIntent {
                     header: signed_transaction_intent.intent.header,
-                    manifest,
+                    manifest: TransactionManifest {
+                        instructions: manifest_instructions,
+                        blobs: signed_transaction_intent.intent.manifest.blobs,
+                    },
                 },
             },
         };
@@ -184,23 +193,17 @@ pub fn handle_compile_notarized_transaction_intent(
     let bech32_manager: Bech32Manager =
         Bech32Manager::new(request.signed_intent.transaction_intent.header.network_id);
 
-    let manifest: transaction::model::TransactionManifest = request
-        .signed_intent
-        .transaction_intent
-        .manifest
-        .to_scrypto_transaction_manifest(&bech32_manager)?;
+    let manifest: TransactionManifest = request.signed_intent.transaction_intent.manifest;
+    let manifest: transaction::model::TransactionManifest = manifest
+        .instructions
+        .to_scrypto_transaction_manifest(&bech32_manager, manifest.blobs)?;
     let transaction_intent: transaction::model::TransactionIntent =
         transaction::model::TransactionIntent {
             header: request.signed_intent.transaction_intent.header,
             manifest,
         };
 
-    let signatures: Vec<(_, _)> = request
-        .signed_intent
-        .signatures
-        .into_iter()
-        .map(|signature| (signature.public_key, signature.signature))
-        .collect();
+    let signatures: Vec<SignatureWithPublicKey> = request.signed_intent.signatures;
     let notarized_transaction: transaction::model::NotarizedTransaction =
         transaction::model::NotarizedTransaction {
             signed_intent: transaction::model::SignedTransactionIntent {
@@ -225,26 +228,20 @@ pub fn handle_decompile_notarized_transaction_intent(
     let notarized_transaction_intent: transaction::model::NotarizedTransaction =
         scrypto_decode(&request.compiled_notarized_intent)?;
 
-    let signatures: Vec<Signature> = notarized_transaction_intent
-        .signed_intent
-        .intent_signatures
-        .into_iter()
-        .map(|(public_key, signature)| Signature {
-            signature,
-            public_key,
-        })
-        .collect();
-    let manifest: Manifest = Manifest::from_scrypto_transaction_manifest(
-        notarized_transaction_intent.signed_intent.intent.manifest,
-        &Bech32Manager::new(
-            notarized_transaction_intent
-                .signed_intent
-                .intent
-                .header
-                .network_id,
-        ),
-        request.manifest_output_format,
-    )?;
+    let signatures: Vec<SignatureWithPublicKey> =
+        notarized_transaction_intent.signed_intent.intent_signatures;
+    let manifest_instructions: ManifestInstructions =
+        ManifestInstructions::from_scrypto_transaction_manifest(
+            &notarized_transaction_intent.signed_intent.intent.manifest,
+            &Bech32Manager::new(
+                notarized_transaction_intent
+                    .signed_intent
+                    .intent
+                    .header
+                    .network_id,
+            ),
+            request.manifest_instructions_output_format,
+        )?;
 
     let response: DecompileNotarizedTransactionIntentResponse =
         DecompileNotarizedTransactionIntentResponse {
@@ -252,7 +249,15 @@ pub fn handle_decompile_notarized_transaction_intent(
                 signatures,
                 transaction_intent: TransactionIntent {
                     header: notarized_transaction_intent.signed_intent.intent.header,
-                    manifest,
+                    manifest: TransactionManifest {
+                        instructions: manifest_instructions,
+                        blobs: notarized_transaction_intent
+                            .signed_intent
+                            .intent
+                            .manifest
+                            .blobs
+                            .clone(),
+                    },
                 },
             },
             notary_signature: notarized_transaction_intent.notary_signature,
@@ -329,6 +334,16 @@ pub fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeRespon
 pub fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeResponse, Error> {
     let response: SBORDecodeResponse = SBORDecodeResponse {
         value: Value::decode(&request.encoded_value, request.network_id)?,
+    };
+    Ok(response)
+}
+
+pub fn handle_extract_abi(request: ExtractAbiRequest) -> Result<ExtractAbiResponse, Error> {
+    let abi: HashMap<String, radix_engine::types::BlueprintAbi> =
+        engine_extract_abi(&request.package_wasm)?;
+    let response: ExtractAbiResponse = ExtractAbiResponse {
+        abi: scrypto_encode(&abi),
+        code: request.package_wasm,
     };
     Ok(response)
 }

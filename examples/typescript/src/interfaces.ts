@@ -45,15 +45,15 @@ export interface InformationResponse {
 export interface ConvertManifestRequest {
 	transaction_version: number;
 	network_id: number;
-	manifest_output_format: ManifestKind;
-	manifest: Manifest;
+	manifest_instructions_output_format: ManifestKind;
+	manifest: TransactionManifest;
 }
 
-export type ConvertManifestResponse = Manifest;
+export type ConvertManifestResponse = TransactionManifest;
 
 export interface CompileTransactionIntentRequest {
 	header: TransactionHeader;
-	manifest: Manifest;
+	manifest: TransactionManifest;
 }
 
 export interface CompileTransactionIntentResponse {
@@ -61,18 +61,18 @@ export interface CompileTransactionIntentResponse {
 }
 
 export interface DecompileTransactionIntentRequest {
-	manifest_output_format: ManifestKind;
+	manifest_instructions_output_format: ManifestKind;
 	compiled_intent: string;
 }
 
 export interface DecompileTransactionIntentResponse {
 	header: TransactionHeader;
-	manifest: Manifest;
+	manifest: TransactionManifest;
 }
 
 export interface CompileSignedTransactionIntentRequest {
 	transaction_intent: TransactionIntent;
-	signatures: Signature[];
+	signatures: SignatureWithPublicKey[];
 }
 
 export interface CompileSignedTransactionIntentResponse {
@@ -80,13 +80,13 @@ export interface CompileSignedTransactionIntentResponse {
 }
 
 export interface DecompileSignedTransactionIntentRequest {
-	manifest_output_format: ManifestKind;
+	manifest_instructions_output_format: ManifestKind;
 	compiled_signed_intent: string;
 }
 
 export interface DecompileSignedTransactionIntentResponse {
 	transaction_intent: TransactionIntent;
-	signatures: Signature[];
+	signatures: SignatureWithPublicKey[];
 }
 
 export interface CompileNotarizedTransactionIntentRequest {
@@ -99,7 +99,7 @@ export interface CompileNotarizedTransactionIntentResponse {
 }
 
 export interface DecompileNotarizedTransactionIntentRequest {
-	manifest_output_format: ManifestKind;
+	manifest_instructions_output_format: ManifestKind;
 	compiled_notarized_intent: string;
 }
 
@@ -109,7 +109,7 @@ export interface DecompileNotarizedTransactionIntentResponse {
 }
 
 export interface DecompileUnknownTransactionIntentRequest {
-	manifest_output_format: ManifestKind;
+	manifest_instructions_output_format: ManifestKind;
 	compiled_unknown_intent: string;
 }
 
@@ -159,7 +159,7 @@ export enum ManifestKind {
 	JSON = "JSON",
 }
 
-export type Manifest = ManifestJSON | ManifestString;
+export type ManifestInstructions = ManifestJSON | ManifestString;
 
 export interface ManifestString {
 	readonly type: ManifestKind.String;
@@ -177,28 +177,64 @@ export interface TransactionHeader {
 	start_epoch_inclusive: number;
 	end_epoch_exclusive: number;
 	nonce: number;
-	notary_public_key: EcdsaPublicKey;
+	notary_public_key: PublicKey;
 	notary_as_signatory: boolean;
 	cost_unit_limit: number;
 	tip_percentage: number;
 }
 
-export type EcdsaPublicKey = string;
-export type EcdsaSignature = string;
+export interface TransactionManifest {
+	instructions: ManifestInstructions;
+	blobs?: string[];
+}
+
+export enum Curve {
+	Ecdsa = "Ecdsa",
+	Ed25519 = "Ed25519",
+}
+
+export type PublicKey = Ed25519PublicKey | EcdsaPublicKey;
+export type Signature = Ed25519Signature | EcdsaSignature;
+
+export interface Ed25519PublicKey {
+	readonly type: Curve.Ed25519;
+	public_key: string;
+}
+export interface Ed25519Signature {
+	readonly type: Curve.Ed25519;
+	signature: string;
+}
+
+export interface EcdsaPublicKey {
+	readonly type: Curve.Ecdsa;
+	public_key: string;
+}
+export interface EcdsaSignature {
+	readonly type: Curve.Ecdsa;
+	signature: string;
+}
 
 export interface TransactionIntent {
 	header: TransactionHeader;
-	manifest: Manifest;
+	manifest: TransactionManifest;
 }
 
 export interface SignedTransactionIntent {
 	transaction_intent: TransactionIntent;
-	signatures: Signature[];
+	signatures: SignatureWithPublicKey[];
 }
 
-export interface Signature {
-	public_key: EcdsaPublicKey;
-	signature: EcdsaSignature;
+export type SignatureWithPublicKey = EcdsaSignatureWithPublicKey | Ed25519SignatureWithPublicKey;
+
+export interface EcdsaSignatureWithPublicKey {
+	readonly type: Curve.Ecdsa;
+	signature: string;
+}
+
+export interface Ed25519SignatureWithPublicKey {
+	readonly type: Curve.Ed25519;
+	public_key: string;
+	signature: string;
 }
 
 export type Address = ComponentAddress | ResourceAddress | PackageAddress;

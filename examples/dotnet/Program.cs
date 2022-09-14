@@ -10,6 +10,9 @@
 //    I'm using failed to generate this. So, all that the C# code supports (for the time being) is
 //    string identifiers for buckets and proofs. We should look into this.
 
+// TODO: THIS EXAMPLE HAS NOT BEEN UPDATED FOR ALPHANET. PLEASE REFER TO THE TYPESCRIPT EXAMPLE
+// INSTEAD
+
 using System.Security.Cryptography;
 using System.Reflection;
 using Nethereum.Hex.HexConvertors.Extensions;

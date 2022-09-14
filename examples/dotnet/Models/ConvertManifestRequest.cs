@@ -30,10 +30,10 @@ namespace Models
     public partial class ConvertManifestRequest :  IEquatable<ConvertManifestRequest>, IValidatableObject
     {
         /// <summary>
-        /// Gets or Sets ManifestOutputFormat
+        /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestOutputFormat { get; set; }
+        [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
+        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertManifestRequest" /> class.
         /// </summary>
@@ -44,9 +44,9 @@ namespace Models
         /// </summary>
         /// <param name="transactionVersion">transactionVersion (required).</param>
         /// <param name="networkId">networkId (required).</param>
-        /// <param name="manifestOutputFormat">manifestOutputFormat (required).</param>
+        /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
         /// <param name="manifest">manifest (required).</param>
-        public ConvertManifestRequest(int transactionVersion = default(int), int networkId = default(int), ManifestKind manifestOutputFormat = default(ManifestKind), Manifest manifest = default(Manifest))
+        public ConvertManifestRequest(int transactionVersion = default(int), int networkId = default(int), ManifestKind manifestInstructionsOutputFormat = default(ManifestKind), Manifest manifest = default(Manifest))
         {
             // to ensure "transactionVersion" is required (not null)
             if (transactionVersion == null)
@@ -68,14 +68,14 @@ namespace Models
                 this.NetworkId = networkId;
             }
 
-            // to ensure "manifestOutputFormat" is required (not null)
-            if (manifestOutputFormat == null)
+            // to ensure "manifestInstructionsOutputFormat" is required (not null)
+            if (manifestInstructionsOutputFormat == null)
             {
-                throw new InvalidDataException("manifestOutputFormat is a required property for ConvertManifestRequest and cannot be null");
+                throw new InvalidDataException("manifestInstructionsOutputFormat is a required property for ConvertManifestRequest and cannot be null");
             }
             else
             {
-                this.ManifestOutputFormat = manifestOutputFormat;
+                this.ManifestInstructionsOutputFormat = manifestInstructionsOutputFormat;
             }
 
             // to ensure "manifest" is required (not null)
@@ -119,7 +119,7 @@ namespace Models
             sb.Append("class ConvertManifestRequest {\n");
             sb.Append("  TransactionVersion: ").Append(TransactionVersion).Append("\n");
             sb.Append("  NetworkId: ").Append(NetworkId).Append("\n");
-            sb.Append("  ManifestOutputFormat: ").Append(ManifestOutputFormat).Append("\n");
+            sb.Append("  ManifestInstructionsOutputFormat: ").Append(ManifestInstructionsOutputFormat).Append("\n");
             sb.Append("  Manifest: ").Append(Manifest).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -166,9 +166,9 @@ namespace Models
                     this.NetworkId.Equals(input.NetworkId))
                 ) && 
                 (
-                    this.ManifestOutputFormat == input.ManifestOutputFormat ||
-                    (this.ManifestOutputFormat != null &&
-                    this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
+                    this.ManifestInstructionsOutputFormat == input.ManifestInstructionsOutputFormat ||
+                    (this.ManifestInstructionsOutputFormat != null &&
+                    this.ManifestInstructionsOutputFormat.Equals(input.ManifestInstructionsOutputFormat))
                 ) && 
                 (
                     this.Manifest == input.Manifest ||
@@ -190,8 +190,8 @@ namespace Models
                     hashCode = hashCode * 59 + this.TransactionVersion.GetHashCode();
                 if (this.NetworkId != null)
                     hashCode = hashCode * 59 + this.NetworkId.GetHashCode();
-                if (this.ManifestOutputFormat != null)
-                    hashCode = hashCode * 59 + this.ManifestOutputFormat.GetHashCode();
+                if (this.ManifestInstructionsOutputFormat != null)
+                    hashCode = hashCode * 59 + this.ManifestInstructionsOutputFormat.GetHashCode();
                 if (this.Manifest != null)
                     hashCode = hashCode * 59 + this.Manifest.GetHashCode();
                 return hashCode;

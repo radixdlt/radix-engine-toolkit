@@ -1949,7 +1949,7 @@ mod tests {
             Value::Component {
                 address: NetworkAwareComponentAddress {
                     network_id: 0xf2,
-                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
+                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::simulator())
                         .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
                         .expect("Decoding of a trusted address string failed")
                 }
@@ -1965,7 +1965,7 @@ mod tests {
             Value::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0xf2,
-                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
+                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::simulator())
                         .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
                         .expect("Decoding of a trusted address string failed")
                 }
@@ -1981,7 +1981,7 @@ mod tests {
             Value::PackageAddress {
                 address: NetworkAwarePackageAddress {
                     network_id: 0xf2,
-                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
+                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::simulator())
                         .validate_and_decode_package_address("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n")
                         .expect("Decoding of a trusted address string failed")
                 }
@@ -1997,7 +1997,7 @@ mod tests {
             Value::ResourceAddress {
                 address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
-                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::local_simulator())
+                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::simulator())
                         .validate_and_decode_resource_address("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h")
                         .expect("Decoding of a trusted address string failed")
                 }

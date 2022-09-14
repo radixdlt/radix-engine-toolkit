@@ -36,6 +36,7 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::EncodeAddressRequest(_) => Ok(()),
         Request::SBOREncodeRequest(_) => Ok(()),
         Request::SBORDecodeRequest(_) => Ok(()),
+        Request::ExtractAbiRequest(_) => Ok(()),
     }
 }
 
@@ -99,6 +100,7 @@ fn request_transaction_validation_config(request: &Request) -> Option<Validation
         Request::EncodeAddressRequest(_) => None,
         Request::SBOREncodeRequest(_) => None,
         Request::SBORDecodeRequest(_) => None,
+        Request::ExtractAbiRequest(_) => None,
     }
 }
 
@@ -204,6 +206,7 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::EncodeAddressResponse(_) => Ok(()),
         Response::SBOREncodeResponse(_) => Ok(()),
         Response::SBORDecodeResponse(_) => Ok(()),
+        Response::ExtractAbiResponse(_) => Ok(()),
     }
 }
 
@@ -272,6 +275,7 @@ fn response_transaction_validation_config(response: &Response) -> Option<Validat
         Response::EncodeAddressResponse(_) => None,
         Response::SBOREncodeResponse(_) => None,
         Response::SBORDecodeResponse(_) => None,
+        Response::ExtractAbiResponse(_) => None,
     }
 }
 
@@ -351,16 +355,25 @@ fn validate_transaction_version(transaction_version: u8) -> Result<(), Error> {
     }
 }
 
-fn validate_manifest(manifest: &Manifest, network_id: u8) -> Result<(), Error> {
+fn validate_manifest(manifest: &TransactionManifest, network_id: u8) -> Result<(), Error> {
     // The `generate_instruction` from the transaction::generator performs validation and converts
     // the instructions to a different format. In this case, the instruction conversion is not what
     // we are after, but the validation that it performs. If the conversion succeeds, then this
     // validation step is completed
-    let ast_instructions: Vec<AstInstruction> =
-        manifest.to_ast_instructions(&Bech32Manager::new(network_id))?;
+    let ast_instructions: Vec<AstInstruction> = manifest
+        .instructions
+        .to_ast_instructions(&Bech32Manager::new(network_id))?;
     let bech32_decoder: Bech32Decoder =
         Bech32Decoder::new(&network_definition_from_network_id(network_id));
-    transaction::manifest::generator::generate_manifest(&ast_instructions, &bech32_decoder)?;
+    transaction::manifest::generator::generate_manifest(
+        &ast_instructions,
+        &bech32_decoder,
+        manifest
+            .blobs
+            .iter()
+            .map(|x| (radix_engine::types::hash(x), x.clone()))
+            .collect(),
+    )?;
 
     Ok(())
 }
@@ -389,7 +402,7 @@ fn validate_transaction_intent(
 
 fn validate_notarized_transaction(
     signed_intent: &SignedTransactionIntent,
-    notary_signature: &scrypto::prelude::EcdsaSignature,
+    notary_signature: &scrypto::prelude::Signature,
     network_id: u8,
     validation_config: &ValidationConfig,
 ) -> Result<(), Error> {
@@ -404,12 +417,7 @@ fn validate_notarized_transaction(
     };
     let signed_intent = transaction::model::SignedTransactionIntent {
         intent: transaction_intent.clone(),
-        intent_signatures: signed_intent
-            .signatures
-            .clone()
-            .into_iter()
-            .map(|signature| (signature.public_key, signature.signature))
-            .collect(),
+        intent_signatures: signed_intent.signatures.clone(),
     };
     let notarized_transaction = transaction::model::NotarizedTransaction {
         notary_signature: notary_signature.clone(),

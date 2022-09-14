@@ -30,10 +30,10 @@ namespace Models
     public partial class DecompileTransactionIntentRequest :  IEquatable<DecompileTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
-        /// Gets or Sets ManifestOutputFormat
+        /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestOutputFormat { get; set; }
+        [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
+        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequest" /> class.
         /// </summary>
@@ -43,8 +43,8 @@ namespace Models
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequest" /> class.
         /// </summary>
         /// <param name="compiledIntent">compiledIntent (required).</param>
-        /// <param name="manifestOutputFormat">manifestOutputFormat (required).</param>
-        public DecompileTransactionIntentRequest(string compiledIntent = default(string), ManifestKind manifestOutputFormat = default(ManifestKind))
+        /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
+        public DecompileTransactionIntentRequest(string compiledIntent = default(string), ManifestKind manifestInstructionsOutputFormat = default(ManifestKind))
         {
             // to ensure "compiledIntent" is required (not null)
             if (compiledIntent == null)
@@ -56,14 +56,14 @@ namespace Models
                 this.CompiledIntent = compiledIntent;
             }
 
-            // to ensure "manifestOutputFormat" is required (not null)
-            if (manifestOutputFormat == null)
+            // to ensure "manifestInstructionsOutputFormat" is required (not null)
+            if (manifestInstructionsOutputFormat == null)
             {
-                throw new InvalidDataException("manifestOutputFormat is a required property for DecompileTransactionIntentRequest and cannot be null");
+                throw new InvalidDataException("manifestInstructionsOutputFormat is a required property for DecompileTransactionIntentRequest and cannot be null");
             }
             else
             {
-                this.ManifestOutputFormat = manifestOutputFormat;
+                this.ManifestInstructionsOutputFormat = manifestInstructionsOutputFormat;
             }
 
         }
@@ -84,7 +84,7 @@ namespace Models
             var sb = new StringBuilder();
             sb.Append("class DecompileTransactionIntentRequest {\n");
             sb.Append("  CompiledIntent: ").Append(CompiledIntent).Append("\n");
-            sb.Append("  ManifestOutputFormat: ").Append(ManifestOutputFormat).Append("\n");
+            sb.Append("  ManifestInstructionsOutputFormat: ").Append(ManifestInstructionsOutputFormat).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -125,9 +125,9 @@ namespace Models
                     this.CompiledIntent.Equals(input.CompiledIntent))
                 ) && 
                 (
-                    this.ManifestOutputFormat == input.ManifestOutputFormat ||
-                    (this.ManifestOutputFormat != null &&
-                    this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
+                    this.ManifestInstructionsOutputFormat == input.ManifestInstructionsOutputFormat ||
+                    (this.ManifestInstructionsOutputFormat != null &&
+                    this.ManifestInstructionsOutputFormat.Equals(input.ManifestInstructionsOutputFormat))
                 );
         }
 
@@ -142,8 +142,8 @@ namespace Models
                 int hashCode = 41;
                 if (this.CompiledIntent != null)
                     hashCode = hashCode * 59 + this.CompiledIntent.GetHashCode();
-                if (this.ManifestOutputFormat != null)
-                    hashCode = hashCode * 59 + this.ManifestOutputFormat.GetHashCode();
+                if (this.ManifestInstructionsOutputFormat != null)
+                    hashCode = hashCode * 59 + this.ManifestInstructionsOutputFormat.GetHashCode();
                 return hashCode;
             }
         }

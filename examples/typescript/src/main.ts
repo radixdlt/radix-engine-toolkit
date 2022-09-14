@@ -7,7 +7,7 @@ import {
 	ConvertManifestResponse,
 	DecompileTransactionIntentRequest,
 	DecompileTransactionIntentResponse,
-	Manifest,
+	ManifestInstructions,
 	ManifestKind,
 	Signature,
 	TransactionHeader,
@@ -25,6 +25,9 @@ import {
 	DecodeAddressRequest,
 	SBOREncodeRequest,
 	SBORDecodeRequest,
+	TransactionManifest,
+	Curve,
+	SignatureWithPublicKey,
 } from "./interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
@@ -49,16 +52,23 @@ const main = async (): Promise<void> => {
 	// library.
 	const manifestFilePath: string = path.join(scriptDir, "complex.rtm");
 	let manifestString: string = fs.readFileSync(manifestFilePath, "utf-8");
-	let manifest: Manifest = {
+	let manifest: ManifestInstructions = {
 		type: ManifestKind.String,
 		value: manifestString,
+	};
+	let transactionManifest: TransactionManifest = {
+		instructions: manifest,
+		blobs: [
+			"10020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c1000000000",
+			"320c1000000000",
+		],
 	};
 
 	let manifestConversionRequest: ConvertManifestRequest = {
 		transaction_version: 1,
 		network_id: 0xf2,
-		manifest_output_format: ManifestKind.JSON,
-		manifest,
+		manifest_instructions_output_format: ManifestKind.JSON,
+		manifest: transactionManifest,
 	};
 	let manifestConversionResponse: ConvertManifestResponse = transactionService.convertManifest(
 		manifestConversionRequest
@@ -77,7 +87,10 @@ const main = async (): Promise<void> => {
 		start_epoch_inclusive: 0x00,
 		end_epoch_exclusive: 0x20,
 		nonce: 0x00,
-		notary_public_key: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
+		notary_public_key: {
+			type: Curve.Ecdsa,
+			public_key: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
+		},
 		notary_as_signatory: false,
 		cost_unit_limit: 0x0,
 		tip_percentage: 0x0,
@@ -85,7 +98,7 @@ const main = async (): Promise<void> => {
 
 	let compileTransactionIntentRequest: CompileTransactionIntentRequest = {
 		header: transactionHeader,
-		manifest,
+		manifest: transactionManifest,
 	};
 	let compileTransactionIntentResponse: CompileTransactionIntentResponse =
 		transactionService.compileTransactionIntent(
@@ -101,7 +114,7 @@ const main = async (): Promise<void> => {
 	// understand (in code or as a human).
 	let decompileTransactionIntentRequest: DecompileTransactionIntentRequest = {
 		compiled_intent: compileTransactionIntentResponse.compiled_intent,
-		manifest_output_format: ManifestKind.String,
+		manifest_instructions_output_format: ManifestKind.String,
 	};
 	let decompileTransactionIntentResponse: DecompileTransactionIntentResponse =
 		transactionService.decompileTransactionIntent(
@@ -138,20 +151,25 @@ const main = async (): Promise<void> => {
 	);
 
 	// Signing the compiled transaction intent.
-	let signatures: Signature[] = privateKeys.map((privateKey: Uint8Array): Signature => {
-		let publicKey: Uint8Array = secp256k1.publicKeyCreate(privateKey, true);
-		let signature: Uint8Array = secp256k1.ecdsaSign(doubleIntentHashBytes, privateKey).signature;
+	let signatures: SignatureWithPublicKey[] = privateKeys.map(
+		(privateKey: Uint8Array): SignatureWithPublicKey => {
+			let publicKey: Uint8Array = secp256k1.publicKeyCreate(privateKey, true);
+			let sig = secp256k1.ecdsaSign(doubleIntentHashBytes, privateKey);
+			let signature: Uint8Array = sig.signature;
+			let recid: Uint8Array = Uint8Array.from([sig.recid]);
 
-		return {
-			public_key: Buffer.from(publicKey).toString("hex"),
-			signature: Buffer.from(signature).toString("hex"),
-		};
-	});
+			// TODO: Improve this struct.
+			return {
+				type: Curve.Ecdsa,
+				signature: Buffer.concat([recid, signature]).toString("hex"),
+			};
+		}
+	);
 
 	let compileSignedTransactionIntentRequest: CompileSignedTransactionIntentRequest = {
 		transaction_intent: {
 			header: transactionHeader,
-			manifest,
+			manifest: transactionManifest,
 		},
 		signatures,
 	};
@@ -159,6 +177,7 @@ const main = async (): Promise<void> => {
 		transactionService.compileSignedTransactionIntent(
 			compileSignedTransactionIntentRequest
 		) as CompileSignedTransactionIntentResponse;
+	console.log(JSON.stringify(compileSignedTransactionIntentRequest, null, 4));
 	console.log("======= Example 5 =======");
 	console.log(JSON.stringify(compileSignedTransactionIntentResponse, null, 4));
 	console.log("=========================", "\n");
@@ -168,7 +187,7 @@ const main = async (): Promise<void> => {
 	// decompiled.
 	let decompileSignedTransactionIntentRequest: DecompileSignedTransactionIntentRequest = {
 		compiled_signed_intent: compileSignedTransactionIntentResponse.compiled_signed_intent,
-		manifest_output_format: ManifestKind.JSON,
+		manifest_instructions_output_format: ManifestKind.JSON,
 	};
 	let decompileSignedTransactionIntentResponse: DecompileSignedTransactionIntentResponse =
 		transactionService.decompileSignedTransactionIntent(
@@ -192,20 +211,23 @@ const main = async (): Promise<void> => {
 	const notaryPrivateKeyString: string =
 		"0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622";
 	let notaryPrivateKey: Uint8Array = Uint8Array.from(Buffer.from(notaryPrivateKeyString, "hex"));
-	let notarySignature = secp256k1.ecdsaSign(
-		doubleSignedIntentHashBytes,
-		notaryPrivateKey
-	).signature;
+	let notarySignature = secp256k1.ecdsaSign(doubleSignedIntentHashBytes, notaryPrivateKey);
 
 	let compileNotarizedTransactionIntentRequest: CompileNotarizedTransactionIntentRequest = {
 		signed_intent: {
 			transaction_intent: {
 				header: transactionHeader,
-				manifest,
+				manifest: transactionManifest,
 			},
 			signatures,
 		},
-		notary_signature: Buffer.from(notarySignature).toString("hex"),
+		notary_signature: {
+			type: Curve.Ecdsa,
+			signature: Buffer.concat([
+				Uint8Array.from([notarySignature.recid]),
+				notarySignature.signature,
+			]).toString("hex"),
+		},
 	};
 	let compileNotarizedTransactionIntentResponse: CompileNotarizedTransactionIntentResponse =
 		transactionService.compileNotarizedTransactionIntent(
@@ -216,7 +238,7 @@ const main = async (): Promise<void> => {
 	console.log("=========================", "\n");
 
 	let decompileNotarizedTransactionIntentRequest: DecompileNotarizedTransactionIntentRequest = {
-		manifest_output_format: ManifestKind.JSON,
+		manifest_instructions_output_format: ManifestKind.JSON,
 		compiled_notarized_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
 	};
 	let decompileNotarizedTransactionIntentResponse: DecompileNotarizedTransactionIntentResponse =
@@ -233,7 +255,7 @@ const main = async (): Promise<void> => {
 	// case, this library provides a function for the decompilation of a compiled transaction intent
 	// which we are not sure what type it is.
 	let decompileUnknownTransactionIntentRequest: DecompileUnknownTransactionIntentRequest = {
-		manifest_output_format: ManifestKind.JSON,
+		manifest_instructions_output_format: ManifestKind.JSON,
 		compiled_unknown_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
 	};
 	let decompileUnknownTransactionIntentResponse: DecompileUnknownTransactionIntentResponse =

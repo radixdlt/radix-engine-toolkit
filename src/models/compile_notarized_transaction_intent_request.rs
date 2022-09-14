@@ -1,12 +1,11 @@
 use crate::models::serde::SignedTransactionIntent;
+use radix_engine::types::Signature;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
-#[serde_as]
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CompileNotarizedTransactionIntentRequest {
     pub signed_intent: SignedTransactionIntent,
-    #[serde_as(as = "DisplayFromStr")]
-    pub notary_signature: scrypto::prelude::EcdsaSignature,
+    pub notary_signature: Signature,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

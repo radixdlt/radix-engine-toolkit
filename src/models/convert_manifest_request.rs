@@ -3,7 +3,8 @@
 //! the manifest to another format (String as an example). The conversion between the supported
 //! formats is dependent on two main factors: the transaction version, and the network id.
 
-use crate::models::manifest::{Manifest, ManifestKind};
+use crate::models::manifest::ManifestInstructionsKind;
+use crate::models::serde::TransactionManifest;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -18,15 +19,15 @@ pub struct ConvertManifestRequest {
 
     /// Defines the output format that we would like the manifest to be in after this request is
     /// performed.
-    pub manifest_output_format: ManifestKind,
+    pub manifest_instructions_output_format: ManifestInstructionsKind,
 
     /// The manifest that the conversion will happen on
-    pub manifest: Manifest,
+    pub manifest: TransactionManifest,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConvertManifestResponse {
     /// The manifest after it has been converted to the type specified in the [ConvertManifestRequest]
     #[serde(flatten)]
-    pub manifest: Manifest,
+    pub manifest: TransactionManifest,
 }

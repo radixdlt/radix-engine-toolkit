@@ -30,10 +30,10 @@ namespace Models
     public partial class DecompileUnknownTransactionIntentRequest :  IEquatable<DecompileUnknownTransactionIntentRequest>, IValidatableObject
     {
         /// <summary>
-        /// Gets or Sets ManifestOutputFormat
+        /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
-        [DataMember(Name="manifest_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestOutputFormat { get; set; }
+        [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
+        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileUnknownTransactionIntentRequest" /> class.
         /// </summary>
@@ -42,18 +42,18 @@ namespace Models
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileUnknownTransactionIntentRequest" /> class.
         /// </summary>
-        /// <param name="manifestOutputFormat">manifestOutputFormat (required).</param>
+        /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
         /// <param name="compiledUnknownIntent">compiledUnknownIntent (required).</param>
-        public DecompileUnknownTransactionIntentRequest(ManifestKind manifestOutputFormat = default(ManifestKind), string compiledUnknownIntent = default(string))
+        public DecompileUnknownTransactionIntentRequest(ManifestKind manifestInstructionsOutputFormat = default(ManifestKind), string compiledUnknownIntent = default(string))
         {
-            // to ensure "manifestOutputFormat" is required (not null)
-            if (manifestOutputFormat == null)
+            // to ensure "manifestInstructionsOutputFormat" is required (not null)
+            if (manifestInstructionsOutputFormat == null)
             {
-                throw new InvalidDataException("manifestOutputFormat is a required property for DecompileUnknownTransactionIntentRequest and cannot be null");
+                throw new InvalidDataException("manifestInstructionsOutputFormat is a required property for DecompileUnknownTransactionIntentRequest and cannot be null");
             }
             else
             {
-                this.ManifestOutputFormat = manifestOutputFormat;
+                this.ManifestInstructionsOutputFormat = manifestInstructionsOutputFormat;
             }
 
             // to ensure "compiledUnknownIntent" is required (not null)
@@ -83,7 +83,7 @@ namespace Models
         {
             var sb = new StringBuilder();
             sb.Append("class DecompileUnknownTransactionIntentRequest {\n");
-            sb.Append("  ManifestOutputFormat: ").Append(ManifestOutputFormat).Append("\n");
+            sb.Append("  ManifestInstructionsOutputFormat: ").Append(ManifestInstructionsOutputFormat).Append("\n");
             sb.Append("  CompiledUnknownIntent: ").Append(CompiledUnknownIntent).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -120,9 +120,9 @@ namespace Models
 
             return 
                 (
-                    this.ManifestOutputFormat == input.ManifestOutputFormat ||
-                    (this.ManifestOutputFormat != null &&
-                    this.ManifestOutputFormat.Equals(input.ManifestOutputFormat))
+                    this.ManifestInstructionsOutputFormat == input.ManifestInstructionsOutputFormat ||
+                    (this.ManifestInstructionsOutputFormat != null &&
+                    this.ManifestInstructionsOutputFormat.Equals(input.ManifestInstructionsOutputFormat))
                 ) && 
                 (
                     this.CompiledUnknownIntent == input.CompiledUnknownIntent ||
@@ -140,8 +140,8 @@ namespace Models
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                if (this.ManifestOutputFormat != null)
-                    hashCode = hashCode * 59 + this.ManifestOutputFormat.GetHashCode();
+                if (this.ManifestInstructionsOutputFormat != null)
+                    hashCode = hashCode * 59 + this.ManifestInstructionsOutputFormat.GetHashCode();
                 if (this.CompiledUnknownIntent != null)
                     hashCode = hashCode * 59 + this.CompiledUnknownIntent.GetHashCode();
                 return hashCode;

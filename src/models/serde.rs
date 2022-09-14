@@ -4,33 +4,36 @@ use std::str::FromStr;
 
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_with::{serde_as, DisplayFromStr};
 
-use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash};
-use transaction::model::TransactionHeader;
+use scrypto::prelude::{Hash, SignatureWithPublicKey};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::manifest::Manifest;
-
-#[serde_as]
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(remote = "TransactionHeader")]
-pub struct TransactionHeaderDef {
-    pub version: u8,
-    pub network_id: u8,
-    pub start_epoch_inclusive: u64,
-    pub end_epoch_exclusive: u64,
-    pub nonce: u64,
-    #[serde_as(as = "DisplayFromStr")]
-    pub notary_public_key: EcdsaPublicKey,
-    pub notary_as_signatory: bool,
-    pub cost_unit_limit: u32,
-    pub tip_percentage: u32,
-}
+use crate::models::manifest::ManifestInstructions;
+use serde_with::serde_as;
 
 pub type VaultId = EntityId;
 pub type KeyValueStoreId = EntityId;
+
+#[serde_as]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TransactionManifest {
+    pub instructions: ManifestInstructions,
+    #[serde_as(as = "Vec<serde_with::hex::Hex>")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub blobs: Vec<Vec<u8>>,
+}
+
+impl TransactionManifest {
+    pub fn to_scrypto_transaction_manifest(
+        &self,
+        bech32_manager: &Bech32Manager,
+    ) -> Result<transaction::model::TransactionManifest, Error> {
+        Ok(self
+            .instructions
+            .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())?)
+    }
+}
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct EntityId(pub (Hash, u32));
@@ -194,24 +197,14 @@ define_network_aware_address!(
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TransactionIntent {
-    #[serde(with = "crate::models::serde::TransactionHeaderDef")]
     pub header: transaction::model::TransactionHeader,
-    pub manifest: Manifest,
+    pub manifest: TransactionManifest,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SignedTransactionIntent {
     pub transaction_intent: TransactionIntent,
-    pub signatures: Vec<Signature>,
-}
-
-#[serde_as]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Signature {
-    #[serde_as(as = "DisplayFromStr")]
-    pub public_key: EcdsaPublicKey,
-    #[serde_as(as = "DisplayFromStr")]
-    pub signature: EcdsaSignature,
+    pub signatures: Vec<SignatureWithPublicKey>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -318,4 +311,21 @@ pub enum AddressKind {
     AccountComponent,
     SystemComponent,
     NormalComponent,
+}
+
+#[test]
+pub fn x() {
+    let signer = transaction::signing::EcdsaPrivateKey::from_u64(1).unwrap();
+    let header = transaction::model::TransactionHeader {
+        version: 1,
+        network_id: 0x01,
+        start_epoch_inclusive: 0,
+        end_epoch_exclusive: 100,
+        nonce: 1,
+        notary_public_key: signer.public_key().into(),
+        notary_as_signatory: true,
+        cost_unit_limit: 1_000_000,
+        tip_percentage: 5,
+    };
+    println!("{}", serde_json::to_string(&header).unwrap());
 }

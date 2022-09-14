@@ -1,4 +1,4 @@
-use crate::models::manifest::ManifestKind;
+use crate::models::manifest::ManifestInstructionsKind;
 use crate::models::{
     DecompileNotarizedTransactionIntentRequest, DecompileNotarizedTransactionIntentResponse,
     DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse,
@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileUnknownTransactionIntentRequest {
-    pub manifest_output_format: ManifestKind,
+    pub manifest_instructions_output_format: ManifestInstructionsKind,
     #[serde(with = "hex::serde")]
     pub compiled_unknown_intent: Vec<u8>,
 }
@@ -17,7 +17,7 @@ impl Into<DecompileTransactionIntentRequest> for DecompileUnknownTransactionInte
     fn into(self) -> DecompileTransactionIntentRequest {
         DecompileTransactionIntentRequest {
             compiled_intent: self.compiled_unknown_intent,
-            manifest_output_format: self.manifest_output_format,
+            manifest_instructions_output_format: self.manifest_instructions_output_format,
         }
     }
 }
@@ -26,7 +26,7 @@ impl Into<DecompileSignedTransactionIntentRequest> for DecompileUnknownTransacti
     fn into(self) -> DecompileSignedTransactionIntentRequest {
         DecompileSignedTransactionIntentRequest {
             compiled_signed_intent: self.compiled_unknown_intent,
-            manifest_output_format: self.manifest_output_format,
+            manifest_instructions_output_format: self.manifest_instructions_output_format,
         }
     }
 }
@@ -35,7 +35,7 @@ impl Into<DecompileNotarizedTransactionIntentRequest> for DecompileUnknownTransa
     fn into(self) -> DecompileNotarizedTransactionIntentRequest {
         DecompileNotarizedTransactionIntentRequest {
             compiled_notarized_intent: self.compiled_unknown_intent,
-            manifest_output_format: self.manifest_output_format,
+            manifest_instructions_output_format: self.manifest_instructions_output_format,
         }
     }
 }

@@ -6,23 +6,23 @@ use crate::address::Bech32Manager;
 use crate::error::Error;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ManifestKind {
+pub enum ManifestInstructionsKind {
     String,
     JSON,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", content = "value")]
-pub enum Manifest {
+pub enum ManifestInstructions {
     String(String),
     JSON(Vec<Instruction>),
 }
 
-impl Manifest {
-    pub fn kind(&self) -> ManifestKind {
+impl ManifestInstructions {
+    pub fn kind(&self) -> ManifestInstructionsKind {
         match self {
-            Self::JSON(_) => ManifestKind::JSON,
-            Self::String(_) => ManifestKind::String,
+            Self::JSON(_) => ManifestInstructionsKind::JSON,
+            Self::String(_) => ManifestInstructionsKind::String,
         }
     }
 
@@ -77,12 +77,13 @@ impl Manifest {
 
     pub fn to(
         &self,
-        manifest_kind: ManifestKind,
+        manifest_kind: ManifestInstructionsKind,
         bech32_manager: &Bech32Manager,
+        blobs: Vec<Vec<u8>>,
     ) -> Result<Self, Error> {
         match manifest_kind {
-            ManifestKind::JSON => Ok(self.to_json_manifest(bech32_manager)?),
-            ManifestKind::String => Ok(self.to_string_manifest(bech32_manager)?),
+            ManifestInstructionsKind::JSON => Ok(self.to_json_manifest(bech32_manager)?),
+            ManifestInstructionsKind::String => Ok(self.to_string_manifest(bech32_manager, blobs)?),
         }
     }
 
@@ -93,15 +94,22 @@ impl Manifest {
         }
     }
 
-    pub fn to_string_manifest(&self, bech32_manager: &Bech32Manager) -> Result<Self, Error> {
+    pub fn to_string_manifest(
+        &self,
+        bech32_manager: &Bech32Manager,
+        blobs: Vec<Vec<u8>>,
+    ) -> Result<Self, Error> {
         match self {
             Self::String(_) => Ok(self.clone()),
             Self::JSON(_) => {
                 // Converting to a transaction manifest then decompiling the transaction manifest
                 // to get a manifest string back
+                let instructions: &[transaction::model::Instruction] = &self
+                    .to_scrypto_transaction_manifest(bech32_manager, blobs)?
+                    .instructions;
                 let manifest_string: String = transaction::manifest::decompile(
-                    &self.to_scrypto_transaction_manifest(bech32_manager)?,
-                    &bech32_manager.encoder,
+                    instructions,
+                    &bech32_manager.network_definition,
                 )?;
                 Ok(Self::String(manifest_string))
             }
@@ -111,25 +119,36 @@ impl Manifest {
     pub fn to_scrypto_transaction_manifest(
         &self,
         bech32_manager: &Bech32Manager,
+        blobs: Vec<Vec<u8>>,
     ) -> Result<transaction::model::TransactionManifest, Error> {
         let manifest: transaction::model::TransactionManifest =
             transaction::manifest::generator::generate_manifest(
                 &self.to_ast_instructions(bech32_manager)?,
                 &bech32_manager.decoder,
+                blobs
+                    .iter()
+                    .map(|x| (radix_engine::types::hash(x), x.clone()))
+                    .collect(),
             )
             .map_err(transaction::manifest::CompileError::GeneratorError)?;
         Ok(manifest)
     }
 
     pub fn from_scrypto_transaction_manifest(
-        transaction_manifest: transaction::model::TransactionManifest,
+        transaction_manifest: &transaction::model::TransactionManifest,
         bech32_manager: &Bech32Manager,
-        output_manifest_kind: ManifestKind,
+        output_manifest_kind: ManifestInstructionsKind,
     ) -> Result<Self, Error> {
-        let manifest_string: String =
-            transaction::manifest::decompile(&transaction_manifest, &bech32_manager.encoder)?;
+        let manifest_string: String = transaction::manifest::decompile(
+            &transaction_manifest.instructions,
+            &bech32_manager.network_definition,
+        )?;
 
         let manifest: Self = Self::String(manifest_string);
-        manifest.to(output_manifest_kind, bech32_manager)
+        manifest.to(
+            output_manifest_kind,
+            bech32_manager,
+            transaction_manifest.blobs.clone(),
+        )
     }
 }

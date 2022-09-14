@@ -63,7 +63,7 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
             logical_name: "IntTestNet".into(),
             hrp_suffix: format!("tdx_{:x}_", i),
         },
-        0xF2 => NetworkDefinition::local_simulator(),
+        0xF2 => NetworkDefinition::simulator(),
 
         // TODO: Evaluate if this is needed or not. The implementation in the
         // Babylon node repo does not have something of this sort. So, perhaps
@@ -95,7 +95,7 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, scrypto::address::AddressErr
     // Matching the network specifier to obtain the network id from it
     let network_id: u8 = match network_specifier.as_str() {
         "rdx" => NetworkDefinition::mainnet().id,
-        "sim" => NetworkDefinition::local_simulator().id,
+        "sim" => NetworkDefinition::simulator().id,
         numeric_network_specifier => {
             match numeric_network_specifier.split('_').skip(1).next() {
                 Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
@@ -138,10 +138,10 @@ mod tests {
     }
 
     #[test]
-    fn local_simulator_hrp_to_network_id_succeeds() {
+    fn simulator_hrp_to_network_id_succeeds() {
         // Arrange
         let hrp: &str = "resource_sim";
-        let expected_network_id: u8 = NetworkDefinition::local_simulator().id;
+        let expected_network_id: u8 = NetworkDefinition::simulator().id;
 
         // Act
         let network_id: Result<u8, _> = network_id_from_hrp(hrp);
@@ -177,10 +177,10 @@ mod tests {
     }
 
     #[test]
-    fn local_simulator_address_to_network_id_succeeds() {
+    fn simulator_address_to_network_id_succeeds() {
         // Arrange
         let address: &str = "component_sim1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsyml02z";
-        let expected_network_id: u8 = NetworkDefinition::local_simulator().id;
+        let expected_network_id: u8 = NetworkDefinition::simulator().id;
 
         // Act
         let network_id: Result<u8, _> = network_id_from_address_string(address);
