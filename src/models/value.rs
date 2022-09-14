@@ -17,8 +17,9 @@ use radix_engine::types::ScryptoType;
 use sbor::type_id::*;
 use sbor::{decode_any, encode_any, Value as SborValue};
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Decimal, EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey,
-    Ed25519Signature, Hash, NonFungibleAddress, NonFungibleId, PreciseDecimal,
+    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaPublicKey, EcdsaSignature,
+    Ed25519PublicKey, Ed25519Signature, Expression, Hash, NonFungibleAddress, NonFungibleId,
+    PreciseDecimal,
 };
 use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;
@@ -132,11 +133,6 @@ pub enum Value {
         elements: Vec<Value>,
     },
 
-    Bytes {
-        #[serde(with = "hex::serde")]
-        value: Vec<u8>,
-    },
-
     // Scrypto Values
     KeyValueStore {
         identifier: KeyValueStoreId,
@@ -203,6 +199,15 @@ pub enum Value {
         #[serde_as(as = "DisplayFromStr")]
         address: NonFungibleAddress,
     },
+
+    Blob {
+        #[serde_as(as = "DisplayFromStr")]
+        hash: Blob,
+    },
+    Expression {
+        #[serde_as(as = "DisplayFromStr")]
+        value: Expression,
+    },
 }
 
 impl Value {
@@ -254,13 +259,15 @@ impl Value {
             Self::NonFungibleId { .. } => ValueKind::NonFungibleId,
             Self::NonFungibleAddress { .. } => ValueKind::NonFungibleAddress,
 
-            Self::Bytes { .. } => ValueKind::Bytes,
             Self::KeyValueStore { .. } => ValueKind::KeyValueStore,
 
             Self::EcdsaPublicKey { .. } => ValueKind::EcdsaPublicKey,
             Self::EcdsaSignature { .. } => ValueKind::EcdsaSignature,
             Self::Ed25519PublicKey { .. } => ValueKind::Ed25519PublicKey,
             Self::Ed25519Signature { .. } => ValueKind::Ed25519Signature,
+
+            Self::Blob { .. } => ValueKind::Blob,
+            Self::Expression { .. } => ValueKind::Expression,
         }
     }
 
@@ -398,12 +405,14 @@ pub enum ValueKind {
     NonFungibleAddress,
 
     KeyValueStore,
-    Bytes,
 
     EcdsaPublicKey,
     EcdsaSignature,
     Ed25519PublicKey,
     Ed25519Signature,
+
+    Blob,
+    Expression,
 }
 
 impl ValueKind {
@@ -438,7 +447,6 @@ impl ValueKind {
             Self::Set => TYPE_SET,
             Self::Map => TYPE_MAP,
 
-            Self::Bytes => TYPE_LIST,
             Self::KeyValueStore => ScryptoType::KeyValueStore.id(),
 
             Self::Decimal => ScryptoType::Decimal.id(),
@@ -462,6 +470,9 @@ impl ValueKind {
             Self::EcdsaSignature => ScryptoType::EcdsaSignature.id(),
             Self::Ed25519PublicKey => ScryptoType::Ed25519PublicKey.id(),
             Self::Ed25519Signature => ScryptoType::Ed25519Signature.id(),
+
+            Self::Blob => ScryptoType::Blob.id(),
+            Self::Expression => ScryptoType::Expression.id(),
         }
     }
 
@@ -515,6 +526,8 @@ impl ValueKind {
                     ScryptoType::Ed25519PublicKey => Self::Ed25519PublicKey,
                     ScryptoType::Ed25519Signature => Self::Ed25519Signature,
                     ScryptoType::KeyValueStore => Self::KeyValueStore,
+                    ScryptoType::Blob => Self::Blob,
+                    ScryptoType::Expression => Self::Expression,
                 },
                 None => return Err(Error::UnknownTypeId { type_id }),
             },
@@ -571,7 +584,9 @@ impl TryInto<transaction::manifest::ast::Type> for ValueKind {
 
             Self::NonFungibleId => transaction::manifest::ast::Type::NonFungibleId,
             Self::NonFungibleAddress => transaction::manifest::ast::Type::NonFungibleAddress,
-            Self::Bytes => transaction::manifest::ast::Type::Bytes,
+
+            Self::Blob => transaction::manifest::ast::Type::Blob,
+            Self::Expression => transaction::manifest::ast::Type::Expression,
 
             Self::Component
             | Self::Vault
@@ -631,7 +646,9 @@ impl From<transaction::manifest::ast::Type> for ValueKind {
 
             transaction::manifest::ast::Type::NonFungibleId => Self::NonFungibleId,
             transaction::manifest::ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
-            transaction::manifest::ast::Type::Bytes => Self::Bytes,
+
+            transaction::manifest::ast::Type::Blob => Self::Blob,
+            transaction::manifest::ast::Type::Expression => Self::Expression,
         }
     }
 }
@@ -781,11 +798,14 @@ pub fn ast_value_from_value(
         Value::NonFungibleId { value } => {
             AstValue::NonFungibleId(Box::new(AstValue::String(value.to_string())))
         }
-        Value::NonFungibleAddress { address: value } => {
-            AstValue::NonFungibleAddress(Box::new(AstValue::String(value.to_string())))
+        Value::NonFungibleAddress { address } => {
+            AstValue::NonFungibleAddress(Box::new(AstValue::String(address.to_string())))
         }
 
-        Value::Bytes { value } => AstValue::Bytes(value.clone()),
+        Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
+        Value::Expression { value } => {
+            AstValue::Expression(Box::new(AstValue::String(value.to_string())))
+        }
 
         Value::Component { .. }
         | Value::Vault { .. }
@@ -1051,9 +1071,32 @@ pub fn value_from_ast_value(
             }
         }
 
-        AstValue::Bytes(value) => Value::Bytes {
-            value: value.clone(),
-        },
+        AstValue::Blob(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Blob {
+                    hash: Blob::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Blob,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::Expression(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Expression {
+                    value: Expression::from_str(&value)?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind: ValueKind::Expression,
+                    expected: vec![ValueKind::String],
+                    found: value.kind().into(),
+                })?
+            }
+        }
     };
     Ok(value)
 }
@@ -1202,7 +1245,6 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         Value::NonFungibleId { value } => decode_any(&scrypto_encode(value))?,
         Value::NonFungibleAddress { address } => decode_any(&scrypto_encode(address))?,
 
-        Value::Bytes { value } => decode_any(&scrypto_encode(value))?,
         Value::KeyValueStore { identifier } => decode_any(&scrypto_encode(
             // TODO: This might not be correct due to the generics. Required more investigation.
             &scrypto::prelude::KeyValueStore {
@@ -1217,6 +1259,9 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
 
         Value::Ed25519PublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
         Value::Ed25519Signature { signature } => decode_any(&scrypto_encode(signature))?,
+
+        Value::Blob { hash } => decode_any(&scrypto_encode(hash))?,
+        Value::Expression { value } => decode_any(&scrypto_encode(value))?,
     };
     Ok(value)
 }
@@ -1405,6 +1450,13 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                 },
                 ScryptoType::Ed25519Signature => Value::Ed25519Signature {
                     signature: scrypto_decode(&encode_any(&value))?,
+                },
+
+                ScryptoType::Blob => Value::Blob {
+                    hash: scrypto_decode(&encode_any(&value))?,
+                },
+                ScryptoType::Expression => Value::Expression {
+                    value: scrypto_decode(&encode_any(&value))?,
                 },
             },
             None => return Err(Error::UnknownTypeId { type_id: *type_id }),

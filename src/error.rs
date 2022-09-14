@@ -140,6 +140,8 @@ impl_from_parse_error! {
     scrypto::prelude::ParseHashError => Hash,
     scrypto::prelude::ParseNonFungibleIdError => NonFungibleId,
     scrypto::prelude::ParseNonFungibleAddressError => NonFungibleAddress,
+    scrypto::prelude::ParseBlobError => Blob,
+    scrypto::prelude::ParseExpressionError => Expression,
 }
 
 impl_from_error! {
