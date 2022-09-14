@@ -2073,18 +2073,6 @@ mod tests {
                 value: NonFungibleId::from_str("3007100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
             }
         };
-
-        test_value! {
-            r#"
-            {
-                "type": "Bytes",
-                "value": "0307100000000b3ce8b6056e62b902e029623df6df5c0307100000000b3ce8b6056e62b902e029623df6df5c"
-            }
-            "#,
-            Value::Bytes {
-                value: hex::decode("0307100000000b3ce8b6056e62b902e029623df6df5c0307100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
-            }
-        };
     }
 
     #[test]
