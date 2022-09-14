@@ -8,7 +8,7 @@ import {
 	Proof,
 	NonFungibleId,
 	Bytes,
-	String
+	String,
 } from "./value";
 
 export type Instruction =

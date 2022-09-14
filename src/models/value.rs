@@ -166,23 +166,23 @@ pub enum Value {
     },
 
     Hash {
-        #[serde(with = "HashDef")]
+        #[serde_as(as = "DisplayFromStr")]
         value: Hash,
     },
     EcdsaPublicKey {
-        #[serde(with = "EcdsaPublicKeyDef")]
+        #[serde_as(as = "DisplayFromStr")]
         public_key: EcdsaPublicKey,
     },
     EcdsaSignature {
-        #[serde(with = "EcdsaSignatureDef")]
+        #[serde_as(as = "DisplayFromStr")]
         signature: EcdsaSignature,
     },
     Ed25519PublicKey {
-        #[serde(with = "Ed25519PublicKeyDef")]
+        #[serde_as(as = "DisplayFromStr")]
         public_key: Ed25519PublicKey,
     },
     Ed25519Signature {
-        #[serde(with = "Ed25519SignatureDef")]
+        #[serde_as(as = "DisplayFromStr")]
         signature: Ed25519Signature,
     },
 

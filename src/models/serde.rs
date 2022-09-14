@@ -1,11 +1,12 @@
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Ed25519PublicKey, Ed25519Signature, Hash};
+use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash};
 use transaction::model::TransactionHeader;
 
 use crate::models::manifest::Manifest;
-
+use serde_with::{serde_as, DisplayFromStr};
+#[serde_as]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "TransactionHeader")]
 pub struct TransactionHeaderDef {
@@ -14,32 +15,12 @@ pub struct TransactionHeaderDef {
     pub start_epoch_inclusive: u64,
     pub end_epoch_exclusive: u64,
     pub nonce: u64,
-    #[serde(with = "EcdsaPublicKeyDef")]
+    #[serde_as(as = "DisplayFromStr")]
     pub notary_public_key: EcdsaPublicKey,
     pub notary_as_signatory: bool,
     pub cost_unit_limit: u32,
     pub tip_percentage: u32,
 }
-
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "EcdsaPublicKey")]
-pub struct EcdsaPublicKeyDef(#[serde(with = "hex::serde")] pub [u8; EcdsaPublicKey::LENGTH]);
-
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "EcdsaSignature")]
-pub struct EcdsaSignatureDef(#[serde(with = "hex::serde")] pub [u8; EcdsaSignature::LENGTH]);
-
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "Ed25519PublicKey")]
-pub struct Ed25519PublicKeyDef(#[serde(with = "hex::serde")] pub [u8; Ed25519PublicKey::LENGTH]);
-
-#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(remote = "Ed25519Signature")]
-pub struct Ed25519SignatureDef(#[serde(with = "hex::serde")] pub [u8; Ed25519Signature::LENGTH]);
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(remote = "Hash")]
-pub struct HashDef(#[serde(with = "hex::serde")] pub [u8; Hash::LENGTH]);
 
 pub type VaultId = EntityId;
 pub type KeyValueStoreId = EntityId;
@@ -198,11 +179,12 @@ pub struct SignedTransactionIntent {
     pub signatures: Vec<Signature>,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Signature {
-    #[serde(with = "EcdsaPublicKeyDef")]
+    #[serde_as(as = "DisplayFromStr")]
     pub public_key: EcdsaPublicKey,
-    #[serde(with = "EcdsaSignatureDef")]
+    #[serde_as(as = "DisplayFromStr")]
     pub signature: EcdsaSignature,
 }
 

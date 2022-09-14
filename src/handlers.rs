@@ -282,7 +282,9 @@ pub fn handle_decompile_unknown_transaction_intent(
     Ok(response)
 }
 
-pub fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddressResponse, Error> {
+pub fn handle_decode_address(
+    request: DecodeAddressRequest,
+) -> Result<DecodeAddressResponse, Error> {
     // We need to deduce the network from the HRP of the passed address. Therefore, we need to begin
     // by decoding the address, and getting the HRP.
     let (hrp, data, variant): (String, Vec<u5>, Variant) =
@@ -341,7 +343,9 @@ pub fn handle_decode_address(request: DecodeAddressRequest) -> Result<DecodeAddr
     Ok(response)
 }
 
-pub fn handle_encode_address(request: EncodeAddressRequest) -> Result<EncodeAddressResponse, Error> {
+pub fn handle_encode_address(
+    request: EncodeAddressRequest,
+) -> Result<EncodeAddressResponse, Error> {
     let address: &[u8] = &request.address;
     let response: Address = if let Ok(resource_address) =
         scrypto::prelude::ResourceAddress::try_from(address)

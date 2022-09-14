@@ -1,6 +1,7 @@
 use crate::models::manifest::ManifestKind;
 use crate::models::serde::SignedTransactionIntent;
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileNotarizedTransactionIntentRequest {
@@ -9,9 +10,10 @@ pub struct DecompileNotarizedTransactionIntentRequest {
     pub compiled_notarized_intent: Vec<u8>,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileNotarizedTransactionIntentResponse {
     pub signed_intent: SignedTransactionIntent,
-    #[serde(with = "crate::models::serde::EcdsaSignatureDef")]
+    #[serde_as(as = "DisplayFromStr")]
     pub notary_signature: scrypto::prelude::EcdsaSignature,
 }
