@@ -1,4 +1,5 @@
 use std::convert::TryFrom;
+use std::str::FromStr;
 
 use bech32::Variant;
 use bech32::{self, u5, FromBase32};
@@ -11,6 +12,7 @@ use crate::models::serde::{
     NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
 };
 use crate::models::*;
+use crate::utils::*;
 
 // Links the extern functions to the handlers that will handle their requests.
 link_handler! {
@@ -291,49 +293,19 @@ pub fn handle_decode_address(
         bech32::decode(&request.address).map_err(scrypto::address::AddressError::DecodingError)?;
     let data: Vec<u8> =
         Vec::<u8>::from_base32(&data).map_err(scrypto::address::AddressError::DecodingError)?;
-    let bech32_manager: Bech32Manager = Bech32Manager::new_from_hrp(&hrp)?;
 
     match variant {
         Variant::Bech32m => Ok(()),
         variant => Err(scrypto::address::AddressError::InvalidVariant(variant)),
     }?;
 
-    let address: Address = {
-        if let Ok(resource_address) = bech32_manager
-            .decoder
-            .validate_and_decode_resource_address(&request.address)
-        {
-            Ok(NetworkAwareResourceAddress {
-                address: resource_address,
-                network_id: bech32_manager.network_id(),
-            }
-            .into())
-        } else if let Ok(component_address) = bech32_manager
-            .decoder
-            .validate_and_decode_component_address(&request.address)
-        {
-            Ok(NetworkAwareComponentAddress {
-                address: component_address,
-                network_id: bech32_manager.network_id(),
-            }
-            .into())
-        } else if let Ok(package_address) = bech32_manager
-            .decoder
-            .validate_and_decode_package_address(&request.address)
-        {
-            Ok(NetworkAwarePackageAddress {
-                address: package_address,
-                network_id: bech32_manager.network_id(),
-            }
-            .into())
-        } else {
-            Err(Error::UnrecognizedAddressFormat)
-        }
-    }?;
+    let address: Address = Address::from_str(&request.address)?;
+    let network_definition: scrypto::core::NetworkDefinition =
+        network_definition_from_network_id(address.network_id());
 
     let response: DecodeAddressResponse = DecodeAddressResponse {
-        network_id: bech32_manager.network_id(),
-        network_name: bech32_manager.network_definition.logical_name,
+        network_id: network_definition.id,
+        network_name: network_definition.logical_name,
         hrp,
         data,
         entity_type: address.kind(),
@@ -347,30 +319,7 @@ pub fn handle_encode_address(
     request: EncodeAddressRequest,
 ) -> Result<EncodeAddressResponse, Error> {
     let address: &[u8] = &request.address;
-    let response: Address = if let Ok(resource_address) =
-        scrypto::prelude::ResourceAddress::try_from(address)
-    {
-        Ok(NetworkAwareResourceAddress {
-            address: resource_address,
-            network_id: request.network_id,
-        }
-        .into())
-    } else if let Ok(component_address) = scrypto::prelude::ComponentAddress::try_from(address) {
-        Ok(NetworkAwareComponentAddress {
-            address: component_address,
-            network_id: request.network_id,
-        }
-        .into())
-    } else if let Ok(package_address) = scrypto::prelude::PackageAddress::try_from(address) {
-        Ok(NetworkAwarePackageAddress {
-            address: package_address,
-            network_id: request.network_id,
-        }
-        .into())
-    } else {
-        Err(Error::UnrecognizedAddressFormat)
-    }?;
-
+    let response: Address = Address::from_u8_array(address, request.network_id)?;
     Ok(response)
 }
 

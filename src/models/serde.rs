@@ -1,11 +1,18 @@
+use std::convert::TryFrom;
+use std::fmt::Display;
+use std::str::FromStr;
+
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_with::{serde_as, DisplayFromStr};
 
 use scrypto::prelude::{EcdsaPublicKey, EcdsaSignature, Hash};
 use transaction::model::TransactionHeader;
 
+use crate::address::Bech32Manager;
+use crate::error::Error;
 use crate::models::manifest::Manifest;
-use serde_with::{serde_as, DisplayFromStr};
+
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(remote = "TransactionHeader")]
@@ -97,6 +104,19 @@ macro_rules! define_network_aware_address {
             pub address: $underlying_type,
         }
 
+        impl $network_aware_struct_ident {
+            pub fn from_u8_array(data: &[u8], network_id: u8) -> Result<Self, Error> {
+                if let Ok(address) = <$underlying_type>::try_from(data) {
+                    Ok($network_aware_struct_ident {
+                        network_id,
+                        address,
+                    })
+                } else {
+                    Err(Error::UnrecognizedAddressFormat)
+                }
+            }
+        }
+
         impl<'de> Deserialize<'de> for $network_aware_struct_ident {
             fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
             where
@@ -104,21 +124,9 @@ macro_rules! define_network_aware_address {
             {
                 let address_string: &str = Deserialize::deserialize(deserializer)?;
 
-                let network_id: u8 =
-                    crate::utils::network_id_from_address_string(address_string)
-                        .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
-                let network_definition: scrypto::core::NetworkDefinition =
-                    crate::utils::network_definition_from_network_id(network_id);
-                let bech32_decoder = scrypto::address::Bech32Decoder::new(&network_definition);
-
-                let address: $underlying_type = bech32_decoder
-                    .$decoding_method_ident(address_string)
-                    .map_err(|error| DeserializationError::custom(format!("{:?}", error)))?;
-
-                Ok(Self {
-                    network_id,
-                    address,
-                })
+                let address: Self = Self::from_str(address_string)
+                    .map_err(|err| DeserializationError::custom(format!("{:?}", err)))?;
+                Ok(address)
             }
         }
 
@@ -127,12 +135,7 @@ macro_rules! define_network_aware_address {
             where
                 S: Serializer,
             {
-                let network_definition: scrypto::core::NetworkDefinition =
-                    crate::utils::network_definition_from_network_id(self.network_id);
-                let bech32_encoder: scrypto::address::Bech32Encoder =
-                    scrypto::address::Bech32Encoder::new(&network_definition);
-                let encoded_address: String = bech32_encoder.$encoding_method_ident(&self.address);
-                Ok(serializer.serialize_str(&encoded_address)?)
+                Ok(serializer.serialize_str(&self.to_string())?)
             }
         }
 
@@ -145,6 +148,29 @@ macro_rules! define_network_aware_address {
         impl Into<$underlying_type> for &$network_aware_struct_ident {
             fn into(self) -> $underlying_type {
                 self.address.clone()
+            }
+        }
+
+        impl Display for $network_aware_struct_ident {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                let bech32_manager: Bech32Manager = Bech32Manager::new(self.network_id);
+                write!(
+                    f,
+                    "{}",
+                    bech32_manager.encoder.$encoding_method_ident(&self.address)
+                )
+            }
+        }
+
+        impl FromStr for $network_aware_struct_ident {
+            type Err = Error;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                let bech32_manager: Bech32Manager = Bech32Manager::new_from_address(s)?;
+                Ok(Self {
+                    address: bech32_manager.decoder.$decoding_method_ident(s)?,
+                    network_id: bech32_manager.network_id(),
+                })
             }
         }
     };
@@ -212,6 +238,32 @@ impl Address {
             },
         }
     }
+
+    pub fn network_id(&self) -> u8 {
+        match self {
+            Self::ComponentAddress(address) => address.network_id,
+            Self::ResourceAddress(address) => address.network_id,
+            Self::PackageAddress(address) => address.network_id,
+        }
+    }
+
+    pub fn from_u8_array(array: &[u8], network_id: u8) -> Result<Self, Error> {
+        if let Ok(component_address) =
+            NetworkAwareComponentAddress::from_u8_array(array, network_id)
+        {
+            Ok(Self::ComponentAddress(component_address))
+        } else if let Ok(resource_address) =
+            NetworkAwareResourceAddress::from_u8_array(array, network_id)
+        {
+            Ok(Self::ResourceAddress(resource_address))
+        } else if let Ok(package_address) =
+            NetworkAwarePackageAddress::from_u8_array(array, network_id)
+        {
+            Ok(Self::PackageAddress(package_address))
+        } else {
+            Err(Error::UnrecognizedAddressFormat)
+        }
+    }
 }
 
 impl From<NetworkAwareComponentAddress> for Address {
@@ -229,6 +281,32 @@ impl From<NetworkAwareResourceAddress> for Address {
 impl From<NetworkAwarePackageAddress> for Address {
     fn from(address: NetworkAwarePackageAddress) -> Self {
         Self::PackageAddress(address)
+    }
+}
+
+impl Display for Address {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Address::ComponentAddress(address) => write!(f, "{}", address.to_string()),
+            Address::ResourceAddress(address) => write!(f, "{}", address.to_string()),
+            Address::PackageAddress(address) => write!(f, "{}", address.to_string()),
+        }
+    }
+}
+
+impl FromStr for Address {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(component_address) = NetworkAwareComponentAddress::from_str(s) {
+            Ok(Self::ComponentAddress(component_address))
+        } else if let Ok(resource_address) = NetworkAwareResourceAddress::from_str(s) {
+            Ok(Self::ResourceAddress(resource_address))
+        } else if let Ok(package_address) = NetworkAwarePackageAddress::from_str(s) {
+            Ok(Self::PackageAddress(package_address))
+        } else {
+            Err(Error::UnrecognizedAddressFormat)
+        }
     }
 }
 
