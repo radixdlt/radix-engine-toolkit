@@ -24,7 +24,9 @@ const main = async (): Promise<void> => {
 	console.log(`Account Private Key ${keyPair.privateKeyHex()}`);
 
 	// Deriving the `NonFungibleAddress` based on the public key of the account.
-	let nonFungibleAddress: Uint8Array = Uint8Array.from(
+	// TODO: The Public Key => NonFungibleAddress conversion should be something that the 
+    // transaction service does.
+    let nonFungibleAddress: Uint8Array = Uint8Array.from(
 		Buffer.concat([
 			byteArrayFromHex("000000000000000000000000000000000000000000000000000002"), // ECDSA resource address
 			Uint8Array.from([
