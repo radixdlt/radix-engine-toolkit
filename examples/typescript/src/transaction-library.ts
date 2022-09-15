@@ -6,11 +6,11 @@ export { default as ManifestBuilder } from "./manifest-builder";
 export * from "./value";
 
 export const createTransactionService = async (
-	options: WebAssembly.Imports = {
-		env: {
-			memory: new WebAssembly.Memory({
-				initial: 1,
-			}),
-		},
-	}
+  options: WebAssembly.Imports = {
+    env: {
+      memory: new WebAssembly.Memory({
+        initial: 1,
+      }),
+    },
+  }
 ) => new TransactionService(await wasmInit(options));
