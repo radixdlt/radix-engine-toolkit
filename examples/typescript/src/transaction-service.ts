@@ -1,5 +1,3 @@
-"use strict";
-
 import {
 	CompileTransactionIntentRequest,
 	CompileTransactionIntentResponse,
@@ -32,24 +30,18 @@ import {
 	SBORDecodeResponse,
 } from "./interfaces";
 import { Error } from "./error";
-import fs from "fs";
 
 export default class TransactionAPI {
-	private wasmModule: WebAssembly.WebAssemblyInstantiatedSource;
+	private wasmModule: WebAssembly.Instance;
 	private internal_service: TransactionServiceInterface;
 
 	// =============
 	// Constructors
 	// =============
 
-	constructor(wasmModule: WebAssembly.WebAssemblyInstantiatedSource) {
+	constructor(wasmModule: WebAssembly.Instance) {
 		this.wasmModule = wasmModule;
-		this.internal_service = wasmModule.instance.exports as unknown as TransactionServiceInterface;
-	}
-
-	static async fromPath(path: string): Promise<TransactionAPI> {
-		let contents: Uint8Array = await fs.readFileSync(path);
-		return TransactionAPI.fromWasmModuleBuffer(contents);
+		this.internal_service = wasmModule.exports as unknown as TransactionServiceInterface;
 	}
 
 	static async fromWasmModuleBuffer(buffer: Uint8Array): Promise<TransactionAPI> {
@@ -64,7 +56,7 @@ export default class TransactionAPI {
 			buffer,
 			wasmImports
 		);
-		return new TransactionAPI(wasmModule);
+		return new TransactionAPI(wasmModule.instance);
 	}
 
 	// =================
@@ -196,7 +188,7 @@ export default class TransactionAPI {
 
 	private readString(pointer: number): string {
 		// @ts-ignore
-		let memoryBuffer: Uint8Array = this.wasmModule.instance.exports.memory.buffer;
+		let memoryBuffer: Uint8Array = this.wasmModule.exports.memory.buffer;
 
 		const view: Uint8Array = new Uint8Array(memoryBuffer, pointer);
 		const length: number = view.findIndex((byte) => byte === 0);
@@ -209,7 +201,7 @@ export default class TransactionAPI {
 		const pointer: number = this.allocateMemory(string);
 
 		// @ts-ignore
-		let memoryBuffer: Uint8Array = this.wasmModule.instance.exports.memory.buffer;
+		let memoryBuffer: Uint8Array = this.wasmModule.exports.memory.buffer;
 
 		const view: Uint8Array = new Uint8Array(memoryBuffer, pointer);
 		const encoder: TextEncoder = new TextEncoder();

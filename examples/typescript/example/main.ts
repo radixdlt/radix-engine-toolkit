@@ -1,4 +1,4 @@
-import TransactionService from "./transaction-service";
+import TransactionService from "../src/transaction-service";
 import fs from "fs";
 import {
 	CompileTransactionIntentRequest,
@@ -9,7 +9,6 @@ import {
 	DecompileTransactionIntentResponse,
 	ManifestInstructions,
 	ManifestKind,
-	Signature,
 	TransactionHeader,
 	CompileSignedTransactionIntentRequest,
 	CompileSignedTransactionIntentResponse,
@@ -21,23 +20,19 @@ import {
 	DecompileNotarizedTransactionIntentResponse,
 	DecompileUnknownTransactionIntentRequest,
 	DecompileUnknownTransactionIntentResponse,
-	EncodeAddressRequest,
-	DecodeAddressRequest,
-	SBOREncodeRequest,
-	SBORDecodeRequest,
 	TransactionManifest,
 	Curve,
 	SignatureWithPublicKey,
-} from "./interfaces";
+} from "../src/interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
-import path from "path";
+import {createTransactionService} from '../src/transaction-library'
+// @ts-ignore
+import manifestString from '../../complex.rtm?raw'
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
-	const scriptDir = __dirname;
-	const wasmModulePath: string = path.join(scriptDir, "transaction_library.wasm");
-	const transactionService: TransactionService = await TransactionService.fromPath(wasmModulePath);
+	const transactionService: TransactionService = await createTransactionService();
 
 	// Example 1: Printing the information of the transaction service. This is essentially the
 	// "Hello World" of this project. If the information of the package is printed correctly, then
@@ -50,8 +45,6 @@ const main = async (): Promise<void> => {
 	// to convert manifests from one format to another. In this example, we will read the manifest
 	// file in the `examples` directory and convert it to a JSON manifest through the transaction
 	// library.
-	const manifestFilePath: string = path.join(scriptDir, "complex.rtm");
-	let manifestString: string = fs.readFileSync(manifestFilePath, "utf-8");
 	let manifest: ManifestInstructions = {
 		type: ManifestKind.String,
 		value: manifestString,
@@ -208,7 +201,7 @@ const main = async (): Promise<void> => {
 		Buffer.from(doubleSignedIntentHash.toString(), "hex")
 	);
 
-	const notaryPrivateKeyString: string =
+	const notaryPrivateKeyString =
 		"0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622";
 	let notaryPrivateKey: Uint8Array = Uint8Array.from(Buffer.from(notaryPrivateKeyString, "hex"));
 	let notarySignature = secp256k1.ecdsaSign(doubleSignedIntentHashBytes, notaryPrivateKey);

@@ -1,4 +1,3 @@
-import { type } from "os";
 import { Instruction } from "./instruction";
 import { Value, ComponentAddress, PackageAddress, ResourceAddress } from "./value";
 
@@ -36,6 +35,7 @@ export type Response =
 	| SBOREncodeResponse
 	| SBORDecodeResponse;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface InformationRequest {}
 
 export interface InformationResponse {
