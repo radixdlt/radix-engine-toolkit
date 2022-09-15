@@ -1,5 +1,4 @@
 import TransactionService from "../src/transaction-service";
-import fs from "fs";
 import {
 	CompileTransactionIntentRequest,
 	CompileTransactionIntentResponse,
@@ -29,6 +28,7 @@ import * as secp256k1 from "secp256k1";
 import {createTransactionService} from '../src/transaction-library'
 // @ts-ignore
 import manifestString from '../../complex.rtm?raw'
+import {Buffer} from 'buffer'
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
