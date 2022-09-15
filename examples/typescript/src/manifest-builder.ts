@@ -18,7 +18,7 @@ export default class ManifestBuilder {
 			instruction: Instruction.InstructionKind.CallFunction,
 			package_address: {
 				type: Value.ValueKind.PackageAddress,
-				value: package_address,
+				address: package_address,
 			},
 			blueprint_name: {
 				type: Value.ValueKind.String,
@@ -38,7 +38,7 @@ export default class ManifestBuilder {
 			instruction: Instruction.InstructionKind.CallMethod,
 			component_address: {
 				type: Value.ValueKind.ComponentAddress,
-				value: component_address,
+				address: component_address,
 			},
 			method_name: {
 				type: Value.ValueKind.String,
@@ -56,7 +56,7 @@ export default class ManifestBuilder {
 			instruction: Instruction.InstructionKind.TakeFromWorktop,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_bucket: {
 				type: Value.ValueKind.Bucket,
@@ -81,7 +81,7 @@ export default class ManifestBuilder {
 			},
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_bucket: {
 				type: Value.ValueKind.Bucket,
@@ -101,7 +101,7 @@ export default class ManifestBuilder {
 			ids: ids,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_bucket: {
 				type: Value.ValueKind.Bucket,
@@ -131,7 +131,7 @@ export default class ManifestBuilder {
 			instruction: Instruction.InstructionKind.AssertWorktopContains,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 		});
 		return this;
@@ -148,7 +148,7 @@ export default class ManifestBuilder {
 			},
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 		});
 		return this;
@@ -160,7 +160,7 @@ export default class ManifestBuilder {
 			ids: ids,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 		});
 		return this;
@@ -201,7 +201,7 @@ export default class ManifestBuilder {
 			instruction: Instruction.InstructionKind.CreateProofFromAuthZone,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_proof: {
 				type: Value.ValueKind.Proof,
@@ -226,7 +226,7 @@ export default class ManifestBuilder {
 			},
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_proof: {
 				type: Value.ValueKind.Proof,
@@ -246,7 +246,7 @@ export default class ManifestBuilder {
 			ids: ids,
 			resource_address: {
 				type: Value.ValueKind.ResourceAddress,
-				value: resource_address,
+				address: resource_address,
 			},
 			into_proof: {
 				type: Value.ValueKind.Proof,

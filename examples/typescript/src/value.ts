@@ -147,15 +147,15 @@ export interface PreciseDecimal {
 
 export interface ComponentAddress {
 	readonly type: ValueKind.ComponentAddress;
-	value: string;
+	address: string;
 }
 export interface ResourceAddress {
 	readonly type: ValueKind.ResourceAddress;
-	value: string;
+	address: string;
 }
 export interface PackageAddress {
 	readonly type: ValueKind.PackageAddress;
-	value: string;
+	address: string;
 }
 
 export interface Hash {
