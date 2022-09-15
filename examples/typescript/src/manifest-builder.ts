@@ -49,21 +49,6 @@ export default class ManifestBuilder {
 		return this;
 	}
 
-	callMethodWithAllResources(component_address: string, method_name: string): this {
-		this.instructions.push({
-			instruction: Instruction.InstructionKind.CallMethodWithAllResources,
-			component_address: {
-				type: Value.ValueKind.ComponentAddress,
-				value: component_address,
-			},
-			method_name: {
-				type: Value.ValueKind.String,
-				value: method_name,
-			},
-		});
-		return this;
-	}
-
 	takeFromWorktop(resource_address: string, bucket_identifier: string | number): this {
 		// TODO: If the bucket identifier is a number, check that number is an unsigned integer in
 		// the bounds of a u32.
@@ -324,12 +309,16 @@ export default class ManifestBuilder {
 		return this;
 	}
 
-	publishPackage(package_bytes: string): this {
+	publishPackage(code: string, abi: string): this {
 		this.instructions.push({
 			instruction: Instruction.InstructionKind.PublishPackage,
-			package: {
-				type: Value.ValueKind.Bytes,
-				value: package_bytes,
+			code: {
+				type: Value.ValueKind.Blob,
+				hash: code,
+			},
+			abi: {
+				type: Value.ValueKind.Blob,
+				hash: abi,
 			},
 		});
 		return this;

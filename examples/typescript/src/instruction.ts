@@ -7,14 +7,13 @@ import {
 	Bucket,
 	Proof,
 	NonFungibleId,
-	Bytes,
 	String,
+	Blob
 } from "./value";
 
 export type Instruction =
 	| CallFunction
 	| CallMethod
-	| CallMethodWithAllResources
 	| TakeFromWorktop
 	| TakeFromWorktopByAmount
 	| TakeFromWorktopByIds
@@ -46,11 +45,6 @@ export interface CallMethod {
 	component_address: ComponentAddress;
 	method_name: String;
 	arguments?: Value[];
-}
-export interface CallMethodWithAllResources {
-	readonly instruction: InstructionKind.CallMethodWithAllResources;
-	component_address: ComponentAddress;
-	method_name: String;
 }
 
 export interface TakeFromWorktop {
@@ -140,7 +134,8 @@ export interface DropAllProofs {
 
 export interface PublishPackage {
 	readonly instruction: InstructionKind.PublishPackage;
-	package: Bytes;
+	code: Blob,
+	abi: Blob
 }
 
 export enum InstructionKind {

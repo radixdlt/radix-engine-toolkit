@@ -31,7 +31,8 @@ export type Value =
 	| Proof
 	| NonFungibleId
 	| NonFungibleAddress
-	| Bytes;
+	| Expression
+	| Blob;
 
 export interface Unit {
 	readonly type: ValueKind.Unit;
@@ -184,10 +185,6 @@ export interface NonFungibleAddress {
 	value: string;
 }
 
-export interface Bytes {
-	readonly type: ValueKind.Bytes;
-	value: string;
-}
 export interface KeyValueStore {
 	readonly type: ValueKind.KeyValueStore;
 	identifier: string;
@@ -211,6 +208,16 @@ export interface Ed25519PublicKey {
 export interface Ed25519Signature {
 	readonly type: ValueKind.Ed25519Signature;
 	signature: string;
+}
+
+export interface Expression {
+	readonly type: ValueKind.Expression;
+	value: string;
+}
+
+export interface Blob {
+	readonly type: ValueKind.Blob;
+	hash: string;
 }
 
 export enum ValueKind {
@@ -260,11 +267,13 @@ export enum ValueKind {
 	NonFungibleId = "NonFungibleId",
 	NonFungibleAddress = "NonFungibleAddress",
 
-	Bytes = "Bytes",
 	KeyValueStore = "KeyValueStore",
 
 	EcdsaPublicKey = "EcdsaPublicKey",
 	EcdsaSignature = "EcdsaSignature",
 	Ed25519PublicKey = "Ed25519PublicKey",
 	Ed25519Signature = "Ed25519Signature",
+
+	Expression = "Expression",
+	Blob = "Blob"
 }
