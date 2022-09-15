@@ -167,7 +167,7 @@ export interface ManifestString {
 }
 
 export interface ManifestJSON {
-	readonly type: ManifestJSON;
+	readonly type: ManifestKind.JSON;
 	value: Instruction[];
 }
 
