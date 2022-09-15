@@ -8,7 +8,7 @@ import {
 	Proof,
 	NonFungibleId,
 	String,
-	Blob
+	Blob,
 } from "./value";
 
 export type Instruction =
@@ -134,8 +134,8 @@ export interface DropAllProofs {
 
 export interface PublishPackage {
 	readonly instruction: InstructionKind.PublishPackage;
-	code: Blob,
-	abi: Blob
+	code: Blob;
+	abi: Blob;
 }
 
 export enum InstructionKind {

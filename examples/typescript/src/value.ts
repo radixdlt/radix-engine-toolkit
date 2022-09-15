@@ -275,5 +275,5 @@ export enum ValueKind {
 	Ed25519Signature = "Ed25519Signature",
 
 	Expression = "Expression",
-	Blob = "Blob"
+	Blob = "Blob",
 }

@@ -25,10 +25,11 @@ import {
 } from "../src/interfaces";
 import * as CryptoJS from "crypto-js";
 import * as secp256k1 from "secp256k1";
-import {createTransactionService} from '../src/transaction-library'
+import { createTransactionService } from "../src/transaction-library";
 // @ts-ignore
-import manifestString from '../../complex.rtm?raw'
-import {Buffer} from 'buffer'
+import manifestString from "../../complex.rtm?raw";
+import { Buffer } from "buffer";
+
 
 const main = async (): Promise<void> => {
 	// Creating a new transaction service object from the transaction service WASM file path
@@ -201,8 +202,7 @@ const main = async (): Promise<void> => {
 		Buffer.from(doubleSignedIntentHash.toString(), "hex")
 	);
 
-	const notaryPrivateKeyString =
-		"0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622";
+	const notaryPrivateKeyString = "0d5666def4fb894f18a5075b261845c044b7e3dd2ba8514b2614dbbb6606c622";
 	let notaryPrivateKey: Uint8Array = Uint8Array.from(Buffer.from(notaryPrivateKeyString, "hex"));
 	let notarySignature = secp256k1.ecdsaSign(doubleSignedIntentHashBytes, notaryPrivateKey);
 
@@ -259,5 +259,3 @@ const main = async (): Promise<void> => {
 	console.log(JSON.stringify(decompileUnknownTransactionIntentResponse, null, 4));
 	console.log("=========================", "\n");
 };
-
-main();
