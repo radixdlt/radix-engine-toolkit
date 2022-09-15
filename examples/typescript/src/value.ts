@@ -182,7 +182,7 @@ export interface NonFungibleId {
 }
 export interface NonFungibleAddress {
 	readonly type: ValueKind.NonFungibleAddress;
-	value: string;
+	address: string;
 }
 
 export interface KeyValueStore {
