@@ -1,6 +1,6 @@
 import TransactionService from "../src/transaction-service";
 import {
-  ManifestKind,
+  ManifestInstructionsKind,
   TransactionHeader,
   CompileSignedTransactionIntentResponse,
   CompileNotarizedTransactionIntentResponse,
@@ -114,7 +114,7 @@ const main = async (): Promise<void> => {
   };
   let transactionManifest: TransactionManifest = {
     instructions: {
-      type: ManifestKind.JSON,
+      type: ManifestInstructionsKind.JSON,
       value: manifestInstructions,
     },
   };

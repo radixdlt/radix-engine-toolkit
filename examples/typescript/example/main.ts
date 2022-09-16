@@ -7,7 +7,7 @@ import {
   DecompileTransactionIntentRequest,
   DecompileTransactionIntentResponse,
   ManifestInstructions,
-  ManifestKind,
+  ManifestInstructionsKind,
   TransactionHeader,
   CompileSignedTransactionIntentRequest,
   CompileSignedTransactionIntentResponse,
@@ -46,7 +46,7 @@ const main = async (): Promise<void> => {
   // file in the `examples` directory and convert it to a JSON manifest through the transaction
   // library.
   let manifest: ManifestInstructions = {
-    type: ManifestKind.String,
+    type: ManifestInstructionsKind.String,
     value: manifestString,
   };
   let transactionManifest: TransactionManifest = {
@@ -60,7 +60,7 @@ const main = async (): Promise<void> => {
   let manifestConversionRequest: ConvertManifestRequest = {
     transaction_version: 1,
     network_id: 0xf2,
-    manifest_instructions_output_format: ManifestKind.JSON,
+    manifest_instructions_output_format: ManifestInstructionsKind.JSON,
     manifest: transactionManifest,
   };
   let manifestConversionResponse: ConvertManifestResponse = transactionService.convertManifest(
@@ -107,7 +107,7 @@ const main = async (): Promise<void> => {
   // understand (in code or as a human).
   let decompileTransactionIntentRequest: DecompileTransactionIntentRequest = {
     compiled_intent: compileTransactionIntentResponse.compiled_intent,
-    manifest_instructions_output_format: ManifestKind.String,
+    manifest_instructions_output_format: ManifestInstructionsKind.String,
   };
   let decompileTransactionIntentResponse: DecompileTransactionIntentResponse =
     transactionService.decompileTransactionIntent(
@@ -180,7 +180,7 @@ const main = async (): Promise<void> => {
   // decompiled.
   let decompileSignedTransactionIntentRequest: DecompileSignedTransactionIntentRequest = {
     compiled_signed_intent: compileSignedTransactionIntentResponse.compiled_signed_intent,
-    manifest_instructions_output_format: ManifestKind.JSON,
+    manifest_instructions_output_format: ManifestInstructionsKind.JSON,
   };
   let decompileSignedTransactionIntentResponse: DecompileSignedTransactionIntentResponse =
     transactionService.decompileSignedTransactionIntent(
@@ -230,7 +230,7 @@ const main = async (): Promise<void> => {
   console.log("=========================", "\n");
 
   let decompileNotarizedTransactionIntentRequest: DecompileNotarizedTransactionIntentRequest = {
-    manifest_instructions_output_format: ManifestKind.JSON,
+    manifest_instructions_output_format: ManifestInstructionsKind.JSON,
     compiled_notarized_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
   };
   let decompileNotarizedTransactionIntentResponse: DecompileNotarizedTransactionIntentResponse =
@@ -247,7 +247,7 @@ const main = async (): Promise<void> => {
   // case, this library provides a function for the decompilation of a compiled transaction intent
   // which we are not sure what type it is.
   let decompileUnknownTransactionIntentRequest: DecompileUnknownTransactionIntentRequest = {
-    manifest_instructions_output_format: ManifestKind.JSON,
+    manifest_instructions_output_format: ManifestInstructionsKind.JSON,
     compiled_unknown_intent: compileNotarizedTransactionIntentResponse.compiled_notarized_intent,
   };
   let decompileUnknownTransactionIntentResponse: DecompileUnknownTransactionIntentResponse =

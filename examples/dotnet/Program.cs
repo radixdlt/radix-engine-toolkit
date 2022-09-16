@@ -52,7 +52,7 @@ Console.WriteLine("=========================\n");
 var convertManifestRequest = new ConvertManifestRequest(
     0x01,
     0xF2,
-    ManifestKind.JSON,
+    ManifestInstructionsKind.JSON,
     manifestString
 );
 var convertManifestResponse = service.convert_manifest(convertManifestRequest);
@@ -88,7 +88,7 @@ Console.WriteLine("=========================\n");
 // as a human).
 var decompileTransactionIntentRequest = new DecompileTransactionIntentRequest(
     compiledIntent: compileTransactionIntentResponse.CompiledIntent,
-    manifestOutputFormat: ManifestKind.JSON
+    manifestOutputFormat: ManifestInstructionsKind.JSON
 );
 var decompileTransactionIntentResponse = service.decompile_transaction_intent(
     decompileTransactionIntentRequest
@@ -137,7 +137,7 @@ Console.WriteLine("=========================\n");
 // be decompiled again. In this case, the compiled signed transaction intent can be decompiled.
 var decompileSignedTransactionIntentRequest = new DecompileSignedTransactionIntentRequest(
     compileSignedTransactionIntentResponse.CompiledSignedIntent,
-    ManifestKind.JSON
+    ManifestInstructionsKind.JSON
 );
 var decompileSignedTransactionIntentResponse = service.decompile_signed_transaction_intent(
     decompileSignedTransactionIntentRequest
@@ -173,7 +173,7 @@ Console.WriteLine("=========================\n");
 
 var decompileNotarizedTransactionIntentRequest = new DecompileNotarizedTransactionIntentRequest(
     compileNotarizedTransactionIntentResponse.CompiledNotarizedIntent,
-    ManifestKind.JSON
+    ManifestInstructionsKind.JSON
 );
 var decompileNotarizedTransactionIntentResponse = service.decompile_notarized_transaction_intent(
     decompileNotarizedTransactionIntentRequest
@@ -189,7 +189,7 @@ Console.WriteLine("=========================\n");
 // not sure what type it is.
 var decompileUnknownTransactionIntentRequest = new DecompileUnknownTransactionIntentRequest(
     compiledUnknownIntent: compileNotarizedTransactionIntentResponse.CompiledNotarizedIntent,
-    manifestOutputFormat: ManifestKind.JSON
+    manifestOutputFormat: ManifestInstructionsKind.JSON
 );
 var decompileUnknownTransactionIntentResponse = service.decompile_unknown_transaction_intent(
     decompileUnknownTransactionIntentRequest

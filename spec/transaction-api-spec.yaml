@@ -1,7 +1,7 @@
 ---
-openapi: 3.0.2
+openapi: 3.0.3
 info:
-  title: Transaction Lib
+  title: Transaction Library
   version: 0.1.0
 servers: []
 paths: {}
@@ -15,20 +15,25 @@ components:
     # Information
     InformationRequest:
       type: object
+      description: "This object represents the request for information on the transaction library."
       additionalProperties: false
 
     InformationResponse:
       type: object
+      description: "The response returned from an `InformationRequest`. This response contains the version of the transaction library currently in use."
       additionalProperties: false
       required:
         - package_version
       properties:
         package_version:
           type: string
+      example:
+        package_version: "0.1.0"
 
     # Convert Manifest
     ConvertManifestRequest:
       type: object
+      description: "A request to take a transaction manifest and convert it from one format to another. Currently, this request allows for the conversion of a transaction manifest from and to String and JSON."
       additionalProperties: false
       required:
         - transaction_version
@@ -37,32 +42,50 @@ components:
         - manifest
       properties:
         transaction_version:
+          description: "An 8-bit unsigned integer representing the transaction version. Currently, the library only supports a transaction version of 1."
           $ref: "#/components/schemas/Byte"
         network_id:
+          description: "An 8-bit unsigned integer representing the network id that the manifest is for"
           $ref: "#/components/schemas/Byte"
         manifest_instructions_output_format:
-          $ref: "#/components/schemas/ManifestKind"
+          description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
+          $ref: "#/components/schemas/ManifestInstructionsKind"
         manifest:
-          $ref: "#/components/schemas/Manifest"
+          description: "The transaction manifest to convert to the format specified in `manifest_instructions_output_format`"
+          $ref: "#/components/schemas/ManifestInstructions"
+      example:
+        transaction_version: 0
+        network_id: 0xF2
+        manifest_instructions_output_format: "JSON"
+        manifest:
+          type: "String"
+          value: "DROP_ALL_PROOFS;"
 
     ConvertManifestResponse:
-      $ref: "#/components/schemas/Manifest"
+      description: "The response returned from a `ConvertManifestRequest` containing the manifest after it has been converted to the type specified in the `manifest_instructions_output_format` field of the request."
+      $ref: "#/components/schemas/ManifestInstructions"
 
     # Compile Transaction Intent
     CompileTransactionIntentRequest:
+      description: "A request to compile a transaction intent to its SBOR-encoded representation"
       $ref: "#/components/schemas/TransactionIntent"
 
     CompileTransactionIntentResponse:
       type: object
+      description: "The response to the `CompileTransactionIntentRequest` containing the compiled transaction intent as a hex-encoded string"
       additionalProperties: false
       required:
         - compiled_intent
       properties:
         compiled_intent:
           type: string
+          description: "The hex-encoded string of the compiled transaction intent"
+      example: 
+        compiled_intent: "10020000001009000000070107f20a00000000000000000a20000000000000000a00000000000000009121000000031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f9396901000900000000090000000010010000003011130000000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c1200000077697468647261775f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000041700000054616b6546726f6d576f726b746f704279416d6f756e7402000000a1200000000000c84e676dc11b000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c0b0000006275795f67756d62616c6c30070e0000001001000000b104000000000200001d000000417373657274576f726b746f70436f6e7461696e734279416d6f756e7402000000a12000000000002cf61a24a229000000000000000000000000000000000000000000000000b61b00000000000000000000000000000000000000000000000000000000000415000000417373657274576f726b746f70436f6e7461696e7301000000b61b00000000aedb7960d1f87dc25138f4cd101da6c98d57323478d53c5fb9510f00000054616b6546726f6d576f726b746f7001000000b61b0000000000000000000000000000000000000000000000000000000000041500000043726561746550726f6f6646726f6d4275636b65740100000009010200000a000000436c6f6e6550726f6f660100000009020200000900000044726f7050726f6f660100000009020200000900000044726f7050726f6f660100000009030200000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c160000006372656174655f70726f6f665f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040f000000506f7046726f6d417574685a6f6e65000000000900000044726f7050726f6f660100000009040200000f00000052657475726e546f576f726b746f700100000009010200001400000054616b6546726f6d576f726b746f7042794964730200000031b402000000050000000905000000050000000907000000b61b0000000000000000000000000000000000000000000000000000000000041a00000043616c6c4d6574686f6457697468416c6c5265736f757263657302000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c0d0000006465706f7369745f62617463680d00000044726f70416c6c50726f6f6673000000000e0000005075626c6973685061636b616765010000003007d200000010020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c10000000000a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c12000000636f6d706c6963617465645f6d6574686f6430076f0000001002000000a120000000000064a7b3b6e00d000000000000000000000000000000000000000000000000a2400000000000000000000000023ed47ec9da71dcda2f4fb5e9f37fd2079e3000000000000000000000000000000000000000000000000000000000000000000000000000"
 
     # Decompile Transaction Intent
     DecompileTransactionIntentRequest:
+      description: "A request to take the SBOR-encoded compiled transaction intent and decompile it into a format supported by the library (either `JSON` or `String`)"
       allOf:
         - $ref: "#/components/schemas/CompileTransactionIntentResponse"
         - type: object
@@ -71,26 +94,37 @@ components:
             - manifest_instructions_output_format
           properties:
             manifest_instructions_output_format:
-              $ref: "#/components/schemas/ManifestKind"
-    
+              description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
+              $ref: "#/components/schemas/ManifestInstructionsKind"
+      example:
+        compiled_intent: "10020000001009000000070107f20a00000000000000000a20000000000000000a00000000000000009121000000031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f9396901000900000000090000000010010000003011130000000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c1200000077697468647261775f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000041700000054616b6546726f6d576f726b746f704279416d6f756e7402000000a1200000000000c84e676dc11b000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c0b0000006275795f67756d62616c6c30070e0000001001000000b104000000000200001d000000417373657274576f726b746f70436f6e7461696e734279416d6f756e7402000000a12000000000002cf61a24a229000000000000000000000000000000000000000000000000b61b00000000000000000000000000000000000000000000000000000000000415000000417373657274576f726b746f70436f6e7461696e7301000000b61b00000000aedb7960d1f87dc25138f4cd101da6c98d57323478d53c5fb9510f00000054616b6546726f6d576f726b746f7001000000b61b0000000000000000000000000000000000000000000000000000000000041500000043726561746550726f6f6646726f6d4275636b65740100000009010200000a000000436c6f6e6550726f6f660100000009020200000900000044726f7050726f6f660100000009020200000900000044726f7050726f6f660100000009030200000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c160000006372656174655f70726f6f665f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040f000000506f7046726f6d417574685a6f6e65000000000900000044726f7050726f6f660100000009040200000f00000052657475726e546f576f726b746f700100000009010200001400000054616b6546726f6d576f726b746f7042794964730200000031b402000000050000000905000000050000000907000000b61b0000000000000000000000000000000000000000000000000000000000041a00000043616c6c4d6574686f6457697468416c6c5265736f757263657302000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c0d0000006465706f7369745f62617463680d00000044726f70416c6c50726f6f6673000000000e0000005075626c6973685061636b616765010000003007d200000010020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c10000000000a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c12000000636f6d706c6963617465645f6d6574686f6430076f0000001002000000a120000000000064a7b3b6e00d000000000000000000000000000000000000000000000000a2400000000000000000000000023ed47ec9da71dcda2f4fb5e9f37fd2079e3000000000000000000000000000000000000000000000000000000000000000000000000000"
+        manifest_instructions_output_format: "JSON"
+
     DecompileTransactionIntentResponse:
       $ref: "#/components/schemas/TransactionIntent"
+      description: "The response to the `DecompileTransactionIntentRequest` containing the decompiled transaction intent"
 
     # Compile Signed Transaction Intent
     CompileSignedTransactionIntentRequest:
       $ref: "#/components/schemas/SignedTransactionIntent"
+      description: "A request to compile a signed transaction intent to its SBOR-encoded representation"
 
     CompileSignedTransactionIntentResponse:
       type: object
+      description: "The response to the `CompileSignedTransactionIntentRequest` request containing the compiled signed transaction intent as a hex-encoded string"
       additionalProperties: false
       required:
         - compiled_signed_intent
       properties:
         compiled_signed_intent:
           type: string
+          description: "The hex-encoded string of the compiled signed transaction intent"
+      example:
+        compiled_signed_intent: "100200000010020000001009000000070107f20a00000000000000000a20000000000000000a00000000000000009121000000031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f9396901000900000000090000000010010000003011130000000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c1200000077697468647261775f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000041700000054616b6546726f6d576f726b746f704279416d6f756e7402000000a1200000000000c84e676dc11b000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c0b0000006275795f67756d62616c6c30070e0000001001000000b104000000000200001d000000417373657274576f726b746f70436f6e7461696e734279416d6f756e7402000000a12000000000002cf61a24a229000000000000000000000000000000000000000000000000b61b00000000000000000000000000000000000000000000000000000000000415000000417373657274576f726b746f70436f6e7461696e7301000000b61b00000000aedb7960d1f87dc25138f4cd101da6c98d57323478d53c5fb9510f00000054616b6546726f6d576f726b746f7001000000b61b0000000000000000000000000000000000000000000000000000000000041500000043726561746550726f6f6646726f6d4275636b65740100000009010200000a000000436c6f6e6550726f6f660100000009020200000900000044726f7050726f6f660100000009020200000900000044726f7050726f6f660100000009030200000a00000043616c6c4d6574686f6403000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c160000006372656174655f70726f6f665f62795f616d6f756e7430074a0000001002000000a1200000000000f44482916345000000000000000000000000000000000000000000000000b61b0000000000000000000000000000000000000000000000000000000000040f000000506f7046726f6d417574685a6f6e65000000000900000044726f7050726f6f660100000009040200000f00000052657475726e546f576f726b746f700100000009010200001400000054616b6546726f6d576f726b746f7042794964730200000031b402000000050000000905000000050000000907000000b61b0000000000000000000000000000000000000000000000000000000000041a00000043616c6c4d6574686f6457697468416c6c5265736f757263657302000000811b00000003d43f479e9b2beb9df98bc3888344fc25eda181e8f710ce1bf1de0c0d0000006465706f7369745f62617463680d00000044726f70416c6c50726f6f6673000000000e0000005075626c6973685061636b616765010000003007d200000010020000003007c00000000061736d010000000405017001010105030100100619037f01418080c0000b7f00418080c0000b7f00418080c0000b072503066d656d6f727902000a5f5f646174615f656e6403010b5f5f686561705f6261736503020019046e616d65071201000f5f5f737461636b5f706f696e746572004d0970726f64756365727302086c616e6775616765010452757374000c70726f6365737365642d6279010572757374631d312e35392e30202839643162323130366520323032322d30322d323329320c10000000000a00000043616c6c4d6574686f6403000000811b0000000292566c83de7fd6b04fcc92b5e04b03228ccff040785673278ef10c12000000636f6d706c6963617465645f6d6574686f6430076f0000001002000000a120000000000064a7b3b6e00d000000000000000000000000000000000000000000000000a2400000000000000000000000023ed47ec9da71dcda2f4fb5e9f37fd2079e300000000000000000000000000000000000000000000000000000000000000000000000000030210400000002000000912100000002e6dc9dc1d1b418aab0a30089623f2dd4bab8f1ee9262a3ac0340cddb98b944379240000000437849b37df54d58e49b37e0004fb92a7133491efdc5332e7ace2d69f6f73df5636bb4f65943bdb59facd400dc06e2b1386a19327c8e85ea5e404ef502ef6fbb02000000912100000002b2bb8940c7acb5a221c4efab35b1c77afaddc611106ff4625e31d45cc17c42259240000000c215331bb6319fd26dee491824345375e9d8936cd69d6645c8e06222bcdae4b061305e640781b84b63cb23c719eb0edb43fd2e3df04b5990434cff44a02a85a402000000912100000003e0366ffa0c2db669c4a7b671109309a25eb1511350aa34bf22415bc03d57fc1292400000008c6b942f5ef8d81116120102fb4f22796c00a1aea556082d1af1d8529733e7124582b49c2bdc1545cb9d90bbdbedcf8185d16d6df5d76584cdf12688e07d919b0200000091210000000362d5d7de2ddb98e35ac84e59c4767e1d024a95f68893af469c361f74ea08fa499240000000ba40502e403bd49db22369a9b93cbd08bf9ab10b643b237cf9ee40bb931c12d927faad0c6a5ea6a334b1432b7047f5f8293f06fc37d229b560f50f71b84b9768"
 
     # Decompile Signed Transaction Intent
     DecompileSignedTransactionIntentRequest:
+      description: "A request to take the SBOR-encoded compiled signed transaction intent and decompile it into a format supported by the library (either `JSON` or `String`)"
       allOf:
         - $ref: "#/components/schemas/CompileSignedTransactionIntentResponse"
         - type: object
@@ -99,17 +133,21 @@ components:
             - manifest_instructions_output_format
           properties:
             manifest_instructions_output_format:
-              $ref: "#/components/schemas/ManifestKind"
+              description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
+              $ref: "#/components/schemas/ManifestInstructionsKind"
     
     DecompileSignedTransactionIntentResponse:
       $ref: "#/components/schemas/SignedTransactionIntent"
+      description: "The response to the `DecompileSignedTransactionIntentRequest` containing the decompiled signed transaction intent"
 
     # Compile Notarized Transaction Intent
     CompileNotarizedTransactionIntentRequest:
       $ref: "#/components/schemas/NotarizedTransactionIntent"
+      description: "A request to compile a notarized transaction intent to its SBOR-encoded representation"
 
     CompileNotarizedTransactionIntentResponse:
       type: object
+      description: "The response to the `CompileNotarizedTransactionIntentRequest` request containing the compiled notarized transaction intent as a hex-encoded string"
       additionalProperties: false
       required:
         - compiled_notarized_intent
@@ -118,7 +156,8 @@ components:
           type: string
 
     # Decompile Notarized Transaction Intent
-    DecompileNotarizedTransactionIntentRequest:
+    DecompileNotarizedTransactionIntentRequest: 
+      description: "A request to take the SBOR-encoded compiled notarized transaction intent and decompile it into a format supported by the library (either `JSON` or `String`)"
       allOf:
         - $ref: "#/components/schemas/CompileNotarizedTransactionIntentResponse"
         - type: object
@@ -127,25 +166,31 @@ components:
             - manifest_instructions_output_format
           properties:
             manifest_instructions_output_format:
-              $ref: "#/components/schemas/ManifestKind"
+              description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
+              $ref: "#/components/schemas/ManifestInstructionsKind"
     
     DecompileNotarizedTransactionIntentResponse:
+      description: "The response to the `DecompileNotarizedTransactionIntentRequest` containing the decompiled notarized transaction intent"
       $ref: "#/components/schemas/NotarizedTransactionIntent"
     
     # Decompile Unknown Transaction Intent
     DecompileUnknownTransactionIntentRequest:
       type: object
+      description: "A request to decompile a compiled transaction intent of an unknown format to "
       additionalProperties: false
       required:
         - manifest_instructions_output_format
         - compiled_unknown_intent
       properties:
         manifest_instructions_output_format:
-          $ref: "#/components/schemas/ManifestKind"
+          description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
+          $ref: "#/components/schemas/ManifestInstructionsKind"
         compiled_unknown_intent:
           type: string
+          description: "The unknown transaction intent provided as a hex-encoded string"
     
     DecompileUnknownTransactionIntentResponse:
+      description: "The response to the `DecompileUnknownTransactionIntentRequest` containing the decompiled transaction intent"
       anyOf:
         - $ref: "#/components/schemas/DecompileTransactionIntentResponse"
         - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
@@ -154,6 +199,7 @@ components:
     # Address Encoding
     EncodeAddressRequest:
       type: object
+      description: "A request to encode an addresss in Bech32m according with the HRPs specified by the `network_id`"
       additionalProperties: false
       required:
         - address
@@ -161,24 +207,36 @@ components:
       properties:
         address:
           type: string
+          description: "A hex-encoded string of the underlying bytes that make up the address"
         network_id:
+          description: "An 8-bit unsigned integer representing the network id that the address is for"
           $ref: "#/components/schemas/Byte"
+      example:
+        address: "01ce8be5eb98800c15e6942d27e373599c18a19e08a53378341d2a"
+        network_id: 1
     
     EncodeAddressResponse:
       $ref: "#/components/schemas/Address"
+      description: "The response to the `EncodeAddressRequest` containing the encoded address"
+      example:
+        type: "PackageAddress"
+        address: "package_rdx1q88ghe0tnzqqc90xjskj0cmntxwp3gv7pzjnx7p5r54q5e29qu"
 
     # Address Decoding
     DecodeAddressRequest:
       type: object
+      description: "A request to decode a Bech32m-encoded address into its hrp, data, and entity type"
       additionalProperties: false
       required:
         - address
       properties:
         address:
           type: string
+          description: "The bech32m-encoded address string to decode"
 
     DecodeAddressResponse:
       type: object
+      description: "The response to the `DecodeAddressRequest` containing the deocded address"
       additionalProperties: false
       required:
         - network_id
@@ -189,31 +247,40 @@ components:
       properties:
         network_id:
           $ref: "#/components/schemas/Byte"
+          description: "An 8-bit unsigned integer representing the network id that the address is for"
         entity_type:
           $ref: "#/components/schemas/AddressKind"
+          description: "The type of entity addressed through this address type"
         data:
           type: string
+          description: "The hex-encoded data which was in the bech32m-encoded address"
         hrp:
           type: string
+          description: "The HRP (human readable part) of the bech32m-encoded address"
         address:
           $ref: "#/components/schemas/Address"
+          description: "The `Value` representation of this address"
 
     # SBOR Encoding
     SBOREncodeRequest:
       $ref: "#/components/schemas/Value"
+      description: "A request to encode a `Value` in SBOR and return the hex-encoded representation of the SBOR-encoded `Value`"
     
     SBOREncodeResponse:
       type: object
+      description: "The response to the `SBOREncodeRequest` containing the hex-encoded representation of the SBOR-encoded `Value`"
       additionalProperties: false
       required:
         - encoded_value
       properties:
         encoded_value:
           type: string
+          description: "The hex-encoded representation of the SBOR-encoded `Value`"
     
     # SBOR Decoding
     SBORDecodeRequest:
       type: object
+      description: "A request to decode a hex-encoded representation of some SBOR-encoded bytes"
       additionalProperties: false
       required:
         - encoded_value
@@ -221,11 +288,14 @@ components:
       properties:
         encoded_value:
           type: string
+          description: "The hex-encoded representation of the SBOR-encoded `Value`"
         network_id:
           $ref: "#/components/schemas/Byte"
+          description: "The network id that this value is thought to be associated with. This is only relevant in the case of addresses and their bech32m encoding, aside from that, the network id is not used."
     
     SBORDecodeResponse:
       $ref: "#/components/schemas/Value"
+      description: "A response to the `SBORDecodeRequest` containing the decoded value"
 
     # ================================
     # Request & Response Dependencies
@@ -265,7 +335,7 @@ components:
         header:
           $ref: "#/components/schemas/TransactionHeader"
         manifest:
-          $ref: "#/components/schemas/Manifest"
+          $ref: "#/components/schemas/TransactionManifest"
     
     SignedTransactionIntent:
       type: object
@@ -354,13 +424,27 @@ components:
     EcdsaSignatureString:
       type: string
 
-    ManifestKind:
+    ManifestInstructionsKind:
       type: string
       enum:
       - String
       - JSON
 
-    Manifest:
+    TransactionManifest:
+      type: object
+      additionalProperties: false
+      required:
+        - instructions
+        - blobs
+      properties:
+        instructions:
+          $ref: "#/components/schemas/ManifestInstructions"
+        blobs:
+          type: array
+          items:
+            type: string
+
+    ManifestInstructions:
       type: object
       additionalProperties: false
       required:
@@ -372,12 +456,12 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          String: "#/components/schemas/ManifestString"
-          JSON: "#/components/schemas/ManifestJson"
+          String: "#/components/schemas/ManifestInstructionsString"
+          JSON: "#/components/schemas/ManifestInstructionsJson"
 
-    ManifestString:
+    ManifestInstructionsString:
       allOf:
-      - $ref: "#/components/schemas/Manifest"
+      - $ref: "#/components/schemas/ManifestInstructions"
       - type: object
         additionalProperties: false
         required:
@@ -386,9 +470,9 @@ components:
           value:
             type: string
     
-    ManifestJson:
+    ManifestInstructionsJson:
       allOf:
-      - $ref: "#/components/schemas/Manifest"
+      - $ref: "#/components/schemas/ManifestInstructions"
       - type: object
         additionalProperties: false
         required:

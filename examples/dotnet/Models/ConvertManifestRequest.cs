@@ -33,7 +33,7 @@ namespace Models
         /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
         [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
+        public ManifestInstructionsKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertManifestRequest" /> class.
         /// </summary>
@@ -46,7 +46,7 @@ namespace Models
         /// <param name="networkId">networkId (required).</param>
         /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
         /// <param name="manifest">manifest (required).</param>
-        public ConvertManifestRequest(int transactionVersion = default(int), int networkId = default(int), ManifestKind manifestInstructionsOutputFormat = default(ManifestKind), Manifest manifest = default(Manifest))
+        public ConvertManifestRequest(int transactionVersion = default(int), int networkId = default(int), ManifestInstructionsKind manifestInstructionsOutputFormat = default(ManifestInstructionsKind), Manifest manifest = default(Manifest))
         {
             // to ensure "transactionVersion" is required (not null)
             if (transactionVersion == null)

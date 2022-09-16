@@ -45,7 +45,7 @@ export interface InformationResponse {
 export interface ConvertManifestRequest {
   transaction_version: number;
   network_id: number;
-  manifest_instructions_output_format: ManifestKind;
+  manifest_instructions_output_format: ManifestInstructionsKind;
   manifest: TransactionManifest;
 }
 
@@ -61,7 +61,7 @@ export interface CompileTransactionIntentResponse {
 }
 
 export interface DecompileTransactionIntentRequest {
-  manifest_instructions_output_format: ManifestKind;
+  manifest_instructions_output_format: ManifestInstructionsKind;
   compiled_intent: string;
 }
 
@@ -80,7 +80,7 @@ export interface CompileSignedTransactionIntentResponse {
 }
 
 export interface DecompileSignedTransactionIntentRequest {
-  manifest_instructions_output_format: ManifestKind;
+  manifest_instructions_output_format: ManifestInstructionsKind;
   compiled_signed_intent: string;
 }
 
@@ -99,7 +99,7 @@ export interface CompileNotarizedTransactionIntentResponse {
 }
 
 export interface DecompileNotarizedTransactionIntentRequest {
-  manifest_instructions_output_format: ManifestKind;
+  manifest_instructions_output_format: ManifestInstructionsKind;
   compiled_notarized_intent: string;
 }
 
@@ -109,7 +109,7 @@ export interface DecompileNotarizedTransactionIntentResponse {
 }
 
 export interface DecompileUnknownTransactionIntentRequest {
-  manifest_instructions_output_format: ManifestKind;
+  manifest_instructions_output_format: ManifestInstructionsKind;
   compiled_unknown_intent: string;
 }
 
@@ -154,7 +154,7 @@ export type SBORDecodeResponse = Value;
 // Models
 // =======
 
-export enum ManifestKind {
+export enum ManifestInstructionsKind {
   String = "String",
   JSON = "JSON",
 }
@@ -162,12 +162,12 @@ export enum ManifestKind {
 export type ManifestInstructions = ManifestJSON | ManifestString;
 
 export interface ManifestString {
-  readonly type: ManifestKind.String;
+  readonly type: ManifestInstructionsKind.String;
   value: string;
 }
 
 export interface ManifestJSON {
-  readonly type: ManifestKind.JSON;
+  readonly type: ManifestInstructionsKind.JSON;
   value: Instruction[];
 }
 

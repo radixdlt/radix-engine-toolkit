@@ -1,7 +1,7 @@
 import wasmInit from "../wasm/transaction_library.wasm?init";
 import TransactionService from "./transaction-service";
 
-export { ManifestKind, Curve } from "./interfaces";
+export { ManifestInstructionsKind, Curve } from "./interfaces";
 export { default as ManifestBuilder } from "./manifest-builder";
 export * from "./value";
 

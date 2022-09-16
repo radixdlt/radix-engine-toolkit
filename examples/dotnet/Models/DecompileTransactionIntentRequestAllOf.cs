@@ -33,7 +33,7 @@ namespace Models
         /// Gets or Sets ManifestInstructionsOutputFormat
         /// </summary>
         [DataMember(Name="manifest_instructions_output_format", EmitDefaultValue=true)]
-        public ManifestKind ManifestInstructionsOutputFormat { get; set; }
+        public ManifestInstructionsKind ManifestInstructionsOutputFormat { get; set; }
         /// <summary>
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequestAllOf" /> class.
         /// </summary>
@@ -43,7 +43,7 @@ namespace Models
         /// Initializes a new instance of the <see cref="DecompileTransactionIntentRequestAllOf" /> class.
         /// </summary>
         /// <param name="manifestInstructionsOutputFormat">manifestInstructionsOutputFormat (required).</param>
-        public DecompileTransactionIntentRequestAllOf(ManifestKind manifestInstructionsOutputFormat = default(ManifestKind))
+        public DecompileTransactionIntentRequestAllOf(ManifestInstructionsKind manifestInstructionsOutputFormat = default(ManifestInstructionsKind))
         {
             // to ensure "manifestInstructionsOutputFormat" is required (not null)
             if (manifestInstructionsOutputFormat == null)

@@ -24,12 +24,12 @@ using System.ComponentModel.DataAnnotations;
 namespace Models
 {
     /// <summary>
-    /// Defines ManifestKind
+    /// Defines ManifestInstructionsKind
     /// </summary>
     
     [JsonConverter(typeof(StringEnumConverter))]
     
-    public enum ManifestKind
+    public enum ManifestInstructionsKind
     {
         /// <summary>
         /// Enum String for value: String
