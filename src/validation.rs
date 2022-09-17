@@ -37,6 +37,8 @@ pub fn validate_request<R: Into<Request> + Clone>(request: &R) -> Result<(), Err
         Request::SBOREncodeRequest(_) => Ok(()),
         Request::SBORDecodeRequest(_) => Ok(()),
         Request::ExtractAbiRequest(_) => Ok(()),
+        Request::DeriveNonFungibleAddressRequest(_) => Ok(()),
+        Request::DeriveNonFungibleAddressFromPublicKeyRequest(_) => Ok(()),
     }
 }
 
@@ -101,6 +103,8 @@ fn request_transaction_validation_config(request: &Request) -> Option<Validation
         Request::SBOREncodeRequest(_) => None,
         Request::SBORDecodeRequest(_) => None,
         Request::ExtractAbiRequest(_) => None,
+        Request::DeriveNonFungibleAddressRequest(_) => None,
+        Request::DeriveNonFungibleAddressFromPublicKeyRequest(_) => None,
     }
 }
 
@@ -207,6 +211,8 @@ pub fn validate_response<R: Into<Response> + Clone>(response: &R) -> Result<(), 
         Response::SBOREncodeResponse(_) => Ok(()),
         Response::SBORDecodeResponse(_) => Ok(()),
         Response::ExtractAbiResponse(_) => Ok(()),
+        Response::DeriveNonFungibleAddressResponse(_) => Ok(()),
+        Response::DeriveNonFungibleAddressFromPublicKeyResponse(_) => Ok(()),
     }
 }
 
@@ -276,6 +282,8 @@ fn response_transaction_validation_config(response: &Response) -> Option<Validat
         Response::SBOREncodeResponse(_) => None,
         Response::SBORDecodeResponse(_) => None,
         Response::ExtractAbiResponse(_) => None,
+        Response::DeriveNonFungibleAddressResponse(_) => None,
+        Response::DeriveNonFungibleAddressFromPublicKeyResponse(_) => None,
     }
 }
 

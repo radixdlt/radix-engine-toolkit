@@ -312,20 +312,3 @@ pub enum AddressKind {
     SystemComponent,
     NormalComponent,
 }
-
-#[test]
-pub fn x() {
-    let signer = transaction::signing::EcdsaPrivateKey::from_u64(1).unwrap();
-    let header = transaction::model::TransactionHeader {
-        version: 1,
-        network_id: 0x01,
-        start_epoch_inclusive: 0,
-        end_epoch_exclusive: 100,
-        nonce: 1,
-        notary_public_key: signer.public_key().into(),
-        notary_as_signatory: true,
-        cost_unit_limit: 1_000_000,
-        tip_percentage: 5,
-    };
-    println!("{}", serde_json::to_string(&header).unwrap());
-}

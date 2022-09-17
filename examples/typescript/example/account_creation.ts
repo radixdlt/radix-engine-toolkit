@@ -13,6 +13,7 @@ import { createTransactionService, ManifestBuilder, ValueKind } from "../src/tra
 import { byteArrayFromHex, hexStringFromByteArray } from "../src/utils";
 import { Secp256k1KeyPair } from "../src/key_pair";
 import { Instruction } from "../src/instruction";
+import { Buffer } from "buffer";
 
 const main = async (): Promise<void> => {
   // Creating a new transaction service object from the transaction service WASM file path
@@ -105,7 +106,7 @@ const main = async (): Promise<void> => {
     end_epoch_exclusive: currentEpoch + 0x10,
     nonce: randomNonce,
     notary_public_key: {
-      type: Curve.Ecdsa,
+      type: Curve.EcdsaSecp256k1,
       public_key: keyPair.publicKeyHex(),
     },
     notary_as_signatory: false,
@@ -140,7 +141,7 @@ const main = async (): Promise<void> => {
     transactionService.compileNotarizedTransactionIntent({
       signed_intent: signedTransactionIntent,
       notary_signature: {
-        type: Curve.Ecdsa,
+        type: Curve.EcdsaSecp256k1,
         signature: hexStringFromByteArray(notarySignature),
       },
     }) as CompileNotarizedTransactionIntentResponse

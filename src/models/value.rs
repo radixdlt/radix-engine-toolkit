@@ -17,9 +17,9 @@ use radix_engine::types::ScryptoType;
 use sbor::type_id::*;
 use sbor::{decode_any, encode_any, Value as SborValue};
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaPublicKey, EcdsaSignature,
-    Ed25519PublicKey, Ed25519Signature, Expression, Hash, NonFungibleAddress, NonFungibleId,
-    PreciseDecimal,
+    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
+    EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
+    NonFungibleAddress, NonFungibleId, PreciseDecimal,
 };
 use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;
@@ -165,21 +165,21 @@ pub enum Value {
         #[serde_as(as = "DisplayFromStr")]
         value: Hash,
     },
-    EcdsaPublicKey {
+    EcdsaSecp256k1PublicKey {
         #[serde_as(as = "DisplayFromStr")]
-        public_key: EcdsaPublicKey,
+        public_key: EcdsaSecp256k1PublicKey,
     },
-    EcdsaSignature {
+    EcdsaSecp256k1Signature {
         #[serde_as(as = "DisplayFromStr")]
-        signature: EcdsaSignature,
+        signature: EcdsaSecp256k1Signature,
     },
-    Ed25519PublicKey {
+    EddsaEd25519PublicKey {
         #[serde_as(as = "DisplayFromStr")]
-        public_key: Ed25519PublicKey,
+        public_key: EddsaEd25519PublicKey,
     },
-    Ed25519Signature {
+    EddsaEd25519Signature {
         #[serde_as(as = "DisplayFromStr")]
-        signature: Ed25519Signature,
+        signature: EddsaEd25519Signature,
     },
 
     Bucket {
@@ -261,10 +261,10 @@ impl Value {
 
             Self::KeyValueStore { .. } => ValueKind::KeyValueStore,
 
-            Self::EcdsaPublicKey { .. } => ValueKind::EcdsaPublicKey,
-            Self::EcdsaSignature { .. } => ValueKind::EcdsaSignature,
-            Self::Ed25519PublicKey { .. } => ValueKind::Ed25519PublicKey,
-            Self::Ed25519Signature { .. } => ValueKind::Ed25519Signature,
+            Self::EcdsaSecp256k1PublicKey { .. } => ValueKind::EcdsaSecp256k1PublicKey,
+            Self::EcdsaSecp256k1Signature { .. } => ValueKind::EcdsaSecp256k1Signature,
+            Self::EddsaEd25519PublicKey { .. } => ValueKind::EddsaEd25519PublicKey,
+            Self::EddsaEd25519Signature { .. } => ValueKind::EddsaEd25519Signature,
 
             Self::Blob { .. } => ValueKind::Blob,
             Self::Expression { .. } => ValueKind::Expression,
@@ -406,10 +406,10 @@ pub enum ValueKind {
 
     KeyValueStore,
 
-    EcdsaPublicKey,
-    EcdsaSignature,
-    Ed25519PublicKey,
-    Ed25519Signature,
+    EcdsaSecp256k1PublicKey,
+    EcdsaSecp256k1Signature,
+    EddsaEd25519PublicKey,
+    EddsaEd25519Signature,
 
     Blob,
     Expression,
@@ -466,10 +466,10 @@ impl ValueKind {
             Self::NonFungibleId => ScryptoType::NonFungibleId.id(),
             Self::NonFungibleAddress => ScryptoType::NonFungibleAddress.id(),
 
-            Self::EcdsaPublicKey => ScryptoType::EcdsaPublicKey.id(),
-            Self::EcdsaSignature => ScryptoType::EcdsaSignature.id(),
-            Self::Ed25519PublicKey => ScryptoType::Ed25519PublicKey.id(),
-            Self::Ed25519Signature => ScryptoType::Ed25519Signature.id(),
+            Self::EcdsaSecp256k1PublicKey => ScryptoType::EcdsaSecp256k1PublicKey.id(),
+            Self::EcdsaSecp256k1Signature => ScryptoType::EcdsaSecp256k1Signature.id(),
+            Self::EddsaEd25519PublicKey => ScryptoType::EddsaEd25519PublicKey.id(),
+            Self::EddsaEd25519Signature => ScryptoType::EddsaEd25519Signature.id(),
 
             Self::Blob => ScryptoType::Blob.id(),
             Self::Expression => ScryptoType::Expression.id(),
@@ -521,10 +521,10 @@ impl ValueKind {
                     ScryptoType::NonFungibleAddress => Self::NonFungibleAddress,
                     ScryptoType::Component => Self::Component,
                     ScryptoType::Vault => Self::Vault,
-                    ScryptoType::EcdsaPublicKey => Self::EcdsaPublicKey,
-                    ScryptoType::EcdsaSignature => Self::EcdsaSignature,
-                    ScryptoType::Ed25519PublicKey => Self::Ed25519PublicKey,
-                    ScryptoType::Ed25519Signature => Self::Ed25519Signature,
+                    ScryptoType::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
+                    ScryptoType::EcdsaSecp256k1Signature => Self::EcdsaSecp256k1Signature,
+                    ScryptoType::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
+                    ScryptoType::EddsaEd25519Signature => Self::EddsaEd25519Signature,
                     ScryptoType::KeyValueStore => Self::KeyValueStore,
                     ScryptoType::Blob => Self::Blob,
                     ScryptoType::Expression => Self::Expression,
@@ -590,10 +590,10 @@ impl TryInto<transaction::manifest::ast::Type> for ValueKind {
 
             Self::Component
             | Self::Vault
-            | Self::EcdsaPublicKey
-            | Self::EcdsaSignature
-            | Self::Ed25519PublicKey
-            | Self::Ed25519Signature
+            | Self::EcdsaSecp256k1PublicKey
+            | Self::EcdsaSecp256k1Signature
+            | Self::EddsaEd25519PublicKey
+            | Self::EddsaEd25519Signature
             | Self::KeyValueStore => {
                 return Err(Error::NoManifestRepresentation { kind: self.clone() })
             }
@@ -809,10 +809,10 @@ pub fn ast_value_from_value(
 
         Value::Component { .. }
         | Value::Vault { .. }
-        | Value::EcdsaPublicKey { .. }
-        | Value::EcdsaSignature { .. }
-        | Value::Ed25519PublicKey { .. }
-        | Value::Ed25519Signature { .. }
+        | Value::EcdsaSecp256k1PublicKey { .. }
+        | Value::EcdsaSecp256k1Signature { .. }
+        | Value::EddsaEd25519PublicKey { .. }
+        | Value::EddsaEd25519Signature { .. }
         | Value::KeyValueStore { .. } => {
             return Err(Error::NoManifestRepresentation { kind: value.kind() })
         }
@@ -1254,11 +1254,11 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
             },
         ))?,
 
-        Value::EcdsaPublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
-        Value::EcdsaSignature { signature } => decode_any(&scrypto_encode(signature))?,
+        Value::EcdsaSecp256k1PublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
+        Value::EcdsaSecp256k1Signature { signature } => decode_any(&scrypto_encode(signature))?,
 
-        Value::Ed25519PublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
-        Value::Ed25519Signature { signature } => decode_any(&scrypto_encode(signature))?,
+        Value::EddsaEd25519PublicKey { public_key } => decode_any(&scrypto_encode(public_key))?,
+        Value::EddsaEd25519Signature { signature } => decode_any(&scrypto_encode(signature))?,
 
         Value::Blob { hash } => decode_any(&scrypto_encode(hash))?,
         Value::Expression { value } => decode_any(&scrypto_encode(value))?,
@@ -1439,16 +1439,16 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                         .into(),
                 },
 
-                ScryptoType::EcdsaPublicKey => Value::EcdsaPublicKey {
+                ScryptoType::EcdsaSecp256k1PublicKey => Value::EcdsaSecp256k1PublicKey {
                     public_key: scrypto_decode(&encode_any(&value))?,
                 },
-                ScryptoType::EcdsaSignature => Value::EcdsaSignature {
+                ScryptoType::EcdsaSecp256k1Signature => Value::EcdsaSecp256k1Signature {
                     signature: scrypto_decode(&encode_any(&value))?,
                 },
-                ScryptoType::Ed25519PublicKey => Value::Ed25519PublicKey {
+                ScryptoType::EddsaEd25519PublicKey => Value::EddsaEd25519PublicKey {
                     public_key: scrypto_decode(&encode_any(&value))?,
                 },
-                ScryptoType::Ed25519Signature => Value::Ed25519Signature {
+                ScryptoType::EddsaEd25519Signature => Value::EddsaEd25519Signature {
                     signature: scrypto_decode(&encode_any(&value))?,
                 },
 

@@ -5,7 +5,9 @@ use bech32::Variant;
 use bech32::{self, u5, FromBase32};
 
 use radix_engine::model::extract_abi as engine_extract_abi;
-use scrypto::prelude::{scrypto_decode, scrypto_encode, SignatureWithPublicKey};
+use scrypto::prelude::{
+    scrypto_decode, scrypto_encode, NonFungibleAddress, SignatureWithPublicKey,
+};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -35,7 +37,10 @@ link_handler! {
     sbor_encode => handle_sbor_encode,
     sbor_decode => handle_sbor_decode,
 
-    extract_abi => handle_extract_abi
+    extract_abi => handle_extract_abi,
+
+    derive_non_fungible_address => handle_derive_non_fungible_address,
+    derive_non_fungible_address_from_public_key => handle_derive_non_fungible_address_from_public_key
 }
 
 pub fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
@@ -345,5 +350,28 @@ pub fn handle_extract_abi(request: ExtractAbiRequest) -> Result<ExtractAbiRespon
         abi: scrypto_encode(&abi),
         code: request.package_wasm,
     };
+    Ok(response)
+}
+
+pub fn handle_derive_non_fungible_address(
+    request: DeriveNonFungibleAddressRequest,
+) -> Result<DeriveNonFungibleAddressResponse, Error> {
+    let non_fungible_address: NonFungibleAddress =
+        NonFungibleAddress::new(request.resource_address, request.non_fungible_id);
+    let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
+        non_fungible_address: non_fungible_address,
+    };
+    Ok(response)
+}
+
+pub fn handle_derive_non_fungible_address_from_public_key(
+    request: DeriveNonFungibleAddressFromPublicKeyRequest,
+) -> Result<DeriveNonFungibleAddressFromPublicKeyResponse, Error> {
+    let non_fungible_address: NonFungibleAddress =
+        NonFungibleAddress::from_public_key(&request.public_key);
+    let response: DeriveNonFungibleAddressFromPublicKeyResponse =
+        DeriveNonFungibleAddressFromPublicKeyResponse {
+            non_fungible_address: non_fungible_address,
+        };
     Ok(response)
 }

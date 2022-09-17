@@ -189,28 +189,28 @@ export interface TransactionManifest {
 }
 
 export enum Curve {
-  Ecdsa = "Ecdsa",
-  Ed25519 = "Ed25519",
+  EcdsaSecp256k1 = "EcdsaSecp256k1",
+  EddsaEd25519 = "EddsaEd25519",
 }
 
 export type PublicKey = Ed25519PublicKey | EcdsaPublicKey;
 export type Signature = Ed25519Signature | EcdsaSignature;
 
 export interface Ed25519PublicKey {
-  readonly type: Curve.Ed25519;
+  readonly type: Curve.EddsaEd25519;
   public_key: string;
 }
 export interface Ed25519Signature {
-  readonly type: Curve.Ed25519;
+  readonly type: Curve.EddsaEd25519;
   signature: string;
 }
 
 export interface EcdsaPublicKey {
-  readonly type: Curve.Ecdsa;
+  readonly type: Curve.EcdsaSecp256k1;
   public_key: string;
 }
 export interface EcdsaSignature {
-  readonly type: Curve.Ecdsa;
+  readonly type: Curve.EcdsaSecp256k1;
   signature: string;
 }
 
@@ -227,12 +227,12 @@ export interface SignedTransactionIntent {
 export type SignatureWithPublicKey = EcdsaSignatureWithPublicKey | Ed25519SignatureWithPublicKey;
 
 export interface EcdsaSignatureWithPublicKey {
-  readonly type: Curve.Ecdsa;
+  readonly type: Curve.EcdsaSecp256k1;
   signature: string;
 }
 
 export interface Ed25519SignatureWithPublicKey {
-  readonly type: Curve.Ed25519;
+  readonly type: Curve.EddsaEd25519;
   public_key: string;
   signature: string;
 }

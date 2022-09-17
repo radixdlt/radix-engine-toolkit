@@ -297,12 +297,40 @@ components:
       $ref: "#/components/schemas/Value"
       description: "A response to the `SBORDecodeRequest` containing the decoded value"
 
+    # Extract ABI Request
+    ExtractAbiRequest:
+      type: object
+      description: "A request to extract the ABI from the package's hex-encoded WASM binrary"
+      additionalProperties: false
+      required:
+        - package_wasm
+      properties:
+        package_wasm:
+          type: string
+          description: "A hex-encoded string of the package WASM binary"
+
+    ExtractAbiResponse:
+      type: object
+      description: "A response to the `ExtractAbiRequest` containing the ABI and code"
+      additionalProperties: false
+      required:
+        - code
+        - abi
+      properties:
+        code:
+          type: string
+          description: "A hex-encoded string of the package WASM binary"
+        abi:
+          type: string
+          description: "A hex-encoded string of the SBOR-encoded package ABI"
+
     # ================================
     # Request & Response Dependencies
     # ================================
 
     AddressKind:
       type: string
+      description: "An enum representing the type of the type of the entity being addressed"
       enum:
         - Resource
         - Package
@@ -318,6 +346,10 @@ components:
         type:
           type: string
           readOnly: true
+      oneOf:
+        - $ref: "#/components/schemas/PackageAddress"
+        - $ref: "#/components/schemas/ResourceAddress"
+        - $ref: "#/components/schemas/ComponentAddress"
       discriminator:
         propertyName: type
         mapping:
@@ -325,46 +357,9 @@ components:
           ResourceAddress: "#/components/schemas/ResourceAddress"
           ComponentAddress: "#/components/schemas/ComponentAddress"
 
-    TransactionIntent:
-      type: object
-      additionalProperties: false
-      required:
-        - header
-        - manifest
-      properties:
-        header:
-          $ref: "#/components/schemas/TransactionHeader"
-        manifest:
-          $ref: "#/components/schemas/TransactionManifest"
-    
-    SignedTransactionIntent:
-      type: object
-      additionalProperties: false
-      required:
-        - transaction_intent
-        - signatures
-      properties:
-        transaction_intent:
-          $ref: "#/components/schemas/TransactionIntent"
-        signatures:
-          type: array
-          items:
-            $ref: "#/components/schemas/Signature"
-    
-    NotarizedTransactionIntent:
-      type: object
-      additionalProperties: false
-      required:
-        - signed_intent
-        - notary_signature
-      properties:
-        signed_intent:
-          $ref: "#/components/schemas/SignedTransactionIntent"
-        notary_signature:
-          $ref: "#/components/schemas/EcdsaSignatureString"
-    
     TransactionHeader:
       type: object
+      description: "A transaction header used to describe different parameters about the transactions"
       additionalProperties: false
       required:
         - version
@@ -379,59 +374,45 @@ components:
       properties:
         version:
           $ref: "#/components/schemas/Byte"
+          description: "An 8-bit unsigned integer representing the transaction version. Currently, the library only supports a transaction version of 1."
         network_id:
           $ref: "#/components/schemas/Byte"
+          description: "An 8-bit unsigned integer representing the network id that the transaction is for"
         start_epoch_inclusive:
           type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
+          description: "A 64-bit unsigned integer representing the epoch the earliest that this transaction can be executed"
         end_epoch_exclusive:
           type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
+          description: "A 64-bit unsigned integer representing the latest epoch this transaction should be executed"
         nonce:
           type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
+          description: "A 64-bit unsigned integer of the nonce to use for the transaction"
         notary_public_key:
           $ref: "#/components/schemas/EcdsaPublicKeyString"
+          description: "The public key of the notary"
         notary_as_signatory:
           type: boolean
+          description: "A boolean representing whether the notary is also one of the people signing the transaction"
         cost_unit_limit:
           type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFF
+          description: "A 32-bit unsigned integer of the maximum cost units that this transaction can spend"
         tip_percentage:
           type: integer
           minimum: 0x00
           maximum: 0xFFFFFFFF
-
-    Signature:
-      type: object
-      additionalProperties: false
-      required:
-        - public_key
-        - signature
-      properties:
-        public_key:
-          $ref: "#/components/schemas/EcdsaPublicKeyString"
-        signature:
-          $ref: "#/components/schemas/EcdsaSignatureString"
-
-    EcdsaPublicKeyString:
-      type: string
-    
-    EcdsaSignatureString:
-      type: string
-
-    ManifestInstructionsKind:
-      type: string
-      enum:
-      - String
-      - JSON
+          description: "A 32-bit unsigned integer of the percentage of the tip to give to validators"
 
     TransactionManifest:
       type: object
+      description: "A transaction manifest which describes what happens in a transaction"
       additionalProperties: false
       required:
         - instructions
@@ -439,13 +420,22 @@ components:
       properties:
         instructions:
           $ref: "#/components/schemas/ManifestInstructions"
+          description: "The instructions to execute in this transaction"
         blobs:
           type: array
+          description: "An array of the blobs to use for the transaction"
           items:
             type: string
 
+    ManifestInstructionsKind:
+      type: string
+      enum:
+      - String
+      - JSON
+
     ManifestInstructions:
       type: object
+      description: "The instructions of the transaction"
       additionalProperties: false
       required:
       - type
@@ -460,6 +450,7 @@ components:
           JSON: "#/components/schemas/ManifestInstructionsJson"
 
     ManifestInstructionsString:
+      description: "A string representation of the instructions of the transaction"
       allOf:
       - $ref: "#/components/schemas/ManifestInstructions"
       - type: object
@@ -469,8 +460,10 @@ components:
         properties:
           value:
             type: string
+            description: "A string representation of the instructions of the transaction"
     
     ManifestInstructionsJson:
+      description: "A JSON representation of the instructions of the transaction"
       allOf:
       - $ref: "#/components/schemas/ManifestInstructions"
       - type: object
@@ -480,13 +473,160 @@ components:
         properties:
           value:
             type: array
+            description: "A JSON representation of the instructions of the transaction"
             items: 
               $ref: "#/components/schemas/Instruction"
+
+    TransactionIntent:
+      type: object
+      description: "A transaction intent of what the transaction it meant to do as well as the header parameters"
+      additionalProperties: false
+      required:
+        - header
+        - manifest
+      properties:
+        header:
+          $ref: "#/components/schemas/TransactionHeader"
+          description: "A transaction header used to describe different parameters about the transactions"
+        manifest:
+          $ref: "#/components/schemas/TransactionManifest"
+          description: "A transaction manifest describing the instructions of a transaction"
+    
+    SignedTransactionIntent:
+      type: object
+      description: "A transaction intent which has been signed"
+      additionalProperties: false
+      required:
+        - transaction_intent
+        - signatures
+      properties:
+        transaction_intent:
+          $ref: "#/components/schemas/TransactionIntent"
+          description: "A transaction header used to describe different parameters about the transactions"
+        signatures:
+          type: array
+          description: "An array containing the signature of the signers"
+          items:
+            $ref: "#/components/schemas/Signature"
+    
+    NotarizedTransactionIntent:
+      type: object
+      additionalProperties: false
+      required:
+        - signed_intent
+        - notary_signature
+      properties:
+        signed_intent:
+          $ref: "#/components/schemas/SignedTransactionIntent"
+        notary_signature:
+          $ref: "#/components/schemas/EcdsaSignatureString"
+          description: "The signature of the notary"
 
     Byte:
       type: integer
       minimum: 0x00
       maximum: 0xFF
+      description: An 8-bit unsigned number.
+
+    # =======
+    # Crypto
+    # =======
+
+    PublicKey:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          EcdsaSecp256k1PublicKey: "#/components/schemas/EcdsaSecp256k1PublicKey"
+          EddsaEd25519PublicKey: "#/components/schemas/EddsaEd25519PublicKey"
+
+    EcdsaSecp256k1PublicKey:
+      allOf:
+      - $ref: "#/components/schemas/PublicKey"
+      - type: object
+        additionalProperties: false
+        required:
+        - public_key
+        properties:
+          public_key:
+            $ref: "#/components/schemas/EcdsaSecp256k1PublicKeyString"
+    
+    EddsaEd25519PublicKey:
+      allOf:
+      - $ref: "#/components/schemas/PublicKey"
+      - type: object
+        additionalProperties: false
+        required:
+        - public_key
+        properties:
+          public_key:
+            $ref: "#/components/schemas/EddsaEd25519PublicKeyString"
+    
+    Signature:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          EcdsaSecp256k1Signature: "#/components/schemas/EcdsaSecp256k1Signature"
+          EddsaEd25519Signature: "#/components/schemas/EddsaEd25519Signature"
+
+    EcdsaSecp256k1Signature:
+      allOf:
+      - $ref: "#/components/schemas/Signature"
+      - type: object
+        additionalProperties: false
+        required:
+        - signature
+        properties:
+          signature:
+            $ref: "#/components/schemas/EcdsaSecp256k1SignatureString"
+    
+    EddsaEd25519Signature:
+      allOf:
+      - $ref: "#/components/schemas/Signature"
+      - type: object
+        additionalProperties: false
+        required:
+        - signature
+        properties:
+          signature:
+            $ref: "#/components/schemas/EddsaEd25519SignatureString"
+
+    EcdsaSecp256k1PublicKeyString: 
+      type: string
+      description: "The hex-encoded 33-byte long public key of an ECDSA Secp256k1 key-pair"
+      minLength: 66
+      maxLength: 66
+    
+    EcdsaSecp256k1SignatureString: 
+      type: string
+      description: "The hex-encoded 65-byte long recovery id and signature of an ECDSA Secp256k1 key-pair"
+      minLength: 130
+      maxLength: 130
+    
+    EddsaEd25519PublicKeyString: 
+      type: string
+      description: "The hex-encoded 32-byte long public key of an EDDSA Ed25519 key-pair"
+      minLength: 64
+      maxLength: 64
+    
+    EddsaEd25519SignatureString: 
+      type: string
+      description: "The hex-encoded 64-byte long recovery id and signature of an EDDSA Ed25519 key-pair"
+      minLength: 128
+      maxLength: 128
 
     # ======
     # Value
