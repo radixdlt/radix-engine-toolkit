@@ -394,7 +394,7 @@ components:
           maximum: 0xFFFFFFFFFFFFFFFF
           description: "A 64-bit unsigned integer of the nonce to use for the transaction"
         notary_public_key:
-          $ref: "#/components/schemas/EcdsaPublicKeyString"
+          $ref: "#/components/schemas/EcdsaSecp256k1PublicKeyString"
           description: "The public key of the notary"
         notary_as_signatory:
           type: boolean
@@ -519,7 +519,7 @@ components:
         signed_intent:
           $ref: "#/components/schemas/SignedTransactionIntent"
         notary_signature:
-          $ref: "#/components/schemas/EcdsaSignatureString"
+          $ref: "#/components/schemas/EcdsaSecp256k1SignatureString"
           description: "The signature of the notary"
 
     Byte:
