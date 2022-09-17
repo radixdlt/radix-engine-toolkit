@@ -4,13 +4,13 @@ use std::str::FromStr;
 
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_with::serde_as;
 
-use scrypto::prelude::{Hash, SignatureWithPublicKey};
+use scrypto::prelude::{Hash, Signature, SignatureWithPublicKey};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::manifest::ManifestInstructions;
-use serde_with::serde_as;
 
 pub type VaultId = EntityId;
 pub type KeyValueStoreId = EntityId;
@@ -201,10 +201,31 @@ pub struct TransactionIntent {
     pub manifest: TransactionManifest,
 }
 
+impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
+    type Error = Error;
+
+    fn try_into(self) -> Result<transaction::model::TransactionIntent, Self::Error> {
+        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
+
+        Ok(transaction::model::TransactionIntent {
+            header: self.header,
+            manifest: self
+                .manifest
+                .to_scrypto_transaction_manifest(&bech32_manager)?,
+        })
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SignedTransactionIntent {
     pub transaction_intent: TransactionIntent,
     pub signatures: Vec<SignatureWithPublicKey>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NotarizedTransaction {
+    pub signed_intent: SignedTransactionIntent,
+    pub notary_signature: Signature,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

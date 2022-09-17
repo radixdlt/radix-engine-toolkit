@@ -1,10 +1,13 @@
+use crate::error::Error;
+use crate::export_handler;
 use crate::models::manifest::ManifestInstructionsKind;
-use crate::models::{
-    DecompileNotarizedTransactionIntentRequest, DecompileNotarizedTransactionIntentResponse,
-    DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse,
-    DecompileTransactionIntentRequest, DecompileTransactionIntentResponse,
-};
+use crate::requests::*;
+use crate::traits::Validate;
 use serde::{Deserialize, Serialize};
+
+// ==========================
+// Request & Response Models
+// ==========================
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileUnknownTransactionIntentRequest {
@@ -66,4 +69,60 @@ impl From<DecompileNotarizedTransactionIntentResponse>
     fn from(response: DecompileNotarizedTransactionIntentResponse) -> Self {
         Self::NotarizedTransactionIntent(response)
     }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl Validate for DecompileUnknownTransactionIntentRequest {
+    fn validate(&self) -> Result<(), Error> {
+        Ok(())
+    }
+}
+
+impl Validate for DecompileUnknownTransactionIntentResponse {
+    fn validate(&self) -> Result<(), Error> {
+        match self {
+            Self::TransactionIntent(response) => response.validate(),
+            Self::SignedTransactionIntent(response) => response.validate(),
+            Self::NotarizedTransactionIntent(response) => response.validate(),
+        }
+    }
+}
+
+// ========
+// Handler
+// ========
+
+pub fn handle_decompile_unknown_transaction_intent(
+    request: DecompileUnknownTransactionIntentRequest,
+) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
+    let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
+        handle_decompile_transaction_intent(request.clone().into())
+    {
+        Ok(response.into())
+    } else if let Ok(response) = handle_decompile_signed_transaction_intent(request.clone().into())
+    {
+        Ok(response.into())
+    } else if let Ok(response) = handle_decompile_notarized_transaction_intent(request.into()) {
+        Ok(response.into())
+    } else {
+        Err(Error::UnrecognizedCompiledIntentFormat)
+    }?;
+
+    Ok(response)
+}
+
+export_handler!(
+    handle_decompile_unknown_transaction_intent as decompile_unknown_transaction_intent
+);
+
+// ======
+// Tests
+// ======
+
+#[cfg(test)]
+mod tests {
+    // TODO: Unit tests for this request type
 }
