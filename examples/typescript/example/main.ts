@@ -81,7 +81,7 @@ const main = async (): Promise<void> => {
     end_epoch_exclusive: 0x20,
     nonce: 0x00,
     notary_public_key: {
-      type: Curve.Ecdsa,
+      type: Curve.EcdsaSecp256k1,
       public_key: "031c3796382de8e6e7a1aacb069221e43943af8be417d4c8c92dca7c4b07f93969",
     },
     notary_as_signatory: false,
@@ -153,7 +153,7 @@ const main = async (): Promise<void> => {
 
       // TODO: Improve this struct.
       return {
-        type: Curve.Ecdsa,
+        type: Curve.EcdsaSecp256k1,
         signature: Buffer.concat([recid, signature]).toString("hex"),
       };
     }
@@ -214,7 +214,7 @@ const main = async (): Promise<void> => {
       signatures,
     },
     notary_signature: {
-      type: Curve.Ecdsa,
+      type: Curve.EcdsaSecp256k1,
       signature: Buffer.concat([
         Uint8Array.from([notarySignature.recid]),
         notarySignature.signature,
