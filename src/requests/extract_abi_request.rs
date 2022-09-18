@@ -54,7 +54,7 @@ pub fn handle_extract_abi(request: ExtractAbiRequest) -> Result<ExtractAbiRespon
     Ok(response)
 }
 
-export_handler!(handle_extract_abi as extract_abi);
+export_handler!(handle_extract_abi(ExtractAbiRequest) as extract_abi);
 
 // ======
 // Tests

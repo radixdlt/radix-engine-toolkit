@@ -91,7 +91,7 @@ export interface DecompileSignedTransactionIntentResponse {
 
 export interface CompileNotarizedTransactionIntentRequest {
   signed_intent: SignedTransactionIntent;
-  notary_signature: EcdsaSignature;
+  notary_signature: Signature;
 }
 
 export interface CompileNotarizedTransactionIntentResponse {
@@ -105,7 +105,7 @@ export interface DecompileNotarizedTransactionIntentRequest {
 
 export interface DecompileNotarizedTransactionIntentResponse {
   signed_intent: SignedTransactionIntent;
-  notary_signature: EcdsaSignature;
+  notary_signature: Signature;
 }
 
 export interface DecompileUnknownTransactionIntentRequest {

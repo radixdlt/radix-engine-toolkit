@@ -53,10 +53,9 @@ pub fn handle_derive_non_fungible_address_from_public_key(
     Ok(response)
 }
 
-export_handler!(
-    handle_derive_non_fungible_address_from_public_key
-        as derive_non_fungible_address_from_public_key
-);
+export_handler!(handle_derive_non_fungible_address_from_public_key(
+    DeriveNonFungibleAddressFromPublicKeyRequest
+) as derive_non_fungible_address_from_public_key);
 
 // ======
 // Tests

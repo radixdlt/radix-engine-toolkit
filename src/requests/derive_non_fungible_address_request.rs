@@ -56,7 +56,10 @@ pub fn handle_derive_non_fungible_address(
     Ok(response)
 }
 
-export_handler!(handle_derive_non_fungible_address as derive_non_fungible_address);
+export_handler!(
+    handle_derive_non_fungible_address(DeriveNonFungibleAddressRequest)
+        as derive_non_fungible_address
+);
 
 // ======
 // Tests

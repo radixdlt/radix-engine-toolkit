@@ -104,7 +104,7 @@ pub fn validate_notarized_transaction(
 fn new_validation_config(network_id: u8, end_epoch: u64) -> ValidationConfig {
     ValidationConfig {
         network_id: network_id,
-        current_epoch: end_epoch,
+        current_epoch: end_epoch - 1,
         max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
         min_tip_percentage: 0,
     }

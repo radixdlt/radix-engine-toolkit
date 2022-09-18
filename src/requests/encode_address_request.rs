@@ -51,7 +51,7 @@ pub fn handle_encode_address(
     Ok(response)
 }
 
-export_handler!(handle_encode_address as encode_address);
+export_handler!(handle_encode_address(EncodeAddressRequest) as encode_address);
 
 // ======
 // Tests

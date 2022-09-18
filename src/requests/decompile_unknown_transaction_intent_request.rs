@@ -114,9 +114,9 @@ pub fn handle_decompile_unknown_transaction_intent(
     Ok(response)
 }
 
-export_handler!(
-    handle_decompile_unknown_transaction_intent as decompile_unknown_transaction_intent
-);
+export_handler!(handle_decompile_unknown_transaction_intent(
+    DecompileUnknownTransactionIntentRequest
+) as decompile_unknown_transaction_intent);
 
 // ======
 // Tests

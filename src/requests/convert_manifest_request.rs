@@ -87,7 +87,7 @@ pub fn handle_convert_manifest(
     Ok(response)
 }
 
-export_handler!(handle_convert_manifest as convert_manifest);
+export_handler!(handle_convert_manifest(ConvertManifestRequest) as convert_manifest);
 
 // ======
 // Tests

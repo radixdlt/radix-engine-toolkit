@@ -48,7 +48,7 @@ pub fn handle_information(_request: InformationRequest) -> Result<InformationRes
     Ok(response)
 }
 
-export_handler!(handle_information as information);
+export_handler!(handle_information(InformationRequest) as information);
 
 // ======
 // Tests

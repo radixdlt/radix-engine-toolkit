@@ -47,7 +47,7 @@ pub fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeRespon
     Ok(response)
 }
 
-export_handler!(handle_sbor_encode as sbor_encode);
+export_handler!(handle_sbor_encode(SBOREncodeRequest) as sbor_encode);
 
 // ======
 // Tests

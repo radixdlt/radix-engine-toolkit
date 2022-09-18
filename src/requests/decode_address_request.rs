@@ -78,7 +78,7 @@ pub fn handle_decode_address(
     Ok(response)
 }
 
-export_handler!(handle_decode_address as decode_address);
+export_handler!(handle_decode_address(DecodeAddressRequest) as decode_address);
 
 // ======
 // Tests

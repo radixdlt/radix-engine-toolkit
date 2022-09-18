@@ -69,11 +69,13 @@ pub fn handle_compile_transaction_intent(
 
     let response: CompileTransactionIntentResponse =
         CompileTransactionIntentResponse { compiled_intent };
-
     Ok(response)
 }
 
-export_handler!(handle_compile_transaction_intent as compile_transaction_intent);
+export_handler!(
+    handle_compile_transaction_intent(CompileTransactionIntentRequest)
+        as compile_transaction_intent
+);
 
 // ======
 // Tests

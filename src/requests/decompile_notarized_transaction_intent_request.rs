@@ -23,6 +23,7 @@ pub struct DecompileNotarizedTransactionIntentRequest {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct DecompileNotarizedTransactionIntentResponse {
+    #[serde(flatten)]
     pub notarized_transaction: NotarizedTransaction,
 }
 
@@ -50,6 +51,8 @@ impl Validate for DecompileNotarizedTransactionIntentResponse {
 pub fn handle_decompile_notarized_transaction_intent(
     request: DecompileNotarizedTransactionIntentRequest,
 ) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
+    request.validate()?;
+
     let notarized_transaction_intent: transaction::model::NotarizedTransaction =
         scrypto_decode(&request.compiled_notarized_intent)?;
 
@@ -92,9 +95,9 @@ pub fn handle_decompile_notarized_transaction_intent(
     Ok(response)
 }
 
-export_handler!(
-    handle_decompile_notarized_transaction_intent as decompile_notarized_transaction_intent
-);
+export_handler!(handle_decompile_notarized_transaction_intent(
+    DecompileNotarizedTransactionIntentRequest
+) as decompile_notarized_transaction_intent);
 
 // ======
 // Tests

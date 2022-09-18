@@ -48,7 +48,7 @@ pub fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeRespon
     Ok(response)
 }
 
-export_handler!(handle_sbor_decode as sbor_decode);
+export_handler!(handle_sbor_decode(SBORDecodeRequest) as sbor_decode);
 
 // ======
 // Tests

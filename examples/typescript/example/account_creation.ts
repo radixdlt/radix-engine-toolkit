@@ -11,7 +11,7 @@ import {
 } from "../src/interfaces";
 import { createTransactionService, ManifestBuilder, ValueKind } from "../src/transaction-library";
 import { byteArrayFromHex, hexStringFromByteArray } from "../src/utils";
-import { Secp256k1KeyPair } from "../src/key_pair";
+import { EcdsaSecp256k1KeyPair } from "../src/key_pair";
 import { Instruction } from "../src/instruction";
 import { Buffer } from "buffer";
 
@@ -20,7 +20,7 @@ const main = async (): Promise<void> => {
   const transactionService: TransactionService = await createTransactionService();
 
   // Creating a new key pair for the account that we are about to create.
-  let keyPair: Secp256k1KeyPair = Secp256k1KeyPair.newRandom();
+  let keyPair: EcdsaSecp256k1KeyPair = EcdsaSecp256k1KeyPair.newRandom();
   console.log(`Account Public Key ${keyPair.publicKeyHex()}`);
   console.log(`Account Private Key ${keyPair.privateKeyHex()}`);
 

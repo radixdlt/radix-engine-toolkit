@@ -78,7 +78,10 @@ pub fn handle_decompile_signed_transaction_intent(
     Ok(response)
 }
 
-export_handler!(handle_decompile_signed_transaction_intent as decompile_signed_transaction_intent);
+export_handler!(
+    handle_decompile_signed_transaction_intent(DecompileSignedTransactionIntentRequest)
+        as decompile_signed_transaction_intent
+);
 
 // ======
 // Tests

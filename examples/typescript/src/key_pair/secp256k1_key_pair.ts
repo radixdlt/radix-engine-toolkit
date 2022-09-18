@@ -4,7 +4,7 @@ import * as secp256k1 from "secp256k1";
 import { byteArrayFromHex, hexStringFromByteArray } from "../utils";
 import { Buffer } from "buffer";
 
-export default class Secp256k1KeyPair implements KeyPair {
+export default class EcdsaSecp256k1KeyPair implements KeyPair {
   private internal_private_key: Uint8Array;
 
   constructor(private_key: Uint8Array) {
@@ -14,14 +14,14 @@ export default class Secp256k1KeyPair implements KeyPair {
     this.internal_private_key = private_key;
   }
 
-  static newRandom(): Secp256k1KeyPair {
+  static newRandom(): EcdsaSecp256k1KeyPair {
     let randomPrivateKey: Uint8Array = new Uint8Array(32);
     self.crypto.getRandomValues(randomPrivateKey);
-    return new Secp256k1KeyPair(randomPrivateKey);
+    return new EcdsaSecp256k1KeyPair(randomPrivateKey);
   }
 
-  static newFromString(private_key: string): Secp256k1KeyPair {
-    return new Secp256k1KeyPair(Uint8Array.from(Buffer.from(private_key, "hex")));
+  static newFromString(private_key: string): EcdsaSecp256k1KeyPair {
+    return new EcdsaSecp256k1KeyPair(Uint8Array.from(Buffer.from(private_key, "hex")));
   }
 
   privateKey(): Uint8Array {

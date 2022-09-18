@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CompileNotarizedTransactionIntentRequest {
+    #[serde(flatten)]
     pub notarized_transaction: NotarizedTransaction,
 }
 
@@ -45,6 +46,8 @@ impl Validate for CompileNotarizedTransactionIntentResponse {
 pub fn handle_compile_notarized_transaction_intent(
     request: CompileNotarizedTransactionIntentRequest,
 ) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
+    request.validate()?;
+
     let transaction_intent: transaction::model::TransactionIntent = request
         .notarized_transaction
         .signed_intent
@@ -68,12 +71,13 @@ pub fn handle_compile_notarized_transaction_intent(
             compiled_notarized_intent,
         };
 
+    response.validate()?;
     Ok(response)
 }
 
-export_handler!(
-    handle_compile_notarized_transaction_intent as compile_notarized_transaction_intent
-);
+export_handler!(handle_compile_notarized_transaction_intent(
+    CompileNotarizedTransactionIntentRequest
+) as compile_notarized_transaction_intent);
 
 // ======
 // Tests

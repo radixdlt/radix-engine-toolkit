@@ -75,7 +75,10 @@ pub fn handle_decompile_transaction_intent(
     Ok(response)
 }
 
-export_handler!(handle_decompile_transaction_intent as decompile_transaction_intent);
+export_handler!(
+    handle_decompile_transaction_intent(DecompileTransactionIntentRequest)
+        as decompile_transaction_intent
+);
 
 // ======
 // Tests

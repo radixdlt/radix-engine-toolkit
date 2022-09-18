@@ -47,6 +47,8 @@ impl Validate for CompileSignedTransactionIntentResponse {
 pub fn handle_compile_signed_transaction_intent(
     request: CompileSignedTransactionIntentRequest,
 ) -> Result<CompileSignedTransactionIntentResponse, Error> {
+    request.validate()?;
+
     let bech32_manager: Bech32Manager =
         Bech32Manager::new(request.signed_intent.transaction_intent.header.network_id);
 
@@ -72,10 +74,14 @@ pub fn handle_compile_signed_transaction_intent(
         compiled_signed_intent,
     };
 
+    response.validate()?;
     Ok(response)
 }
 
-export_handler!(handle_compile_signed_transaction_intent as compile_signed_transaction_intent);
+export_handler!(
+    handle_compile_signed_transaction_intent(CompileSignedTransactionIntentRequest)
+        as compile_signed_transaction_intent
+);
 
 // ======
 // Tests
