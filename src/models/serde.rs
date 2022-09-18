@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 use std::fmt::Display;
 use std::str::FromStr;
 
@@ -222,10 +222,32 @@ pub struct SignedTransactionIntent {
     pub signatures: Vec<SignatureWithPublicKey>,
 }
 
+impl TryInto<transaction::model::SignedTransactionIntent> for SignedTransactionIntent {
+    type Error = Error;
+
+    fn try_into(self) -> Result<transaction::model::SignedTransactionIntent, Self::Error> {
+        Ok(transaction::model::SignedTransactionIntent {
+            intent: self.transaction_intent.try_into()?,
+            intent_signatures: self.signatures,
+        })
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NotarizedTransaction {
     pub signed_intent: SignedTransactionIntent,
     pub notary_signature: Signature,
+}
+
+impl TryInto<transaction::model::NotarizedTransaction> for NotarizedTransaction {
+    type Error = Error;
+
+    fn try_into(self) -> Result<transaction::model::NotarizedTransaction, Self::Error> {
+        Ok(transaction::model::NotarizedTransaction {
+            signed_intent: self.signed_intent.try_into()?,
+            notary_signature: self.notary_signature,
+        })
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

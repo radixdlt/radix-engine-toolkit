@@ -3,8 +3,9 @@ use crate::export_handler;
 use crate::models::serde::NotarizedTransaction;
 use crate::traits::Validate;
 use crate::validation::validate_notarized_transaction;
-use scrypto::prelude::{scrypto_encode, SignatureWithPublicKey};
+use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 
 // ==========================
 // Request & Response Models
@@ -46,32 +47,14 @@ impl Validate for CompileNotarizedTransactionIntentResponse {
 pub fn handle_compile_notarized_transaction_intent(
     request: CompileNotarizedTransactionIntentRequest,
 ) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-    request.validate()?;
-
-    let transaction_intent: transaction::model::TransactionIntent = request
-        .notarized_transaction
-        .signed_intent
-        .transaction_intent
-        .try_into()?;
-
-    let signatures: Vec<SignatureWithPublicKey> =
-        request.notarized_transaction.signed_intent.signatures;
     let notarized_transaction: transaction::model::NotarizedTransaction =
-        transaction::model::NotarizedTransaction {
-            signed_intent: transaction::model::SignedTransactionIntent {
-                intent: transaction_intent,
-                intent_signatures: signatures,
-            },
-            notary_signature: request.notarized_transaction.notary_signature,
-        };
+        request.notarized_transaction.try_into()?;
     let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
 
     let response: CompileNotarizedTransactionIntentResponse =
         CompileNotarizedTransactionIntentResponse {
             compiled_notarized_intent,
         };
-
-    response.validate()?;
     Ok(response)
 }
 
