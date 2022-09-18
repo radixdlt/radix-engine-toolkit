@@ -141,13 +141,13 @@ components:
       description: "The response to the `DecompileSignedTransactionIntentRequest` containing the decompiled signed transaction intent"
 
     # Compile Notarized Transaction Intent
-    CompileNotarizedTransactionIntentRequest:
-      $ref: "#/components/schemas/NotarizedTransactionIntent"
+    CompileNotarizedTransactionRequest:
+      $ref: "#/components/schemas/NotarizedTransaction"
       description: "A request to compile a notarized transaction intent to its SBOR-encoded representation"
 
-    CompileNotarizedTransactionIntentResponse:
+    CompileNotarizedTransactionResponse:
       type: object
-      description: "The response to the `CompileNotarizedTransactionIntentRequest` request containing the compiled notarized transaction intent as a hex-encoded string"
+      description: "The response to the `CompileNotarizedTransactionRequest` request containing the compiled notarized transaction intent as a hex-encoded string"
       additionalProperties: false
       required:
         - compiled_notarized_intent
@@ -156,10 +156,10 @@ components:
           type: string
 
     # Decompile Notarized Transaction Intent
-    DecompileNotarizedTransactionIntentRequest: 
+    DecompileNotarizedTransactionRequest: 
       description: "A request to take the SBOR-encoded compiled notarized transaction intent and decompile it into a format supported by the library (either `JSON` or `String`)"
       allOf:
-        - $ref: "#/components/schemas/CompileNotarizedTransactionIntentResponse"
+        - $ref: "#/components/schemas/CompileNotarizedTransactionResponse"
         - type: object
           additionalProperties: false
           required:
@@ -169,9 +169,9 @@ components:
               description: "The format that the manifest should be returned in. Currently, this could either be `JSON` or `String`."
               $ref: "#/components/schemas/ManifestInstructionsKind"
     
-    DecompileNotarizedTransactionIntentResponse:
-      description: "The response to the `DecompileNotarizedTransactionIntentRequest` containing the decompiled notarized transaction intent"
-      $ref: "#/components/schemas/NotarizedTransactionIntent"
+    DecompileNotarizedTransactionResponse:
+      description: "The response to the `DecompileNotarizedTransactionRequest` containing the decompiled notarized transaction intent"
+      $ref: "#/components/schemas/NotarizedTransaction"
     
     # Decompile Unknown Transaction Intent
     DecompileUnknownTransactionIntentRequest:
@@ -194,7 +194,7 @@ components:
       anyOf:
         - $ref: "#/components/schemas/DecompileTransactionIntentResponse"
         - $ref: "#/components/schemas/DecompileSignedTransactionIntentResponse"
-        - $ref: "#/components/schemas/DecompileNotarizedTransactionIntentResponse"
+        - $ref: "#/components/schemas/DecompileNotarizedTransactionResponse"
 
     # Address Encoding
     EncodeAddressRequest:
@@ -507,9 +507,9 @@ components:
           type: array
           description: "An array containing the signature of the signers"
           items:
-            $ref: "#/components/schemas/Signature"
+            $ref: "#/components/schemas/SignatureWithPublicKey"
     
-    NotarizedTransactionIntent:
+    NotarizedTransaction:
       type: object
       additionalProperties: false
       required:
@@ -519,7 +519,7 @@ components:
         signed_intent:
           $ref: "#/components/schemas/SignedTransactionIntent"
         notary_signature:
-          $ref: "#/components/schemas/EcdsaSecp256k1SignatureString"
+          $ref: "#/components/schemas/Signature"
           description: "The signature of the notary"
 
     Byte:
@@ -532,8 +532,9 @@ components:
     # Crypto
     # =======
 
-    PublicKey:
+    SignatureWithPublicKey:
       type: object
+      description: "An object representing a signature with public key"
       required:
       - type
       properties:
@@ -543,8 +544,50 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          EcdsaSecp256k1PublicKey: "#/components/schemas/EcdsaSecp256k1PublicKey"
-          EddsaEd25519PublicKey: "#/components/schemas/EddsaEd25519PublicKey"
+          EcdsaSecp256k1: "#/components/schemas/EcdsaSecp256k1SignatureWithPublicKey"
+          EddsaEd25519: "#/components/schemas/EddsaEd25519SignatureWithPublicKey"
+
+    EcdsaSecp256k1SignatureWithPublicKey:
+      description: "An object representing an ECDSA Secp256k1 public key and signature"
+      allOf:
+      - $ref: "#/components/schemas/SignatureWithPublicKey"
+      - type: object
+        additionalProperties: false
+        required:
+        - signature
+        properties:
+          signature:
+            $ref: "#/components/schemas/EcdsaSecp256k1Signature"
+
+    EddsaEd25519SignatureWithPublicKey:
+      description: "An object representing an EDDSA Ed25519 public key and signature"
+      allOf:
+      - $ref: "#/components/schemas/SignatureWithPublicKey"
+      - type: object
+        additionalProperties: false
+        required:
+        - public_key
+        - signature
+        properties:
+          public_key:
+            $ref: "#/components/schemas/EcdsaSecp256k1PublicKey"
+          signature:
+            $ref: "#/components/schemas/EcdsaSecp256k1Signature"
+
+    PublicKey:
+      type: object
+      description: "An object representing an ECDSA or EDDSA public key"
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          readOnly: true
+      discriminator:
+        propertyName: type
+        mapping:
+          EcdsaSecp256k1: "#/components/schemas/EcdsaSecp256k1PublicKey"
+          EddsaEd25519: "#/components/schemas/EddsaEd25519PublicKey"
 
     EcdsaSecp256k1PublicKey:
       allOf:
@@ -570,6 +613,7 @@ components:
     
     Signature:
       type: object
+      description: "An object representing an ECDSA or EDDSA signature"
       required:
       - type
       properties:
@@ -579,8 +623,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          EcdsaSecp256k1Signature: "#/components/schemas/EcdsaSecp256k1Signature"
-          EddsaEd25519Signature: "#/components/schemas/EddsaEd25519Signature"
+          EcdsaSecp256k1: "#/components/schemas/EcdsaSecp256k1Signature"
+          EddsaEd25519: "#/components/schemas/EddsaEd25519Signature"
 
     EcdsaSecp256k1Signature:
       allOf:
@@ -669,12 +713,11 @@ components:
       - Vault
       - NonFungibleId
       - NonFungibleAddress
-      - Bytes
       - KeyValueStore
-      - EcdsaPublicKey
-      - EcdsaSignature
-      - Ed25519PublicKey
-      - Ed25519Signature
+      - EcdsaSecp256k1PublicKey
+      - EcdsaSecp256k1Signature
+      - EddsaEd25519PublicKey
+      - EddsaEd25519Signature
     
     Value:
       type: object
@@ -714,18 +757,20 @@ components:
           ResourceAddress: "#/components/schemas/ResourceAddress"
           PackageAddress: "#/components/schemas/PackageAddress"
           Hash: "#/components/schemas/Hash"
-          Bytes: "#/components/schemas/Bytes"
           KeyValueStore: "#/components/schemas/KeyValueStore"
           Bucket: "#/components/schemas/Bucket"
           Proof: "#/components/schemas/Proof"
           Vault: "#/components/schemas/Vault"
           NonFungibleId: "#/components/schemas/NonFungibleId"
           NonFungibleAddress: "#/components/schemas/NonFungibleAddress"
-          EcdsaPublicKey: "#/components/schemas/EcdsaPublicKey"
-          EcdsaSignature: "#/components/schemas/EcdsaSignature"
-          Ed25519PublicKey: "#/components/schemas/Ed25519PublicKey"
-          Ed25519Signature: "#/components/schemas/Ed25519Signature"
+          EcdsaSecp256k1PublicKey: "#/components/schemas/EcdsaSecp256k1PublicKeyValue"
+          EcdsaSecp256k1Signature: "#/components/schemas/EcdsaSecp256k1SignatureValue"
+          EddsaEd25519PublicKey: "#/components/schemas/EddsaEd25519PublicKeyValue"
+          EddsaEd25519Signature: "#/components/schemas/EddsaEd25519SignatureValue"
+          Expression: "#/components/schemas/Expression"
+          Blob: "#/components/schemas/Blob"
     U8:
+      description: "A string representing an 8-bit unsigned integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -736,6 +781,7 @@ components:
           value:
             type: string
     U16:
+      description: "A string representing a 16-bit unsigned integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -746,6 +792,7 @@ components:
           value:
             type: string
     U32:
+      description: "A string representing a 32-bit unsigned integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -756,6 +803,7 @@ components:
           value:
             type: string
     U64:
+      description: "A string representing a 64-bit unsigned integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -766,6 +814,7 @@ components:
           value:
             type: string
     U128:
+      description: "A string representing a 128-bit unsigned integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -776,6 +825,7 @@ components:
           value:
             type: string
     I8:
+      description: "A string representing an 8-bit signed integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -786,6 +836,7 @@ components:
           value:
             type: string
     I16:
+      description: "A string representing a 16-bit signed integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -796,6 +847,7 @@ components:
           value:
             type: string
     I32:
+      description: "A string representing a 32-bit signed integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -806,6 +858,7 @@ components:
           value:
             type: string
     I64:
+      description: "A string representing a 64-bit signed integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -816,6 +869,7 @@ components:
           value:
             type: string
     I128:
+      description: "A string representing a 128-bit signed integer"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -826,6 +880,7 @@ components:
           value:
             type: string
     String:
+      description: "A string"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -836,6 +891,7 @@ components:
           value:
             type: string
     Struct:
+      description: "A type representing the values of the different fields of a struct"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -848,6 +904,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Enum:
+      description: "A type represnting an ennumeration"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -864,19 +921,11 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Option:
-      allOf:
-      - $ref: "#/components/schemas/Value"
-      - type: object
-        additionalProperties: false
-        required:
-        - value
-        properties:
-          value:
-            nullable: true
-            $ref: "#/components/schemas/Value"
+      description: 'TODO: Need to add this.'
     Result:
       description: 'TODO: Need to add this.'
     Array:
+      description: "A type representing an array of typed values"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -892,6 +941,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Tuple:
+      description: "A type representing a tuple of untyped values"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -904,6 +954,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     List:
+      description: "A type representing a list of typed values"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -919,6 +970,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Set:
+      description: "A type representing a set of typed values"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -934,6 +986,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Map:
+      description: "A type representing a map of typed values"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -952,6 +1005,7 @@ components:
             items:
               $ref: "#/components/schemas/Value"
     Decimal:
+      description: "A type representing a decimal with 18 decimal places"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -962,6 +1016,7 @@ components:
           value:
             type: string
     PreciseDecimal:
+      description: "A type representing a decimal with 64 decimal places"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -972,6 +1027,7 @@ components:
           value:
             type: string
     Component:
+      description: "A type representing component"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -982,6 +1038,7 @@ components:
           address:
             type: string
     ComponentAddress:
+      description: "A type representing a bech32m encoded component address"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -992,6 +1049,7 @@ components:
           address:
             type: string
     ResourceAddress:
+      description: "A type representing a bech32m encoded resource address"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1002,6 +1060,7 @@ components:
           address:
             type: string
     PackageAddress:
+      description: "A type representing a bech32m encoded package address"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1012,40 +1071,57 @@ components:
           address:
             type: string
     Hash:
+      description: "A 32-byte long (64 character long) hash"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
         additionalProperties: false
         required:
-        - address
+        - value
         properties:
-          address:
+          value:
+            description: "A 32-byte long (64 character long) hash"
             type: string
     Bucket:
+      description: "Represents a bucket which uses either a u32 or a string identifier"
       allOf:
       - $ref: "#/components/schemas/Value"
-      - type: object
-        additionalProperties: false
-        required:
-        - identifier
-        properties:
-          identifier:
-            oneOf:
-            - type: string
-            - type: integer
+      - oneOf:
+          - additionalProperties: false
+            required:
+              - identifier
+            properties:
+              identifier:
+                type: string
+                description: "A string identifier used to provide user friendly names to buckets and proofs for easy identification"
+          - additionalProperties: false
+            required:
+              - identifier
+            properties:
+              identifier:
+                type: integer
+                description: "A 32-bit unsigned number used to identify buckets and proofs"
     Proof:
+      description: "Represents a proof which uses either a u32 or a string identifier"
       allOf:
       - $ref: "#/components/schemas/Value"
-      - type: object
-        additionalProperties: false
-        required:
-        - identifier
-        properties:
-          identifier:
-            oneOf:
-            - type: string
-            - type: integer
+      - oneOf:
+        - additionalProperties: false
+          required:
+            - identifier
+          properties:
+            identifier:
+              type: string
+              description: "A string identifier used to provide user friendly names to buckets and proofs for easy identification"
+        - additionalProperties: false
+          required:
+            - identifier
+          properties:
+            identifier:
+              type: integer
+              description: "A 32-bit unsigned number used to identify buckets and proofs"
     Vault:
+      description: "Represents a vault id"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1056,6 +1132,7 @@ components:
           identifier:
             type: string
     NonFungibleId:
+      description: "The hex-encoded bytes of the SBOR-encoded NonFungibleId"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1065,7 +1142,9 @@ components:
         properties:
           value:
             type: string
+            description: "The hex-encoded bytes of the SBOR-encoded NonFungibleId"
     NonFungibleAddress:
+      description: "The hex-encoded bytes of the NonFungibleAddress"
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1075,16 +1154,7 @@ components:
         properties:
           address:
             type: string
-    Bytes:
-      allOf:
-      - $ref: "#/components/schemas/Value"
-      - type: object
-        additionalProperties: false
-        required:
-        - value
-        properties:
-          value:
-            type: string
+            description: "The hex-encoded bytes of the NonFungibleAddress"
     KeyValueStore:
       allOf:
       - $ref: "#/components/schemas/Value"
@@ -1095,7 +1165,7 @@ components:
         properties:
           identifier:
             type: string
-    EcdsaPublicKey:
+    EcdsaSecp256k1PublicKeyValue:
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1105,7 +1175,7 @@ components:
         properties:
           public_key:
             type: string
-    EcdsaSignature:
+    EcdsaSecp256k1SignatureValue:
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1115,7 +1185,7 @@ components:
         properties:
           signature:
             type: string
-    Ed25519PublicKey:
+    EddsaEd25519PublicKeyValue:
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1125,7 +1195,7 @@ components:
         properties:
           public_key:
             type: string
-    Ed25519Signature:
+    EddsaEd25519SignatureValue:
       allOf:
       - $ref: "#/components/schemas/Value"
       - type: object
@@ -1134,6 +1204,27 @@ components:
         - signature
         properties:
           signature:
+            type: string
+    Blob:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - hash
+        properties:
+          hash:
+            type: string
+            description: A 32-byte long (64 characters long) hash of the blob
+    Expression:
+      allOf:
+      - $ref: "#/components/schemas/Value"
+      - type: object
+        additionalProperties: false
+        required:
+        - value
+        properties:
+          value:
             type: string
 
     # =============
@@ -1153,7 +1244,6 @@ components:
         mapping:
           CALL_FUNCTION: "#/components/schemas/CallFunction"
           CALL_METHOD: "#/components/schemas/CallMethod"
-          CALL_METHOD_WITH_ALL_RESOURCES: "#/components/schemas/CallMethodWithAllResources"
           TAKE_FROM_WORKTOP: "#/components/schemas/TakeFromWorktop"
           TAKE_FROM_WORKTOP_BY_AMOUNT: "#/components/schemas/TakeFromWorktopByAmount"
           TAKE_FROM_WORKTOP_BY_IDS: "#/components/schemas/TakeFromWorktopByIds"
@@ -1213,19 +1303,6 @@ components:
             nullable: true
             items:
               $ref: "#/components/schemas/Value"
-    CallMethodWithAllResources:
-      allOf:
-      - $ref: "#/components/schemas/Instruction"
-      - type: object
-        additionalProperties: false
-        required:
-        - component_address
-        - method_name
-        properties:
-          component_address:
-            $ref: "#/components/schemas/ComponentAddress"
-          method_name:
-            $ref: "#/components/schemas/String"
     TakeFromWorktop:
       allOf:
       - $ref: "#/components/schemas/Instruction"
@@ -1440,10 +1517,13 @@ components:
       - type: object
         additionalProperties: false
         required:
-        - package
+        - code
+        - abi
         properties:
-          package:
-            $ref: "#/components/schemas/Bytes"
+          code:
+            $ref: "#/components/schemas/Blob"
+          abi:
+            $ref: "#/components/schemas/Blob"
     
     # ======
     # Error
