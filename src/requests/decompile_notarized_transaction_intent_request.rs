@@ -1,16 +1,12 @@
-use std::convert::TryInto;
-
-use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::export_handler;
-use crate::models::manifest::{ManifestInstructions, ManifestInstructionsKind};
-use crate::models::serde::{
-    NotarizedTransaction, SignedTransactionIntent, TransactionIntent, TransactionManifest,
-};
+use crate::models::manifest::ManifestInstructionsKind;
+use crate::models::serde::NotarizedTransaction;
 use crate::traits::Validate;
 use crate::validation::validate_notarized_transaction;
-use scrypto::prelude::{scrypto_decode, SignatureWithPublicKey};
+use scrypto::prelude::scrypto_decode;
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 
 // ==========================
 // Request & Response Models
