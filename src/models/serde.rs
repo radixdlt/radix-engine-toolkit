@@ -12,6 +12,8 @@ use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::manifest::ManifestInstructions;
 
+use super::ManifestInstructionsKind;
+
 pub type VaultId = EntityId;
 pub type KeyValueStoreId = EntityId;
 
@@ -201,6 +203,26 @@ pub struct TransactionIntent {
     pub manifest: TransactionManifest,
 }
 
+impl TransactionIntent {
+    pub fn convert_manifest_instructions_kind(
+        self,
+        to: ManifestInstructionsKind,
+    ) -> Result<Self, Error> {
+        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
+        Ok(Self {
+            header: self.header,
+            manifest: TransactionManifest {
+                instructions: self.manifest.instructions.to(
+                    to,
+                    &bech32_manager,
+                    self.manifest.blobs.clone(),
+                )?,
+                blobs: self.manifest.blobs,
+            },
+        })
+    }
+}
+
 impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
     type Error = Error;
 
@@ -216,10 +238,44 @@ impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
     }
 }
 
+impl TryInto<TransactionIntent> for transaction::model::TransactionIntent {
+    type Error = Error;
+
+    fn try_into(self) -> Result<TransactionIntent, Self::Error> {
+        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
+
+        Ok(TransactionIntent {
+            header: self.header,
+            manifest: TransactionManifest {
+                instructions: ManifestInstructions::from_scrypto_transaction_manifest(
+                    &self.manifest,
+                    &bech32_manager,
+                    super::ManifestInstructionsKind::JSON,
+                )?,
+                blobs: self.manifest.blobs,
+            },
+        })
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SignedTransactionIntent {
     pub transaction_intent: TransactionIntent,
     pub signatures: Vec<SignatureWithPublicKey>,
+}
+
+impl SignedTransactionIntent {
+    pub fn convert_manifest_instructions_kind(
+        self,
+        to: ManifestInstructionsKind,
+    ) -> Result<Self, Error> {
+        Ok(Self {
+            signatures: self.signatures,
+            transaction_intent: self
+                .transaction_intent
+                .convert_manifest_instructions_kind(to)?,
+        })
+    }
 }
 
 impl TryInto<transaction::model::SignedTransactionIntent> for SignedTransactionIntent {
@@ -233,10 +289,33 @@ impl TryInto<transaction::model::SignedTransactionIntent> for SignedTransactionI
     }
 }
 
+impl TryInto<SignedTransactionIntent> for transaction::model::SignedTransactionIntent {
+    type Error = Error;
+
+    fn try_into(self) -> Result<SignedTransactionIntent, Self::Error> {
+        Ok(SignedTransactionIntent {
+            transaction_intent: self.intent.try_into()?,
+            signatures: self.intent_signatures,
+        })
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NotarizedTransaction {
     pub signed_intent: SignedTransactionIntent,
     pub notary_signature: Signature,
+}
+
+impl NotarizedTransaction {
+    pub fn convert_manifest_instructions_kind(
+        self,
+        to: ManifestInstructionsKind,
+    ) -> Result<Self, Error> {
+        Ok(Self {
+            signed_intent: self.signed_intent.convert_manifest_instructions_kind(to)?,
+            notary_signature: self.notary_signature,
+        })
+    }
 }
 
 impl TryInto<transaction::model::NotarizedTransaction> for NotarizedTransaction {
@@ -244,6 +323,17 @@ impl TryInto<transaction::model::NotarizedTransaction> for NotarizedTransaction 
 
     fn try_into(self) -> Result<transaction::model::NotarizedTransaction, Self::Error> {
         Ok(transaction::model::NotarizedTransaction {
+            signed_intent: self.signed_intent.try_into()?,
+            notary_signature: self.notary_signature,
+        })
+    }
+}
+
+impl TryInto<NotarizedTransaction> for transaction::model::NotarizedTransaction {
+    type Error = Error;
+
+    fn try_into(self) -> Result<NotarizedTransaction, Self::Error> {
+        Ok(NotarizedTransaction {
             signed_intent: self.signed_intent.try_into()?,
             notary_signature: self.notary_signature,
         })

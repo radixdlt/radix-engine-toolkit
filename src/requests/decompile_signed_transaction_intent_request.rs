@@ -7,6 +7,7 @@ use crate::traits::Validate;
 use crate::validation::validate_transaction_intent;
 use scrypto::prelude::{scrypto_decode, SignatureWithPublicKey};
 use serde::{Deserialize, Serialize};
+use std::convert::TryInto;
 
 // ==========================
 // Request & Response Models
@@ -50,31 +51,17 @@ impl Validate for DecompileSignedTransactionIntentResponse {
 pub fn handle_decompile_signed_transaction_intent(
     request: DecompileSignedTransactionIntentRequest,
 ) -> Result<DecompileSignedTransactionIntentResponse, Error> {
-    let signed_transaction_intent: transaction::model::SignedTransactionIntent =
-        scrypto_decode(&request.compiled_signed_intent)?;
-
-    let signatures: Vec<SignatureWithPublicKey> = signed_transaction_intent.intent_signatures;
-    let manifest_instructions: ManifestInstructions =
-        ManifestInstructions::from_scrypto_transaction_manifest(
-            &signed_transaction_intent.intent.manifest,
-            &Bech32Manager::new(signed_transaction_intent.intent.header.network_id),
-            request.manifest_instructions_output_format,
-        )?;
+    let signed_transaction_intent: SignedTransactionIntent = scrypto_decode::<
+        transaction::model::SignedTransactionIntent,
+    >(&request.compiled_signed_intent)?
+    .try_into()?;
+    let signed_transaction_intent: SignedTransactionIntent = signed_transaction_intent
+        .convert_manifest_instructions_kind(request.manifest_instructions_output_format)?;
 
     let response: DecompileSignedTransactionIntentResponse =
         DecompileSignedTransactionIntentResponse {
-            signed_intent: SignedTransactionIntent {
-                signatures,
-                transaction_intent: TransactionIntent {
-                    header: signed_transaction_intent.intent.header,
-                    manifest: TransactionManifest {
-                        instructions: manifest_instructions,
-                        blobs: signed_transaction_intent.intent.manifest.blobs,
-                    },
-                },
-            },
+            signed_intent: signed_transaction_intent,
         };
-
     Ok(response)
 }
 

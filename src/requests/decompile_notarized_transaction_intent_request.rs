@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::export_handler;
@@ -51,46 +53,16 @@ impl Validate for DecompileNotarizedTransactionIntentResponse {
 pub fn handle_decompile_notarized_transaction_intent(
     request: DecompileNotarizedTransactionIntentRequest,
 ) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
-    request.validate()?;
-
-    let notarized_transaction_intent: transaction::model::NotarizedTransaction =
-        scrypto_decode(&request.compiled_notarized_intent)?;
-
-    let signatures: Vec<SignatureWithPublicKey> =
-        notarized_transaction_intent.signed_intent.intent_signatures;
-    let manifest_instructions: ManifestInstructions =
-        ManifestInstructions::from_scrypto_transaction_manifest(
-            &notarized_transaction_intent.signed_intent.intent.manifest,
-            &Bech32Manager::new(
-                notarized_transaction_intent
-                    .signed_intent
-                    .intent
-                    .header
-                    .network_id,
-            ),
-            request.manifest_instructions_output_format,
-        )?;
+    let notarized_transaction: NotarizedTransaction = scrypto_decode::<
+        transaction::model::NotarizedTransaction,
+    >(&request.compiled_notarized_intent)?
+    .try_into()?;
+    let notarized_transaction: NotarizedTransaction = notarized_transaction
+        .convert_manifest_instructions_kind(request.manifest_instructions_output_format)?;
 
     let response: DecompileNotarizedTransactionIntentResponse =
         DecompileNotarizedTransactionIntentResponse {
-            notarized_transaction: NotarizedTransaction {
-                signed_intent: SignedTransactionIntent {
-                    signatures,
-                    transaction_intent: TransactionIntent {
-                        header: notarized_transaction_intent.signed_intent.intent.header,
-                        manifest: TransactionManifest {
-                            instructions: manifest_instructions,
-                            blobs: notarized_transaction_intent
-                                .signed_intent
-                                .intent
-                                .manifest
-                                .blobs
-                                .clone(),
-                        },
-                    },
-                },
-                notary_signature: notarized_transaction_intent.notary_signature,
-            },
+            notarized_transaction,
         };
     Ok(response)
 }
