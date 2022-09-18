@@ -190,23 +190,23 @@ export interface KeyValueStore {
   identifier: string;
 }
 
-export interface EcdsaPublicKey {
-  readonly type: ValueKind.EcdsaPublicKey;
+export interface EcdsaSecp256k1PublicKey {
+  readonly type: ValueKind.EcdsaSecp256k1PublicKey;
   public_key: string;
 }
 
-export interface EcdsaSignature {
-  readonly type: ValueKind.EcdsaSignature;
+export interface EcdsaSecp256k1Signature {
+  readonly type: ValueKind.EcdsaSecp256k1Signature;
   signature: string;
 }
 
-export interface Ed25519PublicKey {
-  readonly type: ValueKind.Ed25519PublicKey;
+export interface EddsaEd25519PublicKey {
+  readonly type: ValueKind.EddsaEd25519PublicKey;
   public_key: string;
 }
 
-export interface Ed25519Signature {
-  readonly type: ValueKind.Ed25519Signature;
+export interface EddsaEd25519Signature {
+  readonly type: ValueKind.EddsaEd25519Signature;
   signature: string;
 }
 
@@ -269,10 +269,10 @@ export enum ValueKind {
 
   KeyValueStore = "KeyValueStore",
 
-  EcdsaPublicKey = "EcdsaPublicKey",
-  EcdsaSignature = "EcdsaSignature",
-  Ed25519PublicKey = "Ed25519PublicKey",
-  Ed25519Signature = "Ed25519Signature",
+  EcdsaSecp256k1PublicKey = "EcdsaSecp256k1PublicKey",
+  EcdsaSecp256k1Signature = "EcdsaSecp256k1Signature",
+  EddsaEd25519PublicKey = "EddsaEd25519PublicKey",
+  EddsaEd25519Signature = "EddsaEd25519Signature",
 
   Expression = "Expression",
   Blob = "Blob",
