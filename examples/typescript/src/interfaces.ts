@@ -196,20 +196,20 @@ export enum Curve {
 export type PublicKey = Ed25519PublicKey | EcdsaPublicKey;
 export type Signature = Ed25519Signature | EcdsaSignature;
 
-export interface Ed25519PublicKey {
+interface Ed25519PublicKey {
   readonly type: Curve.EddsaEd25519;
   public_key: string;
 }
-export interface Ed25519Signature {
+interface Ed25519Signature {
   readonly type: Curve.EddsaEd25519;
   signature: string;
 }
 
-export interface EcdsaPublicKey {
+interface EcdsaPublicKey {
   readonly type: Curve.EcdsaSecp256k1;
   public_key: string;
 }
-export interface EcdsaSignature {
+interface EcdsaSignature {
   readonly type: Curve.EcdsaSecp256k1;
   signature: string;
 }
