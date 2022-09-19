@@ -26,7 +26,7 @@ use std::str::FromStr;
 use transaction::manifest::ast::Value as AstValue;
 
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as, DisplayFromStr, FromInto};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -104,10 +104,13 @@ pub enum Value {
         fields: Option<Vec<Value>>,
     },
     Option {
-        #[serde(default)]
+        #[serde(flatten)]
+        #[serde_as(as = "Box<FromInto<OptionProxy<Value>>>")]
         value: Box<Option<Value>>,
     },
     Result {
+        #[serde(flatten)]
+        #[serde_as(as = "Box<FromInto<ResultProxy<Value, Value>>>")]
         value: Box<Result<Value, Value>>,
     },
 
@@ -1692,41 +1695,23 @@ mod tests {
             }
         };
 
-        // TODO: I'm really unhappy with the way that this is serialized. I want something that
-        // looks more like the enum type. Something like:
-        // {
-        //      "type": "Option",
-        //      "variant_name": "None",
-        // }
-        // Need to look into how this can be done with Serde.
         test_value! {
             r#"
             {
                 "type": "Option",
-                "value": null
+                "variant": "None"
             }
             "#,
             Value::Option {
                 value: Box::new(None),
             }
         };
-
-        // TODO: I'm really unhappy with the way that this is serialized. I want something that
-        // looks more like the enum type. Something like:
-        // {
-        //      "type": "Option",
-        //      "variant_name": "Some",
-        //      "field": {
-        //          "type": "String"
-        //          "value": "Hello World!"
-        //      }
-        // }
-        // Need to look into how this can be done with Serde.
         test_value! {
             r#"
             {
                 "type": "Option",
-                "value": {
+                "variant": "Some",
+                "field": {
                     "type": "String",
                     "value": "Hello World!"
                 }
@@ -1739,26 +1724,14 @@ mod tests {
             }
         };
 
-        // TODO: I'm really unhappy with the way that this is serialized. I want something that
-        // looks more like the enum type. Something like:
-        // {
-        //      "type": "Result",
-        //      "variant_name": "Ok",
-        //      "field": {
-        //          "type": "String"
-        //          "value": "Hello World!"
-        //      }
-        // }
-        // Need to look into how this can be done with Serde.
         test_value! {
             r#"
             {
                 "type": "Result",
-                "value": {
-                    "Ok": {
-                        "type": "String",
-                        "value": "This is ok"
-                    }
+                "variant": "Ok",
+                "field": {
+                    "type": "String",
+                    "value": "This is ok"
                 }
             }
             "#,

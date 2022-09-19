@@ -445,3 +445,53 @@ pub enum AddressKind {
     SystemComponent,
     NormalComponent,
 }
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "variant")]
+pub enum OptionProxy<T> {
+    Some { field: T },
+    None,
+}
+
+impl<T> Into<OptionProxy<T>> for Option<T> {
+    fn into(self) -> OptionProxy<T> {
+        match self {
+            Self::Some(field) => OptionProxy::Some { field },
+            Self::None => OptionProxy::None,
+        }
+    }
+}
+
+impl<T> Into<Option<T>> for OptionProxy<T> {
+    fn into(self) -> Option<T> {
+        match self {
+            Self::Some { field } => Option::Some(field),
+            Self::None => Option::None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "variant")]
+pub enum ResultProxy<O, E> {
+    Ok { field: O },
+    Err { field: E },
+}
+
+impl<O, E> Into<ResultProxy<O, E>> for Result<O, E> {
+    fn into(self) -> ResultProxy<O, E> {
+        match self {
+            Self::Ok(field) => ResultProxy::Ok { field },
+            Self::Err(field) => ResultProxy::Err { field },
+        }
+    }
+}
+
+impl<O, E> Into<Result<O, E>> for ResultProxy<O, E> {
+    fn into(self) -> Result<O, E> {
+        match self {
+            Self::Ok { field } => Result::Ok(field),
+            Self::Err { field } => Result::Err(field),
+        }
+    }
+}
