@@ -342,6 +342,24 @@ impl Value {
         }
     }
 
+    pub fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
+        let network_id: u8 = match self {
+            Self::Component { address } => address.network_id,
+            Self::ComponentAddress { address } => address.network_id,
+            Self::ResourceAddress { address } => address.network_id,
+            Self::PackageAddress { address } => address.network_id,
+            _ => return Ok(()),
+        };
+        if network_id == expected_network_id {
+            Ok(())
+        } else {
+            Err(Error::NetworkMismatchError {
+                expected: expected_network_id,
+                found: network_id,
+            })
+        }
+    }
+
     pub fn encode(&self) -> Result<Vec<u8>, Error> {
         Ok(encode_any(&sbor_value_from_value(self)?))
     }

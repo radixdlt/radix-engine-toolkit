@@ -99,7 +99,7 @@ pub enum Instruction {
 }
 
 impl Instruction {
-    pub fn validate_instruction_arguments(&self) -> Result<(), Error> {
+    pub fn validate_instruction_argument_kind(&self) -> Result<(), Error> {
         match self {
             Self::CallFunction {
                 package_address,
@@ -255,6 +255,117 @@ impl Instruction {
                 abi.validate_kind(ValueKind::Blob)?;
                 Ok(())
             }
+        }
+    }
+
+    pub fn validate_instruction_argument_network(
+        &self,
+        expected_network_id: u8,
+    ) -> Result<(), Error> {
+        match self {
+            Self::CallFunction {
+                package_address,
+                arguments,
+                ..
+            } => {
+                package_address.validate_address_network_id(expected_network_id)?;
+                match arguments {
+                    Some(arguments) => {
+                        arguments
+                            .iter()
+                            .map(|x| x.validate_address_network_id(expected_network_id))
+                            .collect::<Result<Vec<_>, _>>()?;
+                    }
+                    None => {}
+                }
+                Ok(())
+            }
+            Self::CallMethod {
+                component_address,
+                arguments,
+                ..
+            } => {
+                component_address.validate_address_network_id(expected_network_id)?;
+                match arguments {
+                    Some(arguments) => {
+                        arguments
+                            .iter()
+                            .map(|x| x.validate_address_network_id(expected_network_id))
+                            .collect::<Result<Vec<_>, _>>()?;
+                    }
+                    None => {}
+                }
+                Ok(())
+            }
+
+            Self::TakeFromWorktop {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::TakeFromWorktopByAmount {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::TakeFromWorktopByIds {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::ReturnToWorktop { .. } => Ok(()),
+
+            Self::AssertWorktopContains {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::AssertWorktopContainsByAmount {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::AssertWorktopContainsByIds {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+
+            Self::PopFromAuthZone { .. } => Ok(()),
+            Self::PushToAuthZone { .. } => Ok(()),
+            Self::ClearAuthZone => Ok(()),
+
+            Self::CreateProofFromAuthZone {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::CreateProofFromAuthZoneByAmount {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::CreateProofFromAuthZoneByIds {
+                resource_address, ..
+            } => {
+                resource_address.validate_address_network_id(expected_network_id)?;
+                Ok(())
+            }
+            Self::CreateProofFromBucket { .. } => Ok(()),
+
+            Self::CloneProof { .. } => Ok(()),
+            Self::DropProof { .. } => Ok(()),
+            Self::DropAllProofs => Ok(()),
+
+            Self::PublishPackage { .. } => Ok(()),
         }
     }
 }

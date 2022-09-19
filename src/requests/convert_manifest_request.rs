@@ -95,5 +95,52 @@ export_handler!(handle_convert_manifest(ConvertManifestRequest) as convert_manif
 
 #[cfg(test)]
 mod tests {
-    // TODO: Unit tests for this request type
+    use super::*;
+    use crate::models::serde::NetworkAwarePackageAddress;
+    use crate::models::{Instruction, TransactionManifest, Value};
+    use radix_engine::types::PackageAddress;
+
+    #[test]
+    pub fn convert_manifest_with_mismatch_addresses_fails() {
+        // Arrange
+        let manifest_instructions: Vec<Instruction> = vec![Instruction::CallFunction {
+            package_address: Value::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    address: PackageAddress::Normal([1; 26]),
+                    network_id: 0x19,
+                },
+            },
+            blueprint_name: Value::String {
+                value: "HelloWorld".into(),
+            },
+            function_name: Value::String {
+                value: "HelloWorld".into(),
+            },
+            arguments: None,
+        }];
+        let network_id: u8 = 0xF2;
+
+        let request: ConvertManifestRequest = ConvertManifestRequest {
+            transaction_version: 0x01,
+            network_id,
+            manifest_instructions_output_format: crate::models::ManifestInstructionsKind::String,
+            manifest: TransactionManifest {
+                instructions: crate::models::ManifestInstructions::JSON(manifest_instructions),
+                blobs: vec![],
+            },
+        };
+
+        // Act
+        let response: Result<ConvertManifestResponse, Error> =
+            unsafe { crate::make_request!(convert_manifest, request, ConvertManifestResponse) };
+
+        // Assert
+        assert!(matches!(
+            response,
+            Err(Error::NetworkMismatchError {
+                expected: 0xF2,
+                found: 0x19
+            })
+        ))
+    }
 }

@@ -1,49 +1,3 @@
-// #[macro_export]
-// macro_rules! export_handler {
-//     ($handler_ident: ident as $export_ident: ident) => {
-//         #[no_mangle]
-//         pub unsafe extern "C" fn $export_ident(
-//             string_pointer: *const std::os::raw::c_char,
-//         ) -> *const std::os::raw::c_char {
-//             // Read and Deserialize the Passed String
-//             let payload = crate::utils::prepare_request(string_pointer);
-
-//             let response = match payload {
-//                 Ok(payload) => {
-//                     // Validate the request
-//                     // let validation_response = payload.validate();
-//                     let validation_response = Ok(());
-//                     match validation_response {
-//                         Ok(()) => $handler_ident(payload),
-//                         Err(error) => Err(error),
-//                     }
-//                 }
-//                 Err(error) => Err(error),
-//             };
-
-//             // Validate the response
-//             let response = match response {
-//                 Ok(response) => {
-//                     // let validation_response = response.validate();
-//                     let validation_response = Ok(());
-//                     match validation_response {
-//                         Ok(()) => Ok(response),
-//                         Err(error) => Err(error),
-//                     }
-//                 }
-//                 Err(error) => Err(error),
-//             };
-
-//             let response_string = match response {
-//                 Ok(response) => serde_json::to_string(&response).unwrap(),
-//                 Err(error) => serde_json::to_string(&error).unwrap(),
-//             };
-
-//             crate::serialize_to_ptr!(response_string)
-//         }
-//     };
-// }
-
 #[macro_export]
 macro_rules! export_handler {
     ($handler_ident: ident ($request_type: ty) as $export_ident: ident) => {
@@ -52,7 +6,7 @@ macro_rules! export_handler {
             string_pointer: *const std::os::raw::c_char,
         ) -> *const std::os::raw::c_char {
             // Read and Deserialize the Passed String
-            let payload = crate::utils::prepare_request::<$request_type>(string_pointer);
+            let payload = crate::utils::read_and_deserialize::<$request_type>(string_pointer);
             let payload = match payload {
                 Ok(payload) => payload,
                 Err(error) => return crate::serialize_to_ptr!(error),
@@ -91,4 +45,21 @@ macro_rules! serialize_to_ptr {
         .expect("Unable to create a CString from a trusted string")
         .into_raw()
     };
+}
+
+#[macro_export]
+macro_rules! make_request {
+    ($function_ident: ident, $request: expr, $response_type: ty) => {{
+        let request_pointer: *const std::os::raw::c_char = crate::serialize_to_ptr!($request);
+        let response_pointer: *const std::os::raw::c_char = $function_ident(request_pointer);
+        if let Ok(resp) = crate::utils::read_and_deserialize::<$response_type>(response_pointer) {
+            Ok(resp)
+        } else if let Ok(resp) =
+            crate::utils::read_and_deserialize::<$crate::error::Error>(response_pointer)
+        {
+            Err(resp)
+        } else {
+            panic!("Neither a valid response nor a valid error")
+        }
+    }};
 }

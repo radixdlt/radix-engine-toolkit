@@ -1,5 +1,5 @@
 use crate::models::value::ValueKind;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Represents an error encountered by the operations of the crate.
 ///
@@ -24,7 +24,7 @@ use serde::Serialize;
 /// `Serialize`. But, a variant can be created which holds a `String` value and a
 /// `From<DecimalParseError>` trait can be implemented for this error type to allow for
 /// `DecimalParseError` errors to be represented through this type.
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "error", content = "value")]
 pub enum Error {
     // ===============
@@ -108,6 +108,9 @@ pub enum Error {
 
     /// An error emitted when the extraction of the package ABI fails.
     ExtractAbiError(String),
+
+    /// An error emitted when there is a network mismatch between addresses and the header network
+    NetworkMismatchError { expected: u8, found: u8 },
 }
 
 macro_rules! impl_from_error {

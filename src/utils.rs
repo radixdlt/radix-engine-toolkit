@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use crate::error::Error;
 
-pub unsafe fn prepare_request<'t, T>(
+pub unsafe fn read_and_deserialize<'t, T>(
     request_string_pointer: *const std::os::raw::c_char,
 ) -> Result<T, Error>
 where

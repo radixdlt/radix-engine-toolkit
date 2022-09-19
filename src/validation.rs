@@ -41,7 +41,18 @@ pub fn validate_manifest(manifest: &TransactionManifest, network_id: u8) -> Resu
             .map(|x| (radix_engine::types::hash(x), x.clone()))
             .collect(),
     )?;
-
+    manifest
+        .instructions
+        .to_instructions(&Bech32Manager::new(network_id))?
+        .iter()
+        .map(|x| x.validate_instruction_argument_network(network_id))
+        .collect::<Result<Vec<_>, _>>()?;
+    manifest
+        .instructions
+        .to_instructions(&Bech32Manager::new(network_id))?
+        .iter()
+        .map(|x| x.validate_instruction_argument_kind())
+        .collect::<Result<Vec<_>, _>>()?;
     Ok(())
 }
 
@@ -87,6 +98,7 @@ pub fn validate_notarized_transaction(
         intent: transaction_intent.clone(),
         intent_signatures: notarized_transaction.signed_intent.signatures.clone(),
     };
+    validate_transaction_intent(&notarized_transaction.signed_intent.transaction_intent)?;
     let notarized_transaction = transaction::model::NotarizedTransaction {
         notary_signature: notarized_transaction.notary_signature.clone(),
         signed_intent,
