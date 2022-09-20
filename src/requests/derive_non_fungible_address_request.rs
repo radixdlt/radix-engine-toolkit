@@ -1,6 +1,6 @@
 use crate::error::Error;
-use crate::export_handler;
-use crate::traits::Validate;
+use crate::export_request;
+use crate::traits::{Request, Validate};
 use scrypto::prelude::{NonFungibleAddress, NonFungibleId, ResourceAddress};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -41,25 +41,22 @@ impl Validate for DeriveNonFungibleAddressResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_derive_non_fungible_address(
-    request: DeriveNonFungibleAddressRequest,
-) -> Result<DeriveNonFungibleAddressResponse, Error> {
-    let non_fungible_address: NonFungibleAddress =
-        NonFungibleAddress::new(request.resource_address, request.non_fungible_id);
-    let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
-        non_fungible_address: non_fungible_address,
-    };
-    Ok(response)
+impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddressRequest {
+    fn handle_request(self) -> Result<DeriveNonFungibleAddressResponse, Error> {
+        let non_fungible_address: NonFungibleAddress =
+            NonFungibleAddress::new(self.resource_address, self.non_fungible_id);
+        let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
+            non_fungible_address: non_fungible_address,
+        };
+        Ok(response)
+    }
 }
 
-export_handler!(
-    handle_derive_non_fungible_address(DeriveNonFungibleAddressRequest)
-        as derive_non_fungible_address
-);
+export_request!(DeriveNonFungibleAddressRequest as derive_non_fungible_address);
 
 // ======
 // Tests

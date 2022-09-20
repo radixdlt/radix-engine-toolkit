@@ -1,8 +1,8 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::manifest::ManifestInstructionsKind;
 use crate::models::serde::TransactionIntent;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use crate::validation::validate_transaction_intent;
 use scrypto::prelude::scrypto_decode;
 use serde::{Deserialize, Serialize};
@@ -46,29 +46,26 @@ impl Validate for DecompileTransactionIntentResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_decompile_transaction_intent(
-    request: DecompileTransactionIntentRequest,
-) -> Result<DecompileTransactionIntentResponse, Error> {
-    let transaction_intent: TransactionIntent =
-        scrypto_decode::<transaction::model::TransactionIntent>(&request.compiled_intent)?
-            .try_into()?;
-    let transaction_intent: TransactionIntent = transaction_intent
-        .convert_manifest_instructions_kind(request.manifest_instructions_output_format)?;
+impl<'r> Request<'r, DecompileTransactionIntentResponse> for DecompileTransactionIntentRequest {
+    fn handle_request(self) -> Result<DecompileTransactionIntentResponse, Error> {
+        let transaction_intent: TransactionIntent =
+            scrypto_decode::<transaction::model::TransactionIntent>(&self.compiled_intent)?
+                .try_into()?;
+        let transaction_intent: TransactionIntent = transaction_intent
+            .convert_manifest_instructions_kind(self.manifest_instructions_output_format)?;
 
-    let response: DecompileTransactionIntentResponse =
-        DecompileTransactionIntentResponse { transaction_intent };
+        let response: DecompileTransactionIntentResponse =
+            DecompileTransactionIntentResponse { transaction_intent };
 
-    Ok(response)
+        Ok(response)
+    }
 }
 
-export_handler!(
-    handle_decompile_transaction_intent(DecompileTransactionIntentRequest)
-        as decompile_transaction_intent
-);
+export_request!(DecompileTransactionIntentRequest as decompile_transaction_intent);
 
 // ======
 // Tests

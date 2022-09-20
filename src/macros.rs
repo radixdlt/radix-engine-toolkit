@@ -1,37 +1,23 @@
 #[macro_export]
-macro_rules! export_handler {
-    ($handler_ident: ident ($request_type: ty) as $export_ident: ident) => {
+macro_rules! export_request {
+    ($request_type: ident as $export_ident: ident) => {
         #[no_mangle]
         pub unsafe extern "C" fn $export_ident(
             string_pointer: *const std::os::raw::c_char,
         ) -> *const std::os::raw::c_char {
-            // Read and Deserialize the Passed String
-            let payload = crate::utils::read_and_deserialize::<$request_type>(string_pointer);
-            let payload = match payload {
-                Ok(payload) => payload,
+            // Loading the request from a string pointer into a request object
+            let request: Result<$request_type, _> = $request_type::new_from_pointer(string_pointer);
+            let request: $request_type = match request {
+                Ok(request) => request,
                 Err(error) => return crate::serialize_to_ptr!(error),
             };
 
-            // Request Validation
-            match payload.validate() {
-                Err(error) => return crate::serialize_to_ptr!(error),
-                _ => {}
-            };
-
-            // Handler Dispatch
-            let response = $handler_ident(payload);
-            let response = match response {
-                Ok(response) => response,
-                Err(error) => return crate::serialize_to_ptr!(error),
-            };
-
-            // Response Validation
-            match response.validate() {
-                Err(error) => return crate::serialize_to_ptr!(error),
-                _ => {}
-            };
-
-            crate::serialize_to_ptr!(response)
+            // Fulfilling the request and either getting back an error or a valid response
+            let response: Result<_, _> = request.fulfill_request();
+            match response {
+                Ok(response) => crate::serialize_to_ptr!(response),
+                Err(error) => crate::serialize_to_ptr!(error),
+            }
         }
     };
 }

@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::Address;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
 
 // ==========================
@@ -38,20 +38,20 @@ impl Validate for EncodeAddressResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_encode_address(
-    request: EncodeAddressRequest,
-) -> Result<EncodeAddressResponse, Error> {
-    let address: &[u8] = &request.address;
-    let address: Address = Address::from_u8_array(address, request.network_id)?;
-    let response: EncodeAddressResponse = EncodeAddressResponse { address };
-    Ok(response)
+impl<'r> Request<'r, EncodeAddressResponse> for EncodeAddressRequest {
+    fn handle_request(self) -> Result<EncodeAddressResponse, Error> {
+        let address: &[u8] = &self.address;
+        let address: Address = Address::from_u8_array(address, self.network_id)?;
+        let response: EncodeAddressResponse = EncodeAddressResponse { address };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_encode_address(EncodeAddressRequest) as encode_address);
+export_request!(EncodeAddressRequest as encode_address);
 
 // ======
 // Tests

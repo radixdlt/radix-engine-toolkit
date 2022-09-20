@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::serde::TransactionIntent;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use crate::validation::validate_transaction_intent;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
@@ -40,26 +40,23 @@ impl Validate for CompileTransactionIntentResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_compile_transaction_intent(
-    request: CompileTransactionIntentRequest,
-) -> Result<CompileTransactionIntentResponse, Error> {
-    let transaction_intent: transaction::model::TransactionIntent =
-        request.transaction_intent.try_into()?;
-    let compiled_intent: Vec<u8> = scrypto_encode(&transaction_intent);
+impl<'r> Request<'r, CompileTransactionIntentResponse> for CompileTransactionIntentRequest {
+    fn handle_request(self) -> Result<CompileTransactionIntentResponse, Error> {
+        let transaction_intent: transaction::model::TransactionIntent =
+            self.transaction_intent.try_into()?;
+        let compiled_intent: Vec<u8> = scrypto_encode(&transaction_intent);
 
-    let response: CompileTransactionIntentResponse =
-        CompileTransactionIntentResponse { compiled_intent };
-    Ok(response)
+        let response: CompileTransactionIntentResponse =
+            CompileTransactionIntentResponse { compiled_intent };
+        Ok(response)
+    }
 }
 
-export_handler!(
-    handle_compile_transaction_intent(CompileTransactionIntentRequest)
-        as compile_transaction_intent
-);
+export_request!(CompileTransactionIntentRequest as compile_transaction_intent);
 
 // ======
 // Tests

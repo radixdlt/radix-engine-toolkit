@@ -1,6 +1,6 @@
 use crate::error::Error;
-use crate::export_handler;
-use crate::traits::Validate;
+use crate::export_request;
+use crate::traits::{Request, Validate};
 use radix_engine::model::extract_abi as engine_extract_abi;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
@@ -40,21 +40,23 @@ impl Validate for ExtractAbiResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_extract_abi(request: ExtractAbiRequest) -> Result<ExtractAbiResponse, Error> {
-    let abi: HashMap<String, radix_engine::types::BlueprintAbi> =
-        engine_extract_abi(&request.package_wasm)?;
-    let response: ExtractAbiResponse = ExtractAbiResponse {
-        abi: scrypto_encode(&abi),
-        code: request.package_wasm,
-    };
-    Ok(response)
+impl<'r> Request<'r, ExtractAbiResponse> for ExtractAbiRequest {
+fn handle_request(self) -> Result<ExtractAbiResponse, Error> {
+        let abi: HashMap<String, radix_engine::types::BlueprintAbi> =
+            engine_extract_abi(&self.package_wasm)?;
+        let response: ExtractAbiResponse = ExtractAbiResponse {
+            abi: scrypto_encode(&abi),
+            code: self.package_wasm,
+        };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_extract_abi(ExtractAbiRequest) as extract_abi);
+export_request!(ExtractAbiRequest as extract_abi);
 
 // ======
 // Tests

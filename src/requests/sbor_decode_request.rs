@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::Value;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
 
 // ==========================
@@ -37,18 +37,20 @@ impl Validate for SBORDecodeResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_sbor_decode(request: SBORDecodeRequest) -> Result<SBORDecodeResponse, Error> {
-    let response: SBORDecodeResponse = SBORDecodeResponse {
-        value: Value::decode(&request.encoded_value, request.network_id)?,
-    };
-    Ok(response)
+impl<'r> Request<'r, SBORDecodeResponse> for SBORDecodeRequest {
+    fn handle_request(self) -> Result<SBORDecodeResponse, Error> {
+        let response: SBORDecodeResponse = SBORDecodeResponse {
+            value: Value::decode(&self.encoded_value, self.network_id)?,
+        };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_sbor_decode(SBORDecodeRequest) as sbor_decode);
+export_request!(SBORDecodeRequest as sbor_decode);
 
 // ======
 // Tests

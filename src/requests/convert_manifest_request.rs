@@ -5,10 +5,10 @@
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::manifest::{ManifestInstructions, ManifestInstructionsKind};
 use crate::models::serde::TransactionManifest;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use crate::validation::{validate_manifest, validate_transaction_version};
 use serde::{Deserialize, Serialize};
 
@@ -59,35 +59,34 @@ impl Validate for ConvertManifestResponse {
     }
 }
 
-// ========
-// Handler
-// ========
 
-pub fn handle_convert_manifest(
-    request: ConvertManifestRequest,
-) -> Result<ConvertManifestResponse, Error> {
-    let bech32_manager: Bech32Manager = Bech32Manager::new(request.network_id);
+// =======================
+// Request Implementation
+// =======================
 
-    // Process the request Convert between the manifest formats.
-    // TODO: This needs to be dependent on the version of the manifest. For now, the
-    // `transaction_version` in the request is ignored.
-    let converted_manifest_instructions: ManifestInstructions = request.manifest.instructions.to(
-        request.manifest_instructions_output_format,
-        &bech32_manager,
-        request.manifest.blobs.clone(),
-    )?;
+impl<'r> Request<'r, ConvertManifestResponse> for ConvertManifestRequest {
+    fn handle_request(self) -> Result<ConvertManifestResponse, Error> {
+        let bech32_manager: Bech32Manager = Bech32Manager::new(self.network_id);
 
-    let response: ConvertManifestResponse = ConvertManifestResponse {
-        manifest: TransactionManifest {
-            instructions: converted_manifest_instructions,
-            blobs: request.manifest.blobs,
-        },
-    };
+        // Process the request Convert between the manifest formats.
+        let converted_manifest_instructions: ManifestInstructions = self.manifest.instructions.to(
+            self.manifest_instructions_output_format,
+            &bech32_manager,
+            self.manifest.blobs.clone(),
+        )?;
 
-    Ok(response)
+        let response: ConvertManifestResponse = ConvertManifestResponse {
+            manifest: TransactionManifest {
+                instructions: converted_manifest_instructions,
+                blobs: self.manifest.blobs,
+            },
+        };
+
+        Ok(response)
+    }
 }
 
-export_handler!(handle_convert_manifest(ConvertManifestRequest) as convert_manifest);
+export_request!(ConvertManifestRequest as convert_manifest);
 
 // ======
 // Tests

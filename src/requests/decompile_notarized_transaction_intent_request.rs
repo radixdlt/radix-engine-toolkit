@@ -1,8 +1,8 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::manifest::ManifestInstructionsKind;
 use crate::models::serde::NotarizedTransaction;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use crate::validation::validate_notarized_transaction;
 use scrypto::prelude::scrypto_decode;
 use serde::{Deserialize, Serialize};
@@ -42,30 +42,33 @@ impl Validate for DecompileNotarizedTransactionIntentResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_decompile_notarized_transaction_intent(
-    request: DecompileNotarizedTransactionIntentRequest,
-) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
-    let notarized_transaction: NotarizedTransaction = scrypto_decode::<
-        transaction::model::NotarizedTransaction,
-    >(&request.compiled_notarized_intent)?
-    .try_into()?;
-    let notarized_transaction: NotarizedTransaction = notarized_transaction
-        .convert_manifest_instructions_kind(request.manifest_instructions_output_format)?;
+impl<'r> Request<'r, DecompileNotarizedTransactionIntentResponse>
+    for DecompileNotarizedTransactionIntentRequest
+{
+    fn handle_request(self) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
+        let notarized_transaction: NotarizedTransaction =
+            scrypto_decode::<transaction::model::NotarizedTransaction>(
+                &self.compiled_notarized_intent,
+            )?
+            .try_into()?;
+        let notarized_transaction: NotarizedTransaction = notarized_transaction
+            .convert_manifest_instructions_kind(self.manifest_instructions_output_format)?;
 
-    let response: DecompileNotarizedTransactionIntentResponse =
-        DecompileNotarizedTransactionIntentResponse {
-            notarized_transaction,
-        };
-    Ok(response)
+        let response: DecompileNotarizedTransactionIntentResponse =
+            DecompileNotarizedTransactionIntentResponse {
+                notarized_transaction,
+            };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_decompile_notarized_transaction_intent(
-    DecompileNotarizedTransactionIntentRequest
-) as decompile_notarized_transaction_intent);
+export_request!(
+    DecompileNotarizedTransactionIntentRequest as decompile_notarized_transaction_intent
+);
 
 // ======
 // Tests

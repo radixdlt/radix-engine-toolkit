@@ -1,6 +1,6 @@
 use crate::error::Error;
-use crate::export_handler;
-use crate::traits::Validate;
+use crate::export_request;
+use crate::traits::{Request, Validate};
 use scrypto::prelude::{NonFungibleAddress, PublicKey};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -37,25 +37,27 @@ impl Validate for DeriveNonFungibleAddressFromPublicKeyResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_derive_non_fungible_address_from_public_key(
-    request: DeriveNonFungibleAddressFromPublicKeyRequest,
-) -> Result<DeriveNonFungibleAddressFromPublicKeyResponse, Error> {
-    let non_fungible_address: NonFungibleAddress =
-        NonFungibleAddress::from_public_key(&request.public_key);
-    let response: DeriveNonFungibleAddressFromPublicKeyResponse =
-        DeriveNonFungibleAddressFromPublicKeyResponse {
-            non_fungible_address: non_fungible_address,
-        };
-    Ok(response)
+impl<'r> Request<'r, DeriveNonFungibleAddressFromPublicKeyResponse>
+    for DeriveNonFungibleAddressFromPublicKeyRequest
+{
+    fn handle_request(self) -> Result<DeriveNonFungibleAddressFromPublicKeyResponse, Error> {
+        let non_fungible_address: NonFungibleAddress =
+            NonFungibleAddress::from_public_key(&self.public_key);
+        let response: DeriveNonFungibleAddressFromPublicKeyResponse =
+            DeriveNonFungibleAddressFromPublicKeyResponse {
+                non_fungible_address: non_fungible_address,
+            };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_derive_non_fungible_address_from_public_key(
-    DeriveNonFungibleAddressFromPublicKeyRequest
-) as derive_non_fungible_address_from_public_key);
+export_request!(
+    DeriveNonFungibleAddressFromPublicKeyRequest as derive_non_fungible_address_from_public_key
+);
 
 // ======
 // Tests

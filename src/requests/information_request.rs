@@ -4,8 +4,8 @@
 //! check if the communication with this library is successful or not.
 
 use crate::error::Error;
-use crate::export_handler;
-use crate::traits::Validate;
+use crate::export_request;
+use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
 
 // ==========================
@@ -36,19 +36,20 @@ impl Validate for InformationResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_information(_request: InformationRequest) -> Result<InformationResponse, Error> {
-    let response: InformationResponse = InformationResponse {
-        package_version: env!("CARGO_PKG_VERSION").into(),
-    };
-
-    Ok(response)
+impl<'r> Request<'r, InformationResponse> for InformationRequest {
+    fn handle_request(self) -> Result<InformationResponse, Error> {
+        let response: InformationResponse = InformationResponse {
+            package_version: env!("CARGO_PKG_VERSION").into(),
+        };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_information(InformationRequest) as information);
+export_request!(InformationRequest as information);
 
 // ======
 // Tests
@@ -60,8 +61,7 @@ mod tests {
 
     #[test]
     fn information_handler_returns_ok() {
-        let response: Result<InformationResponse, Error> =
-            handle_information(InformationRequest {});
+        let response: Result<InformationResponse, Error> = InformationRequest {}.fulfill_request();
         assert!(matches!(response, Ok(_)));
     }
 }

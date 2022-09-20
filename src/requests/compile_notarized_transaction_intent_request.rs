@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::serde::NotarizedTransaction;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use crate::validation::validate_notarized_transaction;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
@@ -40,27 +40,27 @@ impl Validate for CompileNotarizedTransactionIntentResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_compile_notarized_transaction_intent(
-    request: CompileNotarizedTransactionIntentRequest,
-) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-    let notarized_transaction: transaction::model::NotarizedTransaction =
-        request.notarized_transaction.try_into()?;
-    let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
+impl<'r> Request<'r, CompileNotarizedTransactionIntentResponse>
+    for CompileNotarizedTransactionIntentRequest
+{
+    fn handle_request(self) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
+        let notarized_transaction: transaction::model::NotarizedTransaction =
+            self.notarized_transaction.try_into()?;
+        let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
 
-    let response: CompileNotarizedTransactionIntentResponse =
-        CompileNotarizedTransactionIntentResponse {
-            compiled_notarized_intent,
-        };
-    Ok(response)
+        let response: CompileNotarizedTransactionIntentResponse =
+            CompileNotarizedTransactionIntentResponse {
+                compiled_notarized_intent,
+            };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_compile_notarized_transaction_intent(
-    CompileNotarizedTransactionIntentRequest
-) as compile_notarized_transaction_intent);
+export_request!(CompileNotarizedTransactionIntentRequest as compile_notarized_transaction_intent);
 
 // ======
 // Tests

@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::Value;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
 
 // ==========================
@@ -36,18 +36,20 @@ impl Validate for SBOREncodeResponse {
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_sbor_encode(request: SBOREncodeRequest) -> Result<SBOREncodeResponse, Error> {
-    let response: SBOREncodeResponse = SBOREncodeResponse {
-        encoded_value: request.value.encode()?,
-    };
-    Ok(response)
+impl<'r> Request<'r, SBOREncodeResponse> for SBOREncodeRequest {
+    fn handle_request(self) -> Result<SBOREncodeResponse, Error> {
+        let response: SBOREncodeResponse = SBOREncodeResponse {
+            encoded_value: self.value.encode()?,
+        };
+        Ok(response)
+    }
 }
 
-export_handler!(handle_sbor_encode(SBOREncodeRequest) as sbor_encode);
+export_request!(SBOREncodeRequest as sbor_encode);
 
 // ======
 // Tests

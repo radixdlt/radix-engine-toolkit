@@ -1,8 +1,8 @@
 use crate::error::Error;
-use crate::export_handler;
+use crate::export_request;
 use crate::models::manifest::ManifestInstructionsKind;
 use crate::requests::*;
-use crate::traits::Validate;
+use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
 
 // ==========================
@@ -83,40 +83,41 @@ impl Validate for DecompileUnknownTransactionIntentRequest {
 
 impl Validate for DecompileUnknownTransactionIntentResponse {
     fn validate(&self) -> Result<(), Error> {
-        match self {
-            Self::TransactionIntent(response) => response.validate(),
-            Self::SignedTransactionIntent(response) => response.validate(),
-            Self::NotarizedTransactionIntent(response) => response.validate(),
-        }
+        // Validation is not done here. The other request which fulfills this request will do the
+        // validation on its own.
+        Ok(())
     }
 }
 
-// ========
-// Handler
-// ========
+// =======================
+// Request Implementation
+// =======================
 
-pub fn handle_decompile_unknown_transaction_intent(
-    request: DecompileUnknownTransactionIntentRequest,
-) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
-    let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
-        handle_decompile_transaction_intent(request.clone().into())
-    {
-        Ok(response.into())
-    } else if let Ok(response) = handle_decompile_signed_transaction_intent(request.clone().into())
-    {
-        Ok(response.into())
-    } else if let Ok(response) = handle_decompile_notarized_transaction_intent(request.into()) {
-        Ok(response.into())
-    } else {
-        Err(Error::UnrecognizedCompiledIntentFormat)
-    }?;
+impl<'r> Request<'r, DecompileUnknownTransactionIntentResponse>
+    for DecompileUnknownTransactionIntentRequest
+{
+    fn handle_request(self) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
+        let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
+            Into::<DecompileTransactionIntentRequest>::into(self.clone()).fulfill_request()
+        {
+            Ok(response.into())
+        } else if let Ok(response) =
+            Into::<DecompileSignedTransactionIntentRequest>::into(self.clone()).fulfill_request()
+        {
+            Ok(response.into())
+        } else if let Ok(response) =
+            Into::<DecompileNotarizedTransactionIntentRequest>::into(self.clone()).fulfill_request()
+        {
+            Ok(response.into())
+        } else {
+            Err(Error::UnrecognizedCompiledIntentFormat)
+        }?;
 
-    Ok(response)
+        Ok(response)
+    }
 }
 
-export_handler!(handle_decompile_unknown_transaction_intent(
-    DecompileUnknownTransactionIntentRequest
-) as decompile_unknown_transaction_intent);
+export_request!(DecompileUnknownTransactionIntentRequest as decompile_unknown_transaction_intent);
 
 // ======
 // Tests
