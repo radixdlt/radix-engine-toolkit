@@ -59,7 +59,6 @@ impl Validate for ConvertManifestResponse {
     }
 }
 
-
 // =======================
 // Request Implementation
 // =======================

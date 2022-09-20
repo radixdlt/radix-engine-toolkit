@@ -45,7 +45,7 @@ impl Validate for ExtractAbiResponse {
 // =======================
 
 impl<'r> Request<'r, ExtractAbiResponse> for ExtractAbiRequest {
-fn handle_request(self) -> Result<ExtractAbiResponse, Error> {
+    fn handle_request(self) -> Result<ExtractAbiResponse, Error> {
         let abi: HashMap<String, radix_engine::types::BlueprintAbi> =
             engine_extract_abi(&self.package_wasm)?;
         let response: ExtractAbiResponse = ExtractAbiResponse {
