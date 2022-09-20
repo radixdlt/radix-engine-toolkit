@@ -16,29 +16,29 @@ pub struct DecompileUnknownTransactionIntentRequest {
     pub compiled_unknown_intent: Vec<u8>,
 }
 
-impl Into<DecompileTransactionIntentRequest> for DecompileUnknownTransactionIntentRequest {
-    fn into(self) -> DecompileTransactionIntentRequest {
+impl From<DecompileUnknownTransactionIntentRequest> for DecompileTransactionIntentRequest {
+    fn from(request: DecompileUnknownTransactionIntentRequest) -> Self {
         DecompileTransactionIntentRequest {
-            compiled_intent: self.compiled_unknown_intent,
-            manifest_instructions_output_format: self.manifest_instructions_output_format,
+            compiled_intent: request.compiled_unknown_intent,
+            manifest_instructions_output_format: request.manifest_instructions_output_format,
         }
     }
 }
 
-impl Into<DecompileSignedTransactionIntentRequest> for DecompileUnknownTransactionIntentRequest {
-    fn into(self) -> DecompileSignedTransactionIntentRequest {
+impl From<DecompileUnknownTransactionIntentRequest> for DecompileSignedTransactionIntentRequest {
+    fn from(request: DecompileUnknownTransactionIntentRequest) -> Self {
         DecompileSignedTransactionIntentRequest {
-            compiled_signed_intent: self.compiled_unknown_intent,
-            manifest_instructions_output_format: self.manifest_instructions_output_format,
+            compiled_signed_intent: request.compiled_unknown_intent,
+            manifest_instructions_output_format: request.manifest_instructions_output_format,
         }
     }
 }
 
-impl Into<DecompileNotarizedTransactionIntentRequest> for DecompileUnknownTransactionIntentRequest {
-    fn into(self) -> DecompileNotarizedTransactionIntentRequest {
+impl From<DecompileUnknownTransactionIntentRequest> for DecompileNotarizedTransactionIntentRequest {
+    fn from(request: DecompileUnknownTransactionIntentRequest) -> Self {
         DecompileNotarizedTransactionIntentRequest {
-            compiled_notarized_intent: self.compiled_unknown_intent,
-            manifest_instructions_output_format: self.manifest_instructions_output_format,
+            compiled_notarized_intent: request.compiled_unknown_intent,
+            manifest_instructions_output_format: request.manifest_instructions_output_format,
         }
     }
 }
@@ -106,7 +106,7 @@ impl<'r> Request<'r, DecompileUnknownTransactionIntentResponse>
         {
             Ok(response.into())
         } else if let Ok(response) =
-            Into::<DecompileNotarizedTransactionIntentRequest>::into(self.clone()).fulfill_request()
+            Into::<DecompileNotarizedTransactionIntentRequest>::into(self).fulfill_request()
         {
             Ok(response.into())
         } else {

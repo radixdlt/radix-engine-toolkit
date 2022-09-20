@@ -49,7 +49,7 @@ impl<'r> Request<'r, DeriveNonFungibleAddressFromPublicKeyResponse>
             NonFungibleAddress::from_public_key(&self.public_key);
         let response: DeriveNonFungibleAddressFromPublicKeyResponse =
             DeriveNonFungibleAddressFromPublicKeyResponse {
-                non_fungible_address: non_fungible_address,
+                non_fungible_address,
             };
         Ok(response)
     }

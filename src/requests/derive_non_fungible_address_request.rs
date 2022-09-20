@@ -50,7 +50,7 @@ impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddr
         let non_fungible_address: NonFungibleAddress =
             NonFungibleAddress::new(self.resource_address, self.non_fungible_id);
         let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
-            non_fungible_address: non_fungible_address,
+            non_fungible_address,
         };
         Ok(response)
     }
