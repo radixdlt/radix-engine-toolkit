@@ -95,12 +95,12 @@ pub fn validate_notarized_transaction(
         .clone()
         .try_into()?;
     let signed_intent = transaction::model::SignedTransactionIntent {
-        intent: transaction_intent.clone(),
+        intent: transaction_intent,
         intent_signatures: notarized_transaction.signed_intent.signatures.clone(),
     };
     validate_transaction_intent(&notarized_transaction.signed_intent.transaction_intent)?;
     let notarized_transaction = transaction::model::NotarizedTransaction {
-        notary_signature: notarized_transaction.notary_signature.clone(),
+        notary_signature: notarized_transaction.notary_signature,
         signed_intent,
     };
 
@@ -115,7 +115,7 @@ pub fn validate_notarized_transaction(
 
 fn new_validation_config(network_id: u8, end_epoch: u64) -> ValidationConfig {
     ValidationConfig {
-        network_id: network_id,
+        network_id,
         current_epoch: end_epoch - 1,
         max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
         min_tip_percentage: 0,

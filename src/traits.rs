@@ -25,10 +25,15 @@ where
         Ok(response)
     }
 
-    fn new_from_pointer(
+    /// Creates a new request from a character pointer
+    /// 
+    /// # Safety
+    /// 
+    /// This function makes use of pointers which is an unsafe feature.
+    unsafe fn new_from_pointer(
         request_string_pointer: *const std::os::raw::c_char,
     ) -> Result<Self, Error> {
-        let string: &str = unsafe { std::ffi::CStr::from_ptr(request_string_pointer).to_str()? };
+        let string: &str = std::ffi::CStr::from_ptr(request_string_pointer).to_str()?;
         Ok(serde_json::from_str(string)?)
     }
 }

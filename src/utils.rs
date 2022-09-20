@@ -5,6 +5,11 @@ use serde::Deserialize;
 
 use crate::error::Error;
 
+/// Reads a string from memory and deserialize it to the expected return type
+/// 
+/// # Safety
+/// 
+/// This function makes use of pointers which is an unsafe feature.
 pub unsafe fn read_and_deserialize<'t, T>(
     request_string_pointer: *const std::os::raw::c_char,
 ) -> Result<T, Error>
@@ -74,13 +79,12 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
             hrp_suffix: format!("tdx_{:x}_", i),
         },
     }
-    .into()
 }
 
 pub fn network_id_from_hrp(hrp: &str) -> Result<u8, scrypto::address::AddressError> {
     // Getting the network specifier from the given HRP. Bech32 HRPs used in Babylon are structured
     // as follows:
-    let splitted_hrp: Vec<&str> = hrp.split("_").collect();
+    let splitted_hrp: Vec<&str> = hrp.split('_').collect();
     let network_specifier: String = {
         match splitted_hrp.get(1) {
             Some(_) => Ok(splitted_hrp
@@ -97,7 +101,7 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, scrypto::address::AddressErr
         "rdx" => NetworkDefinition::mainnet().id,
         "sim" => NetworkDefinition::simulator().id,
         numeric_network_specifier => {
-            match numeric_network_specifier.split('_').skip(1).next() {
+            match numeric_network_specifier.split('_').nth(1) {
                 Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
                     .map_err(|_| scrypto::address::AddressError::InvalidHrp)?),
                 None => Err(scrypto::address::AddressError::InvalidHrp),
@@ -112,7 +116,7 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::addr
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
     let (hrp, _, _): (String, _, _) = bech32::decode(address)
-        .map_err(|error| scrypto::address::AddressError::DecodingError(error))?;
+        .map_err(scrypto::address::AddressError::DecodingError)?;
     network_id_from_hrp(&hrp)
 }
 

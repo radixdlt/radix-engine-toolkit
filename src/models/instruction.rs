@@ -615,7 +615,7 @@ pub fn instruction_from_ast_instruction(
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
-                elements.clone().into_iter().collect()
+                elements.into_iter().collect()
             } else {
                 panic!("Expected type Set!")
             },
@@ -647,7 +647,7 @@ pub fn instruction_from_ast_instruction(
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
-                elements.clone().into_iter().collect()
+                elements.into_iter().collect()
             } else {
                 panic!("Expected type Set!")
             },
@@ -688,7 +688,7 @@ pub fn instruction_from_ast_instruction(
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
-                elements.clone().into_iter().collect()
+                elements.into_iter().collect()
             } else {
                 panic!("Expected type Set!")
             },

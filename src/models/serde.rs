@@ -31,9 +31,9 @@ impl TransactionManifest {
         &self,
         bech32_manager: &Bech32Manager,
     ) -> Result<transaction::model::TransactionManifest, Error> {
-        Ok(self
+        self
             .instructions
-            .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())?)
+            .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())
     }
 }
 
@@ -46,9 +46,9 @@ impl From<(Hash, u32)> for EntityId {
     }
 }
 
-impl Into<(Hash, u32)> for EntityId {
-    fn into(self) -> (Hash, u32) {
-        self.0
+impl From<EntityId> for (Hash, u32) {
+    fn from(entity_id: EntityId) -> Self {
+        entity_id.0
     }
 }
 
@@ -59,7 +59,7 @@ impl Serialize for EntityId {
     {
         let mut v = self.0 .0.to_vec();
         v.extend(self.0 .1.to_le_bytes());
-        Ok(serializer.serialize_str(&hex::encode(&v))?)
+        serializer.serialize_str(&hex::encode(&v))
     }
 }
 
@@ -140,19 +140,19 @@ macro_rules! define_network_aware_address {
             where
                 S: Serializer,
             {
-                Ok(serializer.serialize_str(&self.to_string())?)
+                serializer.serialize_str(&self.to_string())
             }
         }
 
-        impl Into<$underlying_type> for $network_aware_struct_ident {
-            fn into(self) -> $underlying_type {
-                self.address.clone()
+        impl From<$network_aware_struct_ident> for $underlying_type {
+            fn from(address: $network_aware_struct_ident) -> $underlying_type {
+                address.address
             }
         }
-
-        impl Into<$underlying_type> for &$network_aware_struct_ident {
-            fn into(self) -> $underlying_type {
-                self.address.clone()
+        
+        impl From<&$network_aware_struct_ident> for $underlying_type {
+            fn from(address: &$network_aware_struct_ident) -> $underlying_type {
+                address.address
             }
         }
 
@@ -413,9 +413,9 @@ impl From<NetworkAwarePackageAddress> for Address {
 impl Display for Address {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Address::ComponentAddress(address) => write!(f, "{}", address.to_string()),
-            Address::ResourceAddress(address) => write!(f, "{}", address.to_string()),
-            Address::PackageAddress(address) => write!(f, "{}", address.to_string()),
+            Address::ComponentAddress(address) => write!(f, "{}", address),
+            Address::ResourceAddress(address) => write!(f, "{}", address),
+            Address::PackageAddress(address) => write!(f, "{}", address),
         }
     }
 }
@@ -453,20 +453,20 @@ pub enum OptionProxy<T> {
     None,
 }
 
-impl<T> Into<OptionProxy<T>> for Option<T> {
-    fn into(self) -> OptionProxy<T> {
-        match self {
-            Self::Some(field) => OptionProxy::Some { field },
-            Self::None => OptionProxy::None,
+impl<T> From<Option<T>> for OptionProxy<T> {
+    fn from(option: Option<T>) -> Self {
+        match option {
+            Option::Some(field) => Self::Some { field },
+            Option::None => Self::None,
         }
     }
 }
 
-impl<T> Into<Option<T>> for OptionProxy<T> {
-    fn into(self) -> Option<T> {
-        match self {
-            Self::Some { field } => Option::Some(field),
-            Self::None => Option::None,
+impl<T> From<OptionProxy<T>> for Option<T> {
+    fn from(option: OptionProxy<T>) -> Self {
+        match option {
+            OptionProxy::Some { field } => Self::Some(field),
+            OptionProxy::None => Self::None,
         }
     }
 }
@@ -478,20 +478,20 @@ pub enum ResultProxy<O, E> {
     Err { field: E },
 }
 
-impl<O, E> Into<ResultProxy<O, E>> for Result<O, E> {
-    fn into(self) -> ResultProxy<O, E> {
-        match self {
-            Self::Ok(field) => ResultProxy::Ok { field },
-            Self::Err(field) => ResultProxy::Err { field },
+impl<O, E> From<ResultProxy<O, E>> for Result<O, E> {
+    fn from(result: ResultProxy<O, E>) -> Self {
+        match result {
+            ResultProxy::Ok { field } => Result::Ok(field),
+            ResultProxy::Err { field } => Result::Err(field),
         }
     }
 }
 
-impl<O, E> Into<Result<O, E>> for ResultProxy<O, E> {
-    fn into(self) -> Result<O, E> {
-        match self {
-            Self::Ok { field } => Result::Ok(field),
-            Self::Err { field } => Result::Err(field),
+impl<O, E> From<Result<O, E>> for ResultProxy<O, E> {
+    fn from(result: Result<O, E>) -> Self {
+        match result {
+            Result::Ok(field) => ResultProxy::Ok { field },
+            Result::Err(field) => ResultProxy::Err { field },
         }
     }
 }

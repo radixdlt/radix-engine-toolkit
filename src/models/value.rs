@@ -368,7 +368,7 @@ impl Value {
     }
 
     pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
-        Ok(value_from_sbor_value(&decode_any(bytes)?, network_id)?)
+        value_from_sbor_value(&decode_any(bytes)?, network_id)
     }
 }
 
@@ -616,7 +616,7 @@ impl TryInto<transaction::manifest::ast::Type> for ValueKind {
             | Self::EddsaEd25519PublicKey
             | Self::EddsaEd25519Signature
             | Self::KeyValueStore => {
-                return Err(Error::NoManifestRepresentation { kind: self.clone() })
+                return Err(Error::NoManifestRepresentation { kind: self })
             }
         };
         Ok(value_kind)
@@ -719,12 +719,12 @@ pub fn ast_value_from_value(
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
         Value::Option { value } => AstValue::Option(Box::new(match &**value {
-            Some(value) => Some(ast_value_from_value(&value, bech32_manager)?),
+            Some(value) => Some(ast_value_from_value(value, bech32_manager)?),
             None => None,
         })),
         Value::Result { value } => AstValue::Result(Box::new(match &**value {
-            Ok(value) => Ok(ast_value_from_value(&value, bech32_manager)?),
-            Err(value) => Err(ast_value_from_value(&value, bech32_manager)?),
+            Ok(value) => Ok(ast_value_from_value(value, bech32_manager)?),
+            Err(value) => Err(ast_value_from_value(value, bech32_manager)?),
         })),
 
         Value::Array {
@@ -886,14 +886,14 @@ pub fn value_from_ast_value(
         },
         AstValue::Option(value) => Value::Option {
             value: Box::new(match &**value {
-                Some(value) => Some(value_from_ast_value(&value, bech32_manager)?),
+                Some(value) => Some(value_from_ast_value(value, bech32_manager)?),
                 None => None,
             }),
         },
         AstValue::Result(value) => Value::Result {
             value: Box::new(match &**value {
-                Ok(value) => Ok(value_from_ast_value(&value, bech32_manager)?),
-                Err(value) => Err(value_from_ast_value(&value, bech32_manager)?),
+                Ok(value) => Ok(value_from_ast_value(value, bech32_manager)?),
+                Err(value) => Err(value_from_ast_value(value, bech32_manager)?),
             }),
         },
 
@@ -937,7 +937,7 @@ pub fn value_from_ast_value(
         AstValue::Decimal(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Decimal {
-                    value: Decimal::from_str(&value)?,
+                    value: Decimal::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -950,7 +950,7 @@ pub fn value_from_ast_value(
         AstValue::PreciseDecimal(value) => {
             if let AstValue::String(value) = &**value {
                 Value::PreciseDecimal {
-                    value: PreciseDecimal::from_str(&value)?,
+                    value: PreciseDecimal::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1019,7 +1019,7 @@ pub fn value_from_ast_value(
         AstValue::Hash(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Hash {
-                    value: Hash::from_str(&value)?,
+                    value: Hash::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1068,7 +1068,7 @@ pub fn value_from_ast_value(
         AstValue::NonFungibleId(value) => {
             if let AstValue::String(value) = &**value {
                 Value::NonFungibleId {
-                    value: NonFungibleId::from_str(&value)?,
+                    value: NonFungibleId::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1081,7 +1081,7 @@ pub fn value_from_ast_value(
         AstValue::NonFungibleAddress(value) => {
             if let AstValue::String(value) = &**value {
                 Value::NonFungibleAddress {
-                    address: NonFungibleAddress::from_str(&value)?,
+                    address: NonFungibleAddress::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1095,7 +1095,7 @@ pub fn value_from_ast_value(
         AstValue::Blob(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Blob {
-                    hash: Blob::from_str(&value)?,
+                    hash: Blob::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1108,7 +1108,7 @@ pub fn value_from_ast_value(
         AstValue::Expression(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Expression {
-                    value: Expression::from_str(&value)?,
+                    value: Expression::from_str(value)?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1146,7 +1146,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
 
         Value::Struct { fields } => SborValue::Struct {
             fields: fields
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1164,14 +1164,14 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         },
         Value::Option { value } => SborValue::Option {
             value: Box::new(match &**value {
-                Some(value) => Some(sbor_value_from_value(&value)?),
+                Some(value) => Some(sbor_value_from_value(value)?),
                 None => None,
             }),
         },
         Value::Result { value } => SborValue::Result {
             value: Box::new(match &**value {
-                Ok(value) => Ok(sbor_value_from_value(&value)?),
-                Err(value) => Err(sbor_value_from_value(&value)?),
+                Ok(value) => Ok(sbor_value_from_value(value)?),
+                Err(value) => Err(sbor_value_from_value(value)?),
             }),
         },
 
@@ -1181,13 +1181,13 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         } => SborValue::Array {
             element_type_id: element_type.type_id(),
             elements: elements
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
         Value::Tuple { elements } => SborValue::Tuple {
             elements: elements
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1197,7 +1197,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         } => SborValue::List {
             element_type_id: element_type.type_id(),
             elements: elements
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1207,7 +1207,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         } => SborValue::Set {
             element_type_id: element_type.type_id(),
             elements: elements
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1219,7 +1219,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
             key_type_id: key_type.type_id(),
             value_type_id: value_type.type_id(),
             elements: elements
-                .into_iter()
+                .iter()
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1310,7 +1310,7 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
 
         SborValue::Struct { fields } => Value::Struct {
             fields: fields
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1330,14 +1330,14 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
 
         SborValue::Option { value } => Value::Option {
             value: Box::new(match &**value {
-                Some(value) => Some(value_from_sbor_value(&value, network_id)?),
+                Some(value) => Some(value_from_sbor_value(value, network_id)?),
                 None => None,
             }),
         },
         SborValue::Result { value } => Value::Result {
             value: Box::new(match &**value {
-                Ok(value) => Ok(value_from_sbor_value(&value, network_id)?),
-                Err(value) => Err(value_from_sbor_value(&value, network_id)?),
+                Ok(value) => Ok(value_from_sbor_value(value, network_id)?),
+                Err(value) => Err(value_from_sbor_value(value, network_id)?),
             }),
         },
 
@@ -1347,13 +1347,13 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
         } => Value::Array {
             element_type: ValueKind::from_type_id(*element_type_id)?,
             elements: elements
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
         SborValue::Tuple { elements } => Value::Tuple {
             elements: elements
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1363,7 +1363,7 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
         } => Value::List {
             element_type: ValueKind::from_type_id(*element_type_id)?,
             elements: elements
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1373,7 +1373,7 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
         } => Value::Set {
             element_type: ValueKind::from_type_id(*element_type_id)?,
             elements: elements
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1385,7 +1385,7 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
             key_type: ValueKind::from_type_id(*key_type_id)?,
             value_type: ValueKind::from_type_id(*value_type_id)?,
             elements: elements
-                .into_iter()
+                .iter()
                 .map(|value| value_from_sbor_value(value, network_id))
                 .collect::<Result<Vec<_>, _>>()?,
         },
@@ -1393,14 +1393,14 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
         SborValue::Custom { type_id, bytes: _ } => match ScryptoType::from_id(*type_id) {
             Some(scrypto_type) => match scrypto_type {
                 ScryptoType::Decimal => Value::Decimal {
-                    value: scrypto_decode(&encode_any(&value))?,
+                    value: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::PreciseDecimal => Value::PreciseDecimal {
-                    value: scrypto_decode(&encode_any(&value))?,
+                    value: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::Component => {
                     let component_address_ref: &[u8] =
-                        &scrypto_decode::<scrypto::prelude::ComponentAddress>(&encode_any(&value))?
+                        &scrypto_decode::<scrypto::prelude::ComponentAddress>(&encode_any(value))?
                             .to_vec();
 
                     Value::Component {
@@ -1415,69 +1415,69 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                 ScryptoType::PackageAddress => Value::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id,
-                        address: scrypto_decode(&encode_any(&value))?,
+                        address: scrypto_decode(&encode_any(value))?,
                     },
                 },
                 ScryptoType::ComponentAddress => Value::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id,
-                        address: scrypto_decode(&encode_any(&value))?,
+                        address: scrypto_decode(&encode_any(value))?,
                     },
                 },
                 ScryptoType::ResourceAddress => Value::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id,
-                        address: scrypto_decode(&encode_any(&value))?,
+                        address: scrypto_decode(&encode_any(value))?,
                     },
                 },
                 ScryptoType::Hash => Value::Hash {
-                    value: scrypto_decode(&encode_any(&value))?,
+                    value: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::Bucket => Value::Bucket {
                     identifier: Identifier::U32(
-                        scrypto_decode::<scrypto::prelude::Bucket>(&encode_any(&value))?.0,
+                        scrypto_decode::<scrypto::prelude::Bucket>(&encode_any(value))?.0,
                     ),
                 },
                 ScryptoType::Proof => Value::Proof {
                     identifier: Identifier::U32(
-                        scrypto_decode::<scrypto::prelude::Proof>(&encode_any(&value))?.0,
+                        scrypto_decode::<scrypto::prelude::Proof>(&encode_any(value))?.0,
                     ),
                 },
                 ScryptoType::Vault => Value::Vault {
-                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(&value))?
+                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
                         .0
                         .into(),
                 },
                 ScryptoType::NonFungibleId => Value::NonFungibleId {
-                    value: scrypto_decode(&encode_any(&value))?,
+                    value: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::NonFungibleAddress => Value::NonFungibleAddress {
-                    address: scrypto_decode(&encode_any(&value))?,
+                    address: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::KeyValueStore => Value::KeyValueStore {
-                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(&value))?
+                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
                         .0
                         .into(),
                 },
 
                 ScryptoType::EcdsaSecp256k1PublicKey => Value::EcdsaSecp256k1PublicKey {
-                    public_key: scrypto_decode(&encode_any(&value))?,
+                    public_key: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::EcdsaSecp256k1Signature => Value::EcdsaSecp256k1Signature {
-                    signature: scrypto_decode(&encode_any(&value))?,
+                    signature: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::EddsaEd25519PublicKey => Value::EddsaEd25519PublicKey {
-                    public_key: scrypto_decode(&encode_any(&value))?,
+                    public_key: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::EddsaEd25519Signature => Value::EddsaEd25519Signature {
-                    signature: scrypto_decode(&encode_any(&value))?,
+                    signature: scrypto_decode(&encode_any(value))?,
                 },
 
                 ScryptoType::Blob => Value::Blob {
-                    hash: scrypto_decode(&encode_any(&value))?,
+                    hash: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::Expression => Value::Expression {
-                    value: scrypto_decode(&encode_any(&value))?,
+                    value: scrypto_decode(&encode_any(value))?,
                 },
             },
             None => return Err(Error::UnknownTypeId { type_id: *type_id }),
@@ -1510,8 +1510,8 @@ mod tests {
         let serialized_string: String =
             serde_json::to_string(&value).expect("Serialization of trusted value failed");
 
-        let string = string.replace("\n", "").replace(" ", "");
-        let serialized_string = serialized_string.replace("\n", "").replace(" ", "");
+        let string = string.replace('\n', "").replace(' ', "");
+        let serialized_string = serialized_string.replace('\n', "").replace(' ', "");
         assert_eq!(string, serialized_string);
     }
 
