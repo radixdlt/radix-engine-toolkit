@@ -2,9 +2,9 @@
 macro_rules! export_request {
     ($request_type: ident as $export_ident: ident) => {
         /// This function exports a request function and builds a wrapper for it.
-        /// 
+        ///
         /// # Safety
-        /// 
+        ///
         /// This function makes use of pointers which is an unsafe feature.
         #[no_mangle]
         pub unsafe extern "C" fn $export_ident(

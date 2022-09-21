@@ -615,9 +615,7 @@ impl TryInto<transaction::manifest::ast::Type> for ValueKind {
             | Self::EcdsaSecp256k1Signature
             | Self::EddsaEd25519PublicKey
             | Self::EddsaEd25519Signature
-            | Self::KeyValueStore => {
-                return Err(Error::NoManifestRepresentation { kind: self })
-            }
+            | Self::KeyValueStore => return Err(Error::NoManifestRepresentation { kind: self }),
         };
         Ok(value_kind)
     }

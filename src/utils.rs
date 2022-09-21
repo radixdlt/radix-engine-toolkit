@@ -6,9 +6,9 @@ use serde::Deserialize;
 use crate::error::Error;
 
 /// Reads a string from memory and deserialize it to the expected return type
-/// 
+///
 /// # Safety
-/// 
+///
 /// This function makes use of pointers which is an unsafe feature.
 pub unsafe fn read_and_deserialize<'t, T>(
     request_string_pointer: *const std::os::raw::c_char,
@@ -115,8 +115,8 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::addr
     // Attempt to Bech32m decode this address to get the hrp and the data type (will not be used).
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
-    let (hrp, _, _): (String, _, _) = bech32::decode(address)
-        .map_err(scrypto::address::AddressError::DecodingError)?;
+    let (hrp, _, _): (String, _, _) =
+        bech32::decode(address).map_err(scrypto::address::AddressError::DecodingError)?;
     network_id_from_hrp(&hrp)
 }
 

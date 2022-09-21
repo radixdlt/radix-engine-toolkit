@@ -31,8 +31,7 @@ impl TransactionManifest {
         &self,
         bech32_manager: &Bech32Manager,
     ) -> Result<transaction::model::TransactionManifest, Error> {
-        self
-            .instructions
+        self.instructions
             .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())
     }
 }
@@ -149,7 +148,7 @@ macro_rules! define_network_aware_address {
                 address.address
             }
         }
-        
+
         impl From<&$network_aware_struct_ident> for $underlying_type {
             fn from(address: &$network_aware_struct_ident) -> $underlying_type {
                 address.address

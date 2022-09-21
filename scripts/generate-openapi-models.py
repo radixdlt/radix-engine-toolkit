@@ -317,15 +317,7 @@ def main() -> None:
                 file.write(response.content)
 
     # Creating the OpenAPI model generators for the languages that we wish to create models for
-    generators: List[LanguageModelGenerator] = [
-        CSharpModelGenerator(
-            SPEC_FILE_PATH,
-            os.path.join(
-                SCRIPT_PATH,
-                os.path.join(SCRIPT_PATH, "..", "examples", "dotnet", "Models"),
-            ),
-        ),
-    ]
+    generators: List[LanguageModelGenerator] = []
     list(map(lambda x: x.generate_models(GENERATOR_FILE_PATH), generators))
 
 

@@ -10,9 +10,9 @@ pub extern "C" fn __transaction_lib_alloc(capacity: usize) -> *mut std::os::raw:
 }
 
 /// Frees up the memory used up at a given pointer.
-/// 
+///
 /// # Safety
-/// 
+///
 /// This function makes use of pointers which is an unsafe feature.
 #[no_mangle]
 pub unsafe extern "C" fn __transaction_lib_free(pointer: *mut std::os::raw::c_char) {

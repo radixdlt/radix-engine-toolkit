@@ -71,7 +71,7 @@ pub enum Error {
     UnknownTypeId { type_id: u8 },
 
     /// An error emitted when the parsing of a value from string fails.
-    ParseError { kind: ValueKind, error: String },
+    ParseError { kind: ValueKind, message: String },
 
     /// An error emitted when encountering a value that does not have a manifest representation and
     /// therefore a manifest can not be created containing this type.
@@ -132,7 +132,7 @@ macro_rules! impl_from_parse_error {
                 fn from(error: $error_type) -> Self {
                     Self::ParseError {
                         kind: ValueKind::$kind,
-                        error: format!("{:?}", error)
+                        message: format!("{:?}", error)
                     }
                 }
             }

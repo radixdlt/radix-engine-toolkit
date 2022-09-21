@@ -26,9 +26,9 @@ where
     }
 
     /// Creates a new request from a character pointer
-    /// 
+    ///
     /// # Safety
-    /// 
+    ///
     /// This function makes use of pointers which is an unsafe feature.
     unsafe fn new_from_pointer(
         request_string_pointer: *const std::os::raw::c_char,
