@@ -84,6 +84,12 @@ checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 
 [[package]]
 name = "cfg-if"
+version = "0.1.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
+
+[[package]]
+name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
@@ -300,7 +306,7 @@ version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fc3cb4d91f53b50155bdcfd23f6a4c39ae1969c2ae85982b135750cccaf5fce"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
  "libc",
  "wasi 0.9.0+wasi-snapshot-preview1",
 ]
@@ -311,7 +317,7 @@ version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4eb1a864a501629691edf6c15a593b7a51eebaa1e8468e9ddc623de7c9b58ec6"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
 ]
@@ -422,7 +428,7 @@ version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
 ]
 
 [[package]]
@@ -430,6 +436,12 @@ name = "memory_units"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71d96e3f3c0b6325d8ccd83c33b28acb183edcb6c67938ba104ec546854b0882"
+
+[[package]]
+name = "memory_units"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 
 [[package]]
 name = "num-bigint"
@@ -563,7 +575,7 @@ dependencies = [
 [[package]]
 name = "radix-engine"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "colored",
  "hex",
@@ -627,7 +639,7 @@ checksum = "4501abdff3ae82a1c1b477a17252eb69cee9e66eb915c1abaa4f44d873df9f09"
 [[package]]
 name = "sbor"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "hex",
  "sbor-derive",
@@ -637,7 +649,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -648,7 +660,7 @@ dependencies = [
 [[package]]
 name = "scrypto"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "bech32",
  "forward_ref",
@@ -668,7 +680,7 @@ dependencies = [
 [[package]]
 name = "scrypto-abi"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "sbor",
  "serde",
@@ -677,7 +689,7 @@ dependencies = [
 [[package]]
 name = "scrypto-derive"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -773,7 +785,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d58a1e1bf39749807d89cf2d98ac2dfa0ff1cb3faa38fbb64dd88ac8013d800"
 dependencies = [
  "block-buffer 0.9.0",
- "cfg-if",
+ "cfg-if 1.0.0",
  "cpufeatures",
  "digest 0.9.0",
  "opaque-debug",
@@ -785,7 +797,7 @@ version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82e6b795fe2e3b1e845bafcb27aa35405c4d47cdfc92af5fc8d3002f76cebdc0"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
  "cpufeatures",
  "digest 0.10.5",
 ]
@@ -871,7 +883,7 @@ dependencies = [
 [[package]]
 name = "transaction"
 version = "0.6.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/non-fungible-address-pub-key#68182009229c0724f5c2ef95dc99d650f2f1d921"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=alphanet#e7c531a8002ffc10a75a40bfab266fc8264e5b2e"
 dependencies = [
  "clap",
  "ed25519-dalek",
@@ -896,6 +908,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "transaction",
+ "wee_alloc",
 ]
 
 [[package]]
@@ -949,7 +962,7 @@ version = "0.2.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eaf9f5aceeec8be17c128b2e93e031fb8a4d469bb9c4ae2d7dc1888b26887268"
 dependencies = [
- "cfg-if",
+ "cfg-if 1.0.0",
  "wasm-bindgen-macro",
 ]
 
@@ -1014,7 +1027,7 @@ checksum = "0a3cb58f98e4d6c944af18c2c9002f22d0b928dfbb8b6c2b7d78a8573a5216bf"
 dependencies = [
  "downcast-rs",
  "libm",
- "memory_units",
+ "memory_units 0.3.0",
  "num-rational",
  "num-traits",
  "parity-wasm",
@@ -1028,6 +1041,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "165343ecd6c018fc09ebcae280752702c9a2ef3e6f8d02f1cfcbdb53ef6d7937"
 dependencies = [
  "parity-wasm",
+]
+
+[[package]]
+name = "wee_alloc"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbb3b5a6b2bb17cb6ad44a2e68a43e8d2722c997da10e928665c72ec6c0a0b8e"
+dependencies = [
+ "cfg-if 0.1.10",
+ "libc",
+ "memory_units 0.4.0",
+ "winapi",
 ]
 
 [[package]]

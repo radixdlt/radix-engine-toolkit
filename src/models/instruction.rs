@@ -96,6 +96,19 @@ pub enum Instruction {
         code: Value,
         abi: Value,
     },
+
+    CreateResource {
+        args: Vec<Value>,
+    },
+
+    BurnBucket {
+        bucket: Value,
+    },
+
+    MintFungible {
+        resource_address: Value,
+        amount: Value,
+    },
 }
 
 impl Instruction {
@@ -255,6 +268,19 @@ impl Instruction {
                 abi.validate_kind(ValueKind::Blob)?;
                 Ok(())
             }
+
+            Self::MintFungible { .. } => {
+                // TODO: Add validation for this instruction
+                Ok(())
+            }
+            Self::BurnBucket { bucket } => {
+                bucket.validate_kind(ValueKind::Bucket)?;
+                Ok(())
+            }
+            Self::CreateResource { .. } => {
+                // TODO: Add validation for this instruction
+                Ok(())
+            }
         }
     }
 
@@ -366,6 +392,16 @@ impl Instruction {
             Self::DropAllProofs => Ok(()),
 
             Self::PublishPackage { .. } => Ok(()),
+
+            Self::CreateResource { .. } => {
+                // TODO: Add validation
+                Ok(())
+            }
+            Self::MintFungible { .. } => {
+                // TODO: Add validation
+                Ok(())
+            }
+            Self::BurnBucket { .. } => Ok(()),
         }
     }
 }
@@ -537,6 +573,23 @@ pub fn ast_instruction_from_instruction(
         Instruction::PublishPackage { code, abi } => AstInstruction::PublishPackage {
             code: ast_value_from_value(code, bech32_manager)?,
             abi: ast_value_from_value(abi, bech32_manager)?,
+        },
+
+        Instruction::MintFungible {
+            resource_address,
+            amount,
+        } => AstInstruction::MintFungible {
+            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
+            amount: ast_value_from_value(amount, bech32_manager)?,
+        },
+        Instruction::BurnBucket { bucket } => AstInstruction::BurnBucket {
+            bucket: ast_value_from_value(bucket, bech32_manager)?,
+        },
+        Instruction::CreateResource { args } => AstInstruction::CreateResource {
+            args: args
+                .iter()
+                .map(|v| ast_value_from_value(v, bech32_manager))
+                .collect::<Result<Vec<AstValue>, _>>()?,
         },
     };
     Ok(ast_instruction)
@@ -713,6 +766,22 @@ pub fn instruction_from_ast_instruction(
         AstInstruction::PublishPackage { code, abi } => Instruction::PublishPackage {
             code: value_from_ast_value(code, bech32_manager)?,
             abi: value_from_ast_value(abi, bech32_manager)?,
+        },
+        AstInstruction::MintFungible {
+            resource_address,
+            amount,
+        } => Instruction::MintFungible {
+            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
+            amount: value_from_ast_value(amount, bech32_manager)?,
+        },
+        AstInstruction::BurnBucket { bucket } => Instruction::BurnBucket {
+            bucket: value_from_ast_value(bucket, bech32_manager)?,
+        },
+        AstInstruction::CreateResource { args } => Instruction::CreateResource {
+            args: args
+                .iter()
+                .map(|v| value_from_ast_value(v, bech32_manager))
+                .collect::<Result<Vec<Value>, _>>()?,
         },
     };
     Ok(instruction)
