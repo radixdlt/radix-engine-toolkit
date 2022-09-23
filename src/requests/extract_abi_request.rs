@@ -10,13 +10,13 @@ use std::collections::HashMap;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ExtractAbiRequest {
     #[serde(with = "hex::serde")]
     pub package_wasm: Vec<u8>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ExtractAbiResponse {
     #[serde(with = "hex::serde")]
     pub code: Vec<u8>,

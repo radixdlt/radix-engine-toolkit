@@ -12,7 +12,7 @@ use std::convert::TryInto;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileSignedTransactionIntentRequest {
     pub manifest_instructions_output_format: ManifestInstructionsKind,
 
@@ -20,7 +20,7 @@ pub struct DecompileSignedTransactionIntentRequest {
     pub compiled_signed_intent: Vec<u8>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileSignedTransactionIntentResponse {
     #[serde(flatten)]
     pub signed_intent: SignedTransactionIntent,

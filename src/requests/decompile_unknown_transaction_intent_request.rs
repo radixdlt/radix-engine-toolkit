@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileUnknownTransactionIntentRequest {
     pub manifest_instructions_output_format: ManifestInstructionsKind,
     #[serde(with = "hex::serde")]
@@ -43,7 +43,7 @@ impl From<DecompileUnknownTransactionIntentRequest> for DecompileNotarizedTransa
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum DecompileUnknownTransactionIntentResponse {
     TransactionIntent(DecompileTransactionIntentResponse),

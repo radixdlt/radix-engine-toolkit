@@ -8,13 +8,13 @@ use serde::{Deserialize, Serialize};
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SBOREncodeRequest {
     #[serde(flatten)]
     pub value: Value,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SBOREncodeResponse {
     #[serde(with = "hex::serde")]
     pub encoded_value: Vec<u8>,

@@ -18,6 +18,9 @@ radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = 
 
 wee_alloc = { version =  "0.4.5" }
 
+[dev-dependencies]
+wasmtime = "1.0.0"
+
 [profile.release]
 opt-level = 's'
 lto = true

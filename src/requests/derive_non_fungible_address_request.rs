@@ -10,7 +10,7 @@ use serde_with::{serde_as, DisplayFromStr};
 // ==========================
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressRequest {
     #[serde_as(as = "DisplayFromStr")]
     pub resource_address: ResourceAddress,
@@ -19,7 +19,7 @@ pub struct DeriveNonFungibleAddressRequest {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressResponse {
     #[serde_as(as = "DisplayFromStr")]
     pub non_fungible_address: NonFungibleAddress,

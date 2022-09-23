@@ -12,7 +12,7 @@ use std::convert::TryInto;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileTransactionIntentRequest {
     /// Defines the output format that we would like the manifest to be in after this request is
     /// performed.
@@ -23,7 +23,7 @@ pub struct DecompileTransactionIntentRequest {
     pub compiled_intent: Vec<u8>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileTransactionIntentResponse {
     #[serde(flatten)]
     pub transaction_intent: TransactionIntent,

@@ -11,12 +11,12 @@ use std::str::FromStr;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecodeAddressRequest {
     pub address: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecodeAddressResponse {
     pub network_id: u8,
     pub network_name: String,

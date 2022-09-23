@@ -11,13 +11,13 @@ use std::convert::TryInto;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CompileTransactionIntentRequest {
     #[serde(flatten)]
     pub transaction_intent: TransactionIntent,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CompileTransactionIntentResponse {
     #[serde(with = "hex::serde")]
     pub compiled_intent: Vec<u8>,

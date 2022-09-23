@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InformationRequest {}
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct InformationResponse {
     pub package_version: String,
 }

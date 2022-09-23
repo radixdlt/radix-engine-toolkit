@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressRequest {
     #[serde(with = "hex::serde")]
     pub address: Vec<u8>,
@@ -16,7 +16,7 @@ pub struct EncodeAddressRequest {
     pub network_id: u8,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressResponse {
     #[serde(flatten)]
     address: Address,

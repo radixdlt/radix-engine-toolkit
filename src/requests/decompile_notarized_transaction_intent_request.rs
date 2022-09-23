@@ -12,14 +12,14 @@ use std::convert::TryInto;
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileNotarizedTransactionIntentRequest {
     pub manifest_instructions_output_format: ManifestInstructionsKind,
     #[serde(with = "hex::serde")]
     pub compiled_notarized_intent: Vec<u8>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecompileNotarizedTransactionIntentResponse {
     #[serde(flatten)]
     pub notarized_transaction: NotarizedTransaction,
