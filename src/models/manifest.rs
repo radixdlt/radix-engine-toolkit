@@ -121,7 +121,7 @@ impl ManifestInstructions {
         bech32_manager: &Bech32Manager,
         blobs: Vec<Vec<u8>>,
     ) -> Result<transaction::model::TransactionManifest, Error> {
-        let manifest: transaction::model::TransactionManifest =
+        let mut manifest: transaction::model::TransactionManifest =
             transaction::manifest::generator::generate_manifest(
                 &self.to_ast_instructions(bech32_manager)?,
                 &bech32_manager.decoder,
@@ -131,6 +131,7 @@ impl ManifestInstructions {
                     .collect(),
             )
             .map_err(transaction::manifest::CompileError::GeneratorError)?;
+        manifest.blobs = blobs;
         Ok(manifest)
     }
 
