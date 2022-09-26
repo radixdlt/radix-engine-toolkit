@@ -29,4 +29,4 @@ panic = 'abort'
 strip = "debuginfo"
 
 [lib]
-crate-type = ["cdylib", "lib"]
+crate-type = ["cdylib", "lib", "staticlib"]
