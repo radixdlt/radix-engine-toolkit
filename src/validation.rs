@@ -5,7 +5,7 @@ use std::convert::TryInto;
 use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
 use scrypto::address::Bech32Decoder;
 use transaction::manifest::ast::Instruction as AstInstruction;
-use transaction::validation::ValidationConfig;
+use transaction::validation::{ValidationConfig, NotarizedTransactionValidator, TransactionValidator};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -67,10 +67,11 @@ pub fn validate_transaction_intent(intent: &TransactionIntent) -> Result<(), Err
     let validation_config: ValidationConfig = new_validation_config(network_id, end_epoch);
     let transaction_intent: transaction::model::TransactionIntent = intent.clone().try_into()?;
 
-    transaction::validation::TransactionValidator::validate_intent(
+    let transaction_validator = NotarizedTransactionValidator::new(validation_config);
+
+    transaction_validator.validate_intent(
         &transaction_intent,
         &transaction::validation::TestIntentHashManager::new(),
-        &validation_config,
     )?;
     Ok(())
 }
@@ -105,10 +106,10 @@ pub fn validate_notarized_transaction(
     };
 
     let validation_config: ValidationConfig = new_validation_config(network_id, end_epoch);
-    transaction::validation::TransactionValidator::validate(
+    let transaction_validator = NotarizedTransactionValidator::new(validation_config);
+    transaction_validator.validate(
         notarized_transaction,
         &transaction::validation::TestIntentHashManager::new(),
-        &validation_config,
     )?;
     Ok(())
 }
