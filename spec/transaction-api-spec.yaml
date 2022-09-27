@@ -600,7 +600,7 @@ components:
           $ref: "#/components/schemas/Curve"
           readOnly: true
         signature:
-          $ref: "#/components/schemas/EcdsaSecp256k1Signature"
+          $ref: "#/components/schemas/EcdsaSecp256k1SignatureString"
 
     EddsaEd25519SignatureWithPublicKey:
       type: object
@@ -615,9 +615,9 @@ components:
           $ref: "#/components/schemas/Curve"
           readOnly: true
         public_key:
-          $ref: "#/components/schemas/EcdsaSecp256k1PublicKey"
+          $ref: "#/components/schemas/EddsaEd25519PublicKeyString"
         signature:
-          $ref: "#/components/schemas/EcdsaSecp256k1Signature"
+          $ref: "#/components/schemas/EddsaEd25519SignatureString"
 
     PublicKey:
       description: "An object representing an ECDSA or EdDSA public key"
