@@ -1,3 +1,3 @@
 # Transaction Library Examples
 
-Examples are currently being migrated to live in a different repository.
+All transaction library examples now live in the following repo: https://github.com/radixdlt/transaction-library-examples
