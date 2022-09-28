@@ -1532,6 +1532,7 @@ dependencies = [
 name = "transaction-library"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bech32",
  "hex",
  "radix-engine",

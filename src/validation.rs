@@ -5,7 +5,9 @@ use std::convert::TryInto;
 use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
 use scrypto::address::Bech32Decoder;
 use transaction::manifest::ast::Instruction as AstInstruction;
-use transaction::validation::{ValidationConfig, NotarizedTransactionValidator, TransactionValidator};
+use transaction::validation::{
+    NotarizedTransactionValidator, TransactionValidator, ValidationConfig,
+};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
