@@ -83,20 +83,6 @@ impl TransactionLibrary {
         };
         Ok(transaction_library)
     }
-
-    // pub fn new_compile_from_source() -> Result<Self> {
-
-
-    //     // Build the transaction library from source
-    //     let status = std::process::Command::new("cargo")
-    //         .current_dir(package_dir.as_ref())
-    //         .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
-    //         .status()
-    //         .unwrap();
-    //     if !status.success() {
-    //         panic!("Failed to compile package: {:?}", package_dir.as_ref());
-    //     }
-    // }
 }
 
 /// An enum representing errors encountered by the [TransactionLibrary] wrapper.

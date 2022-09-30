@@ -1,0 +1,7 @@
+documentation = false
+
+[parse.expand]
+crates = ["transaction-library"]
+all_features = false
+default_features = true
+features = []

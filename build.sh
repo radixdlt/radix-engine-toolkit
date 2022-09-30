@@ -12,10 +12,16 @@ cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 tar
     mkdir iOS/iPhone
 
     # Combine the two simulator builds into one fat file
-    lipo -create x86_64-apple-ios/release/libtransaction_library.a aarch64-apple-ios-sim/release/libtransaction_library.a -o iOS/simulator/libtransaction_library.a
+    lipo -create \
+        x86_64-apple-ios/release/libtransaction_library.a \
+        aarch64-apple-ios-sim/release/libtransaction_library.a \
+        -o iOS/simulator/libtransaction_library.a
     
     # Combine the two iPhone builds into one fat file
-    lipo -create x86_64-apple-ios/release/libtransaction_library.a aarch64-apple-ios/release/libtransaction_library.a -o iOS/iPhone/libtransaction_library.a
+    lipo -create \
+        x86_64-apple-ios/release/libtransaction_library.a \
+        aarch64-apple-ios/release/libtransaction_library.a \
+        -o iOS/iPhone/libtransaction_library.a
 )
 
 echo "Done!"
