@@ -61,7 +61,7 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         i @ 0xF0 => NetworkDefinition {
             id: i,
             logical_name: "localnet".into(),
-            hrp_suffix: "loc".into()
+            hrp_suffix: "loc".into(),
         },
         i @ 0xF1 => NetworkDefinition {
             id: i,
