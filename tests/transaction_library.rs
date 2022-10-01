@@ -265,6 +265,16 @@ impl TransactionLibrary {
             .map_err(WrapperError::WasmTimeTrapError)
     }
 
+    /// Frees up memory in the WASM's linear memory.
+    /// 
+    /// This method frees up memory in WASM's linear memory. This is with the assumption that the 
+    fn free_memory(&mut self, memory_offset: i32) -> Result<()> {
+        self.function_store
+            .__transaction_lib_free
+            .call(&mut self.store, memory_offset)
+            .map_err(WrapperError::WasmTimeTrapError)
+    }
+
     /// Gets the memory of the current WASM instance.
     ///
     /// # Returns
