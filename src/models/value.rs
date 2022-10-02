@@ -99,7 +99,7 @@ pub enum Value {
         fields: Vec<Value>,
     },
     Enum {
-        variant_name: String,
+        variant: String,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         fields: Option<Vec<Value>>,
     },
@@ -705,10 +705,10 @@ pub fn ast_value_from_value(
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
         Value::Enum {
-            variant_name,
+            variant,
             fields,
         } => AstValue::Enum(
-            variant_name.clone(),
+            variant.clone(),
             fields
                 .clone()
                 .unwrap_or_default()
@@ -869,8 +869,8 @@ pub fn value_from_ast_value(
                 .map(|v| value_from_ast_value(v, bech32_manager))
                 .collect::<Result<Vec<Value>, _>>()?,
         },
-        AstValue::Enum(variant_name, fields) => Value::Enum {
-            variant_name: variant_name.clone(),
+        AstValue::Enum(variant, fields) => Value::Enum {
+            variant: variant.clone(),
             fields: {
                 let fields = fields
                     .iter()
@@ -1149,10 +1149,10 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 .collect::<Result<Vec<_>, _>>()?,
         },
         Value::Enum {
-            variant_name,
+            variant,
             fields,
         } => SborValue::Enum {
-            name: variant_name.clone(),
+            name: variant.clone(),
             fields: fields
                 .clone()
                 .unwrap_or_default()
@@ -1313,7 +1313,7 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                 .collect::<Result<Vec<_>, _>>()?,
         },
         SborValue::Enum { name, fields } => Value::Enum {
-            variant_name: name.clone(),
+            variant: name.clone(),
             fields: match fields.len() {
                 0 => None,
                 _ => Some(
@@ -1664,11 +1664,11 @@ mod tests {
             r#"
             {
                 "type": "Enum",
-                "variant_name": "Component"
+                "variant": "Component"
             }
             "#,
             Value::Enum {
-                variant_name: "Component".into(),
+                variant: "Component".into(),
                 fields: None,
             }
         };
@@ -1676,7 +1676,7 @@ mod tests {
             r#"
             {
                 "type": "Enum",
-                "variant_name": "Component",
+                "variant": "Component",
                 "fields": [
                     {
                         "type": "String",
@@ -1686,7 +1686,7 @@ mod tests {
             }
             "#,
             Value::Enum {
-                variant_name: "Component".into(),
+                variant: "Component".into(),
                 fields: Some(vec![
                     Value::String { value: "Account".into() }
                 ])

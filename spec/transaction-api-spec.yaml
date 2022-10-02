@@ -987,13 +987,13 @@ components:
       additionalProperties: false
       required:
         - type
-        - variant_name
+        - variant
         - fields
       properties:
         type:
           $ref: "#/components/schemas/ValueKind"
           readOnly: true
-        variant_name:
+        variant:
           type: string
         fields:
           type: array
