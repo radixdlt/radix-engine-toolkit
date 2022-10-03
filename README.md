@@ -416,7 +416,7 @@ This section lists all of the functions available in this library, what they are
       "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
     },
     "notary_as_signatory": true,
-    "cost_unit_limit": 1000000,
+    "cost_unit_limit": 100000000,
     "tip_percentage": 5
   },
   "manifest": {
@@ -478,7 +478,7 @@ This section lists all of the functions available in this library, what they are
       "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
     },
     "notary_as_signatory": true,
-    "cost_unit_limit": 1000000,
+    "cost_unit_limit": 100000000,
     "tip_percentage": 5
   },
   "manifest": {
@@ -520,7 +520,7 @@ This section lists all of the functions available in this library, what they are
         "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
       },
       "notary_as_signatory": true,
-      "cost_unit_limit": 1000000,
+      "cost_unit_limit": 100000000,
       "tip_percentage": 5
     },
     "manifest": {
@@ -875,7 +875,7 @@ This section lists all of the functions available in this library, what they are
         "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
       },
       "notary_as_signatory": true,
-      "cost_unit_limit": 1000000,
+      "cost_unit_limit": 100000000,
       "tip_percentage": 5
     },
     "manifest": {
@@ -1210,7 +1210,7 @@ This section lists all of the functions available in this library, what they are
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 1000000,
+        "cost_unit_limit": 100000000,
         "tip_percentage": 5
       },
       "manifest": {
@@ -1571,7 +1571,7 @@ This section lists all of the functions available in this library, what they are
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 1000000,
+        "cost_unit_limit": 100000000,
         "tip_percentage": 5
       },
       "manifest": {
@@ -1922,7 +1922,7 @@ This section lists all of the functions available in this library, what they are
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 1000000,
+        "cost_unit_limit": 100000000,
         "tip_percentage": 5
       },
       "manifest": {
