@@ -309,11 +309,11 @@ impl TransactionLibrary {
     fn write_string<S: AsRef<str>>(&mut self, string: S, memory_offset: i32) -> Result<()> {
         // Converting the string to a C String and writing
         let string: &str = string.as_ref();
-        let string: CString =
-            CString::new(string).expect("Failed to create CString from a trusted string");
+        let mut string_bytes: Vec<u8> = string.as_bytes().to_vec();
+        string_bytes.push(0);
 
         self.get_memory()
-            .write(&mut self.store, memory_offset as usize, string.to_bytes())
+            .write(&mut self.store, memory_offset as usize, &string_bytes)
             .map_err(WrapperError::MemoryAccessError)?;
         Ok(())
     }
