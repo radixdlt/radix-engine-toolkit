@@ -2,10 +2,15 @@
 //! WasmTime runtime. This struct is mainly defined for the purpose of testing out the behavior of
 //! the transaction library when it is running through a WASM host.
 
-use serde::{Deserialize, Serialize};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
+
+use transaction_library::error::Error;
 use transaction_library::requests::*;
+
 use wasmtime::{AsContextMut, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
 
 // ==========
@@ -128,6 +133,128 @@ impl TransactionLibrary {
         Self::new_from_module_path(wasm_module_path)
     }
 
+    define_request_function! {InformationRequest, InformationResponse, information}
+    define_request_function! {ConvertManifestRequest, ConvertManifestResponse, convert_manifest}
+    define_request_function! {CompileTransactionIntentRequest, CompileTransactionIntentResponse, compile_transaction_intent}
+    define_request_function! {DecompileTransactionIntentRequest, DecompileTransactionIntentResponse, decompile_transaction_intent}
+    define_request_function! {CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, compile_signed_transaction_intent}
+    define_request_function! {DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse, decompile_signed_transaction_intent}
+    define_request_function! {CompileNotarizedTransactionIntentRequest, CompileNotarizedTransactionIntentResponse, compile_notarized_transaction_intent}
+    define_request_function! {DecompileNotarizedTransactionIntentRequest, DecompileNotarizedTransactionIntentResponse, decompile_notarized_transaction_intent}
+    define_request_function! {DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse, decompile_unknown_transaction_intent}
+    define_request_function! {DecodeAddressRequest, DecodeAddressResponse, decode_address}
+    define_request_function! {EncodeAddressRequest, EncodeAddressResponse, encode_address}
+    define_request_function! {SBORDecodeRequest, SBORDecodeResponse, sbor_decode}
+    define_request_function! {SBOREncodeRequest, SBOREncodeResponse, sbor_encode}
+    define_request_function! {ExtractAbiRequest, ExtractAbiResponse, extract_abi}
+    define_request_function! {DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse, derive_non_fungible_address_from_public_key}
+    define_request_function! {DeriveNonFungibleAddressRequest, DeriveNonFungibleAddressResponse, derive_non_fungible_address}
+
+    /// Calls a function in the WASM instance with a given request
+    ///
+    /// This is a high level method which is used to call functions in the WASM instance while
+    /// abstracting away the memory allocation, serialization, writing of objects, and all of the
+    /// other steps. This can be thought of as the main router which all requests to the transaction
+    /// library go through.
+    ///
+    /// At a high level, this function does the following:
+    ///
+    /// 1. Serializes the request.
+    /// 2. Allocates enough memory for the C-String representation of the serialized request.
+    /// 3. Writes this request to linear memory.
+    /// 4. Invokes the WASM function.
+    /// 5. Reads the response string at the pointer returned by the WASM function
+    /// 6. Attempts to deserialize the response as `D`. If that fails, then the response is assumed
+    /// to be an [Error] response and therefore it attempts to deserialize it as such.
+    /// 7. Frees up the memory allocated for the request and the response strings.
+    /// 8. Returns the deserialized object.
+    ///
+    /// # Arguments
+    ///
+    /// - `function: TypedFunc<i32, i32>`: The function to invoke on the WASM instance. This
+    /// function should take an [i32] and return an [i32]. By default, the arguments and the returns
+    /// are the memory offsets of the request and the response respectively in the WASM's linear
+    /// memory.
+    /// - `request: Serialize`: A generic object that implements serde's [Serialize] trait and
+    /// therefore can be serialized to a string. This is the request payload that the `function`
+    /// will be called with.
+    ///
+    /// # Returns
+    ///
+    /// - `Result<std::result::Result<D, Error>>`: This method has a complex return type mainly due
+    /// to the nature
+    fn call_wasm_function<S: Serialize, D: DeserializeOwned>(
+        &mut self,
+        function: TypedFunc<i32, i32>,
+        request: S,
+    ) -> Result<D> {
+        // Write the request to the WASM's linear memory
+        let request_memory_offset: i32 = self.write_object_to_memory(request)?;
+
+        // Call the function using the provided request memory offset
+        let response_memory_offset: i32 = function
+            .call(&mut self.store, request_memory_offset)
+            .map_err(WrapperError::WasmTimeTrapError)?;
+
+        // The response is either of type `D` or of type `Error`. So, we attempt to decode it as
+        // both
+        let response_string: String = self.read_string(response_memory_offset)?;
+        let response: Result<D> = if let Ok(response) = Self::deserialize::<D, _>(&response_string) {
+            Ok(response)
+        } else if let Ok(response) = Self::deserialize::<Error, _>(&response_string) {
+            Err(WrapperError::LibraryError(response))
+        } else {
+            return Err(WrapperError::DeserializationError);
+        };
+
+        // Free up the allocated memory for the request and the response
+        self.free_memory(request_memory_offset)?;
+        self.free_memory(response_memory_offset)?;
+
+        response
+    }
+
+    /// Writes an object to linear memory
+    ///
+    /// This is a higher level method used to serialize, allocate memory, and eventually write an
+    /// object to the WASM's linear memory. This method returns of the offset at which the C-String
+    /// UTF-8 encoded representation of the serialized object is stored.
+    ///
+    /// # Arguments
+    ///
+    /// - `object: Serialize`: A generic object which implements the [Serialize] trait and therefore
+    /// can be serialized using serde.
+    ///
+    /// # Returns
+    ///
+    /// - `Result<i32>`: An [i32] is returned if the memory allocation is successful, otherwise, a
+    /// [WrapperError] is returned.
+    fn write_object_to_memory<S: Serialize>(&mut self, object: S) -> Result<i32> {
+        let serialized_object: String = Self::serialize(object);
+        let memory_offset: i32 = self.allocate_memory_for_string(&serialized_object)?;
+        self.write_string(serialized_object, memory_offset)?;
+        Ok(memory_offset)
+    }
+
+    /// Reads and deserializes an object stored in the WASM's linear memory.
+    ///
+    /// This is a higher level function used to read and deserialize an object stored in the WASM's
+    /// linear memory as a JSON C-String encoded in UTF-8. Given the memory location, this function
+    ///
+    /// # Arguments
+    ///
+    /// - `memory_offset: i32`: A memory offset where the string is stored in the instance's linear
+    /// memory
+    ///
+    /// # Returns:
+    ///
+    /// `Result<D>`: A generic object that implements [Deserialize] is returned if the reading and
+    /// deserialization are successful, otherwise, a [WrapperError] is returned.
+    fn read_object_from_memory<D: DeserializeOwned>(&mut self, memory_offset: i32) -> Result<D> {
+        let string: String = self.read_string(memory_offset)?;
+        Self::deserialize(&string)
+    }
+
     /// Serializes an object to a JSON string
     ///
     /// # Arguments
@@ -154,11 +281,10 @@ impl TransactionLibrary {
     ///
     /// - `Result<D>`: A result response containing an object of type `D` if the deserialization
     /// succeeded.
-    fn deserialize<'d, D: Deserialize<'d>, S: AsRef<str>>(string: &'d S) -> Result<D> {
-        let str: &'d str = string.as_ref();
-        serde_json::from_str(str).map_err(|error| {
-            WrapperError::TransactionLibraryError(transaction_library::error::Error::from(error))
-        })
+    fn deserialize<D: DeserializeOwned, S: AsRef<str>>(string: S) -> Result<D> {
+        let str: &str = string.as_ref();
+        serde_json::from_str(str)
+            .map_err(|error| WrapperError::TransactionLibraryError(Error::from(error)))
     }
 
     /// Writes a string to the WASM's linear memory.
@@ -291,34 +417,6 @@ impl TransactionLibrary {
 // Function Store
 // ===============
 
-macro_rules! define_function_store{
-    (
-     $vis:vis struct $struct_name:ident {
-        $(
-        $field_vis:vis $field_name:ident : TypedFunc<$input_type: ty, $output_type: ty>
-        ),*
-    }
-    ) => {
-        $vis struct $struct_name{
-            $(
-                $field_vis $field_name : TypedFunc<$input_type, $output_type>,
-            )*
-        }
-
-        impl $struct_name {
-            pub fn new(instance: &Instance, store: &mut Store<i32>) -> Result<Self> {
-                Ok(
-                    Self {
-                        $(
-                            $field_name: instance.get_typed_func(store.as_context_mut(), "info")?,
-                        )*
-                    }
-                )
-            }
-        }
-    }
-}
-
 define_function_store! {
     struct TransactionLibraryFunctions {
         pub information: TypedFunc<i32, i32>,
@@ -332,6 +430,7 @@ define_function_store! {
         pub decompile_transaction_intent: TypedFunc<i32, i32>,
         pub decompile_signed_transaction_intent: TypedFunc<i32, i32>,
         pub decompile_notarized_transaction_intent: TypedFunc<i32, i32>,
+        pub decompile_unknown_transaction_intent: TypedFunc<i32, i32>,
 
         pub sbor_encode: TypedFunc<i32, i32>,
         pub sbor_decode: TypedFunc<i32, i32>,
@@ -340,6 +439,9 @@ define_function_store! {
         pub decode_address: TypedFunc<i32, i32>,
 
         pub extract_abi: TypedFunc<i32, i32>,
+
+        pub derive_non_fungible_address_from_public_key: TypedFunc<i32, i32>,
+        pub derive_non_fungible_address: TypedFunc<i32, i32>,
 
         pub __transaction_lib_alloc: TypedFunc<i32, i32>,
         pub __transaction_lib_free: TypedFunc<i32, ()>
@@ -363,7 +465,7 @@ enum WrapperError {
     WasmTimeError(anyhow::Error),
 
     /// An error emitted when a transaction library operation fails
-    TransactionLibraryError(transaction_library::error::Error),
+    TransactionLibraryError(Error),
 
     /// An error emitted when trying to access the linear memory of a WASM instance.
     MemoryAccessError(wasmtime::MemoryAccessError),
@@ -379,6 +481,12 @@ enum WrapperError {
 
     /// An error representing the standard library's [wasmtime::Trap] type.
     WasmTimeTrapError(wasmtime::Trap),
+
+    /// An error emitted when the deserialization of an object fails
+    DeserializationError,
+
+    /// An error emitted during runtime in response to a request
+    LibraryError(Error),
 }
 
 impl From<std::ffi::NulError> for WrapperError {
@@ -390,5 +498,73 @@ impl From<std::ffi::NulError> for WrapperError {
 impl From<anyhow::Error> for WrapperError {
     fn from(error: anyhow::Error) -> Self {
         Self::WasmTimeError(error)
+    }
+}
+
+// =======
+// Macros
+// =======
+
+#[macro_export]
+macro_rules! define_function_store{
+    (
+     $vis:vis struct $struct_name:ident {
+        $(
+        $field_vis:vis $field_name:ident : TypedFunc<$input_type: ty, $output_type: ty>
+        ),*
+    }
+    ) => {
+        $vis struct $struct_name{
+            $(
+                $field_vis $field_name : TypedFunc<$input_type, $output_type>,
+            )*
+        }
+
+        impl $struct_name {
+            pub fn new(instance: &Instance, store: &mut Store<i32>) -> Result<Self> {
+                Ok(
+                    Self {
+                        $(
+                            $field_name: instance.get_typed_func(store.as_context_mut(), stringify!($field_name))?,
+                        )*
+                    }
+                )
+            }
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! define_request_function {
+    ($request_type: ty, $response_type: ty, $function_ident: ident) => {
+        pub fn $function_ident(&mut self, request: $request_type) -> Result<$response_type> {
+            self.call_wasm_function(self.function_store.$function_ident, request)
+        }
+    };
+}
+
+// ======
+// Tests
+// ======
+
+#[cfg(test)]
+mod tests {
+    use transaction_library::requests::{InformationRequest, InformationResponse};
+
+    use crate::{Result, TransactionLibrary};
+
+    #[test]
+    pub fn test_information_request_succeeds() {
+        // Arrange
+        let mut transaction_library: TransactionLibrary =
+            TransactionLibrary::new_compile_from_source()
+                .expect("Failed to create a new library from source");
+
+        // Act
+        let response: Result<InformationResponse> =
+            transaction_library.information(InformationRequest {});
+
+        // Assert
+        assert!(matches!(response, Ok(_)))
     }
 }
