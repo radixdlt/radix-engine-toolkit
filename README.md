@@ -1594,3 +1594,57 @@ This section lists all of the functions available in this library, what they are
 }
 ```
 </details>
+
+## Building from Source
+
+The transaction library comes with a `build.sh` script which builds the library from source assuming that all of the required dependencies are installed. Currently, certain parts of building the transaction library require that the OS is a MacOS. More specifically, the `lipo` and `xcodebuild` tools require a MacOS operating system and are not available on other platforms. 
+
+There are a number of dependencies required to be able to build the transaction library:
+
+1. Make sure that you have the Rust toolchain installed and up to date
+
+    ```sh
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    rustup update
+    ```
+
+2. cbindgen requires some nightly features to correctly function when expanding macros, therefore, make sure that Rust's nightly channel is installed
+
+    ```
+    rustup toolchain install nightly
+    ```
+
+3. The transaction library is build for different targets. Rustup requires that the configuration for all of these targets is installed priod to building
+
+    ```
+    rustup target add \
+        wasm32-unknown-unknown \
+        x86_64-apple-ios \
+        aarch64-apple-ios \
+        aarch64-apple-ios-sim
+    ```
+
+4. The build script relies on `cbindgen` to generate the required c-header of the transaction library. 
+
+    ```
+    cargo install cargo-lipo
+    ```
+
+5. Some of the libraries that the trasnaction library and Scrypto depend upon (mainly the Secp256k1 library) require that `llvm` and `clang` are installed and added to the path
+
+    ```
+    brew install llvm
+    ```
+
+    Relating to this point, you might need to also add the archiver's path and clang's path to your PATH. This is done through the following commands:
+
+    ```
+    export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
+    export CC="/opt/homebrew/opt/llvm/bin/clang"
+    ```
+
+After the above steps, it should now be possible to build the transaction library from source. To do that, run the build script:
+
+```
+./build.sh
+```
