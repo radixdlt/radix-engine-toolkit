@@ -31,6 +31,7 @@ cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 tar
 
     # Creating the header file
     cbindgen \
+        --lang c \
         --config cbindgen.toml \
         --crate transaction-library \
         --output transaction_library.h
