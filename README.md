@@ -1627,7 +1627,7 @@ There are a number of dependencies required to be able to build the transaction 
 4. The build script relies on `cbindgen` to generate the required c-header of the transaction library. 
 
     ```
-    cargo install cargo-lipo
+    cargo install --force cbindgen
     ```
 
 5. Some of the libraries that the trasnaction library and Scrypto depend upon (mainly the Secp256k1 library) require that `llvm` and `clang` are installed and added to the path
