@@ -2201,6 +2201,8 @@ This section lists all of the functions available in this library, what they are
 ```
 </details>
 
+
+
 ## Building from Source
 
 The transaction library comes with a `build.sh` script which builds the library from source assuming that all of the required dependencies are installed. Currently, certain parts of building the transaction library require that the OS is a MacOS. More specifically, the `lipo` and `xcodebuild` tools require a MacOS operating system and are not available on other platforms. 
