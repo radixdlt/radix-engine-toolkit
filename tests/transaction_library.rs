@@ -266,8 +266,8 @@ impl TransactionLibrary {
     }
 
     /// Frees up memory in the WASM's linear memory.
-    /// 
-    /// This method frees up memory in WASM's linear memory. This is with the assumption that the 
+    ///
+    /// This method frees up memory in WASM's linear memory. This is with the assumption that the
     fn free_memory(&mut self, memory_offset: i32) -> Result<()> {
         self.function_store
             .__transaction_lib_free

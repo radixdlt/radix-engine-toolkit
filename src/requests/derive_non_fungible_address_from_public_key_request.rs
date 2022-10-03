@@ -11,6 +11,7 @@ use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressFromPublicKeyRequest {
+    #[serde(flatten)]
     pub public_key: PublicKey,
 }
 

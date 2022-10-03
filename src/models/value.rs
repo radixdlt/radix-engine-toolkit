@@ -704,10 +704,7 @@ pub fn ast_value_from_value(
                 .map(|v| ast_value_from_value(v, bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         ),
-        Value::Enum {
-            variant,
-            fields,
-        } => AstValue::Enum(
+        Value::Enum { variant, fields } => AstValue::Enum(
             variant.clone(),
             fields
                 .clone()
@@ -1148,10 +1145,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 .map(sbor_value_from_value)
                 .collect::<Result<Vec<_>, _>>()?,
         },
-        Value::Enum {
-            variant,
-            fields,
-        } => SborValue::Enum {
+        Value::Enum { variant, fields } => SborValue::Enum {
             name: variant.clone(),
             fields: fields
                 .clone()

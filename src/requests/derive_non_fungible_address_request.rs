@@ -1,7 +1,8 @@
 use crate::error::Error;
 use crate::export_request;
+use crate::models::serde::NetworkAwareResourceAddress;
 use crate::traits::{Request, Validate};
-use scrypto::prelude::{NonFungibleAddress, NonFungibleId, ResourceAddress};
+use scrypto::prelude::{NonFungibleAddress, NonFungibleId};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
@@ -12,8 +13,7 @@ use serde_with::{serde_as, DisplayFromStr};
 #[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressRequest {
-    #[serde_as(as = "DisplayFromStr")]
-    pub resource_address: ResourceAddress,
+    pub resource_address: NetworkAwareResourceAddress,
     #[serde_as(as = "DisplayFromStr")]
     pub non_fungible_id: NonFungibleId,
 }
@@ -48,7 +48,7 @@ impl Validate for DeriveNonFungibleAddressResponse {
 impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddressRequest {
     fn handle_request(self) -> Result<DeriveNonFungibleAddressResponse, Error> {
         let non_fungible_address: NonFungibleAddress =
-            NonFungibleAddress::new(self.resource_address, self.non_fungible_id);
+            NonFungibleAddress::new(self.resource_address.address, self.non_fungible_id);
         let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
             non_fungible_address,
         };
