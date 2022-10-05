@@ -1041,6 +1041,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "radix-engine-toolkit"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bech32",
+ "hex",
+ "radix-engine",
+ "sbor",
+ "scrypto",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "transaction",
+ "wasmtime",
+ "wee_alloc",
+]
+
+[[package]]
 name = "rand"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1526,24 +1544,6 @@ dependencies = [
  "secp256k1",
  "serde",
  "serde_with",
-]
-
-[[package]]
-name = "transaction-library"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bech32",
- "hex",
- "radix-engine",
- "sbor",
- "scrypto",
- "serde",
- "serde_json",
- "serde_with",
- "transaction",
- "wasmtime",
- "wee_alloc",
 ]
 
 [[package]]

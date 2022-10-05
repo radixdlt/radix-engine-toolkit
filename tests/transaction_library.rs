@@ -1,6 +1,6 @@
-//! This module defines the struct and implementation for a TransactionLibrary wrapper that uses the
+//! This module defines the struct and implementation for a RadixEngineToolkit wrapper that uses the
 //! WasmTime runtime. This struct is mainly defined for the purpose of testing out the behavior of
-//! the transaction library when it is running through a WASM host.
+//! the Radix Engine Toolkit when it is running through a WASM host.
 
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -8,8 +8,8 @@ use serde::Serialize;
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
-use transaction_library::error::Error;
-use transaction_library::requests::*;
+use radix_engine_toolkit::error::Error;
+use radix_engine_toolkit::requests::*;
 
 use wasmtime::{AsContextMut, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
 
@@ -24,19 +24,19 @@ type Result<T> = std::result::Result<T, WrapperError>;
 // Library Wrapper
 // ================
 
-struct TransactionLibrary {
+struct RadixEngineToolkit {
     engine: Engine,
     module: Module,
     linker: Linker<i32>,
     store: Store<i32>,
     instance: Instance,
-    function_store: TransactionLibraryFunctions,
+    function_store: RadixEngineToolkitFunctions,
 }
 
-impl TransactionLibrary {
-    /// Creates a new [TransactionLibrary] object from a given path.
+impl RadixEngineToolkit {
+    /// Creates a new [RadixEngineToolkit] object from a given path.
     ///
-    /// This function is able to instantiate a new [TransactionLibrary] given the path to the
+    /// This function is able to instantiate a new [RadixEngineToolkit] given the path to the
     /// library's WASM module. This function reads the module and then creates a new object.
     ///
     /// # Checks
@@ -49,7 +49,7 @@ impl TransactionLibrary {
     ///
     /// # Returns
     ///
-    /// - `Result<Self, WrapperError>`: A new object of [TransactionLibrary] is returned, or a
+    /// - `Result<Self, WrapperError>`: A new object of [RadixEngineToolkit] is returned, or a
     /// [WrapperError] is returned in the case of an error.
     pub fn new_from_module_path<T: AsRef<Path>>(path: T) -> Result<Self> {
         // Get the `Path` from the generic object.
@@ -65,9 +65,9 @@ impl TransactionLibrary {
         Self::new_from_module_bytes(buffer)
     }
 
-    /// Creates a new [TransactionLibrary] object from a module byte array.
+    /// Creates a new [RadixEngineToolkit] object from a module byte array.
     ///
-    /// This function is able to instantiate a new [TransactionLibrary] given the contents of the
+    /// This function is able to instantiate a new [RadixEngineToolkit] given the contents of the
     /// WASM file.
     ///
     /// # Arguments
@@ -76,13 +76,13 @@ impl TransactionLibrary {
     ///
     /// # Returns
     ///
-    /// - `Result<Self, WrapperError>`: A new object of [TransactionLibrary] is returned, or a
+    /// - `Result<Self, WrapperError>`: A new object of [RadixEngineToolkit] is returned, or a
     /// [WrapperError] is returned in the case of an error.
     pub fn new_from_module_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self> {
         // Getting the `&[u8]` from the generic object.
         let bytes: &[u8] = bytes.as_ref();
 
-        // Creating the required WASM host objects to run the transaction library WASM.
+        // Creating the required WASM host objects to run the Radix Engine Toolkit WASM.
         let engine: Engine = Engine::default();
         let module: Module = Module::new(&engine, bytes).map_err(WrapperError::WasmTimeError)?;
         let linker: Linker<i32> = Linker::new(&engine);
@@ -90,10 +90,10 @@ impl TransactionLibrary {
         let instance: Instance = linker
             .instantiate(&mut store, &module)
             .map_err(WrapperError::WasmTimeError)?;
-        let function_store: TransactionLibraryFunctions =
-            TransactionLibraryFunctions::new(&instance, &mut store)?;
+        let function_store: RadixEngineToolkitFunctions =
+            RadixEngineToolkitFunctions::new(&instance, &mut store)?;
 
-        let transaction_library: Self = Self {
+        let radix_engine_toolkit: Self = Self {
             engine,
             module,
             linker,
@@ -101,23 +101,23 @@ impl TransactionLibrary {
             instance,
             function_store,
         };
-        Ok(transaction_library)
+        Ok(radix_engine_toolkit)
     }
 
-    /// Creates a new [TransactionLibrary] object from source code.
+    /// Creates a new [RadixEngineToolkit] object from source code.
     ///
-    /// This function compiles the [TransactionLibrary] as to a `wasm32-unknown-unknown` target and
-    /// then uses the `new_from_module_path` constructor to create a new [TransactionLibrary] object
+    /// This function compiles the [RadixEngineToolkit] as to a `wasm32-unknown-unknown` target and
+    /// then uses the `new_from_module_path` constructor to create a new [RadixEngineToolkit] object
     ///
     /// # Returns
     ///
-    /// - `Result<Self, WrapperError>`: A new object of [TransactionLibrary] is returned, or a
+    /// - `Result<Self, WrapperError>`: A new object of [RadixEngineToolkit] is returned, or a
     pub fn new_compile_from_source() -> Result<Self> {
         // The path to the directory containing the Cargo.toml manifest file
         let manifest_directory: PathBuf =
             std::env::current_dir().expect("Failed to get the path of the current directory");
 
-        // Build the transaction library from source
+        // Build the Radix Engine Toolkit from source
         let status: std::process::ExitStatus = std::process::Command::new("cargo")
             .current_dir(&manifest_directory)
             .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
@@ -129,7 +129,7 @@ impl TransactionLibrary {
 
         // Building a path to the WASM file
         let wasm_module_path: PathBuf = manifest_directory
-            .join("target/wasm32-unknown-unknown/release/transaction_library.wasm");
+            .join("target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm");
         Self::new_from_module_path(wasm_module_path)
     }
 
@@ -284,7 +284,7 @@ impl TransactionLibrary {
     fn deserialize<D: DeserializeOwned, S: AsRef<str>>(string: S) -> Result<D> {
         let str: &str = string.as_ref();
         serde_json::from_str(str)
-            .map_err(|error| WrapperError::TransactionLibraryError(Error::from(error)))
+            .map_err(|error| WrapperError::RadixEngineToolkitError(Error::from(error)))
     }
 
     /// Writes a string to the WASM's linear memory.
@@ -418,7 +418,7 @@ impl TransactionLibrary {
 // ===============
 
 define_function_store! {
-    struct TransactionLibraryFunctions {
+    struct RadixEngineToolkitFunctions {
         pub information: TypedFunc<i32, i32>,
 
         pub convert_manifest: TypedFunc<i32, i32>,
@@ -452,7 +452,7 @@ define_function_store! {
 // Error
 // ======
 
-/// An enum representing errors encountered by the [TransactionLibrary] wrapper.
+/// An enum representing errors encountered by the [RadixEngineToolkit] wrapper.
 #[derive(Debug)]
 enum WrapperError {
     /// An error emitted when a file could not be found.
@@ -464,8 +464,8 @@ enum WrapperError {
     /// An error emitted by the WasmTime runtime.
     WasmTimeError(anyhow::Error),
 
-    /// An error emitted when a transaction library operation fails
-    TransactionLibraryError(Error),
+    /// An error emitted when a Radix Engine Toolkit operation fails
+    RadixEngineToolkitError(Error),
 
     /// An error emitted when trying to access the linear memory of a WASM instance.
     MemoryAccessError(wasmtime::MemoryAccessError),
@@ -549,20 +549,20 @@ macro_rules! define_request_function {
 
 #[cfg(test)]
 mod tests {
-    use transaction_library::requests::{InformationRequest, InformationResponse};
+    use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
 
-    use crate::{Result, TransactionLibrary};
+    use crate::{Result, RadixEngineToolkit};
 
     #[test]
     pub fn test_information_request_succeeds() {
         // Arrange
-        let mut transaction_library: TransactionLibrary =
-            TransactionLibrary::new_compile_from_source()
+        let mut radix_engine_toolkit: RadixEngineToolkit =
+            RadixEngineToolkit::new_compile_from_source()
                 .expect("Failed to create a new library from source");
 
         // Act
         let response: Result<InformationResponse> =
-            transaction_library.information(InformationRequest {});
+            radix_engine_toolkit.information(InformationRequest {});
 
         // Assert
         assert!(matches!(response, Ok(_)))

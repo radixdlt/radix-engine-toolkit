@@ -1,3 +1,3 @@
-# Transaction Library Examples
+# Radix Engine Toolkit Examples
 
-All transaction library examples now live in the following repo: https://github.com/radixdlt/transaction-library-examples
+All Radix Engine Toolkit examples now live in the following repo: https://github.com/radixdlt/radix-engine-toolkit-examples
