@@ -1,4 +1,4 @@
-# Babylon Transaction Library
+# Radix Engine Toolkit
 
 This is a WebAssembly (WASM) library built using Rust to provide language-agnostic support for the following:
 
@@ -29,7 +29,7 @@ In addition to the building of transaction requiring SBOR for compilation, certa
 
 Therefore, there is a strong need to **not** rewrite SBOR in different languages, instead, to reuse and reutilize the original SBOR implementation for clients written in any language. This library achieves that by being fully written in rust; thus leveraging the ability to use the original SBOR implementation, and being compilable to different targets with WASM and native iOS being the two main compilation targets for this library. WASM being a main compilation target means that any programming language with a WASM runtime can leverage and make use of this library. 
 
-The choice of making the transaction library compilable to WASM comes with a number of advantages, the first of which is that certain clients may wish to build their transactions, SBOR encode and decode their data, or Bech32 encode or decode their addresses in a trustless fashion without having to rely on a REST API where a non-negligible chance of tampering exists. Having this library as a WASM module allows such clients to do all they need without worrying about trusting an external server.
+The choice of making the radix engine toolkit compilable to WASM comes with a number of advantages, the first of which is that certain clients may wish to build their transactions, SBOR encode and decode their data, or Bech32 encode or decode their addresses in a trustless fashion without having to rely on a REST API where a non-negligible chance of tampering exists. Having this library as a WASM module allows such clients to do all they need without worrying about trusting an external server.
 
 In addition to that, using WASM instead of a docker-based solution to this problem means that the solution is very lightweight and also compatible with platforms where Docker is no an option (mostly smart phones.), thus making this library available to the largest amount of clients without any compromises. 
 
@@ -48,7 +48,7 @@ This section lists all of the functions available in this library, what they are
 
 | Function Name | `information` |
 | ------------- | :----------------- |
-| Functionality | The function provides information information on the currently in-use transaction library such as the version of the transaction library. In most cases, this is the first function written when integrating new clients; so, this function is often times seen as the "Hello World" example of the transaction library. |
+| Functionality | The function provides information information on the currently in-use radix engine toolkit such as the version of the radix engine toolkit. In most cases, this is the first function written when integrating new clients; so, this function is often times seen as the "Hello World" example of the radix engine toolkit. |
 | Request Type  | `InformationRequest` |
 | Response Type | `InformationResponse` |
 
@@ -2182,9 +2182,9 @@ This section lists all of the functions available in this library, what they are
 
 ## Building from Source
 
-The transaction library comes with a `build.sh` script which builds the library from source assuming that all of the required dependencies are installed. Currently, certain parts of building the transaction library require that the OS is a MacOS. More specifically, the `lipo` and `xcodebuild` tools require a MacOS operating system and are not available on other platforms. 
+The radix engine toolkit comes with a `build.sh` script which builds the library from source assuming that all of the required dependencies are installed. Currently, certain parts of building the radix engine toolkit require that the OS is a MacOS. More specifically, the `lipo` and `xcodebuild` tools require a MacOS operating system and are not available on other platforms. 
 
-There are a number of dependencies required to be able to build the transaction library:
+There are a number of dependencies required to be able to build the radix engine toolkit:
 
 1. Make sure that you have the Rust toolchain installed and up to date
 
@@ -2199,7 +2199,7 @@ There are a number of dependencies required to be able to build the transaction 
     rustup toolchain install nightly
     ```
 
-3. The transaction library is build for different targets. Rustup requires that the configuration for all of these targets is installed priod to building
+3. The radix engine toolkit is build for different targets. Rustup requires that the configuration for all of these targets is installed priod to building
 
     ```
     rustup target add \
@@ -2209,7 +2209,7 @@ There are a number of dependencies required to be able to build the transaction 
         aarch64-apple-ios-sim
     ```
 
-4. The build script relies on `cbindgen` to generate the required c-header of the transaction library. 
+4. The build script relies on `cbindgen` to generate the required c-header of the radix engine toolkit. 
 
     ```
     cargo install --force cbindgen
@@ -2228,7 +2228,7 @@ There are a number of dependencies required to be able to build the transaction 
     export CC="/opt/homebrew/opt/llvm/bin/clang"
     ```
 
-After the above steps, it should now be possible to build the transaction library from source. To do that, run the build script:
+After the above steps, it should now be possible to build the radix engine toolkit from source. To do that, run the build script:
 
 ```
 ./build.sh
