@@ -1710,6 +1710,8 @@ components:
         - RequestResponseConversionError
         - UnrecognizedCompiledIntentFormat
         - TransactionValidationError
+        - ExtractAbiError
+        - NetworkMismatchError
 
     ErrorResponse:
       oneOf:
