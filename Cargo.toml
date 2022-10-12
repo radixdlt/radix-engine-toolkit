@@ -11,10 +11,10 @@ serde = { version = "1.0.144", features = ["serde_derive"] }
 serde_json = { version = "1.0.85" }
 serde_with = { version = "2.0.0", features = ["hex"] }
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "alphanet-6e5b037b7" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "alphanet-6e5b037b7", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "alphanet-6e5b037b7", features = ["serde"] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "alphanet-6e5b037b7" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 
 wee_alloc = { version =  "0.4.5" }
 anyhow = "1.0.65"
