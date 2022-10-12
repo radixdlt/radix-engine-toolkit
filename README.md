@@ -2228,6 +2228,12 @@ There are a number of dependencies required to be able to build the radix engine
     export CC="/opt/homebrew/opt/llvm/bin/clang"
     ```
 
+6. Install the binaryen toolkit which makes the `wasm-opt` tool available. This tool is used to optimize the size of the compiled WASM:
+
+    ```
+    brew install binaryen
+    ```
+
 After the above steps, it should now be possible to build the radix engine toolkit from source. To do that, run the build script:
 
 ```

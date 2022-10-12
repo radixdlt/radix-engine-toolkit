@@ -61,4 +61,10 @@ xcodebuild -create-xcframework \
     -headers ./target/aarch64-apple-ios-sim/release/radix_engine_toolkit.h \
     -output ./target/iOS/universal.xcframework
 
+wasm-opt \
+    -Os -g \
+    --strip-debug --strip-dwarf --strip-producers \
+    -o ./target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm \
+    ./target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm
+
 echo "Done!"
