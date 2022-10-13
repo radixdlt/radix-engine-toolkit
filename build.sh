@@ -1,27 +1,40 @@
 echo "Building the library";
-cargo build --target wasm32-unknown-unknown --release
 
-cargo build --target x86_64-apple-ios --release         # iOS Simulator & iPhone x86 target
-cargo build --target aarch64-apple-ios-sim --release    # iOS Simulator Aarch64 target
-cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 target
+# WebAssembly targets
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target wasm32-unknown-unknown \
+    --release
+
+# iOS Targets
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-ios-sim \
+    --release       # iOS Simulator Aarch64 target
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-ios \
+    --release        # iOS iPhone Aarch64 target
+
+# PC Targets
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-darwin \
+    --release
 
 (
     cd ./target
     mkdir iOS
     mkdir iOS/simulator
     mkdir iOS/iPhone
-
-    # Combine the two simulator builds into one fat file
-    lipo -create \
-        x86_64-apple-ios/release/libradix_engine_toolkit.a \
-        aarch64-apple-ios-sim/release/libradix_engine_toolkit.a \
-        -o iOS/simulator/libradix_engine_toolkit.a
-    
-    # Combine the two iPhone builds into one fat file
-    lipo -create \
-        x86_64-apple-ios/release/libradix_engine_toolkit.a \
-        aarch64-apple-ios/release/libradix_engine_toolkit.a \
-        -o iOS/iPhone/libradix_engine_toolkit.a
 )
 
 # Create the C header of the provided functions and adding it to the directory of each of the 
@@ -38,7 +51,6 @@ cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 tar
 
     # Copying the header file to all of the builds
     cp radix_engine_toolkit.h ./target/wasm32-unknown-unknown/release/
-    cp radix_engine_toolkit.h ./target/x86_64-apple-ios/release/
     cp radix_engine_toolkit.h ./target/aarch64-apple-ios-sim/release/
     cp radix_engine_toolkit.h ./target/aarch64-apple-ios/release/
     
@@ -51,9 +63,7 @@ cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 tar
     rustup default stable
 )
 
-# Creating an XC Framework of the static libraries. Note: at the current moment of time, I have
-# removed the `x86_64-apple-ios` target from the XC Framework as it clashed with 
-# `ios-arm64-simulator`. If this causes issues, then we can look into it further. 
+# Creating an XC Framework of the static libraries. 
 xcodebuild -create-xcframework \
     -library ./target/aarch64-apple-ios/release/libradix_engine_toolkit.a \
     -headers ./target/aarch64-apple-ios/release/radix_engine_toolkit.h \

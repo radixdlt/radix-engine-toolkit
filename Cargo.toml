@@ -15,17 +15,18 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
-anyhow = "1.0.65"
 
 [dev-dependencies]
-wasmtime = "1.0.0"
+wasmtime = { version = "1.0.0" }
+anyhow = { version = "1.0.65" }
 
 [profile.release]
-opt-level = 's'
+opt-level = 'z'
 lto = true
 codegen-units = 1
 panic = 'abort'
-strip = "debuginfo"
+strip = true
+incremental = false
 
 [lib]
 crate-type = ["cdylib", "lib", "staticlib"]
