@@ -15,9 +15,9 @@ Babylon transactions are composed of a number of different parts, but their buil
 
 ![image](./images/v0.5.0-transaction-model.png)
 
-When we have a transaction intent, getting to a signed transaction intent requires that the transaction intent is "compiled" and then that the double hash of the compiled transaction intent is signed. In this context, compiling something simply refers to encoding it in SBOR. Once all of the signers have signed the double hash of the compiled transaction intent, we have all we need to for a signed transaction intent. 
+When we have a transaction intent, getting to a signed transaction intent requires that the transaction intent is "compiled" and signed. In this context, compiling something simply refers to encoding it in SBOR. Once all of the signers have signed the compiled transaction intent, we have all we need to for a signed transaction intent. 
 
-Similarity, when the notary wishes to notarize a signed transaction intent, they compile the signed transaction intent (as explained above, they encode the signed transaction intent in SBOR), sign the double hash of that, and with that they have the notary signature required to form a complete transaction. 
+Similarity, when the notary wishes to notarize a signed transaction intent, they compile the signed transaction intent (as explained above, they encode the signed transaction intent in SBOR), sign that, and with that they have the notary signature required to form a complete transaction. 
 
 ## Motivation
 
