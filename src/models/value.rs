@@ -40,9 +40,6 @@ use crate::models::serde::*;
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
 
-// TODO: Consider extending the value type to support all `ScryptoType`s even if they do not have
-// a manifest representation. Their manifest compatibility can be evaluated at runtime in the
-// `value_from_ast_value` and `ast_value_from_value` functions.
 pub enum Value {
     Unit,
     Bool {

@@ -123,7 +123,7 @@ impl RadixEngineToolkit {
             .current_dir(&manifest_directory)
             .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
             .status()
-            .unwrap();
+            .expect("Compilation of WASM for tests failed");
         if !status.success() {
             panic!("Failed to compile package: {:?}", &manifest_directory);
         };
