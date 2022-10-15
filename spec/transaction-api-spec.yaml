@@ -203,10 +203,10 @@ components:
       description: "A request to encode an addresss in Bech32m according with the HRPs specified by the `network_id`"
       additionalProperties: false
       required:
-        - address
+        - address_bytes
         - network_id
       properties:
-        address:
+        address_bytes:
           type: string
           description: "A hex-encoded string of the raw bytes that make up the address"
         network_id:
@@ -1819,20 +1819,20 @@ components:
       description: An error emitted during the conversion from transaction::ast::Value => crate::Value. This error typically means that the contents of some value were unexpected. An example of this is a package address being found inside of a [`transaction::manifest::ast::Value::Decimal`].
       required:
         - error
-        - kind
-        - expected
-        - found
+        - kind_being_parsed
+        - allowed_children_kinds
+        - found_child_kind
       properties:
         error:
           $ref: "#/components/schemas/ErrorKind"
           readOnly: true
-        kind:
+        kind_being_parsed:
           $ref: "#/components/schemas/ValueKind"
-        expected:
+        allowed_children_kinds:
           type: array
           items:
             $ref: "#/components/schemas/ValueKind"
-        found:
+        found_child_kind:
           $ref: "#/components/schemas/ValueKind"
     InvalidType:
       type: object
