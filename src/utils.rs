@@ -51,9 +51,6 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         },
         0xF2 => NetworkDefinition::simulator(),
 
-        // TODO: Evaluate if this is needed or not. The implementation in the
-        // Babylon node repo does not have something of this sort. So, perhaps
-        // we do not need arbitrary conversions like this?
         i => NetworkDefinition {
             id: i,
             logical_name: "Unnamed Numeric Test Network".into(),
