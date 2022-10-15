@@ -5,6 +5,7 @@ use crate::traits::{Request, Validate};
 use crate::validation::validate_notarized_transaction;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::convert::TryInto;
 
 // ==========================
@@ -17,9 +18,10 @@ pub struct CompileNotarizedTransactionIntentRequest {
     pub notarized_transaction: NotarizedTransaction,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CompileNotarizedTransactionIntentResponse {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_notarized_intent: Vec<u8>,
 }
 

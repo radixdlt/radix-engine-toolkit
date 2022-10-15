@@ -3,6 +3,7 @@ use crate::export_request;
 use crate::models::Value;
 use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 
 // ==========================
 // Request & Response Models
@@ -14,9 +15,10 @@ pub struct SBOREncodeRequest {
     pub value: Value,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SBOREncodeResponse {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub encoded_value: Vec<u8>,
 }
 

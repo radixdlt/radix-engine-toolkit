@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-hex = { version = "0.4.3", features = ["serde"] }
+hex = { version = "0.4.3", default-features = false }
 bech32 = { version = "0.9.0", default-features = false }
 
-serde = { version = "1.0.144", features = ["serde_derive"] }
-serde_json = { version = "1.0.85" }
-serde_with = { version = "2.0.0", features = ["hex"] }
+serde = { version = "1.0.144", default-features = false, features = ["serde_derive"] }
+serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
+serde_with = { version = "2.0.0", default-features = false, features = ["hex", "macros"] }
 
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
@@ -20,13 +20,17 @@ radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0
 wasmtime = { version = "1.0.0" }
 anyhow = { version = "1.0.65" }
 
+# This release profile is chosen after many different profiles were tested. The main objective of 
+# this profile is to optimize the builds for size. Some of the data on why this profile was chosen
+# can be found here:
+# https://docs.google.com/spreadsheets/d/1sNFGZPr84PKdzTQA8xsZxHWedff2qNxPjj8bmBusyLM.
+# 
+# TODO: In the future, it would be useful to have different profiles for different targets. As an 
+# example, it seems like this profile works well for native iOS and Android targets. However, this
+# is not the best profile for WASM builds. 
 [profile.release]
-opt-level = 'z'
-lto = true
-codegen-units = 1
 panic = 'abort'
-strip = true
-incremental = false
+codegen-units = 1
 
 [lib]
 crate-type = ["cdylib", "lib", "staticlib"]

@@ -5,6 +5,7 @@ use crate::traits::{Request, Validate};
 use crate::utils::*;
 use bech32::{self, u5, FromBase32, Variant};
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::str::FromStr;
 
 // ==========================
@@ -16,12 +17,13 @@ pub struct DecodeAddressRequest {
     pub address: String,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DecodeAddressResponse {
     pub network_id: u8,
     pub network_name: String,
     pub entity_type: AddressKind,
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub data: Vec<u8>,
     pub hrp: String,
     pub address: Address,

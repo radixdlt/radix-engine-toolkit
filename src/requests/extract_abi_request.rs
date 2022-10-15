@@ -4,23 +4,26 @@ use crate::traits::{Request, Validate};
 use radix_engine::model::extract_abi as engine_extract_abi;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::collections::HashMap;
 
 // ==========================
 // Request & Response Models
 // ==========================
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ExtractAbiRequest {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub package_wasm: Vec<u8>,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ExtractAbiResponse {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub code: Vec<u8>,
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub abi: Vec<u8>,
 }
 

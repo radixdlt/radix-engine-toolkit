@@ -3,14 +3,16 @@ use crate::export_request;
 use crate::models::Address;
 use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 
 // ==========================
 // Request & Response Models
 // ==========================
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressRequest {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub address: Vec<u8>,
 
     pub network_id: u8,

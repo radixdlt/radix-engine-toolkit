@@ -5,6 +5,7 @@ use crate::traits::{Request, Validate};
 use crate::validation::validate_transaction_intent;
 use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use std::convert::TryInto;
 
 // ==========================
@@ -17,9 +18,10 @@ pub struct CompileTransactionIntentRequest {
     pub transaction_intent: TransactionIntent,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct CompileTransactionIntentResponse {
-    #[serde(with = "hex::serde")]
+    #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_intent: Vec<u8>,
 }
 
