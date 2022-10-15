@@ -5,7 +5,6 @@
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
 use radix_engine_toolkit::error::Error;
@@ -368,11 +367,10 @@ impl RadixEngineToolkit {
     fn allocate_memory_for_string<S: AsRef<str>>(&mut self, string: S) -> Result<i32> {
         // Converting the string to a C-String and getting the byte count of this string
         let string: &str = string.as_ref();
-        let string: CString = CString::new(string).map_err(WrapperError::NulError)?;
-        let byte_count: usize = string.as_bytes().len();
+        let byte_count: usize = string.len();
 
         // Memory allocation by capacity can now be performed.
-        self.allocate_memory_by_capacity(byte_count)
+        self.allocate_memory_by_capacity(byte_count + 1)
     }
 
     /// Allocates memory in the instance's linear memory
