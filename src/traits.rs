@@ -1,10 +1,13 @@
 use crate::error::Error;
 use serde::{Deserialize, Serialize};
 
+/// A trait that defines the common interface for a type which can be validated. This validation 
+/// happens without external context, internal only. 
 pub trait Validate {
     fn validate(&self) -> Result<(), Error>;
 }
 
+/// A trait that defines the common interface for a request and response.
 pub trait Request<'a, Response>
 where
     Self: Deserialize<'a> + Validate,
@@ -35,4 +38,16 @@ where
     ) -> Result<Self, Error> {
         crate::memory::toolkit_read_and_deserialize_string_from_memory(request_string_pointer)
     }
+}
+
+/// A trait that defines the common interface for types which can be compiled and decompiled 
+pub trait Compile where Self: Sized {
+    fn compile(&self) -> Vec<u8>;
+
+    fn decompile<T: AsRef<[u8]>>(bytes: T) -> Result<Self, Error>;
+}
+
+/// A trait for the conversions into a different types with generic external context
+pub trait IntoWithContext<T, C> {
+    fn into_with_context(self, context: C) -> T;
 }
