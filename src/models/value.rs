@@ -936,9 +936,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Decimal,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Decimal,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -949,9 +949,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::PreciseDecimal,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::PreciseDecimal,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -968,9 +968,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::PackageAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::PackageAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -986,9 +986,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::ComponentAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::ComponentAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1004,9 +1004,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::ResourceAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::ResourceAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1018,9 +1018,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Hash,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Hash,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1036,9 +1036,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Bucket,
-                    expected: vec![ValueKind::U32, ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Bucket,
+                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1053,9 +1053,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Proof,
-                    expected: vec![ValueKind::U32, ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Proof,
+                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1067,9 +1067,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::NonFungibleId,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::NonFungibleId,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1080,9 +1080,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::NonFungibleAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::NonFungibleAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1094,9 +1094,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Blob,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Blob,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1107,9 +1107,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Expression,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Expression,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1234,7 +1234,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 )))?)
             } else {
                 // TODO: Temporary error. Need a better way to deal with this.
-                Err(Error::DecodeError(
+                Err(Error::SborDecodeError(
                     "Unable to encode a Bucket with a string identifier".into(),
                 ))
             }?
@@ -1246,7 +1246,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 )))?)
             } else {
                 // TODO: Temporary error. Need a better way to deal with this.
-                Err(Error::DecodeError(
+                Err(Error::SborDecodeError(
                     "Unable to encode a Proof with a string identifier".into(),
                 ))
             }?

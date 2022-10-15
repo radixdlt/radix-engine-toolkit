@@ -34,16 +34,16 @@ pub enum Error {
     AddressError(String),
 
     /// An error emitted when attempting to get information on an address but its format could not
-    /// be established.
+    /// be established. Typically, this means that the entity byte is invalid or unknown.
     UnrecognizedAddressFormat,
 
     /// An error emitted when the decoding of SBOR fails.
-    DecodeError(String),
+    SborDecodeError(String),
 
     // =====================
     // Serde Related Errors
     // =====================
-    /// An error emitted when deserialization of the JSON payload fails.
+    /// An error emitted when deserialization of a JSON payload fails.
     DeserializationError(String),
 
     /// An error emitted when the contents of the request string pointer could not be loaded.
@@ -54,11 +54,11 @@ pub enum Error {
     // ========================
     /// An error emitted during the conversion from transaction::ast::Value => crate::Value. This
     /// error typically means that the contents of some value were unexpected. An example of this is
-    /// a package address being found inside of a `transaction::ast::Value::Decimal`.
+    /// a package address being found inside of a [`transaction::manifest::ast::Value::Decimal`].
     UnexpectedContents {
-        kind: ValueKind,
-        expected: Vec<ValueKind>,
-        found: ValueKind,
+        kind_being_parsed: ValueKind,
+        allowed_children_kinds: Vec<ValueKind>,
+        found_child_kind: ValueKind,
     },
 
     /// An error emitted when validating the type of `Value` objects.
@@ -152,7 +152,7 @@ impl_from_parse_error! {
 
 impl_from_error! {
     scrypto::address::AddressError => AddressError,
-    sbor::DecodeError => DecodeError,
+    sbor::DecodeError => SborDecodeError,
 
     serde_json::Error => DeserializationError,
     std::str::Utf8Error => InvalidRequestString,

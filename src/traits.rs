@@ -31,9 +31,8 @@ where
     ///
     /// This function makes use of pointers which is an unsafe feature.
     unsafe fn new_from_pointer(
-        request_string_pointer: *const std::os::raw::c_char,
+        request_string_pointer: crate::memory::Pointer,
     ) -> Result<Self, Error> {
-        let string: &str = std::ffi::CStr::from_ptr(request_string_pointer).to_str()?;
-        Ok(serde_json::from_str(string)?)
+        crate::memory::toolkit_read_and_deserialize_string_from_memory(request_string_pointer)
     }
 }

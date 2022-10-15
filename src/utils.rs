@@ -1,24 +1,5 @@
 use scrypto::prelude::NetworkDefinition;
-
 use bech32;
-use serde::Deserialize;
-
-use crate::error::Error;
-
-/// Reads a string from memory and deserialize it to the expected return type
-///
-/// # Safety
-///
-/// This function makes use of pointers which is an unsafe feature.
-pub unsafe fn read_and_deserialize<'t, T>(
-    request_string_pointer: *const std::os::raw::c_char,
-) -> Result<T, Error>
-where
-    T: Deserialize<'t>,
-{
-    let string: &str = std::ffi::CStr::from_ptr(request_string_pointer).to_str()?;
-    Ok(serde_json::from_str(string)?)
-}
 
 /// A deterministic function that generates a network definition given a network ID. Implemented with reference to
 /// https://github.com/radixdlt/babylon-node/blob/51e4fb9dbb999b8e02aa6cce07162aef2affd6a7/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
