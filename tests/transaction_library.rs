@@ -1,6 +1,6 @@
-//! This module defines the struct and implementation for a RadixEngineToolkit wrapper that uses the
-//! WasmTime runtime. This struct is mainly defined for the purpose of testing out the behavior of
-//! the Radix Engine Toolkit when it is running through a WASM host.
+//! This module defines the struct and implementation for a [`RadixEngineToolkit`] WASM wrapper that 
+//! uses the WasmTime runtime. This struct is mainly defined for the purpose of testing out the 
+//! behavior of the Radix Engine Toolkit when it is running through a WASM host.
 
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -24,7 +24,7 @@ type Result<T> = std::result::Result<T, WrapperError>;
 // Library Wrapper
 // ================
 
-struct RadixEngineToolkit {
+pub struct RadixEngineToolkit {
     engine: Engine,
     module: Module,
     linker: Linker<i32>,
@@ -72,11 +72,11 @@ impl RadixEngineToolkit {
     ///
     /// # Arguments
     ///
-    /// - `bytes: AsRef<[u8]>`: A generic object which can be referenced as a `[u8]`.
+    /// - `bytes` [`AsRef<[u8]>`] - A generic object which can be referenced as a `[u8]`.
     ///
     /// # Returns
     ///
-    /// - `Result<Self, WrapperError>`: A new object of [RadixEngineToolkit] is returned, or a
+    /// - [`Result<Self, WrapperError>`]: A new object of [RadixEngineToolkit] is returned, or a
     /// [WrapperError] is returned in the case of an error.
     pub fn new_from_module_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self> {
         // Getting the `&[u8]` from the generic object.
@@ -111,13 +111,15 @@ impl RadixEngineToolkit {
     ///
     /// # Returns
     ///
-    /// - `Result<Self, WrapperError>`: A new object of [RadixEngineToolkit] is returned, or a
+    /// - [`Result<Self, WrapperError>`]: A new object of [RadixEngineToolkit] is returned, or a 
+    /// [`WrapperError`]
     pub fn new_compile_from_source() -> Result<Self> {
         // The path to the directory containing the Cargo.toml manifest file
         let manifest_directory: PathBuf =
             std::env::current_dir().expect("Failed to get the path of the current directory");
 
-        // Build the Radix Engine Toolkit from source
+        // Build the Radix Engine Toolkit from source - Build a wasm32-unknown-unknown binary for 
+        // release.
         let status: std::process::ExitStatus = std::process::Command::new("cargo")
             .current_dir(&manifest_directory)
             .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
@@ -171,11 +173,11 @@ impl RadixEngineToolkit {
     ///
     /// # Arguments
     ///
-    /// - `function: TypedFunc<i32, i32>`: The function to invoke on the WASM instance. This
+    /// - `function` [TypedFunc<i32, i32>] - The function to invoke on the WASM instance. This
     /// function should take an [i32] and return an [i32]. By default, the arguments and the returns
     /// are the memory offsets of the request and the response respectively in the WASM's linear
     /// memory.
-    /// - `request: Serialize`: A generic object that implements serde's [Serialize] trait and
+    /// - `request`: [Serialize]: A generic object that implements serde's [Serialize] trait and
     /// therefore can be serialized to a string. This is the request payload that the `function`
     /// will be called with.
     ///
@@ -260,11 +262,12 @@ impl RadixEngineToolkit {
     ///
     /// # Arguments
     ///
-    /// - `object: Serialize`: A generic object of any type that implements the [Serialize] trait.
+    /// - `object` [`Serialize`] - A generic object of any type that implements the [Serialize] 
+    /// trait.
     ///
     /// # Returns
     ///
-    /// - `String`: A JSON string of the serialized object
+    /// - [`String`]: A JSON string of the serialized object
     fn serialize<S: Serialize>(object: S) -> String {
         serde_json::to_string(&object).expect("Could not serialize a trusted payload")
     }
@@ -360,7 +363,7 @@ impl RadixEngineToolkit {
     ///
     /// # Returns
     ///
-    /// - `Result<i32>`: An [i32] is returned if the memory allocation is successful, otherwise, a
+    /// - [`Result<i32>`]: An [i32] is returned if the memory allocation is successful, otherwise, a
     /// [WrapperError] is returned.
     fn allocate_memory_for_string<S: AsRef<str>>(&mut self, string: S) -> Result<i32> {
         // Converting the string to a C-String and getting the byte count of this string
@@ -383,11 +386,11 @@ impl RadixEngineToolkit {
     ///
     /// # Returns
     ///
-    /// - `Result<i32>`: An [i32] is returned if the memory allocation is successful, otherwise, a
+    /// - [Result<i32>]: An [i32] is returned if the memory allocation is successful, otherwise, a
     /// [WrapperError] is returned.
     fn allocate_memory_by_capacity(&mut self, capacity: usize) -> Result<i32> {
         self.function_store
-            .__transaction_lib_alloc
+            .toolkit_alloc
             .call(&mut self.store, capacity as i32)
             .map_err(WrapperError::WasmTimeTrapError)
     }
@@ -395,9 +398,10 @@ impl RadixEngineToolkit {
     /// Frees up memory in the WASM's linear memory.
     ///
     /// This method frees up memory in WASM's linear memory. This is with the assumption that the
+    /// memory was allocated through the library's memory allocator
     fn free_memory(&mut self, memory_offset: i32) -> Result<()> {
         self.function_store
-            .__transaction_lib_free
+            .toolkit_free_c_string
             .call(&mut self.store, memory_offset)
             .map_err(WrapperError::WasmTimeTrapError)
     }
@@ -406,7 +410,7 @@ impl RadixEngineToolkit {
     ///
     /// # Returns
     ///
-    /// - `Memory`: A memory object of instance's linear memory.
+    /// - [Memory]: A memory object of instance's linear memory.
     fn get_memory(&mut self) -> Memory {
         self.instance
             .get_memory(&mut self.store, "memory")
@@ -444,8 +448,8 @@ define_function_store! {
         pub derive_non_fungible_address_from_public_key: TypedFunc<i32, i32>,
         pub derive_non_fungible_address: TypedFunc<i32, i32>,
 
-        pub __transaction_lib_alloc: TypedFunc<i32, i32>,
-        pub __transaction_lib_free: TypedFunc<i32, ()>
+        pub toolkit_alloc: TypedFunc<i32, i32>,
+        pub toolkit_free_c_string: TypedFunc<i32, ()>
     }
 }
 
@@ -455,7 +459,7 @@ define_function_store! {
 
 /// An enum representing errors encountered by the [RadixEngineToolkit] wrapper.
 #[derive(Debug)]
-enum WrapperError {
+pub enum WrapperError {
     /// An error emitted when a file could not be found.
     FileNotFoundError(PathBuf),
 
@@ -551,7 +555,6 @@ macro_rules! define_request_function {
 #[cfg(test)]
 mod tests {
     use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
-
     use crate::{RadixEngineToolkit, Result};
 
     #[test]
