@@ -199,7 +199,8 @@ impl RadixEngineToolkit {
         // The response is either of type `D` or of type `Error`. So, we attempt to decode it as
         // both
         let response_string: String = self.read_string(response_memory_offset)?;
-        let response: Result<D> = if let Ok(response) = Self::deserialize::<D, _>(&response_string) {
+        let response: Result<D> = if let Ok(response) = Self::deserialize::<D, _>(&response_string)
+        {
             Ok(response)
         } else if let Ok(response) = Self::deserialize::<Error, _>(&response_string) {
             Err(WrapperError::LibraryError(response))
@@ -551,7 +552,7 @@ macro_rules! define_request_function {
 mod tests {
     use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
 
-    use crate::{Result, RadixEngineToolkit};
+    use crate::{RadixEngineToolkit, Result};
 
     #[test]
     pub fn test_information_request_succeeds() {
