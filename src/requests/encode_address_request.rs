@@ -48,8 +48,8 @@ impl<'r> Request<'r, EncodeAddressResponse> for EncodeAddressRequest {
     fn handle_request(self) -> Result<EncodeAddressResponse, Error> {
         let address: &[u8] = &self.address_bytes;
         let address: Address = Address::from_u8_array(address, self.network_id)?;
-        let response: EncodeAddressResponse = EncodeAddressResponse { address };
-        Ok(response)
+
+        Ok(EncodeAddressResponse { address })
     }
 }
 

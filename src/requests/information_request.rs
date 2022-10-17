@@ -42,10 +42,9 @@ impl Validate for InformationResponse {
 
 impl<'r> Request<'r, InformationResponse> for InformationRequest {
     fn handle_request(self) -> Result<InformationResponse, Error> {
-        let response: InformationResponse = InformationResponse {
+        Ok(InformationResponse {
             package_version: env!("CARGO_PKG_VERSION").into(),
-        };
-        Ok(response)
+        })
     }
 }
 

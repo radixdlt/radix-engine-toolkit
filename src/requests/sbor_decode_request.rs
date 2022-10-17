@@ -45,10 +45,9 @@ impl Validate for SBORDecodeResponse {
 
 impl<'r> Request<'r, SBORDecodeResponse> for SBORDecodeRequest {
     fn handle_request(self) -> Result<SBORDecodeResponse, Error> {
-        let response: SBORDecodeResponse = SBORDecodeResponse {
+        Ok(SBORDecodeResponse {
             value: Value::decode(&self.encoded_value, self.network_id)?,
-        };
-        Ok(response)
+        })
     }
 }
 

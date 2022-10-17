@@ -49,10 +49,10 @@ impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddr
     fn handle_request(self) -> Result<DeriveNonFungibleAddressResponse, Error> {
         let non_fungible_address: NonFungibleAddress =
             NonFungibleAddress::new(self.resource_address.address, self.non_fungible_id);
-        let response: DeriveNonFungibleAddressResponse = DeriveNonFungibleAddressResponse {
+
+        Ok(DeriveNonFungibleAddressResponse {
             non_fungible_address,
-        };
-        Ok(response)
+        })
     }
 }
 
