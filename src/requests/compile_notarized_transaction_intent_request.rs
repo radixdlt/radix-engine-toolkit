@@ -5,7 +5,6 @@ use crate::error::Error;
 use crate::export_request;
 use crate::models::NotarizedTransaction;
 use crate::traits::{CompilableIntent, Request, Validate};
-use crate::validation::validate_notarized_transaction;
 
 // ==========================
 // Request & Response Models
@@ -30,7 +29,7 @@ pub struct CompileNotarizedTransactionIntentResponse {
 
 impl Validate for CompileNotarizedTransactionIntentRequest {
     fn validate(&self) -> Result<(), Error> {
-        validate_notarized_transaction(&self.notarized_transaction)?;
+        self.notarized_transaction.validate()?;
         Ok(())
     }
 }

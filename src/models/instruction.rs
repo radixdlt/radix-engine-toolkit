@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::value::*;
+use crate::traits::ValidateWithContext;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -111,8 +112,12 @@ pub enum Instruction {
     },
 }
 
-impl Instruction {
-    pub fn validate_instruction_argument_kind(&self) -> Result<(), Error> {
+// ===========
+// Validation
+// ===========
+
+impl ValidateWithContext<u8> for Instruction {
+    fn validate(&self, network_id: u8) -> Result<(), Error> {
         match self {
             Self::CallFunction {
                 package_address,
@@ -120,14 +125,14 @@ impl Instruction {
                 function_name,
                 arguments,
             } => {
-                package_address.validate_kind(ValueKind::PackageAddress)?;
-                blueprint_name.validate_kind(ValueKind::String)?;
-                function_name.validate_kind(ValueKind::String)?;
+                package_address.validate((network_id, Some(ValueKind::PackageAddress)))?;
+                blueprint_name.validate((network_id, Some(ValueKind::String)))?;
+                function_name.validate((network_id, Some(ValueKind::String)))?;
                 arguments
                     .clone()
                     .unwrap_or_default()
                     .iter()
-                    .map(|arg| arg.validate_if_collection())
+                    .map(|arg| arg.validate((network_id, None)))
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
@@ -136,13 +141,13 @@ impl Instruction {
                 method_name,
                 arguments,
             } => {
-                component_address.validate_kind(ValueKind::ComponentAddress)?;
-                method_name.validate_kind(ValueKind::String)?;
+                component_address.validate((network_id, Some(ValueKind::ComponentAddress)))?;
+                method_name.validate((network_id, Some(ValueKind::String)))?;
                 arguments
                     .clone()
                     .unwrap_or_default()
                     .iter()
-                    .map(|arg| arg.validate_if_collection())
+                    .map(|arg| arg.validate((network_id, None)))
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
@@ -151,8 +156,8 @@ impl Instruction {
                 resource_address,
                 into_bucket,
             } => {
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_bucket.validate_kind(ValueKind::Bucket)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
                 Ok(())
             }
             Self::TakeFromWorktopByAmount {
@@ -160,9 +165,9 @@ impl Instruction {
                 resource_address,
                 into_bucket,
             } => {
-                amount.validate_kind(ValueKind::Decimal)?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_bucket.validate_kind(ValueKind::Bucket)?;
+                amount.validate((network_id, Some(ValueKind::Decimal)))?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
                 Ok(())
             }
             Self::TakeFromWorktopByIds {
@@ -171,27 +176,27 @@ impl Instruction {
                 into_bucket,
             } => {
                 ids.iter()
-                    .map(|id| id.validate_kind(ValueKind::NonFungibleId))
+                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
                     .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_bucket.validate_kind(ValueKind::Bucket)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
                 Ok(())
             }
             Self::ReturnToWorktop { bucket } => {
-                bucket.validate_kind(ValueKind::Bucket)?;
+                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
                 Ok(())
             }
 
             Self::AssertWorktopContains { resource_address } => {
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
                 Ok(())
             }
             Self::AssertWorktopContainsByAmount {
                 amount,
                 resource_address,
             } => {
-                amount.validate_kind(ValueKind::Decimal)?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
+                amount.validate((network_id, Some(ValueKind::Decimal)))?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
                 Ok(())
             }
             Self::AssertWorktopContainsByIds {
@@ -199,18 +204,18 @@ impl Instruction {
                 resource_address,
             } => {
                 ids.iter()
-                    .map(|id| id.validate_kind(ValueKind::NonFungibleId))
+                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
                     .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
                 Ok(())
             }
 
             Self::PopFromAuthZone { into_proof } => {
-                into_proof.validate_kind(ValueKind::Proof)?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::PushToAuthZone { proof } => {
-                proof.validate_kind(ValueKind::Proof)?;
+                proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::ClearAuthZone => Ok(()),
@@ -219,8 +224,8 @@ impl Instruction {
                 resource_address,
                 into_proof,
             } => {
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_proof.validate_kind(ValueKind::Proof)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::CreateProofFromAuthZoneByAmount {
@@ -228,9 +233,9 @@ impl Instruction {
                 resource_address,
                 into_proof,
             } => {
-                amount.validate_kind(ValueKind::Decimal)?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_proof.validate_kind(ValueKind::Proof)?;
+                amount.validate((network_id, Some(ValueKind::Decimal)))?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::CreateProofFromAuthZoneByIds {
@@ -239,33 +244,33 @@ impl Instruction {
                 into_proof,
             } => {
                 ids.iter()
-                    .map(|id| id.validate_kind(ValueKind::NonFungibleId))
+                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
                     .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate_kind(ValueKind::ResourceAddress)?;
-                into_proof.validate_kind(ValueKind::Proof)?;
+                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
 
             Self::CreateProofFromBucket { bucket, into_proof } => {
-                bucket.validate_kind(ValueKind::Bucket)?;
-                into_proof.validate_kind(ValueKind::Proof)?;
+                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
 
             Self::CloneProof { proof, into_proof } => {
-                proof.validate_kind(ValueKind::Proof)?;
-                into_proof.validate_kind(ValueKind::Proof)?;
+                proof.validate((network_id, Some(ValueKind::Proof)))?;
+                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::DropProof { proof } => {
-                proof.validate_kind(ValueKind::Proof)?;
+                proof.validate((network_id, Some(ValueKind::Proof)))?;
                 Ok(())
             }
             Self::DropAllProofs => Ok(()),
 
             Self::PublishPackage { code, abi } => {
-                code.validate_kind(ValueKind::Blob)?;
-                abi.validate_kind(ValueKind::Blob)?;
+                code.validate((network_id, Some(ValueKind::Blob)))?;
+                abi.validate((network_id, Some(ValueKind::Blob)))?;
                 Ok(())
             }
 
@@ -274,134 +279,13 @@ impl Instruction {
                 Ok(())
             }
             Self::BurnBucket { bucket } => {
-                bucket.validate_kind(ValueKind::Bucket)?;
+                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
                 Ok(())
             }
             Self::CreateResource { .. } => {
                 // TODO: Add validation for this instruction
                 Ok(())
             }
-        }
-    }
-
-    pub fn validate_instruction_argument_network(
-        &self,
-        expected_network_id: u8,
-    ) -> Result<(), Error> {
-        match self {
-            Self::CallFunction {
-                package_address,
-                arguments,
-                ..
-            } => {
-                package_address.validate_address_network_id(expected_network_id)?;
-                match arguments {
-                    Some(arguments) => {
-                        arguments
-                            .iter()
-                            .map(|x| x.validate_address_network_id(expected_network_id))
-                            .collect::<Result<Vec<_>, _>>()?;
-                    }
-                    None => {}
-                }
-                Ok(())
-            }
-            Self::CallMethod {
-                component_address,
-                arguments,
-                ..
-            } => {
-                component_address.validate_address_network_id(expected_network_id)?;
-                match arguments {
-                    Some(arguments) => {
-                        arguments
-                            .iter()
-                            .map(|x| x.validate_address_network_id(expected_network_id))
-                            .collect::<Result<Vec<_>, _>>()?;
-                    }
-                    None => {}
-                }
-                Ok(())
-            }
-
-            Self::TakeFromWorktop {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::TakeFromWorktopByAmount {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::TakeFromWorktopByIds {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::ReturnToWorktop { .. } => Ok(()),
-
-            Self::AssertWorktopContains {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::AssertWorktopContainsByAmount {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::AssertWorktopContainsByIds {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-
-            Self::PopFromAuthZone { .. } => Ok(()),
-            Self::PushToAuthZone { .. } => Ok(()),
-            Self::ClearAuthZone => Ok(()),
-
-            Self::CreateProofFromAuthZone {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::CreateProofFromAuthZoneByAmount {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::CreateProofFromAuthZoneByIds {
-                resource_address, ..
-            } => {
-                resource_address.validate_address_network_id(expected_network_id)?;
-                Ok(())
-            }
-            Self::CreateProofFromBucket { .. } => Ok(()),
-
-            Self::CloneProof { .. } => Ok(()),
-            Self::DropProof { .. } => Ok(()),
-            Self::DropAllProofs => Ok(()),
-
-            Self::PublishPackage { .. } => Ok(()),
-
-            Self::CreateResource { .. } => {
-                // TODO: Add validation
-                Ok(())
-            }
-            Self::MintFungible { .. } => {
-                // TODO: Add validation
-                Ok(())
-            }
-            Self::BurnBucket { .. } => Ok(()),
         }
     }
 }

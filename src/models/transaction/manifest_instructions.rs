@@ -36,13 +36,20 @@ pub enum ManifestInstructions {
 // ======================
 
 impl ManifestInstructions {
+    pub fn instructions(&self, bech32_manager: &Bech32Manager) -> Result<Vec<Instruction>, Error> {
+        self.ast_instructions(bech32_manager)?
+            .iter()
+            .map(|instruction| instruction_from_ast_instruction(instruction, bech32_manager))
+            .collect::<Result<Vec<_>, _>>()
+    }
+
     pub fn ast_instructions(
         &self,
         bech32_manager: &Bech32Manager,
     ) -> Result<Vec<AstInstruction>, Error> {
         match self {
             Self::String(string) => {
-                let tokens = radix_transaction::manifest::lexer::tokenize(&string)
+                let tokens = radix_transaction::manifest::lexer::tokenize(string)
                     .map_err(radix_transaction::manifest::CompileError::LexerError)?;
 
                 let instructions: Vec<AstInstruction> =
@@ -88,7 +95,7 @@ impl ManifestInstructions {
     ) -> Result<Self, Error> {
         match self {
             Self::String(_) => Ok(self.clone()),
-            Self::JSON(instructions) => {
+            Self::JSON(_) => {
                 // The only way to convert a vector of instructions to the string instructions
                 // understood by the radix transaction manifest compiler is by going through a
                 // series of steps:
@@ -143,13 +150,10 @@ impl ManifestInstructions {
     pub fn convert_to_json(
         &self,
         bech32_manager: &Bech32Manager,
-        // TODO: This is a work around for a larger problem. Should definitely be removed in the
-        // future. The problem is described in the long comment below.
-        blobs: Vec<Vec<u8>>,
     ) -> Result<Self, Error> {
         match self {
             Self::JSON(_) => Ok(self.clone()),
-            Self::String(string) => {
+            Self::String(_) => {
                 // This function takes advantage of Scrypto's transaction manifest compiler and uses
                 // it to parse the transaction manifest instructions into Vec<AstInstruction> and
                 // then convert that into the native Instruction type used in this code.
@@ -184,7 +188,7 @@ impl ManifestInstructions {
     ) -> Result<Self, Error> {
         match manifest_instructions_kind {
             ManifestInstructionsKind::String => self.convert_to_string(bech32_manager, blobs),
-            ManifestInstructionsKind::JSON => self.convert_to_json(bech32_manager, blobs),
+            ManifestInstructionsKind::JSON => self.convert_to_json(bech32_manager),
         }
     }
 }

@@ -7,6 +7,10 @@ pub trait Validate {
     fn validate(&self) -> Result<(), Error>;
 }
 
+pub trait ValidateWithContext<T> {
+    fn validate(&self, context: T) -> Result<(), Error>;
+}
+
 /// A trait that defines the common interface for a request and response.
 pub trait Request<'a, Response>
 where

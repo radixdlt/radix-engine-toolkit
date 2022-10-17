@@ -1,7 +1,12 @@
 use radix_transaction::model::TransactionHeader as NativeTransactionHeader;
+use radix_transaction::validation::NotarizedTransactionValidator;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
+
+use crate::models::{TransactionIntent, TransactionManifest};
+use crate::traits::Validate;
+use crate::utils::validation_config_from_header;
 
 // =================
 // Model Definition
@@ -61,5 +66,29 @@ impl From<TransactionHeader> for NativeTransactionHeader {
             cost_unit_limit: header.cost_unit_limit,
             tip_percentage: header.tip_percentage,
         }
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl Validate for TransactionHeader {
+    fn validate(&self) -> Result<(), crate::error::Error> {
+        NotarizedTransactionValidator::new(validation_config_from_header(self))
+            .validate_header(
+                &TransactionIntent {
+                    header: self.clone(),
+                    manifest: TransactionManifest {
+                        instructions: crate::models::ManifestInstructions::JSON(Vec::new()),
+                        blobs: Vec::new(),
+                    },
+                }
+                .try_into()?,
+            )
+            .map_err(
+                radix_transaction::errors::TransactionValidationError::HeaderValidationError,
+            )?;
+        Ok(())
     }
 }

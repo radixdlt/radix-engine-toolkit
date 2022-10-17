@@ -1,4 +1,5 @@
 use radix_transaction::model::TransactionIntent as NativeTransactionIntent;
+use radix_transaction::validation::{NotarizedTransactionValidator, TestIntentHashManager};
 use scrypto::buffer::{scrypto_decode, scrypto_encode};
 
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,8 @@ use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::transaction::{TransactionHeader, TransactionManifest};
 use crate::models::ManifestInstructionsKind;
-use crate::traits::{CompilableIntent, TryIntoWithContext};
+use crate::traits::{CompilableIntent, TryIntoWithContext, Validate, ValidateWithContext};
+use crate::utils::validation_config_from_header;
 
 // =================
 // Model Definition
@@ -79,9 +81,24 @@ impl CompilableIntent for TransactionIntent {
     {
         // Decompile to a native transaction intent
         let data: &[u8] = data.as_ref();
-        let transaction_intent: NativeTransactionIntent = scrypto_decode(&data)?;
+        let transaction_intent: NativeTransactionIntent = scrypto_decode(data)?;
 
         // Convert to this type
         transaction_intent.try_into_with_context(output_manifest_format)
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl Validate for TransactionIntent {
+    fn validate(&self) -> Result<(), Error> {
+        self.header.validate()?;
+        self.manifest.validate(self.header.network_id)?;
+        NotarizedTransactionValidator::new(validation_config_from_header(&self.header))
+            .validate_intent(&self.clone().try_into()?, &TestIntentHashManager::new())?;
+
+        Ok(())
     }
 }

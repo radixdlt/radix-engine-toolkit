@@ -10,8 +10,7 @@ use crate::error::Error;
 use crate::export_request;
 use crate::models::manifest_instructions::ManifestInstructionsKind;
 use crate::models::TransactionManifest;
-use crate::traits::{Request, Validate};
-use crate::validation::{validate_manifest, validate_transaction_version};
+use crate::traits::{Request, Validate, ValidateWithContext};
 
 // ==========================
 // Request & Response Models
@@ -48,8 +47,7 @@ pub struct ConvertManifestResponse {
 
 impl Validate for ConvertManifestRequest {
     fn validate(&self) -> Result<(), Error> {
-        validate_transaction_version(self.transaction_version)?;
-        validate_manifest(&self.manifest, self.network_id)?;
+        self.manifest.validate(self.network_id)?;
         Ok(())
     }
 }

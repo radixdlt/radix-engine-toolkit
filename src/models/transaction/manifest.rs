@@ -1,4 +1,5 @@
 use radix_transaction::manifest::decompile;
+use radix_transaction::manifest::generator::generate_manifest;
 use radix_transaction::model::TransactionManifest as NativeTransactionManifest;
 
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,7 @@ use serde_with::serde_as;
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::{ManifestInstructions, ManifestInstructionsKind};
-use crate::traits::TryIntoWithContext;
+use crate::traits::{TryIntoWithContext, ValidateWithContext};
 
 // =================
 // Model Definition
@@ -41,7 +42,7 @@ where
         let transaction_manifest: NativeTransactionManifest = NativeTransactionManifest {
             instructions: self
                 .instructions
-                .transaction_instructions(&bech32_manager, self.blobs.clone())?,
+                .transaction_instructions(bech32_manager, self.blobs.clone())?,
             blobs: self.blobs,
         };
         Ok(transaction_manifest)
@@ -57,10 +58,9 @@ where
 
     fn try_into_with_context(
         self,
-        context: (ManifestInstructionsKind, T),
+        (manifest_instruction_kind, bech32_manager): (ManifestInstructionsKind, T),
     ) -> Result<TransactionManifest, Self::Error> {
-        let manifest_instruction_kind: ManifestInstructionsKind = context.0;
-        let bech32_manager: &Bech32Manager = context.1.as_ref();
+        let bech32_manager: &Bech32Manager = bech32_manager.as_ref();
 
         // Converting a TransactionInstruction to a string is rather easy to do, so we will convert
         // them into a String, and then we will convert the entire manifest instructions into the
@@ -84,5 +84,30 @@ where
             blobs: self.blobs,
         };
         Ok(transaction_manifest)
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl ValidateWithContext<u8> for TransactionManifest {
+    fn validate(&self, network_id: u8) -> Result<(), Error> {
+        let bech32_manager: Bech32Manager = Bech32Manager::new(network_id);
+
+        self.instructions
+            .instructions(&bech32_manager)?
+            .iter()
+            .map(|instruction| instruction.validate(network_id))
+            .collect::<Result<Vec<_>, _>>()?;
+        generate_manifest(
+            &self.instructions.ast_instructions(&bech32_manager)?,
+            &bech32_manager.decoder,
+            self.blobs
+                .iter()
+                .map(|x| (radix_engine::types::hash(x), x.clone()))
+                .collect(),
+        )?;
+        Ok(())
     }
 }

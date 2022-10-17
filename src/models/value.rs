@@ -31,6 +31,7 @@ use serde_with::{serde_as, DisplayFromStr, FromInto};
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::serde::*;
+use crate::traits::ValidateWithContext;
 
 // ======
 // Value
@@ -271,7 +272,32 @@ impl Value {
         }
     }
 
-    pub fn validate_kind(&self, expected_kind: ValueKind) -> Result<(), Error> {
+    pub fn encode(&self) -> Result<Vec<u8>, Error> {
+        Ok(encode_any(&sbor_value_from_value(self)?))
+    }
+
+    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
+        value_from_sbor_value(&decode_any(bytes)?, network_id)
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
+    fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
+        self.validate_if_collection()?;
+        self.validate_address_network_id(network_id)?;
+        if let Some(expected_kind) = expected_kind {
+            self.validate_kind(expected_kind)?;
+        };
+        Ok(())
+    }
+}
+
+impl Value {
+    fn validate_kind(&self, expected_kind: ValueKind) -> Result<(), Error> {
         if self.kind() == expected_kind {
             Ok(())
         } else {
@@ -282,7 +308,7 @@ impl Value {
         }
     }
 
-    pub fn validate_if_collection(&self) -> Result<(), Error> {
+    fn validate_if_collection(&self) -> Result<(), Error> {
         match self {
             Self::Array {
                 element_type,
@@ -342,7 +368,7 @@ impl Value {
         }
     }
 
-    pub fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
+    fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
         let network_id: u8 = match self {
             Self::Component { address } => address.network_id,
             Self::ComponentAddress { address } => address.network_id,
@@ -358,14 +384,6 @@ impl Value {
                 found: network_id,
             })
         }
-    }
-
-    pub fn encode(&self) -> Result<Vec<u8>, Error> {
-        Ok(encode_any(&sbor_value_from_value(self)?))
-    }
-
-    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
-        value_from_sbor_value(&decode_any(bytes)?, network_id)
     }
 }
 

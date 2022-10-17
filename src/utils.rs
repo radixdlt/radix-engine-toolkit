@@ -1,5 +1,9 @@
 use bech32;
+use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
+use radix_transaction::validation::ValidationConfig;
 use scrypto::prelude::NetworkDefinition;
+
+use crate::models::TransactionHeader;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented with reference to
 /// https://github.com/radixdlt/babylon-node/blob/51e4fb9dbb999b8e02aa6cce07162aef2affd6a7/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
@@ -96,6 +100,15 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::addr
     let (hrp, _, _): (String, _, _) =
         bech32::decode(address).map_err(scrypto::address::AddressError::DecodingError)?;
     network_id_from_hrp(&hrp)
+}
+
+pub fn validation_config_from_header(transaction_header: &TransactionHeader) -> ValidationConfig {
+    ValidationConfig {
+        network_id: transaction_header.network_id,
+        current_epoch: transaction_header.end_epoch_exclusive - 1,
+        max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
+        min_tip_percentage: 0,
+    }
 }
 
 #[cfg(test)]

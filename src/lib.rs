@@ -6,4 +6,3 @@ pub mod models;
 pub mod requests;
 pub mod traits;
 pub mod utils;
-pub mod validation;

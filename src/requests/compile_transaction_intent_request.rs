@@ -5,7 +5,6 @@ use crate::error::Error;
 use crate::export_request;
 use crate::models::TransactionIntent;
 use crate::traits::{CompilableIntent, Request, Validate};
-use crate::validation::validate_transaction_intent;
 
 // ==========================
 // Request & Response Models
@@ -30,7 +29,7 @@ pub struct CompileTransactionIntentResponse {
 
 impl Validate for CompileTransactionIntentRequest {
     fn validate(&self) -> Result<(), Error> {
-        validate_transaction_intent(&self.transaction_intent)?;
+        self.transaction_intent.validate()?;
         Ok(())
     }
 }

@@ -35,6 +35,6 @@ impl Bech32Manager {
 
 impl AsRef<Bech32Manager> for Bech32Manager {
     fn as_ref(&self) -> &Bech32Manager {
-        &self
+        self
     }
 }
