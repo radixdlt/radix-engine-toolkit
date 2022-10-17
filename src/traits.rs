@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::{error::Error, models::ManifestInstructionsKind};
 use serde::{Deserialize, Serialize};
 
 /// A trait that defines the common interface for a type which can be validated. This validation
@@ -45,4 +45,16 @@ pub trait TryIntoWithContext<T, C> {
     type Error;
 
     fn try_into_with_context(self, context: C) -> Result<T, Self::Error>;
+}
+
+pub trait CompilableIntent {
+    fn compile(&self) -> Result<Vec<u8>, Error>;
+
+    fn decompile<T>(
+        data: &T,
+        output_manifest_format: ManifestInstructionsKind,
+    ) -> Result<Self, Error>
+    where
+        Self: Sized,
+        T: AsRef<[u8]>;
 }

@@ -1,13 +1,12 @@
+use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
+
 use crate::error::Error;
 use crate::export_request;
 use crate::models::manifest_instructions::ManifestInstructionsKind;
-use crate::models::serde::TransactionIntent;
-use crate::traits::{Request, Validate};
+use crate::models::TransactionIntent;
+use crate::traits::{CompilableIntent, Request, Validate};
 use crate::validation::validate_transaction_intent;
-use scrypto::prelude::scrypto_decode;
-use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
-use std::convert::TryInto;
 
 // ==========================
 // Request & Response Models
@@ -54,16 +53,12 @@ impl Validate for DecompileTransactionIntentResponse {
 
 impl<'r> Request<'r, DecompileTransactionIntentResponse> for DecompileTransactionIntentRequest {
     fn handle_request(self) -> Result<DecompileTransactionIntentResponse, Error> {
-        let transaction_intent: TransactionIntent =
-            scrypto_decode::<radix_transaction::model::TransactionIntent>(&self.compiled_intent)?
-                .try_into()?;
-        let transaction_intent: TransactionIntent = transaction_intent
-            .convert_manifest_instructions_kind(self.manifest_instructions_output_format)?;
+        let transaction_intent: TransactionIntent = TransactionIntent::decompile(
+            &self.compiled_intent,
+            self.manifest_instructions_output_format,
+        )?;
 
-        let response: DecompileTransactionIntentResponse =
-            DecompileTransactionIntentResponse { transaction_intent };
-
-        Ok(response)
+        Ok(DecompileTransactionIntentResponse { transaction_intent })
     }
 }
 
