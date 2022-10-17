@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::export_request;
-use crate::models::manifest::ManifestInstructionsKind;
+use crate::models::manifest_instructions::ManifestInstructionsKind;
 use crate::models::serde::NotarizedTransaction;
 use crate::traits::{Request, Validate};
 use crate::validation::validate_notarized_transaction;
@@ -53,7 +53,7 @@ impl<'r> Request<'r, DecompileNotarizedTransactionIntentResponse>
 {
     fn handle_request(self) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
         let notarized_transaction: NotarizedTransaction =
-            scrypto_decode::<transaction::model::NotarizedTransaction>(
+            scrypto_decode::<radix_transaction::model::NotarizedTransaction>(
                 &self.compiled_notarized_intent,
             )?
             .try_into()?;

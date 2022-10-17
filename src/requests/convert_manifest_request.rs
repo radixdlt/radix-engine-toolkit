@@ -6,7 +6,7 @@
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::export_request;
-use crate::models::manifest::{ManifestInstructions, ManifestInstructionsKind};
+use crate::models::manifest_instructions::{ManifestInstructions, ManifestInstructionsKind};
 use crate::models::serde::TransactionManifest;
 use crate::traits::{Request, Validate};
 use crate::validation::{validate_manifest, validate_transaction_version};

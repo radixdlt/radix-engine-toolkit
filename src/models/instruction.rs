@@ -1,7 +1,7 @@
+use radix_transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
-use transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;

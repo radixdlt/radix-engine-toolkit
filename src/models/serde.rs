@@ -10,7 +10,7 @@ use scrypto::prelude::{Hash, Signature, SignatureWithPublicKey};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::manifest::ManifestInstructions;
+use crate::models::manifest_instructions::ManifestInstructions;
 
 use super::ManifestInstructionsKind;
 
@@ -30,7 +30,7 @@ impl TransactionManifest {
     pub fn to_scrypto_transaction_manifest(
         &self,
         bech32_manager: &Bech32Manager,
-    ) -> Result<transaction::model::TransactionManifest, Error> {
+    ) -> Result<radix_transaction::model::TransactionManifest, Error> {
         self.instructions
             .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())
     }
@@ -198,7 +198,7 @@ define_network_aware_address!(
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TransactionIntent {
-    pub header: transaction::model::TransactionHeader,
+    pub header: radix_transaction::model::TransactionHeader,
     pub manifest: TransactionManifest,
 }
 
@@ -222,13 +222,13 @@ impl TransactionIntent {
     }
 }
 
-impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
+impl TryInto<radix_transaction::model::TransactionIntent> for TransactionIntent {
     type Error = Error;
 
-    fn try_into(self) -> Result<transaction::model::TransactionIntent, Self::Error> {
+    fn try_into(self) -> Result<radix_transaction::model::TransactionIntent, Self::Error> {
         let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
 
-        Ok(transaction::model::TransactionIntent {
+        Ok(radix_transaction::model::TransactionIntent {
             header: self.header,
             manifest: self
                 .manifest
@@ -237,7 +237,7 @@ impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
     }
 }
 
-impl TryInto<TransactionIntent> for transaction::model::TransactionIntent {
+impl TryInto<TransactionIntent> for radix_transaction::model::TransactionIntent {
     type Error = Error;
 
     fn try_into(self) -> Result<TransactionIntent, Self::Error> {
@@ -277,18 +277,18 @@ impl SignedTransactionIntent {
     }
 }
 
-impl TryInto<transaction::model::SignedTransactionIntent> for SignedTransactionIntent {
+impl TryInto<radix_transaction::model::SignedTransactionIntent> for SignedTransactionIntent {
     type Error = Error;
 
-    fn try_into(self) -> Result<transaction::model::SignedTransactionIntent, Self::Error> {
-        Ok(transaction::model::SignedTransactionIntent {
+    fn try_into(self) -> Result<radix_transaction::model::SignedTransactionIntent, Self::Error> {
+        Ok(radix_transaction::model::SignedTransactionIntent {
             intent: self.transaction_intent.try_into()?,
             intent_signatures: self.signatures,
         })
     }
 }
 
-impl TryInto<SignedTransactionIntent> for transaction::model::SignedTransactionIntent {
+impl TryInto<SignedTransactionIntent> for radix_transaction::model::SignedTransactionIntent {
     type Error = Error;
 
     fn try_into(self) -> Result<SignedTransactionIntent, Self::Error> {
@@ -317,18 +317,18 @@ impl NotarizedTransaction {
     }
 }
 
-impl TryInto<transaction::model::NotarizedTransaction> for NotarizedTransaction {
+impl TryInto<radix_transaction::model::NotarizedTransaction> for NotarizedTransaction {
     type Error = Error;
 
-    fn try_into(self) -> Result<transaction::model::NotarizedTransaction, Self::Error> {
-        Ok(transaction::model::NotarizedTransaction {
+    fn try_into(self) -> Result<radix_transaction::model::NotarizedTransaction, Self::Error> {
+        Ok(radix_transaction::model::NotarizedTransaction {
             signed_intent: self.signed_intent.try_into()?,
             notary_signature: self.notary_signature,
         })
     }
 }
 
-impl TryInto<NotarizedTransaction> for transaction::model::NotarizedTransaction {
+impl TryInto<NotarizedTransaction> for radix_transaction::model::NotarizedTransaction {
     type Error = Error;
 
     fn try_into(self) -> Result<NotarizedTransaction, Self::Error> {

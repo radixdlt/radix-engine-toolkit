@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::export_request;
-use crate::models::manifest::ManifestInstructionsKind;
+use crate::models::manifest_instructions::ManifestInstructionsKind;
 use crate::models::serde::TransactionIntent;
 use crate::traits::{Request, Validate};
 use crate::validation::validate_transaction_intent;
@@ -55,7 +55,7 @@ impl Validate for DecompileTransactionIntentResponse {
 impl<'r> Request<'r, DecompileTransactionIntentResponse> for DecompileTransactionIntentRequest {
     fn handle_request(self) -> Result<DecompileTransactionIntentResponse, Error> {
         let transaction_intent: TransactionIntent =
-            scrypto_decode::<transaction::model::TransactionIntent>(&self.compiled_intent)?
+            scrypto_decode::<radix_transaction::model::TransactionIntent>(&self.compiled_intent)?
                 .try_into()?;
         let transaction_intent: TransactionIntent = transaction_intent
             .convert_manifest_instructions_kind(self.manifest_instructions_output_format)?;

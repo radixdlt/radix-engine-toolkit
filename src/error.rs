@@ -52,9 +52,9 @@ pub enum Error {
     // ========================
     // Value Conversion Errors
     // ========================
-    /// An error emitted during the conversion from transaction::ast::Value => crate::Value. This
+    /// An error emitted during the conversion from radix_transaction::ast::Value => crate::Value. This
     /// error typically means that the contents of some value were unexpected. An example of this is
-    /// a package address being found inside of a [`transaction::manifest::ast::Value::Decimal`].
+    /// a package address being found inside of a [`radix_transaction::manifest::ast::Value::Decimal`].
     UnexpectedContents {
         kind_being_parsed: ValueKind,
         allowed_children_kinds: Vec<ValueKind>,
@@ -157,11 +157,11 @@ impl_from_error! {
     serde_json::Error => DeserializationError,
     std::str::Utf8Error => InvalidRequestString,
 
-    transaction::manifest::CompileError => TransactionCompileError,
-    transaction::manifest::DecompileError => TransactionDecompileError,
-    transaction::manifest::generator::GeneratorError => GeneratorError,
-    transaction::errors::TransactionValidationError => TransactionValidationError,
-    transaction::errors::SignatureValidationError => TransactionValidationError,
+    radix_transaction::manifest::CompileError => TransactionCompileError,
+    radix_transaction::manifest::DecompileError => TransactionDecompileError,
+    radix_transaction::manifest::generator::GeneratorError => GeneratorError,
+    radix_transaction::errors::TransactionValidationError => TransactionValidationError,
+    radix_transaction::errors::SignatureValidationError => TransactionValidationError,
 
     radix_engine::model::ExtractAbiError => ExtractAbiError,
 }

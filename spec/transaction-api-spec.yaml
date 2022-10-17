@@ -1816,7 +1816,7 @@ components:
           type: string
     UnexpectedContents:
       type: object
-      description: An error emitted during the conversion from transaction::ast::Value => crate::Value. This error typically means that the contents of some value were unexpected. An example of this is a package address being found inside of a [`transaction::manifest::ast::Value::Decimal`].
+      description: An error emitted during the conversion from radix_transaction::ast::Value => crate::Value. This error typically means that the contents of some value were unexpected. An example of this is a package address being found inside of a [`radix_transaction::manifest::ast::Value::Decimal`].
       required:
         - error
         - kind_being_parsed

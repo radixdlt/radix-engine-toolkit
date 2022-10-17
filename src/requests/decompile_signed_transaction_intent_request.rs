@@ -1,6 +1,6 @@
 use crate::error::Error;
 use crate::export_request;
-use crate::models::manifest::ManifestInstructionsKind;
+use crate::models::manifest_instructions::ManifestInstructionsKind;
 use crate::models::serde::SignedTransactionIntent;
 use crate::traits::{Request, Validate};
 use crate::validation::validate_transaction_intent;
@@ -54,7 +54,7 @@ impl<'r> Request<'r, DecompileSignedTransactionIntentResponse>
 {
     fn handle_request(self) -> Result<DecompileSignedTransactionIntentResponse, Error> {
         let signed_transaction_intent: SignedTransactionIntent =
-            scrypto_decode::<transaction::model::SignedTransactionIntent>(
+            scrypto_decode::<radix_transaction::model::SignedTransactionIntent>(
                 &self.compiled_signed_intent,
             )?
             .try_into()?;

@@ -1,5 +1,5 @@
-//! This module defines the struct and implementation for a [`RadixEngineToolkit`] WASM wrapper that 
-//! uses the WasmTime runtime. This struct is mainly defined for the purpose of testing out the 
+//! This module defines the struct and implementation for a [`RadixEngineToolkit`] WASM wrapper that
+//! uses the WasmTime runtime. This struct is mainly defined for the purpose of testing out the
 //! behavior of the Radix Engine Toolkit when it is running through a WASM host.
 
 use serde::de::DeserializeOwned;
@@ -110,14 +110,14 @@ impl RadixEngineToolkit {
     ///
     /// # Returns
     ///
-    /// - [`Result<Self, WrapperError>`]: A new object of [RadixEngineToolkit] is returned, or a 
+    /// - [`Result<Self, WrapperError>`]: A new object of [RadixEngineToolkit] is returned, or a
     /// [`WrapperError`]
     pub fn new_compile_from_source() -> Result<Self> {
         // The path to the directory containing the Cargo.toml manifest file
         let manifest_directory: PathBuf =
             std::env::current_dir().expect("Failed to get the path of the current directory");
 
-        // Build the Radix Engine Toolkit from source - Build a wasm32-unknown-unknown binary for 
+        // Build the Radix Engine Toolkit from source - Build a wasm32-unknown-unknown binary for
         // release.
         let status: std::process::ExitStatus = std::process::Command::new("cargo")
             .current_dir(&manifest_directory)
@@ -261,7 +261,7 @@ impl RadixEngineToolkit {
     ///
     /// # Arguments
     ///
-    /// - `object` [`Serialize`] - A generic object of any type that implements the [Serialize] 
+    /// - `object` [`Serialize`] - A generic object of any type that implements the [Serialize]
     /// trait.
     ///
     /// # Returns
@@ -552,8 +552,8 @@ macro_rules! define_request_function {
 
 #[cfg(test)]
 mod tests {
-    use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
     use crate::{RadixEngineToolkit, Result};
+    use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
 
     #[test]
     pub fn test_information_request_succeeds() {

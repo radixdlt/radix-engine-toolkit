@@ -3,11 +3,11 @@
 use std::convert::TryInto;
 
 use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
-use scrypto::address::Bech32Decoder;
-use transaction::manifest::ast::Instruction as AstInstruction;
-use transaction::validation::{
+use radix_transaction::manifest::ast::Instruction as AstInstruction;
+use radix_transaction::validation::{
     NotarizedTransactionValidator, TransactionValidator, ValidationConfig,
 };
+use scrypto::address::Bech32Decoder;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -19,13 +19,13 @@ pub fn validate_transaction_version(transaction_version: u8) -> Result<(), Error
     // Validating the transaction version provided in the request to verify that it is a supported
     // transaction version
     match transaction_version {
-        transaction::model::TRANSACTION_VERSION_V1 => Ok(()),
+        radix_transaction::model::TRANSACTION_VERSION_V1 => Ok(()),
         i => Err(Error::UnsupportedTransactionVersion(i)),
     }
 }
 
 pub fn validate_manifest(manifest: &TransactionManifest, network_id: u8) -> Result<(), Error> {
-    // The `generate_instruction` from the transaction::generator performs validation and converts
+    // The `generate_instruction` from the radix_transaction::generator performs validation and converts
     // the instructions to a different format. In this case, the instruction conversion is not what
     // we are after, but the validation that it performs. If the conversion succeeds, then this
     // validation step is completed
@@ -34,7 +34,7 @@ pub fn validate_manifest(manifest: &TransactionManifest, network_id: u8) -> Resu
         .to_ast_instructions(&Bech32Manager::new(network_id))?;
     let bech32_decoder: Bech32Decoder =
         Bech32Decoder::new(&network_definition_from_network_id(network_id));
-    transaction::manifest::generator::generate_manifest(
+    radix_transaction::manifest::generator::generate_manifest(
         &ast_instructions,
         &bech32_decoder,
         manifest
@@ -67,13 +67,14 @@ pub fn validate_transaction_intent(intent: &TransactionIntent) -> Result<(), Err
     validate_manifest(&intent.manifest, network_id)?;
 
     let validation_config: ValidationConfig = new_validation_config(network_id, end_epoch);
-    let transaction_intent: transaction::model::TransactionIntent = intent.clone().try_into()?;
+    let transaction_intent: radix_transaction::model::TransactionIntent =
+        intent.clone().try_into()?;
 
     let transaction_validator = NotarizedTransactionValidator::new(validation_config);
 
     transaction_validator.validate_intent(
         &transaction_intent,
-        &transaction::validation::TestIntentHashManager::new(),
+        &radix_transaction::validation::TestIntentHashManager::new(),
     )?;
     Ok(())
 }
@@ -92,17 +93,17 @@ pub fn validate_notarized_transaction(
         .header
         .end_epoch_exclusive;
 
-    let transaction_intent: transaction::model::TransactionIntent = notarized_transaction
+    let transaction_intent: radix_transaction::model::TransactionIntent = notarized_transaction
         .signed_intent
         .transaction_intent
         .clone()
         .try_into()?;
-    let signed_intent = transaction::model::SignedTransactionIntent {
+    let signed_intent = radix_transaction::model::SignedTransactionIntent {
         intent: transaction_intent,
         intent_signatures: notarized_transaction.signed_intent.signatures.clone(),
     };
     validate_transaction_intent(&notarized_transaction.signed_intent.transaction_intent)?;
-    let notarized_transaction = transaction::model::NotarizedTransaction {
+    let notarized_transaction = radix_transaction::model::NotarizedTransaction {
         notary_signature: notarized_transaction.notary_signature,
         signed_intent,
     };
@@ -111,7 +112,7 @@ pub fn validate_notarized_transaction(
     let transaction_validator = NotarizedTransactionValidator::new(validation_config);
     transaction_validator.validate(
         notarized_transaction,
-        &transaction::validation::TestIntentHashManager::new(),
+        &radix_transaction::validation::TestIntentHashManager::new(),
     )?;
     Ok(())
 }

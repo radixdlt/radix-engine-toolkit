@@ -50,7 +50,7 @@ impl<'r> Request<'r, CompileNotarizedTransactionIntentResponse>
     for CompileNotarizedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-        let notarized_transaction: transaction::model::NotarizedTransaction =
+        let notarized_transaction: radix_transaction::model::NotarizedTransaction =
             self.notarized_transaction.try_into()?;
         let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
 

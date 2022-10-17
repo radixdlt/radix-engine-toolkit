@@ -50,7 +50,7 @@ impl<'r> Request<'r, CompileSignedTransactionIntentResponse>
     for CompileSignedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<CompileSignedTransactionIntentResponse, Error> {
-        let signed_transaction_intent: transaction::model::SignedTransactionIntent =
+        let signed_transaction_intent: radix_transaction::model::SignedTransactionIntent =
             self.signed_intent.try_into()?;
         let compiled_signed_intent: Vec<u8> = scrypto_encode(&signed_transaction_intent);
 

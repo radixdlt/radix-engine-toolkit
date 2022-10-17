@@ -48,7 +48,7 @@ impl Validate for CompileTransactionIntentResponse {
 
 impl<'r> Request<'r, CompileTransactionIntentResponse> for CompileTransactionIntentRequest {
     fn handle_request(self) -> Result<CompileTransactionIntentResponse, Error> {
-        let transaction_intent: transaction::model::TransactionIntent =
+        let transaction_intent: radix_transaction::model::TransactionIntent =
             self.transaction_intent.try_into()?;
         let compiled_intent: Vec<u8> = scrypto_encode(&transaction_intent);
 
