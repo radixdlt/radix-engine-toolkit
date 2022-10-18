@@ -296,6 +296,7 @@ impl ValidateWithContext<u8> for Instruction {
 
 // TODO: This function should be transaction version dependent and should require the transaction
 // version of its operations.
+// TODO: This could be a `TryIntoWithContext`.
 pub fn ast_instruction_from_instruction(
     instruction: &Instruction,
     bech32_manager: &Bech32Manager,
