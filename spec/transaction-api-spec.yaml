@@ -344,7 +344,7 @@ components:
         non_fungible_id:
           type: string
           description: "A hex-encoded string of the SBOR-encoded NonFungibleId bytes"
-    
+
     DeriveNonFungibleAddressResponse:
       type: object
       description: "A response to the `DeriveNonFungibleAddressRequest` containing the derived `NonFungibleAddress`"
@@ -355,7 +355,7 @@ components:
         non_fungible_address:
           type: string
           description: "A hex-encoded string of the `NonFungibleAddress`."
-    
+
     # Derive NonFungibleAddress from PublicKey request
     DeriveNonFungibleAddressFromPublicKeyRequest:
       type: object
@@ -366,7 +366,7 @@ components:
       properties:
         public_key:
           $ref: "#/components/schemas/PublicKey"
-    
+
     DeriveNonFungibleAddressFromPublicKeyResponse:
       type: object
       description: "A response to the `DeriveNonFungibleAddressFromPublicKeyRequest` containing the derived `NonFungibleAddress`"

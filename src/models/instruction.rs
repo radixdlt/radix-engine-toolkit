@@ -99,7 +99,10 @@ pub enum Instruction {
     },
 
     CreateResource {
-        args: Vec<Value>,
+        resource_type: Value,
+        metadata: Value,
+        access_rules: Value,
+        mint_params: Value,
     },
 
     BurnBucket {
@@ -470,11 +473,16 @@ pub fn ast_instruction_from_instruction(
         Instruction::BurnBucket { bucket } => AstInstruction::BurnBucket {
             bucket: ast_value_from_value(bucket, bech32_manager)?,
         },
-        Instruction::CreateResource { args } => AstInstruction::CreateResource {
-            args: args
-                .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
-                .collect::<Result<Vec<AstValue>, _>>()?,
+        Instruction::CreateResource {
+            resource_type,
+            metadata,
+            access_rules,
+            mint_params,
+        } => AstInstruction::CreateResource {
+            resource_type: ast_value_from_value(resource_type, bech32_manager)?,
+            metadata: ast_value_from_value(metadata, bech32_manager)?,
+            access_rules: ast_value_from_value(access_rules, bech32_manager)?,
+            mint_params: ast_value_from_value(mint_params, bech32_manager)?,
         },
     };
     Ok(ast_instruction)
@@ -662,11 +670,16 @@ pub fn instruction_from_ast_instruction(
         AstInstruction::BurnBucket { bucket } => Instruction::BurnBucket {
             bucket: value_from_ast_value(bucket, bech32_manager)?,
         },
-        AstInstruction::CreateResource { args } => Instruction::CreateResource {
-            args: args
-                .iter()
-                .map(|v| value_from_ast_value(v, bech32_manager))
-                .collect::<Result<Vec<Value>, _>>()?,
+        AstInstruction::CreateResource {
+            resource_type,
+            metadata,
+            access_rules,
+            mint_params,
+        } => Instruction::CreateResource {
+            resource_type: value_from_ast_value(resource_type, bech32_manager)?,
+            metadata: value_from_ast_value(metadata, bech32_manager)?,
+            access_rules: value_from_ast_value(access_rules, bech32_manager)?,
+            mint_params: value_from_ast_value(mint_params, bech32_manager)?,
         },
     };
     Ok(instruction)

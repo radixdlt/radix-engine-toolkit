@@ -98,7 +98,7 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::addr
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
     let (hrp, _, _): (String, _, _) =
-        bech32::decode(address).map_err(scrypto::address::AddressError::DecodingError)?;
+        bech32::decode(address).map_err(scrypto::address::AddressError::Bech32mDecodingError)?;
     network_id_from_hrp(&hrp)
 }
 

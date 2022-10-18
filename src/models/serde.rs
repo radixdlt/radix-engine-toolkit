@@ -159,17 +159,17 @@ macro_rules! define_network_aware_address {
 
 define_network_aware_address!(
     scrypto::prelude::ComponentAddress => NetworkAwareComponentAddress,
-    encode_component_address,
+    encode_component_address_to_string,
     validate_and_decode_component_address
 );
 define_network_aware_address!(
     scrypto::prelude::PackageAddress => NetworkAwarePackageAddress,
-    encode_package_address,
+    encode_package_address_to_string,
     validate_and_decode_package_address
 );
 define_network_aware_address!(
     scrypto::prelude::ResourceAddress => NetworkAwareResourceAddress,
-    encode_resource_address,
+    encode_resource_address_to_string,
     validate_and_decode_resource_address
 );
 

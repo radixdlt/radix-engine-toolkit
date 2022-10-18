@@ -22,7 +22,7 @@ use scrypto::prelude::{
     EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
     NonFungibleAddress, NonFungibleId, PreciseDecimal,
 };
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryInto;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
@@ -149,7 +149,7 @@ pub enum Value {
     },
 
     Component {
-        address: NetworkAwareComponentAddress,
+        identifier: EntityId,
     },
 
     ComponentAddress {
@@ -370,7 +370,6 @@ impl Value {
 
     fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
         let network_id: u8 = match self {
-            Self::Component { address } => address.network_id,
             Self::ComponentAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
@@ -798,21 +797,21 @@ pub fn ast_value_from_value(
             AstValue::PackageAddress(Box::new(AstValue::String(
                 bech32_manager
                     .encoder
-                    .encode_package_address(&value.address),
+                    .encode_package_address_to_string(&value.address),
             )))
         }
         Value::ComponentAddress { address: value } => {
             AstValue::ComponentAddress(Box::new(AstValue::String(
                 bech32_manager
                     .encoder
-                    .encode_component_address(&value.address),
+                    .encode_component_address_to_string(&value.address),
             )))
         }
         Value::ResourceAddress { address: value } => {
             AstValue::ResourceAddress(Box::new(AstValue::String(
                 bech32_manager
                     .encoder
-                    .encode_resource_address(&value.address),
+                    .encode_resource_address_to_string(&value.address),
             )))
         }
 
@@ -1234,9 +1233,9 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         Value::Decimal { value } => decode_any(&scrypto_encode(value))?,
         Value::PreciseDecimal { value } => decode_any(&scrypto_encode(value))?,
 
-        Value::Component { address } => decode_any(&scrypto_encode(
-            &scrypto::prelude::Component::from(address.address),
-        ))?,
+        Value::Component { identifier } => {
+            decode_any(&scrypto_encode(&scrypto::prelude::Component(identifier.0)))?
+        }
         Value::ComponentAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::ResourceAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::PackageAddress { address } => decode_any(&scrypto_encode(&address.address))?,
@@ -1406,17 +1405,10 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                     value: scrypto_decode(&encode_any(value))?,
                 },
                 ScryptoType::Component => {
-                    let component_address_ref: &[u8] =
-                        &scrypto_decode::<scrypto::prelude::ComponentAddress>(&encode_any(value))?
-                            .to_vec();
-
                     Value::Component {
-                        address: NetworkAwareComponentAddress {
-                            network_id,
-                            address: scrypto::prelude::ComponentAddress::try_from(
-                                component_address_ref,
-                            )?,
-                        },
+                        identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
+                            .0
+                            .into(),
                     }
                 }
                 ScryptoType::PackageAddress => Value::PackageAddress {
@@ -1937,22 +1929,6 @@ mod tests {
             }
         };
 
-        test_value! {
-            r#"
-            {
-                "type": "Component",
-                "address": "account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr"
-            }
-            "#,
-            Value::Component {
-                address: NetworkAwareComponentAddress {
-                    network_id: 0xf2,
-                    address: scrypto::address::Bech32Decoder::new(&NetworkDefinition::simulator())
-                        .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
-                        .expect("Decoding of a trusted address string failed")
-                }
-            }
-        };
         test_value! {
             r#"
             {

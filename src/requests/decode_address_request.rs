@@ -56,10 +56,10 @@ impl<'r> Request<'r, DecodeAddressResponse> for DecodeAddressRequest {
     fn handle_request(self) -> Result<DecodeAddressResponse, Error> {
         // We need to deduce the network from the HRP of the passed address. Therefore, we need to
         // begin by decoding the address, and getting the HRP.
-        let (hrp, data, variant): (String, Vec<u5>, Variant) =
-            bech32::decode(&self.address).map_err(scrypto::address::AddressError::DecodingError)?;
-        let data: Vec<u8> =
-            Vec::<u8>::from_base32(&data).map_err(scrypto::address::AddressError::DecodingError)?;
+        let (hrp, data, variant): (String, Vec<u5>, Variant) = bech32::decode(&self.address)
+            .map_err(scrypto::address::AddressError::Bech32mDecodingError)?;
+        let data: Vec<u8> = Vec::<u8>::from_base32(&data)
+            .map_err(scrypto::address::AddressError::Bech32mDecodingError)?;
 
         match variant {
             Variant::Bech32m => Ok(()),
