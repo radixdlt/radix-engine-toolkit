@@ -415,23 +415,23 @@ components:
         - tip_percentage
       properties:
         version:
-          $ref: "#/components/schemas/Byte"
+          type: string
           description: "An 8-bit unsigned integer representing the transaction version. Currently, the library only supports a transaction version of 1."
         network_id:
-          $ref: "#/components/schemas/Byte"
+          type: string
           description: "An 8-bit unsigned integer representing the network id that the transaction is for"
         start_epoch_inclusive:
-          type: integer
+          type: string
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
           description: "A 64-bit unsigned integer representing the epoch the earliest that this transaction can be executed"
         end_epoch_exclusive:
-          type: integer
+          type: string
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
           description: "A 64-bit unsigned integer representing the latest epoch this transaction should be executed"
         nonce:
-          type: integer
+          type: string
           minimum: 0x00
           maximum: 0xFFFFFFFFFFFFFFFF
           description: "A 64-bit unsigned integer of the nonce to use for the transaction"
@@ -442,12 +442,12 @@ components:
           type: boolean
           description: "A boolean representing whether the notary is also one of the people signing the transaction"
         cost_unit_limit:
-          type: integer
+          type: string
           minimum: 0x00
           maximum: 0xFFFFFFFF
           description: "A 32-bit unsigned integer of the maximum cost units that this transaction can spend"
         tip_percentage:
-          type: integer
+          type: string
           minimum: 0x00
           maximum: 0xFFFFFFFF
           description: "A 32-bit unsigned integer of the percentage of the tip to give to validators"
@@ -536,13 +536,13 @@ components:
       description: "A transaction intent which has been signed"
       additionalProperties: false
       required:
-        - transaction_intent
-        - signatures
+        - intent
+        - intent_signatures
       properties:
-        transaction_intent:
+        intent:
           $ref: "#/components/schemas/TransactionIntent"
           description: "A transaction header used to describe different parameters about the transactions"
-        signatures:
+        intent_signatures:
           type: array
           description: "An array containing the signature of the signers"
           items:
