@@ -329,6 +329,55 @@ components:
           type: string
           description: "A hex-encoded string of the SBOR-encoded package ABI"
 
+    # Derive NonFungibleAddress request
+    DeriveNonFungibleAddressRequest:
+      type: object
+      description: "A request to derive the `NonFungibleAddress` of a resource based on its `ResourceAddress` and the `NonFungibleId` of that non-fungible token"
+      additionalProperties: false
+      required:
+        - resource_address
+        - non_fungible_id
+      properties:
+        resource_address:
+          type: string
+          description: "A bech32m encoded string of the resource address that the non-fungible belongs to"
+        non_fungible_id:
+          type: string
+          description: "A hex-encoded string of the SBOR-encoded NonFungibleId bytes"
+    
+    DeriveNonFungibleAddressResponse:
+      type: object
+      description: "A response to the `DeriveNonFungibleAddressRequest` containing the derived `NonFungibleAddress`"
+      additionalProperties: false
+      required:
+        - non_fungible_address
+      properties:
+        non_fungible_address:
+          type: string
+          description: "A hex-encoded string of the `NonFungibleAddress`."
+    
+    # Derive NonFungibleAddress from PublicKey request
+    DeriveNonFungibleAddressFromPublicKeyRequest:
+      type: object
+      description: "A request to derive the `NonFungibleAddress` of the virtual badge corresponding with a given public key"
+      additionalProperties: false
+      required:
+        - public_key
+      properties:
+        public_key:
+          $ref: "#/components/schemas/PublicKey"
+    
+    DeriveNonFungibleAddressFromPublicKeyResponse:
+      type: object
+      description: "A response to the `DeriveNonFungibleAddressFromPublicKeyRequest` containing the derived `NonFungibleAddress`"
+      additionalProperties: false
+      required:
+        - non_fungible_address
+      properties:
+        non_fungible_address:
+          type: string
+          description: "A hex-encoded string of the `NonFungibleAddress`."
+
     # ================================
     # Request & Response Dependencies
     # ================================
