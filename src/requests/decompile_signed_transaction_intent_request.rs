@@ -1,13 +1,11 @@
-use crate::error::Error;
-use crate::export_request;
-use crate::models::manifest::ManifestInstructionsKind;
-use crate::models::serde::SignedTransactionIntent;
-use crate::traits::{Request, Validate};
-use crate::validation::validate_transaction_intent;
-use scrypto::prelude::scrypto_decode;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::convert::TryInto;
+
+use crate::error::Error;
+use crate::export_request;
+use crate::models::manifest_instructions::ManifestInstructionsKind;
+use crate::models::SignedTransactionIntent;
+use crate::traits::{CompilableIntent, Request, Validate};
 
 // ==========================
 // Request & Response Models
@@ -40,7 +38,7 @@ impl Validate for DecompileSignedTransactionIntentRequest {
 
 impl Validate for DecompileSignedTransactionIntentResponse {
     fn validate(&self) -> Result<(), Error> {
-        validate_transaction_intent(&self.signed_intent.transaction_intent)?;
+        self.signed_intent.validate()?;
         Ok(())
     }
 }
@@ -53,19 +51,12 @@ impl<'r> Request<'r, DecompileSignedTransactionIntentResponse>
     for DecompileSignedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<DecompileSignedTransactionIntentResponse, Error> {
-        let signed_transaction_intent: SignedTransactionIntent =
-            scrypto_decode::<transaction::model::SignedTransactionIntent>(
-                &self.compiled_signed_intent,
-            )?
-            .try_into()?;
-        let signed_transaction_intent: SignedTransactionIntent = signed_transaction_intent
-            .convert_manifest_instructions_kind(self.manifest_instructions_output_format)?;
+        let signed_intent: SignedTransactionIntent = SignedTransactionIntent::decompile(
+            &self.compiled_signed_intent,
+            self.manifest_instructions_output_format,
+        )?;
 
-        let response: DecompileSignedTransactionIntentResponse =
-            DecompileSignedTransactionIntentResponse {
-                signed_intent: signed_transaction_intent,
-            };
-        Ok(response)
+        Ok(DecompileSignedTransactionIntentResponse { signed_intent })
     }
 }
 

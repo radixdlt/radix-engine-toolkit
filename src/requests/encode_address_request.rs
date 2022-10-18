@@ -13,7 +13,7 @@ use serde_with::serde_as;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressRequest {
     #[serde_as(as = "serde_with::hex::Hex")]
-    pub address: Vec<u8>,
+    pub address_bytes: Vec<u8>,
 
     pub network_id: u8,
 }
@@ -46,10 +46,10 @@ impl Validate for EncodeAddressResponse {
 
 impl<'r> Request<'r, EncodeAddressResponse> for EncodeAddressRequest {
     fn handle_request(self) -> Result<EncodeAddressResponse, Error> {
-        let address: &[u8] = &self.address;
+        let address: &[u8] = &self.address_bytes;
         let address: Address = Address::from_u8_array(address, self.network_id)?;
-        let response: EncodeAddressResponse = EncodeAddressResponse { address };
-        Ok(response)
+
+        Ok(EncodeAddressResponse { address })
     }
 }
 

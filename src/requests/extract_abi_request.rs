@@ -51,11 +51,11 @@ impl<'r> Request<'r, ExtractAbiResponse> for ExtractAbiRequest {
     fn handle_request(self) -> Result<ExtractAbiResponse, Error> {
         let abi: HashMap<String, radix_engine::types::BlueprintAbi> =
             engine_extract_abi(&self.package_wasm)?;
-        let response: ExtractAbiResponse = ExtractAbiResponse {
+
+        Ok(ExtractAbiResponse {
             abi: scrypto_encode(&abi),
             code: self.package_wasm,
-        };
-        Ok(response)
+        })
     }
 }
 

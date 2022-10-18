@@ -406,18 +406,18 @@ This section lists all of the functions available in this library, what they are
 ```json
 {
   "header": {
-    "version": 1,
-    "network_id": 242,
-    "start_epoch_inclusive": 0,
-    "end_epoch_exclusive": 100,
-    "nonce": 1,
+    "version": "1",
+    "network_id": "242",
+    "start_epoch_inclusive": "0",
+    "end_epoch_exclusive": "16",
+    "nonce": "1",
     "notary_public_key": {
       "type": "EddsaEd25519",
       "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
     },
     "notary_as_signatory": true,
-    "cost_unit_limit": 100000000,
-    "tip_percentage": 5
+    "cost_unit_limit": "100000000",
+    "tip_percentage": "5"
   },
   "manifest": {
     "instructions": {
@@ -468,18 +468,18 @@ This section lists all of the functions available in this library, what they are
 ```json
 {
   "header": {
-    "version": 1,
-    "network_id": 242,
-    "start_epoch_inclusive": 0,
-    "end_epoch_exclusive": 100,
-    "nonce": 1,
+    "version": "1",
+    "network_id": "242",
+    "start_epoch_inclusive": "0",
+    "end_epoch_exclusive": "16",
+    "nonce": "1",
     "notary_public_key": {
       "type": "EddsaEd25519",
       "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
     },
     "notary_as_signatory": true,
-    "cost_unit_limit": 100000000,
-    "tip_percentage": 5
+    "cost_unit_limit": "100000000",
+    "tip_percentage": "5"
   },
   "manifest": {
     "instructions": {
@@ -508,20 +508,20 @@ This section lists all of the functions available in this library, what they are
     
 ```json
 {
-  "transaction_intent": {
+  "intent": {
     "header": {
-      "version": 1,
-      "network_id": 242,
-      "start_epoch_inclusive": 0,
-      "end_epoch_exclusive": 100,
-      "nonce": 1,
+      "version": "1",
+      "network_id": "242",
+      "start_epoch_inclusive": "0",
+      "end_epoch_exclusive": "16",
+      "nonce": "1",
       "notary_public_key": {
         "type": "EddsaEd25519",
         "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
       },
       "notary_as_signatory": true,
-      "cost_unit_limit": 100000000,
-      "tip_percentage": 5
+      "cost_unit_limit": "100000000",
+      "tip_percentage": "5"
     },
     "manifest": {
       "instructions": {
@@ -809,7 +809,7 @@ This section lists all of the functions available in this library, what they are
       ]
     }
   },
-  "signatures": [
+  "intent_signatures": [
     {
       "type": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
@@ -863,20 +863,20 @@ This section lists all of the functions available in this library, what they are
     
 ```json
 {
-  "transaction_intent": {
+  "intent": {
     "header": {
-      "version": 1,
-      "network_id": 242,
-      "start_epoch_inclusive": 0,
-      "end_epoch_exclusive": 100,
-      "nonce": 1,
+      "version": "1",
+      "network_id": "242",
+      "start_epoch_inclusive": "0",
+      "end_epoch_exclusive": "16",
+      "nonce": "1",
       "notary_public_key": {
         "type": "EddsaEd25519",
         "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
       },
       "notary_as_signatory": true,
-      "cost_unit_limit": 100000000,
-      "tip_percentage": 5
+      "cost_unit_limit": "100000000",
+      "tip_percentage": "5"
     },
     "manifest": {
       "instructions": {
@@ -1164,7 +1164,7 @@ This section lists all of the functions available in this library, what they are
       ]
     }
   },
-  "signatures": [
+  "intent_signatures": [
     {
       "type": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
@@ -1198,20 +1198,20 @@ This section lists all of the functions available in this library, what they are
 ```json
 {
   "signed_intent": {
-    "transaction_intent": {
+    "intent": {
       "header": {
-        "version": 1,
-        "network_id": 242,
-        "start_epoch_inclusive": 0,
-        "end_epoch_exclusive": 100,
-        "nonce": 1,
+        "version": "1",
+        "network_id": "242",
+        "start_epoch_inclusive": "0",
+        "end_epoch_exclusive": "16",
+        "nonce": "1",
         "notary_public_key": {
           "type": "EddsaEd25519",
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 100000000,
-        "tip_percentage": 5
+        "cost_unit_limit": "100000000",
+        "tip_percentage": "5"
       },
       "manifest": {
         "instructions": {
@@ -1499,7 +1499,7 @@ This section lists all of the functions available in this library, what they are
         ]
       }
     },
-    "signatures": [
+    "intent_signatures": [
       {
         "type": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
@@ -1559,20 +1559,20 @@ This section lists all of the functions available in this library, what they are
 ```json
 {
   "signed_intent": {
-    "transaction_intent": {
+    "intent": {
       "header": {
-        "version": 1,
-        "network_id": 242,
-        "start_epoch_inclusive": 0,
-        "end_epoch_exclusive": 100,
-        "nonce": 1,
+        "version": "1",
+        "network_id": "242",
+        "start_epoch_inclusive": "0",
+        "end_epoch_exclusive": "16",
+        "nonce": "1",
         "notary_public_key": {
           "type": "EddsaEd25519",
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 100000000,
-        "tip_percentage": 5
+        "cost_unit_limit": "100000000",
+        "tip_percentage": "5"
       },
       "manifest": {
         "instructions": {
@@ -1860,7 +1860,7 @@ This section lists all of the functions available in this library, what they are
         ]
       }
     },
-    "signatures": [
+    "intent_signatures": [
       {
         "type": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
@@ -1910,20 +1910,20 @@ This section lists all of the functions available in this library, what they are
 ```json
 {
   "signed_intent": {
-    "transaction_intent": {
+    "intent": {
       "header": {
-        "version": 1,
-        "network_id": 242,
-        "start_epoch_inclusive": 0,
-        "end_epoch_exclusive": 100,
-        "nonce": 1,
+        "version": "1",
+        "network_id": "242",
+        "start_epoch_inclusive": "0",
+        "end_epoch_exclusive": "16",
+        "nonce": "1",
         "notary_public_key": {
           "type": "EddsaEd25519",
           "public_key": "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29"
         },
         "notary_as_signatory": true,
-        "cost_unit_limit": 100000000,
-        "tip_percentage": 5
+        "cost_unit_limit": "100000000",
+        "tip_percentage": "5"
       },
       "manifest": {
         "instructions": {
@@ -1936,7 +1936,7 @@ This section lists all of the functions available in this library, what they are
         ]
       }
     },
-    "signatures": [
+    "intent_signatures": [
       {
         "type": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
@@ -1974,7 +1974,7 @@ This section lists all of the functions available in this library, what they are
     
 ```json
 {
-  "address": "000000000000000000000000000000000000000000000000000001",
+  "address_bytes": "000000000000000000000000000000000000000000000000000001",
   "network_id": 1
 }
 ```

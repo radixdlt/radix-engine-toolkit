@@ -3,14 +3,14 @@
 //! the manifest to another format (String as an example). The conversion between the supported
 //! formats is dependent on two main factors: the transaction version, and the network id.
 
+use serde::{Deserialize, Serialize};
+
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::export_request;
-use crate::models::manifest::{ManifestInstructions, ManifestInstructionsKind};
-use crate::models::serde::TransactionManifest;
-use crate::traits::{Request, Validate};
-use crate::validation::{validate_manifest, validate_transaction_version};
-use serde::{Deserialize, Serialize};
+use crate::models::manifest_instructions::ManifestInstructionsKind;
+use crate::models::TransactionManifest;
+use crate::traits::{Request, Validate, ValidateWithContext};
 
 // ==========================
 // Request & Response Models
@@ -47,8 +47,7 @@ pub struct ConvertManifestResponse {
 
 impl Validate for ConvertManifestRequest {
     fn validate(&self) -> Result<(), Error> {
-        validate_transaction_version(self.transaction_version)?;
-        validate_manifest(&self.manifest, self.network_id)?;
+        self.manifest.validate(self.network_id)?;
         Ok(())
     }
 }
@@ -65,23 +64,19 @@ impl Validate for ConvertManifestResponse {
 
 impl<'r> Request<'r, ConvertManifestResponse> for ConvertManifestRequest {
     fn handle_request(self) -> Result<ConvertManifestResponse, Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.network_id);
-
-        // Process the request Convert between the manifest formats.
-        let converted_manifest_instructions: ManifestInstructions = self.manifest.instructions.to(
-            self.manifest_instructions_output_format,
-            &bech32_manager,
-            self.manifest.blobs.clone(),
-        )?;
-
-        let response: ConvertManifestResponse = ConvertManifestResponse {
+        Ok(ConvertManifestResponse {
             manifest: TransactionManifest {
-                instructions: converted_manifest_instructions,
+                instructions: self
+                    .manifest
+                    .instructions
+                    .convert_to_manifest_instructions_kind(
+                        self.manifest_instructions_output_format,
+                        &Bech32Manager::new(self.network_id),
+                        self.manifest.blobs.clone(),
+                    )?,
                 blobs: self.manifest.blobs,
             },
-        };
-
-        Ok(response)
+        })
     }
 }
 

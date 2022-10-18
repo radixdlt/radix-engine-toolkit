@@ -1,40 +1,17 @@
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 use std::fmt::Display;
 use std::str::FromStr;
 
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use serde_with::serde_as;
 
-use scrypto::prelude::{Hash, Signature, SignatureWithPublicKey};
+use scrypto::prelude::Hash;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::manifest::ManifestInstructions;
-
-use super::ManifestInstructionsKind;
 
 pub type VaultId = EntityId;
 pub type KeyValueStoreId = EntityId;
-
-#[serde_as]
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TransactionManifest {
-    pub instructions: ManifestInstructions,
-    #[serde_as(as = "Vec<serde_with::hex::Hex>")]
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    pub blobs: Vec<Vec<u8>>,
-}
-
-impl TransactionManifest {
-    pub fn to_scrypto_transaction_manifest(
-        &self,
-        bech32_manager: &Bech32Manager,
-    ) -> Result<transaction::model::TransactionManifest, Error> {
-        self.instructions
-            .to_scrypto_transaction_manifest(bech32_manager, self.blobs.clone())
-    }
-}
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct EntityId(pub (Hash, u32));
@@ -195,149 +172,6 @@ define_network_aware_address!(
     encode_resource_address,
     validate_and_decode_resource_address
 );
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TransactionIntent {
-    pub header: transaction::model::TransactionHeader,
-    pub manifest: TransactionManifest,
-}
-
-impl TransactionIntent {
-    pub fn convert_manifest_instructions_kind(
-        self,
-        to: ManifestInstructionsKind,
-    ) -> Result<Self, Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
-        Ok(Self {
-            header: self.header,
-            manifest: TransactionManifest {
-                instructions: self.manifest.instructions.to(
-                    to,
-                    &bech32_manager,
-                    self.manifest.blobs.clone(),
-                )?,
-                blobs: self.manifest.blobs,
-            },
-        })
-    }
-}
-
-impl TryInto<transaction::model::TransactionIntent> for TransactionIntent {
-    type Error = Error;
-
-    fn try_into(self) -> Result<transaction::model::TransactionIntent, Self::Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
-
-        Ok(transaction::model::TransactionIntent {
-            header: self.header,
-            manifest: self
-                .manifest
-                .to_scrypto_transaction_manifest(&bech32_manager)?,
-        })
-    }
-}
-
-impl TryInto<TransactionIntent> for transaction::model::TransactionIntent {
-    type Error = Error;
-
-    fn try_into(self) -> Result<TransactionIntent, Self::Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
-
-        Ok(TransactionIntent {
-            header: self.header,
-            manifest: TransactionManifest {
-                instructions: ManifestInstructions::from_scrypto_transaction_manifest(
-                    &self.manifest,
-                    &bech32_manager,
-                    super::ManifestInstructionsKind::JSON,
-                )?,
-                blobs: self.manifest.blobs,
-            },
-        })
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct SignedTransactionIntent {
-    pub transaction_intent: TransactionIntent,
-    pub signatures: Vec<SignatureWithPublicKey>,
-}
-
-impl SignedTransactionIntent {
-    pub fn convert_manifest_instructions_kind(
-        self,
-        to: ManifestInstructionsKind,
-    ) -> Result<Self, Error> {
-        Ok(Self {
-            signatures: self.signatures,
-            transaction_intent: self
-                .transaction_intent
-                .convert_manifest_instructions_kind(to)?,
-        })
-    }
-}
-
-impl TryInto<transaction::model::SignedTransactionIntent> for SignedTransactionIntent {
-    type Error = Error;
-
-    fn try_into(self) -> Result<transaction::model::SignedTransactionIntent, Self::Error> {
-        Ok(transaction::model::SignedTransactionIntent {
-            intent: self.transaction_intent.try_into()?,
-            intent_signatures: self.signatures,
-        })
-    }
-}
-
-impl TryInto<SignedTransactionIntent> for transaction::model::SignedTransactionIntent {
-    type Error = Error;
-
-    fn try_into(self) -> Result<SignedTransactionIntent, Self::Error> {
-        Ok(SignedTransactionIntent {
-            transaction_intent: self.intent.try_into()?,
-            signatures: self.intent_signatures,
-        })
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct NotarizedTransaction {
-    pub signed_intent: SignedTransactionIntent,
-    pub notary_signature: Signature,
-}
-
-impl NotarizedTransaction {
-    pub fn convert_manifest_instructions_kind(
-        self,
-        to: ManifestInstructionsKind,
-    ) -> Result<Self, Error> {
-        Ok(Self {
-            signed_intent: self.signed_intent.convert_manifest_instructions_kind(to)?,
-            notary_signature: self.notary_signature,
-        })
-    }
-}
-
-impl TryInto<transaction::model::NotarizedTransaction> for NotarizedTransaction {
-    type Error = Error;
-
-    fn try_into(self) -> Result<transaction::model::NotarizedTransaction, Self::Error> {
-        Ok(transaction::model::NotarizedTransaction {
-            signed_intent: self.signed_intent.try_into()?,
-            notary_signature: self.notary_signature,
-        })
-    }
-}
-
-impl TryInto<NotarizedTransaction> for transaction::model::NotarizedTransaction {
-    type Error = Error;
-
-    fn try_into(self) -> Result<NotarizedTransaction, Self::Error> {
-        Ok(NotarizedTransaction {
-            signed_intent: self.signed_intent.try_into()?,
-            notary_signature: self.notary_signature,
-        })
-    }
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", content = "address")]

@@ -32,3 +32,9 @@ impl Bech32Manager {
         Ok(Self::new(network_id_from_address_string(address)?))
     }
 }
+
+impl AsRef<Bech32Manager> for Bech32Manager {
+    fn as_ref(&self) -> &Bech32Manager {
+        self
+    }
+}

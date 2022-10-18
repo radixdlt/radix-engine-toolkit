@@ -13,7 +13,7 @@ serde_with = { version = "2.0.0", default-features = false, features = ["hex", "
 
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"] }
+radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0", features = ["serde"], package = "transaction" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v0.6.0" }
 
 [dev-dependencies]

@@ -1,10 +1,17 @@
-use crate::error::Error;
+use crate::{error::Error, models::ManifestInstructionsKind};
 use serde::{Deserialize, Serialize};
 
+/// A trait that defines the common interface for a type which can be validated. This validation
+/// happens without external context, internal only.
 pub trait Validate {
     fn validate(&self) -> Result<(), Error>;
 }
 
+pub trait ValidateWithContext<T> {
+    fn validate(&self, context: T) -> Result<(), Error>;
+}
+
+/// A trait that defines the common interface for a request and response.
 pub trait Request<'a, Response>
 where
     Self: Deserialize<'a> + Validate,
@@ -31,9 +38,27 @@ where
     ///
     /// This function makes use of pointers which is an unsafe feature.
     unsafe fn new_from_pointer(
-        request_string_pointer: *const std::os::raw::c_char,
+        request_string_pointer: crate::memory::Pointer,
     ) -> Result<Self, Error> {
-        let string: &str = std::ffi::CStr::from_ptr(request_string_pointer).to_str()?;
-        Ok(serde_json::from_str(string)?)
+        crate::memory::toolkit_read_and_deserialize_string_from_memory(request_string_pointer)
     }
+}
+
+/// A trait for the conversions into a different types with generic external context
+pub trait TryIntoWithContext<T, C> {
+    type Error;
+
+    fn try_into_with_context(self, context: C) -> Result<T, Self::Error>;
+}
+
+pub trait CompilableIntent {
+    fn compile(&self) -> Result<Vec<u8>, Error>;
+
+    fn decompile<T>(
+        data: &T,
+        output_manifest_format: ManifestInstructionsKind,
+    ) -> Result<Self, Error>
+    where
+        Self: Sized,
+        T: AsRef<[u8]>;
 }

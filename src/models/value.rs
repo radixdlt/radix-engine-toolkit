@@ -3,17 +3,18 @@
 //!
 //! This module implements [Value] conversions into two main types:
 //!
-//! 1. [transaction::manifest::ast::Value]: Conversion into and from this type is supported since
+//! 1. [radix_transaction::manifest::ast::Value]: Conversion into and from this type is supported since
 //! this the type that values need to be in for the creation of transaction manifest instructions
 //! and because it is the type that values are found in when a manifest is decompiled. Therefore,
 //! the functions [value_from_ast_value] and [ast_value_from_value] can be used to convert a [Value]
-//! from and to [transaction::manifest::ast::Value].
+//! from and to [radix_transaction::manifest::ast::Value].
 //! 2. [sbor::Value]: Easy conversions from and to this type are needed since this type is needed
 //! since this type is often times used as an intermediary type for the SBOR Encode and Decode
 //! requests to this library. The conversion back in forth is done through the functions
 //! [value_from_sbor_value] and [sbor_value_from_value].
 
 use radix_engine::types::ScryptoType;
+use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::type_id::*;
 use sbor::{decode_any, encode_any, Value as SborValue};
 use scrypto::prelude::{
@@ -23,7 +24,6 @@ use scrypto::prelude::{
 };
 use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;
-use transaction::manifest::ast::Value as AstValue;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, FromInto};
@@ -31,6 +31,7 @@ use serde_with::{serde_as, DisplayFromStr, FromInto};
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::serde::*;
+use crate::traits::ValidateWithContext;
 
 // ======
 // Value
@@ -40,9 +41,6 @@ use crate::models::serde::*;
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
 
-// TODO: Consider extending the value type to support all `ScryptoType`s even if they do not have
-// a manifest representation. Their manifest compatibility can be evaluated at runtime in the
-// `value_from_ast_value` and `ast_value_from_value` functions.
 pub enum Value {
     Unit,
     Bool {
@@ -274,7 +272,32 @@ impl Value {
         }
     }
 
-    pub fn validate_kind(&self, expected_kind: ValueKind) -> Result<(), Error> {
+    pub fn encode(&self) -> Result<Vec<u8>, Error> {
+        Ok(encode_any(&sbor_value_from_value(self)?))
+    }
+
+    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
+        value_from_sbor_value(&decode_any(bytes)?, network_id)
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
+    fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
+        self.validate_if_collection()?;
+        self.validate_address_network_id(network_id)?;
+        if let Some(expected_kind) = expected_kind {
+            self.validate_kind(expected_kind)?;
+        };
+        Ok(())
+    }
+}
+
+impl Value {
+    fn validate_kind(&self, expected_kind: ValueKind) -> Result<(), Error> {
         if self.kind() == expected_kind {
             Ok(())
         } else {
@@ -285,7 +308,7 @@ impl Value {
         }
     }
 
-    pub fn validate_if_collection(&self) -> Result<(), Error> {
+    fn validate_if_collection(&self) -> Result<(), Error> {
         match self {
             Self::Array {
                 element_type,
@@ -345,7 +368,7 @@ impl Value {
         }
     }
 
-    pub fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
+    fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
         let network_id: u8 = match self {
             Self::Component { address } => address.network_id,
             Self::ComponentAddress { address } => address.network_id,
@@ -361,14 +384,6 @@ impl Value {
                 found: network_id,
             })
         }
-    }
-
-    pub fn encode(&self) -> Result<Vec<u8>, Error> {
-        Ok(encode_any(&sbor_value_from_value(self)?))
-    }
-
-    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
-        value_from_sbor_value(&decode_any(bytes)?, network_id)
     }
 }
 
@@ -557,57 +572,57 @@ impl ValueKind {
     }
 }
 
-impl TryInto<transaction::manifest::ast::Type> for ValueKind {
+impl TryInto<radix_transaction::manifest::ast::Type> for ValueKind {
     type Error = Error;
 
-    fn try_into(self) -> Result<transaction::manifest::ast::Type, Self::Error> {
+    fn try_into(self) -> Result<radix_transaction::manifest::ast::Type, Self::Error> {
         let value_kind = match self {
-            Self::Unit => transaction::manifest::ast::Type::Unit,
+            Self::Unit => radix_transaction::manifest::ast::Type::Unit,
 
-            Self::Bool => transaction::manifest::ast::Type::Bool,
-            Self::I8 => transaction::manifest::ast::Type::I8,
-            Self::I16 => transaction::manifest::ast::Type::I16,
-            Self::I32 => transaction::manifest::ast::Type::I32,
-            Self::I64 => transaction::manifest::ast::Type::I64,
-            Self::I128 => transaction::manifest::ast::Type::I128,
+            Self::Bool => radix_transaction::manifest::ast::Type::Bool,
+            Self::I8 => radix_transaction::manifest::ast::Type::I8,
+            Self::I16 => radix_transaction::manifest::ast::Type::I16,
+            Self::I32 => radix_transaction::manifest::ast::Type::I32,
+            Self::I64 => radix_transaction::manifest::ast::Type::I64,
+            Self::I128 => radix_transaction::manifest::ast::Type::I128,
 
-            Self::U8 => transaction::manifest::ast::Type::U8,
-            Self::U16 => transaction::manifest::ast::Type::U16,
-            Self::U32 => transaction::manifest::ast::Type::U32,
-            Self::U64 => transaction::manifest::ast::Type::U64,
-            Self::U128 => transaction::manifest::ast::Type::U128,
+            Self::U8 => radix_transaction::manifest::ast::Type::U8,
+            Self::U16 => radix_transaction::manifest::ast::Type::U16,
+            Self::U32 => radix_transaction::manifest::ast::Type::U32,
+            Self::U64 => radix_transaction::manifest::ast::Type::U64,
+            Self::U128 => radix_transaction::manifest::ast::Type::U128,
 
-            Self::String => transaction::manifest::ast::Type::String,
+            Self::String => radix_transaction::manifest::ast::Type::String,
 
-            Self::Struct => transaction::manifest::ast::Type::Struct,
-            Self::Enum => transaction::manifest::ast::Type::Enum,
+            Self::Struct => radix_transaction::manifest::ast::Type::Struct,
+            Self::Enum => radix_transaction::manifest::ast::Type::Enum,
 
-            Self::Option => transaction::manifest::ast::Type::Option,
-            Self::Array => transaction::manifest::ast::Type::Array,
-            Self::Tuple => transaction::manifest::ast::Type::Tuple,
-            Self::Result => transaction::manifest::ast::Type::Result,
+            Self::Option => radix_transaction::manifest::ast::Type::Option,
+            Self::Array => radix_transaction::manifest::ast::Type::Array,
+            Self::Tuple => radix_transaction::manifest::ast::Type::Tuple,
+            Self::Result => radix_transaction::manifest::ast::Type::Result,
 
-            Self::List => transaction::manifest::ast::Type::List,
-            Self::Set => transaction::manifest::ast::Type::Set,
-            Self::Map => transaction::manifest::ast::Type::Map,
+            Self::List => radix_transaction::manifest::ast::Type::List,
+            Self::Set => radix_transaction::manifest::ast::Type::Set,
+            Self::Map => radix_transaction::manifest::ast::Type::Map,
 
-            Self::Decimal => transaction::manifest::ast::Type::Decimal,
-            Self::PreciseDecimal => transaction::manifest::ast::Type::PreciseDecimal,
+            Self::Decimal => radix_transaction::manifest::ast::Type::Decimal,
+            Self::PreciseDecimal => radix_transaction::manifest::ast::Type::PreciseDecimal,
 
-            Self::PackageAddress => transaction::manifest::ast::Type::PackageAddress,
-            Self::ComponentAddress => transaction::manifest::ast::Type::ComponentAddress,
-            Self::ResourceAddress => transaction::manifest::ast::Type::ResourceAddress,
+            Self::PackageAddress => radix_transaction::manifest::ast::Type::PackageAddress,
+            Self::ComponentAddress => radix_transaction::manifest::ast::Type::ComponentAddress,
+            Self::ResourceAddress => radix_transaction::manifest::ast::Type::ResourceAddress,
 
-            Self::Hash => transaction::manifest::ast::Type::Hash,
+            Self::Hash => radix_transaction::manifest::ast::Type::Hash,
 
-            Self::Bucket => transaction::manifest::ast::Type::Bucket,
-            Self::Proof => transaction::manifest::ast::Type::Proof,
+            Self::Bucket => radix_transaction::manifest::ast::Type::Bucket,
+            Self::Proof => radix_transaction::manifest::ast::Type::Proof,
 
-            Self::NonFungibleId => transaction::manifest::ast::Type::NonFungibleId,
-            Self::NonFungibleAddress => transaction::manifest::ast::Type::NonFungibleAddress,
+            Self::NonFungibleId => radix_transaction::manifest::ast::Type::NonFungibleId,
+            Self::NonFungibleAddress => radix_transaction::manifest::ast::Type::NonFungibleAddress,
 
-            Self::Blob => transaction::manifest::ast::Type::Blob,
-            Self::Expression => transaction::manifest::ast::Type::Expression,
+            Self::Blob => radix_transaction::manifest::ast::Type::Blob,
+            Self::Expression => radix_transaction::manifest::ast::Type::Expression,
 
             Self::Component
             | Self::Vault
@@ -620,54 +635,54 @@ impl TryInto<transaction::manifest::ast::Type> for ValueKind {
         Ok(value_kind)
     }
 }
-impl From<transaction::manifest::ast::Type> for ValueKind {
-    fn from(value: transaction::manifest::ast::Type) -> ValueKind {
+impl From<radix_transaction::manifest::ast::Type> for ValueKind {
+    fn from(value: radix_transaction::manifest::ast::Type) -> ValueKind {
         match value {
-            transaction::manifest::ast::Type::Unit => Self::Unit,
-            transaction::manifest::ast::Type::Bool => Self::Bool,
+            radix_transaction::manifest::ast::Type::Unit => Self::Unit,
+            radix_transaction::manifest::ast::Type::Bool => Self::Bool,
 
-            transaction::manifest::ast::Type::I8 => Self::I8,
-            transaction::manifest::ast::Type::I16 => Self::I16,
-            transaction::manifest::ast::Type::I32 => Self::I32,
-            transaction::manifest::ast::Type::I64 => Self::I64,
-            transaction::manifest::ast::Type::I128 => Self::I128,
-            transaction::manifest::ast::Type::U8 => Self::U8,
-            transaction::manifest::ast::Type::U16 => Self::U16,
-            transaction::manifest::ast::Type::U32 => Self::U32,
-            transaction::manifest::ast::Type::U64 => Self::U64,
-            transaction::manifest::ast::Type::U128 => Self::U128,
+            radix_transaction::manifest::ast::Type::I8 => Self::I8,
+            radix_transaction::manifest::ast::Type::I16 => Self::I16,
+            radix_transaction::manifest::ast::Type::I32 => Self::I32,
+            radix_transaction::manifest::ast::Type::I64 => Self::I64,
+            radix_transaction::manifest::ast::Type::I128 => Self::I128,
+            radix_transaction::manifest::ast::Type::U8 => Self::U8,
+            radix_transaction::manifest::ast::Type::U16 => Self::U16,
+            radix_transaction::manifest::ast::Type::U32 => Self::U32,
+            radix_transaction::manifest::ast::Type::U64 => Self::U64,
+            radix_transaction::manifest::ast::Type::U128 => Self::U128,
 
-            transaction::manifest::ast::Type::String => Self::String,
+            radix_transaction::manifest::ast::Type::String => Self::String,
 
-            transaction::manifest::ast::Type::Struct => Self::Struct,
-            transaction::manifest::ast::Type::Enum => Self::Enum,
+            radix_transaction::manifest::ast::Type::Struct => Self::Struct,
+            radix_transaction::manifest::ast::Type::Enum => Self::Enum,
 
-            transaction::manifest::ast::Type::Option => Self::Option,
-            transaction::manifest::ast::Type::Array => Self::Array,
-            transaction::manifest::ast::Type::Tuple => Self::Tuple,
-            transaction::manifest::ast::Type::Result => Self::Result,
+            radix_transaction::manifest::ast::Type::Option => Self::Option,
+            radix_transaction::manifest::ast::Type::Array => Self::Array,
+            radix_transaction::manifest::ast::Type::Tuple => Self::Tuple,
+            radix_transaction::manifest::ast::Type::Result => Self::Result,
 
-            transaction::manifest::ast::Type::List => Self::List,
-            transaction::manifest::ast::Type::Set => Self::Set,
-            transaction::manifest::ast::Type::Map => Self::Map,
+            radix_transaction::manifest::ast::Type::List => Self::List,
+            radix_transaction::manifest::ast::Type::Set => Self::Set,
+            radix_transaction::manifest::ast::Type::Map => Self::Map,
 
-            transaction::manifest::ast::Type::Decimal => Self::Decimal,
-            transaction::manifest::ast::Type::PreciseDecimal => Self::PreciseDecimal,
+            radix_transaction::manifest::ast::Type::Decimal => Self::Decimal,
+            radix_transaction::manifest::ast::Type::PreciseDecimal => Self::PreciseDecimal,
 
-            transaction::manifest::ast::Type::PackageAddress => Self::PackageAddress,
-            transaction::manifest::ast::Type::ComponentAddress => Self::ComponentAddress,
-            transaction::manifest::ast::Type::ResourceAddress => Self::ResourceAddress,
+            radix_transaction::manifest::ast::Type::PackageAddress => Self::PackageAddress,
+            radix_transaction::manifest::ast::Type::ComponentAddress => Self::ComponentAddress,
+            radix_transaction::manifest::ast::Type::ResourceAddress => Self::ResourceAddress,
 
-            transaction::manifest::ast::Type::Hash => Self::Hash,
+            radix_transaction::manifest::ast::Type::Hash => Self::Hash,
 
-            transaction::manifest::ast::Type::Bucket => Self::Bucket,
-            transaction::manifest::ast::Type::Proof => Self::Proof,
+            radix_transaction::manifest::ast::Type::Bucket => Self::Bucket,
+            radix_transaction::manifest::ast::Type::Proof => Self::Proof,
 
-            transaction::manifest::ast::Type::NonFungibleId => Self::NonFungibleId,
-            transaction::manifest::ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
+            radix_transaction::manifest::ast::Type::NonFungibleId => Self::NonFungibleId,
+            radix_transaction::manifest::ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
 
-            transaction::manifest::ast::Type::Blob => Self::Blob,
-            transaction::manifest::ast::Type::Expression => Self::Expression,
+            radix_transaction::manifest::ast::Type::Blob => Self::Blob,
+            radix_transaction::manifest::ast::Type::Expression => Self::Expression,
         }
     }
 }
@@ -936,9 +951,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Decimal,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Decimal,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -949,9 +964,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::PreciseDecimal,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::PreciseDecimal,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -968,9 +983,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::PackageAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::PackageAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -986,9 +1001,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::ComponentAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::ComponentAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1004,9 +1019,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::ResourceAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::ResourceAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1018,9 +1033,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Hash,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Hash,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1036,9 +1051,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Bucket,
-                    expected: vec![ValueKind::U32, ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Bucket,
+                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1053,9 +1068,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Proof,
-                    expected: vec![ValueKind::U32, ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Proof,
+                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1067,9 +1082,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::NonFungibleId,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::NonFungibleId,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1080,9 +1095,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::NonFungibleAddress,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::NonFungibleAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1094,9 +1109,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Blob,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Blob,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1107,9 +1122,9 @@ pub fn value_from_ast_value(
                 }
             } else {
                 Err(Error::UnexpectedContents {
-                    kind: ValueKind::Expression,
-                    expected: vec![ValueKind::String],
-                    found: value.kind().into(),
+                    kind_being_parsed: ValueKind::Expression,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
                 })?
             }
         }
@@ -1234,7 +1249,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 )))?)
             } else {
                 // TODO: Temporary error. Need a better way to deal with this.
-                Err(Error::DecodeError(
+                Err(Error::SborDecodeError(
                     "Unable to encode a Bucket with a string identifier".into(),
                 ))
             }?
@@ -1246,7 +1261,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
                 )))?)
             } else {
                 // TODO: Temporary error. Need a better way to deal with this.
-                Err(Error::DecodeError(
+                Err(Error::SborDecodeError(
                     "Unable to encode a Proof with a string identifier".into(),
                 ))
             }?

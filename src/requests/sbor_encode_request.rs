@@ -44,10 +44,9 @@ impl Validate for SBOREncodeResponse {
 
 impl<'r> Request<'r, SBOREncodeResponse> for SBOREncodeRequest {
     fn handle_request(self) -> Result<SBOREncodeResponse, Error> {
-        let response: SBOREncodeResponse = SBOREncodeResponse {
+        Ok(SBOREncodeResponse {
             encoded_value: self.value.encode()?,
-        };
-        Ok(response)
+        })
     }
 }
 

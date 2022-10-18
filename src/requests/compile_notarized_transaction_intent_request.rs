@@ -1,12 +1,10 @@
-use crate::error::Error;
-use crate::export_request;
-use crate::models::serde::NotarizedTransaction;
-use crate::traits::{Request, Validate};
-use crate::validation::validate_notarized_transaction;
-use scrypto::prelude::scrypto_encode;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use std::convert::TryInto;
+
+use crate::error::Error;
+use crate::export_request;
+use crate::models::NotarizedTransaction;
+use crate::traits::{CompilableIntent, Request, Validate};
 
 // ==========================
 // Request & Response Models
@@ -31,7 +29,7 @@ pub struct CompileNotarizedTransactionIntentResponse {
 
 impl Validate for CompileNotarizedTransactionIntentRequest {
     fn validate(&self) -> Result<(), Error> {
-        validate_notarized_transaction(&self.notarized_transaction)?;
+        self.notarized_transaction.validate()?;
         Ok(())
     }
 }
@@ -50,15 +48,11 @@ impl<'r> Request<'r, CompileNotarizedTransactionIntentResponse>
     for CompileNotarizedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-        let notarized_transaction: transaction::model::NotarizedTransaction =
-            self.notarized_transaction.try_into()?;
-        let compiled_notarized_intent: Vec<u8> = scrypto_encode(&notarized_transaction);
+        let compiled_notarized_intent: Vec<u8> = self.notarized_transaction.compile()?;
 
-        let response: CompileNotarizedTransactionIntentResponse =
-            CompileNotarizedTransactionIntentResponse {
-                compiled_notarized_intent,
-            };
-        Ok(response)
+        Ok(CompileNotarizedTransactionIntentResponse {
+            compiled_notarized_intent,
+        })
     }
 }
 

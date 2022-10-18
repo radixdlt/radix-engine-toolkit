@@ -1,5 +1,3 @@
-#![no_main]
-
 pub mod address;
 pub mod error;
 pub mod macros;
@@ -8,4 +6,3 @@ pub mod models;
 pub mod requests;
 pub mod traits;
 pub mod utils;
-pub mod validation;

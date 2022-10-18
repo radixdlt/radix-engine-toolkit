@@ -1,4 +1,3 @@
-# [target.wasm32-unknown-unknown]
 rustflags = [
   "-C", "link-args=--gc-sections",
 ]
