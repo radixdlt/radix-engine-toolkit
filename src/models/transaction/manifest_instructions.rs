@@ -37,10 +37,12 @@ pub enum ManifestInstructions {
 
 impl ManifestInstructions {
     pub fn instructions(&self, bech32_manager: &Bech32Manager) -> Result<Vec<Instruction>, Error> {
-        self.ast_instructions(bech32_manager)?
-            .iter()
-            .map(|instruction| instruction_from_ast_instruction(instruction, bech32_manager))
-            .collect::<Result<Vec<_>, _>>()
+        let json_instructions: ManifestInstructions = self.convert_to_json(bech32_manager)?;
+        if let ManifestInstructions::JSON(instructions) = json_instructions {
+            Ok(instructions)
+        } else {
+            panic!("Impossible case.")
+        }
     }
 
     pub fn ast_instructions(
@@ -147,10 +149,7 @@ impl ManifestInstructions {
         }
     }
 
-    pub fn convert_to_json(
-        &self,
-        bech32_manager: &Bech32Manager,
-    ) -> Result<Self, Error> {
+    pub fn convert_to_json(&self, bech32_manager: &Bech32Manager) -> Result<Self, Error> {
         match self {
             Self::JSON(_) => Ok(self.clone()),
             Self::String(_) => {
