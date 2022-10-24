@@ -19,11 +19,37 @@ echo "🔮 🛠 🎯 Building targets for all platforms...☑️"
 echo "🔮 🦀  Switch rust to stable ⚖️"
 rustup default stable
 
-cargo build --target aarch64-apple-ios-sim --release    # iOS Simulator Aarch64 target
-cargo build --target aarch64-apple-ios --release        # iOS iPhone Aarch64 target
+# iOS Simulator Aarch64 target
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-ios-sim \
+    --release
 
-cargo build --target aarch64-apple-darwin --release     # Apple Silicon Mac
-cargo build --target x86_64-apple-darwin --release      # Intel Mac
+# iOS iPhone Aarch64 target
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-ios \
+    --release
+
+# Apple Silicon Mac
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target aarch64-apple-darwin \
+    --release
+
+# Apple Silicon Mac
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target x86_64-apple-darwin \
+    --release
 
 RET_RUST_CRATE_NAME=radix-engine-toolkit
 
