@@ -2,6 +2,8 @@ use std::convert::TryFrom;
 use std::fmt::Display;
 use std::str::FromStr;
 
+use scrypto::misc::copy_u8_array;
+
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -10,57 +12,65 @@ use scrypto::prelude::Hash;
 use crate::address::Bech32Manager;
 use crate::error::Error;
 
-pub type VaultId = EntityId;
-pub type KeyValueStoreId = EntityId;
-
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct EntityId(pub (Hash, u32));
+pub struct NodeId(pub (Hash, u32));
 
-impl From<(Hash, u32)> for EntityId {
+impl From<(Hash, u32)> for NodeId {
     fn from(value: (Hash, u32)) -> Self {
         Self(value)
     }
 }
 
-impl From<EntityId> for (Hash, u32) {
-    fn from(entity_id: EntityId) -> Self {
+impl From<NodeId> for (Hash, u32) {
+    fn from(entity_id: NodeId) -> Self {
         entity_id.0
     }
 }
 
-impl Serialize for EntityId {
+impl Serialize for NodeId {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let mut v = self.0 .0.to_vec();
-        v.extend(self.0 .1.to_le_bytes());
-        serializer.serialize_str(&hex::encode(&v))
+        serializer.serialize_str(&self.to_string())
     }
 }
 
-impl<'de> Deserialize<'de> for EntityId {
+impl<'de> Deserialize<'de> for NodeId {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let vault_id_string: &str = Deserialize::deserialize(deserializer)?;
-        let decoded_vault_id: Vec<u8> = hex::decode(vault_id_string).map_err(|_| {
-            DeserializationError::custom(format!(
-                "Could not decode entity identifier as hex: {}",
-                vault_id_string
-            ))
-        })?;
-        match decoded_vault_id.len() {
-            36 => Ok(Self((
-                Hash(scrypto::misc::copy_u8_array(&decoded_vault_id[0..32])),
-                u32::from_le_bytes(scrypto::misc::copy_u8_array(&decoded_vault_id[32..])),
-            ))),
-            _ => Err(DeserializationError::custom(format!(
-                "Could not create vault from the given entity identifier: {}",
-                vault_id_string
-            ))),
-        }
+        let node_id_string: &str = Deserialize::deserialize(deserializer)?;
+        node_id_string
+            .parse()
+            .map_err(|_| DeserializationError::custom("Failed to parse node id from string"))
+    }
+}
+
+impl ToString for NodeId {
+    fn to_string(&self) -> String {
+        let mut node_id_bytes: Vec<u8> = self.0 .0.to_vec();
+        node_id_bytes.extend(self.0 .1.to_le_bytes());
+
+        hex::encode(node_id_bytes)
+    }
+}
+
+impl FromStr for NodeId {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let node_id_bytes: Vec<u8> = hex::decode(s)
+            .map_err(|_| Error::DeserializationError(format!("Failed to decode node id: {}", s)))?;
+
+        let hash_bytes: &[u8] = &node_id_bytes[0..32];
+        let index_bytes: &[u8] = &node_id_bytes[32..];
+
+        let hash: Hash = Hash(copy_u8_array(hash_bytes));
+        let index: u32 = u32::from_le_bytes(copy_u8_array(index_bytes));
+
+        Ok(Self((hash, index)))
     }
 }
 

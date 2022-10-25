@@ -1888,14 +1888,16 @@ components:
       description: An error emitted when validating the type of `Value` objects.
       required:
         - error
-        - expected_type
+        - expected_types
         - actual_type
       properties:
         error:
           $ref: "#/components/schemas/ErrorKind"
           readOnly: true
-        expected_type:
-          $ref: "#/components/schemas/ValueKind"
+        expected_types:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValueKind"
         actual_type:
           $ref: "#/components/schemas/ValueKind"
     UnknownTypeId:

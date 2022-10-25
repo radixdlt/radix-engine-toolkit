@@ -66,7 +66,7 @@ macro_rules! export_request {
 macro_rules! serialize_to_jstring {
     ($env: expr, $value: expr) => {
         $env.new_string(
-            serde_json::to_string(&$value).expect("Unable to serialize a trusted payload")
+            serde_json::to_string(&$value).expect("Unable to serialize a trusted payload"),
         )
         .expect("Could not create a JString from a trusted payload")
         .into_inner()

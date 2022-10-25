@@ -40,7 +40,6 @@ use crate::traits::ValidateWithContext;
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
-
 pub enum Value {
     Unit,
     Bool {
@@ -136,7 +135,7 @@ pub enum Value {
 
     // Scrypto Values
     KeyValueStore {
-        identifier: KeyValueStoreId,
+        identifier: NodeId,
     },
 
     Decimal {
@@ -149,7 +148,7 @@ pub enum Value {
     },
 
     Component {
-        identifier: EntityId,
+        identifier: NodeId,
     },
 
     ComponentAddress {
@@ -190,7 +189,7 @@ pub enum Value {
         identifier: Identifier,
     },
     Vault {
-        identifier: VaultId,
+        identifier: NodeId,
     },
     NonFungibleId {
         #[serde_as(as = "DisplayFromStr")]
@@ -302,7 +301,7 @@ impl Value {
             Ok(())
         } else {
             Err(Error::InvalidType {
-                expected_type: expected_kind,
+                expected_types: vec![expected_kind],
                 actual_type: self.kind(),
             })
         }
@@ -1404,13 +1403,11 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                 ScryptoType::PreciseDecimal => Value::PreciseDecimal {
                     value: scrypto_decode(&encode_any(value))?,
                 },
-                ScryptoType::Component => {
-                    Value::Component {
-                        identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
-                            .0
-                            .into(),
-                    }
-                }
+                ScryptoType::Component => Value::Component {
+                    identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
+                        .0
+                        .into(),
+                },
                 ScryptoType::PackageAddress => Value::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id,
@@ -2103,10 +2100,11 @@ mod tests {
         let result: Result<(), crate::error::Error> = value.validate_if_collection();
 
         // Assert
+        let expected_types: Vec<ValueKind> = vec![ValueKind::Decimal];
         assert!(matches!(
             result,
             Err(crate::error::Error::InvalidType {
-                expected_type: ValueKind::Decimal,
+                expected_types,
                 actual_type: ValueKind::PreciseDecimal
             })
         ))

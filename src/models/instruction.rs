@@ -1,11 +1,15 @@
-use radix_transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
+use radix_transaction::manifest::ast::{
+    Instruction as AstInstruction, ScryptoReceiver as AstScryptoReceiver, Value as AstValue,
+};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
+use crate::models::receiver::*;
 use crate::models::value::*;
+use crate::models::NetworkAwareComponentAddress;
 use crate::traits::ValidateWithContext;
 
 #[serde_as]
@@ -19,9 +23,49 @@ pub enum Instruction {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
+    CallNativeFunction {
+        /// An unstructured [`Value`] representing the name of the blueprint to call. This is
+        /// expected to be a [`Value::String`] during validation and conversions.
+        blueprint_name: Value,
+
+        /// An unstructured [`Value`] representing the name of the function to call. This is
+        /// expected to be a [`Value::String`] during validation and conversions.
+        function_name: Value,
+
+        /// An optional vector of the arguments used in the function call.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        arguments: Option<Vec<Value>>,
+    },
+
     CallMethod {
+        // TODO: With the introduction of the ScryptoReceiver, "component_address" seems like a
+        // bad name to use. Something better is needed here.
+        /// An unstructured [`Value`] which could be a [`Value::ComponentAddress`] or a
+        /// [`Value::Component`]. During conversion, this gets translated into the appropriate
+        /// [`AstScryptoReceiver`].
         component_address: Value,
         method_name: Value,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        arguments: Option<Vec<Value>>,
+    },
+    CallNativeMethod {
+        // TODO: With the introduction of the ScryptoReceiver, "component_address" seems like a
+        // bad name to use. Something better is needed here.
+        /// The reason why the `component_address` on the [`Instruction::CallMethod`] can get
+        /// special treatment and have automatic translation between [`AstScryptoReceiver`] and
+        /// [`Value`] is because it follows very simple rules that are very easy to check and
+        /// understand. If the `component_address` is a [`Value::Component`] then it gets translated
+        /// to a [`AstScryptoReceiver::Component`]. If it is a [`Value::ComponentAddress`] then it
+        /// gets translated to [`AstScryptoReceiver::Global`].
+        ///
+        /// On the other hand, with the [`Instruction::CallNativeMethod`] and the [`Receiver`] the
+        /// [`Receiver::Owned`] and [`Receiver::Ref`] is disambiguated through an ampersand (`&`) in
+        /// text form. Therefore, there is a need to introduce an additional type of [`Receiver`] in
+        /// this library.
+        receiver: Receiver,
+
+        method_name: Value,
+
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
@@ -139,12 +183,46 @@ impl ValidateWithContext<u8> for Instruction {
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
+            Self::CallNativeFunction {
+                blueprint_name,
+                function_name,
+                arguments,
+            } => {
+                blueprint_name.validate((network_id, Some(ValueKind::String)))?;
+                function_name.validate((network_id, Some(ValueKind::String)))?;
+                arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|arg| arg.validate((network_id, None)))
+                    .collect::<Result<Vec<()>, Error>>()?;
+                Ok(())
+            }
+
             Self::CallMethod {
                 component_address,
                 method_name,
                 arguments,
             } => {
-                component_address.validate((network_id, Some(ValueKind::ComponentAddress)))?;
+                component_address
+                    .validate((network_id, Some(ValueKind::ComponentAddress)))
+                    .or_else(|_| {
+                        component_address.validate((network_id, Some(ValueKind::Component)))
+                    })?;
+                method_name.validate((network_id, Some(ValueKind::String)))?;
+                arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|arg| arg.validate((network_id, None)))
+                    .collect::<Result<Vec<()>, Error>>()?;
+                Ok(())
+            }
+            Self::CallNativeMethod {
+                method_name,
+                arguments,
+                ..
+            } => {
                 method_name.validate((network_id, Some(ValueKind::String)))?;
                 arguments
                     .clone()
@@ -313,7 +391,21 @@ pub fn ast_instruction_from_instruction(
         } => AstInstruction::CallFunction {
             package_address: ast_value_from_value(package_address, bech32_manager)?,
             blueprint_name: ast_value_from_value(blueprint_name, bech32_manager)?,
-            function: ast_value_from_value(function_name, bech32_manager)?,
+            function_name: ast_value_from_value(function_name, bech32_manager)?,
+            args: arguments
+                .clone()
+                .unwrap_or_default()
+                .iter()
+                .map(|v| ast_value_from_value(v, bech32_manager))
+                .collect::<Result<Vec<AstValue>, _>>()?,
+        },
+        Instruction::CallNativeFunction {
+            blueprint_name,
+            function_name,
+            arguments,
+        } => AstInstruction::CallNativeFunction {
+            blueprint_name: ast_value_from_value(blueprint_name, bech32_manager)?,
+            function_name: ast_value_from_value(function_name, bech32_manager)?,
             args: arguments
                 .clone()
                 .unwrap_or_default()
@@ -325,8 +417,40 @@ pub fn ast_instruction_from_instruction(
             component_address,
             method_name,
             arguments,
-        } => AstInstruction::CallMethod {
-            component_address: ast_value_from_value(component_address, bech32_manager)?,
+        } => {
+            let scrypto_receiver: AstScryptoReceiver =
+                if let Value::ComponentAddress { address } = component_address {
+                    AstScryptoReceiver::Global(AstValue::String(
+                        bech32_manager
+                            .encoder
+                            .encode_component_address_to_string(&address.address),
+                    ))
+                } else if let Value::Component { identifier } = component_address {
+                    AstScryptoReceiver::Component(AstValue::String(identifier.to_string()))
+                } else {
+                    Err(Error::InvalidType {
+                        expected_types: vec![ValueKind::Component, ValueKind::ComponentAddress],
+                        actual_type: component_address.kind(),
+                    })?
+                };
+
+            AstInstruction::CallMethod {
+                receiver: scrypto_receiver,
+                method: ast_value_from_value(method_name, bech32_manager)?,
+                args: arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|v| ast_value_from_value(v, bech32_manager))
+                    .collect::<Result<Vec<AstValue>, _>>()?,
+            }
+        }
+        Instruction::CallNativeMethod {
+            receiver,
+            method_name,
+            arguments,
+        } => AstInstruction::CallNativeMethod {
+            receiver: receiver.clone().into(),
             method: ast_value_from_value(method_name, bech32_manager)?,
             args: arguments
                 .clone()
@@ -499,12 +623,30 @@ pub fn instruction_from_ast_instruction(
         AstInstruction::CallFunction {
             package_address,
             blueprint_name,
-            function,
+            function_name,
             args,
         } => Instruction::CallFunction {
             package_address: value_from_ast_value(package_address, bech32_manager)?,
             blueprint_name: value_from_ast_value(blueprint_name, bech32_manager)?,
-            function_name: value_from_ast_value(function, bech32_manager)?,
+            function_name: value_from_ast_value(function_name, bech32_manager)?,
+            arguments: {
+                let arguments: Vec<Value> = args
+                    .iter()
+                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .collect::<Result<Vec<Value>, _>>()?;
+                match arguments.len() {
+                    0 => None,
+                    _ => Some(arguments),
+                }
+            },
+        },
+        AstInstruction::CallNativeFunction {
+            blueprint_name,
+            function_name,
+            args,
+        } => Instruction::CallNativeFunction {
+            blueprint_name: value_from_ast_value(blueprint_name, bech32_manager)?,
+            function_name: value_from_ast_value(function_name, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
                     .iter()
@@ -517,11 +659,59 @@ pub fn instruction_from_ast_instruction(
             },
         },
         AstInstruction::CallMethod {
-            component_address,
+            receiver,
             method,
             args,
         } => Instruction::CallMethod {
-            component_address: value_from_ast_value(component_address, bech32_manager)?,
+            component_address: match receiver {
+                AstScryptoReceiver::Global(value) => {
+                    if let Value::String { value } = value_from_ast_value(value, bech32_manager)? {
+                        Value::ComponentAddress {
+                            address: NetworkAwareComponentAddress {
+                                network_id: bech32_manager.network_id(),
+                                address: bech32_manager
+                                    .decoder
+                                    .validate_and_decode_component_address(&value)?,
+                            },
+                        }
+                    } else {
+                        Err(Error::InvalidType {
+                            expected_types: vec![ValueKind::String],
+                            actual_type: value.kind().into(),
+                        })?
+                    }
+                }
+                AstScryptoReceiver::Component(value) => {
+                    if let Value::String { value } = value_from_ast_value(value, bech32_manager)? {
+                        Value::Component {
+                            identifier: value.parse()?,
+                        }
+                    } else {
+                        Err(Error::InvalidType {
+                            expected_types: vec![ValueKind::String],
+                            actual_type: value.kind().into(),
+                        })?
+                    }
+                }
+            },
+            method_name: value_from_ast_value(method, bech32_manager)?,
+            arguments: {
+                let arguments: Vec<Value> = args
+                    .iter()
+                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .collect::<Result<Vec<Value>, _>>()?;
+                match arguments.len() {
+                    0 => None,
+                    _ => Some(arguments),
+                }
+            },
+        },
+        AstInstruction::CallNativeMethod {
+            receiver,
+            method,
+            args,
+        } => Instruction::CallNativeMethod {
+            receiver: receiver.clone().try_into()?,
             method_name: value_from_ast_value(method, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args

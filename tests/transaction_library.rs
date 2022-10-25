@@ -134,22 +134,22 @@ impl RadixEngineToolkit {
         Self::new_from_module_path(wasm_module_path)
     }
 
-    define_request_function! {InformationRequest, InformationResponse, information}
-    define_request_function! {ConvertManifestRequest, ConvertManifestResponse, convert_manifest}
-    define_request_function! {CompileTransactionIntentRequest, CompileTransactionIntentResponse, compile_transaction_intent}
-    define_request_function! {DecompileTransactionIntentRequest, DecompileTransactionIntentResponse, decompile_transaction_intent}
-    define_request_function! {CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, compile_signed_transaction_intent}
-    define_request_function! {DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse, decompile_signed_transaction_intent}
-    define_request_function! {CompileNotarizedTransactionIntentRequest, CompileNotarizedTransactionIntentResponse, compile_notarized_transaction_intent}
-    define_request_function! {DecompileNotarizedTransactionIntentRequest, DecompileNotarizedTransactionIntentResponse, decompile_notarized_transaction_intent}
-    define_request_function! {DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse, decompile_unknown_transaction_intent}
-    define_request_function! {DecodeAddressRequest, DecodeAddressResponse, decode_address}
-    define_request_function! {EncodeAddressRequest, EncodeAddressResponse, encode_address}
-    define_request_function! {SBORDecodeRequest, SBORDecodeResponse, sbor_decode}
-    define_request_function! {SBOREncodeRequest, SBOREncodeResponse, sbor_encode}
-    define_request_function! {ExtractAbiRequest, ExtractAbiResponse, extract_abi}
-    define_request_function! {DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse, derive_non_fungible_address_from_public_key}
-    define_request_function! {DeriveNonFungibleAddressRequest, DeriveNonFungibleAddressResponse, derive_non_fungible_address}
+    crate::define_request_function! {InformationRequest, InformationResponse, information}
+    crate::define_request_function! {ConvertManifestRequest, ConvertManifestResponse, convert_manifest}
+    crate::define_request_function! {CompileTransactionIntentRequest, CompileTransactionIntentResponse, compile_transaction_intent}
+    crate::define_request_function! {DecompileTransactionIntentRequest, DecompileTransactionIntentResponse, decompile_transaction_intent}
+    crate::define_request_function! {CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, compile_signed_transaction_intent}
+    crate::define_request_function! {DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse, decompile_signed_transaction_intent}
+    crate::define_request_function! {CompileNotarizedTransactionIntentRequest, CompileNotarizedTransactionIntentResponse, compile_notarized_transaction_intent}
+    crate::define_request_function! {DecompileNotarizedTransactionIntentRequest, DecompileNotarizedTransactionIntentResponse, decompile_notarized_transaction_intent}
+    crate::define_request_function! {DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse, decompile_unknown_transaction_intent}
+    crate::define_request_function! {DecodeAddressRequest, DecodeAddressResponse, decode_address}
+    crate::define_request_function! {EncodeAddressRequest, EncodeAddressResponse, encode_address}
+    crate::define_request_function! {SBORDecodeRequest, SBORDecodeResponse, sbor_decode}
+    crate::define_request_function! {SBOREncodeRequest, SBOREncodeResponse, sbor_encode}
+    crate::define_request_function! {ExtractAbiRequest, ExtractAbiResponse, extract_abi}
+    crate::define_request_function! {DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse, derive_non_fungible_address_from_public_key}
+    crate::define_request_function! {DeriveNonFungibleAddressRequest, DeriveNonFungibleAddressResponse, derive_non_fungible_address}
 
     /// Calls a function in the WASM instance with a given request
     ///
@@ -420,8 +420,8 @@ impl RadixEngineToolkit {
 // Function Store
 // ===============
 
-define_function_store! {
-    struct RadixEngineToolkitFunctions {
+crate::define_function_store! {
+    pub struct RadixEngineToolkitFunctions {
         pub information: TypedFunc<i32, i32>,
 
         pub convert_manifest: TypedFunc<i32, i32>,
@@ -552,8 +552,9 @@ macro_rules! define_request_function {
 
 #[cfg(test)]
 mod tests {
-    use crate::{RadixEngineToolkit, Result};
     use radix_engine_toolkit::requests::{InformationRequest, InformationResponse};
+
+    use super::{RadixEngineToolkit, Result};
 
     #[test]
     pub fn test_information_request_succeeds() {

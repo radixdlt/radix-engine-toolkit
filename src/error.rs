@@ -1,4 +1,4 @@
-use crate::models::value::ValueKind;
+use crate::models::{value::ValueKind, RENodeKind};
 use serde::{Deserialize, Serialize};
 
 /// Represents an error encountered by the operations of the crate.
@@ -61,9 +61,21 @@ pub enum Error {
         found_child_kind: ValueKind,
     },
 
+    /// An error emitted during the conversion of [`crate::models::RENode`] into the AST's native
+    /// type. This error signals that unexpected contents were found when parsing the contents of
+    /// RENode. For example, for the case where we are parsing a [`crate::models::RENode::Bucket`],
+    /// we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a
+    /// [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we
+    /// encounter anything else that is not the types we expect, then this error is emitted.
+    UnexpectedReNodeContents {
+        kind_being_parsed: RENodeKind,
+        allowed_children_kinds: Vec<ValueKind>,
+        found_child_kind: ValueKind,
+    },
+
     /// An error emitted when validating the type of `Value` objects.
     InvalidType {
-        expected_type: ValueKind,
+        expected_types: Vec<ValueKind>,
         actual_type: ValueKind,
     },
 
