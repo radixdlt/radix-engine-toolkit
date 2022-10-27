@@ -5,3 +5,4 @@ examples/dotnet/bin
 examples/dotnet/obj
 .mypy_cache
 openapi-generator-cli-6.0.1.jar
+.DS_Store

@@ -27,6 +27,14 @@ cargo +nightly \
     --target aarch64-apple-ios-sim \
     --release
 
+# iOS Simulator x86 target
+cargo +nightly \
+    build \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort \
+    --target x86_64-apple-ios \
+    --release
+
 # iOS iPhone Aarch64 target
 cargo +nightly \
     build \
@@ -43,7 +51,7 @@ cargo +nightly \
     --target aarch64-apple-darwin \
     --release
 
-# Apple Silicon Mac
+# Apple Intel Mac
 cargo +nightly \
     build \
     -Z build-std=std,panic_abort \
@@ -81,18 +89,20 @@ echo "🔮 🛠 🎯 Finished building all targets ✅"
 (
     cd target
     mkdir -p macos-arm64_x86_64
+    mkdir -p ios-simulator-arm64_x86_64
 
      # Combine two builds for the macOS archictures together into one fat file.
     lipo -create \
         aarch64-apple-darwin/release/$TARGET_BINARY_NAME \
         x86_64-apple-darwin/release/$TARGET_BINARY_NAME \
         -o macos-arm64_x86_64/$LIB_BINARY_NAME
+
+    lipo -create \
+        aarch64-apple-ios-sim/release/$TARGET_BINARY_NAME \
+        x86_64-apple-ios/release/$TARGET_BINARY_NAME \
+        -o ios-simulator-arm64_x86_64/$LIB_BINARY_NAME
         
-    # Lipo is not needed for iOS, since we only support one architecture, and that is `aarch64` (ARM64 iOS).
-    # And lipo is only used to combine different architectures for same platform together.
-    
     mv aarch64-apple-ios/release/$TARGET_BINARY_NAME aarch64-apple-ios/release/$LIB_BINARY_NAME
-    mv aarch64-apple-ios-sim/release/$TARGET_BINARY_NAME aarch64-apple-ios-sim/release/$LIB_BINARY_NAME
 
 	echo "🔮 🙏 Finished merging some of the targets using 'lipo'"
 )
@@ -136,11 +146,11 @@ END
     echo "🔮 🗂 Copying 'include' folder for iOS target"
     cp -r include target/aarch64-apple-ios/release/
 
-    echo "🔮 🗂 Copying 'include' folder for iOS Sim target"
-    cp -r include target/aarch64-apple-ios-sim/release/
-
     echo "🔮 🗂 Copying 'include' folder for Mac target"
     cp -r include target/macos-arm64_x86_64/
+
+    echo "🔮 🗂 Copying 'include' folder for iOS Sim target"
+    cp -r include target/ios-simulator-arm64_x86_64/
 
     echo "🔮 🗑 Removing folder 'include'"
     rm -r include
@@ -155,8 +165,8 @@ echo "🔮 📦 Creating '.xcframework' for platforms: [iOS, iOS Simulator, macO
 xcodebuild -create-xcframework \
     -library target/aarch64-apple-ios/release/$LIB_BINARY_NAME \
     -headers target/aarch64-apple-ios/release/include \
-    -library target/aarch64-apple-ios-sim/release/$LIB_BINARY_NAME \
-    -headers target/aarch64-apple-ios-sim/release/include \
+    -library target/ios-simulator-arm64_x86_64/$LIB_BINARY_NAME \
+    -headers target/ios-simulator-arm64_x86_64/include \
     -library target/macos-arm64_x86_64/$LIB_BINARY_NAME \
     -headers target/macos-arm64_x86_64/include \
     -output $XCFRAMEWORKPATH/$XCFRAMEWORK
