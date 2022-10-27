@@ -102,9 +102,6 @@ echo "🔮 🛠 🎯 Finished building all targets ✅"
         x86_64-apple-ios/release/$TARGET_BINARY_NAME \
         -o ios-simulator-arm64_x86_64/$LIB_BINARY_NAME
         
-    # Lipo is not needed for iOS, since we only support one architecture, and that is `aarch64` (ARM64 iOS).
-    # And lipo is only used to combine different architectures for same platform together.
-    
     mv aarch64-apple-ios/release/$TARGET_BINARY_NAME aarch64-apple-ios/release/$LIB_BINARY_NAME
 
 	echo "🔮 🙏 Finished merging some of the targets using 'lipo'"
