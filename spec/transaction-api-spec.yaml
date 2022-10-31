@@ -382,6 +382,272 @@ components:
     # Request & Response Dependencies
     # ================================
 
+    ReceiverKind:
+      type: string
+      enum:
+        - Owned
+        - Ref
+
+    Receiver:
+      oneOf:
+        - $ref: "#/components/schemas/ReceiverOwned"
+        - $ref: "#/components/schemas/ReceiverRef"
+      discriminator:
+        propertyName: error
+        mapping:
+          Ref: "#/components/schemas/ReceiverOwned"
+          Owned: "#/components/schemas/ReceiverRef"
+    ReceiverRef:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - node
+      properties:
+        type:
+          $ref: "#/components/schemas/ReceiverKind"
+          readOnly: true
+        node:
+          $ref: "#/components/schemas/RENode"
+    ReceiverOwned:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - node
+      properties:
+        type:
+          $ref: "#/components/schemas/ReceiverKind"
+          readOnly: true
+        node:
+          $ref: "#/components/schemas/RENode"
+
+    RENodeKind:
+      type: string
+      description: "An enum representing the type of the RENode."
+      enum:
+        - Bucket,
+        - Proof,
+
+        - AuthZoneStack,
+        - Worktop,
+
+        - Global,
+        - KeyValueStore,
+        - NonFungibleStore,
+        - Component,
+        - System,
+        - Vault,
+        - ResourceManager,
+        - Package,
+
+    RENode:
+      oneOf:
+        - $ref: "#/components/schemas/ReNodeBucket"
+        - $ref: "#/components/schemas/ReNodeProof"
+
+        - $ref: "#/components/schemas/ReNodeAuthZoneStack"
+        - $ref: "#/components/schemas/ReNodeWorktop"
+
+        - $ref: "#/components/schemas/ReNodeGlobal"
+        - $ref: "#/components/schemas/ReNodeKeyValueStore"
+        - $ref: "#/components/schemas/ReNodeNonFungibleStore"
+        - $ref: "#/components/schemas/ReNodeComponent"
+        - $ref: "#/components/schemas/ReNodeSystem"
+        - $ref: "#/components/schemas/ReNodeVault"
+        - $ref: "#/components/schemas/ReNodeResourceManager"
+        - $ref: "#/components/schemas/ReNodePackage"
+      discriminator:
+        propertyName: error
+        mapping:
+          Bucket: "#/components/schemas/ReNodeBucket"
+          Proof: "#/components/schemas/ReNodeProof"
+          AuthZoneStack: "#/components/schemas/ReNodeAuthZoneStack"
+          Worktop: "#/components/schemas/ReNodeWorktop"
+          Global: "#/components/schemas/ReNodeGlobal"
+          KeyValueStore: "#/components/schemas/ReNodeKeyValueStore"
+          NonFungibleStore: "#/components/schemas/ReNodeNonFungibleStore"
+          Component: "#/components/schemas/ReNodeComponent"
+          System: "#/components/schemas/ReNodeSystem"
+          Vault: "#/components/schemas/ReNodeVault"
+          ResourceManager: "#/components/schemas/ReNodeResourceManager"
+          Package: "#/components/schemas/ReNodePackage"
+
+    ReNodeBucket:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        oneOf:
+          - additionalProperties: false
+            required:
+              - type
+              - identifier
+            properties:
+              type:
+                $ref: "#/components/schemas/RENodeKind"
+                readOnly: true
+              identifier:
+                type: string
+                description: "A string identifier used to provide user friendly names to buckets and proofs for easy identification"
+          - additionalProperties: false
+            required:
+              - type
+              - identifier
+            properties:
+              type:
+                $ref: "#/components/schemas/RENodeKind"
+                readOnly: true
+              identifier:
+                type: integer
+                description: "A 32-bit unsigned number used to identify buckets and proofs"
+    ReNodeProof:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        oneOf:
+          - additionalProperties: false
+            required:
+              - type
+              - identifier
+            properties:
+              type:
+                $ref: "#/components/schemas/RENodeKind"
+                readOnly: true
+              identifier:
+                type: string
+                description: "A string identifier used to provide user friendly names to buckets and proofs for easy identification"
+          - additionalProperties: false
+            required:
+              - type
+              - identifier
+            properties:
+              type:
+                $ref: "#/components/schemas/RENodeKind"
+                readOnly: true
+              identifier:
+                type: integer
+                description: "A 32-bit unsigned number used to identify buckets and proofs"
+    ReNodeAuthZoneStack:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          type: string
+          description: "A string of an unsigned 32-bit number of the identifier of the auth zone stack"
+    ReNodeWorktop:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+    ReNodeGlobal:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          type: string
+          description: "A string of an unsigned 32-bit number of the identifier of the auth zone stack"
+
+    ReNodeKeyValueStore:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodeNonFungibleStore:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodeComponent:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodeSystem:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodeVault:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodeResourceManager:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+    ReNodePackage:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
+
+    NodeId:
+      type: string
+      description: A hex-encoded representation of the 36-byte long Node Id where the lower 32 bytes are the transaction hash and the remaining 4 bytes are the index of the substate.
+      maxLength: 72
+      minLength: 72
+
     AddressKind:
       type: string
       description: "An enum representing the type of the type of the entity being addressed"
@@ -1159,13 +1425,13 @@ components:
       additionalProperties: false
       required:
         - type
-        - address
+        - identifier
       properties:
         type:
           $ref: "#/components/schemas/ValueKind"
           readOnly: true
-        address:
-          type: string
+        identifier:
+          $ref: "#/components/schemas/NodeId"
     ValueComponentAddress:
       additionalProperties: false
       required:
@@ -1269,7 +1535,7 @@ components:
           $ref: "#/components/schemas/ValueKind"
           readOnly: true
         identifier:
-          type: string
+          $ref: "#/components/schemas/NodeId"
     NonFungibleId:
       additionalProperties: false
       required:
@@ -1304,7 +1570,7 @@ components:
           $ref: "#/components/schemas/ValueKind"
           readOnly: true
         identifier:
-          type: string
+          $ref: "#/components/schemas/NodeId"
     EcdsaSecp256k1PublicKeyValue:
       additionalProperties: false
       required:
@@ -1406,7 +1672,9 @@ components:
     Instruction:
       oneOf:
         - $ref: "#/components/schemas/CallFunction"
+        - $ref: "#/components/schemas/CallNativeFunction"
         - $ref: "#/components/schemas/CallMethod"
+        - $ref: "#/components/schemas/CallNativeMethod"
         - $ref: "#/components/schemas/TakeFromWorktop"
         - $ref: "#/components/schemas/TakeFromWorktopByAmount"
         - $ref: "#/components/schemas/TakeFromWorktopByIds"
@@ -1425,11 +1693,16 @@ components:
         - $ref: "#/components/schemas/DropAllProofs"
         - $ref: "#/components/schemas/ReturnToWorktop"
         - $ref: "#/components/schemas/PublishPackage"
+        - $ref: "#/components/schemas/CreateResource"
+        - $ref: "#/components/schemas/BurnBucket"
+        - $ref: "#/components/schemas/MintFungible"
       discriminator:
         propertyName: instruction
         mapping:
           CALL_FUNCTION: "#/components/schemas/CallFunction"
+          CALL_NATIVE_FUNCTION: "#/components/schemas/CallNativeFunction"
           CALL_METHOD: "#/components/schemas/CallMethod"
+          CALL_NATIVE_METHOD: "#/components/schemas/CallNativeMethod"
           TAKE_FROM_WORKTOP: "#/components/schemas/TakeFromWorktop"
           TAKE_FROM_WORKTOP_BY_AMOUNT: "#/components/schemas/TakeFromWorktopByAmount"
           TAKE_FROM_WORKTOP_BY_IDS: "#/components/schemas/TakeFromWorktopByIds"
@@ -1448,6 +1721,8 @@ components:
           DROP_ALL_PROOF: "#/components/schemas/DropAllProofs"
           RETURN_TO_WORKTOP: "#/components/schemas/ReturnToWorktop"
           PUBLISH_PACKAGE: "#/components/schemas/PublishPackage"
+          CREATE_RESOURCE: "#/components/schemas/CreateResource"
+
     CallFunction:
       additionalProperties: false
       required:
@@ -1471,6 +1746,26 @@ components:
           nullable: true
           items:
             $ref: "#/components/schemas/Value"
+    CallNativeFunction:
+      additionalProperties: false
+      required:
+        - instruction
+        - blueprint_name
+        - function_name
+        - arguments
+      properties:
+        instruction:
+          $ref: "#/components/schemas/InstructionKind"
+          readOnly: true
+        blueprint_name:
+          $ref: "#/components/schemas/String"
+        function_name:
+          $ref: "#/components/schemas/String"
+        arguments:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Value"
     CallMethod:
       additionalProperties: false
       required:
@@ -1483,7 +1778,31 @@ components:
           $ref: "#/components/schemas/InstructionKind"
           readOnly: true
         component_address:
-          $ref: "#/components/schemas/ValueComponentAddress"
+          readOnly: true
+          oneOf:
+            - $ref: "#/components/schemas/ValueComponentAddress"
+            - $ref: "#/components/schemas/Component"
+        method_name:
+          $ref: "#/components/schemas/String"
+        arguments:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/Value"
+    CallNativeMethod:
+      additionalProperties: false
+      required:
+        - instruction
+        - receiver
+        - method_name
+        - arguments
+      properties:
+        instruction:
+          $ref: "#/components/schemas/InstructionKind"
+          readOnly: true
+        receiver:
+          readOnly: true
+          $ref: "#/components/schemas/Receiver"
         method_name:
           $ref: "#/components/schemas/String"
         arguments:
@@ -1734,6 +2053,51 @@ components:
           $ref: "#/components/schemas/Blob"
         abi:
           $ref: "#/components/schemas/Blob"
+    CreateResource:
+      type: object
+      required:
+        - instruction
+        - resource_type
+        - metadata
+        - access_rules
+        - mint_params
+      properties:
+        instruction:
+          $ref: "#/components/schemas/InstructionKind"
+          readOnly: true
+        resource_type:
+          $ref: "#/components/schemas/Value"
+        metadata:
+          $ref: "#/components/schemas/Value"
+        access_rules:
+          $ref: "#/components/schemas/Value"
+        mint_params:
+          $ref: "#/components/schemas/Value"
+    BurnBucket:
+      type: object
+      required:
+        - instruction
+        - bucket
+      properties:
+        instruction:
+          $ref: "#/components/schemas/InstructionKind"
+          readOnly: true
+        bucket:
+          $ref: "#/components/schemas/Bucket"
+    MintFungible:
+      type: object
+      required:
+        - instruction
+        - resource_address
+        - amount
+      properties:
+        instruction:
+          $ref: "#/components/schemas/InstructionKind"
+          readOnly: true
+        resource_address:
+          $ref: "#/components/schemas/ValueResourceAddress"
+        amount:
+          $ref: "#/components/schemas/Decimal"
 
     # ======
     # Error
@@ -1748,6 +2112,7 @@ components:
         - DeserializationError
         - InvalidRequestString
         - UnexpectedContents
+        - UnexpectedReNodeContents
         - InvalidType
         - UnknownTypeId
         - ParseError
@@ -1770,6 +2135,7 @@ components:
         - $ref: "#/components/schemas/DeserializationError"
         - $ref: "#/components/schemas/InvalidRequestString"
         - $ref: "#/components/schemas/UnexpectedContents"
+        - $ref: "#/components/schemas/UnexpectedReNodeContents"
         - $ref: "#/components/schemas/InvalidType"
         - $ref: "#/components/schemas/UnknownTypeId"
         - $ref: "#/components/schemas/ParseError"
@@ -1792,6 +2158,7 @@ components:
           DeserializationError: "#/components/schemas/DeserializationError"
           InvalidRequestString: "#/components/schemas/InvalidRequestString"
           UnexpectedContents: "#/components/schemas/UnexpectedContents"
+          UnexpectedReNodeContents: "#/components/schemas/UnexpectedReNodeContents"
           InvalidType: "#/components/schemas/InvalidType"
           UnknownTypeId: "#/components/schemas/UnknownTypeId"
           ParseError: "#/components/schemas/ParseError"
@@ -1877,6 +2244,26 @@ components:
           readOnly: true
         kind_being_parsed:
           $ref: "#/components/schemas/ValueKind"
+        allowed_children_kinds:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValueKind"
+        found_child_kind:
+          $ref: "#/components/schemas/ValueKind"
+    UnexpectedReNodeContents:
+      type: object
+      description: An error emitted during the conversion of [`crate::models::RENode`] into the AST's native type. This error signals that unexpected contents were found when parsing the contents of RENode. For example, for the case where we are parsing a [`crate::models::RENode::Bucket`], we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we encounter anything else that is not the types we expect, then this error is emitted.
+      required:
+        - error
+        - kind_being_parsed
+        - allowed_children_kinds
+        - found_child_kind
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorKind"
+          readOnly: true
+        kind_being_parsed:
+          $ref: "#/components/schemas/RENodeKind"
         allowed_children_kinds:
           type: array
           items:
