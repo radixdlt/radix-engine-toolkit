@@ -1,6 +1,6 @@
 use bech32;
 use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
-use radix_transaction::validation::ValidationConfig;
+use radix_transaction::{validation::ValidationConfig, model::DEFAULT_MAX_EPOCH_RANGE};
 use scrypto::prelude::NetworkDefinition;
 
 use crate::models::TransactionHeader;
@@ -105,7 +105,7 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, scrypto::addr
 pub fn validation_config_from_header(transaction_header: &TransactionHeader) -> ValidationConfig {
     ValidationConfig {
         network_id: transaction_header.network_id,
-        current_epoch: transaction_header.end_epoch_exclusive - 1,
+        max_epoch_range: DEFAULT_MAX_EPOCH_RANGE,
         max_cost_unit_limit: DEFAULT_MAX_COST_UNIT_LIMIT,
         min_tip_percentage: 0,
     }

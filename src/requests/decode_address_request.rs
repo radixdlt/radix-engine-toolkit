@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use bech32::{self, u5, FromBase32, Variant};
 
 use serde::{Deserialize, Serialize};
@@ -66,7 +64,7 @@ impl<'r> Request<'r, DecodeAddressResponse> for DecodeAddressRequest {
             variant => Err(scrypto::address::AddressError::InvalidVariant(variant)),
         }?;
 
-        let address: Address = Address::from_str(&self.address)?;
+        let address: Address = self.address.parse()?;
         let network_definition: scrypto::core::NetworkDefinition =
             network_definition_from_network_id(address.network_id());
 

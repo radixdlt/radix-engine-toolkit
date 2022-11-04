@@ -13,7 +13,6 @@ use super::ValueKind;
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type", content = "node")]
 pub enum Receiver {
-    Owned(RENode),
     Ref(RENode),
 }
 
@@ -31,7 +30,7 @@ pub enum RENode {
     KeyValueStore(NodeId),
     NonFungibleStore(NodeId),
     Component(NodeId),
-    System(NodeId),
+    EpochManager(NodeId),
     Vault(NodeId),
     ResourceManager(NodeId),
     Package(NodeId),
@@ -49,7 +48,7 @@ pub enum RENodeKind {
     KeyValueStore,
     NonFungibleStore,
     Component,
-    System,
+    EpochManager,
     Vault,
     ResourceManager,
     Package,
@@ -75,14 +74,12 @@ impl TryFrom<AstReceiver> for Receiver {
 
 pub fn ast_receiver_from_receiver(receiver: &Receiver) -> AstReceiver {
     match receiver {
-        Receiver::Owned(re_node) => AstReceiver::Owned(ast_re_node_from_re_node(re_node)),
         Receiver::Ref(re_node) => AstReceiver::Ref(ast_re_node_from_re_node(re_node)),
     }
 }
 
 pub fn receiver_from_ast_receiver(receiver: &AstReceiver) -> Result<Receiver, Error> {
     let receiver: Receiver = match receiver {
-        AstReceiver::Owned(re_node) => Receiver::Owned(re_node_from_ast_re_node(re_node)?),
         AstReceiver::Ref(re_node) => Receiver::Ref(re_node_from_ast_re_node(re_node)?),
     };
     Ok(receiver)
@@ -127,9 +124,9 @@ pub fn ast_re_node_from_re_node(re_node: &RENode) -> AstRENode {
             let ast_value: AstValue = AstValue::String(identifier.to_string());
             AstRENode::Component(ast_value)
         }
-        RENode::System(identifier) => {
+        RENode::EpochManager(identifier) => {
             let ast_value: AstValue = AstValue::String(identifier.to_string());
-            AstRENode::System(ast_value)
+            AstRENode::EpochManager(ast_value)
         }
         RENode::Vault(identifier) => {
             let ast_value: AstValue = AstValue::String(identifier.to_string());
@@ -233,12 +230,12 @@ pub fn re_node_from_ast_re_node(ast_re_node: &AstRENode) -> Result<RENode, Error
                 })?
             }
         }
-        AstRENode::System(identifier) => {
+        AstRENode::EpochManager(identifier) => {
             if let AstValue::String(identifier) = identifier {
-                RENode::System(identifier.parse()?)
+                RENode::EpochManager(identifier.parse()?)
             } else {
                 Err(Error::UnexpectedReNodeContents {
-                    kind_being_parsed: RENodeKind::System,
+                    kind_being_parsed: RENodeKind::EpochManager,
                     allowed_children_kinds: vec![ValueKind::String],
                     found_child_kind: identifier.kind().into(),
                 })?

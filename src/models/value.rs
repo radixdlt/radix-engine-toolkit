@@ -23,7 +23,6 @@ use scrypto::prelude::{
     NonFungibleAddress, NonFungibleId, PreciseDecimal,
 };
 use std::convert::TryInto;
-use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, FromInto};
@@ -160,6 +159,9 @@ pub enum Value {
     PackageAddress {
         address: NetworkAwarePackageAddress,
     },
+    SystemAddress {
+        address: NetworkAwareSystemAddress,
+    },
 
     Hash {
         #[serde_as(as = "DisplayFromStr")]
@@ -249,6 +251,7 @@ impl Value {
             Self::PackageAddress { .. } => ValueKind::PackageAddress,
             Self::ComponentAddress { .. } => ValueKind::ComponentAddress,
             Self::ResourceAddress { .. } => ValueKind::ResourceAddress,
+            Self::SystemAddress { .. } => ValueKind::SystemAddress,
 
             Self::Hash { .. } => ValueKind::Hash,
 
@@ -428,6 +431,7 @@ pub enum ValueKind {
     PackageAddress,
     ComponentAddress,
     ResourceAddress,
+    SystemAddress,
 
     Hash,
 
@@ -490,6 +494,7 @@ impl ValueKind {
             Self::PackageAddress => ScryptoType::PackageAddress.id(),
             Self::ResourceAddress => ScryptoType::ResourceAddress.id(),
             Self::ComponentAddress => ScryptoType::ComponentAddress.id(),
+            Self::SystemAddress => ScryptoType::SystemAddress.id(),
 
             Self::Hash => ScryptoType::Hash.id(),
 
@@ -548,6 +553,7 @@ impl ValueKind {
                     ScryptoType::PackageAddress => Self::PackageAddress,
                     ScryptoType::ResourceAddress => Self::ResourceAddress,
                     ScryptoType::ComponentAddress => Self::ComponentAddress,
+                    ScryptoType::SystemAddress => Self::SystemAddress,
                     ScryptoType::Hash => Self::Hash,
                     ScryptoType::Bucket => Self::Bucket,
                     ScryptoType::Proof => Self::Proof,
@@ -610,6 +616,7 @@ impl TryInto<radix_transaction::manifest::ast::Type> for ValueKind {
             Self::PackageAddress => radix_transaction::manifest::ast::Type::PackageAddress,
             Self::ComponentAddress => radix_transaction::manifest::ast::Type::ComponentAddress,
             Self::ResourceAddress => radix_transaction::manifest::ast::Type::ResourceAddress,
+            Self::SystemAddress => radix_transaction::manifest::ast::Type::SystemAddress,
 
             Self::Hash => radix_transaction::manifest::ast::Type::Hash,
 
@@ -667,11 +674,20 @@ impl From<radix_transaction::manifest::ast::Type> for ValueKind {
             radix_transaction::manifest::ast::Type::Decimal => Self::Decimal,
             radix_transaction::manifest::ast::Type::PreciseDecimal => Self::PreciseDecimal,
 
+            radix_transaction::manifest::ast::Type::Component => Self::Component,
             radix_transaction::manifest::ast::Type::PackageAddress => Self::PackageAddress,
             radix_transaction::manifest::ast::Type::ComponentAddress => Self::ComponentAddress,
             radix_transaction::manifest::ast::Type::ResourceAddress => Self::ResourceAddress,
+            radix_transaction::manifest::ast::Type::SystemAddress => Self::SystemAddress,
 
             radix_transaction::manifest::ast::Type::Hash => Self::Hash,
+            radix_transaction::manifest::ast::Type::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
+            radix_transaction::manifest::ast::Type::EcdsaSecp256k1Signature => Self::EcdsaSecp256k1Signature,
+            radix_transaction::manifest::ast::Type::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
+            radix_transaction::manifest::ast::Type::EddsaEd25519Signature => Self::EddsaEd25519Signature,
+
+            radix_transaction::manifest::ast::Type::Vault => Self::Vault,
+            radix_transaction::manifest::ast::Type::KeyValueStore => Self::KeyValueStore,
 
             radix_transaction::manifest::ast::Type::Bucket => Self::Bucket,
             radix_transaction::manifest::ast::Type::Proof => Self::Proof,
@@ -813,6 +829,13 @@ pub fn ast_value_from_value(
                     .encode_resource_address_to_string(&value.address),
             )))
         }
+        Value::SystemAddress { address: value } => {
+            AstValue::SystemAddress(Box::new(AstValue::String(
+                bech32_manager
+                    .encoder
+                    .encode_system_address_to_string(&value.address),
+            )))
+        }
 
         Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
         Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
@@ -836,15 +859,15 @@ pub fn ast_value_from_value(
             AstValue::Expression(Box::new(AstValue::String(value.to_string())))
         }
 
-        Value::Component { .. }
-        | Value::Vault { .. }
-        | Value::EcdsaSecp256k1PublicKey { .. }
-        | Value::EcdsaSecp256k1Signature { .. }
-        | Value::EddsaEd25519PublicKey { .. }
-        | Value::EddsaEd25519Signature { .. }
-        | Value::KeyValueStore { .. } => {
-            return Err(Error::NoManifestRepresentation { kind: value.kind() })
-        }
+        Value::Component { identifier } => AstValue::Component(Box::new(AstValue::String(identifier.to_string()))),
+        Value::Vault { identifier } => AstValue::Vault(Box::new(AstValue::String(identifier.to_string()))),
+        Value::KeyValueStore { identifier } => AstValue::KeyValueStore(Box::new(AstValue::String(identifier.to_string()))),
+        
+        Value::EcdsaSecp256k1PublicKey { public_key } => AstValue::EcdsaSecp256k1PublicKey(Box::new(AstValue::String(public_key.to_string()))),
+        Value::EcdsaSecp256k1Signature { signature } => AstValue::EcdsaSecp256k1Signature(Box::new(AstValue::String(signature.to_string()))),
+
+        Value::EddsaEd25519PublicKey { public_key } => AstValue::EddsaEd25519PublicKey(Box::new(AstValue::String(public_key.to_string()))),
+        Value::EddsaEd25519Signature { signature } => AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string()))),
     };
     Ok(ast_value)
 }
@@ -945,7 +968,7 @@ pub fn value_from_ast_value(
         AstValue::Decimal(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Decimal {
-                    value: Decimal::from_str(value)?,
+                    value: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -958,7 +981,7 @@ pub fn value_from_ast_value(
         AstValue::PreciseDecimal(value) => {
             if let AstValue::String(value) = &**value {
                 Value::PreciseDecimal {
-                    value: PreciseDecimal::from_str(value)?,
+                    value: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -969,6 +992,19 @@ pub fn value_from_ast_value(
             }
         }
 
+        AstValue::Component(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Component {
+                    identifier: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::Component,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
         AstValue::PackageAddress(value) => {
             if let AstValue::String(value) = &**value {
                 Value::PackageAddress {
@@ -1023,11 +1059,29 @@ pub fn value_from_ast_value(
                 })?
             }
         }
+        AstValue::SystemAddress(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::SystemAddress {
+                    address: NetworkAwareSystemAddress {
+                        network_id: bech32_manager.network_id(),
+                        address: bech32_manager
+                            .decoder
+                            .validate_and_decode_system_address(value)?,
+                    },
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::SystemAddress,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
 
         AstValue::Hash(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Hash {
-                    value: Hash::from_str(value)?,
+                    value: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1076,7 +1130,7 @@ pub fn value_from_ast_value(
         AstValue::NonFungibleId(value) => {
             if let AstValue::String(value) = &**value {
                 Value::NonFungibleId {
-                    value: NonFungibleId::from_str(value)?,
+                    value: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1089,7 +1143,7 @@ pub fn value_from_ast_value(
         AstValue::NonFungibleAddress(value) => {
             if let AstValue::String(value) = &**value {
                 Value::NonFungibleAddress {
-                    address: NonFungibleAddress::from_str(value)?,
+                    address: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1103,7 +1157,7 @@ pub fn value_from_ast_value(
         AstValue::Blob(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Blob {
-                    hash: Blob::from_str(value)?,
+                    hash: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
@@ -1116,11 +1170,90 @@ pub fn value_from_ast_value(
         AstValue::Expression(value) => {
             if let AstValue::String(value) = &**value {
                 Value::Expression {
-                    value: Expression::from_str(value)?,
+                    value: value.parse()?,
                 }
             } else {
                 Err(Error::UnexpectedContents {
                     kind_being_parsed: ValueKind::Expression,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+
+        AstValue::Vault(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::Vault {
+                    identifier: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::Vault,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::KeyValueStore(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::KeyValueStore {
+                    identifier: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::KeyValueStore,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::EcdsaSecp256k1PublicKey(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::EcdsaSecp256k1PublicKey {
+                    public_key: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::EcdsaSecp256k1PublicKey,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::EcdsaSecp256k1Signature(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::EcdsaSecp256k1Signature {
+                    signature: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::EcdsaSecp256k1Signature,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::EddsaEd25519PublicKey(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::EddsaEd25519PublicKey {
+                    public_key: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::EddsaEd25519PublicKey,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: value.kind().into(),
+                })?
+            }
+        }
+        AstValue::EddsaEd25519Signature(value) => {
+            if let AstValue::String(value) = &**value {
+                Value::EddsaEd25519Signature {
+                    signature: value.parse()?,
+                }
+            } else {
+                Err(Error::UnexpectedContents {
+                    kind_being_parsed: ValueKind::EddsaEd25519Signature,
                     allowed_children_kinds: vec![ValueKind::String],
                     found_child_kind: value.kind().into(),
                 })?
@@ -1235,6 +1368,7 @@ pub fn sbor_value_from_value(value: &Value) -> Result<SborValue, Error> {
         Value::Component { identifier } => {
             decode_any(&scrypto_encode(&scrypto::prelude::Component(identifier.0)))?
         }
+        Value::SystemAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::ComponentAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::ResourceAddress { address } => decode_any(&scrypto_encode(&address.address))?,
         Value::PackageAddress { address } => decode_any(&scrypto_encode(&address.address))?,
@@ -1407,6 +1541,12 @@ pub fn value_from_sbor_value(value: &SborValue, network_id: u8) -> Result<Value,
                     identifier: scrypto_decode::<scrypto::prelude::Vault>(&encode_any(value))?
                         .0
                         .into(),
+                },
+                ScryptoType::SystemAddress => Value::SystemAddress {
+                    address: NetworkAwareSystemAddress {
+                        network_id,
+                        address: scrypto_decode(&encode_any(value))?,
+                    },
                 },
                 ScryptoType::PackageAddress => Value::PackageAddress {
                     address: NetworkAwarePackageAddress {
@@ -1794,7 +1934,7 @@ mod tests {
                         value: dec!("192.38")
                     },
                     Value::NonFungibleId {
-                        value: NonFungibleId::from_str("3007100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
+                        value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
                     },
                     Value::Bucket {
                         identifier: crate::models::serde::Identifier::String("my_xrd_bucket".into())
@@ -1983,7 +2123,7 @@ mod tests {
             }
             "#,
             Value::Hash {
-                value: Hash::from_str("910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d").unwrap()
+                value: "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d".parse().unwrap()
             }
         };
 
@@ -2041,7 +2181,7 @@ mod tests {
             }
             "#,
             Value::NonFungibleId {
-                value: NonFungibleId::from_str("3007100000000b3ce8b6056e62b902e029623df6df5c").unwrap()
+                value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
             }
         };
     }

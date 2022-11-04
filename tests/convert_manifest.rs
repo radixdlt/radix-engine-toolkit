@@ -1,14 +1,8 @@
-use radix_engine_toolkit::{models::TransactionManifest, requests::ConvertManifestRequest};
-use transaction_library::RadixEngineToolkit;
-
-mod transaction_library;
+use radix_engine_toolkit::{models::TransactionManifest, requests::ConvertManifestRequest, traits::Request};
 
 #[test]
 pub fn basic_manifest_conversion_succeeds() {
     // Arrange
-    let mut engine_toolkit: RadixEngineToolkit =
-        RadixEngineToolkit::new_compile_from_source().expect("Failed to compile from source");
-
     let test_vectors: Vec<(String, Vec<Vec<u8>>)> = vec![
         (
             include_str!("test_manifests/manifest1.rtm").to_string(),
@@ -24,6 +18,12 @@ pub fn basic_manifest_conversion_succeeds() {
         (
             include_str!("test_manifests/manifest3.rtm").to_string(),
             vec![],
+        ),
+        (
+            include_str!("test_manifests/manifest4.rtm").to_string(),
+            vec![
+                include_bytes!("test_manifests/manifest4.blob").to_vec(),
+            ],
         ),
     ];
 
@@ -45,7 +45,7 @@ pub fn basic_manifest_conversion_succeeds() {
 
     // Act
     for request in requests {
-        let response = engine_toolkit.convert_manifest(request);
+        let response = request.fulfill_request();
 
         // Assert
         assert!(response.is_ok());

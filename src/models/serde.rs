@@ -115,7 +115,7 @@ macro_rules! define_network_aware_address {
             {
                 let address_string: &str = Deserialize::deserialize(deserializer)?;
 
-                let address: Self = Self::from_str(address_string)
+                let address: Self =address_string.parse()
                     .map_err(|err| DeserializationError::custom(format!("{:?}", err)))?;
                 Ok(address)
             }
@@ -182,6 +182,11 @@ define_network_aware_address!(
     encode_resource_address_to_string,
     validate_and_decode_resource_address
 );
+define_network_aware_address!(
+    scrypto::prelude::SystemAddress => NetworkAwareSystemAddress,
+    encode_system_address_to_string,
+    validate_and_decode_system_address
+);
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", content = "address")]
@@ -195,9 +200,10 @@ impl Address {
     pub fn kind(&self) -> AddressKind {
         match self {
             Self::ComponentAddress(component_address) => match component_address.address {
-                scrypto::prelude::ComponentAddress::Account(_) => AddressKind::AccountComponent,
-                scrypto::prelude::ComponentAddress::System(_) => AddressKind::SystemComponent,
                 scrypto::prelude::ComponentAddress::Normal(_) => AddressKind::NormalComponent,
+                scrypto::prelude::ComponentAddress::Account(_) => AddressKind::AccountComponent,
+                scrypto::prelude::ComponentAddress::EcdsaSecp256k1VirtualAccount(_) => AddressKind::EcdsaSecp256k1VirtualAccount,
+                scrypto::prelude::ComponentAddress::EddsaEd25519VirtualAccount(_) => AddressKind::EddsaEd25519VirtualAccount,
             },
             Self::ResourceAddress(resource_address) => match resource_address.address {
                 scrypto::prelude::ResourceAddress::Normal(_) => AddressKind::Resource,
@@ -284,9 +290,10 @@ pub enum AddressKind {
     Resource,
     Package,
 
-    AccountComponent,
-    SystemComponent,
     NormalComponent,
+    AccountComponent,
+    EcdsaSecp256k1VirtualAccount,
+    EddsaEd25519VirtualAccount,
 }
 
 #[derive(Serialize, Deserialize)]
