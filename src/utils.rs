@@ -1,5 +1,5 @@
 use bech32;
-use radix_engine::constants::DEFAULT_MAX_COST_UNIT_LIMIT;
+use radix_engine_constants::DEFAULT_MAX_COST_UNIT_LIMIT;
 use radix_transaction::{model::DEFAULT_MAX_EPOCH_RANGE, validation::ValidationConfig};
 use scrypto::prelude::NetworkDefinition;
 

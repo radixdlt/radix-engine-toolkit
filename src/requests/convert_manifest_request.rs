@@ -91,7 +91,7 @@ mod tests {
     use super::*;
     use crate::models::serde::NetworkAwarePackageAddress;
     use crate::models::{Instruction, TransactionManifest, Value};
-    use radix_engine::types::PackageAddress;
+    use scrypto::prelude::PackageAddress;
 
     #[test]
     pub fn convert_manifest_with_mismatch_addresses_fails() {

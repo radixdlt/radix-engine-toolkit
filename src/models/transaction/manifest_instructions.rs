@@ -2,6 +2,7 @@ use radix_transaction::manifest::ast::Instruction as AstInstruction;
 use radix_transaction::manifest::decompile;
 use radix_transaction::model::Instruction as TransactionInstruction;
 
+use scrypto::prelude::hash;
 use serde::{Deserialize, Serialize};
 
 use crate::address::Bech32Manager;
@@ -81,7 +82,7 @@ impl ManifestInstructions {
                 &bech32_manager.decoder,
                 blobs
                     .iter()
-                    .map(|x| (radix_engine::types::hash(x), x.clone()))
+                    .map(|x| (hash(x), x.clone()))
                     .collect(),
             )?
             .instructions;

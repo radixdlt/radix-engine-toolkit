@@ -2,6 +2,7 @@ use radix_transaction::manifest::decompile;
 use radix_transaction::manifest::generator::generate_manifest;
 use radix_transaction::model::TransactionManifest as NativeTransactionManifest;
 
+use scrypto::prelude::hash;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -105,7 +106,7 @@ impl ValidateWithContext<u8> for TransactionManifest {
             &bech32_manager.decoder,
             self.blobs
                 .iter()
-                .map(|x| (radix_engine::types::hash(x), x.clone()))
+                .map(|x| (hash(x), x.clone()))
                 .collect(),
         )?;
         Ok(())

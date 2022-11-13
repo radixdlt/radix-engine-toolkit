@@ -51,7 +51,7 @@ impl<'r> Request<'r, DeriveVirtualAccountAddressResponse> for DeriveVirtualAccou
     }
 }
 
-export_request!(DeriveVirtualAccountAddressRequest as derive_non_fungible_address_from_public_key);
+export_request!(DeriveVirtualAccountAddressRequest as derive_virtual_account_address);
 
 // ======
 // Tests

@@ -178,6 +178,4 @@ impl_from_error! {
     radix_transaction::manifest::generator::GeneratorError => GeneratorError,
     radix_transaction::errors::TransactionValidationError => TransactionValidationError,
     radix_transaction::errors::SignatureValidationError => TransactionValidationError,
-
-    radix_engine::model::ExtractAbiError => ExtractAbiError,
 }

@@ -13,10 +13,10 @@
 //! requests to this library. The conversion back in forth is done through the functions
 //! [value_from_sbor_value] and [sbor_value_from_value].
 
-use radix_engine::types::ScryptoType;
 use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::type_id::*;
 use sbor::{decode_any, encode_any, Value as SborValue};
+use scrypto::abi::ScryptoType;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
     EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
