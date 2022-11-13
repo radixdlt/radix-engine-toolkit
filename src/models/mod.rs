@@ -1,11 +1,11 @@
 pub mod instruction;
-pub mod receiver;
+pub mod re_node;
 pub mod serde;
 pub mod transaction;
 pub mod value;
 
 pub use crate::models::serde::*;
 pub use instruction::*;
-pub use receiver::*;
+pub use re_node::*;
 pub use transaction::*;
 pub use value::*;

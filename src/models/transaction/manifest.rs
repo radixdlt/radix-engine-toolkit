@@ -104,10 +104,7 @@ impl ValidateWithContext<u8> for TransactionManifest {
         generate_manifest(
             &self.instructions.ast_instructions(&bech32_manager)?,
             &bech32_manager.decoder,
-            self.blobs
-                .iter()
-                .map(|x| (hash(x), x.clone()))
-                .collect(),
+            self.blobs.iter().map(|x| (hash(x), x.clone())).collect(),
         )?;
         Ok(())
     }

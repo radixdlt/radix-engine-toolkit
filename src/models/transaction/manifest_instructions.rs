@@ -80,10 +80,7 @@ impl ManifestInstructions {
             radix_transaction::manifest::generator::generate_manifest(
                 &instructions,
                 &bech32_manager.decoder,
-                blobs
-                    .iter()
-                    .map(|x| (hash(x), x.clone()))
-                    .collect(),
+                blobs.iter().map(|x| (hash(x), x.clone())).collect(),
             )?
             .instructions;
         Ok(instructions)

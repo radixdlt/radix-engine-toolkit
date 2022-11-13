@@ -1,6 +1,4 @@
-use radix_transaction::manifest::ast::{
-    RENode as AstRENode, Receiver as AstReceiver, Value as AstValue,
-};
+use radix_transaction::manifest::ast::{RENode as AstRENode, Value as AstValue};
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -9,12 +7,6 @@ use crate::error::Error;
 use crate::models::{Identifier, NodeId};
 
 use super::ValueKind;
-
-#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
-#[serde(tag = "type", content = "node")]
-pub enum Receiver {
-    Ref(RENode),
-}
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
@@ -57,33 +49,6 @@ pub enum RENodeKind {
 // ============
 // Conversions
 // ============
-
-impl From<Receiver> for AstReceiver {
-    fn from(receiver: Receiver) -> Self {
-        ast_receiver_from_receiver(&receiver)
-    }
-}
-
-impl TryFrom<AstReceiver> for Receiver {
-    type Error = Error;
-
-    fn try_from(value: AstReceiver) -> Result<Self, Self::Error> {
-        receiver_from_ast_receiver(&value)
-    }
-}
-
-pub fn ast_receiver_from_receiver(receiver: &Receiver) -> AstReceiver {
-    match receiver {
-        Receiver::Ref(re_node) => AstReceiver::Ref(ast_re_node_from_re_node(re_node)),
-    }
-}
-
-pub fn receiver_from_ast_receiver(receiver: &AstReceiver) -> Result<Receiver, Error> {
-    let receiver: Receiver = match receiver {
-        AstReceiver::Ref(re_node) => Receiver::Ref(re_node_from_ast_re_node(re_node)?),
-    };
-    Ok(receiver)
-}
 
 pub fn ast_re_node_from_re_node(re_node: &RENode) -> AstRENode {
     match re_node {

@@ -1,5 +1,6 @@
 use radix_transaction::manifest::ast::{
-    Instruction as AstInstruction, ScryptoReceiver as AstScryptoReceiver, Value as AstValue,
+    Instruction as AstInstruction, Receiver as AstReceiver, ScryptoReceiver as AstScryptoReceiver,
+    Value as AstValue,
 };
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -7,7 +8,7 @@ use std::collections::HashSet;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::receiver::*;
+use crate::models::re_node::*;
 use crate::models::value::*;
 use crate::models::NetworkAwareComponentAddress;
 use crate::traits::ValidateWithContext;
@@ -62,7 +63,7 @@ pub enum Instruction {
         /// [`Receiver::Owned`] and [`Receiver::Ref`] is disambiguated through an ampersand (`&`) in
         /// text form. Therefore, there is a need to introduce an additional type of [`Receiver`] in
         /// this library.
-        receiver: Receiver,
+        receiver: RENode,
 
         method_name: Value,
 
@@ -450,7 +451,7 @@ pub fn ast_instruction_from_instruction(
             method_name,
             arguments,
         } => AstInstruction::CallNativeMethod {
-            receiver: receiver.clone().into(),
+            receiver: AstReceiver::Ref(ast_re_node_from_re_node(receiver)),
             method: ast_value_from_value(method_name, bech32_manager)?,
             args: arguments
                 .clone()
@@ -711,7 +712,9 @@ pub fn instruction_from_ast_instruction(
             method,
             args,
         } => Instruction::CallNativeMethod {
-            receiver: receiver.clone().try_into()?,
+            receiver: match receiver {
+                AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?
+            },
             method_name: value_from_ast_value(method, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
