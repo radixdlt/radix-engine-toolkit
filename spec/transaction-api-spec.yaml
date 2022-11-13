@@ -376,46 +376,6 @@ components:
     # Request & Response Dependencies
     # ================================
 
-    ReceiverKind:
-      type: string
-      enum:
-        - Owned
-        - Ref
-
-    Receiver:
-      oneOf:
-        - $ref: "#/components/schemas/ReceiverOwned"
-        - $ref: "#/components/schemas/ReceiverRef"
-      discriminator:
-        propertyName: error
-        mapping:
-          Ref: "#/components/schemas/ReceiverOwned"
-          Owned: "#/components/schemas/ReceiverRef"
-    ReceiverRef:
-      type: object
-      additionalProperties: false
-      required:
-        - type
-        - node
-      properties:
-        type:
-          $ref: "#/components/schemas/ReceiverKind"
-          readOnly: true
-        node:
-          $ref: "#/components/schemas/RENode"
-    ReceiverOwned:
-      type: object
-      additionalProperties: false
-      required:
-        - type
-        - node
-      properties:
-        type:
-          $ref: "#/components/schemas/ReceiverKind"
-          readOnly: true
-        node:
-          $ref: "#/components/schemas/RENode"
-
     RENodeKind:
       type: string
       description: "An enum representing the type of the RENode."
@@ -1796,7 +1756,7 @@ components:
           readOnly: true
         receiver:
           readOnly: true
-          $ref: "#/components/schemas/Receiver"
+          $ref: "#/components/schemas/RENode"
         method_name:
           $ref: "#/components/schemas/String"
         arguments:
