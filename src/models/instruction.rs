@@ -713,7 +713,7 @@ pub fn instruction_from_ast_instruction(
             args,
         } => Instruction::CallNativeMethod {
             receiver: match receiver {
-                AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?
+                AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?,
             },
             method_name: value_from_ast_value(method, bech32_manager)?,
             arguments: {

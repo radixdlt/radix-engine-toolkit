@@ -10,7 +10,7 @@ cargo +nightly \
 echo "Using wasm-opt to compress the WASM"
 
 wasm-opt \
-    -Os -g \
+    -Oz -g \
     --strip-debug --strip-dwarf --strip-producers \
     -o ./target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm \
     ./target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm
