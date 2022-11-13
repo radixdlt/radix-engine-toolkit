@@ -1,4 +1,6 @@
-use radix_engine_toolkit::{models::TransactionManifest, requests::ConvertManifestRequest, traits::Request};
+use radix_engine_toolkit::{
+    models::TransactionManifest, requests::ConvertManifestRequest, traits::Request,
+};
 
 #[test]
 pub fn basic_manifest_conversion_succeeds() {
@@ -21,9 +23,7 @@ pub fn basic_manifest_conversion_succeeds() {
         ),
         (
             include_str!("test_manifests/manifest4.rtm").to_string(),
-            vec![
-                include_bytes!("test_manifests/manifest4.blob").to_vec(),
-            ],
+            vec![include_bytes!("test_manifests/manifest4.blob").to_vec()],
         ),
     ];
 

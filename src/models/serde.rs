@@ -115,7 +115,8 @@ macro_rules! define_network_aware_address {
             {
                 let address_string: &str = Deserialize::deserialize(deserializer)?;
 
-                let address: Self =address_string.parse()
+                let address: Self = address_string
+                    .parse()
                     .map_err(|err| DeserializationError::custom(format!("{:?}", err)))?;
                 Ok(address)
             }
@@ -202,8 +203,12 @@ impl Address {
             Self::ComponentAddress(component_address) => match component_address.address {
                 scrypto::prelude::ComponentAddress::Normal(_) => AddressKind::NormalComponent,
                 scrypto::prelude::ComponentAddress::Account(_) => AddressKind::AccountComponent,
-                scrypto::prelude::ComponentAddress::EcdsaSecp256k1VirtualAccount(_) => AddressKind::EcdsaSecp256k1VirtualAccount,
-                scrypto::prelude::ComponentAddress::EddsaEd25519VirtualAccount(_) => AddressKind::EddsaEd25519VirtualAccount,
+                scrypto::prelude::ComponentAddress::EcdsaSecp256k1VirtualAccount(_) => {
+                    AddressKind::EcdsaSecp256k1VirtualAccount
+                }
+                scrypto::prelude::ComponentAddress::EddsaEd25519VirtualAccount(_) => {
+                    AddressKind::EddsaEd25519VirtualAccount
+                }
             },
             Self::ResourceAddress(resource_address) => match resource_address.address {
                 scrypto::prelude::ResourceAddress::Normal(_) => AddressKind::Resource,

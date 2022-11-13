@@ -681,10 +681,18 @@ impl From<radix_transaction::manifest::ast::Type> for ValueKind {
             radix_transaction::manifest::ast::Type::SystemAddress => Self::SystemAddress,
 
             radix_transaction::manifest::ast::Type::Hash => Self::Hash,
-            radix_transaction::manifest::ast::Type::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
-            radix_transaction::manifest::ast::Type::EcdsaSecp256k1Signature => Self::EcdsaSecp256k1Signature,
-            radix_transaction::manifest::ast::Type::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
-            radix_transaction::manifest::ast::Type::EddsaEd25519Signature => Self::EddsaEd25519Signature,
+            radix_transaction::manifest::ast::Type::EcdsaSecp256k1PublicKey => {
+                Self::EcdsaSecp256k1PublicKey
+            }
+            radix_transaction::manifest::ast::Type::EcdsaSecp256k1Signature => {
+                Self::EcdsaSecp256k1Signature
+            }
+            radix_transaction::manifest::ast::Type::EddsaEd25519PublicKey => {
+                Self::EddsaEd25519PublicKey
+            }
+            radix_transaction::manifest::ast::Type::EddsaEd25519Signature => {
+                Self::EddsaEd25519Signature
+            }
 
             radix_transaction::manifest::ast::Type::Vault => Self::Vault,
             radix_transaction::manifest::ast::Type::KeyValueStore => Self::KeyValueStore,
@@ -859,15 +867,29 @@ pub fn ast_value_from_value(
             AstValue::Expression(Box::new(AstValue::String(value.to_string())))
         }
 
-        Value::Component { identifier } => AstValue::Component(Box::new(AstValue::String(identifier.to_string()))),
-        Value::Vault { identifier } => AstValue::Vault(Box::new(AstValue::String(identifier.to_string()))),
-        Value::KeyValueStore { identifier } => AstValue::KeyValueStore(Box::new(AstValue::String(identifier.to_string()))),
-        
-        Value::EcdsaSecp256k1PublicKey { public_key } => AstValue::EcdsaSecp256k1PublicKey(Box::new(AstValue::String(public_key.to_string()))),
-        Value::EcdsaSecp256k1Signature { signature } => AstValue::EcdsaSecp256k1Signature(Box::new(AstValue::String(signature.to_string()))),
+        Value::Component { identifier } => {
+            AstValue::Component(Box::new(AstValue::String(identifier.to_string())))
+        }
+        Value::Vault { identifier } => {
+            AstValue::Vault(Box::new(AstValue::String(identifier.to_string())))
+        }
+        Value::KeyValueStore { identifier } => {
+            AstValue::KeyValueStore(Box::new(AstValue::String(identifier.to_string())))
+        }
 
-        Value::EddsaEd25519PublicKey { public_key } => AstValue::EddsaEd25519PublicKey(Box::new(AstValue::String(public_key.to_string()))),
-        Value::EddsaEd25519Signature { signature } => AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string()))),
+        Value::EcdsaSecp256k1PublicKey { public_key } => {
+            AstValue::EcdsaSecp256k1PublicKey(Box::new(AstValue::String(public_key.to_string())))
+        }
+        Value::EcdsaSecp256k1Signature { signature } => {
+            AstValue::EcdsaSecp256k1Signature(Box::new(AstValue::String(signature.to_string())))
+        }
+
+        Value::EddsaEd25519PublicKey { public_key } => {
+            AstValue::EddsaEd25519PublicKey(Box::new(AstValue::String(public_key.to_string())))
+        }
+        Value::EddsaEd25519Signature { signature } => {
+            AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string())))
+        }
     };
     Ok(ast_value)
 }
@@ -1646,8 +1668,8 @@ mod tests {
         let serialized_string: String =
             serde_json::to_string(&value).expect("Serialization of trusted value failed");
 
-        let string = string.replace('\n', "").replace(' ', "");
-        let serialized_string = serialized_string.replace('\n', "").replace(' ', "");
+        let string = string.replace(['\n', ' '], "");
+        let serialized_string = serialized_string.replace(['\n', ' '], "");
         assert_eq!(string, serialized_string);
     }
 
@@ -2240,11 +2262,11 @@ mod tests {
         let result: Result<(), crate::error::Error> = value.validate_if_collection();
 
         // Assert
-        let expected_types: Vec<ValueKind> = vec![ValueKind::Decimal];
+        let _expected_types: Vec<ValueKind> = vec![ValueKind::Decimal];
         assert!(matches!(
             result,
             Err(crate::error::Error::InvalidType {
-                expected_types,
+                expected_types: _,
                 actual_type: ValueKind::PreciseDecimal
             })
         ))
