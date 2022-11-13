@@ -14,10 +14,10 @@ serde_with = { version = "2.0.0", default-features = false, features = ["hex", "
 jni = { version = "0.20.0", default-features = false, optional = true }
 paste = { git = "https://github.com/radixdlt/paste", default-features = false, optional = true }
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-aeb5fabe6" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-aeb5fabe6", features = ["serde"] }
-radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-aeb5fabe6", features = ["serde"], package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-aeb5fabe6" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", features = ["serde"] }
+radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", features = ["serde"], package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
 
 [dev-dependencies]
 wasmtime = { version = "2.0.0" }

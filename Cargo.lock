@@ -1268,7 +1268,7 @@ dependencies = [
 [[package]]
 name = "radix-engine"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "bitflags",
  "colored",
@@ -1509,7 +1509,7 @@ dependencies = [
 [[package]]
 name = "sbor"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "hex",
  "sbor-derive",
@@ -1519,7 +1519,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1551,7 +1551,7 @@ checksum = "9c8132065adcfd6e02db789d9285a0deb2f3fcb04002865ab67d5fb103533898"
 [[package]]
 name = "scrypto"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "bech32",
  "forward_ref",
@@ -1571,7 +1571,7 @@ dependencies = [
 [[package]]
 name = "scrypto-abi"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "sbor",
  "serde",
@@ -1580,7 +1580,7 @@ dependencies = [
 [[package]]
 name = "scrypto-derive"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1910,7 +1910,7 @@ dependencies = [
 [[package]]
 name = "transaction"
 version = "0.7.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-aeb5fabe6#aeb5fabe6924a24bd488352187a5f9f29da2e4a3"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=develop#e77c8feeb416d613adf6dfb44a4f7bbd62fbc265"
 dependencies = [
  "clap",
  "ed25519-dalek",
