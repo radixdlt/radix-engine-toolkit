@@ -302,33 +302,6 @@ components:
       $ref: "#/components/schemas/Value"
       description: "A response to the `SBORDecodeRequest` containing the decoded value"
 
-    # Extract ABI Request
-    ExtractAbiRequest:
-      type: object
-      description: "A request to extract the ABI from the package's hex-encoded WASM binrary"
-      additionalProperties: false
-      required:
-        - package_wasm
-      properties:
-        package_wasm:
-          type: string
-          description: "A hex-encoded string of the package WASM binary"
-
-    ExtractAbiResponse:
-      type: object
-      description: "A response to the `ExtractAbiRequest` containing the ABI and code"
-      additionalProperties: false
-      required:
-        - code
-        - abi
-      properties:
-        code:
-          type: string
-          description: "A hex-encoded string of the package WASM binary"
-        abi:
-          type: string
-          description: "A hex-encoded string of the SBOR-encoded package ABI"
-
     # Derive NonFungibleAddress request
     DeriveNonFungibleAddressRequest:
       type: object
@@ -358,14 +331,8 @@ components:
 
     # Derive NonFungibleAddress from PublicKey request
     DeriveNonFungibleAddressFromPublicKeyRequest:
-      type: object
       description: "A request to derive the `NonFungibleAddress` of the virtual badge corresponding with a given public key"
-      additionalProperties: false
-      required:
-        - public_key
-      properties:
-        public_key:
-          $ref: "#/components/schemas/PublicKey"
+      $ref: "#/components/schemas/PublicKey"
 
     DeriveNonFungibleAddressFromPublicKeyResponse:
       type: object
@@ -377,6 +344,33 @@ components:
         non_fungible_address:
           type: string
           description: "A hex-encoded string of the `NonFungibleAddress`."
+
+    # Derive NonFungibleAddress request
+    DeriveVirtualAccountAddressRequest:
+      type: object
+      description: "A request to derive the virtual account component address associated with a given public key"
+      additionalProperties: false
+      required:
+        - public_key
+        - network_id
+      properties:
+        network_id:
+          type: string
+          description: "An 8-bit unsigned integer representing the network id that the transaction is for"
+        public_key:
+          description: "The public key to derive the virtual account component address for"
+          $ref: "#/components/schemas/PublicKey"
+
+    DeriveVirtualAccountAddressResponse:
+      type: object
+      description: "A response to the `DeriveVirtualAccountAddressRequest` containing the derived `ComponentAddress`"
+      additionalProperties: false
+      required:
+        - component_address
+      properties:
+        component_address:
+          $ref: "#/components/schemas/ValueComponentAddress"
+          description: "The virtual account component address associated with a given public key"
 
     # ================================
     # Request & Response Dependencies
