@@ -443,7 +443,7 @@ crate::define_function_store! {
 
         pub derive_non_fungible_address_from_public_key: TypedFunc<i32, i32>,
         pub derive_non_fungible_address: TypedFunc<i32, i32>,
-        
+
         pub derive_virtual_account_address: TypedFunc<i32, i32>,
 
         pub toolkit_alloc: TypedFunc<i32, i32>,
