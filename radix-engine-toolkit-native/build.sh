@@ -55,7 +55,10 @@ echo "Creating fat libraries"
 echo "Creating the include directory"
 mkdir include
 mv $HEADER_FILE_NAME include
-echo echo $MODULE_MAP_CONTENTS > ./include/module.modulemap
+echo "module RadixEngineToolkit {
+    umbrella header \"$HEADER_FILE_NAME\"
+    export *
+}" > ./include/module.modulemap
 
 echo "Copying the include dir to the targets"
 for target in $TARGETS
