@@ -1,0 +1,25 @@
+[package]
+name = "radix-engine-toolkit-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+
+[dev-dependencies]
+serde = { version = "1.0.144", default-features = false, features = ["serde_derive"] }
+serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
+
+wasmtime = { version = "2.0.0" }
+anyhow = { version = "1.0.65" }
+
+[profile.release]
+incremental = false
+strip = true
+panic = 'abort'
+codegen-units = 1
+lto = true
+opt-level = 'z'
+
+[lib]
+crate-type = ["cdylib"]

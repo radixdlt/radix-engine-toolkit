@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "radix-engine-toolkit-core/Cargo.toml",
+        "radix-engine-toolkit-wasm/Cargo.toml",
+        "radix-engine-toolkit-jni/Cargo.toml",
+    ]
+}

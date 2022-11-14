@@ -1,8 +1,8 @@
 # Rust Code
-(cargo fmt)
+(cd radix-engine-toolkit-core; cargo fmt)
 
-# Python Scripts
-(black ./**/*.py)
+(cd radix-engine-toolkit-wasm; cargo fmt)
+(cd radix-engine-toolkit-jni; cargo fmt)
 
 # Spec
 (cd spec; prettier --write .)
