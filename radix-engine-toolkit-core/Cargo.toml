@@ -11,10 +11,10 @@ serde = { version = "1.0.144", default-features = false, features = ["serde_deri
 serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
 serde_with = { version = "2.0.0", default-features = false, features = ["hex", "macros"] }
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/radix-engine-constants" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/radix-engine-constants", features = ["serde"] }
-radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/radix-engine-constants", features = ["serde"], package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/radix-engine-constants" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "2022-11-14-v1" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "2022-11-14-v1", features = ["serde"] }
+radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "2022-11-14-v1", features = ["serde"], package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "2022-11-14-v1" }
 
 [lib]
 crate-type = ["lib"]
