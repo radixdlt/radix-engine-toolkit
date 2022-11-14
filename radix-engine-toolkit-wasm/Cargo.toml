@@ -26,4 +26,5 @@ lto = true
 opt-level = 'z'
 
 [lib]
+name = "radix_engine_toolkit"
 crate-type = ["cdylib"]

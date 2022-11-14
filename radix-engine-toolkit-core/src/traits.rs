@@ -40,7 +40,7 @@ where
     unsafe fn new_from_pointer(
         request_string_pointer: crate::memory::Pointer,
     ) -> Result<Self, Error> {
-        crate::memory::toolkit_read_and_deserialize_string_from_memory(request_string_pointer)
+        crate::memory::toolkit_read_and_deserialize_json_string_from_memory(request_string_pointer)
     }
 }
 

@@ -21,4 +21,5 @@ panic = 'abort'
 codegen-units = 1
 
 [lib]
+name = "radix_engine_toolkit"
 crate-type = ["cdylib"]

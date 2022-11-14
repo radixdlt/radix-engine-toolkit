@@ -104,7 +104,7 @@ pub unsafe extern "C" fn toolkit_free_c_string(pointer: Pointer) {
 ///
 /// * [`Result<T, Error>`]: An object of type `T` is returned if the reading of the memory and the
 /// deserialization both succeed. Otherwise, an [`Error`] is returned.
-pub unsafe fn toolkit_read_and_deserialize_string_from_memory<'t, T>(
+pub unsafe fn toolkit_read_and_deserialize_json_string_from_memory<'t, T>(
     string_pointer: Pointer,
 ) -> Result<T, Error>
 where
@@ -132,7 +132,7 @@ where
 /// # Arguments
 ///
 /// * [`Pointer`] - A pointer to the allocated memory location
-pub unsafe fn toolkit_serialize_and_write_to_memory<T>(object: &T) -> Result<Pointer, Error>
+pub unsafe fn toolkit_serialize_to_json_string_and_write_to_memory<T>(object: &T) -> Result<Pointer, Error>
 where
     T: Serialize,
 {

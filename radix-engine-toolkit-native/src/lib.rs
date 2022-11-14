@@ -1,6 +1,8 @@
 use radix_engine_toolkit_core::requests::*;
 use radix_engine_toolkit_core::traits::Request;
 
+pub type Pointer = *mut u8;
+
 /// Exports a request with the following C function signature:
 ///
 /// ```C
@@ -15,15 +17,13 @@ macro_rules! export_request {
         ///
         /// This function makes use of pointers which is an unsafe feature.
         #[no_mangle]
-        pub unsafe extern "C" fn $export_ident(
-            string_pointer: radix_engine_toolkit_core::memory::Pointer,
-        ) -> radix_engine_toolkit_core::memory::Pointer {
+        pub unsafe extern "C" fn $export_ident(string_pointer: Pointer) -> Pointer {
             // Loading the request from a string pointer into a request object
             let request: Result<$request_type, _> = $request_type::new_from_pointer(string_pointer);
             let request: $request_type = match request {
                 Ok(request) => request,
                 Err(error) => {
-                    return radix_engine_toolkit_core::memory::toolkit_serialize_and_write_to_memory(
+                    return radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(
                         &error,
                     )
                     .expect("Failed to write a trusted string to memory")
@@ -34,11 +34,13 @@ macro_rules! export_request {
             let response: Result<_, _> = request.fulfill_request();
             match response {
                 Ok(response) => {
-                    radix_engine_toolkit_core::memory::toolkit_serialize_and_write_to_memory(&response)
-                        .expect("Failed to write a trusted string to memory")
+                    radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(
+                        &response,
+                    )
+                    .expect("Failed to write a trusted string to memory")
                 }
                 Err(error) => {
-                    radix_engine_toolkit_core::memory::toolkit_serialize_and_write_to_memory(&error)
+                    radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(&error)
                         .expect("Failed to write a trusted string to memory")
                 }
             }

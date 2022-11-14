@@ -1,5 +1,5 @@
-use radix_engine_toolkit_core::requests::ConvertManifestRequest;
 use radix_engine_toolkit_core::models::TransactionManifest;
+use radix_engine_toolkit_core::requests::ConvertManifestRequest;
 use radix_engine_toolkit_core::traits::Request;
 
 #[test]

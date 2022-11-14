@@ -1,0 +1,7 @@
+documentation = false
+
+[parse.expand]
+crates = ["radix-engine-toolkit-native", "radix-engine-toolkit-core"]
+all_features = false
+default_features = true
+features = []

@@ -130,7 +130,7 @@ impl RadixEngineToolkit {
 
         // Building a path to the WASM file
         let wasm_module_path: PathBuf = manifest_directory
-            .join("target/wasm32-unknown-unknown/release/radix_engine_toolkit_wasm.wasm");
+            .join("target/wasm32-unknown-unknown/release/radix_engine_toolkit.wasm");
         Self::new_from_module_path(wasm_module_path)
     }
 
