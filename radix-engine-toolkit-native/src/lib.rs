@@ -1,3 +1,5 @@
+use serde::{Serialize};
+
 use radix_engine_toolkit_core::requests::*;
 use radix_engine_toolkit_core::traits::Request;
 
@@ -15,13 +17,15 @@ macro_rules! export_request {
         ///
         /// This function makes use of pointers which is an unsafe feature.
         #[no_mangle]
-        pub unsafe extern "C" fn $export_ident(string_pointer: radix_engine_toolkit_core::memory::Pointer) -> radix_engine_toolkit_core::memory::Pointer {
+        pub unsafe extern "C" fn $export_ident(
+            string_pointer: radix_engine_toolkit_core::memory::Pointer
+        ) -> radix_engine_toolkit_core::memory::Pointer {
             // Loading the request from a string pointer into a request object
             let request: Result<$request_type, _> = $request_type::new_from_pointer(string_pointer);
             let request: $request_type = match request {
                 Ok(request) => request,
                 Err(error) => {
-                    return radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(
+                    return serialize_to_json_string_and_write_to_memory(
                         &error,
                     )
                     .expect("Failed to write a trusted string to memory")
@@ -32,19 +36,46 @@ macro_rules! export_request {
             let response: Result<_, _> = request.fulfill_request();
             match response {
                 Ok(response) => {
-                    radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(
+                    serialize_to_json_string_and_write_to_memory(
                         &response,
                     )
                     .expect("Failed to write a trusted string to memory")
                 }
                 Err(error) => {
-                    radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(&error)
+                    serialize_to_json_string_and_write_to_memory(&error)
                         .expect("Failed to write a trusted string to memory")
                 }
             }
         }
     };
 }
+
+extern "C" {
+    /// Allocates memory of a certain size through the client's memory allocator.
+    ///
+    /// This function allows all memory allocation for the library requests and responses to happen
+    /// at the client side through the client's memory allocator. This gives us the advantage of the
+    /// client now being in complete control of the request and response pointers and being able to
+    /// deallocate them through their native allocator when needed. 
+    pub fn client_allocate_memory(capacity: usize) -> radix_engine_toolkit_core::memory::Pointer;
+}
+
+pub unsafe fn serialize_to_json_string_and_write_to_memory<T>(
+    object: &T,
+) -> Result<radix_engine_toolkit_core::memory::Pointer, radix_engine_toolkit_core::error::Error>
+where
+    T: Serialize,
+{
+    let object_string: String = serde_json::to_string(object)?;
+    let object_bytes: &[u8] = object_string.as_bytes();
+    let byte_count: usize = object_bytes.len() + 1;
+    let bytes: Vec<u8> = [object_bytes, &[0]].concat();
+
+    let pointer: radix_engine_toolkit_core::memory::Pointer = client_allocate_memory(byte_count);
+    pointer.copy_from(bytes.as_ptr(), byte_count);
+    Ok(pointer)
+}
+
 
 export_request!(InformationRequest as information);
 
