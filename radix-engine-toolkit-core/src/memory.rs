@@ -132,7 +132,9 @@ where
 /// # Arguments
 ///
 /// * [`Pointer`] - A pointer to the allocated memory location
-pub unsafe fn toolkit_serialize_to_json_string_and_write_to_memory<T>(object: &T) -> Result<Pointer, Error>
+pub unsafe fn toolkit_serialize_to_json_string_and_write_to_memory<T>(
+    object: &T,
+) -> Result<Pointer, Error>
 where
     T: Serialize,
 {

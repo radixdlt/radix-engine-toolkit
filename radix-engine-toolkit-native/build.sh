@@ -4,7 +4,7 @@ LIBRARY_NAME="lib$CRATE_NAME"
 LIBRARY_FILE_NAME="$LIBRARY_NAME.a"
 HEADER_FILE_NAME="$LIBRARY_NAME.h"
 
-TARGETS="x86_64-unknown-linux-gnu aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios aarch64-apple-darwin x86_64-apple-darwin"
+TARGETS="aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios x86_64-unknown-linux-gnu"
 
 # Building for the desired targets
 echo "Building the library";
@@ -12,7 +12,9 @@ for target in $TARGETS
 do
     echo "Building for target '$target'"
 
-    cargo build \
+    cargo +nightly build \
+        -Z build-std=std,panic_abort \
+        -Z build-std-features=panic_immediate_abort \
         --target $target \
         --target-dir ./target \
         --release
@@ -22,9 +24,8 @@ done
 echo "Generating the C Header"
 rustup default nightly
 cbindgen \
-    --lang c \
+    --clean --lang c \
     --config cbindgen.toml \
-    --crate radix-engine-toolkit-native \
     --output $HEADER_FILE_NAME
 rustup default stable
 
@@ -46,10 +47,6 @@ echo "Creating fat libraries"
         aarch64-apple-ios-sim/release/$LIBRARY_FILE_NAME \
         x86_64-apple-ios/release/$LIBRARY_FILE_NAME \
         -o ios-simulator-arm64_x86_64/$LIBRARY_FILE_NAME
-        
-    mv aarch64-apple-ios/release/$LIBRARY_FILE_NAME aarch64-apple-ios/release/$LIBRARY_FILE_NAME
-
-	echo "🔮 🙏 Finished merging some of the targets using 'lipo'"
 )
 
 echo "Creating the include directory"
