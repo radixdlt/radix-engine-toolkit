@@ -1,7 +1,10 @@
 documentation = false
 
+[parse]
+clean = true
+parse_deps = true
+include = ["radix-engine-toolkit-core"]
+extra_bindings = ["radix-engine-toolkit-core"]
+
 [parse.expand]
-crates = ["radix-engine-toolkit-native", "radix-engine-toolkit-core"]
-all_features = false
-default_features = true
-features = []
+crates = ["radix-engine-toolkit-native"]
