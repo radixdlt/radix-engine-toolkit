@@ -4,15 +4,28 @@ LIBRARY_NAME="lib$CRATE_NAME"
 LIBRARY_FILE_NAME="$LIBRARY_NAME.a"
 HEADER_FILE_NAME="$LIBRARY_NAME.h"
 
-TARGETS="aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios x86_64-unknown-linux-gnu"
+CARGO_TARGETS="aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios x86_64-unknown-linux-gnu"
+CROSS_TARGETS="x86_64-pc-windows-gnu x86_64-unknown-linux-gnu"
 
 # Building for the desired targets
 echo "Building the library";
-for target in $TARGETS
+for target in $CARGO_TARGETS
 do
     echo "Building for target '$target'"
 
     cargo +nightly build \
+        -Z build-std=std,panic_abort \
+        -Z build-std-features=panic_immediate_abort \
+        --target $target \
+        --target-dir ./target \
+        --release
+done
+
+for target in $CROSS_TARGETS
+do
+    echo "Building for target '$target'"
+
+    cross +nightly build \
         -Z build-std=std,panic_abort \
         -Z build-std-features=panic_immediate_abort \
         --target $target \
@@ -58,7 +71,7 @@ echo "module RadixEngineToolkit {
 }" > ./include/module.modulemap
 
 echo "Copying the include dir to the targets"
-for target in $TARGETS
+for target in "$CARGO_TARGETS $CROSS_TARGETS"
 do
     cp -r include ./target/$target/release
 done
