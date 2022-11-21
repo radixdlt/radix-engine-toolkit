@@ -70,7 +70,7 @@ pub unsafe extern "C" fn toolkit_free(pointer: Pointer, capacity: usize) {
 #[no_mangle]
 pub unsafe extern "C" fn toolkit_free_c_string(pointer: Pointer) {
     // Loading the C-String from memory to get the byte-count of the string.
-    let length: usize = std::ffi::CStr::from_ptr(pointer as *const i8)
+    let length: usize = std::ffi::CStr::from_ptr(pointer as *const std::ffi::c_char)
         .to_bytes()
         .len();
     toolkit_free(pointer, length);
@@ -110,7 +110,7 @@ pub unsafe fn toolkit_read_and_deserialize_json_string_from_memory<'t, T>(
 where
     T: Deserialize<'t>,
 {
-    let string: &str = std::ffi::CStr::from_ptr(string_pointer as *const i8).to_str()?;
+    let string: &str = std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char).to_str()?;
     Ok(serde_json::from_str(string)?)
 }
 
