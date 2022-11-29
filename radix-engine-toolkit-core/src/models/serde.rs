@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::fmt::Display;
 use std::str::FromStr;
 
-use scrypto::misc::copy_u8_array;
+use scrypto_utils::copy_u8_array;
 
 use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -14,6 +14,24 @@ use crate::error::Error;
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeId(pub (Hash, u32));
+
+impl NodeId {
+    pub fn to_bytes(&self) -> [u8; 36] {
+        let mut node_id_bytes: Vec<u8> = self.0 .0.to_vec();
+        node_id_bytes.extend(self.0 .1.to_le_bytes());
+        copy_u8_array(&node_id_bytes)
+    }
+
+    pub fn from_bytes(vec: [u8; 36]) -> Self {
+        let hash_bytes: &[u8] = &vec[0..32];
+        let index_bytes: &[u8] = &vec[32..];
+
+        let hash: Hash = Hash(copy_u8_array(hash_bytes));
+        let index: u32 = u32::from_le_bytes(copy_u8_array(index_bytes));
+
+        Self((hash, index))
+    }
+}
 
 impl From<(Hash, u32)> for NodeId {
     fn from(value: (Hash, u32)) -> Self {
@@ -50,10 +68,7 @@ impl<'de> Deserialize<'de> for NodeId {
 
 impl ToString for NodeId {
     fn to_string(&self) -> String {
-        let mut node_id_bytes: Vec<u8> = self.0 .0.to_vec();
-        node_id_bytes.extend(self.0 .1.to_le_bytes());
-
-        hex::encode(node_id_bytes)
+        hex::encode(self.to_bytes())
     }
 }
 
@@ -64,13 +79,8 @@ impl FromStr for NodeId {
         let node_id_bytes: Vec<u8> = hex::decode(s)
             .map_err(|_| Error::DeserializationError(format!("Failed to decode node id: {}", s)))?;
 
-        let hash_bytes: &[u8] = &node_id_bytes[0..32];
-        let index_bytes: &[u8] = &node_id_bytes[32..];
-
-        let hash: Hash = Hash(copy_u8_array(hash_bytes));
-        let index: u32 = u32::from_le_bytes(copy_u8_array(index_bytes));
-
-        Ok(Self((hash, index)))
+        // TODO: Should not do a copy u8 array without first checking the length
+        Ok(Self::from_bytes(copy_u8_array(&node_id_bytes)))
     }
 }
 

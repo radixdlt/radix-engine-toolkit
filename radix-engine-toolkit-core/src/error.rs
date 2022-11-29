@@ -40,6 +40,9 @@ pub enum Error {
     /// An error emitted when the decoding of SBOR fails.
     SborDecodeError(String),
 
+    /// An error emitted when the decoding of SBOR fails.
+    SborEncodeError(String),
+
     // =====================
     // Serde Related Errors
     // =====================
@@ -84,10 +87,6 @@ pub enum Error {
 
     /// An error emitted when the parsing of a value from string fails.
     ParseError { kind: ValueKind, message: String },
-
-    /// An error emitted when encountering a value that does not have a manifest representation and
-    /// therefore a manifest can not be created containing this type.
-    NoManifestRepresentation { kind: ValueKind },
 
     // ==============================
     // Instruction Conversion Errors
@@ -167,8 +166,9 @@ impl_from_parse_error! {
 }
 
 impl_from_error! {
-    scrypto::address::AddressError => AddressError,
+    scrypto::radix_engine_interface::address::AddressError => AddressError,
     sbor::DecodeError => SborDecodeError,
+    sbor::EncodeError => SborEncodeError,
 
     serde_json::Error => DeserializationError,
     std::str::Utf8Error => InvalidRequestString,

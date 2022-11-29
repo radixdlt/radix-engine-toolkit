@@ -1,7 +1,6 @@
 use radix_transaction::model::SignedTransactionIntent as NativeSignedTransactionIntent;
 use radix_transaction::validation::{NotarizedTransactionValidator, TestIntentHashManager};
-use scrypto::buffer::{scrypto_decode, scrypto_encode};
-use scrypto::crypto::SignatureWithPublicKey;
+use scrypto::prelude::{scrypto_decode, scrypto_encode, SignatureWithPublicKey};
 
 use serde::{Deserialize, Serialize};
 
@@ -65,7 +64,7 @@ impl CompilableIntent for SignedTransactionIntent {
         let signed_transaction_intent: NativeSignedTransactionIntent = self.clone().try_into()?;
 
         // Compile the native signed transaction intent
-        Ok(scrypto_encode(&signed_transaction_intent))
+        Ok(scrypto_encode(&signed_transaction_intent).expect("Failed to encode trusted payload"))
     }
 
     fn decompile<T>(
@@ -97,6 +96,7 @@ impl Validate for SignedTransactionIntent {
             .validate(self.intent.header.network_id)?;
         NotarizedTransactionValidator::new(validation_config_from_header(&self.intent.header))
             .validate_intent(
+                &self.hash()?,
                 &self.intent.clone().try_into()?,
                 &TestIntentHashManager::new(),
             )?;

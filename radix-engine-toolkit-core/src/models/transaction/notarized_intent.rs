@@ -2,8 +2,7 @@ use radix_transaction::model::NotarizedTransaction as NativeNotarizedTransaction
 use radix_transaction::validation::{
     NotarizedTransactionValidator, TestIntentHashManager, TransactionValidator,
 };
-use scrypto::buffer::{scrypto_decode, scrypto_encode};
-use scrypto::crypto::Signature;
+use scrypto::prelude::{scrypto_decode, scrypto_encode, Signature};
 
 use serde::{Deserialize, Serialize};
 
@@ -68,7 +67,7 @@ impl CompilableIntent for NotarizedTransaction {
         let notarized_transaction: NativeNotarizedTransaction = self.clone().try_into()?;
 
         // Compile the native notarized transaction intent
-        Ok(scrypto_encode(&notarized_transaction))
+        Ok(scrypto_encode(&notarized_transaction).expect("Failed to encode trusted payload"))
     }
 
     fn decompile<T>(

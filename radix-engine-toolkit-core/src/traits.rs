@@ -1,4 +1,5 @@
 use crate::{error::Error, models::ManifestInstructionsKind};
+use scrypto::prelude::{hash, Hash};
 use serde::{Deserialize, Serialize};
 
 /// A trait that defines the common interface for a type which can be validated. This validation
@@ -61,4 +62,8 @@ pub trait CompilableIntent {
     where
         Self: Sized,
         T: AsRef<[u8]>;
+
+    fn hash(&self) -> Result<Hash, Error> {
+        self.compile().map(|x| hash(x))
+    }
 }

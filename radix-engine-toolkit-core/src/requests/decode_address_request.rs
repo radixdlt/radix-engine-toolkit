@@ -1,5 +1,7 @@
 use bech32::{self, u5, FromBase32, Variant};
 
+use scrypto::radix_engine_interface::address::AddressError;
+use scrypto::radix_engine_interface::core::NetworkDefinition;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -53,18 +55,18 @@ impl<'r> Request<'r, DecodeAddressResponse> for DecodeAddressRequest {
     fn handle_request(self) -> Result<DecodeAddressResponse, Error> {
         // We need to deduce the network from the HRP of the passed address. Therefore, we need to
         // begin by decoding the address, and getting the HRP.
-        let (hrp, data, variant): (String, Vec<u5>, Variant) = bech32::decode(&self.address)
-            .map_err(scrypto::address::AddressError::Bech32mDecodingError)?;
-        let data: Vec<u8> = Vec::<u8>::from_base32(&data)
-            .map_err(scrypto::address::AddressError::Bech32mDecodingError)?;
+        let (hrp, data, variant): (String, Vec<u5>, Variant) =
+            bech32::decode(&self.address).map_err(AddressError::Bech32mDecodingError)?;
+        let data: Vec<u8> =
+            Vec::<u8>::from_base32(&data).map_err(AddressError::Bech32mDecodingError)?;
 
         match variant {
             Variant::Bech32m => Ok(()),
-            variant => Err(scrypto::address::AddressError::InvalidVariant(variant)),
+            variant => Err(AddressError::InvalidVariant(variant)),
         }?;
 
         let address: Address = self.address.parse()?;
-        let network_definition: scrypto::core::NetworkDefinition =
+        let network_definition: NetworkDefinition =
             network_definition_from_network_id(address.network_id());
 
         Ok(DecodeAddressResponse {

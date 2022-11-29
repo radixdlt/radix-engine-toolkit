@@ -484,7 +484,7 @@ pub fn ast_instruction_from_instruction(
         } => AstInstruction::TakeFromWorktopByIds {
             ids: {
                 ast_value_from_value(
-                    &Value::Set {
+                    &Value::Array {
                         element_type: ValueKind::NonFungibleId,
                         elements: ids.clone().into_iter().collect(),
                     },
@@ -516,7 +516,7 @@ pub fn ast_instruction_from_instruction(
         } => AstInstruction::AssertWorktopContainsByIds {
             ids: {
                 ast_value_from_value(
-                    &Value::Set {
+                    &Value::Array {
                         element_type: ValueKind::NonFungibleId,
                         elements: ids.clone().into_iter().collect(),
                     },
@@ -557,7 +557,7 @@ pub fn ast_instruction_from_instruction(
         } => AstInstruction::CreateProofFromAuthZoneByIds {
             ids: {
                 ast_value_from_value(
-                    &Value::Set {
+                    &Value::Array {
                         element_type: ValueKind::NonFungibleId,
                         elements: ids.clone().into_iter().collect(),
                     },
@@ -749,14 +749,14 @@ pub fn instruction_from_ast_instruction(
             resource_address,
             new_bucket,
         } => Instruction::TakeFromWorktopByIds {
-            ids: if let Value::Set {
+            ids: if let Value::Array {
                 element_type: _,
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
-                panic!("Expected type Set!")
+                panic!("Expected type Array!")
             },
             resource_address: value_from_ast_value(resource_address, bech32_manager)?,
             into_bucket: value_from_ast_value(new_bucket, bech32_manager)?,
@@ -781,14 +781,14 @@ pub fn instruction_from_ast_instruction(
             ids,
             resource_address,
         } => Instruction::AssertWorktopContainsByIds {
-            ids: if let Value::Set {
+            ids: if let Value::Array {
                 element_type: _,
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
-                panic!("Expected type Set!")
+                panic!("Expected type Array!")
             },
             resource_address: value_from_ast_value(resource_address, bech32_manager)?,
         },
@@ -822,14 +822,14 @@ pub fn instruction_from_ast_instruction(
             resource_address,
             new_proof,
         } => Instruction::CreateProofFromAuthZoneByIds {
-            ids: if let Value::Set {
+            ids: if let Value::Array {
                 element_type: _,
                 elements,
             } = value_from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
-                panic!("Expected type Set!")
+                panic!("Expected type Array!")
             },
             resource_address: value_from_ast_value(resource_address, bech32_manager)?,
             into_proof: value_from_ast_value(new_proof, bech32_manager)?,

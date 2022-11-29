@@ -110,7 +110,8 @@ pub unsafe fn toolkit_read_and_deserialize_json_string_from_memory<'t, T>(
 where
     T: Deserialize<'t>,
 {
-    let string: &str = std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char).to_str()?;
+    let string: &str =
+        std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char).to_str()?;
     Ok(serde_json::from_str(string)?)
 }
 

@@ -25,7 +25,7 @@ pub struct TransactionHeader {
     pub end_epoch_exclusive: u64,
     #[serde_as(as = "DisplayFromStr")]
     pub nonce: u64,
-    pub notary_public_key: scrypto::crypto::PublicKey,
+    pub notary_public_key: scrypto::prelude::PublicKey,
     pub notary_as_signatory: bool,
     #[serde_as(as = "DisplayFromStr")]
     pub cost_unit_limit: u32,
