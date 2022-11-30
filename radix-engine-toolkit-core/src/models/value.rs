@@ -237,7 +237,7 @@ impl Value {
     }
 
     pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
-        let scrypto_value = scrypto_decode::<ScryptoValue>(&bytes)?;
+        let scrypto_value = scrypto_decode::<ScryptoValue>(bytes)?;
         let value = value_from_scrypto_value(&scrypto_value, network_id);
         Ok(value)
     }
@@ -1313,21 +1313,21 @@ fn scrypto_value_from_value(value: &Value) -> Result<ScryptoValue, Error> {
         },
 
         Value::Hash { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Hash(value.clone()),
+            value: ScryptoCustomValue::Hash(*value),
         },
 
         Value::EcdsaSecp256k1PublicKey { public_key } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(public_key.clone()),
+            value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(*public_key),
         },
         Value::EddsaEd25519PublicKey { public_key } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EddsaEd25519PublicKey(public_key.clone()),
+            value: ScryptoCustomValue::EddsaEd25519PublicKey(*public_key),
         },
 
         Value::EcdsaSecp256k1Signature { signature } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EcdsaSecp256k1Signature(signature.clone()),
+            value: ScryptoCustomValue::EcdsaSecp256k1Signature(*signature),
         },
         Value::EddsaEd25519Signature { signature } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EddsaEd25519Signature(signature.clone()),
+            value: ScryptoCustomValue::EddsaEd25519Signature(*signature),
         },
 
         Value::Bucket { identifier } => ScryptoValue::Custom {
@@ -1408,7 +1408,7 @@ fn value_from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Val
             fields,
         } => Value::Enum {
             variant: discriminator.clone(),
-            fields: if fields.len() == 0 {
+            fields: if fields.is_empty() {
                 None
             } else {
                 Some(
@@ -1443,36 +1443,36 @@ fn value_from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Val
             ScryptoCustomValue::PackageAddress(address) => Value::PackageAddress {
                 address: NetworkAwarePackageAddress {
                     network_id,
-                    address: address.clone(),
+                    address: *address,
                 },
             },
             ScryptoCustomValue::ComponentAddress(address) => Value::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id,
-                    address: address.clone(),
+                    address: *address,
                 },
             },
             ScryptoCustomValue::ResourceAddress(address) => Value::ResourceAddress {
                 address: NetworkAwareResourceAddress {
                     network_id,
-                    address: address.clone(),
+                    address: *address,
                 },
             },
             ScryptoCustomValue::SystemAddress(address) => Value::SystemAddress {
                 address: NetworkAwareSystemAddress {
                     network_id,
-                    address: address.clone(),
+                    address: *address,
                 },
             },
 
             ScryptoCustomValue::Component(node_id) => Value::Component {
-                identifier: NodeId::from_bytes(node_id.clone()),
+                identifier: NodeId::from_bytes(*node_id),
             },
             ScryptoCustomValue::KeyValueStore(node_id) => Value::KeyValueStore {
-                identifier: NodeId::from_bytes(node_id.clone()),
+                identifier: NodeId::from_bytes(*node_id),
             },
             ScryptoCustomValue::Vault(node_id) => Value::Vault {
-                identifier: NodeId::from_bytes(node_id.clone()),
+                identifier: NodeId::from_bytes(*node_id),
             },
             ScryptoCustomValue::Bucket(identifier) => Value::Bucket {
                 identifier: Identifier::U32(*identifier),
@@ -1488,27 +1488,27 @@ fn value_from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Val
                 hash: value.clone(),
             },
             ScryptoCustomValue::Hash(value) => Value::Hash {
-                value: value.clone(),
+                value: *value,
             },
 
             ScryptoCustomValue::EcdsaSecp256k1PublicKey(value) => Value::EcdsaSecp256k1PublicKey {
-                public_key: value.clone(),
+                public_key: *value,
             },
             ScryptoCustomValue::EddsaEd25519PublicKey(value) => Value::EddsaEd25519PublicKey {
-                public_key: value.clone(),
+                public_key: *value,
             },
             ScryptoCustomValue::EcdsaSecp256k1Signature(value) => Value::EcdsaSecp256k1Signature {
-                signature: value.clone(),
+                signature: *value,
             },
             ScryptoCustomValue::EddsaEd25519Signature(value) => Value::EddsaEd25519Signature {
-                signature: value.clone(),
+                signature: *value,
             },
 
             ScryptoCustomValue::Decimal(value) => Value::Decimal {
-                value: value.clone(),
+                value: *value,
             },
             ScryptoCustomValue::PreciseDecimal(value) => Value::PreciseDecimal {
-                value: value.clone(),
+                value: *value,
             },
 
             ScryptoCustomValue::NonFungibleId(value) => Value::NonFungibleId {

@@ -64,6 +64,6 @@ pub trait CompilableIntent {
         T: AsRef<[u8]>;
 
     fn hash(&self) -> Result<Hash, Error> {
-        self.compile().map(|x| hash(x))
+        self.compile().map(hash)
     }
 }
