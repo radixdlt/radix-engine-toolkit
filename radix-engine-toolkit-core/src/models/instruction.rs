@@ -390,14 +390,14 @@ pub fn ast_instruction_from_instruction(
             function_name,
             arguments,
         } => AstInstruction::CallFunction {
-            package_address: ast_value_from_value(package_address, bech32_manager)?,
-            blueprint_name: ast_value_from_value(blueprint_name, bech32_manager)?,
-            function_name: ast_value_from_value(function_name, bech32_manager)?,
+            package_address: package_address.to_ast_value(bech32_manager)?,
+            blueprint_name: blueprint_name.to_ast_value(bech32_manager)?,
+            function_name: function_name.to_ast_value(bech32_manager)?,
             args: arguments
                 .clone()
                 .unwrap_or_default()
                 .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
+                .map(|v| v.to_ast_value(bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         },
         Instruction::CallNativeFunction {
@@ -405,13 +405,13 @@ pub fn ast_instruction_from_instruction(
             function_name,
             arguments,
         } => AstInstruction::CallNativeFunction {
-            blueprint_name: ast_value_from_value(blueprint_name, bech32_manager)?,
-            function_name: ast_value_from_value(function_name, bech32_manager)?,
+            blueprint_name: blueprint_name.to_ast_value(bech32_manager)?,
+            function_name: function_name.to_ast_value(bech32_manager)?,
             args: arguments
                 .clone()
                 .unwrap_or_default()
                 .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
+                .map(|v| v.to_ast_value(bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         },
         Instruction::CallMethod {
@@ -437,12 +437,12 @@ pub fn ast_instruction_from_instruction(
 
             AstInstruction::CallMethod {
                 receiver: scrypto_receiver,
-                method: ast_value_from_value(method_name, bech32_manager)?,
+                method: method_name.to_ast_value(bech32_manager)?,
                 args: arguments
                     .clone()
                     .unwrap_or_default()
                     .iter()
-                    .map(|v| ast_value_from_value(v, bech32_manager))
+                    .map(|v| v.to_ast_value(bech32_manager))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             }
         }
@@ -452,12 +452,12 @@ pub fn ast_instruction_from_instruction(
             arguments,
         } => AstInstruction::CallNativeMethod {
             receiver: AstReceiver::Ref(ast_re_node_from_re_node(receiver)),
-            method: ast_value_from_value(method_name, bech32_manager)?,
+            method: method_name.to_ast_value(bech32_manager)?,
             args: arguments
                 .clone()
                 .unwrap_or_default()
                 .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
+                .map(|v| v.to_ast_value(bech32_manager))
                 .collect::<Result<Vec<AstValue>, _>>()?,
         },
 
@@ -465,72 +465,64 @@ pub fn ast_instruction_from_instruction(
             resource_address,
             into_bucket,
         } => AstInstruction::TakeFromWorktop {
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_bucket: ast_value_from_value(into_bucket, bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_bucket: into_bucket.to_ast_value(bech32_manager)?,
         },
         Instruction::TakeFromWorktopByAmount {
             amount,
             resource_address,
             into_bucket,
         } => AstInstruction::TakeFromWorktopByAmount {
-            amount: ast_value_from_value(amount, bech32_manager)?,
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_bucket: ast_value_from_value(into_bucket, bech32_manager)?,
+            amount: amount.to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_bucket: into_bucket.to_ast_value(bech32_manager)?,
         },
         Instruction::TakeFromWorktopByIds {
             ids,
             resource_address,
             into_bucket,
         } => AstInstruction::TakeFromWorktopByIds {
-            ids: {
-                ast_value_from_value(
-                    &Value::Array {
-                        element_type: ValueKind::NonFungibleId,
-                        elements: ids.clone().into_iter().collect(),
-                    },
-                    bech32_manager,
-                )?
-            },
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_bucket: ast_value_from_value(into_bucket, bech32_manager)?,
+            ids: Value::Array {
+                element_type: ValueKind::NonFungibleId,
+                elements: ids.clone().into_iter().collect(),
+            }
+            .to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_bucket: into_bucket.to_ast_value(bech32_manager)?,
         },
         Instruction::ReturnToWorktop { bucket } => AstInstruction::ReturnToWorktop {
-            bucket: ast_value_from_value(bucket, bech32_manager)?,
+            bucket: bucket.to_ast_value(bech32_manager)?,
         },
 
         Instruction::AssertWorktopContains { resource_address } => {
             AstInstruction::AssertWorktopContains {
-                resource_address: ast_value_from_value(resource_address, bech32_manager)?,
+                resource_address: resource_address.to_ast_value(bech32_manager)?,
             }
         }
         Instruction::AssertWorktopContainsByAmount {
             amount,
             resource_address,
         } => AstInstruction::AssertWorktopContainsByAmount {
-            amount: ast_value_from_value(amount, bech32_manager)?,
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
+            amount: amount.to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
         },
         Instruction::AssertWorktopContainsByIds {
             ids,
             resource_address,
         } => AstInstruction::AssertWorktopContainsByIds {
-            ids: {
-                ast_value_from_value(
-                    &Value::Array {
-                        element_type: ValueKind::NonFungibleId,
-                        elements: ids.clone().into_iter().collect(),
-                    },
-                    bech32_manager,
-                )?
-            },
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
+            ids: Value::Array {
+                element_type: ValueKind::NonFungibleId,
+                elements: ids.clone().into_iter().collect(),
+            }
+            .to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
         },
 
         Instruction::PopFromAuthZone { into_proof } => AstInstruction::PopFromAuthZone {
-            new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+            new_proof: into_proof.to_ast_value(bech32_manager)?,
         },
         Instruction::PushToAuthZone { proof } => AstInstruction::PushToAuthZone {
-            proof: ast_value_from_value(proof, bech32_manager)?,
+            proof: proof.to_ast_value(bech32_manager)?,
         },
         Instruction::ClearAuthZone => AstInstruction::ClearAuthZone,
 
@@ -538,65 +530,61 @@ pub fn ast_instruction_from_instruction(
             resource_address,
             into_proof,
         } => AstInstruction::CreateProofFromAuthZone {
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_proof: into_proof.to_ast_value(bech32_manager)?,
         },
         Instruction::CreateProofFromAuthZoneByAmount {
             amount,
             resource_address,
             into_proof,
         } => AstInstruction::CreateProofFromAuthZoneByAmount {
-            amount: ast_value_from_value(amount, bech32_manager)?,
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+            amount: amount.to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_proof: into_proof.to_ast_value(bech32_manager)?,
         },
         Instruction::CreateProofFromAuthZoneByIds {
             ids,
             resource_address,
             into_proof,
         } => AstInstruction::CreateProofFromAuthZoneByIds {
-            ids: {
-                ast_value_from_value(
-                    &Value::Array {
-                        element_type: ValueKind::NonFungibleId,
-                        elements: ids.clone().into_iter().collect(),
-                    },
-                    bech32_manager,
-                )?
-            },
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+            ids: Value::Array {
+                element_type: ValueKind::NonFungibleId,
+                elements: ids.clone().into_iter().collect(),
+            }
+            .to_ast_value(bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            new_proof: into_proof.to_ast_value(bech32_manager)?,
         },
         Instruction::CreateProofFromBucket { bucket, into_proof } => {
             AstInstruction::CreateProofFromBucket {
-                bucket: ast_value_from_value(bucket, bech32_manager)?,
-                new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+                bucket: bucket.to_ast_value(bech32_manager)?,
+                new_proof: into_proof.to_ast_value(bech32_manager)?,
             }
         }
 
         Instruction::CloneProof { proof, into_proof } => AstInstruction::CloneProof {
-            proof: ast_value_from_value(proof, bech32_manager)?,
-            new_proof: ast_value_from_value(into_proof, bech32_manager)?,
+            proof: proof.to_ast_value(bech32_manager)?,
+            new_proof: into_proof.to_ast_value(bech32_manager)?,
         },
 
         Instruction::DropProof { proof } => AstInstruction::DropProof {
-            proof: ast_value_from_value(proof, bech32_manager)?,
+            proof: proof.to_ast_value(bech32_manager)?,
         },
         Instruction::DropAllProofs => AstInstruction::DropAllProofs,
         Instruction::PublishPackage { code, abi } => AstInstruction::PublishPackage {
-            code: ast_value_from_value(code, bech32_manager)?,
-            abi: ast_value_from_value(abi, bech32_manager)?,
+            code: code.to_ast_value(bech32_manager)?,
+            abi: abi.to_ast_value(bech32_manager)?,
         },
 
         Instruction::MintFungible {
             resource_address,
             amount,
         } => AstInstruction::MintFungible {
-            resource_address: ast_value_from_value(resource_address, bech32_manager)?,
-            amount: ast_value_from_value(amount, bech32_manager)?,
+            resource_address: resource_address.to_ast_value(bech32_manager)?,
+            amount: amount.to_ast_value(bech32_manager)?,
         },
         Instruction::BurnBucket { bucket } => AstInstruction::BurnBucket {
-            bucket: ast_value_from_value(bucket, bech32_manager)?,
+            bucket: bucket.to_ast_value(bech32_manager)?,
         },
         Instruction::CreateResource {
             resource_type,
@@ -604,10 +592,10 @@ pub fn ast_instruction_from_instruction(
             access_rules,
             mint_params,
         } => AstInstruction::CreateResource {
-            resource_type: ast_value_from_value(resource_type, bech32_manager)?,
-            metadata: ast_value_from_value(metadata, bech32_manager)?,
-            access_rules: ast_value_from_value(access_rules, bech32_manager)?,
-            mint_params: ast_value_from_value(mint_params, bech32_manager)?,
+            resource_type: resource_type.to_ast_value(bech32_manager)?,
+            metadata: metadata.to_ast_value(bech32_manager)?,
+            access_rules: access_rules.to_ast_value(bech32_manager)?,
+            mint_params: mint_params.to_ast_value(bech32_manager)?,
         },
     };
     Ok(ast_instruction)
@@ -627,13 +615,13 @@ pub fn instruction_from_ast_instruction(
             function_name,
             args,
         } => Instruction::CallFunction {
-            package_address: value_from_ast_value(package_address, bech32_manager)?,
-            blueprint_name: value_from_ast_value(blueprint_name, bech32_manager)?,
-            function_name: value_from_ast_value(function_name, bech32_manager)?,
+            package_address: Value::from_ast_value(package_address, bech32_manager)?,
+            blueprint_name: Value::from_ast_value(blueprint_name, bech32_manager)?,
+            function_name: Value::from_ast_value(function_name, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
                     .iter()
-                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .map(|v| Value::from_ast_value(v, bech32_manager))
                     .collect::<Result<Vec<Value>, _>>()?;
                 match arguments.len() {
                     0 => None,
@@ -646,12 +634,12 @@ pub fn instruction_from_ast_instruction(
             function_name,
             args,
         } => Instruction::CallNativeFunction {
-            blueprint_name: value_from_ast_value(blueprint_name, bech32_manager)?,
-            function_name: value_from_ast_value(function_name, bech32_manager)?,
+            blueprint_name: Value::from_ast_value(blueprint_name, bech32_manager)?,
+            function_name: Value::from_ast_value(function_name, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
                     .iter()
-                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .map(|v| Value::from_ast_value(v, bech32_manager))
                     .collect::<Result<Vec<Value>, _>>()?;
                 match arguments.len() {
                     0 => None,
@@ -666,7 +654,7 @@ pub fn instruction_from_ast_instruction(
         } => Instruction::CallMethod {
             component_address: match receiver {
                 AstScryptoReceiver::Global(value) => {
-                    if let Value::String { value } = value_from_ast_value(value, bech32_manager)? {
+                    if let Value::String { value } = Value::from_ast_value(value, bech32_manager)? {
                         Value::ComponentAddress {
                             address: NetworkAwareComponentAddress {
                                 network_id: bech32_manager.network_id(),
@@ -683,7 +671,7 @@ pub fn instruction_from_ast_instruction(
                     }
                 }
                 AstScryptoReceiver::Component(value) => {
-                    if let Value::String { value } = value_from_ast_value(value, bech32_manager)? {
+                    if let Value::String { value } = Value::from_ast_value(value, bech32_manager)? {
                         Value::Component {
                             identifier: value.parse()?,
                         }
@@ -695,11 +683,11 @@ pub fn instruction_from_ast_instruction(
                     }
                 }
             },
-            method_name: value_from_ast_value(method, bech32_manager)?,
+            method_name: Value::from_ast_value(method, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
                     .iter()
-                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .map(|v| Value::from_ast_value(v, bech32_manager))
                     .collect::<Result<Vec<Value>, _>>()?;
                 match arguments.len() {
                     0 => None,
@@ -715,11 +703,11 @@ pub fn instruction_from_ast_instruction(
             receiver: match receiver {
                 AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?,
             },
-            method_name: value_from_ast_value(method, bech32_manager)?,
+            method_name: Value::from_ast_value(method, bech32_manager)?,
             arguments: {
                 let arguments: Vec<Value> = args
                     .iter()
-                    .map(|v| value_from_ast_value(v, bech32_manager))
+                    .map(|v| Value::from_ast_value(v, bech32_manager))
                     .collect::<Result<Vec<Value>, _>>()?;
                 match arguments.len() {
                     0 => None,
@@ -732,17 +720,17 @@ pub fn instruction_from_ast_instruction(
             resource_address,
             new_bucket,
         } => Instruction::TakeFromWorktop {
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_bucket: value_from_ast_value(new_bucket, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_bucket: Value::from_ast_value(new_bucket, bech32_manager)?,
         },
         AstInstruction::TakeFromWorktopByAmount {
             amount,
             resource_address,
             new_bucket,
         } => Instruction::TakeFromWorktopByAmount {
-            amount: value_from_ast_value(amount, bech32_manager)?,
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_bucket: value_from_ast_value(new_bucket, bech32_manager)?,
+            amount: Value::from_ast_value(amount, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_bucket: Value::from_ast_value(new_bucket, bech32_manager)?,
         },
         AstInstruction::TakeFromWorktopByIds {
             ids,
@@ -752,30 +740,30 @@ pub fn instruction_from_ast_instruction(
             ids: if let Value::Array {
                 element_type: _,
                 elements,
-            } = value_from_ast_value(ids, bech32_manager)?
+            } = Value::from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
                 panic!("Expected type Array!")
             },
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_bucket: value_from_ast_value(new_bucket, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_bucket: Value::from_ast_value(new_bucket, bech32_manager)?,
         },
         AstInstruction::ReturnToWorktop { bucket } => Instruction::ReturnToWorktop {
-            bucket: value_from_ast_value(bucket, bech32_manager)?,
+            bucket: Value::from_ast_value(bucket, bech32_manager)?,
         },
 
         AstInstruction::AssertWorktopContains { resource_address } => {
             Instruction::AssertWorktopContains {
-                resource_address: value_from_ast_value(resource_address, bech32_manager)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
             }
         }
         AstInstruction::AssertWorktopContainsByAmount {
             amount,
             resource_address,
         } => Instruction::AssertWorktopContainsByAmount {
-            amount: value_from_ast_value(amount, bech32_manager)?,
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
+            amount: Value::from_ast_value(amount, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
         },
         AstInstruction::AssertWorktopContainsByIds {
             ids,
@@ -784,20 +772,20 @@ pub fn instruction_from_ast_instruction(
             ids: if let Value::Array {
                 element_type: _,
                 elements,
-            } = value_from_ast_value(ids, bech32_manager)?
+            } = Value::from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
                 panic!("Expected type Array!")
             },
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
         },
 
         AstInstruction::PopFromAuthZone { new_proof } => Instruction::PopFromAuthZone {
-            into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+            into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
         },
         AstInstruction::PushToAuthZone { proof } => Instruction::PushToAuthZone {
-            proof: value_from_ast_value(proof, bech32_manager)?,
+            proof: Value::from_ast_value(proof, bech32_manager)?,
         },
         AstInstruction::ClearAuthZone => Instruction::ClearAuthZone,
 
@@ -805,17 +793,17 @@ pub fn instruction_from_ast_instruction(
             resource_address,
             new_proof,
         } => Instruction::CreateProofFromAuthZone {
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
         },
         AstInstruction::CreateProofFromAuthZoneByAmount {
             amount,
             resource_address,
             new_proof,
         } => Instruction::CreateProofFromAuthZoneByAmount {
-            amount: value_from_ast_value(amount, bech32_manager)?,
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+            amount: Value::from_ast_value(amount, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
         },
         AstInstruction::CreateProofFromAuthZoneByIds {
             ids,
@@ -825,43 +813,43 @@ pub fn instruction_from_ast_instruction(
             ids: if let Value::Array {
                 element_type: _,
                 elements,
-            } = value_from_ast_value(ids, bech32_manager)?
+            } = Value::from_ast_value(ids, bech32_manager)?
             {
                 elements.into_iter().collect()
             } else {
                 panic!("Expected type Array!")
             },
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
         },
         AstInstruction::CreateProofFromBucket { bucket, new_proof } => {
             Instruction::CreateProofFromBucket {
-                bucket: value_from_ast_value(bucket, bech32_manager)?,
-                into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+                bucket: Value::from_ast_value(bucket, bech32_manager)?,
+                into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
             }
         }
 
         AstInstruction::CloneProof { proof, new_proof } => Instruction::CloneProof {
-            proof: value_from_ast_value(proof, bech32_manager)?,
-            into_proof: value_from_ast_value(new_proof, bech32_manager)?,
+            proof: Value::from_ast_value(proof, bech32_manager)?,
+            into_proof: Value::from_ast_value(new_proof, bech32_manager)?,
         },
         AstInstruction::DropProof { proof } => Instruction::DropProof {
-            proof: value_from_ast_value(proof, bech32_manager)?,
+            proof: Value::from_ast_value(proof, bech32_manager)?,
         },
         AstInstruction::DropAllProofs => Instruction::DropAllProofs,
         AstInstruction::PublishPackage { code, abi } => Instruction::PublishPackage {
-            code: value_from_ast_value(code, bech32_manager)?,
-            abi: value_from_ast_value(abi, bech32_manager)?,
+            code: Value::from_ast_value(code, bech32_manager)?,
+            abi: Value::from_ast_value(abi, bech32_manager)?,
         },
         AstInstruction::MintFungible {
             resource_address,
             amount,
         } => Instruction::MintFungible {
-            resource_address: value_from_ast_value(resource_address, bech32_manager)?,
-            amount: value_from_ast_value(amount, bech32_manager)?,
+            resource_address: Value::from_ast_value(resource_address, bech32_manager)?,
+            amount: Value::from_ast_value(amount, bech32_manager)?,
         },
         AstInstruction::BurnBucket { bucket } => Instruction::BurnBucket {
-            bucket: value_from_ast_value(bucket, bech32_manager)?,
+            bucket: Value::from_ast_value(bucket, bech32_manager)?,
         },
         AstInstruction::CreateResource {
             resource_type,
@@ -869,10 +857,10 @@ pub fn instruction_from_ast_instruction(
             access_rules,
             mint_params,
         } => Instruction::CreateResource {
-            resource_type: value_from_ast_value(resource_type, bech32_manager)?,
-            metadata: value_from_ast_value(metadata, bech32_manager)?,
-            access_rules: value_from_ast_value(access_rules, bech32_manager)?,
-            mint_params: value_from_ast_value(mint_params, bech32_manager)?,
+            resource_type: Value::from_ast_value(resource_type, bech32_manager)?,
+            metadata: Value::from_ast_value(metadata, bech32_manager)?,
+            access_rules: Value::from_ast_value(access_rules, bech32_manager)?,
+            mint_params: Value::from_ast_value(mint_params, bech32_manager)?,
         },
     };
     Ok(instruction)

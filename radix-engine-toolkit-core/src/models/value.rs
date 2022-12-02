@@ -230,35 +230,10 @@ impl Value {
         }
     }
 
-    pub fn encode(&self) -> Result<Vec<u8>, Error> {
-        let scrypto_value = scrypto_value_from_value(self)?;
-        let encoded_value = scrypto_encode(&scrypto_value)?;
-        Ok(encoded_value)
-    }
+    // ===========
+    // Validation
+    // ===========
 
-    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
-        let scrypto_value = scrypto_decode::<ScryptoValue>(bytes)?;
-        let value = value_from_scrypto_value(&scrypto_value, network_id);
-        Ok(value)
-    }
-}
-
-// ===========
-// Validation
-// ===========
-
-impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
-    fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
-        self.validate_if_collection()?;
-        self.validate_address_network_id(network_id)?;
-        if let Some(expected_kind) = expected_kind {
-            self.validate_kind(expected_kind)?;
-        };
-        Ok(())
-    }
-}
-
-impl Value {
     fn validate_kind(&self, expected_kind: ValueKind) -> Result<(), Error> {
         if self.kind() == expected_kind {
             Ok(())
@@ -312,6 +287,820 @@ impl Value {
                 found: network_id,
             })
         }
+    }
+
+    // ============
+    // Conversions
+    // ============
+
+    pub fn from_ast_value(
+        ast_value: &AstValue,
+        bech32_manager: &Bech32Manager,
+    ) -> Result<Self, Error> {
+        let value: Value = match ast_value {
+            AstValue::Unit => Self::Unit,
+            AstValue::Bool(value) => Self::Bool { value: *value },
+
+            AstValue::I8(value) => Self::I8 { value: *value },
+            AstValue::I16(value) => Self::I16 { value: *value },
+            AstValue::I32(value) => Self::I32 { value: *value },
+            AstValue::I64(value) => Self::I64 { value: *value },
+            AstValue::I128(value) => Self::I128 { value: *value },
+
+            AstValue::U8(value) => Self::U8 { value: *value },
+            AstValue::U16(value) => Self::U16 { value: *value },
+            AstValue::U32(value) => Self::U32 { value: *value },
+            AstValue::U64(value) => Self::U64 { value: *value },
+            AstValue::U128(value) => Self::U128 { value: *value },
+
+            AstValue::String(value) => Self::String {
+                value: value.clone(),
+            },
+
+            AstValue::Struct(fields) => Self::Struct {
+                fields: fields
+                    .iter()
+                    .map(|v| Self::from_ast_value(v, bech32_manager))
+                    .collect::<Result<Vec<Value>, _>>()?,
+            },
+            AstValue::Enum(variant, fields) => Self::Enum {
+                variant: variant.clone(),
+                fields: {
+                    let fields = fields
+                        .iter()
+                        .map(|v| Self::from_ast_value(v, bech32_manager))
+                        .collect::<Result<Vec<Value>, _>>()?;
+                    match fields.len() {
+                        0 => None,
+                        _ => Some(fields),
+                    }
+                },
+            },
+
+            AstValue::Array(ast_type, elements) => Self::Array {
+                element_type: (*ast_type).into(),
+                elements: elements
+                    .iter()
+                    .map(|v| Self::from_ast_value(v, bech32_manager))
+                    .collect::<Result<Vec<Value>, _>>()?,
+            },
+            AstValue::Tuple(elements) => Self::Tuple {
+                elements: elements
+                    .iter()
+                    .map(|v| Self::from_ast_value(v, bech32_manager))
+                    .collect::<Result<Vec<Value>, _>>()?,
+            },
+
+            AstValue::Decimal(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Decimal {
+                        value: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Decimal,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::PreciseDecimal(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::PreciseDecimal {
+                        value: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::PreciseDecimal,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::Component(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Component {
+                        identifier: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Component,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::PackageAddress(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::PackageAddress {
+                        address: NetworkAwarePackageAddress {
+                            network_id: bech32_manager.network_id(),
+                            address: bech32_manager
+                                .decoder
+                                .validate_and_decode_package_address(value)?,
+                        },
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::PackageAddress,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::ComponentAddress(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::ComponentAddress {
+                        address: NetworkAwareComponentAddress {
+                            network_id: bech32_manager.network_id(),
+                            address: bech32_manager
+                                .decoder
+                                .validate_and_decode_component_address(value)?,
+                        },
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::ComponentAddress,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::ResourceAddress(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::ResourceAddress {
+                        address: NetworkAwareResourceAddress {
+                            network_id: bech32_manager.network_id(),
+                            address: bech32_manager
+                                .decoder
+                                .validate_and_decode_resource_address(value)?,
+                        },
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::ResourceAddress,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::SystemAddress(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::SystemAddress {
+                        address: NetworkAwareSystemAddress {
+                            network_id: bech32_manager.network_id(),
+                            address: bech32_manager
+                                .decoder
+                                .validate_and_decode_system_address(value)?,
+                        },
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::SystemAddress,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::Hash(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Hash {
+                        value: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Hash,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::Bucket(value) => {
+                if let AstValue::U32(value) = &**value {
+                    Self::Bucket {
+                        identifier: Identifier::U32(*value),
+                    }
+                } else if let AstValue::String(value) = &**value {
+                    Self::Bucket {
+                        identifier: Identifier::String(value.clone()),
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Bucket,
+                        allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::Proof(value) => {
+                if let AstValue::U32(value) = &**value {
+                    Self::Proof {
+                        identifier: Identifier::U32(*value),
+                    }
+                } else if let AstValue::String(value) = &**value {
+                    Self::Proof {
+                        identifier: Identifier::String(value.clone()),
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Proof,
+                        allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::NonFungibleId(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::NonFungibleId {
+                        value: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::NonFungibleId,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::NonFungibleAddress(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::NonFungibleAddress {
+                        address: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::NonFungibleAddress,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::Blob(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Blob {
+                        hash: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Blob,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::Expression(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Expression {
+                        value: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Expression,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+
+            AstValue::Vault(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Vault {
+                        identifier: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Vault,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::KeyValueStore(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::KeyValueStore {
+                        identifier: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::KeyValueStore,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::EcdsaSecp256k1PublicKey(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::EcdsaSecp256k1PublicKey {
+                        public_key: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::EcdsaSecp256k1PublicKey,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::EcdsaSecp256k1Signature(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::EcdsaSecp256k1Signature {
+                        signature: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::EcdsaSecp256k1Signature,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::EddsaEd25519PublicKey(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::EddsaEd25519PublicKey {
+                        public_key: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::EddsaEd25519PublicKey,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+            AstValue::EddsaEd25519Signature(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::EddsaEd25519Signature {
+                        signature: value.parse()?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::EddsaEd25519Signature,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
+        };
+        Ok(value)
+    }
+
+    pub fn to_ast_value(&self, bech32_manager: &Bech32Manager) -> Result<AstValue, Error> {
+        let ast_value: AstValue = match self {
+            Value::Unit => AstValue::Unit,
+            Value::Bool { value } => AstValue::Bool(*value),
+
+            Value::I8 { value } => AstValue::I8(*value),
+            Value::I16 { value } => AstValue::I16(*value),
+            Value::I32 { value } => AstValue::I32(*value),
+            Value::I64 { value } => AstValue::I64(*value),
+            Value::I128 { value } => AstValue::I128(*value),
+
+            Value::U8 { value } => AstValue::U8(*value),
+            Value::U16 { value } => AstValue::U16(*value),
+            Value::U32 { value } => AstValue::U32(*value),
+            Value::U64 { value } => AstValue::U64(*value),
+            Value::U128 { value } => AstValue::U128(*value),
+
+            Value::String { value } => AstValue::String(value.clone()),
+
+            Value::Struct { fields } => AstValue::Struct(
+                fields
+                    .iter()
+                    .map(|v| v.to_ast_value(bech32_manager))
+                    .collect::<Result<Vec<AstValue>, _>>()?,
+            ),
+            Value::Enum { variant, fields } => AstValue::Enum(
+                variant.clone(),
+                fields
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|v| v.to_ast_value(bech32_manager))
+                    .collect::<Result<Vec<AstValue>, _>>()?,
+            ),
+
+            Value::Array {
+                element_type,
+                elements,
+            } => {
+                self.validate_if_collection()?;
+                AstValue::Array(
+                    (*element_type).into(),
+                    elements
+                        .iter()
+                        .map(|id| id.to_ast_value(bech32_manager))
+                        .collect::<Result<Vec<AstValue>, Error>>()?,
+                )
+            }
+            Value::Tuple { elements } => AstValue::Tuple(
+                elements
+                    .iter()
+                    .map(|v| v.to_ast_value(bech32_manager))
+                    .collect::<Result<Vec<AstValue>, _>>()?,
+            ),
+
+            Value::Decimal { value } => {
+                AstValue::Decimal(Box::new(AstValue::String(value.to_string())))
+            }
+            Value::PreciseDecimal { value } => {
+                AstValue::PreciseDecimal(Box::new(AstValue::String(value.to_string())))
+            }
+
+            Value::PackageAddress { address: value } => {
+                AstValue::PackageAddress(Box::new(AstValue::String(
+                    bech32_manager
+                        .encoder
+                        .encode_package_address_to_string(&value.address),
+                )))
+            }
+            Value::ComponentAddress { address: value } => {
+                AstValue::ComponentAddress(Box::new(AstValue::String(
+                    bech32_manager
+                        .encoder
+                        .encode_component_address_to_string(&value.address),
+                )))
+            }
+            Value::ResourceAddress { address: value } => {
+                AstValue::ResourceAddress(Box::new(AstValue::String(
+                    bech32_manager
+                        .encoder
+                        .encode_resource_address_to_string(&value.address),
+                )))
+            }
+            Value::SystemAddress { address: value } => {
+                AstValue::SystemAddress(Box::new(AstValue::String(
+                    bech32_manager
+                        .encoder
+                        .encode_system_address_to_string(&value.address),
+                )))
+            }
+
+            Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
+            Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
+                Identifier::String(string) => AstValue::String(string.clone()),
+                Identifier::U32(number) => AstValue::U32(*number),
+            })),
+            Value::Proof { identifier } => AstValue::Proof(Box::new(match identifier {
+                Identifier::String(string) => AstValue::String(string.clone()),
+                Identifier::U32(number) => AstValue::U32(*number),
+            })),
+
+            Value::NonFungibleId { value } => {
+                AstValue::NonFungibleId(Box::new(AstValue::String(value.to_string())))
+            }
+            Value::NonFungibleAddress { address } => {
+                AstValue::NonFungibleAddress(Box::new(AstValue::String(address.to_string())))
+            }
+
+            Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
+            Value::Expression { value } => {
+                AstValue::Expression(Box::new(AstValue::String(value.to_string())))
+            }
+
+            Value::Component { identifier } => {
+                AstValue::Component(Box::new(AstValue::String(identifier.to_string())))
+            }
+            Value::Vault { identifier } => {
+                AstValue::Vault(Box::new(AstValue::String(identifier.to_string())))
+            }
+            Value::KeyValueStore { identifier } => {
+                AstValue::KeyValueStore(Box::new(AstValue::String(identifier.to_string())))
+            }
+
+            Value::EcdsaSecp256k1PublicKey { public_key } => AstValue::EcdsaSecp256k1PublicKey(
+                Box::new(AstValue::String(public_key.to_string())),
+            ),
+            Value::EcdsaSecp256k1Signature { signature } => {
+                AstValue::EcdsaSecp256k1Signature(Box::new(AstValue::String(signature.to_string())))
+            }
+
+            Value::EddsaEd25519PublicKey { public_key } => {
+                AstValue::EddsaEd25519PublicKey(Box::new(AstValue::String(public_key.to_string())))
+            }
+            Value::EddsaEd25519Signature { signature } => {
+                AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string())))
+            }
+        };
+        Ok(ast_value)
+    }
+
+    fn to_scrypto_value(&self) -> Result<ScryptoValue, Error> {
+        let scrypto_value = match self {
+            Value::Unit => ScryptoValue::Unit,
+            Value::Bool { value } => ScryptoValue::Bool { value: *value },
+
+            Value::U8 { value } => ScryptoValue::U8 { value: *value },
+            Value::U16 { value } => ScryptoValue::U16 { value: *value },
+            Value::U32 { value } => ScryptoValue::U32 { value: *value },
+            Value::U64 { value } => ScryptoValue::U64 { value: *value },
+            Value::U128 { value } => ScryptoValue::U128 { value: *value },
+
+            Value::I8 { value } => ScryptoValue::I8 { value: *value },
+            Value::I16 { value } => ScryptoValue::I16 { value: *value },
+            Value::I32 { value } => ScryptoValue::I32 { value: *value },
+            Value::I64 { value } => ScryptoValue::I64 { value: *value },
+            Value::I128 { value } => ScryptoValue::I128 { value: *value },
+
+            Value::String { value } => ScryptoValue::String {
+                value: value.clone(),
+            },
+            Value::Struct { fields } => ScryptoValue::Struct {
+                fields: fields
+                    .clone()
+                    .into_iter()
+                    .map(|x| x.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Value::Enum { variant, fields } => ScryptoValue::Enum {
+                discriminator: variant.clone(),
+                fields: fields
+                    .clone()
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|x| x.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Value::Array {
+                element_type,
+                elements,
+            } => ScryptoValue::Array {
+                element_type_id: (*element_type).into(),
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|x| x.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Value::Tuple { elements } => ScryptoValue::Tuple {
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|x| x.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Value::KeyValueStore { identifier } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::KeyValueStore(identifier.to_bytes()),
+            },
+
+            Value::Decimal { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Decimal(*value),
+            },
+            Value::PreciseDecimal { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::PreciseDecimal(*value),
+            },
+            Value::Component { identifier } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Component(identifier.to_bytes()),
+            },
+            Value::ComponentAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::ComponentAddress(address.address),
+            },
+            Value::PackageAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::PackageAddress(address.address),
+            },
+            Value::ResourceAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::ResourceAddress(address.address),
+            },
+            Value::SystemAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::SystemAddress(address.address),
+            },
+
+            Value::Hash { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Hash(*value),
+            },
+
+            Value::EcdsaSecp256k1PublicKey { public_key } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(*public_key),
+            },
+            Value::EddsaEd25519PublicKey { public_key } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519PublicKey(*public_key),
+            },
+
+            Value::EcdsaSecp256k1Signature { signature } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1Signature(*signature),
+            },
+            Value::EddsaEd25519Signature { signature } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519Signature(*signature),
+            },
+
+            Value::Bucket { identifier } => ScryptoValue::Custom {
+                value: match identifier {
+                    Identifier::U32(numeric_identifier) => {
+                        ScryptoCustomValue::Bucket(*numeric_identifier)
+                    }
+                    Identifier::String(_) => {
+                        return Err(Error::SborEncodeError(
+                            "Unable to encode a Bucket with a string identifier".into(),
+                        ))
+                    }
+                },
+            },
+            Value::Proof { identifier } => ScryptoValue::Custom {
+                value: match identifier {
+                    Identifier::U32(numeric_identifier) => {
+                        ScryptoCustomValue::Proof(*numeric_identifier)
+                    }
+                    Identifier::String(_) => {
+                        return Err(Error::SborEncodeError(
+                            "Unable to encode a Proof with a string identifier".into(),
+                        ))
+                    }
+                },
+            },
+            Value::Vault { identifier } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Vault(identifier.to_bytes()),
+            },
+
+            Value::NonFungibleId { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::NonFungibleId(value.clone()),
+            },
+            Value::NonFungibleAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::NonFungibleAddress(address.clone()),
+            },
+
+            Value::Blob { hash } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Blob(hash.clone()),
+            },
+            Value::Expression { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Expression(value.clone()),
+            },
+        };
+        Ok(scrypto_value)
+    }
+
+    fn from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
+        match scrypto_value {
+            ScryptoValue::Unit => Value::Unit,
+            ScryptoValue::Bool { value } => Value::Bool { value: *value },
+
+            ScryptoValue::U8 { value } => Value::U8 { value: *value },
+            ScryptoValue::U16 { value } => Value::U16 { value: *value },
+            ScryptoValue::U32 { value } => Value::U32 { value: *value },
+            ScryptoValue::U64 { value } => Value::U64 { value: *value },
+            ScryptoValue::U128 { value } => Value::U128 { value: *value },
+
+            ScryptoValue::I8 { value } => Value::I8 { value: *value },
+            ScryptoValue::I16 { value } => Value::I16 { value: *value },
+            ScryptoValue::I32 { value } => Value::I32 { value: *value },
+            ScryptoValue::I64 { value } => Value::I64 { value: *value },
+            ScryptoValue::I128 { value } => Value::I128 { value: *value },
+
+            ScryptoValue::String { value } => Value::String {
+                value: value.clone(),
+            },
+
+            ScryptoValue::Struct { fields } => Value::Struct {
+                fields: fields
+                    .clone()
+                    .into_iter()
+                    .map(|x| Self::from_scrypto_value(&x, network_id))
+                    .collect(),
+            },
+            ScryptoValue::Enum {
+                discriminator,
+                fields,
+            } => Value::Enum {
+                variant: discriminator.clone(),
+                fields: if fields.is_empty() {
+                    None
+                } else {
+                    Some(
+                        fields
+                            .clone()
+                            .into_iter()
+                            .map(|x| Self::from_scrypto_value(&x, network_id))
+                            .collect(),
+                    )
+                },
+            },
+            ScryptoValue::Array {
+                element_type_id,
+                elements,
+            } => Value::Array {
+                element_type: (*element_type_id).into(),
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|x| Self::from_scrypto_value(&x, network_id))
+                    .collect(),
+            },
+            ScryptoValue::Tuple { elements } => Value::Tuple {
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|x| Self::from_scrypto_value(&x, network_id))
+                    .collect(),
+            },
+
+            ScryptoValue::Custom { value } => match value {
+                ScryptoCustomValue::PackageAddress(address) => Value::PackageAddress {
+                    address: NetworkAwarePackageAddress {
+                        network_id,
+                        address: *address,
+                    },
+                },
+                ScryptoCustomValue::ComponentAddress(address) => Value::ComponentAddress {
+                    address: NetworkAwareComponentAddress {
+                        network_id,
+                        address: *address,
+                    },
+                },
+                ScryptoCustomValue::ResourceAddress(address) => Value::ResourceAddress {
+                    address: NetworkAwareResourceAddress {
+                        network_id,
+                        address: *address,
+                    },
+                },
+                ScryptoCustomValue::SystemAddress(address) => Value::SystemAddress {
+                    address: NetworkAwareSystemAddress {
+                        network_id,
+                        address: *address,
+                    },
+                },
+
+                ScryptoCustomValue::Component(node_id) => Value::Component {
+                    identifier: NodeId::from_bytes(*node_id),
+                },
+                ScryptoCustomValue::KeyValueStore(node_id) => Value::KeyValueStore {
+                    identifier: NodeId::from_bytes(*node_id),
+                },
+                ScryptoCustomValue::Vault(node_id) => Value::Vault {
+                    identifier: NodeId::from_bytes(*node_id),
+                },
+                ScryptoCustomValue::Bucket(identifier) => Value::Bucket {
+                    identifier: Identifier::U32(*identifier),
+                },
+                ScryptoCustomValue::Proof(identifier) => Value::Proof {
+                    identifier: Identifier::U32(*identifier),
+                },
+
+                ScryptoCustomValue::Expression(value) => Value::Expression {
+                    value: value.clone(),
+                },
+                ScryptoCustomValue::Blob(value) => Value::Blob {
+                    hash: value.clone(),
+                },
+                ScryptoCustomValue::Hash(value) => Value::Hash { value: *value },
+
+                ScryptoCustomValue::EcdsaSecp256k1PublicKey(value) => {
+                    Value::EcdsaSecp256k1PublicKey { public_key: *value }
+                }
+                ScryptoCustomValue::EddsaEd25519PublicKey(value) => {
+                    Value::EddsaEd25519PublicKey { public_key: *value }
+                }
+                ScryptoCustomValue::EcdsaSecp256k1Signature(value) => {
+                    Value::EcdsaSecp256k1Signature { signature: *value }
+                }
+                ScryptoCustomValue::EddsaEd25519Signature(value) => {
+                    Value::EddsaEd25519Signature { signature: *value }
+                }
+
+                ScryptoCustomValue::Decimal(value) => Value::Decimal { value: *value },
+                ScryptoCustomValue::PreciseDecimal(value) => {
+                    Value::PreciseDecimal { value: *value }
+                }
+
+                ScryptoCustomValue::NonFungibleId(value) => Value::NonFungibleId {
+                    value: value.clone(),
+                },
+                ScryptoCustomValue::NonFungibleAddress(value) => Value::NonFungibleAddress {
+                    address: value.clone(),
+                },
+            },
+        }
+    }
+
+    // ===========================
+    // SBOR Encoding and Decoding
+    // ===========================
+
+    pub fn encode(&self) -> Result<Vec<u8>, Error> {
+        let scrypto_value = self.to_scrypto_value()?;
+        scrypto_encode(&scrypto_value).map_err(|err| err.into())
+    }
+
+    pub fn decode(bytes: &[u8], network_id: u8) -> Result<Self, Error> {
+        let scrypto_value = scrypto_decode::<ScryptoValue>(bytes)?;
+        Ok(Self::from_scrypto_value(&scrypto_value, network_id))
+    }
+}
+
+// ===========
+// Validation
+// ===========
+
+impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
+    fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
+        self.validate_if_collection()?;
+        self.validate_address_network_id(network_id)?;
+        if let Some(expected_kind) = expected_kind {
+            self.validate_kind(expected_kind)?;
+        };
+        Ok(())
     }
 }
 
@@ -729,795 +1518,6 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
                 ScryptoCustomTypeId::NonFungibleId => ValueKind::NonFungibleId,
             },
         }
-    }
-}
-
-// ==================
-// Value Conversions
-// ==================
-
-pub fn ast_value_from_value(
-    value: &Value,
-    bech32_manager: &Bech32Manager,
-) -> Result<AstValue, Error> {
-    let ast_value: AstValue = match value {
-        Value::Unit => AstValue::Unit,
-        Value::Bool { value } => AstValue::Bool(*value),
-
-        Value::I8 { value } => AstValue::I8(*value),
-        Value::I16 { value } => AstValue::I16(*value),
-        Value::I32 { value } => AstValue::I32(*value),
-        Value::I64 { value } => AstValue::I64(*value),
-        Value::I128 { value } => AstValue::I128(*value),
-
-        Value::U8 { value } => AstValue::U8(*value),
-        Value::U16 { value } => AstValue::U16(*value),
-        Value::U32 { value } => AstValue::U32(*value),
-        Value::U64 { value } => AstValue::U64(*value),
-        Value::U128 { value } => AstValue::U128(*value),
-
-        Value::String { value } => AstValue::String(value.clone()),
-
-        Value::Struct { fields } => AstValue::Struct(
-            fields
-                .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
-                .collect::<Result<Vec<AstValue>, _>>()?,
-        ),
-        Value::Enum { variant, fields } => AstValue::Enum(
-            variant.clone(),
-            fields
-                .clone()
-                .unwrap_or_default()
-                .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
-                .collect::<Result<Vec<AstValue>, _>>()?,
-        ),
-
-        Value::Array {
-            element_type,
-            elements,
-        } => AstValue::Array((*element_type).into(), {
-            value.validate_if_collection()?;
-            elements
-                .iter()
-                .map(|id| ast_value_from_value(id, bech32_manager))
-                .collect::<Result<Vec<AstValue>, Error>>()
-        }?),
-        Value::Tuple { elements } => AstValue::Tuple(
-            elements
-                .iter()
-                .map(|v| ast_value_from_value(v, bech32_manager))
-                .collect::<Result<Vec<AstValue>, _>>()?,
-        ),
-
-        Value::Decimal { value } => {
-            AstValue::Decimal(Box::new(AstValue::String(value.to_string())))
-        }
-        Value::PreciseDecimal { value } => {
-            AstValue::PreciseDecimal(Box::new(AstValue::String(value.to_string())))
-        }
-
-        Value::PackageAddress { address: value } => {
-            AstValue::PackageAddress(Box::new(AstValue::String(
-                bech32_manager
-                    .encoder
-                    .encode_package_address_to_string(&value.address),
-            )))
-        }
-        Value::ComponentAddress { address: value } => {
-            AstValue::ComponentAddress(Box::new(AstValue::String(
-                bech32_manager
-                    .encoder
-                    .encode_component_address_to_string(&value.address),
-            )))
-        }
-        Value::ResourceAddress { address: value } => {
-            AstValue::ResourceAddress(Box::new(AstValue::String(
-                bech32_manager
-                    .encoder
-                    .encode_resource_address_to_string(&value.address),
-            )))
-        }
-        Value::SystemAddress { address: value } => {
-            AstValue::SystemAddress(Box::new(AstValue::String(
-                bech32_manager
-                    .encoder
-                    .encode_system_address_to_string(&value.address),
-            )))
-        }
-
-        Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
-        Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
-            Identifier::String(string) => AstValue::String(string.clone()),
-            Identifier::U32(number) => AstValue::U32(*number),
-        })),
-        Value::Proof { identifier: value } => AstValue::Proof(Box::new(match value {
-            Identifier::String(string) => AstValue::String(string.clone()),
-            Identifier::U32(number) => AstValue::U32(*number),
-        })),
-
-        Value::NonFungibleId { value } => {
-            AstValue::NonFungibleId(Box::new(AstValue::String(value.to_string())))
-        }
-        Value::NonFungibleAddress { address } => {
-            AstValue::NonFungibleAddress(Box::new(AstValue::String(address.to_string())))
-        }
-
-        Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
-        Value::Expression { value } => {
-            AstValue::Expression(Box::new(AstValue::String(value.to_string())))
-        }
-
-        Value::Component { identifier } => {
-            AstValue::Component(Box::new(AstValue::String(identifier.to_string())))
-        }
-        Value::Vault { identifier } => {
-            AstValue::Vault(Box::new(AstValue::String(identifier.to_string())))
-        }
-        Value::KeyValueStore { identifier } => {
-            AstValue::KeyValueStore(Box::new(AstValue::String(identifier.to_string())))
-        }
-
-        Value::EcdsaSecp256k1PublicKey { public_key } => {
-            AstValue::EcdsaSecp256k1PublicKey(Box::new(AstValue::String(public_key.to_string())))
-        }
-        Value::EcdsaSecp256k1Signature { signature } => {
-            AstValue::EcdsaSecp256k1Signature(Box::new(AstValue::String(signature.to_string())))
-        }
-
-        Value::EddsaEd25519PublicKey { public_key } => {
-            AstValue::EddsaEd25519PublicKey(Box::new(AstValue::String(public_key.to_string())))
-        }
-        Value::EddsaEd25519Signature { signature } => {
-            AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string())))
-        }
-    };
-    Ok(ast_value)
-}
-
-pub fn value_from_ast_value(
-    ast_value: &AstValue,
-    bech32_manager: &Bech32Manager,
-) -> Result<Value, Error> {
-    let value: Value = match ast_value {
-        AstValue::Unit => Value::Unit,
-        AstValue::Bool(value) => Value::Bool { value: *value },
-
-        AstValue::I8(value) => Value::I8 { value: *value },
-        AstValue::I16(value) => Value::I16 { value: *value },
-        AstValue::I32(value) => Value::I32 { value: *value },
-        AstValue::I64(value) => Value::I64 { value: *value },
-        AstValue::I128(value) => Value::I128 { value: *value },
-
-        AstValue::U8(value) => Value::U8 { value: *value },
-        AstValue::U16(value) => Value::U16 { value: *value },
-        AstValue::U32(value) => Value::U32 { value: *value },
-        AstValue::U64(value) => Value::U64 { value: *value },
-        AstValue::U128(value) => Value::U128 { value: *value },
-
-        AstValue::String(value) => Value::String {
-            value: value.clone(),
-        },
-
-        AstValue::Struct(fields) => Value::Struct {
-            fields: fields
-                .iter()
-                .map(|v| value_from_ast_value(v, bech32_manager))
-                .collect::<Result<Vec<Value>, _>>()?,
-        },
-        AstValue::Enum(variant, fields) => Value::Enum {
-            variant: variant.clone(),
-            fields: {
-                let fields = fields
-                    .iter()
-                    .map(|v| value_from_ast_value(v, bech32_manager))
-                    .collect::<Result<Vec<Value>, _>>()?;
-                match fields.len() {
-                    0 => None,
-                    _ => Some(fields),
-                }
-            },
-        },
-
-        AstValue::Array(ast_type, elements) => Value::Array {
-            element_type: (*ast_type).into(),
-            elements: elements
-                .iter()
-                .map(|v| value_from_ast_value(v, bech32_manager))
-                .collect::<Result<Vec<Value>, _>>()?,
-        },
-        AstValue::Tuple(elements) => Value::Tuple {
-            elements: elements
-                .iter()
-                .map(|v| value_from_ast_value(v, bech32_manager))
-                .collect::<Result<Vec<Value>, _>>()?,
-        },
-
-        AstValue::Decimal(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Decimal {
-                    value: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Decimal,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::PreciseDecimal(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::PreciseDecimal {
-                    value: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::PreciseDecimal,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::Component(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Component {
-                    identifier: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Component,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::PackageAddress(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::PackageAddress {
-                    address: NetworkAwarePackageAddress {
-                        network_id: bech32_manager.network_id(),
-                        address: bech32_manager
-                            .decoder
-                            .validate_and_decode_package_address(value)?,
-                    },
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::PackageAddress,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::ComponentAddress(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::ComponentAddress {
-                    address: NetworkAwareComponentAddress {
-                        network_id: bech32_manager.network_id(),
-                        address: bech32_manager
-                            .decoder
-                            .validate_and_decode_component_address(value)?,
-                    },
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::ComponentAddress,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::ResourceAddress(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::ResourceAddress {
-                    address: NetworkAwareResourceAddress {
-                        network_id: bech32_manager.network_id(),
-                        address: bech32_manager
-                            .decoder
-                            .validate_and_decode_resource_address(value)?,
-                    },
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::ResourceAddress,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::SystemAddress(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::SystemAddress {
-                    address: NetworkAwareSystemAddress {
-                        network_id: bech32_manager.network_id(),
-                        address: bech32_manager
-                            .decoder
-                            .validate_and_decode_system_address(value)?,
-                    },
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::SystemAddress,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::Hash(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Hash {
-                    value: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Hash,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::Bucket(value) => {
-            if let AstValue::U32(value) = &**value {
-                Value::Bucket {
-                    identifier: Identifier::U32(*value),
-                }
-            } else if let AstValue::String(value) = &**value {
-                Value::Bucket {
-                    identifier: Identifier::String(value.clone()),
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Bucket,
-                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::Proof(value) => {
-            if let AstValue::U32(value) = &**value {
-                Value::Proof {
-                    identifier: Identifier::U32(*value),
-                }
-            } else if let AstValue::String(value) = &**value {
-                Value::Proof {
-                    identifier: Identifier::String(value.clone()),
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Proof,
-                    allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::NonFungibleId(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::NonFungibleId {
-                    value: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::NonFungibleId,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::NonFungibleAddress(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::NonFungibleAddress {
-                    address: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::NonFungibleAddress,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::Blob(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Blob {
-                    hash: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Blob,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::Expression(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Expression {
-                    value: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Expression,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-
-        AstValue::Vault(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::Vault {
-                    identifier: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::Vault,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::KeyValueStore(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::KeyValueStore {
-                    identifier: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::KeyValueStore,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::EcdsaSecp256k1PublicKey(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::EcdsaSecp256k1PublicKey {
-                    public_key: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::EcdsaSecp256k1PublicKey,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::EcdsaSecp256k1Signature(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::EcdsaSecp256k1Signature {
-                    signature: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::EcdsaSecp256k1Signature,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::EddsaEd25519PublicKey(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::EddsaEd25519PublicKey {
-                    public_key: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::EddsaEd25519PublicKey,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-        AstValue::EddsaEd25519Signature(value) => {
-            if let AstValue::String(value) = &**value {
-                Value::EddsaEd25519Signature {
-                    signature: value.parse()?,
-                }
-            } else {
-                Err(Error::UnexpectedContents {
-                    kind_being_parsed: ValueKind::EddsaEd25519Signature,
-                    allowed_children_kinds: vec![ValueKind::String],
-                    found_child_kind: value.kind().into(),
-                })?
-            }
-        }
-    };
-    Ok(value)
-}
-
-fn scrypto_value_from_value(value: &Value) -> Result<ScryptoValue, Error> {
-    let scrypto_value = match value {
-        Value::Unit => ScryptoValue::Unit,
-        Value::Bool { value } => ScryptoValue::Bool { value: *value },
-
-        Value::U8 { value } => ScryptoValue::U8 { value: *value },
-        Value::U16 { value } => ScryptoValue::U16 { value: *value },
-        Value::U32 { value } => ScryptoValue::U32 { value: *value },
-        Value::U64 { value } => ScryptoValue::U64 { value: *value },
-        Value::U128 { value } => ScryptoValue::U128 { value: *value },
-
-        Value::I8 { value } => ScryptoValue::I8 { value: *value },
-        Value::I16 { value } => ScryptoValue::I16 { value: *value },
-        Value::I32 { value } => ScryptoValue::I32 { value: *value },
-        Value::I64 { value } => ScryptoValue::I64 { value: *value },
-        Value::I128 { value } => ScryptoValue::I128 { value: *value },
-
-        Value::String { value } => ScryptoValue::String {
-            value: value.clone(),
-        },
-        Value::Struct { fields } => ScryptoValue::Struct {
-            fields: fields
-                .clone()
-                .into_iter()
-                .map(|x| scrypto_value_from_value(&x))
-                .collect::<Result<Vec<_>, _>>()?,
-        },
-        Value::Enum { variant, fields } => ScryptoValue::Enum {
-            discriminator: variant.clone(),
-            fields: fields
-                .clone()
-                .unwrap_or_default()
-                .into_iter()
-                .map(|x| scrypto_value_from_value(&x))
-                .collect::<Result<Vec<_>, _>>()?,
-        },
-        Value::Array {
-            element_type,
-            elements,
-        } => ScryptoValue::Array {
-            element_type_id: (*element_type).into(),
-            elements: elements
-                .clone()
-                .into_iter()
-                .map(|x| scrypto_value_from_value(&x))
-                .collect::<Result<Vec<_>, _>>()?,
-        },
-        Value::Tuple { elements } => ScryptoValue::Tuple {
-            elements: elements
-                .clone()
-                .into_iter()
-                .map(|x| scrypto_value_from_value(&x))
-                .collect::<Result<Vec<_>, _>>()?,
-        },
-        Value::KeyValueStore { identifier } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::KeyValueStore(identifier.to_bytes()),
-        },
-
-        Value::Decimal { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Decimal(*value),
-        },
-        Value::PreciseDecimal { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::PreciseDecimal(*value),
-        },
-        Value::Component { identifier } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Component(identifier.to_bytes()),
-        },
-        Value::ComponentAddress { address } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::ComponentAddress(address.address),
-        },
-        Value::PackageAddress { address } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::PackageAddress(address.address),
-        },
-        Value::ResourceAddress { address } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::ResourceAddress(address.address),
-        },
-        Value::SystemAddress { address } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::SystemAddress(address.address),
-        },
-
-        Value::Hash { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Hash(*value),
-        },
-
-        Value::EcdsaSecp256k1PublicKey { public_key } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(*public_key),
-        },
-        Value::EddsaEd25519PublicKey { public_key } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EddsaEd25519PublicKey(*public_key),
-        },
-
-        Value::EcdsaSecp256k1Signature { signature } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EcdsaSecp256k1Signature(*signature),
-        },
-        Value::EddsaEd25519Signature { signature } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::EddsaEd25519Signature(*signature),
-        },
-
-        Value::Bucket { identifier } => ScryptoValue::Custom {
-            value: match identifier {
-                Identifier::U32(numeric_identifier) => {
-                    ScryptoCustomValue::Bucket(*numeric_identifier)
-                }
-                Identifier::String(_) => {
-                    return Err(Error::SborEncodeError(
-                        "Unable to encode a Bucket with a string identifier".into(),
-                    ))
-                }
-            },
-        },
-        Value::Proof { identifier } => ScryptoValue::Custom {
-            value: match identifier {
-                Identifier::U32(numeric_identifier) => {
-                    ScryptoCustomValue::Proof(*numeric_identifier)
-                }
-                Identifier::String(_) => {
-                    return Err(Error::SborEncodeError(
-                        "Unable to encode a Proof with a string identifier".into(),
-                    ))
-                }
-            },
-        },
-        Value::Vault { identifier } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Vault(identifier.to_bytes()),
-        },
-
-        Value::NonFungibleId { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::NonFungibleId(value.clone()),
-        },
-        Value::NonFungibleAddress { address } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::NonFungibleAddress(address.clone()),
-        },
-
-        Value::Blob { hash } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Blob(hash.clone()),
-        },
-        Value::Expression { value } => ScryptoValue::Custom {
-            value: ScryptoCustomValue::Expression(value.clone()),
-        },
-    };
-    Ok(scrypto_value)
-}
-
-fn value_from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Value {
-    match scrypto_value {
-        ScryptoValue::Unit => Value::Unit,
-        ScryptoValue::Bool { value } => Value::Bool { value: *value },
-
-        ScryptoValue::U8 { value } => Value::U8 { value: *value },
-        ScryptoValue::U16 { value } => Value::U16 { value: *value },
-        ScryptoValue::U32 { value } => Value::U32 { value: *value },
-        ScryptoValue::U64 { value } => Value::U64 { value: *value },
-        ScryptoValue::U128 { value } => Value::U128 { value: *value },
-
-        ScryptoValue::I8 { value } => Value::I8 { value: *value },
-        ScryptoValue::I16 { value } => Value::I16 { value: *value },
-        ScryptoValue::I32 { value } => Value::I32 { value: *value },
-        ScryptoValue::I64 { value } => Value::I64 { value: *value },
-        ScryptoValue::I128 { value } => Value::I128 { value: *value },
-
-        ScryptoValue::String { value } => Value::String {
-            value: value.clone(),
-        },
-
-        ScryptoValue::Struct { fields } => Value::Struct {
-            fields: fields
-                .clone()
-                .into_iter()
-                .map(|x| value_from_scrypto_value(&x, network_id))
-                .collect(),
-        },
-        ScryptoValue::Enum {
-            discriminator,
-            fields,
-        } => Value::Enum {
-            variant: discriminator.clone(),
-            fields: if fields.is_empty() {
-                None
-            } else {
-                Some(
-                    fields
-                        .clone()
-                        .into_iter()
-                        .map(|x| value_from_scrypto_value(&x, network_id))
-                        .collect(),
-                )
-            },
-        },
-        ScryptoValue::Array {
-            element_type_id,
-            elements,
-        } => Value::Array {
-            element_type: (*element_type_id).into(),
-            elements: elements
-                .clone()
-                .into_iter()
-                .map(|x| value_from_scrypto_value(&x, network_id))
-                .collect(),
-        },
-        ScryptoValue::Tuple { elements } => Value::Tuple {
-            elements: elements
-                .clone()
-                .into_iter()
-                .map(|x| value_from_scrypto_value(&x, network_id))
-                .collect(),
-        },
-
-        ScryptoValue::Custom { value } => match value {
-            ScryptoCustomValue::PackageAddress(address) => Value::PackageAddress {
-                address: NetworkAwarePackageAddress {
-                    network_id,
-                    address: *address,
-                },
-            },
-            ScryptoCustomValue::ComponentAddress(address) => Value::ComponentAddress {
-                address: NetworkAwareComponentAddress {
-                    network_id,
-                    address: *address,
-                },
-            },
-            ScryptoCustomValue::ResourceAddress(address) => Value::ResourceAddress {
-                address: NetworkAwareResourceAddress {
-                    network_id,
-                    address: *address,
-                },
-            },
-            ScryptoCustomValue::SystemAddress(address) => Value::SystemAddress {
-                address: NetworkAwareSystemAddress {
-                    network_id,
-                    address: *address,
-                },
-            },
-
-            ScryptoCustomValue::Component(node_id) => Value::Component {
-                identifier: NodeId::from_bytes(*node_id),
-            },
-            ScryptoCustomValue::KeyValueStore(node_id) => Value::KeyValueStore {
-                identifier: NodeId::from_bytes(*node_id),
-            },
-            ScryptoCustomValue::Vault(node_id) => Value::Vault {
-                identifier: NodeId::from_bytes(*node_id),
-            },
-            ScryptoCustomValue::Bucket(identifier) => Value::Bucket {
-                identifier: Identifier::U32(*identifier),
-            },
-            ScryptoCustomValue::Proof(identifier) => Value::Proof {
-                identifier: Identifier::U32(*identifier),
-            },
-
-            ScryptoCustomValue::Expression(value) => Value::Expression {
-                value: value.clone(),
-            },
-            ScryptoCustomValue::Blob(value) => Value::Blob {
-                hash: value.clone(),
-            },
-            ScryptoCustomValue::Hash(value) => Value::Hash {
-                value: *value,
-            },
-
-            ScryptoCustomValue::EcdsaSecp256k1PublicKey(value) => Value::EcdsaSecp256k1PublicKey {
-                public_key: *value,
-            },
-            ScryptoCustomValue::EddsaEd25519PublicKey(value) => Value::EddsaEd25519PublicKey {
-                public_key: *value,
-            },
-            ScryptoCustomValue::EcdsaSecp256k1Signature(value) => Value::EcdsaSecp256k1Signature {
-                signature: *value,
-            },
-            ScryptoCustomValue::EddsaEd25519Signature(value) => Value::EddsaEd25519Signature {
-                signature: *value,
-            },
-
-            ScryptoCustomValue::Decimal(value) => Value::Decimal {
-                value: *value,
-            },
-            ScryptoCustomValue::PreciseDecimal(value) => Value::PreciseDecimal {
-                value: *value,
-            },
-
-            ScryptoCustomValue::NonFungibleId(value) => Value::NonFungibleId {
-                value: value.clone(),
-            },
-            ScryptoCustomValue::NonFungibleAddress(value) => Value::NonFungibleAddress {
-                address: value.clone(),
-            },
-        },
     }
 }
 
