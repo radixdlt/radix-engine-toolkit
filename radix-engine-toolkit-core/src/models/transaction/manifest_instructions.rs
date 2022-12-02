@@ -7,9 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::{
-    ast_instruction_from_instruction, instruction_from_ast_instruction, Instruction,
-};
+use crate::models::Instruction;
 use crate::traits::Validate;
 
 // ==================
@@ -63,7 +61,7 @@ impl ManifestInstructions {
             }
             Self::JSON(instructions) => instructions
                 .iter()
-                .map(|instruction| ast_instruction_from_instruction(instruction, bech32_manager))
+                .map(|instruction| instruction.to_ast_instruction(bech32_manager))
                 .collect::<Result<Vec<_>, _>>(),
         }
     }
@@ -167,7 +165,7 @@ impl ManifestInstructions {
                 let instructions: Vec<Instruction> = ast_instruction
                     .iter()
                     .map(|instruction| {
-                        instruction_from_ast_instruction(instruction, bech32_manager)
+                        Instruction::from_ast_instruction(instruction, bech32_manager)
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 Ok(Self::JSON(instructions))
