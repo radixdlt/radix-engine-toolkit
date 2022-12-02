@@ -7,7 +7,7 @@ use scrypto::data::ScryptoCustomTypeId;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
     EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
-    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
+    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue, Component, Bucket, Proof, Vault,
 };
 
 use serde::{Deserialize, Serialize};
@@ -1518,6 +1518,259 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
                 ScryptoCustomTypeId::NonFungibleId => ValueKind::NonFungibleId,
             },
         }
+    }
+}
+
+// =============================
+// From and TryFrom Conversions
+// =============================
+
+trait ValueConvertible
+where
+    Self: Into<Value> + TryFrom<Value>,
+{
+    fn kind() -> ValueKind;
+}
+
+impl From<()> for Value {
+    fn from(_: ()) -> Self {
+        Self::Unit
+    }
+}
+
+impl From<bool> for Value {
+    fn from(value: bool) -> Self {
+        Self::Bool { value }
+    }
+}
+
+impl From<u8> for Value {
+    fn from(value: u8) -> Self {
+        Self::U8 { value }
+    }
+}
+
+impl From<u16> for Value {
+    fn from(value: u16) -> Self {
+        Self::U16 { value }
+    }
+}
+
+impl From<u32> for Value {
+    fn from(value: u32) -> Self {
+        Self::U32 { value }
+    }
+}
+
+impl From<u64> for Value {
+    fn from(value: u64) -> Self {
+        Self::U64 { value }
+    }
+}
+
+impl From<u128> for Value {
+    fn from(value: u128) -> Self {
+        Self::U128 { value }
+    }
+}
+
+impl From<i8> for Value {
+    fn from(value: i8) -> Self {
+        Self::I8 { value }
+    }
+}
+
+impl From<i16> for Value {
+    fn from(value: i16) -> Self {
+        Self::I16 { value }
+    }
+}
+
+impl From<i32> for Value {
+    fn from(value: i32) -> Self {
+        Self::I32 { value }
+    }
+}
+
+impl From<i64> for Value {
+    fn from(value: i64) -> Self {
+        Self::I64 { value }
+    }
+}
+
+impl From<i128> for Value {
+    fn from(value: i128) -> Self {
+        Self::I128 { value }
+    }
+}
+
+impl From<String> for Value {
+    fn from(value: String) -> Self {
+        Self::String { value }
+    }
+}
+
+impl<T: ValueConvertible> From<Option<T>> for Value {
+    fn from(value: Option<T>) -> Self {
+        match value {
+            Option::Some(value) => Value::Enum {
+                variant: "Some".to_string(),
+                fields: Some(vec![value.into()]),
+            },
+            Option::None => Value::Enum {
+                variant: "None".to_string(),
+                fields: None,
+            },
+        }
+    }
+}
+
+impl<R: ValueConvertible, E: ValueConvertible> From<Result<R, E>> for Value {
+    fn from(value: Result<R, E>) -> Self {
+        match value {
+            Result::Ok(value) => Value::Enum {
+                variant: "Ok".to_string(),
+                fields: Some(vec![value.into()]),
+            },
+            Result::Err(value) => Value::Enum {
+                variant: "Err".to_string(),
+                fields: Some(vec![value.into()]),
+            },
+        }
+    }
+}
+
+impl<T: ValueConvertible> From<Vec<T>> for Value {
+    fn from(values: Vec<T>) -> Self {
+        let values = values.into_iter().map(|x| x.into()).collect::<Vec<Value>>();
+        Value::Array {
+            element_type: T::kind(),
+            elements: values,
+        }
+    }
+}
+
+impl<T: ValueConvertible, const N: usize> From<[T; N]> for Value {
+    fn from(values: [T; N]) -> Self {
+        let values = values.into_iter().map(|x| x.into()).collect::<Vec<Value>>();
+        Value::Array {
+            element_type: T::kind(),
+            elements: values,
+        }
+    }
+}
+
+impl From<Decimal> for Value {
+    fn from(value: Decimal) -> Self {
+        Value::Decimal { value }
+    }
+}
+
+impl From<PreciseDecimal> for Value {
+    fn from(value: PreciseDecimal) -> Self {
+        Value::PreciseDecimal { value }
+    }
+}
+
+impl From<Component> for Value {
+    fn from(value: Component) -> Self {
+        Value::Component { identifier: NodeId::from_bytes(value.0) }
+    }
+}
+
+impl From<NetworkAwareComponentAddress> for Value {
+    fn from(value: NetworkAwareComponentAddress) -> Self {
+        Self::ComponentAddress { address: value }
+    }
+}
+
+impl From<NetworkAwareResourceAddress> for Value {
+    fn from(value: NetworkAwareResourceAddress) -> Self {
+        Self::ResourceAddress { address: value }
+    }
+}
+
+impl From<NetworkAwarePackageAddress> for Value {
+    fn from(value: NetworkAwarePackageAddress) -> Self {
+        Self::PackageAddress { address: value }
+    }
+}
+
+impl From<NetworkAwareSystemAddress> for Value {
+    fn from(value: NetworkAwareSystemAddress) -> Self {
+        Self::SystemAddress { address: value }
+    }
+}
+
+impl From<Hash> for Value {
+    fn from(value: Hash) -> Self {
+        Value::Hash { value }
+    }
+}
+
+impl From<EcdsaSecp256k1PublicKey> for Value {
+    fn from(value: EcdsaSecp256k1PublicKey) -> Self {
+        Value::EcdsaSecp256k1PublicKey { public_key: value }
+    }
+}
+
+impl From<EddsaEd25519PublicKey> for Value {
+    fn from(value: EddsaEd25519PublicKey) -> Self {
+        Value::EddsaEd25519PublicKey { public_key: value }
+    }
+}
+
+impl From<EcdsaSecp256k1Signature> for Value {
+    fn from(value: EcdsaSecp256k1Signature) -> Self {
+        Value::EcdsaSecp256k1Signature { signature: value }
+    }
+}
+
+impl From<EddsaEd25519Signature> for Value {
+    fn from(value: EddsaEd25519Signature) -> Self {
+        Value::EddsaEd25519Signature { signature: value }
+    }
+}
+
+impl From<Bucket> for Value {
+    fn from(value: Bucket) -> Self {
+        Self::Bucket { identifier: Identifier::U32(value.0) }
+    }
+}
+
+impl From<Proof> for Value {
+    fn from(value: Proof) -> Self {
+        Self::Proof { identifier: Identifier::U32(value.0) }
+    }
+}
+
+impl From<Vault> for Value {
+    fn from(value: Vault) -> Self {
+        Value::Vault { identifier: NodeId::from_bytes(value.0) }
+    }
+}
+
+impl From<NonFungibleId> for Value {
+    fn from(value: NonFungibleId) -> Self {
+        Value::NonFungibleId { value }
+    }
+}
+
+impl From<NonFungibleAddress> for Value {
+    fn from(value: NonFungibleAddress) -> Self {
+        Value::NonFungibleAddress { address: value }
+    }
+}
+
+impl From<Blob> for Value {
+    fn from(value: Blob) -> Self {
+        Value::Blob { hash: value }
+    }
+}
+
+impl From<Expression> for Value {
+    fn from(value: Expression) -> Self {
+        Value::Expression { value }
     }
 }
 
