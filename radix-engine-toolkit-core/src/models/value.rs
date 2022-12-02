@@ -5,9 +5,10 @@ use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::type_id::*;
 use scrypto::data::ScryptoCustomTypeId;
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
+    scrypto_decode, scrypto_encode, Blob, Bucket, Component, Decimal, EcdsaSecp256k1PublicKey,
     EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
-    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue, Component, Bucket, Proof, Vault,
+    NonFungibleAddress, NonFungibleId, PreciseDecimal, Proof, ScryptoCustomValue, ScryptoValue,
+    Vault,
 };
 
 use serde::{Deserialize, Serialize};
@@ -1674,7 +1675,9 @@ impl From<PreciseDecimal> for Value {
 
 impl From<Component> for Value {
     fn from(value: Component) -> Self {
-        Value::Component { identifier: NodeId::from_bytes(value.0) }
+        Value::Component {
+            identifier: NodeId::from_bytes(value.0),
+        }
     }
 }
 
@@ -1734,19 +1737,25 @@ impl From<EddsaEd25519Signature> for Value {
 
 impl From<Bucket> for Value {
     fn from(value: Bucket) -> Self {
-        Self::Bucket { identifier: Identifier::U32(value.0) }
+        Self::Bucket {
+            identifier: Identifier::U32(value.0),
+        }
     }
 }
 
 impl From<Proof> for Value {
     fn from(value: Proof) -> Self {
-        Self::Proof { identifier: Identifier::U32(value.0) }
+        Self::Proof {
+            identifier: Identifier::U32(value.0),
+        }
     }
 }
 
 impl From<Vault> for Value {
     fn from(value: Vault) -> Self {
-        Value::Vault { identifier: NodeId::from_bytes(value.0) }
+        Value::Vault {
+            identifier: NodeId::from_bytes(value.0),
+        }
     }
 }
 
@@ -1771,6 +1780,189 @@ impl From<Blob> for Value {
 impl From<Expression> for Value {
     fn from(value: Expression) -> Self {
         Value::Expression { value }
+    }
+}
+
+impl TryFrom<Value> for () {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::Unit => Ok(()),
+            Value::Tuple { elements } if elements.is_empty() => Ok(()),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Tuple, ValueKind::Unit],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for bool {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::Bool { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Bool],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for u8 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::U8 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::U8],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for u16 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::U16 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::U16],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for u32 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::U32 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::U32],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for u64 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::U64 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::U64],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for u128 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::U128 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::U128],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for i8 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::I8 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::I8],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for i16 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::I16 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::I16],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for i32 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::I32 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::I32],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for i64 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::I64 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::I64],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for i128 {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::I128 { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::I128],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for String {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::String { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::String],
+                actual_type: value.kind(),
+            }),
+        }
     }
 }
 
