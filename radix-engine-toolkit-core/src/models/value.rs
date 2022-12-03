@@ -5,12 +5,12 @@ use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::type_id::*;
 use scrypto::data::ScryptoCustomTypeId;
 use scrypto::prelude::{
-    Blob, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature, EddsaEd25519PublicKey,
-    EddsaEd25519Signature, Expression, Hash, NonFungibleAddress, NonFungibleId,
-    PreciseDecimal, scrypto_decode, scrypto_encode, ScryptoCustomValue, ScryptoValue,
+    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
+    EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
+    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
 };
 use serde::{Deserialize, Serialize};
-use serde_with::{DisplayFromStr, serde_as};
+use serde_with::{serde_as, DisplayFromStr};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -1524,6 +1524,24 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
 // From and TryFrom Conversions
 // =============================
 
+impl From<String> for Value {
+    fn from(value: String) -> Self {
+        Value::String { value }
+    }
+}
+
+impl From<Decimal> for Value {
+    fn from(value: Decimal) -> Self {
+        Value::Decimal { value }
+    }
+}
+
+impl From<Blob> for Value {
+    fn from(hash: Blob) -> Self {
+        Value::Blob { hash }
+    }
+}
+
 impl From<NonFungibleId> for Value {
     fn from(value: NonFungibleId) -> Self {
         Value::NonFungibleId { value }
@@ -1531,26 +1549,68 @@ impl From<NonFungibleId> for Value {
 }
 
 impl From<NonFungibleAddress> for Value {
-    fn from(value: NonFungibleAddress) -> Self {
-        Value::NonFungibleAddress { address: value }
+    fn from(address: NonFungibleAddress) -> Self {
+        Value::NonFungibleAddress { address }
     }
 }
 
 impl From<NetworkAwareComponentAddress> for Value {
-    fn from(value: NetworkAwareComponentAddress) -> Value {
-        Value::ComponentAddress { address: value }
+    fn from(address: NetworkAwareComponentAddress) -> Value {
+        Value::ComponentAddress { address }
     }
 }
 
 impl From<NetworkAwareResourceAddress> for Value {
-    fn from(value: NetworkAwareResourceAddress) -> Value {
-        Value::ResourceAddress { address: value }
+    fn from(address: NetworkAwareResourceAddress) -> Value {
+        Value::ResourceAddress { address }
     }
 }
 
 impl From<NetworkAwarePackageAddress> for Value {
-    fn from(value: NetworkAwarePackageAddress) -> Value {
-        Value::PackageAddress { address: value }
+    fn from(address: NetworkAwarePackageAddress) -> Value {
+        Value::PackageAddress { address }
+    }
+}
+
+impl TryFrom<Value> for String {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::String { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::String],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for Decimal {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::Decimal { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Decimal],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for Blob {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::Blob { hash } => Ok(hash),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Blob],
+                actual_type: value.kind(),
+            }),
+        }
     }
 }
 
@@ -1673,8 +1733,7 @@ mod tests {
             }
             "#,
             Value::U8 { value: 192 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1683,8 +1742,7 @@ mod tests {
             }
             "#,
             Value::U16 { value: 18947 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1693,8 +1751,7 @@ mod tests {
             }
             "#,
             Value::U32 { value: 1144418947 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1705,8 +1762,7 @@ mod tests {
             Value::U64 {
                 value: 114441894733333,
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1717,8 +1773,7 @@ mod tests {
             Value::U128 {
                 value: 11444189334733333,
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1728,8 +1783,7 @@ mod tests {
             }
             "#,
             Value::I8 { value: -100 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1738,8 +1792,7 @@ mod tests {
             }
             "#,
             Value::I16 { value: -18947 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1748,8 +1801,7 @@ mod tests {
             }
             "#,
             Value::I32 { value: -1144418947 }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1760,8 +1812,7 @@ mod tests {
             Value::I64 {
                 value: -114441894733333,
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1772,8 +1823,7 @@ mod tests {
             Value::I128 {
                 value: -11444189334733333,
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1785,8 +1835,7 @@ mod tests {
             Value::String {
                 value: "Hello World!".into(),
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1814,8 +1863,7 @@ mod tests {
                     }
                 ]
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1827,8 +1875,7 @@ mod tests {
                 variant: "Component".into(),
                 fields: None,
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1848,8 +1895,7 @@ mod tests {
                     Value::String { value: "Account".into() }
                 ])
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1879,8 +1925,7 @@ mod tests {
                     },
                 ],
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1915,8 +1960,7 @@ mod tests {
                     }
                 ]
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1928,8 +1972,7 @@ mod tests {
             Value::Decimal {
                 value: dec!("100")
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1940,8 +1983,7 @@ mod tests {
             Value::PreciseDecimal {
                 value: pdec!("100")
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -1958,8 +2000,7 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1975,8 +2016,7 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -1992,8 +2032,7 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -2005,8 +2044,7 @@ mod tests {
             Value::Hash {
                 value: "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d".parse().unwrap()
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -2018,8 +2056,7 @@ mod tests {
             Value::Bucket {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -2030,8 +2067,7 @@ mod tests {
             Value::Bucket {
                 identifier: crate::models::serde::Identifier::String("HelloBucket".into())
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -2043,8 +2079,7 @@ mod tests {
             Value::Proof {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
-        }
-        ;
+        };
         test_value! {
             r#"
             {
@@ -2055,8 +2090,7 @@ mod tests {
             Value::Proof {
                 identifier: crate::models::serde::Identifier::String("HelloProof".into())
             }
-        }
-        ;
+        };
 
         test_value! {
             r#"
@@ -2068,8 +2102,7 @@ mod tests {
             Value::NonFungibleId {
                 value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
             }
-        }
-        ;
+        };
     }
 
     #[test]

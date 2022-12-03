@@ -1,10 +1,10 @@
 use crate::error::Error;
-use crate::traits::{Request, Validate};
 use crate::models::serde::ValueSerializationProxy;
+use crate::traits::{Request, Validate};
 
 use scrypto::prelude::{FromPublicKey, NonFungibleAddress, PublicKey};
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as};
+use serde_with::serde_as;
 
 // ==========================
 // Request & Response Models
