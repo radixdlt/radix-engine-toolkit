@@ -5,13 +5,12 @@ use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::type_id::*;
 use scrypto::data::ScryptoCustomTypeId;
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
-    EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
-    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
+    Blob, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature, EddsaEd25519PublicKey,
+    EddsaEd25519Signature, Expression, Hash, NonFungibleAddress, NonFungibleId,
+    PreciseDecimal, scrypto_decode, scrypto_encode, ScryptoCustomValue, ScryptoValue,
 };
-
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{DisplayFromStr, serde_as};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -895,7 +894,7 @@ impl Value {
                     Identifier::String(_) => {
                         return Err(Error::SborEncodeError(
                             "Unable to encode a Bucket with a string identifier".into(),
-                        ))
+                        ));
                     }
                 },
             },
@@ -907,7 +906,7 @@ impl Value {
                     Identifier::String(_) => {
                         return Err(Error::SborEncodeError(
                             "Unable to encode a Proof with a string identifier".into(),
-                        ))
+                        ));
                     }
                 },
             },
@@ -1525,9 +1524,33 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
 // From and TryFrom Conversions
 // =============================
 
+impl From<NonFungibleId> for Value {
+    fn from(value: NonFungibleId) -> Self {
+        Value::NonFungibleId { value }
+    }
+}
+
 impl From<NonFungibleAddress> for Value {
     fn from(value: NonFungibleAddress) -> Self {
         Value::NonFungibleAddress { address: value }
+    }
+}
+
+impl From<NetworkAwareComponentAddress> for Value {
+    fn from(value: NetworkAwareComponentAddress) -> Value {
+        Value::ComponentAddress { address: value }
+    }
+}
+
+impl From<NetworkAwareResourceAddress> for Value {
+    fn from(value: NetworkAwareResourceAddress) -> Value {
+        Value::ResourceAddress { address: value }
+    }
+}
+
+impl From<NetworkAwarePackageAddress> for Value {
+    fn from(value: NetworkAwarePackageAddress) -> Value {
+        Value::PackageAddress { address: value }
     }
 }
 
@@ -1545,20 +1568,78 @@ impl TryFrom<Value> for NonFungibleAddress {
     }
 }
 
+impl TryFrom<Value> for NonFungibleId {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::NonFungibleId { value } => Ok(value),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::NonFungibleId],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for NetworkAwareComponentAddress {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::ComponentAddress { address } => Ok(address),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::ComponentAddress],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for NetworkAwareResourceAddress {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::ResourceAddress { address } => Ok(address),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::ResourceAddress],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
+impl TryFrom<Value> for NetworkAwarePackageAddress {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::PackageAddress { address } => Ok(address),
+            _ => Err(Error::InvalidType {
+                expected_types: vec![ValueKind::PackageAddress],
+                actual_type: value.kind(),
+            }),
+        }
+    }
+}
+
 // ===========
 // Unit Tests
 // ===========
 
 #[cfg(test)]
 mod tests {
-    use super::{Value, ValueKind};
-    use crate::models::serde::{
-        NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-    };
     use scrypto::{
         prelude::*,
         radix_engine_interface::{address::Bech32Decoder, core::NetworkDefinition},
     };
+
+    use crate::models::serde::{
+        NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
+    };
+
+    use super::{Value, ValueKind};
 
     macro_rules! test_value {
         ($string: expr, $value: expr) => {
@@ -1592,7 +1673,8 @@ mod tests {
             }
             "#,
             Value::U8 { value: 192 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1601,7 +1683,8 @@ mod tests {
             }
             "#,
             Value::U16 { value: 18947 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1610,7 +1693,8 @@ mod tests {
             }
             "#,
             Value::U32 { value: 1144418947 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1621,7 +1705,8 @@ mod tests {
             Value::U64 {
                 value: 114441894733333,
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1632,7 +1717,8 @@ mod tests {
             Value::U128 {
                 value: 11444189334733333,
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1642,7 +1728,8 @@ mod tests {
             }
             "#,
             Value::I8 { value: -100 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1651,7 +1738,8 @@ mod tests {
             }
             "#,
             Value::I16 { value: -18947 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1660,7 +1748,8 @@ mod tests {
             }
             "#,
             Value::I32 { value: -1144418947 }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1671,7 +1760,8 @@ mod tests {
             Value::I64 {
                 value: -114441894733333,
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1682,7 +1772,8 @@ mod tests {
             Value::I128 {
                 value: -11444189334733333,
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1694,7 +1785,8 @@ mod tests {
             Value::String {
                 value: "Hello World!".into(),
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1722,7 +1814,8 @@ mod tests {
                     }
                 ]
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1734,7 +1827,8 @@ mod tests {
                 variant: "Component".into(),
                 fields: None,
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1754,7 +1848,8 @@ mod tests {
                     Value::String { value: "Account".into() }
                 ])
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1784,7 +1879,8 @@ mod tests {
                     },
                 ],
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1819,7 +1915,8 @@ mod tests {
                     }
                 ]
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1831,7 +1928,8 @@ mod tests {
             Value::Decimal {
                 value: dec!("100")
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1842,7 +1940,8 @@ mod tests {
             Value::PreciseDecimal {
                 value: pdec!("100")
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1859,7 +1958,8 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1875,7 +1975,8 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1891,7 +1992,8 @@ mod tests {
                         .expect("Decoding of a trusted address string failed")
                 }
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1903,7 +2005,8 @@ mod tests {
             Value::Hash {
                 value: "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d".parse().unwrap()
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1915,7 +2018,8 @@ mod tests {
             Value::Bucket {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1926,7 +2030,8 @@ mod tests {
             Value::Bucket {
                 identifier: crate::models::serde::Identifier::String("HelloBucket".into())
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1938,7 +2043,8 @@ mod tests {
             Value::Proof {
                 identifier: crate::models::serde::Identifier::U32(192)
             }
-        };
+        }
+        ;
         test_value! {
             r#"
             {
@@ -1949,7 +2055,8 @@ mod tests {
             Value::Proof {
                 identifier: crate::models::serde::Identifier::String("HelloProof".into())
             }
-        };
+        }
+        ;
 
         test_value! {
             r#"
@@ -1961,7 +2068,8 @@ mod tests {
             Value::NonFungibleId {
                 value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
             }
-        };
+        }
+        ;
     }
 
     #[test]

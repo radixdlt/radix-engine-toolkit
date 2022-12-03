@@ -1,9 +1,10 @@
 use crate::error::Error;
 use crate::traits::{Request, Validate};
+use crate::models::serde::ValueSerializationProxy;
 
 use scrypto::prelude::{FromPublicKey, NonFungibleAddress, PublicKey};
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as};
 
 // ==========================
 // Request & Response Models
@@ -18,7 +19,7 @@ pub struct DeriveNonFungibleAddressFromPublicKeyRequest {
 #[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressFromPublicKeyResponse {
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde_as(as = "ValueSerializationProxy")]
     pub non_fungible_address: NonFungibleAddress,
 }
 

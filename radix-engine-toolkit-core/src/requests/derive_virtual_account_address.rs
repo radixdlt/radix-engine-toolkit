@@ -1,9 +1,11 @@
 use crate::error::Error;
+use crate::models::serde::{ValueSerializationProxy};
 use crate::models::NetworkAwareComponentAddress;
 use crate::traits::{Request, Validate};
 
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 
 // ==========================
 // Request & Response Models
@@ -16,8 +18,10 @@ pub struct DeriveVirtualAccountAddressRequest {
     pub public_key: PublicKey,
 }
 
+#[serde_as]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveVirtualAccountAddressResponse {
+    #[serde_as(as = "ValueSerializationProxy")]
     pub virtual_account_address: NetworkAwareComponentAddress,
 }
 
