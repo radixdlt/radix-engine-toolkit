@@ -26,6 +26,7 @@ pub enum RENode {
     Vault(NodeId),
     ResourceManager(NodeId),
     Package(NodeId),
+    Clock(NodeId),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -44,6 +45,7 @@ pub enum RENodeKind {
     Vault,
     ResourceManager,
     Package,
+    Clock,
 }
 
 // ============
@@ -104,6 +106,10 @@ pub fn ast_re_node_from_re_node(re_node: &RENode) -> AstRENode {
         RENode::Package(identifier) => {
             let ast_value: AstValue = AstValue::String(identifier.to_string());
             AstRENode::Package(ast_value)
+        }
+        RENode::Clock(identifier) => {
+            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            AstRENode::Clock(ast_value)
         }
     }
 }
@@ -234,6 +240,17 @@ pub fn re_node_from_ast_re_node(ast_re_node: &AstRENode) -> Result<RENode, Error
             } else {
                 Err(Error::UnexpectedReNodeContents {
                     kind_being_parsed: RENodeKind::Package,
+                    allowed_children_kinds: vec![ValueKind::String],
+                    found_child_kind: identifier.kind().into(),
+                })?
+            }
+        }
+        AstRENode::Clock(identifier) => {
+            if let AstValue::String(identifier) = identifier {
+                RENode::Clock(identifier.parse()?)
+            } else {
+                Err(Error::UnexpectedReNodeContents {
+                    kind_being_parsed: RENodeKind::Clock,
                     allowed_children_kinds: vec![ValueKind::String],
                     found_child_kind: identifier.kind().into(),
                 })?
