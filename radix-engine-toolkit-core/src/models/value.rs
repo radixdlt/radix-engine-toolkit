@@ -76,9 +76,6 @@ pub enum Value {
         value: String,
     },
 
-    Struct {
-        fields: Vec<Value>,
-    },
     Enum {
         variant: String,
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -193,7 +190,6 @@ impl Value {
 
             Self::String { .. } => ValueKind::String,
 
-            Self::Struct { .. } => ValueKind::Struct,
             Self::Enum { .. } => ValueKind::Enum,
 
             Self::Array { .. } => ValueKind::Array,
@@ -316,12 +312,6 @@ impl Value {
                 value: value.clone(),
             },
 
-            AstValue::Struct(fields) => Self::Struct {
-                fields: fields
-                    .iter()
-                    .map(|v| Self::from_ast_value(v, bech32_manager))
-                    .collect::<Result<Vec<Value>, _>>()?,
-            },
             AstValue::Enum(variant, fields) => Self::Enum {
                 variant: variant.clone(),
                 fields: {
@@ -667,12 +657,6 @@ impl Value {
 
             Value::String { value } => AstValue::String(value.clone()),
 
-            Value::Struct { fields } => AstValue::Struct(
-                fields
-                    .iter()
-                    .map(|v| v.to_ast_value(bech32_manager))
-                    .collect::<Result<Vec<AstValue>, _>>()?,
-            ),
             Value::Enum { variant, fields } => AstValue::Enum(
                 variant.clone(),
                 fields
@@ -808,13 +792,6 @@ impl Value {
             Value::String { value } => ScryptoValue::String {
                 value: value.clone(),
             },
-            Value::Struct { fields } => ScryptoValue::Struct {
-                fields: fields
-                    .clone()
-                    .into_iter()
-                    .map(|x| x.to_scrypto_value())
-                    .collect::<Result<Vec<_>, _>>()?,
-            },
             Value::Enum { variant, fields } => ScryptoValue::Enum {
                 discriminator: variant.clone(),
                 fields: fields
@@ -836,7 +813,7 @@ impl Value {
                     .collect::<Result<Vec<_>, _>>()?,
             },
             Value::Tuple { elements } => ScryptoValue::Tuple {
-                elements: elements
+                fields: elements
                     .clone()
                     .into_iter()
                     .map(|x| x.to_scrypto_value())
@@ -952,13 +929,6 @@ impl Value {
                 value: value.clone(),
             },
 
-            ScryptoValue::Struct { fields } => Value::Struct {
-                fields: fields
-                    .clone()
-                    .into_iter()
-                    .map(|x| Self::from_scrypto_value(&x, network_id))
-                    .collect(),
-            },
             ScryptoValue::Enum {
                 discriminator,
                 fields,
@@ -987,8 +957,8 @@ impl Value {
                     .map(|x| Self::from_scrypto_value(&x, network_id))
                     .collect(),
             },
-            ScryptoValue::Tuple { elements } => Value::Tuple {
-                elements: elements
+            ScryptoValue::Tuple { fields } => Value::Tuple {
+                elements: fields
                     .clone()
                     .into_iter()
                     .map(|x| Self::from_scrypto_value(&x, network_id))
@@ -1127,7 +1097,6 @@ pub enum ValueKind {
 
     String,
 
-    Struct,
     Enum,
 
     Array,
@@ -1182,7 +1151,6 @@ impl ValueKind {
 
             Self::String => TYPE_STRING,
 
-            Self::Struct => TYPE_STRUCT,
             Self::Enum => TYPE_ENUM,
 
             Self::Array => TYPE_ARRAY,
@@ -1237,7 +1205,6 @@ impl ValueKind {
 
             TYPE_STRING => Self::String,
 
-            TYPE_STRUCT => Self::Struct,
             TYPE_ENUM => Self::Enum,
 
             TYPE_ARRAY => Self::Array,
@@ -1293,7 +1260,6 @@ impl From<ValueKind> for radix_transaction::manifest::ast::Type {
 
             ValueKind::String => radix_transaction::manifest::ast::Type::String,
 
-            ValueKind::Struct => radix_transaction::manifest::ast::Type::Struct,
             ValueKind::Enum => radix_transaction::manifest::ast::Type::Enum,
 
             ValueKind::Array => radix_transaction::manifest::ast::Type::Array,
@@ -1358,7 +1324,6 @@ impl From<radix_transaction::manifest::ast::Type> for ValueKind {
 
             radix_transaction::manifest::ast::Type::String => Self::String,
 
-            radix_transaction::manifest::ast::Type::Struct => Self::Struct,
             radix_transaction::manifest::ast::Type::Enum => Self::Enum,
 
             radix_transaction::manifest::ast::Type::Array => Self::Array,
@@ -1422,7 +1387,6 @@ impl From<ValueKind> for SborTypeId<ScryptoCustomTypeId> {
 
             ValueKind::String => SborTypeId::String,
 
-            ValueKind::Struct => SborTypeId::Struct,
             ValueKind::Enum => SborTypeId::Enum,
             ValueKind::Array => SborTypeId::Array,
             ValueKind::Tuple => SborTypeId::Tuple,
@@ -1486,7 +1450,6 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
 
             SborTypeId::String => ValueKind::String,
 
-            SborTypeId::Struct => ValueKind::Struct,
             SborTypeId::Enum => ValueKind::Enum,
             SborTypeId::Array => ValueKind::Array,
             SborTypeId::Tuple => ValueKind::Tuple,
@@ -1837,33 +1800,6 @@ mod tests {
             }
         };
 
-        test_value! {
-            r#"
-            {
-                "type": "Struct",
-                "fields": [
-                    {
-                        "type": "String",
-                        "value": "Hello World!"
-                    },
-                    {
-                        "type": "U8",
-                        "value": "179"
-                    }
-                ]
-            }
-            "#,
-            Value::Struct {
-                fields: vec![
-                    Value::String {
-                        value: "Hello World!".into()
-                    },
-                    Value::U8 {
-                        value: 179
-                    }
-                ]
-            }
-        };
         test_value! {
             r#"
             {

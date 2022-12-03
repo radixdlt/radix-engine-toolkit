@@ -138,9 +138,10 @@ pub enum Instruction {
     },
     DropAllProofs,
 
-    PublishPackage {
+    PublishPackageWithOwner {
         code: Value,
         abi: Value,
+        owner_badge: Value,
     },
 
     CreateResource {
@@ -356,7 +357,12 @@ impl Instruction {
                 proof: proof.to_ast_value(bech32_manager)?,
             },
             Self::DropAllProofs => AstInstruction::DropAllProofs,
-            Self::PublishPackage { code, abi } => AstInstruction::PublishPackage {
+            Self::PublishPackageWithOwner {
+                code,
+                abi,
+                owner_badge,
+            } => AstInstruction::PublishPackageWithOwner {
+                owner_badge: owner_badge.to_ast_value(bech32_manager)?,
                 code: code.to_ast_value(bech32_manager)?,
                 abi: abi.to_ast_value(bech32_manager)?,
             },
@@ -623,7 +629,12 @@ impl Instruction {
                 proof: Value::from_ast_value(proof, bech32_manager)?,
             },
             AstInstruction::DropAllProofs => Self::DropAllProofs,
-            AstInstruction::PublishPackage { code, abi } => Self::PublishPackage {
+            AstInstruction::PublishPackageWithOwner {
+                code,
+                abi,
+                owner_badge,
+            } => Self::PublishPackageWithOwner {
+                owner_badge: Value::from_ast_value(owner_badge, bech32_manager)?,
                 code: Value::from_ast_value(code, bech32_manager)?,
                 abi: Value::from_ast_value(abi, bech32_manager)?,
             },
@@ -843,7 +854,12 @@ impl ValidateWithContext<u8> for Instruction {
             }
             Self::DropAllProofs => Ok(()),
 
-            Self::PublishPackage { code, abi } => {
+            Self::PublishPackageWithOwner {
+                code,
+                abi,
+                owner_badge,
+            } => {
+                owner_badge.validate((network_id, Some(ValueKind::Blob)))?;
                 code.validate((network_id, Some(ValueKind::Blob)))?;
                 abi.validate((network_id, Some(ValueKind::Blob)))?;
                 Ok(())

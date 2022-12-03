@@ -30,7 +30,7 @@ pub struct TransactionHeader {
     #[serde_as(as = "DisplayFromStr")]
     pub cost_unit_limit: u32,
     #[serde_as(as = "DisplayFromStr")]
-    pub tip_percentage: u32,
+    pub tip_percentage: u8,
 }
 
 // ============
