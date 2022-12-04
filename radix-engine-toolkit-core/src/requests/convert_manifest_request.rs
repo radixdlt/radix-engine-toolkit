@@ -87,25 +87,19 @@ impl<'r> Request<'r, ConvertManifestResponse> for ConvertManifestRequest {
 mod tests {
     use super::*;
     use crate::model::address::NetworkAwarePackageAddress;
-    use crate::model::{Instruction, TransactionManifest, Value};
+    use crate::model::{Instruction, TransactionManifest};
     use scrypto::prelude::PackageAddress;
 
     #[test]
     pub fn convert_manifest_with_mismatch_addresses_fails() {
         // Arrange
         let manifest_instructions = vec![Instruction::CallFunction {
-            package_address: Value::PackageAddress {
-                address: NetworkAwarePackageAddress {
-                    address: PackageAddress::Normal([1; 26]),
-                    network_id: 0x19,
-                },
+            package_address: NetworkAwarePackageAddress {
+                address: PackageAddress::Normal([1; 26]),
+                network_id: 0x19,
             },
-            blueprint_name: Value::String {
-                value: "HelloWorld".into(),
-            },
-            function_name: Value::String {
-                value: "HelloWorld".into(),
-            },
+            blueprint_name: "HelloWorld".into(),
+            function_name: "HelloWorld".into(),
             arguments: None,
         }];
         let network_id = 0xF2;

@@ -1487,165 +1487,40 @@ impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
 // From and TryFrom Conversions
 // =============================
 
-impl From<String> for Value {
-    fn from(value: String) -> Self {
-        Value::String { value }
-    }
-}
-
-impl From<Decimal> for Value {
-    fn from(value: Decimal) -> Self {
-        Value::Decimal { value }
-    }
-}
-
-impl From<Blob> for Value {
-    fn from(hash: Blob) -> Self {
-        Value::Blob { hash }
-    }
-}
-
-impl From<NonFungibleId> for Value {
-    fn from(value: NonFungibleId) -> Self {
-        Value::NonFungibleId { value }
-    }
-}
-
-impl From<NonFungibleAddress> for Value {
-    fn from(address: NonFungibleAddress) -> Self {
-        Value::NonFungibleAddress { address }
-    }
-}
-
-impl From<NetworkAwareComponentAddress> for Value {
-    fn from(address: NetworkAwareComponentAddress) -> Value {
-        Value::ComponentAddress { address }
-    }
-}
-
-impl From<NetworkAwareResourceAddress> for Value {
-    fn from(address: NetworkAwareResourceAddress) -> Value {
-        Value::ResourceAddress { address }
-    }
-}
-
-impl From<NetworkAwarePackageAddress> for Value {
-    fn from(address: NetworkAwarePackageAddress) -> Value {
-        Value::PackageAddress { address }
-    }
-}
-
-impl TryFrom<Value> for String {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::String { value } => Ok(value),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::String],
-                actual_type: value.kind(),
-            }),
+macro_rules! impl_from_and_try_from_value {
+    ($variant_name: ident, $underlying_type: ident, $field: ident) => {
+        impl From<$underlying_type> for Value {
+            fn from($field: $underlying_type) -> Self {
+                Value::$variant_name { $field }
+            }
         }
-    }
-}
 
-impl TryFrom<Value> for Decimal {
-    type Error = Error;
+        impl TryFrom<Value> for $underlying_type {
+            type Error = Error;
 
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::Decimal { value } => Ok(value),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::Decimal],
-                actual_type: value.kind(),
-            }),
+            fn try_from(val: Value) -> Result<Self, Self::Error> {
+                match val {
+                    Value::$variant_name { $field } => Ok($field),
+                    _ => Err(Error::InvalidType {
+                        expected_types: vec![ValueKind::$variant_name],
+                        actual_type: val.kind(),
+                    }),
+                }
+            }
         }
-    }
+    };
 }
 
-impl TryFrom<Value> for Blob {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::Blob { hash } => Ok(hash),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::Blob],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
-
-impl TryFrom<Value> for NonFungibleAddress {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::NonFungibleAddress { address } => Ok(address),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::NonFungibleAddress],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
-
-impl TryFrom<Value> for NonFungibleId {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::NonFungibleId { value } => Ok(value),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::NonFungibleId],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
-
-impl TryFrom<Value> for NetworkAwareComponentAddress {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::ComponentAddress { address } => Ok(address),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::ComponentAddress],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
-
-impl TryFrom<Value> for NetworkAwareResourceAddress {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::ResourceAddress { address } => Ok(address),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::ResourceAddress],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
-
-impl TryFrom<Value> for NetworkAwarePackageAddress {
-    type Error = Error;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
-        match value {
-            Value::PackageAddress { address } => Ok(address),
-            _ => Err(Error::InvalidType {
-                expected_types: vec![ValueKind::PackageAddress],
-                actual_type: value.kind(),
-            }),
-        }
-    }
-}
+impl_from_and_try_from_value! {Blob, Blob, hash}
+impl_from_and_try_from_value! {String, String, value}
+impl_from_and_try_from_value! {Decimal, Decimal, value}
+impl_from_and_try_from_value! {Proof, ProofId, identifier}
+impl_from_and_try_from_value! {Bucket, BucketId, identifier}
+impl_from_and_try_from_value! {NonFungibleId, NonFungibleId, value}
+impl_from_and_try_from_value! {NonFungibleAddress, NonFungibleAddress, address}
+impl_from_and_try_from_value! {PackageAddress, NetworkAwarePackageAddress, address}
+impl_from_and_try_from_value! {ResourceAddress, NetworkAwareResourceAddress, address}
+impl_from_and_try_from_value! {ComponentAddress, NetworkAwareComponentAddress, address}
 
 // ===========
 // Unit Tests

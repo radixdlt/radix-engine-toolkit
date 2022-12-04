@@ -4,7 +4,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 use super::network_aware_address::*;
-use crate::error::Error;
+use crate::{error::Error, traits::ValidateWithContext};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "type", content = "address")]
@@ -125,4 +125,17 @@ pub enum AddressKind {
     AccountComponent,
     EcdsaSecp256k1VirtualAccount,
     EddsaEd25519VirtualAccount,
+}
+
+impl ValidateWithContext<u8> for EntityAddress {
+    fn validate(&self, network_id: u8) -> Result<(), Error> {
+        if self.network_id() == network_id {
+            Ok(())
+        } else {
+            Err(Error::NetworkMismatchError {
+                expected: network_id,
+                found: network_id,
+            })
+        }
+    }
 }

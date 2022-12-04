@@ -2,148 +2,196 @@ use radix_transaction::manifest::ast::{
     Instruction as AstInstruction, Receiver as AstReceiver, ScryptoReceiver as AstScryptoReceiver,
     Value as AstValue,
 };
+use scrypto::prelude::Blob;
+use scrypto::prelude::Decimal;
+use scrypto::prelude::NonFungibleAddress;
+use scrypto::prelude::NonFungibleId;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
 
 use crate::error::Error;
-use crate::model::address::Bech32Coder;
 use crate::model::re_node::*;
 use crate::model::value::*;
-use crate::model::NetworkAwareComponentAddress;
+use crate::model::{
+    Bech32Coder, BucketId, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress, ProofId, ValueSerializationProxy,
+};
 use crate::traits::ValidateWithContext;
+
+use super::EntityAddress;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(tag = "instruction", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Instruction {
     CallFunction {
-        package_address: Value,
-        blueprint_name: Value,
-        function_name: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        package_address: NetworkAwarePackageAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        blueprint_name: String,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        function_name: String,
+
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
     CallNativeFunction {
-        /// An unstructured [`Value`] representing the name of the blueprint to call. This is
-        /// expected to be a [`Value::String`] during validation and conversions.
-        blueprint_name: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        blueprint_name: String,
 
-        /// An unstructured [`Value`] representing the name of the function to call. This is
-        /// expected to be a [`Value::String`] during validation and conversions.
-        function_name: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        function_name: String,
 
-        /// An optional vector of the arguments used in the function call.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
 
     CallMethod {
-        // TODO: With the introduction of the ScryptoReceiver, "component_address" seems like a
-        // bad name to use. Something better is needed here.
-        /// An unstructured [`Value`] which could be a [`Value::ComponentAddress`] or a
-        /// [`Value::Component`]. During conversion, this gets translated into the appropriate
-        /// [`AstScryptoReceiver`].
-        component_address: Value,
-        method_name: Value,
+        // TODO: Add back support for `ComponentId`.
+        #[serde_as(as = "ValueSerializationProxy")]
+        component_address: NetworkAwareComponentAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        method_name: String,
+
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
     CallNativeMethod {
-        // TODO: With the introduction of the ScryptoReceiver, "component_address" seems like a
-        // bad name to use. Something better is needed here.
-        /// The reason why the `component_address` on the [`Instruction::CallMethod`] can get
-        /// special treatment and have automatic translation between [`AstScryptoReceiver`] and
-        /// [`Value`] is because it follows very simple rules that are very easy to check and
-        /// understand. If the `component_address` is a [`Value::Component`] then it gets translated
-        /// to a [`AstScryptoReceiver::Component`]. If it is a [`Value::ComponentAddress`] then it
-        /// gets translated to [`AstScryptoReceiver::Global`].
-        ///
-        /// On the other hand, with the [`Instruction::CallNativeMethod`] and the [`Receiver`] the
-        /// [`Receiver::Owned`] and [`Receiver::Ref`] is disambiguated through an ampersand (`&`) in
-        /// text form. Therefore, there is a need to introduce an additional type of [`Receiver`] in
-        /// this library.
         receiver: RENode,
 
-        method_name: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        method_name: String,
 
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
 
     TakeFromWorktop {
-        resource_address: Value,
-        into_bucket: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_bucket: BucketId,
     },
     TakeFromWorktopByAmount {
-        amount: Value,
-        resource_address: Value,
-        into_bucket: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        amount: Decimal,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_bucket: BucketId,
     },
     TakeFromWorktopByIds {
-        ids: HashSet<Value>,
-        resource_address: Value,
-        into_bucket: Value,
+        #[serde_as(as = "HashSet<ValueSerializationProxy>")]
+        ids: HashSet<NonFungibleId>,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_bucket: BucketId,
     },
     ReturnToWorktop {
-        bucket: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        bucket: BucketId,
     },
 
     AssertWorktopContains {
-        resource_address: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
     },
     AssertWorktopContainsByAmount {
-        amount: Value,
-        resource_address: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        amount: Decimal,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
     },
     AssertWorktopContainsByIds {
-        ids: HashSet<Value>,
-        resource_address: Value,
+        #[serde_as(as = "HashSet<ValueSerializationProxy>")]
+        ids: HashSet<NonFungibleId>,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
     },
 
     PopFromAuthZone {
-        into_proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
     PushToAuthZone {
-        proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        proof: ProofId,
     },
     ClearAuthZone,
 
     CreateProofFromAuthZone {
-        resource_address: Value,
-        into_proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
     CreateProofFromAuthZoneByAmount {
-        amount: Value,
-        resource_address: Value,
-        into_proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        amount: Decimal,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
     CreateProofFromAuthZoneByIds {
-        ids: HashSet<Value>,
-        resource_address: Value,
-        into_proof: Value,
+        #[serde_as(as = "HashSet<ValueSerializationProxy>")]
+        ids: HashSet<NonFungibleId>,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
 
     CreateProofFromBucket {
-        bucket: Value,
-        into_proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        bucket: BucketId,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
 
     CloneProof {
-        proof: Value,
-        into_proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        proof: ProofId,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        into_proof: ProofId,
     },
     DropProof {
-        proof: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        proof: ProofId,
     },
     DropAllProofs,
 
     PublishPackageWithOwner {
-        code: Value,
-        abi: Value,
-        owner_badge: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        code: Blob,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        abi: Blob,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        owner_badge: NonFungibleAddress,
     },
 
+    // TODO: Figure out the structured model of this.
     CreateResource {
         resource_type: Value,
         metadata: Value,
@@ -152,12 +200,16 @@ pub enum Instruction {
     },
 
     BurnBucket {
-        bucket: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        bucket: BucketId,
     },
 
     MintFungible {
-        resource_address: Value,
-        amount: Value,
+        #[serde_as(as = "ValueSerializationProxy")]
+        resource_address: NetworkAwareResourceAddress,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        amount: Decimal,
     },
 }
 
@@ -166,18 +218,18 @@ impl Instruction {
     // Conversions
     // ============
     pub fn to_ast_instruction(&self, bech32_coder: &Bech32Coder) -> Result<AstInstruction, Error> {
-        let ast_instruction = match self {
+        let instruction = self.clone();
+        let ast_instruction = match instruction {
             Self::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
                 arguments,
             } => AstInstruction::CallFunction {
-                package_address: package_address.to_ast_value(bech32_coder)?,
-                blueprint_name: blueprint_name.to_ast_value(bech32_coder)?,
-                function_name: function_name.to_ast_value(bech32_coder)?,
+                package_address: Value::from(package_address).to_ast_value(bech32_coder)?,
+                blueprint_name: Value::from(blueprint_name).to_ast_value(bech32_coder)?,
+                function_name: Value::from(function_name).to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
@@ -188,10 +240,9 @@ impl Instruction {
                 function_name,
                 arguments,
             } => AstInstruction::CallNativeFunction {
-                blueprint_name: blueprint_name.to_ast_value(bech32_coder)?,
-                function_name: function_name.to_ast_value(bech32_coder)?,
+                blueprint_name: Value::from(blueprint_name).to_ast_value(bech32_coder)?,
+                function_name: Value::from(function_name).to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
@@ -201,43 +252,27 @@ impl Instruction {
                 component_address,
                 method_name,
                 arguments,
-            } => {
-                let scrypto_receiver =
-                    if let Value::ComponentAddress { address } = component_address {
-                        AstScryptoReceiver::Global(AstValue::String(
-                            bech32_coder
-                                .encoder
-                                .encode_component_address_to_string(&address.address),
-                        ))
-                    } else if let Value::Component { identifier } = component_address {
-                        AstScryptoReceiver::Component(AstValue::String(identifier.to_string()))
-                    } else {
-                        Err(Error::InvalidType {
-                            expected_types: vec![ValueKind::Component, ValueKind::ComponentAddress],
-                            actual_type: component_address.kind(),
-                        })?
-                    };
-
-                AstInstruction::CallMethod {
-                    receiver: scrypto_receiver,
-                    method: method_name.to_ast_value(bech32_coder)?,
-                    args: arguments
-                        .clone()
-                        .unwrap_or_default()
-                        .iter()
-                        .map(|v| v.to_ast_value(bech32_coder))
-                        .collect::<Result<Vec<AstValue>, _>>()?,
-                }
-            }
+            } => AstInstruction::CallMethod {
+                receiver: AstScryptoReceiver::Global(AstValue::String(
+                    bech32_coder
+                        .encoder
+                        .encode_component_address_to_string(&component_address.address),
+                )),
+                method: Value::from(method_name).to_ast_value(bech32_coder)?,
+                args: arguments
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|v| v.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<AstValue>, _>>()?,
+            },
             Self::CallNativeMethod {
                 receiver,
                 method_name,
                 arguments,
             } => AstInstruction::CallNativeMethod {
-                receiver: AstReceiver::Ref(ast_re_node_from_re_node(receiver)),
-                method: method_name.to_ast_value(bech32_coder)?,
+                receiver: AstReceiver::Ref(ast_re_node_from_re_node(&receiver)),
+                method: Value::from(method_name).to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
@@ -248,17 +283,17 @@ impl Instruction {
                 resource_address,
                 into_bucket,
             } => AstInstruction::TakeFromWorktop {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_bucket: into_bucket.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_bucket: Value::from(into_bucket).to_ast_value(bech32_coder)?,
             },
             Self::TakeFromWorktopByAmount {
                 amount,
                 resource_address,
                 into_bucket,
             } => AstInstruction::TakeFromWorktopByAmount {
-                amount: amount.to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_bucket: into_bucket.to_ast_value(bech32_coder)?,
+                amount: Value::from(amount).to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_bucket: Value::from(into_bucket).to_ast_value(bech32_coder)?,
             },
             Self::TakeFromWorktopByIds {
                 ids,
@@ -267,27 +302,27 @@ impl Instruction {
             } => AstInstruction::TakeFromWorktopByIds {
                 ids: Value::Array {
                     element_type: ValueKind::NonFungibleId,
-                    elements: ids.clone().into_iter().collect(),
+                    elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_bucket: into_bucket.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_bucket: Value::from(into_bucket).to_ast_value(bech32_coder)?,
             },
             Self::ReturnToWorktop { bucket } => AstInstruction::ReturnToWorktop {
-                bucket: bucket.to_ast_value(bech32_coder)?,
+                bucket: Value::from(bucket).to_ast_value(bech32_coder)?,
             },
 
             Self::AssertWorktopContains { resource_address } => {
                 AstInstruction::AssertWorktopContains {
-                    resource_address: resource_address.to_ast_value(bech32_coder)?,
+                    resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
                 }
             }
             Self::AssertWorktopContainsByAmount {
                 amount,
                 resource_address,
             } => AstInstruction::AssertWorktopContainsByAmount {
-                amount: amount.to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                amount: Value::from(amount).to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
             },
             Self::AssertWorktopContainsByIds {
                 ids,
@@ -295,17 +330,17 @@ impl Instruction {
             } => AstInstruction::AssertWorktopContainsByIds {
                 ids: Value::Array {
                     element_type: ValueKind::NonFungibleId,
-                    elements: ids.clone().into_iter().collect(),
+                    elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
             },
 
             Self::PopFromAuthZone { into_proof } => AstInstruction::PopFromAuthZone {
-                new_proof: into_proof.to_ast_value(bech32_coder)?,
+                new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
             },
             Self::PushToAuthZone { proof } => AstInstruction::PushToAuthZone {
-                proof: proof.to_ast_value(bech32_coder)?,
+                proof: Value::from(proof).to_ast_value(bech32_coder)?,
             },
             Self::ClearAuthZone => AstInstruction::ClearAuthZone,
 
@@ -313,17 +348,17 @@ impl Instruction {
                 resource_address,
                 into_proof,
             } => AstInstruction::CreateProofFromAuthZone {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_proof: into_proof.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
             },
             Self::CreateProofFromAuthZoneByAmount {
                 amount,
                 resource_address,
                 into_proof,
             } => AstInstruction::CreateProofFromAuthZoneByAmount {
-                amount: amount.to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_proof: into_proof.to_ast_value(bech32_coder)?,
+                amount: Value::from(amount).to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
             },
             Self::CreateProofFromAuthZoneByIds {
                 ids,
@@ -332,26 +367,26 @@ impl Instruction {
             } => AstInstruction::CreateProofFromAuthZoneByIds {
                 ids: Value::Array {
                     element_type: ValueKind::NonFungibleId,
-                    elements: ids.clone().into_iter().collect(),
+                    elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                new_proof: into_proof.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
             },
             Self::CreateProofFromBucket { bucket, into_proof } => {
                 AstInstruction::CreateProofFromBucket {
-                    bucket: bucket.to_ast_value(bech32_coder)?,
-                    new_proof: into_proof.to_ast_value(bech32_coder)?,
+                    bucket: Value::from(bucket).to_ast_value(bech32_coder)?,
+                    new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
                 }
             }
 
             Self::CloneProof { proof, into_proof } => AstInstruction::CloneProof {
-                proof: proof.to_ast_value(bech32_coder)?,
-                new_proof: into_proof.to_ast_value(bech32_coder)?,
+                proof: Value::from(proof).to_ast_value(bech32_coder)?,
+                new_proof: Value::from(into_proof).to_ast_value(bech32_coder)?,
             },
 
             Self::DropProof { proof } => AstInstruction::DropProof {
-                proof: proof.to_ast_value(bech32_coder)?,
+                proof: Value::from(proof).to_ast_value(bech32_coder)?,
             },
             Self::DropAllProofs => AstInstruction::DropAllProofs,
             Self::PublishPackageWithOwner {
@@ -359,20 +394,20 @@ impl Instruction {
                 abi,
                 owner_badge,
             } => AstInstruction::PublishPackageWithOwner {
-                owner_badge: owner_badge.to_ast_value(bech32_coder)?,
-                code: code.to_ast_value(bech32_coder)?,
-                abi: abi.to_ast_value(bech32_coder)?,
+                owner_badge: Value::from(owner_badge).to_ast_value(bech32_coder)?,
+                code: Value::from(code).to_ast_value(bech32_coder)?,
+                abi: Value::from(abi).to_ast_value(bech32_coder)?,
             },
 
             Self::MintFungible {
                 resource_address,
                 amount,
             } => AstInstruction::MintFungible {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                amount: amount.to_ast_value(bech32_coder)?,
+                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
+                amount: Value::from(amount).to_ast_value(bech32_coder)?,
             },
             Self::BurnBucket { bucket } => AstInstruction::BurnBucket {
-                bucket: bucket.to_ast_value(bech32_coder)?,
+                bucket: Value::from(bucket).to_ast_value(bech32_coder)?,
             },
             Self::CreateResource {
                 resource_type,
@@ -400,9 +435,10 @@ impl Instruction {
                 function_name,
                 args,
             } => Self::CallFunction {
-                package_address: Value::from_ast_value(package_address, bech32_coder)?,
-                blueprint_name: Value::from_ast_value(blueprint_name, bech32_coder)?,
-                function_name: Value::from_ast_value(function_name, bech32_coder)?,
+                package_address: Value::from_ast_value(package_address, bech32_coder)?
+                    .try_into()?,
+                blueprint_name: Value::from_ast_value(blueprint_name, bech32_coder)?.try_into()?,
+                function_name: Value::from_ast_value(function_name, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
                         .iter()
@@ -419,8 +455,8 @@ impl Instruction {
                 function_name,
                 args,
             } => Self::CallNativeFunction {
-                blueprint_name: Value::from_ast_value(blueprint_name, bech32_coder)?,
-                function_name: Value::from_ast_value(function_name, bech32_coder)?,
+                blueprint_name: Value::from_ast_value(blueprint_name, bech32_coder)?.try_into()?,
+                function_name: Value::from_ast_value(function_name, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
                         .iter()
@@ -449,6 +485,7 @@ impl Instruction {
                                         .validate_and_decode_component_address(&value)?,
                                 },
                             }
+                            .try_into()?
                         } else {
                             Err(Error::InvalidType {
                                 expected_types: vec![ValueKind::String],
@@ -457,20 +494,14 @@ impl Instruction {
                         }
                     }
                     AstScryptoReceiver::Component(value) => {
-                        if let Value::String { value } = Value::from_ast_value(value, bech32_coder)?
-                        {
-                            Value::Component {
-                                identifier: value.parse()?,
-                            }
-                        } else {
-                            Err(Error::InvalidType {
-                                expected_types: vec![ValueKind::String],
-                                actual_type: value.kind().into(),
-                            })?
-                        }
+                        // TODO: Support component as well as component address
+                        Err(Error::InvalidType {
+                            expected_types: vec![ValueKind::ComponentAddress, ValueKind::Component],
+                            actual_type: value.kind().into(),
+                        })?
                     }
                 },
-                method_name: Value::from_ast_value(method, bech32_coder)?,
+                method_name: Value::from_ast_value(method, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
                         .iter()
@@ -490,7 +521,7 @@ impl Instruction {
                 receiver: match receiver {
                     AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?,
                 },
-                method_name: Value::from_ast_value(method, bech32_coder)?,
+                method_name: Value::from_ast_value(method, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
                         .iter()
@@ -507,17 +538,19 @@ impl Instruction {
                 resource_address,
                 new_bucket,
             } => Self::TakeFromWorktop {
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?.try_into()?,
             },
             AstInstruction::TakeFromWorktopByAmount {
                 amount,
                 resource_address,
                 new_bucket,
             } => Self::TakeFromWorktopByAmount {
-                amount: Value::from_ast_value(amount, bech32_coder)?,
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?,
+                amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?.try_into()?,
             },
             AstInstruction::TakeFromWorktopByIds {
                 ids,
@@ -529,28 +562,34 @@ impl Instruction {
                     elements,
                 } = Value::from_ast_value(ids, bech32_coder)?
                 {
-                    elements.into_iter().collect()
+                    elements
+                        .into_iter()
+                        .map(NonFungibleId::try_from)
+                        .collect::<Result<HashSet<NonFungibleId>, _>>()?
                 } else {
                     panic!("Expected type Array!")
                 },
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_bucket: Value::from_ast_value(new_bucket, bech32_coder)?.try_into()?,
             },
             AstInstruction::ReturnToWorktop { bucket } => Self::ReturnToWorktop {
-                bucket: Value::from_ast_value(bucket, bech32_coder)?,
+                bucket: Value::from_ast_value(bucket, bech32_coder)?.try_into()?,
             },
 
             AstInstruction::AssertWorktopContains { resource_address } => {
                 Self::AssertWorktopContains {
-                    resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                    resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                        .try_into()?,
                 }
             }
             AstInstruction::AssertWorktopContainsByAmount {
                 amount,
                 resource_address,
             } => Self::AssertWorktopContainsByAmount {
-                amount: Value::from_ast_value(amount, bech32_coder)?,
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
             },
             AstInstruction::AssertWorktopContainsByIds {
                 ids,
@@ -561,18 +600,22 @@ impl Instruction {
                     elements,
                 } = Value::from_ast_value(ids, bech32_coder)?
                 {
-                    elements.into_iter().collect()
+                    elements
+                        .into_iter()
+                        .map(NonFungibleId::try_from)
+                        .collect::<Result<HashSet<NonFungibleId>, _>>()?
                 } else {
                     panic!("Expected type Array!")
                 },
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
             },
 
             AstInstruction::PopFromAuthZone { new_proof } => Self::PopFromAuthZone {
-                into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::PushToAuthZone { proof } => Self::PushToAuthZone {
-                proof: Value::from_ast_value(proof, bech32_coder)?,
+                proof: Value::from_ast_value(proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::ClearAuthZone => Self::ClearAuthZone,
 
@@ -580,17 +623,19 @@ impl Instruction {
                 resource_address,
                 new_proof,
             } => Self::CreateProofFromAuthZone {
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::CreateProofFromAuthZoneByAmount {
                 amount,
                 resource_address,
                 new_proof,
             } => Self::CreateProofFromAuthZoneByAmount {
-                amount: Value::from_ast_value(amount, bech32_coder)?,
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::CreateProofFromAuthZoneByIds {
                 ids,
@@ -602,26 +647,30 @@ impl Instruction {
                     elements,
                 } = Value::from_ast_value(ids, bech32_coder)?
                 {
-                    elements.into_iter().collect()
+                    elements
+                        .into_iter()
+                        .map(NonFungibleId::try_from)
+                        .collect::<Result<HashSet<NonFungibleId>, _>>()?
                 } else {
                     panic!("Expected type Array!")
                 },
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::CreateProofFromBucket { bucket, new_proof } => {
                 Self::CreateProofFromBucket {
-                    bucket: Value::from_ast_value(bucket, bech32_coder)?,
-                    into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                    bucket: Value::from_ast_value(bucket, bech32_coder)?.try_into()?,
+                    into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
                 }
             }
 
             AstInstruction::CloneProof { proof, new_proof } => Self::CloneProof {
-                proof: Value::from_ast_value(proof, bech32_coder)?,
-                into_proof: Value::from_ast_value(new_proof, bech32_coder)?,
+                proof: Value::from_ast_value(proof, bech32_coder)?.try_into()?,
+                into_proof: Value::from_ast_value(new_proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::DropProof { proof } => Self::DropProof {
-                proof: Value::from_ast_value(proof, bech32_coder)?,
+                proof: Value::from_ast_value(proof, bech32_coder)?.try_into()?,
             },
             AstInstruction::DropAllProofs => Self::DropAllProofs,
             AstInstruction::PublishPackageWithOwner {
@@ -629,19 +678,20 @@ impl Instruction {
                 abi,
                 owner_badge,
             } => Self::PublishPackageWithOwner {
-                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?,
-                code: Value::from_ast_value(code, bech32_coder)?,
-                abi: Value::from_ast_value(abi, bech32_coder)?,
+                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?.try_into()?,
+                code: Value::from_ast_value(code, bech32_coder)?.try_into()?,
+                abi: Value::from_ast_value(abi, bech32_coder)?.try_into()?,
             },
             AstInstruction::MintFungible {
                 resource_address,
                 amount,
             } => Self::MintFungible {
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
-                amount: Value::from_ast_value(amount, bech32_coder)?,
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
+                    .try_into()?,
+                amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
             },
             AstInstruction::BurnBucket { bucket } => Self::BurnBucket {
-                bucket: Value::from_ast_value(bucket, bech32_coder)?,
+                bucket: Value::from_ast_value(bucket, bech32_coder)?.try_into()?,
             },
             AstInstruction::CreateResource {
                 resource_type,
@@ -665,33 +715,23 @@ impl Instruction {
 
 impl ValidateWithContext<u8> for Instruction {
     fn validate(&self, network_id: u8) -> Result<(), Error> {
-        match self {
+        let instruction = self.clone();
+        match instruction {
             Self::CallFunction {
                 package_address,
-                blueprint_name,
-                function_name,
                 arguments,
+                ..
             } => {
-                package_address.validate((network_id, Some(ValueKind::PackageAddress)))?;
-                blueprint_name.validate((network_id, Some(ValueKind::String)))?;
-                function_name.validate((network_id, Some(ValueKind::String)))?;
+                EntityAddress::from(package_address).validate(network_id)?;
                 arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|arg| arg.validate((network_id, None)))
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
-            Self::CallNativeFunction {
-                blueprint_name,
-                function_name,
-                arguments,
-            } => {
-                blueprint_name.validate((network_id, Some(ValueKind::String)))?;
-                function_name.validate((network_id, Some(ValueKind::String)))?;
+            Self::CallNativeFunction { arguments, .. } => {
                 arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|arg| arg.validate((network_id, None)))
@@ -701,31 +741,19 @@ impl ValidateWithContext<u8> for Instruction {
 
             Self::CallMethod {
                 component_address,
-                method_name,
                 arguments,
+                ..
             } => {
-                component_address
-                    .validate((network_id, Some(ValueKind::ComponentAddress)))
-                    .or_else(|_| {
-                        component_address.validate((network_id, Some(ValueKind::Component)))
-                    })?;
-                method_name.validate((network_id, Some(ValueKind::String)))?;
+                EntityAddress::from(component_address).validate(network_id)?;
                 arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|arg| arg.validate((network_id, None)))
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
-            Self::CallNativeMethod {
-                method_name,
-                arguments,
-                ..
-            } => {
-                method_name.validate((network_id, Some(ValueKind::String)))?;
+            Self::CallNativeMethod { arguments, .. } => {
                 arguments
-                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|arg| arg.validate((network_id, None)))
@@ -734,140 +762,78 @@ impl ValidateWithContext<u8> for Instruction {
             }
 
             Self::TakeFromWorktop {
-                resource_address,
-                into_bucket,
+                resource_address, ..
             } => {
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::TakeFromWorktopByAmount {
-                amount,
-                resource_address,
-                into_bucket,
+                resource_address, ..
             } => {
-                amount.validate((network_id, Some(ValueKind::Decimal)))?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::TakeFromWorktopByIds {
-                ids,
-                resource_address,
-                into_bucket,
+                resource_address, ..
             } => {
-                ids.iter()
-                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
-                    .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_bucket.validate((network_id, Some(ValueKind::Bucket)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
-            Self::ReturnToWorktop { bucket } => {
-                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
-                Ok(())
-            }
+            Self::ReturnToWorktop { bucket: _ } => Ok(()),
 
             Self::AssertWorktopContains { resource_address } => {
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::AssertWorktopContainsByAmount {
-                amount,
-                resource_address,
+                resource_address, ..
             } => {
-                amount.validate((network_id, Some(ValueKind::Decimal)))?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::AssertWorktopContainsByIds {
-                ids,
-                resource_address,
+                resource_address, ..
             } => {
-                ids.iter()
-                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
-                    .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
 
-            Self::PopFromAuthZone { into_proof } => {
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
-                Ok(())
-            }
-            Self::PushToAuthZone { proof } => {
-                proof.validate((network_id, Some(ValueKind::Proof)))?;
-                Ok(())
-            }
+            Self::PopFromAuthZone { .. } => Ok(()),
+            Self::PushToAuthZone { .. } => Ok(()),
             Self::ClearAuthZone => Ok(()),
 
             Self::CreateProofFromAuthZone {
-                resource_address,
-                into_proof,
+                resource_address, ..
             } => {
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::CreateProofFromAuthZoneByAmount {
-                amount,
-                resource_address,
-                into_proof,
+                resource_address, ..
             } => {
-                amount.validate((network_id, Some(ValueKind::Decimal)))?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
             Self::CreateProofFromAuthZoneByIds {
-                ids,
-                resource_address,
-                into_proof,
+                resource_address, ..
             } => {
-                ids.iter()
-                    .map(|id| id.validate((network_id, Some(ValueKind::NonFungibleId))))
-                    .collect::<Result<Vec<()>, _>>()?;
-                resource_address.validate((network_id, Some(ValueKind::ResourceAddress)))?;
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
+                EntityAddress::from(resource_address).validate(network_id)?;
                 Ok(())
             }
 
-            Self::CreateProofFromBucket { bucket, into_proof } => {
-                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
-                Ok(())
-            }
+            Self::CreateProofFromBucket { .. } => Ok(()),
 
-            Self::CloneProof { proof, into_proof } => {
-                proof.validate((network_id, Some(ValueKind::Proof)))?;
-                into_proof.validate((network_id, Some(ValueKind::Proof)))?;
-                Ok(())
-            }
-            Self::DropProof { proof } => {
-                proof.validate((network_id, Some(ValueKind::Proof)))?;
-                Ok(())
-            }
+            Self::CloneProof { proof: _, .. } => Ok(()),
+            Self::DropProof { proof: _ } => Ok(()),
             Self::DropAllProofs => Ok(()),
 
-            Self::PublishPackageWithOwner {
-                code,
-                abi,
-                owner_badge,
-            } => {
-                owner_badge.validate((network_id, Some(ValueKind::NonFungibleAddress)))?;
-                code.validate((network_id, Some(ValueKind::Blob)))?;
-                abi.validate((network_id, Some(ValueKind::Blob)))?;
-                Ok(())
-            }
+            Self::PublishPackageWithOwner { .. } => Ok(()),
 
             Self::MintFungible { .. } => {
                 // TODO: Add validation for this instruction
                 Ok(())
             }
-            Self::BurnBucket { bucket } => {
-                bucket.validate((network_id, Some(ValueKind::Bucket)))?;
-                Ok(())
-            }
+            Self::BurnBucket { bucket: _ } => Ok(()),
             Self::CreateResource { .. } => {
                 // TODO: Add validation for this instruction
                 Ok(())
