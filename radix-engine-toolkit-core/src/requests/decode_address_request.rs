@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::error::Error;
-use crate::model::{EntityAddress, AddressKind};
+use crate::model::{AddressKind, EntityAddress};
 use crate::traits::{Request, Validate};
 use crate::utils::*;
 

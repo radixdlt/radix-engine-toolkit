@@ -15,8 +15,9 @@ use serde_with::{serde_as, DisplayFromStr, TryFromInto};
 use crate::error::Error;
 use crate::model::address::*;
 use crate::model::identifier::{BucketId, Identifier, ProofId};
-use crate::model::serde::*;
 use crate::traits::ValidateWithContext;
+
+use super::NodeIdentifier;
 
 // ======
 // Value
@@ -93,7 +94,7 @@ pub enum Value {
 
     // Scrypto Values
     KeyValueStore {
-        identifier: NodeId,
+        identifier: NodeIdentifier,
     },
 
     Decimal {
@@ -106,7 +107,7 @@ pub enum Value {
     },
 
     Component {
-        identifier: NodeId,
+        identifier: NodeIdentifier,
     },
 
     ComponentAddress {
@@ -150,7 +151,7 @@ pub enum Value {
         identifier: ProofId,
     },
     Vault {
-        identifier: NodeId,
+        identifier: NodeIdentifier,
     },
     NonFungibleId {
         #[serde(flatten)]
@@ -991,13 +992,13 @@ impl Value {
                 },
 
                 ScryptoCustomValue::Component(node_id) => Value::Component {
-                    identifier: NodeId::from_bytes(*node_id),
+                    identifier: NodeIdentifier::from_bytes(*node_id),
                 },
                 ScryptoCustomValue::KeyValueStore(node_id) => Value::KeyValueStore {
-                    identifier: NodeId::from_bytes(*node_id),
+                    identifier: NodeIdentifier::from_bytes(*node_id),
                 },
                 ScryptoCustomValue::Vault(node_id) => Value::Vault {
-                    identifier: NodeId::from_bytes(*node_id),
+                    identifier: NodeIdentifier::from_bytes(*node_id),
                 },
                 ScryptoCustomValue::Bucket(identifier) => Value::Bucket {
                     identifier: Identifier::U32(*identifier).into(),

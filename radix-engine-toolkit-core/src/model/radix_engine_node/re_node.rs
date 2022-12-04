@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 use crate::error::Error;
-use crate::model::{Identifier, NodeId};
+use crate::model::{Identifier, NodeIdentifier};
 
-use super::ValueKind;
+use crate::model::value::ValueKind;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
@@ -19,14 +19,14 @@ pub enum RENode {
     Worktop,
 
     Global(String),
-    KeyValueStore(NodeId),
-    NonFungibleStore(NodeId),
-    Component(NodeId),
-    EpochManager(NodeId),
-    Vault(NodeId),
-    ResourceManager(NodeId),
-    Package(NodeId),
-    Clock(NodeId),
+    KeyValueStore(NodeIdentifier),
+    NonFungibleStore(NodeIdentifier),
+    Component(NodeIdentifier),
+    EpochManager(NodeIdentifier),
+    Vault(NodeIdentifier),
+    ResourceManager(NodeIdentifier),
+    Package(NodeIdentifier),
+    Clock(NodeIdentifier),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
