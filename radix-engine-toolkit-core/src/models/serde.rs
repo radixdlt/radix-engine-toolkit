@@ -90,13 +90,6 @@ impl FromStr for NodeId {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone, PartialOrd, Ord)]
-#[serde(untagged)]
-pub enum Identifier {
-    String(String),
-    U32(u32),
-}
-
 // Defines a network aware address. This is needed for the serialization and deserialization using
 // serde.
 macro_rules! define_network_aware_address {

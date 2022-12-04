@@ -12,6 +12,7 @@ use scrypto::prelude::{
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, TryFromInto};
 
+use crate::models::identifier::{Identifier, BucketId, ProofId};
 use crate::address::Bech32Manager;
 use crate::error::Error;
 use crate::models::serde::*;
@@ -143,10 +144,10 @@ pub enum Value {
     },
 
     Bucket {
-        identifier: Identifier,
+        identifier: BucketId,
     },
     Proof {
-        identifier: Identifier,
+        identifier: ProofId,
     },
     Vault {
         identifier: NodeId,
@@ -471,11 +472,11 @@ impl Value {
             AstValue::Bucket(value) => {
                 if let AstValue::U32(value) = &**value {
                     Self::Bucket {
-                        identifier: Identifier::U32(*value),
+                        identifier: Identifier::U32(*value).into(),
                     }
                 } else if let AstValue::String(value) = &**value {
                     Self::Bucket {
-                        identifier: Identifier::String(value.clone()),
+                        identifier: Identifier::String(value.clone()).into(),
                     }
                 } else {
                     Err(Error::UnexpectedContents {
@@ -488,11 +489,11 @@ impl Value {
             AstValue::Proof(value) => {
                 if let AstValue::U32(value) = &**value {
                     Self::Proof {
-                        identifier: Identifier::U32(*value),
+                        identifier: Identifier::U32(*value).into(),
                     }
                 } else if let AstValue::String(value) = &**value {
                     Self::Proof {
-                        identifier: Identifier::String(value.clone()),
+                        identifier: Identifier::String(value.clone()).into(),
                     }
                 } else {
                     Err(Error::UnexpectedContents {
@@ -725,13 +726,13 @@ impl Value {
             }
 
             Value::Hash { value } => AstValue::Hash(Box::new(AstValue::String(value.to_string()))),
-            Value::Bucket { identifier: value } => AstValue::Bucket(Box::new(match value {
-                Identifier::String(string) => AstValue::String(string.clone()),
-                Identifier::U32(number) => AstValue::U32(*number),
+            Value::Bucket { identifier } => AstValue::Bucket(Box::new(match identifier.0 {
+                Identifier::String(ref string) => AstValue::String(string.clone()),
+                Identifier::U32(number) => AstValue::U32(number),
             })),
-            Value::Proof { identifier } => AstValue::Proof(Box::new(match identifier {
-                Identifier::String(string) => AstValue::String(string.clone()),
-                Identifier::U32(number) => AstValue::U32(*number),
+            Value::Proof { identifier } => AstValue::Proof(Box::new(match identifier.0 {
+                Identifier::String(ref string) => AstValue::String(string.clone()),
+                Identifier::U32(number) => AstValue::U32(number),
             })),
 
             Value::NonFungibleId { value } => {
@@ -865,9 +866,9 @@ impl Value {
             },
 
             Value::Bucket { identifier } => ScryptoValue::Custom {
-                value: match identifier {
+                value: match identifier.0 {
                     Identifier::U32(numeric_identifier) => {
-                        ScryptoCustomValue::Bucket(*numeric_identifier)
+                        ScryptoCustomValue::Bucket(numeric_identifier)
                     }
                     Identifier::String(_) => {
                         return Err(Error::SborEncodeError(
@@ -877,9 +878,9 @@ impl Value {
                 },
             },
             Value::Proof { identifier } => ScryptoValue::Custom {
-                value: match identifier {
+                value: match identifier.0 {
                     Identifier::U32(numeric_identifier) => {
-                        ScryptoCustomValue::Proof(*numeric_identifier)
+                        ScryptoCustomValue::Proof(numeric_identifier)
                     }
                     Identifier::String(_) => {
                         return Err(Error::SborEncodeError(
@@ -1002,10 +1003,10 @@ impl Value {
                     identifier: NodeId::from_bytes(*node_id),
                 },
                 ScryptoCustomValue::Bucket(identifier) => Value::Bucket {
-                    identifier: Identifier::U32(*identifier),
+                    identifier: Identifier::U32(*identifier).into(),
                 },
                 ScryptoCustomValue::Proof(identifier) => Value::Proof {
-                    identifier: Identifier::U32(*identifier),
+                    identifier: Identifier::U32(*identifier).into(),
                 },
 
                 ScryptoCustomValue::Expression(value) => Value::Expression {
@@ -1873,10 +1874,6 @@ mod tests {
                         "value": "192.38"
                     },
                     {
-                        "type": "NonFungibleId",
-                        "value": "3007100000000b3ce8b6056e62b902e029623df6df5c"
-                    },
-                    {
                         "type": "Bucket",
                         "identifier": "my_xrd_bucket"
                     }
@@ -1888,11 +1885,8 @@ mod tests {
                     Value::Decimal {
                         value: dec!("192.38")
                     },
-                    Value::NonFungibleId {
-                        value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
-                    },
                     Value::Bucket {
-                        identifier: crate::models::serde::Identifier::String("my_xrd_bucket".into())
+                        identifier: crate::models::identifier::Identifier::String("my_xrd_bucket".into()).into()
                     }
                 ]
             }
@@ -1990,7 +1984,7 @@ mod tests {
             }
             "#,
             Value::Bucket {
-                identifier: crate::models::serde::Identifier::U32(192)
+                identifier: crate::models::identifier::Identifier::U32(192).into()
             }
         };
         test_value! {
@@ -2001,7 +1995,7 @@ mod tests {
             }
             "#,
             Value::Bucket {
-                identifier: crate::models::serde::Identifier::String("HelloBucket".into())
+                identifier: crate::models::identifier::Identifier::String("HelloBucket".into()).into()
             }
         };
 
@@ -2013,7 +2007,7 @@ mod tests {
             }
             "#,
             Value::Proof {
-                identifier: crate::models::serde::Identifier::U32(192)
+                identifier: crate::models::identifier::Identifier::U32(192).into()
             }
         };
         test_value! {
@@ -2024,19 +2018,7 @@ mod tests {
             }
             "#,
             Value::Proof {
-                identifier: crate::models::serde::Identifier::String("HelloProof".into())
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "value": "3007100000000b3ce8b6056e62b902e029623df6df5c"
-            }
-            "#,
-            Value::NonFungibleId {
-                value: "3007100000000b3ce8b6056e62b902e029623df6df5c".parse().unwrap()
+                identifier: crate::models::identifier::Identifier::String("HelloProof".into()).into()
             }
         };
     }
