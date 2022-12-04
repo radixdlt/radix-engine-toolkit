@@ -203,6 +203,7 @@ pub enum Address {
     ComponentAddress(NetworkAwareComponentAddress),
     ResourceAddress(NetworkAwareResourceAddress),
     PackageAddress(NetworkAwarePackageAddress),
+    SystemAddress(NetworkAwareSystemAddress),
 }
 
 impl Address {
@@ -224,6 +225,10 @@ impl Address {
             Self::PackageAddress(package_address) => match package_address.address {
                 scrypto::prelude::PackageAddress::Normal(_) => AddressKind::Package,
             },
+            Self::SystemAddress(system_address) => match system_address.address {
+                scrypto::prelude::SystemAddress::EpochManager(_) => AddressKind::SystemEpochManager,
+                scrypto::prelude::SystemAddress::Clock(_) => AddressKind::SystemClock,
+            },
         }
     }
 
@@ -232,6 +237,7 @@ impl Address {
             Self::ComponentAddress(address) => address.network_id,
             Self::ResourceAddress(address) => address.network_id,
             Self::PackageAddress(address) => address.network_id,
+            Self::SystemAddress(address) => address.network_id,
         }
     }
 
@@ -278,6 +284,7 @@ impl Display for Address {
             Address::ComponentAddress(address) => write!(f, "{}", address),
             Address::ResourceAddress(address) => write!(f, "{}", address),
             Address::PackageAddress(address) => write!(f, "{}", address),
+            Address::SystemAddress(address) => write!(f, "{}", address),
         }
     }
 }
@@ -302,6 +309,8 @@ impl FromStr for Address {
 pub enum AddressKind {
     Resource,
     Package,
+    SystemClock,
+    SystemEpochManager,
 
     NormalComponent,
     AccountComponent,
