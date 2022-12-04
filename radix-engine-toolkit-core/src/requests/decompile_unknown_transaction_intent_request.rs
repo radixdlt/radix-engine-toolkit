@@ -99,23 +99,21 @@ impl<'r> Request<'r, DecompileUnknownTransactionIntentResponse>
     for DecompileUnknownTransactionIntentRequest
 {
     fn handle_request(self) -> Result<DecompileUnknownTransactionIntentResponse, Error> {
-        let response: DecompileUnknownTransactionIntentResponse = if let Ok(response) =
-            Into::<DecompileTransactionIntentRequest>::into(self.clone()).fulfill_request()
+        if let Ok(response) =
+            DecompileTransactionIntentRequest::from(self.clone()).fulfill_request()
         {
             Ok(response.into())
         } else if let Ok(response) =
-            Into::<DecompileSignedTransactionIntentRequest>::into(self.clone()).fulfill_request()
+            DecompileSignedTransactionIntentRequest::from(self.clone()).fulfill_request()
         {
             Ok(response.into())
         } else if let Ok(response) =
-            Into::<DecompileNotarizedTransactionIntentRequest>::into(self).fulfill_request()
+            DecompileNotarizedTransactionIntentRequest::from(self).fulfill_request()
         {
             Ok(response.into())
         } else {
             Err(Error::UnrecognizedCompiledIntentFormat)
-        }?;
-
-        Ok(response)
+        }
     }
 }
 

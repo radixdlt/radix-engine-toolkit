@@ -49,7 +49,7 @@ impl Validate for DeriveNonFungibleAddressResponse {
 
 impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddressRequest {
     fn handle_request(self) -> Result<DeriveNonFungibleAddressResponse, Error> {
-        let non_fungible_address: NonFungibleAddress =
+        let non_fungible_address =
             NonFungibleAddress::new(self.resource_address.address, self.non_fungible_id);
 
         Ok(DeriveNonFungibleAddressResponse {

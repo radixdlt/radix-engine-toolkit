@@ -47,7 +47,7 @@ impl<'r> Request<'r, CompileNotarizedTransactionIntentResponse>
     for CompileNotarizedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<CompileNotarizedTransactionIntentResponse, Error> {
-        let compiled_notarized_intent: Vec<u8> = self.notarized_transaction.compile()?;
+        let compiled_notarized_intent = self.notarized_transaction.compile()?;
 
         Ok(CompileNotarizedTransactionIntentResponse {
             compiled_notarized_intent,

@@ -169,7 +169,7 @@ impl Instruction {
         &self,
         bech32_manager: &Bech32Manager,
     ) -> Result<AstInstruction, Error> {
-        let ast_instruction: AstInstruction = match self {
+        let ast_instruction = match self {
             Self::CallFunction {
                 package_address,
                 blueprint_name,
@@ -205,7 +205,7 @@ impl Instruction {
                 method_name,
                 arguments,
             } => {
-                let scrypto_receiver: AstScryptoReceiver =
+                let scrypto_receiver =
                     if let Value::ComponentAddress { address } = component_address {
                         AstScryptoReceiver::Global(AstValue::String(
                             bech32_manager
@@ -396,7 +396,7 @@ impl Instruction {
         ast_instruction: &AstInstruction,
         bech32_manager: &Bech32Manager,
     ) -> Result<Self, Error> {
-        let instruction: Instruction = match ast_instruction {
+        let instruction = match ast_instruction {
             AstInstruction::CallFunction {
                 package_address,
                 blueprint_name,
@@ -407,7 +407,7 @@ impl Instruction {
                 blueprint_name: Value::from_ast_value(blueprint_name, bech32_manager)?,
                 function_name: Value::from_ast_value(function_name, bech32_manager)?,
                 arguments: {
-                    let arguments: Vec<Value> = args
+                    let arguments = args
                         .iter()
                         .map(|v| Value::from_ast_value(v, bech32_manager))
                         .collect::<Result<Vec<Value>, _>>()?;
@@ -425,7 +425,7 @@ impl Instruction {
                 blueprint_name: Value::from_ast_value(blueprint_name, bech32_manager)?,
                 function_name: Value::from_ast_value(function_name, bech32_manager)?,
                 arguments: {
-                    let arguments: Vec<Value> = args
+                    let arguments = args
                         .iter()
                         .map(|v| Value::from_ast_value(v, bech32_manager))
                         .collect::<Result<Vec<Value>, _>>()?;
@@ -477,7 +477,7 @@ impl Instruction {
                 },
                 method_name: Value::from_ast_value(method, bech32_manager)?,
                 arguments: {
-                    let arguments: Vec<Value> = args
+                    let arguments = args
                         .iter()
                         .map(|v| Value::from_ast_value(v, bech32_manager))
                         .collect::<Result<Vec<Value>, _>>()?;
@@ -497,7 +497,7 @@ impl Instruction {
                 },
                 method_name: Value::from_ast_value(method, bech32_manager)?,
                 arguments: {
-                    let arguments: Vec<Value> = args
+                    let arguments = args
                         .iter()
                         .map(|v| Value::from_ast_value(v, bech32_manager))
                         .collect::<Result<Vec<Value>, _>>()?;

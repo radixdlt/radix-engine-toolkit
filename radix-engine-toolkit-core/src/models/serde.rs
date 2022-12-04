@@ -23,17 +23,17 @@ pub struct NodeId(pub (Hash, u32));
 
 impl NodeId {
     pub fn to_bytes(&self) -> [u8; 36] {
-        let mut node_id_bytes: Vec<u8> = self.0 .0.to_vec();
+        let mut node_id_bytes = self.0 .0.to_vec();
         node_id_bytes.extend(self.0 .1.to_le_bytes());
         copy_u8_array(&node_id_bytes)
     }
 
     pub fn from_bytes(vec: [u8; 36]) -> Self {
-        let hash_bytes: &[u8] = &vec[0..32];
-        let index_bytes: &[u8] = &vec[32..];
+        let hash_bytes = &vec[0..32];
+        let index_bytes = &vec[32..];
 
-        let hash: Hash = Hash(copy_u8_array(hash_bytes));
-        let index: u32 = u32::from_le_bytes(copy_u8_array(index_bytes));
+        let hash = Hash(copy_u8_array(hash_bytes));
+        let index = u32::from_le_bytes(copy_u8_array(index_bytes));
 
         Self((hash, index))
     }
@@ -65,7 +65,7 @@ impl<'de> Deserialize<'de> for NodeId {
     where
         D: Deserializer<'de>,
     {
-        let node_id_string: &str = Deserialize::deserialize(deserializer)?;
+        let node_id_string: String = Deserialize::deserialize(deserializer)?;
         node_id_string
             .parse()
             .map_err(|_| DeserializationError::custom("Failed to parse node id from string"))
@@ -82,7 +82,7 @@ impl FromStr for NodeId {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let node_id_bytes: Vec<u8> = hex::decode(s)
+        let node_id_bytes = hex::decode(s)
             .map_err(|_| Error::DeserializationError(format!("Failed to decode node id: {}", s)))?;
 
         // TODO: Should not do a copy u8 array without first checking the length
@@ -129,9 +129,8 @@ macro_rules! define_network_aware_address {
             where
                 D: Deserializer<'de>,
             {
-                let address_string: &str = Deserialize::deserialize(deserializer)?;
-
-                let address: Self = address_string
+                let address_string: String = Deserialize::deserialize(deserializer)?;
+                let address = address_string
                     .parse()
                     .map_err(|err| DeserializationError::custom(format!("{:?}", err)))?;
                 Ok(address)
@@ -161,7 +160,7 @@ macro_rules! define_network_aware_address {
 
         impl Display for $network_aware_struct_ident {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                let bech32_manager: Bech32Manager = Bech32Manager::new(self.network_id);
+                let bech32_manager = Bech32Manager::new(self.network_id);
                 write!(
                     f,
                     "{}",
@@ -174,7 +173,7 @@ macro_rules! define_network_aware_address {
             type Err = Error;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-                let bech32_manager: Bech32Manager = Bech32Manager::new_from_address(s)?;
+                let bech32_manager = Bech32Manager::new_from_address(s)?;
                 Ok(Self {
                     address: bech32_manager.decoder.$decoding_method_ident(s)?,
                     network_id: bech32_manager.network_id(),
@@ -329,7 +328,7 @@ where
     where
         S: Serializer,
     {
-        let value: Value = source.clone().into();
+        let value = source.clone().into();
         value.serialize(serializer)
     }
 }

@@ -65,8 +65,8 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
 pub fn network_id_from_hrp(hrp: &str) -> Result<u8, AddressError> {
     // Getting the network specifier from the given HRP. Bech32 HRPs used in Babylon are structured
     // as follows:
-    let splitted_hrp: Vec<&str> = hrp.split('_').collect();
-    let network_specifier: String = {
+    let splitted_hrp = hrp.split('_').collect::<Vec<&str>>();
+    let network_specifier = {
         match splitted_hrp.get(1) {
             Some(_) => Ok(splitted_hrp
                 .into_iter()
@@ -78,7 +78,7 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, AddressError> {
     }?;
 
     // Matching the network specifier to obtain the network id from it
-    let network_id: u8 = match network_specifier.as_str() {
+    let network_id = match network_specifier.as_str() {
         "rdx" => NetworkDefinition::mainnet().id,
         "sim" => NetworkDefinition::simulator().id,
         numeric_network_specifier => {
@@ -96,8 +96,7 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, AddressError>
     // Attempt to Bech32m decode this address to get the hrp and the data type (will not be used).
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
-    let (hrp, _, _): (String, _, _) =
-        bech32::decode(address).map_err(AddressError::Bech32mDecodingError)?;
+    let (hrp, _, _) = bech32::decode(address).map_err(AddressError::Bech32mDecodingError)?;
     network_id_from_hrp(&hrp)
 }
 
@@ -116,11 +115,11 @@ mod tests {
     #[test]
     fn mainnet_hrp_to_network_id_succeeds() {
         // Arrange
-        let hrp: &str = "resource_rdx";
-        let expected_network_id: u8 = NetworkDefinition::mainnet().id;
+        let hrp = "resource_rdx";
+        let expected_network_id = NetworkDefinition::mainnet().id;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_hrp(hrp);
+        let network_id = network_id_from_hrp(hrp);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
@@ -129,11 +128,11 @@ mod tests {
     #[test]
     fn simulator_hrp_to_network_id_succeeds() {
         // Arrange
-        let hrp: &str = "resource_sim";
-        let expected_network_id: u8 = NetworkDefinition::simulator().id;
+        let hrp = "resource_sim";
+        let expected_network_id = NetworkDefinition::simulator().id;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_hrp(hrp);
+        let network_id = network_id_from_hrp(hrp);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
@@ -142,11 +141,11 @@ mod tests {
     #[test]
     fn numeric_test_network_hrp_to_network_id_succeeds() {
         // Arrange
-        let hrp: &str = "resource_tdx_a0_";
-        let expected_network_id: u8 = 0xA0;
+        let hrp = "resource_tdx_a0_";
+        let expected_network_id = 0xA0;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_hrp(hrp);
+        let network_id = network_id_from_hrp(hrp);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
@@ -155,11 +154,11 @@ mod tests {
     #[test]
     fn mainnet_address_to_network_id_succeeds() {
         // Arrange
-        let address: &str = "resource_rdx1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsgwqv9z";
-        let expected_network_id: u8 = NetworkDefinition::mainnet().id;
+        let address = "resource_rdx1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsgwqv9z";
+        let expected_network_id = NetworkDefinition::mainnet().id;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_address_string(address);
+        let network_id = network_id_from_address_string(address);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
@@ -168,11 +167,11 @@ mod tests {
     #[test]
     fn simulator_address_to_network_id_succeeds() {
         // Arrange
-        let address: &str = "component_sim1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsyml02z";
-        let expected_network_id: u8 = NetworkDefinition::simulator().id;
+        let address = "component_sim1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsyml02z";
+        let expected_network_id = NetworkDefinition::simulator().id;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_address_string(address);
+        let network_id = network_id_from_address_string(address);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);
@@ -181,11 +180,11 @@ mod tests {
     #[test]
     fn numeric_test_network_address_to_network_id_succeeds() {
         // Arrange
-        let address: &str = "validator_tdx_a0_1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsw5xdp6";
-        let expected_network_id: u8 = 0xA0;
+        let address = "validator_tdx_a0_1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsw5xdp6";
+        let expected_network_id = 0xA0;
 
         // Act
-        let network_id: Result<u8, _> = network_id_from_address_string(address);
+        let network_id = network_id_from_address_string(address);
 
         // Assert
         assert_eq!(Ok(expected_network_id), network_id);

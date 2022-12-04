@@ -38,9 +38,9 @@ where
         self,
         bech32_manager: T,
     ) -> Result<NativeTransactionManifest, Self::Error> {
-        let bech32_manager: &Bech32Manager = bech32_manager.as_ref();
+        let bech32_manager = bech32_manager.as_ref();
 
-        let transaction_manifest: NativeTransactionManifest = NativeTransactionManifest {
+        let transaction_manifest = NativeTransactionManifest {
             instructions: self
                 .instructions
                 .transaction_instructions(bech32_manager, self.blobs.clone())?,
@@ -61,26 +61,25 @@ where
         self,
         (manifest_instruction_kind, bech32_manager): (ManifestInstructionsKind, T),
     ) -> Result<TransactionManifest, Self::Error> {
-        let bech32_manager: &Bech32Manager = bech32_manager.as_ref();
+        let bech32_manager = bech32_manager.as_ref();
 
         // Converting a TransactionInstruction to a string is rather easy to do, so we will convert
         // them into a String, and then we will convert the entire manifest instructions into the
         // requested format provided in the context.
-        let manifest_instructions: ManifestInstructions = ManifestInstructions::String(decompile(
+        let manifest_instructions = ManifestInstructions::String(decompile(
             &self.instructions,
             &bech32_manager.network_definition,
         )?);
 
         // Converting the manifest instructions according to the requested manifest instructions
         // kind.
-        let manifest_instructions: ManifestInstructions = manifest_instructions
-            .convert_to_manifest_instructions_kind(
-                manifest_instruction_kind,
-                bech32_manager,
-                self.blobs.clone(),
-            )?;
+        let manifest_instructions = manifest_instructions.convert_to_manifest_instructions_kind(
+            manifest_instruction_kind,
+            bech32_manager,
+            self.blobs.clone(),
+        )?;
 
-        let transaction_manifest: TransactionManifest = TransactionManifest {
+        let transaction_manifest = TransactionManifest {
             instructions: manifest_instructions,
             blobs: self.blobs,
         };
@@ -94,7 +93,7 @@ where
 
 impl ValidateWithContext<u8> for TransactionManifest {
     fn validate(&self, network_id: u8) -> Result<(), Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(network_id);
+        let bech32_manager = Bech32Manager::new(network_id);
 
         self.instructions
             .instructions(&bech32_manager)?

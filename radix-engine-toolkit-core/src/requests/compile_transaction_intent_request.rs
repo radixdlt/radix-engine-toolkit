@@ -45,7 +45,7 @@ impl Validate for CompileTransactionIntentResponse {
 
 impl<'r> Request<'r, CompileTransactionIntentResponse> for CompileTransactionIntentRequest {
     fn handle_request(self) -> Result<CompileTransactionIntentResponse, Error> {
-        let compiled_intent: Vec<u8> = self.transaction_intent.compile()?;
+        let compiled_intent = self.transaction_intent.compile()?;
 
         Ok(CompileTransactionIntentResponse { compiled_intent })
     }

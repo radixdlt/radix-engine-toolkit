@@ -28,7 +28,7 @@ where
     fn handle_request(self) -> Result<Response, Error>;
     fn fulfill_request(self) -> Result<Response, Error> {
         self.validate_request()?;
-        let response: Response = self.handle_request()?;
+        let response = self.handle_request()?;
         Self::validate_response(&response)?;
         Ok(response)
     }

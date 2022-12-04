@@ -70,7 +70,7 @@ pub unsafe extern "C" fn toolkit_free(pointer: Pointer, capacity: usize) {
 #[no_mangle]
 pub unsafe extern "C" fn toolkit_free_c_string(pointer: Pointer) {
     // Loading the C-String from memory to get the byte-count of the string.
-    let length: usize = std::ffi::CStr::from_ptr(pointer as *const std::ffi::c_char)
+    let length = std::ffi::CStr::from_ptr(pointer as *const std::ffi::c_char)
         .to_bytes()
         .len();
     toolkit_free(pointer, length);
@@ -110,8 +110,7 @@ pub unsafe fn toolkit_read_and_deserialize_json_string_from_memory<'t, T>(
 where
     T: Deserialize<'t>,
 {
-    let string: &str =
-        std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char).to_str()?;
+    let string = std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char).to_str()?;
     Ok(serde_json::from_str(string)?)
 }
 
@@ -139,11 +138,11 @@ pub unsafe fn toolkit_serialize_to_json_string_and_write_to_memory<T>(
 where
     T: Serialize,
 {
-    let object_string: String = serde_json::to_string(object)?;
-    let object_bytes: &[u8] = object_string.as_bytes();
-    let byte_count: usize = object_bytes.len() + 1;
+    let object_string = serde_json::to_string(object)?;
+    let object_bytes = object_string.as_bytes();
+    let byte_count = object_bytes.len() + 1;
 
-    let pointer: Pointer = toolkit_alloc(byte_count);
+    let pointer = toolkit_alloc(byte_count);
     pointer.copy_from([object_bytes, &[0]].concat().as_ptr(), byte_count);
     Ok(pointer)
 }

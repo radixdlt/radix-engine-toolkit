@@ -28,11 +28,10 @@ impl TryInto<NativeSignedTransactionIntent> for SignedTransactionIntent {
     type Error = Error;
 
     fn try_into(self) -> Result<NativeSignedTransactionIntent, Self::Error> {
-        let signed_transaction_intent: NativeSignedTransactionIntent =
-            NativeSignedTransactionIntent {
-                intent: self.intent.try_into()?,
-                intent_signatures: self.intent_signatures,
-            };
+        let signed_transaction_intent = NativeSignedTransactionIntent {
+            intent: self.intent.try_into()?,
+            intent_signatures: self.intent_signatures,
+        };
         Ok(signed_transaction_intent)
     }
 }
@@ -46,7 +45,7 @@ impl TryIntoWithContext<SignedTransactionIntent, ManifestInstructionsKind>
         self,
         manifest_output_format: ManifestInstructionsKind,
     ) -> Result<SignedTransactionIntent, Self::Error> {
-        let signed_transaction_intent: SignedTransactionIntent = SignedTransactionIntent {
+        let signed_transaction_intent = SignedTransactionIntent {
             intent: self.intent.try_into_with_context(manifest_output_format)?,
             intent_signatures: self.intent_signatures,
         };
@@ -64,7 +63,7 @@ impl CompilableIntent for SignedTransactionIntent {
         let signed_transaction_intent: NativeSignedTransactionIntent = self.clone().try_into()?;
 
         // Compile the native signed transaction intent
-        Ok(scrypto_encode(&signed_transaction_intent).expect("Failed to encode trusted payload"))
+        Ok(scrypto_encode(&signed_transaction_intent)?)
     }
 
     fn decompile<T>(
@@ -76,8 +75,8 @@ impl CompilableIntent for SignedTransactionIntent {
         T: AsRef<[u8]>,
     {
         // Decompile to a native signed transaction intent
-        let data: &[u8] = data.as_ref();
-        let signed_transaction_intent: NativeSignedTransactionIntent = scrypto_decode(data)?;
+        let data = data.as_ref();
+        let signed_transaction_intent = scrypto_decode::<NativeSignedTransactionIntent>(data)?;
 
         // Convert to this type
         signed_transaction_intent.try_into_with_context(output_manifest_format)

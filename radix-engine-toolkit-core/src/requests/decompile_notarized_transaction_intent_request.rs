@@ -50,7 +50,7 @@ impl<'r> Request<'r, DecompileNotarizedTransactionIntentResponse>
     for DecompileNotarizedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<DecompileNotarizedTransactionIntentResponse, Error> {
-        let notarized_transaction: NotarizedTransaction = NotarizedTransaction::decompile(
+        let notarized_transaction = NotarizedTransaction::decompile(
             &self.compiled_notarized_intent,
             self.manifest_instructions_output_format,
         )?;

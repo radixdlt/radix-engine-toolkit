@@ -23,14 +23,14 @@ macro_rules! export_request {
                     .into();
 
                 // Deserialize the request string for the request type
-                let request: Result<$request_type, _> = serde_json::from_str(&input);
+                let request = serde_json::from_str(&input);
                 let request: $request_type = match request {
                     Ok(request) => request,
                     Err(error) => return $crate::serialize_to_jstring!{env, radix_engine_toolkit_core::error::Error::from(error)}
                 };
 
                 // Fulfilling the request and either getting back an error or a valid response
-                let response: Result<_, _> = request.fulfill_request();
+                let response = request.fulfill_request();
                 match response {
                     Ok(response) => $crate::serialize_to_jstring!{env, response},
                     Err(error) => $crate::serialize_to_jstring!{env, error},

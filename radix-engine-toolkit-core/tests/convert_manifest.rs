@@ -5,7 +5,7 @@ use radix_engine_toolkit_core::traits::Request;
 #[test]
 pub fn basic_manifest_conversion_succeeds() {
     // Arrange
-    let test_vectors: Vec<(String, Vec<Vec<u8>>)> = vec![
+    let test_vectors = vec![
         (
             include_str!("test_manifests/manifest1.rtm").to_string(),
             vec![
@@ -27,7 +27,7 @@ pub fn basic_manifest_conversion_succeeds() {
         ),
     ];
 
-    let requests: Vec<ConvertManifestRequest> = test_vectors
+    let requests = test_vectors
         .iter()
         .map(|x| ConvertManifestRequest {
             transaction_version: 0x01,
@@ -41,7 +41,7 @@ pub fn basic_manifest_conversion_succeeds() {
                 blobs: x.1.clone(),
             },
         })
-        .collect();
+        .collect::<Vec<_>>();
 
     for request in requests {
         // Act

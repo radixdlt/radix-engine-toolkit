@@ -46,8 +46,8 @@ impl Validate for EncodeAddressResponse {
 
 impl<'r> Request<'r, EncodeAddressResponse> for EncodeAddressRequest {
     fn handle_request(self) -> Result<EncodeAddressResponse, Error> {
-        let address: &[u8] = &self.address_bytes;
-        let address: Address = Address::from_u8_array(address, self.network_id)?;
+        let address = &self.address_bytes;
+        let address = Address::from_u8_array(address, self.network_id)?;
 
         Ok(EncodeAddressResponse { address })
     }

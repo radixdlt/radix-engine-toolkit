@@ -47,8 +47,7 @@ impl<'r> Request<'r, DeriveNonFungibleAddressFromPublicKeyResponse>
     for DeriveNonFungibleAddressFromPublicKeyRequest
 {
     fn handle_request(self) -> Result<DeriveNonFungibleAddressFromPublicKeyResponse, Error> {
-        let non_fungible_address: NonFungibleAddress =
-            NonFungibleAddress::from_public_key(&self.public_key);
+        let non_fungible_address = NonFungibleAddress::from_public_key(&self.public_key);
 
         Ok(DeriveNonFungibleAddressFromPublicKeyResponse {
             non_fungible_address,

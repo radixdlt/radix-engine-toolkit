@@ -51,7 +51,7 @@ impl Validate for DecompileTransactionIntentResponse {
 
 impl<'r> Request<'r, DecompileTransactionIntentResponse> for DecompileTransactionIntentRequest {
     fn handle_request(self) -> Result<DecompileTransactionIntentResponse, Error> {
-        let transaction_intent: TransactionIntent = TransactionIntent::decompile(
+        let transaction_intent = TransactionIntent::decompile(
             &self.compiled_intent,
             self.manifest_instructions_output_format,
         )?;

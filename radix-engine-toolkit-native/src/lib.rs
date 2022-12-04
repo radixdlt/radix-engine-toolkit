@@ -17,8 +17,8 @@ macro_rules! export_request {
         #[no_mangle]
         pub unsafe extern "C" fn $export_ident(string_pointer: radix_engine_toolkit_core::memory::Pointer) -> radix_engine_toolkit_core::memory::Pointer {
             // Loading the request from a string pointer into a request object
-            let request: Result<$request_type, _> = $request_type::new_from_pointer(string_pointer);
-            let request: $request_type = match request {
+            let request = $request_type::new_from_pointer(string_pointer);
+            let request = match request {
                 Ok(request) => request,
                 Err(error) => {
                     return radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(
@@ -29,7 +29,7 @@ macro_rules! export_request {
             };
 
             // Fulfilling the request and either getting back an error or a valid response
-            let response: Result<_, _> = request.fulfill_request();
+            let response = request.fulfill_request();
             match response {
                 Ok(response) => {
                     radix_engine_toolkit_core::memory::toolkit_serialize_to_json_string_and_write_to_memory(

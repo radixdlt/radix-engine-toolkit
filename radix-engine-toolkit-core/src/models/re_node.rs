@@ -55,14 +55,14 @@ pub enum RENodeKind {
 pub fn ast_re_node_from_re_node(re_node: &RENode) -> AstRENode {
     match re_node {
         RENode::Bucket(identifier) => {
-            let ast_value: AstValue = match identifier {
+            let ast_value = match identifier {
                 Identifier::String(string) => AstValue::String(string.clone()),
                 Identifier::U32(number) => AstValue::U32(*number),
             };
             AstRENode::Bucket(ast_value)
         }
         RENode::Proof(identifier) => {
-            let ast_value: AstValue = match identifier {
+            let ast_value = match identifier {
                 Identifier::String(string) => AstValue::String(string.clone()),
                 Identifier::U32(number) => AstValue::U32(*number),
             };
@@ -70,52 +70,52 @@ pub fn ast_re_node_from_re_node(re_node: &RENode) -> AstRENode {
         }
 
         RENode::AuthZoneStack(auth_zone_id) => {
-            let ast_value: AstValue = AstValue::U32(*auth_zone_id);
+            let ast_value = AstValue::U32(*auth_zone_id);
             AstRENode::AuthZoneStack(ast_value)
         }
         RENode::Worktop => AstRENode::Worktop,
 
         RENode::Global(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_owned());
+            let ast_value = AstValue::String(identifier.to_owned());
             AstRENode::Global(ast_value)
         }
         RENode::KeyValueStore(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::KeyValueStore(ast_value)
         }
         RENode::NonFungibleStore(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::NonFungibleStore(ast_value)
         }
         RENode::Component(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::Component(ast_value)
         }
         RENode::EpochManager(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::EpochManager(ast_value)
         }
         RENode::Vault(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::Vault(ast_value)
         }
         RENode::ResourceManager(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::ResourceManager(ast_value)
         }
         RENode::Package(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::Package(ast_value)
         }
         RENode::Clock(identifier) => {
-            let ast_value: AstValue = AstValue::String(identifier.to_string());
+            let ast_value = AstValue::String(identifier.to_string());
             AstRENode::Clock(ast_value)
         }
     }
 }
 
 pub fn re_node_from_ast_re_node(ast_re_node: &AstRENode) -> Result<RENode, Error> {
-    let re_node: RENode = match ast_re_node {
+    let re_node = match ast_re_node {
         AstRENode::Bucket(identifier) => {
             if let AstValue::U32(identifier) = identifier {
                 RENode::Bucket(Identifier::U32(*identifier))

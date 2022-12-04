@@ -93,7 +93,7 @@ mod tests {
     #[test]
     pub fn convert_manifest_with_mismatch_addresses_fails() {
         // Arrange
-        let manifest_instructions: Vec<Instruction> = vec![Instruction::CallFunction {
+        let manifest_instructions = vec![Instruction::CallFunction {
             package_address: Value::PackageAddress {
                 address: NetworkAwarePackageAddress {
                     address: PackageAddress::Normal([1; 26]),
@@ -108,9 +108,9 @@ mod tests {
             },
             arguments: None,
         }];
-        let network_id: u8 = 0xF2;
+        let network_id = 0xF2;
 
-        let request: ConvertManifestRequest = ConvertManifestRequest {
+        let request = ConvertManifestRequest {
             transaction_version: 0x01,
             network_id,
             manifest_instructions_output_format: crate::models::ManifestInstructionsKind::String,
@@ -121,7 +121,7 @@ mod tests {
         };
 
         // Act
-        let response: Result<ConvertManifestResponse, Error> = request.fulfill_request();
+        let response = request.fulfill_request();
 
         // Assert
         assert!(matches!(

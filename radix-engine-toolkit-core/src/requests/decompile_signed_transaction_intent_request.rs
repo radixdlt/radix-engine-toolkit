@@ -50,7 +50,7 @@ impl<'r> Request<'r, DecompileSignedTransactionIntentResponse>
     for DecompileSignedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<DecompileSignedTransactionIntentResponse, Error> {
-        let signed_intent: SignedTransactionIntent = SignedTransactionIntent::decompile(
+        let signed_intent = SignedTransactionIntent::decompile(
             &self.compiled_signed_intent,
             self.manifest_instructions_output_format,
         )?;

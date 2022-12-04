@@ -30,7 +30,7 @@ impl TryInto<NativeNotarizedTransaction> for NotarizedTransaction {
     type Error = Error;
 
     fn try_into(self) -> Result<NativeNotarizedTransaction, Self::Error> {
-        let notarized_transaction: NativeNotarizedTransaction = NativeNotarizedTransaction {
+        let notarized_transaction = NativeNotarizedTransaction {
             signed_intent: self.signed_intent.try_into()?,
             notary_signature: self.notary_signature,
         };
@@ -47,7 +47,7 @@ impl TryIntoWithContext<NotarizedTransaction, ManifestInstructionsKind>
         self,
         manifest_output_format: ManifestInstructionsKind,
     ) -> Result<NotarizedTransaction, Self::Error> {
-        let notarized_transaction: NotarizedTransaction = NotarizedTransaction {
+        let notarized_transaction = NotarizedTransaction {
             signed_intent: self
                 .signed_intent
                 .try_into_with_context(manifest_output_format)?,
@@ -79,8 +79,8 @@ impl CompilableIntent for NotarizedTransaction {
         T: AsRef<[u8]>,
     {
         // Decompile to a native notarized transaction intent
-        let data: &[u8] = data.as_ref();
-        let notarized_transaction: NativeNotarizedTransaction = scrypto_decode(data)?;
+        let data = data.as_ref();
+        let notarized_transaction = scrypto_decode::<NativeNotarizedTransaction>(data)?;
 
         // Convert to this type
         notarized_transaction.try_into_with_context(output_manifest_format)

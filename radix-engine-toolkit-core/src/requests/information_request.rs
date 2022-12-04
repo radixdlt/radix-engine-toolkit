@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn information_handler_returns_ok() {
-        let response: Result<InformationResponse, Error> = InformationRequest {}.fulfill_request();
+        let response = InformationRequest {}.fulfill_request();
         assert!(matches!(response, Ok(_)));
     }
 }

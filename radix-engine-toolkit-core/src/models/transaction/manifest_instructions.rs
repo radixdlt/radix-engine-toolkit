@@ -36,7 +36,7 @@ pub enum ManifestInstructions {
 
 impl ManifestInstructions {
     pub fn instructions(&self, bech32_manager: &Bech32Manager) -> Result<Vec<Instruction>, Error> {
-        let json_instructions: ManifestInstructions = self.convert_to_json(bech32_manager)?;
+        let json_instructions = self.convert_to_json(bech32_manager)?;
         if let ManifestInstructions::JSON(instructions) = json_instructions {
             Ok(instructions)
         } else {
@@ -53,10 +53,9 @@ impl ManifestInstructions {
                 let tokens = radix_transaction::manifest::lexer::tokenize(string)
                     .map_err(radix_transaction::manifest::CompileError::LexerError)?;
 
-                let instructions: Vec<AstInstruction> =
-                    radix_transaction::manifest::parser::Parser::new(tokens)
-                        .parse_manifest()
-                        .map_err(radix_transaction::manifest::CompileError::ParserError)?;
+                let instructions = radix_transaction::manifest::parser::Parser::new(tokens)
+                    .parse_manifest()
+                    .map_err(radix_transaction::manifest::CompileError::ParserError)?;
                 Ok(instructions)
             }
             Self::JSON(instructions) => instructions
@@ -73,14 +72,13 @@ impl ManifestInstructions {
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
     ) -> Result<Vec<TransactionInstruction>, Error> {
-        let instructions: Vec<AstInstruction> = self.ast_instructions(bech32_manager)?;
-        let instructions: Vec<TransactionInstruction> =
-            radix_transaction::manifest::generator::generate_manifest(
-                &instructions,
-                &bech32_manager.decoder,
-                blobs.iter().map(|x| (hash(x), x.clone())).collect(),
-            )?
-            .instructions;
+        let instructions = self.ast_instructions(bech32_manager)?;
+        let instructions = radix_transaction::manifest::generator::generate_manifest(
+            &instructions,
+            &bech32_manager.decoder,
+            blobs.iter().map(|x| (hash(x), x.clone())).collect(),
+        )?
+        .instructions;
         Ok(instructions)
     }
 
@@ -133,8 +131,7 @@ impl ManifestInstructions {
 
                 // Vec<Instruction> --> Vec<AstInstruction> --> Vec<TransactionInstruction>
                 // Conversion (based on above comment).
-                let instructions: Vec<TransactionInstruction> =
-                    self.transaction_instructions(bech32_manager, blobs)?;
+                let instructions = self.transaction_instructions(bech32_manager, blobs)?;
 
                 // Vec<TransactionInstruction> --> String Conversion (based on above comment)
                 Ok(Self::String(decompile(
@@ -161,8 +158,8 @@ impl ManifestInstructions {
                 // Similar to the previous point and previous comment on this, we will need to look
                 // into long term solutions for this to break away from the limitations of relying
                 // on the Scrypto toolchain for operations like this.
-                let ast_instruction: Vec<AstInstruction> = self.ast_instructions(bech32_manager)?;
-                let instructions: Vec<Instruction> = ast_instruction
+                let ast_instruction = self.ast_instructions(bech32_manager)?;
+                let instructions = ast_instruction
                     .iter()
                     .map(|instruction| {
                         Instruction::from_ast_instruction(instruction, bech32_manager)

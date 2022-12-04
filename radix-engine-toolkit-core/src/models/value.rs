@@ -269,7 +269,7 @@ impl Value {
     }
 
     fn validate_address_network_id(&self, expected_network_id: u8) -> Result<(), Error> {
-        let network_id: u8 = match self {
+        let network_id = match self {
             Self::ComponentAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
@@ -293,7 +293,7 @@ impl Value {
         ast_value: &AstValue,
         bech32_manager: &Bech32Manager,
     ) -> Result<Self, Error> {
-        let value: Value = match ast_value {
+        let value = match ast_value {
             AstValue::Unit => Self::Unit,
             AstValue::Bool(value) => Self::Bool { value: *value },
 
@@ -640,7 +640,7 @@ impl Value {
     }
 
     pub fn to_ast_value(&self, bech32_manager: &Bech32Manager) -> Result<AstValue, Error> {
-        let ast_value: AstValue = match self {
+        let ast_value = match self {
             Value::Unit => AstValue::Unit,
             Value::Bool { value } => AstValue::Bool(*value),
 
@@ -1188,7 +1188,7 @@ impl ValueKind {
     }
 
     pub fn from_type_id(type_id: u8) -> Result<Self, Error> {
-        let value_kind: Self = match type_id {
+        let value_kind = match type_id {
             TYPE_UNIT => Self::Unit,
             TYPE_BOOL => Self::Bool,
 
@@ -1673,7 +1673,7 @@ mod tests {
     }
 
     fn assert_serialization_matches(string: &str, value: Value) {
-        let serialized_string: String =
+        let serialized_string =
             serde_json::to_string(&value).expect("Serialization of trusted value failed");
 
         let string = string.replace(['\n', ' '], "");
@@ -1682,8 +1682,7 @@ mod tests {
     }
 
     fn assert_deserialization_matches(string: &str, value: Value) {
-        let deserialized_value: Value =
-            serde_json::from_str(string).expect("Deserialization failed.");
+        let deserialized_value = serde_json::from_str(string).expect("Deserialization failed.");
         assert_eq!(value, deserialized_value);
     }
 
@@ -2045,10 +2044,10 @@ mod tests {
     #[test]
     fn non_collection_validation_succeeds() {
         // Arrange
-        let value: Value = Value::Bool { value: false };
+        let value = Value::Bool { value: false };
 
         // Act
-        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+        let result = value.validate_if_collection();
 
         // Assert
         assert!(matches!(result, Ok(())))
@@ -2057,7 +2056,7 @@ mod tests {
     #[test]
     fn array_of_decimals_validation_succeeds() {
         // Arrange
-        let value: Value = Value::Array {
+        let value = Value::Array {
             element_type: ValueKind::Decimal,
             elements: vec![
                 Value::Decimal { value: dec!("20") },
@@ -2069,7 +2068,7 @@ mod tests {
         };
 
         // Act
-        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+        let result = value.validate_if_collection();
 
         // Assert
         assert!(matches!(result, Ok(())))
@@ -2078,7 +2077,7 @@ mod tests {
     #[test]
     fn array_of_decimal_and_precise_decimal_validation_fails() {
         // Arrange
-        let value: Value = Value::Array {
+        let value = Value::Array {
             element_type: ValueKind::Decimal,
             elements: vec![
                 Value::Decimal { value: dec!("20") },
@@ -2093,10 +2092,10 @@ mod tests {
         };
 
         // Act
-        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+        let result = value.validate_if_collection();
 
         // Assert
-        let _expected_types: Vec<ValueKind> = vec![ValueKind::Decimal];
+        let _expected_types = vec![ValueKind::Decimal];
         assert!(matches!(
             result,
             Err(crate::error::Error::InvalidType {
@@ -2109,7 +2108,7 @@ mod tests {
     #[test]
     fn validation_of_deeply_nested_tuple_with_non_matching_types_fails() {
         // Arrange
-        let value: Value = Value::Tuple {
+        let value = Value::Tuple {
             elements: vec![
                 Value::Decimal { value: dec!("10") },
                 Value::PreciseDecimal { value: pdec!("10") },
@@ -2160,7 +2159,7 @@ mod tests {
         };
 
         // Act
-        let result: Result<(), crate::error::Error> = value.validate_if_collection();
+        let result = value.validate_if_collection();
 
         // Assert
         assert!(matches!(result, Err(_)))

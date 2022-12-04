@@ -14,7 +14,7 @@ pub struct Bech32Manager {
 
 impl Bech32Manager {
     pub fn new(network_id: u8) -> Self {
-        let network_definition: NetworkDefinition = network_definition_from_network_id(network_id);
+        let network_definition = network_definition_from_network_id(network_id);
         Self {
             network_definition: network_definition.clone(),
             encoder: Bech32Encoder::new(&network_definition),

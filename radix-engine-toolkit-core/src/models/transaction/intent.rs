@@ -29,9 +29,9 @@ impl TryInto<NativeTransactionIntent> for TransactionIntent {
     type Error = Error;
 
     fn try_into(self) -> Result<NativeTransactionIntent, Self::Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
+        let bech32_manager = Bech32Manager::new(self.header.network_id);
 
-        let transaction_intent: NativeTransactionIntent = NativeTransactionIntent {
+        let transaction_intent = NativeTransactionIntent {
             header: self.header.into(),
             manifest: self.manifest.try_into_with_context(&bech32_manager)?,
         };
@@ -46,9 +46,9 @@ impl TryIntoWithContext<TransactionIntent, ManifestInstructionsKind> for NativeT
         self,
         manifest_output_format: ManifestInstructionsKind,
     ) -> Result<TransactionIntent, Self::Error> {
-        let bech32_manager: Bech32Manager = Bech32Manager::new(self.header.network_id);
+        let bech32_manager = Bech32Manager::new(self.header.network_id);
 
-        let transaction_intent: TransactionIntent = TransactionIntent {
+        let transaction_intent = TransactionIntent {
             header: self.header.into(),
             manifest: self
                 .manifest
@@ -68,7 +68,7 @@ impl CompilableIntent for TransactionIntent {
         let transaction_intent: NativeTransactionIntent = self.clone().try_into()?;
 
         // Compile the native transaction intent
-        Ok(scrypto_encode(&transaction_intent).expect("Failed to encode trusted payload"))
+        Ok(scrypto_encode(&transaction_intent)?)
     }
 
     fn decompile<T>(
@@ -80,8 +80,8 @@ impl CompilableIntent for TransactionIntent {
         T: AsRef<[u8]>,
     {
         // Decompile to a native transaction intent
-        let data: &[u8] = data.as_ref();
-        let transaction_intent: NativeTransactionIntent = scrypto_decode(data)?;
+        let data = data.as_ref();
+        let transaction_intent = scrypto_decode::<NativeTransactionIntent>(data)?;
 
         // Convert to this type
         transaction_intent.try_into_with_context(output_manifest_format)

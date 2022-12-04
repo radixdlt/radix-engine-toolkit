@@ -47,7 +47,7 @@ impl<'r> Request<'r, CompileSignedTransactionIntentResponse>
     for CompileSignedTransactionIntentRequest
 {
     fn handle_request(self) -> Result<CompileSignedTransactionIntentResponse, Error> {
-        let compiled_signed_intent: Vec<u8> = self.signed_intent.compile()?;
+        let compiled_signed_intent = self.signed_intent.compile()?;
 
         Ok(CompileSignedTransactionIntentResponse {
             compiled_signed_intent,
