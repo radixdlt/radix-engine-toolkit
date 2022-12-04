@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::model::serde::ValueSerializationProxy;
+use crate::model::helper::ValueSerializationProxy;
 use crate::model::NetworkAwareComponentAddress;
 use crate::traits::{Request, Validate};
 

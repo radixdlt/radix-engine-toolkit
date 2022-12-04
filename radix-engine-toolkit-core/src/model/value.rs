@@ -155,7 +155,7 @@ pub enum Value {
     },
     NonFungibleId {
         #[serde(flatten)]
-        #[serde_as(as = "TryFromInto<crate::model::serde::NonFungibleIdData>")]
+        #[serde_as(as = "TryFromInto<crate::model::helper::NonFungibleIdProxy>")]
         value: NonFungibleId,
     },
     NonFungibleAddress {
