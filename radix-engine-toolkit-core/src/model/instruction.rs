@@ -8,9 +8,9 @@ use std::collections::HashSet;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::re_node::*;
-use crate::models::value::*;
-use crate::models::NetworkAwareComponentAddress;
+use crate::model::re_node::*;
+use crate::model::value::*;
+use crate::model::NetworkAwareComponentAddress;
 use crate::traits::ValidateWithContext;
 
 #[serde_as]

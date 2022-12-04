@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::manifest_instructions::ManifestInstructionsKind;
-use crate::models::TransactionManifest;
+use crate::model::manifest_instructions::ManifestInstructionsKind;
+use crate::model::TransactionManifest;
 use crate::traits::{Request, Validate, ValidateWithContext};
 
 // ==========================
@@ -86,8 +86,8 @@ impl<'r> Request<'r, ConvertManifestResponse> for ConvertManifestRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::serde::NetworkAwarePackageAddress;
-    use crate::models::{Instruction, TransactionManifest, Value};
+    use crate::model::serde::NetworkAwarePackageAddress;
+    use crate::model::{Instruction, TransactionManifest, Value};
     use scrypto::prelude::PackageAddress;
 
     #[test]
@@ -113,9 +113,9 @@ mod tests {
         let request = ConvertManifestRequest {
             transaction_version: 0x01,
             network_id,
-            manifest_instructions_output_format: crate::models::ManifestInstructionsKind::String,
+            manifest_instructions_output_format: crate::model::ManifestInstructionsKind::String,
             manifest: TransactionManifest {
-                instructions: crate::models::ManifestInstructions::JSON(manifest_instructions),
+                instructions: crate::model::ManifestInstructions::JSON(manifest_instructions),
                 blobs: vec![],
             },
         };

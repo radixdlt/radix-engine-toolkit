@@ -8,7 +8,7 @@ use serde_with::serde_as;
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::{ManifestInstructions, ManifestInstructionsKind};
+use crate::model::{ManifestInstructions, ManifestInstructionsKind};
 use crate::traits::{TryIntoWithContext, ValidateWithContext};
 
 // =================

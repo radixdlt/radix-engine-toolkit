@@ -2,7 +2,7 @@ use bech32;
 use radix_transaction::validation::ValidationConfig;
 use scrypto::radix_engine_interface::{address::AddressError, core::NetworkDefinition};
 
-use crate::models::TransactionHeader;
+use crate::model::TransactionHeader;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented with reference to
 /// https://github.com/radixdlt/babylon-node/blob/51e4fb9dbb999b8e02aa6cce07162aef2affd6a7/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99

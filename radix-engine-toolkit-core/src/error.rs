@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::models::{value::ValueKind, RENodeKind};
+use crate::model::{value::ValueKind, RENodeKind};
 use serde::{Deserialize, Serialize};
 
 /// Represents an error encountered by the operations of the crate.
@@ -66,9 +66,9 @@ pub enum Error {
         found_child_kind: ValueKind,
     },
 
-    /// An error emitted during the conversion of [`crate::models::RENode`] into the AST's native
+    /// An error emitted during the conversion of [`crate::model::RENode`] into the AST's native
     /// type. This error signals that unexpected contents were found when parsing the contents of
-    /// RENode. For example, for the case where we are parsing a [`crate::models::RENode::Bucket`],
+    /// RENode. For example, for the case where we are parsing a [`crate::model::RENode::Bucket`],
     /// we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a
     /// [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we
     /// encounter anything else that is not the types we expect, then this error is emitted.

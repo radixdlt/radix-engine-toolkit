@@ -1,4 +1,4 @@
-use radix_engine_toolkit_core::models::TransactionManifest;
+use radix_engine_toolkit_core::model::TransactionManifest;
 use radix_engine_toolkit_core::requests::ConvertManifestRequest;
 use radix_engine_toolkit_core::traits::Request;
 
@@ -33,9 +33,9 @@ pub fn basic_manifest_conversion_succeeds() {
             transaction_version: 0x01,
             network_id: 0xF2,
             manifest_instructions_output_format:
-                radix_engine_toolkit_core::models::ManifestInstructionsKind::JSON,
+                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
             manifest: TransactionManifest {
-                instructions: radix_engine_toolkit_core::models::ManifestInstructions::String(
+                instructions: radix_engine_toolkit_core::model::ManifestInstructions::String(
                     x.0.clone(),
                 ),
                 blobs: x.1.clone(),

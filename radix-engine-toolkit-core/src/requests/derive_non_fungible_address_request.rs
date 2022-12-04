@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::models::serde::{NetworkAwareResourceAddress, ValueSerializationProxy};
+use crate::model::serde::{NetworkAwareResourceAddress, ValueSerializationProxy};
 use crate::traits::{Request, Validate};
 
 use scrypto::prelude::{NonFungibleAddress, NonFungibleId};

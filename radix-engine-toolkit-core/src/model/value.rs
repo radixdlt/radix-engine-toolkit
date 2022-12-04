@@ -12,10 +12,10 @@ use scrypto::prelude::{
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, TryFromInto};
 
-use crate::models::identifier::{Identifier, BucketId, ProofId};
+use crate::model::identifier::{Identifier, BucketId, ProofId};
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::serde::*;
+use crate::model::serde::*;
 use crate::traits::ValidateWithContext;
 
 // ======
@@ -154,7 +154,7 @@ pub enum Value {
     },
     NonFungibleId {
         #[serde(flatten)]
-        #[serde_as(as = "TryFromInto<crate::models::serde::NonFungibleIdData>")]
+        #[serde_as(as = "TryFromInto<crate::model::serde::NonFungibleIdData>")]
         value: NonFungibleId,
     },
     NonFungibleAddress {
@@ -1660,7 +1660,7 @@ mod tests {
         radix_engine_interface::{address::Bech32Decoder, core::NetworkDefinition},
     };
 
-    use crate::models::serde::{
+    use crate::model::serde::{
         NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
     };
 
@@ -1886,7 +1886,7 @@ mod tests {
                         value: dec!("192.38")
                     },
                     Value::Bucket {
-                        identifier: crate::models::identifier::Identifier::String("my_xrd_bucket".into()).into()
+                        identifier: crate::model::identifier::Identifier::String("my_xrd_bucket".into()).into()
                     }
                 ]
             }
@@ -1984,7 +1984,7 @@ mod tests {
             }
             "#,
             Value::Bucket {
-                identifier: crate::models::identifier::Identifier::U32(192).into()
+                identifier: crate::model::identifier::Identifier::U32(192).into()
             }
         };
         test_value! {
@@ -1995,7 +1995,7 @@ mod tests {
             }
             "#,
             Value::Bucket {
-                identifier: crate::models::identifier::Identifier::String("HelloBucket".into()).into()
+                identifier: crate::model::identifier::Identifier::String("HelloBucket".into()).into()
             }
         };
 
@@ -2007,7 +2007,7 @@ mod tests {
             }
             "#,
             Value::Proof {
-                identifier: crate::models::identifier::Identifier::U32(192).into()
+                identifier: crate::model::identifier::Identifier::U32(192).into()
             }
         };
         test_value! {
@@ -2018,7 +2018,7 @@ mod tests {
             }
             "#,
             Value::Proof {
-                identifier: crate::models::identifier::Identifier::String("HelloProof".into()).into()
+                identifier: crate::model::identifier::Identifier::String("HelloProof".into()).into()
             }
         };
     }

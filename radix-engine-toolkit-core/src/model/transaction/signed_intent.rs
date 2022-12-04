@@ -5,8 +5,8 @@ use scrypto::prelude::{scrypto_decode, scrypto_encode, SignatureWithPublicKey};
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
-use crate::models::transaction::TransactionIntent;
-use crate::models::ManifestInstructionsKind;
+use crate::model::transaction::TransactionIntent;
+use crate::model::ManifestInstructionsKind;
 use crate::traits::{CompilableIntent, TryIntoWithContext, Validate, ValidateWithContext};
 use crate::utils::validation_config_from_header;
 

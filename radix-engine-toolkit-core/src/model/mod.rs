@@ -5,7 +5,7 @@ pub mod transaction;
 pub mod value;
 pub mod identifier;
 
-pub use crate::models::serde::*;
+pub use crate::model::serde::*;
 pub use instruction::*;
 pub use re_node::*;
 pub use transaction::*;

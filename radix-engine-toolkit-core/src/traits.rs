@@ -1,4 +1,4 @@
-use crate::{error::Error, models::ManifestInstructionsKind};
+use crate::{error::Error, model::ManifestInstructionsKind};
 use scrypto::prelude::{hash, Hash};
 use serde::{Deserialize, Serialize};
 

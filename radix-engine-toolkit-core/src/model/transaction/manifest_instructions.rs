@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
-use crate::models::Instruction;
+use crate::model::Instruction;
 use crate::traits::Validate;
 
 // ==================

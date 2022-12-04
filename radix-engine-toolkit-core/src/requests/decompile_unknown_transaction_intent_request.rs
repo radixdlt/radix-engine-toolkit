@@ -1,6 +1,6 @@
 use crate::error::Error;
 
-use crate::models::manifest_instructions::ManifestInstructionsKind;
+use crate::model::manifest_instructions::ManifestInstructionsKind;
 use crate::requests::*;
 use crate::traits::{Request, Validate};
 use serde::{Deserialize, Serialize};

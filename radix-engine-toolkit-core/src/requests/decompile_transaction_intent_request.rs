@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::error::Error;
-use crate::models::manifest_instructions::ManifestInstructionsKind;
-use crate::models::TransactionIntent;
+use crate::model::manifest_instructions::ManifestInstructionsKind;
+use crate::model::TransactionIntent;
 use crate::traits::{CompilableIntent, Request, Validate};
 
 // ==========================

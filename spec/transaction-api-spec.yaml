@@ -2206,7 +2206,7 @@ components:
           $ref: "#/components/schemas/ValueKind"
     UnexpectedReNodeContents:
       type: object
-      description: An error emitted during the conversion of [`crate::models::RENode`] into the AST's native type. This error signals that unexpected contents were found when parsing the contents of RENode. For example, for the case where we are parsing a [`crate::models::RENode::Bucket`], we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we encounter anything else that is not the types we expect, then this error is emitted.
+      description: An error emitted during the conversion of [`crate::model::RENode`] into the AST's native type. This error signals that unexpected contents were found when parsing the contents of RENode. For example, for the case where we are parsing a [`crate::model::RENode::Bucket`], we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we encounter anything else that is not the types we expect, then this error is emitted.
       required:
         - error
         - kind_being_parsed

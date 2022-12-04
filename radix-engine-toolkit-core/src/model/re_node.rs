@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 use crate::error::Error;
-use crate::models::{Identifier, NodeId};
+use crate::model::{Identifier, NodeId};
 
 use super::ValueKind;
 
