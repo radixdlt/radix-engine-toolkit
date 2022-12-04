@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::error::Error;
-use crate::model::{Address, AddressKind};
+use crate::model::{EntityAddress, AddressKind};
 use crate::traits::{Request, Validate};
 use crate::utils::*;
 
@@ -27,7 +27,7 @@ pub struct DecodeAddressResponse {
     #[serde_as(as = "serde_with::hex::Hex")]
     pub data: Vec<u8>,
     pub hrp: String,
-    pub address: Address,
+    pub address: EntityAddress,
 }
 
 // ===========
@@ -63,7 +63,7 @@ impl<'r> Request<'r, DecodeAddressResponse> for DecodeAddressRequest {
             variant => Err(AddressError::InvalidVariant(variant)),
         }?;
 
-        let address = self.address.parse::<Address>()?;
+        let address = self.address.parse::<EntityAddress>()?;
         let network_definition = network_definition_from_network_id(address.network_id());
 
         Ok(DecodeAddressResponse {

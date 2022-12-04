@@ -6,13 +6,13 @@ use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
 
-pub struct Bech32Manager {
+pub struct Bech32Coder {
     pub network_definition: NetworkDefinition,
     pub encoder: Bech32Encoder,
     pub decoder: Bech32Decoder,
 }
 
-impl Bech32Manager {
+impl Bech32Coder {
     pub fn new(network_id: u8) -> Self {
         let network_definition = network_definition_from_network_id(network_id);
         Self {
@@ -35,8 +35,8 @@ impl Bech32Manager {
     }
 }
 
-impl AsRef<Bech32Manager> for Bech32Manager {
-    fn as_ref(&self) -> &Bech32Manager {
+impl AsRef<Bech32Coder> for Bech32Coder {
+    fn as_ref(&self) -> &Bech32Coder {
         self
     }
 }

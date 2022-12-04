@@ -4,8 +4,8 @@ use scrypto::prelude::{scrypto_decode, scrypto_encode};
 
 use serde::{Deserialize, Serialize};
 
-use crate::address::Bech32Manager;
 use crate::error::Error;
+use crate::model::address::Bech32Coder;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
 use crate::model::ManifestInstructionsKind;
 use crate::traits::{CompilableIntent, TryIntoWithContext, Validate, ValidateWithContext};
@@ -29,11 +29,11 @@ impl TryInto<NativeTransactionIntent> for TransactionIntent {
     type Error = Error;
 
     fn try_into(self) -> Result<NativeTransactionIntent, Self::Error> {
-        let bech32_manager = Bech32Manager::new(self.header.network_id);
+        let bech32_coder = Bech32Coder::new(self.header.network_id);
 
         let transaction_intent = NativeTransactionIntent {
             header: self.header.into(),
-            manifest: self.manifest.try_into_with_context(&bech32_manager)?,
+            manifest: self.manifest.try_into_with_context(&bech32_coder)?,
         };
         Ok(transaction_intent)
     }
@@ -46,13 +46,13 @@ impl TryIntoWithContext<TransactionIntent, ManifestInstructionsKind> for NativeT
         self,
         manifest_output_format: ManifestInstructionsKind,
     ) -> Result<TransactionIntent, Self::Error> {
-        let bech32_manager = Bech32Manager::new(self.header.network_id);
+        let bech32_coder = Bech32Coder::new(self.header.network_id);
 
         let transaction_intent = TransactionIntent {
             header: self.header.into(),
             manifest: self
                 .manifest
-                .try_into_with_context((manifest_output_format, &bech32_manager))?,
+                .try_into_with_context((manifest_output_format, &bech32_coder))?,
         };
         Ok(transaction_intent)
     }

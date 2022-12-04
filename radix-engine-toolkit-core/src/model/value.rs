@@ -12,9 +12,9 @@ use scrypto::prelude::{
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, TryFromInto};
 
-use crate::model::identifier::{Identifier, BucketId, ProofId};
-use crate::address::Bech32Manager;
 use crate::error::Error;
+use crate::model::address::*;
+use crate::model::identifier::{BucketId, Identifier, ProofId};
 use crate::model::serde::*;
 use crate::traits::ValidateWithContext;
 
@@ -290,10 +290,7 @@ impl Value {
     // Conversions
     // ============
 
-    pub fn from_ast_value(
-        ast_value: &AstValue,
-        bech32_manager: &Bech32Manager,
-    ) -> Result<Self, Error> {
+    pub fn from_ast_value(ast_value: &AstValue, bech32_coder: &Bech32Coder) -> Result<Self, Error> {
         let value = match ast_value {
             AstValue::Unit => Self::Unit,
             AstValue::Bool(value) => Self::Bool { value: *value },
@@ -319,7 +316,7 @@ impl Value {
                 fields: {
                     let fields = fields
                         .iter()
-                        .map(|v| Self::from_ast_value(v, bech32_manager))
+                        .map(|v| Self::from_ast_value(v, bech32_coder))
                         .collect::<Result<Vec<Value>, _>>()?;
                     match fields.len() {
                         0 => None,
@@ -332,13 +329,13 @@ impl Value {
                 element_type: (*ast_type).into(),
                 elements: elements
                     .iter()
-                    .map(|v| Self::from_ast_value(v, bech32_manager))
+                    .map(|v| Self::from_ast_value(v, bech32_coder))
                     .collect::<Result<Vec<Value>, _>>()?,
             },
             AstValue::Tuple(elements) => Self::Tuple {
                 elements: elements
                     .iter()
-                    .map(|v| Self::from_ast_value(v, bech32_manager))
+                    .map(|v| Self::from_ast_value(v, bech32_coder))
                     .collect::<Result<Vec<Value>, _>>()?,
             },
 
@@ -386,8 +383,8 @@ impl Value {
                 if let AstValue::String(value) = &**value {
                     Self::PackageAddress {
                         address: NetworkAwarePackageAddress {
-                            network_id: bech32_manager.network_id(),
-                            address: bech32_manager
+                            network_id: bech32_coder.network_id(),
+                            address: bech32_coder
                                 .decoder
                                 .validate_and_decode_package_address(value)?,
                         },
@@ -404,8 +401,8 @@ impl Value {
                 if let AstValue::String(value) = &**value {
                     Self::ComponentAddress {
                         address: NetworkAwareComponentAddress {
-                            network_id: bech32_manager.network_id(),
-                            address: bech32_manager
+                            network_id: bech32_coder.network_id(),
+                            address: bech32_coder
                                 .decoder
                                 .validate_and_decode_component_address(value)?,
                         },
@@ -422,8 +419,8 @@ impl Value {
                 if let AstValue::String(value) = &**value {
                     Self::ResourceAddress {
                         address: NetworkAwareResourceAddress {
-                            network_id: bech32_manager.network_id(),
-                            address: bech32_manager
+                            network_id: bech32_coder.network_id(),
+                            address: bech32_coder
                                 .decoder
                                 .validate_and_decode_resource_address(value)?,
                         },
@@ -440,8 +437,8 @@ impl Value {
                 if let AstValue::String(value) = &**value {
                     Self::SystemAddress {
                         address: NetworkAwareSystemAddress {
-                            network_id: bech32_manager.network_id(),
-                            address: bech32_manager
+                            network_id: bech32_coder.network_id(),
+                            address: bech32_coder
                                 .decoder
                                 .validate_and_decode_system_address(value)?,
                         },
@@ -640,7 +637,7 @@ impl Value {
         Ok(value)
     }
 
-    pub fn to_ast_value(&self, bech32_manager: &Bech32Manager) -> Result<AstValue, Error> {
+    pub fn to_ast_value(&self, bech32_coder: &Bech32Coder) -> Result<AstValue, Error> {
         let ast_value = match self {
             Value::Unit => AstValue::Unit,
             Value::Bool { value } => AstValue::Bool(*value),
@@ -665,7 +662,7 @@ impl Value {
                     .clone()
                     .unwrap_or_default()
                     .iter()
-                    .map(|v| v.to_ast_value(bech32_manager))
+                    .map(|v| v.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             ),
 
@@ -678,14 +675,14 @@ impl Value {
                     (*element_type).into(),
                     elements
                         .iter()
-                        .map(|id| id.to_ast_value(bech32_manager))
+                        .map(|id| id.to_ast_value(bech32_coder))
                         .collect::<Result<Vec<AstValue>, Error>>()?,
                 )
             }
             Value::Tuple { elements } => AstValue::Tuple(
                 elements
                     .iter()
-                    .map(|v| v.to_ast_value(bech32_manager))
+                    .map(|v| v.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             ),
 
@@ -698,28 +695,28 @@ impl Value {
 
             Value::PackageAddress { address: value } => {
                 AstValue::PackageAddress(Box::new(AstValue::String(
-                    bech32_manager
+                    bech32_coder
                         .encoder
                         .encode_package_address_to_string(&value.address),
                 )))
             }
             Value::ComponentAddress { address: value } => {
                 AstValue::ComponentAddress(Box::new(AstValue::String(
-                    bech32_manager
+                    bech32_coder
                         .encoder
                         .encode_component_address_to_string(&value.address),
                 )))
             }
             Value::ResourceAddress { address: value } => {
                 AstValue::ResourceAddress(Box::new(AstValue::String(
-                    bech32_manager
+                    bech32_coder
                         .encoder
                         .encode_resource_address_to_string(&value.address),
                 )))
             }
             Value::SystemAddress { address: value } => {
                 AstValue::SystemAddress(Box::new(AstValue::String(
-                    bech32_manager
+                    bech32_coder
                         .encoder
                         .encode_system_address_to_string(&value.address),
                 )))
@@ -1660,11 +1657,8 @@ mod tests {
         radix_engine_interface::{address::Bech32Decoder, core::NetworkDefinition},
     };
 
-    use crate::model::serde::{
-        NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-    };
-
     use super::{Value, ValueKind};
+    use crate::model::address::*;
 
     macro_rules! test_value {
         ($string: expr, $value: expr) => {

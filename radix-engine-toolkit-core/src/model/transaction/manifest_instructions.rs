@@ -5,8 +5,8 @@ use radix_transaction::model::Instruction as TransactionInstruction;
 use scrypto::prelude::hash;
 use serde::{Deserialize, Serialize};
 
-use crate::address::Bech32Manager;
 use crate::error::Error;
+use crate::model::address::Bech32Coder;
 use crate::model::Instruction;
 use crate::traits::Validate;
 
@@ -35,8 +35,8 @@ pub enum ManifestInstructions {
 // ======================
 
 impl ManifestInstructions {
-    pub fn instructions(&self, bech32_manager: &Bech32Manager) -> Result<Vec<Instruction>, Error> {
-        let json_instructions = self.convert_to_json(bech32_manager)?;
+    pub fn instructions(&self, bech32_coder: &Bech32Coder) -> Result<Vec<Instruction>, Error> {
+        let json_instructions = self.convert_to_json(bech32_coder)?;
         if let ManifestInstructions::JSON(instructions) = json_instructions {
             Ok(instructions)
         } else {
@@ -46,7 +46,7 @@ impl ManifestInstructions {
 
     pub fn ast_instructions(
         &self,
-        bech32_manager: &Bech32Manager,
+        bech32_coder: &Bech32Coder,
     ) -> Result<Vec<AstInstruction>, Error> {
         match self {
             Self::String(string) => {
@@ -60,22 +60,22 @@ impl ManifestInstructions {
             }
             Self::JSON(instructions) => instructions
                 .iter()
-                .map(|instruction| instruction.to_ast_instruction(bech32_manager))
+                .map(|instruction| instruction.to_ast_instruction(bech32_coder))
                 .collect::<Result<Vec<_>, _>>(),
         }
     }
 
     pub fn transaction_instructions(
         &self,
-        bech32_manager: &Bech32Manager,
+        bech32_coder: &Bech32Coder,
         // TODO: This is a work around for a larger problem. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
     ) -> Result<Vec<TransactionInstruction>, Error> {
-        let instructions = self.ast_instructions(bech32_manager)?;
+        let instructions = self.ast_instructions(bech32_coder)?;
         let instructions = radix_transaction::manifest::generator::generate_manifest(
             &instructions,
-            &bech32_manager.decoder,
+            &bech32_coder.decoder,
             blobs.iter().map(|x| (hash(x), x.clone())).collect(),
         )?
         .instructions;
@@ -84,7 +84,7 @@ impl ManifestInstructions {
 
     pub fn convert_to_string(
         &self,
-        bech32_manager: &Bech32Manager,
+        bech32_coder: &Bech32Coder,
         // TODO: This is a work around for a larger problem. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
@@ -131,18 +131,18 @@ impl ManifestInstructions {
 
                 // Vec<Instruction> --> Vec<AstInstruction> --> Vec<TransactionInstruction>
                 // Conversion (based on above comment).
-                let instructions = self.transaction_instructions(bech32_manager, blobs)?;
+                let instructions = self.transaction_instructions(bech32_coder, blobs)?;
 
                 // Vec<TransactionInstruction> --> String Conversion (based on above comment)
                 Ok(Self::String(decompile(
                     &instructions,
-                    &bech32_manager.network_definition,
+                    &bech32_coder.network_definition,
                 )?))
             }
         }
     }
 
-    pub fn convert_to_json(&self, bech32_manager: &Bech32Manager) -> Result<Self, Error> {
+    pub fn convert_to_json(&self, bech32_coder: &Bech32Coder) -> Result<Self, Error> {
         match self {
             Self::JSON(_) => Ok(self.clone()),
             Self::String(_) => {
@@ -158,12 +158,10 @@ impl ManifestInstructions {
                 // Similar to the previous point and previous comment on this, we will need to look
                 // into long term solutions for this to break away from the limitations of relying
                 // on the Scrypto toolchain for operations like this.
-                let ast_instruction = self.ast_instructions(bech32_manager)?;
+                let ast_instruction = self.ast_instructions(bech32_coder)?;
                 let instructions = ast_instruction
                     .iter()
-                    .map(|instruction| {
-                        Instruction::from_ast_instruction(instruction, bech32_manager)
-                    })
+                    .map(|instruction| Instruction::from_ast_instruction(instruction, bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?;
                 Ok(Self::JSON(instructions))
             }
@@ -173,14 +171,14 @@ impl ManifestInstructions {
     pub fn convert_to_manifest_instructions_kind(
         &self,
         manifest_instructions_kind: ManifestInstructionsKind,
-        bech32_manager: &Bech32Manager,
+        bech32_coder: &Bech32Coder,
         // TODO: This is a work around for a larger problem. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
     ) -> Result<Self, Error> {
         match manifest_instructions_kind {
-            ManifestInstructionsKind::String => self.convert_to_string(bech32_manager, blobs),
-            ManifestInstructionsKind::JSON => self.convert_to_json(bech32_manager),
+            ManifestInstructionsKind::String => self.convert_to_string(bech32_coder, blobs),
+            ManifestInstructionsKind::JSON => self.convert_to_json(bech32_coder),
         }
     }
 }

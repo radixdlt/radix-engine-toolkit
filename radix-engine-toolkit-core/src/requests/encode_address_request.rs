@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::model::Address;
+use crate::model::EntityAddress;
 use crate::traits::{Request, Validate};
 
 use serde::{Deserialize, Serialize};
@@ -21,7 +21,7 @@ pub struct EncodeAddressRequest {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressResponse {
     #[serde(flatten)]
-    address: Address,
+    address: EntityAddress,
 }
 
 // ===========
@@ -47,7 +47,7 @@ impl Validate for EncodeAddressResponse {
 impl<'r> Request<'r, EncodeAddressResponse> for EncodeAddressRequest {
     fn handle_request(self) -> Result<EncodeAddressResponse, Error> {
         let address = &self.address_bytes;
-        let address = Address::from_u8_array(address, self.network_id)?;
+        let address = EntityAddress::from_u8_array(address, self.network_id)?;
 
         Ok(EncodeAddressResponse { address })
     }
