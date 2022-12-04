@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use scrypto::prelude::scrypto_decode;
