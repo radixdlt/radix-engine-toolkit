@@ -859,7 +859,7 @@ impl ValidateWithContext<u8> for Instruction {
                 abi,
                 owner_badge,
             } => {
-                owner_badge.validate((network_id, Some(ValueKind::Blob)))?;
+                owner_badge.validate((network_id, Some(ValueKind::NonFungibleAddress)))?;
                 code.validate((network_id, Some(ValueKind::Blob)))?;
                 abi.validate((network_id, Some(ValueKind::Blob)))?;
                 Ok(())

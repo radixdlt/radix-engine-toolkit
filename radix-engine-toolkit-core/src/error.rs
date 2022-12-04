@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::models::{value::ValueKind, RENodeKind};
 use serde::{Deserialize, Serialize};
 
@@ -178,4 +180,10 @@ impl_from_error! {
     radix_transaction::manifest::generator::GeneratorError => GeneratorError,
     radix_transaction::errors::TransactionValidationError => TransactionValidationError,
     radix_transaction::errors::SignatureValidationError => TransactionValidationError,
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }

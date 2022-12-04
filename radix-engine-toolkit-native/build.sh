@@ -4,7 +4,7 @@ LIBRARY_NAME="lib$CRATE_NAME"
 LIBRARY_FILE_NAME="$LIBRARY_NAME.a"
 HEADER_FILE_NAME="$LIBRARY_NAME.h"
 
-CARGO_TARGETS="aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios x86_64-unknown-linux-gnu"
+CARGO_TARGETS="aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
 CROSS_TARGETS="x86_64-pc-windows-gnu x86_64-unknown-linux-gnu"
 
 # Building for the desired targets
@@ -21,17 +21,17 @@ do
         --release
 done
 
-for target in $CROSS_TARGETS
-do
-    echo "Building for target '$target'"
+# for target in $CROSS_TARGETS
+# do
+#     echo "Building for target '$target'"
 
-    cross +nightly build \
-        -Z build-std=std,panic_abort \
-        -Z build-std-features=panic_immediate_abort \
-        --target $target \
-        --target-dir ./target \
-        --release
-done
+#     cross +nightly build \
+#         -Z build-std=std,panic_abort \
+#         -Z build-std-features=panic_immediate_abort \
+#         --target $target \
+#         --target-dir ./target \
+#         --release
+# done
 
 # Creating a C-header and copying it to the directory of all of our build targets
 echo "Generating the C Header"
@@ -63,7 +63,7 @@ echo "Creating fat libraries"
 )
 
 echo "Creating the include directory"
-mkdir include
+mkdir ./include
 mv $HEADER_FILE_NAME include
 echo "module RadixEngineToolkit {
     umbrella header \"$HEADER_FILE_NAME\"
@@ -73,19 +73,17 @@ echo "module RadixEngineToolkit {
 echo "Copying the include dir to the targets"
 for target in "$CARGO_TARGETS $CROSS_TARGETS"
 do
-    cp -r include ./target/$target/release
+    cp -r ./include ./target/$target/release
 done
 cp -r include ./target/macos-arm64_x86_64
 cp -r include ./target/ios-simulator-arm64_x86_64
 
-rm -rf include
-
 mkdir target/iOS
 xcodebuild -create-xcframework \
     -library target/aarch64-apple-ios/release/$LIBRARY_FILE_NAME \
-    -headers target/aarch64-apple-ios/release/include \
     -library target/ios-simulator-arm64_x86_64/$LIBRARY_FILE_NAME \
-    -headers target/ios-simulator-arm64_x86_64/include \
     -library target/macos-arm64_x86_64/$LIBRARY_FILE_NAME \
-    -headers target/macos-arm64_x86_64/include \
+    -headers ./include \
     -output target/iOS/RadixEngineToolkit.xcframework
+
+rm -rf include

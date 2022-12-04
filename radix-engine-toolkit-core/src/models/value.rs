@@ -10,7 +10,7 @@ use scrypto::prelude::{
     NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
 };
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as, DisplayFromStr, TryFromInto};
 
 use crate::address::Bech32Manager;
 use crate::error::Error;
@@ -152,7 +152,8 @@ pub enum Value {
         identifier: NodeId,
     },
     NonFungibleId {
-        #[serde_as(as = "DisplayFromStr")]
+        #[serde(flatten)]
+        #[serde_as(as = "TryFromInto<crate::models::serde::NonFungibleIdData>")]
         value: NonFungibleId,
     },
     NonFungibleAddress {
