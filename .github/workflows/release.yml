@@ -27,7 +27,11 @@ jobs:
           rustup target install wasm32-unknown-unknown
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
           cargo install --force cbindgen cross
-          brew install llvm docker
-          export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
-          export CC="/opt/homebrew/opt/llvm/bin/clang"
-          ./build.sh radix-engine-toolkit-${{ matrix.target }}
+          whereis clang
+          pwd
+          ls
+          ls /opt/homebrew/opt
+#          brew install llvm docker
+#          export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
+#          export CC="/opt/homebrew/opt/llvm/bin/clang"
+#          ./build.sh radix-engine-toolkit-${{ matrix.target }}
