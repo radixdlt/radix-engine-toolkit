@@ -37,6 +37,7 @@ jobs:
       - name: Install rust packages
         run: |
           rustup target add wasm32-unknown-unknown x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim
+          rustup target install wasm32-unknown-unknown
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
           cargo install --force cbindgen cross
 
@@ -50,6 +51,8 @@ jobs:
       - if: always()
         name: Build ${{ matrix.target }}
         run: |
+          export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
+          export CC="/opt/homebrew/opt/llvm/bin/clang"
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
 
 #      - name: Build
