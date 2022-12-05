@@ -32,8 +32,8 @@ jobs:
 #            target/
 #          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 #          restore-keys: ${{ runner.os }}-cargo-
-
 #      - if: ${{ steps.cache-rust.outputs.cache-hit != 'true' }}
+
       - if: always()
         name: Build ${{ matrix.target }}
 #      - name: Install rust packages
