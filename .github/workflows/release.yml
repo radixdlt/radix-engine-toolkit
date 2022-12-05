@@ -19,20 +19,6 @@ jobs:
         with:
           toolchain: nightly
           default: true
-          override: true
-
-#      - name: Set up cargo cache
-#        id: cache-rust
-#        uses: actions/cache@v3
-#        continue-on-error: false
-#        with:
-#          path: |
-#            ~/.cargo/
-#            ~/.rustup/
-#            target/
-#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-#          restore-keys: ${{ runner.os }}-cargo-
-#      - if: ${{ steps.cache-rust.outputs.cache-hit != 'true' }}
 
       - if: always()
         name: Build ${{ matrix.target }}
