@@ -24,7 +24,8 @@ rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 
 # This is a list of all of all of the crates that we would like to build. 
-CRATES_TO_BUILD="radix-engine-toolkit-native radix-engine-toolkit-wasm radix-engine-toolkit-jni"
+#CRATES_TO_BUILD="radix-engine-toolkit-native radix-engine-toolkit-wasm radix-engine-toolkit-jni"
+CRATES_TO_BUILD="radix-engine-toolkit-wasm"
 for CRATE_NAME in $CRATES_TO_BUILD
 do
     CRATE_DIR="$SCRIPT_DIR/$CRATE_NAME"
