@@ -35,7 +35,7 @@ jobs:
 
       #- if: ${{ steps.cache-rust.outputs.cache-hit != 'true' }}
       - if: always()
-      - name: Build ${{ matrix.target }}
+        name: Build ${{ matrix.target }}
 #      - name: Install rust packages
         run: |
           rustup target add wasm32-unknown-unknown x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim
