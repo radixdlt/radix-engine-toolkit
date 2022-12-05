@@ -98,6 +98,7 @@ pub fn network_id_from_hrp(hrp: &str) -> Result<u8, AddressError> {
     let network_id = match network_specifier.as_str() {
         "rdx" => NetworkDefinition::mainnet().id,
         "sim" => NetworkDefinition::simulator().id,
+        "loc" => 0xF0,
         numeric_network_specifier => {
             match numeric_network_specifier.split('_').nth(1) {
                 Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
@@ -119,91 +120,4 @@ pub fn network_id_from_address_string(address: &str) -> Result<u8, AddressError>
 
 pub fn validation_config_from_header(transaction_header: &TransactionHeader) -> ValidationConfig {
     ValidationConfig::default(transaction_header.network_id)
-}
-
-#[cfg(test)]
-mod tests {
-    use scrypto::radix_engine_interface::core::NetworkDefinition;
-
-    use crate::utils::network_id_from_address_string;
-
-    use super::network_id_from_hrp;
-
-    #[test]
-    fn mainnet_hrp_to_network_id_succeeds() {
-        // Arrange
-        let hrp = "resource_rdx";
-        let expected_network_id = NetworkDefinition::mainnet().id;
-
-        // Act
-        let network_id = network_id_from_hrp(hrp);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
-
-    #[test]
-    fn simulator_hrp_to_network_id_succeeds() {
-        // Arrange
-        let hrp = "resource_sim";
-        let expected_network_id = NetworkDefinition::simulator().id;
-
-        // Act
-        let network_id = network_id_from_hrp(hrp);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
-
-    #[test]
-    fn numeric_test_network_hrp_to_network_id_succeeds() {
-        // Arrange
-        let hrp = "resource_tdx_a0_";
-        let expected_network_id = 0xA0;
-
-        // Act
-        let network_id = network_id_from_hrp(hrp);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
-
-    #[test]
-    fn mainnet_address_to_network_id_succeeds() {
-        // Arrange
-        let address = "resource_rdx1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsgwqv9z";
-        let expected_network_id = NetworkDefinition::mainnet().id;
-
-        // Act
-        let network_id = network_id_from_address_string(address);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
-
-    #[test]
-    fn simulator_address_to_network_id_succeeds() {
-        // Arrange
-        let address = "component_sim1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsyml02z";
-        let expected_network_id = NetworkDefinition::simulator().id;
-
-        // Act
-        let network_id = network_id_from_address_string(address);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
-
-    #[test]
-    fn numeric_test_network_address_to_network_id_succeeds() {
-        // Arrange
-        let address = "validator_tdx_a0_1qd86hmk89j4q8nayxe28krxv7jfd3zu5p663nrzzqsw5xdp6";
-        let expected_network_id = 0xA0;
-
-        // Act
-        let network_id = network_id_from_address_string(address);
-
-        // Assert
-        assert_eq!(Ok(expected_network_id), network_id);
-    }
 }

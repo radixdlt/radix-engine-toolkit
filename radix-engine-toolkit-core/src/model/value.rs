@@ -24,17 +24,17 @@ use scrypto::data::ScryptoCustomTypeId;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
     EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Expression, Hash,
-    NonFungibleAddress, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
+    NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
 };
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr, TryFromInto};
+use serde_with::{serde_as, DisplayFromStr, FromInto};
 
 use crate::error::Error;
 use crate::model::address::*;
 use crate::model::identifier::{BucketId, Identifier, ProofId};
 use crate::traits::ValidateWithContext;
 
-use super::NodeIdentifier;
+use super::{NodeIdentifier, NonFungibleAddress};
 
 // ======
 // Value
@@ -172,11 +172,10 @@ pub enum Value {
     },
     NonFungibleId {
         #[serde(flatten)]
-        #[serde_as(as = "TryFromInto<crate::model::helper::NonFungibleIdProxy>")]
+        #[serde_as(as = "FromInto<crate::model::helper::NonFungibleIdProxy>")]
         value: NonFungibleId,
     },
     NonFungibleAddress {
-        #[serde_as(as = "DisplayFromStr")]
         address: NonFungibleAddress,
     },
 
@@ -187,6 +186,10 @@ pub enum Value {
     Expression {
         #[serde_as(as = "DisplayFromStr")]
         value: Expression,
+    },
+    Bytes {
+        #[serde_as(as = "serde_with::hex::Hex")]
+        value: Vec<u8>,
     },
 }
 
@@ -242,6 +245,7 @@ impl Value {
 
             Self::Blob { .. } => ValueKind::Blob,
             Self::Expression { .. } => ValueKind::Expression,
+            Self::Bytes { .. } => ValueKind::Bytes,
         }
     }
 
@@ -519,30 +523,92 @@ impl Value {
                 }
             }
 
-            AstValue::NonFungibleId(value) => {
-                if let AstValue::String(value) = &**value {
-                    Self::NonFungibleId {
-                        value: value.parse()?,
+            AstValue::NonFungibleId(value) => Self::NonFungibleId {
+                value: match &**value {
+                    AstValue::U32(value) => NonFungibleId::U32(*value),
+                    AstValue::U64(value) => NonFungibleId::U64(*value),
+                    AstValue::U128(value) => NonFungibleId::UUID(*value),
+                    AstValue::String(value) => NonFungibleId::String(value.clone()),
+                    AstValue::Bytes(value) => {
+                        if let AstValue::String(value) = &**value {
+                            NonFungibleId::Bytes(hex::decode(value)?)
+                        } else {
+                            Err(Error::UnexpectedContents {
+                                kind_being_parsed: ValueKind::NonFungibleId,
+                                allowed_children_kinds: vec![ValueKind::String],
+                                found_child_kind: value.kind().into(),
+                            })?
+                        }
                     }
-                } else {
-                    Err(Error::UnexpectedContents {
+                    _ => Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::NonFungibleId,
-                        allowed_children_kinds: vec![ValueKind::String],
+                        allowed_children_kinds: vec![
+                            ValueKind::U32,
+                            ValueKind::U64,
+                            ValueKind::U128,
+                            ValueKind::String,
+                            ValueKind::Bytes,
+                        ],
                         found_child_kind: value.kind().into(),
-                    })?
-                }
-            }
+                    })?,
+                },
+            },
             AstValue::NonFungibleAddress(value) => {
-                if let AstValue::String(value) = &**value {
-                    Self::NonFungibleAddress {
-                        address: value.parse()?,
+                let resource_address = value[0].clone();
+                let non_fungible_id = value[1].clone();
+
+                let resource_address = if let AstValue::String(address_string) = resource_address {
+                    let address = bech32_coder
+                        .decoder
+                        .validate_and_decode_resource_address(&address_string)?;
+                    NetworkAwareResourceAddress {
+                        network_id: bech32_coder.network_id(),
+                        address,
                     }
                 } else {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::NonFungibleAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: resource_address.kind().into(),
                     })?
+                };
+
+                // TODO: de-duplicate. Refactor out
+                let non_fungible_id = match non_fungible_id {
+                    AstValue::U32(value) => NonFungibleId::U32(value),
+                    AstValue::U64(value) => NonFungibleId::U64(value),
+                    AstValue::U128(value) => NonFungibleId::UUID(value),
+                    AstValue::String(value) => NonFungibleId::String(value),
+                    AstValue::Bytes(value) => {
+                        if let AstValue::String(value) = *value {
+                            NonFungibleId::Bytes(hex::decode(value)?)
+                        } else {
+                            Err(Error::UnexpectedContents {
+                                kind_being_parsed: ValueKind::NonFungibleAddress,
+                                allowed_children_kinds: vec![ValueKind::String],
+                                found_child_kind: value.kind().into(),
+                            })?
+                        }
+                    }
+                    value => Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::NonFungibleAddress,
+                        allowed_children_kinds: vec![
+                            ValueKind::U32,
+                            ValueKind::U64,
+                            ValueKind::U128,
+                            ValueKind::String,
+                            ValueKind::Bytes,
+                        ],
+                        found_child_kind: value.kind().into(),
+                    })?,
+                };
+
+                let non_fungible_address = NonFungibleAddress {
+                    resource_address,
+                    non_fungible_id,
+                };
+                Value::NonFungibleAddress {
+                    address: non_fungible_address,
                 }
             }
 
@@ -651,6 +717,19 @@ impl Value {
                     })?
                 }
             }
+            AstValue::Bytes(value) => {
+                if let AstValue::String(value) = &**value {
+                    Self::Bytes {
+                        value: hex::decode(value)?,
+                    }
+                } else {
+                    Err(Error::UnexpectedContents {
+                        kind_being_parsed: ValueKind::Bytes,
+                        allowed_children_kinds: vec![ValueKind::String],
+                        found_child_kind: value.kind().into(),
+                    })?
+                }
+            }
         };
         Ok(value)
     }
@@ -750,11 +829,30 @@ impl Value {
                 Identifier::U32(number) => AstValue::U32(number),
             })),
 
-            Value::NonFungibleId { value } => {
-                AstValue::NonFungibleId(Box::new(AstValue::String(value.to_string())))
-            }
+            Value::NonFungibleId { value } => AstValue::NonFungibleId(Box::new(match value {
+                NonFungibleId::U32(value) => AstValue::U32(*value),
+                NonFungibleId::U64(value) => AstValue::U64(*value),
+                NonFungibleId::UUID(value) => AstValue::U128(*value),
+                NonFungibleId::String(ref value) => AstValue::String(value.clone()),
+                NonFungibleId::Bytes(ref value) => {
+                    AstValue::Bytes(Box::new(AstValue::String(hex::encode(value))))
+                }
+            })),
             Value::NonFungibleAddress { address } => {
-                AstValue::NonFungibleAddress(Box::new(AstValue::String(address.to_string())))
+                let resource_address_string = address.resource_address.to_string();
+                let resource_address = AstValue::String(resource_address_string);
+
+                let non_fungible_id = match address.non_fungible_id {
+                    NonFungibleId::U32(value) => AstValue::U32(value),
+                    NonFungibleId::U64(value) => AstValue::U64(value),
+                    NonFungibleId::UUID(value) => AstValue::U128(value),
+                    NonFungibleId::String(ref value) => AstValue::String(value.clone()),
+                    NonFungibleId::Bytes(ref value) => {
+                        AstValue::Bytes(Box::new(AstValue::String(hex::encode(value))))
+                    }
+                };
+
+                AstValue::NonFungibleAddress(vec![resource_address, non_fungible_id])
             }
 
             Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
@@ -784,6 +882,9 @@ impl Value {
             }
             Value::EddsaEd25519Signature { signature } => {
                 AstValue::EddsaEd25519Signature(Box::new(AstValue::String(signature.to_string())))
+            }
+            Value::Bytes { value } => {
+                AstValue::Bytes(Box::new(AstValue::String(hex::encode(value))))
             }
         };
         Ok(ast_value)
@@ -912,7 +1013,7 @@ impl Value {
                 value: ScryptoCustomValue::NonFungibleId(value.clone()),
             },
             Value::NonFungibleAddress { address } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::NonFungibleAddress(address.clone()),
+                value: ScryptoCustomValue::NonFungibleAddress(address.clone().into()),
             },
 
             Value::Blob { hash } => ScryptoValue::Custom {
@@ -920,6 +1021,14 @@ impl Value {
             },
             Value::Expression { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::Expression(value.clone()),
+            },
+            Value::Bytes { value } => ScryptoValue::Array {
+                element_type_id: SborTypeId::U8,
+                elements: value
+                    .clone()
+                    .into_iter()
+                    .map(|value| ScryptoValue::U8 { value })
+                    .collect(),
             },
         };
         Ok(scrypto_value)
@@ -1054,7 +1163,13 @@ impl Value {
                     value: value.clone(),
                 },
                 ScryptoCustomValue::NonFungibleAddress(value) => Value::NonFungibleAddress {
-                    address: value.clone(),
+                    address: NonFungibleAddress {
+                        resource_address: NetworkAwareResourceAddress {
+                            address: value.resource_address(),
+                            network_id,
+                        },
+                        non_fungible_id: value.non_fungible_id(),
+                    },
                 },
             },
         }
@@ -1146,6 +1261,7 @@ pub enum ValueKind {
 
     Blob,
     Expression,
+    Bytes,
 }
 
 impl ValueKind {
@@ -1171,6 +1287,7 @@ impl ValueKind {
             Self::Enum => TYPE_ENUM,
 
             Self::Array => TYPE_ARRAY,
+            Self::Bytes => TYPE_ARRAY,
             Self::Tuple => TYPE_TUPLE,
 
             Self::KeyValueStore => ScryptoCustomTypeId::KeyValueStore.as_u8(),
@@ -1301,6 +1418,7 @@ impl From<ValueKind> for radix_transaction::manifest::ast::Type {
             }
 
             ValueKind::Blob => radix_transaction::manifest::ast::Type::Blob,
+            ValueKind::Bytes => radix_transaction::manifest::ast::Type::Bytes,
             ValueKind::Expression => radix_transaction::manifest::ast::Type::Expression,
 
             ValueKind::Component => radix_transaction::manifest::ast::Type::Component,
@@ -1380,6 +1498,7 @@ impl From<radix_transaction::manifest::ast::Type> for ValueKind {
 
             radix_transaction::manifest::ast::Type::Blob => Self::Blob,
             radix_transaction::manifest::ast::Type::Expression => Self::Expression,
+            radix_transaction::manifest::ast::Type::Bytes => Self::Bytes,
         }
     }
 }
@@ -1406,6 +1525,7 @@ impl From<ValueKind> for SborTypeId<ScryptoCustomTypeId> {
 
             ValueKind::Enum => SborTypeId::Enum,
             ValueKind::Array => SborTypeId::Array,
+            ValueKind::Bytes => SborTypeId::Array,
             ValueKind::Tuple => SborTypeId::Tuple,
 
             ValueKind::Component => SborTypeId::Custom(ScryptoCustomTypeId::Component),
@@ -1561,16 +1681,14 @@ mod tests {
     }
 
     fn assert_serialization_matches(string: &str, value: Value) {
-        let serialized_string =
-            serde_json::to_string(&value).expect("Serialization of trusted value failed");
-
-        let string = string.replace(['\n', ' '], "");
-        let serialized_string = serialized_string.replace(['\n', ' '], "");
-        assert_eq!(string, serialized_string);
+        let expected_serialization: serde_json::Value = serde_json::from_str(string).unwrap();
+        let serialized_value = serde_json::to_value(&value).unwrap();
+        assert_eq!(expected_serialization, serialized_value);
     }
 
     fn assert_deserialization_matches(string: &str, value: Value) {
-        let deserialized_value = serde_json::from_str(string).expect("Deserialization failed.");
+        let deserialized_value: Value =
+            serde_json::from_str(string).expect("Deserialization failed.");
         assert_eq!(value, deserialized_value);
     }
 
@@ -1777,6 +1895,57 @@ mod tests {
                     }
                 ]
             }
+        };
+
+        test_value! {
+            r#"
+            {
+                "type": "NonFungibleId",
+                "variant": "U32",
+                "value": "1144418947"
+            }
+            "#,
+            Value::NonFungibleId { value: NonFungibleId::U32(1144418947) }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "NonFungibleId",
+                "variant": "U64",
+                "value": "114441894733333"
+            }
+            "#,
+            Value::NonFungibleId { value: NonFungibleId::U64(114441894733333) }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "NonFungibleId",
+                "variant": "UUID",
+                "value": "11444189334733333"
+            }
+            "#,
+            Value::NonFungibleId { value: NonFungibleId::UUID(11444189334733333) }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "NonFungibleId",
+                "variant": "String",
+                "value": "Hello World!"
+            }
+            "#,
+            Value::NonFungibleId { value: NonFungibleId::String("Hello World!".into()) }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "NonFungibleId",
+                "variant": "Bytes",
+                "value": "10a23101"
+            }
+            "#,
+            Value::NonFungibleId { value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) }
         };
 
         test_value! {
@@ -2032,5 +2201,82 @@ mod tests {
 
         // Assert
         assert!(matches!(result, Err(_)))
+    }
+
+    #[test]
+    fn no_data_loss_to_ast_value_and_back() {
+        // Arrange
+        let values = vec![
+            Value::NonFungibleId {
+                value: NonFungibleId::U32(1144418947),
+            },
+            Value::NonFungibleId {
+                value: NonFungibleId::U64(114441894733333),
+            },
+            Value::NonFungibleId {
+                value: NonFungibleId::UUID(11444189334733333),
+            },
+            Value::NonFungibleId {
+                value: NonFungibleId::String("Hello World!".into()),
+            },
+            Value::NonFungibleId {
+                value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
+            },
+            Value::NonFungibleAddress {
+                address: super::NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                    non_fungible_id: NonFungibleId::U32(1144418947),
+                },
+            },
+            Value::NonFungibleAddress {
+                address: super::NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                    non_fungible_id: NonFungibleId::U64(114441894733333),
+                },
+            },
+            Value::NonFungibleAddress {
+                address: super::NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                    non_fungible_id: NonFungibleId::UUID(11444189334733333),
+                },
+            },
+            Value::NonFungibleAddress {
+                address: super::NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                    non_fungible_id: NonFungibleId::String("Hello World!".into()),
+                },
+            },
+            Value::NonFungibleAddress {
+                address: super::NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                    non_fungible_id: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
+                },
+            },
+        ];
+        let bech32_coder = Bech32Coder::new(0xf2);
+
+        for value in values {
+            // Act
+            let ast_value = value.to_ast_value(&bech32_coder).unwrap();
+            let converted_value = Value::from_ast_value(&ast_value, &bech32_coder).unwrap();
+
+            // Assert
+            assert_eq!(value, converted_value)
+        }
     }
 }

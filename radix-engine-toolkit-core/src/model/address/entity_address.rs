@@ -151,7 +151,7 @@ impl ValidateWithContext<u8> for EntityAddress {
         } else {
             Err(Error::NetworkMismatchError {
                 expected: network_id,
-                found: network_id,
+                found: self.network_id(),
             })
         }
     }

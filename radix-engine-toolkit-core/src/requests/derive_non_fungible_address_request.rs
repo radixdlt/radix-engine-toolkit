@@ -18,9 +18,10 @@
 use crate::error::Error;
 use crate::model::address::NetworkAwareResourceAddress;
 use crate::model::helper::ValueSerializationProxy;
+use crate::model::NonFungibleAddress;
 use crate::traits::{Request, Validate};
 
-use scrypto::prelude::{NonFungibleAddress, NonFungibleId};
+use scrypto::prelude::NonFungibleId;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -68,7 +69,7 @@ impl Validate for DeriveNonFungibleAddressResponse {
 impl<'r> Request<'r, DeriveNonFungibleAddressResponse> for DeriveNonFungibleAddressRequest {
     fn handle_request(self) -> Result<DeriveNonFungibleAddressResponse, Error> {
         let non_fungible_address =
-            NonFungibleAddress::new(self.resource_address.address, self.non_fungible_id);
+            NonFungibleAddress::new(self.resource_address, self.non_fungible_id);
 
         Ok(DeriveNonFungibleAddressResponse {
             non_fungible_address,

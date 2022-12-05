@@ -107,6 +107,9 @@ pub enum Error {
     /// An error emitted when the parsing of a value from string fails.
     ParseError { kind: ValueKind, message: String },
 
+    /// An error emitted when the hex decoding of a byte array fails.
+    HexDecodeError(String),
+
     // ==============================
     // Instruction Conversion Errors
     // ==============================
@@ -188,6 +191,7 @@ impl_from_error! {
     scrypto::radix_engine_interface::address::AddressError => AddressError,
     sbor::DecodeError => SborDecodeError,
     sbor::EncodeError => SborEncodeError,
+    hex::FromHexError => HexDecodeError,
 
     serde_json::Error => DeserializationError,
     std::str::Utf8Error => InvalidRequestString,
