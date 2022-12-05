@@ -6,6 +6,9 @@ on:
 jobs:
   setup:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [ native, wasm, jni ]
 
     steps:
       - name: Checkout
@@ -18,20 +21,20 @@ jobs:
           default: true
           override: true
 
-      - name: Set up cargo cache
-        id: cache-rust
-        uses: actions/cache@v3
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/
-            ~/.rustup/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+#      - name: Set up cargo cache
+#        id: cache-rust
+#        uses: actions/cache@v3
+#        continue-on-error: false
+#        with:
+#          path: |
+#            ~/.cargo/
+#            ~/.rustup/
+#            target/
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#          restore-keys: ${{ runner.os }}-cargo-
 
-      - if: ${{ steps.cache-rust.outputs.cache-hit != 'true' }}
-        name: Install rust packages
+      #- if: ${{ steps.cache-rust.outputs.cache-hit != 'true' }}
+      - name: Install rust packages
         run: |
           rustup target add wasm32-unknown-unknown x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
@@ -43,35 +46,40 @@ jobs:
           export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
           export CC="/opt/homebrew/opt/llvm/bin/clang"
           brew install binaryen
-
-#      - name: Build
-#        run: |
-#          ./build.sh
-
-  build:
-    runs-on: macos-latest
-    needs: [setup]
-
-    strategy:
-      matrix:
-        target: [native, wasm, jni]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Set up cargo cache
-        uses: actions/cache@v3
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/
-            ~/.rustup/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-
+          
       - if: always()
         name: Build ${{ matrix.target }}
         run: |
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
+
+#      - name: Build
+#        run: |
+#          ./build.sh
+#
+#  build:
+#    runs-on: macos-latest
+#    needs: [setup]
+#
+#    strategy:
+#      matrix:
+#        target: [native, wasm, jni]
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Set up cargo cache
+#        uses: actions/cache@v3
+#        continue-on-error: false
+#        with:
+#          path: |
+#            ~/.cargo/
+#            ~/.rustup/
+#            target/
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#          restore-keys: ${{ runner.os }}-cargo-
+#
+#      - if: always()
+#        name: Build ${{ matrix.target }}
+#        run: |
+#          ./build.sh radix-engine-toolkit-${{ matrix.target }}
