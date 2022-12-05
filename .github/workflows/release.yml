@@ -71,6 +71,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Build ${{ matrix.target }}
+      - if: always()
+        name: Build ${{ matrix.target }}
         run: |
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
