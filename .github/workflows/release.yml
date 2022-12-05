@@ -23,13 +23,6 @@ jobs:
       - if: always()
         name: Build ${{ matrix.target }}
         run: |
-#          rustup target add wasm32-unknown-unknown x86_64-apple-ios aarch64-apple-ios aarch64-apple-ios-sim
-#          rustup target install wasm32-unknown-unknown
-#          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
-#          cargo install --force cbindgen cross
-#          whereis clang
-#          pwd
-#          ls
           brew install llvm docker
           ls /opt/homebrew/opt
 #          export AR="/opt/homebrew/opt/llvm/bin/llvm-ar"
