@@ -30,10 +30,8 @@ use serde_with::serde_as;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressFromPublicKeyRequest {
-    #[serde(flatten)]
     pub public_key: PublicKey,
-
-    network_id: u8,
+    pub network_id: u8,
 }
 
 #[serde_as]

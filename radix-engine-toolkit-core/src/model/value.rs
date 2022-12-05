@@ -176,6 +176,7 @@ pub enum Value {
         value: NonFungibleId,
     },
     NonFungibleAddress {
+        #[serde(flatten)]
         address: NonFungibleAddress,
     },
 
@@ -553,14 +554,11 @@ impl Value {
                     })?,
                 },
             },
-            AstValue::NonFungibleAddress(value) => {
-                let resource_address = value[0].clone();
-                let non_fungible_id = value[1].clone();
-
-                let resource_address = if let AstValue::String(address_string) = resource_address {
+            AstValue::NonFungibleAddress(resource_address, non_fungible_id) => {
+                let resource_address = if let AstValue::String(address_string) = &**resource_address {
                     let address = bech32_coder
                         .decoder
-                        .validate_and_decode_resource_address(&address_string)?;
+                        .validate_and_decode_resource_address(address_string)?;
                     NetworkAwareResourceAddress {
                         network_id: bech32_coder.network_id(),
                         address,
@@ -574,13 +572,13 @@ impl Value {
                 };
 
                 // TODO: de-duplicate. Refactor out
-                let non_fungible_id = match non_fungible_id {
-                    AstValue::U32(value) => NonFungibleId::U32(value),
-                    AstValue::U64(value) => NonFungibleId::U64(value),
-                    AstValue::U128(value) => NonFungibleId::UUID(value),
-                    AstValue::String(value) => NonFungibleId::String(value),
+                let non_fungible_id = match &**non_fungible_id {
+                    AstValue::U32(value) => NonFungibleId::U32(*value),
+                    AstValue::U64(value) => NonFungibleId::U64(*value),
+                    AstValue::U128(value) => NonFungibleId::UUID(*value),
+                    AstValue::String(value) => NonFungibleId::String(value.clone()),
                     AstValue::Bytes(value) => {
-                        if let AstValue::String(value) = *value {
+                        if let AstValue::String(value) = &**value {
                             NonFungibleId::Bytes(hex::decode(value)?)
                         } else {
                             Err(Error::UnexpectedContents {
@@ -852,7 +850,7 @@ impl Value {
                     }
                 };
 
-                AstValue::NonFungibleAddress(vec![resource_address, non_fungible_id])
+                AstValue::NonFungibleAddress(Box::new(resource_address), Box::new(non_fungible_id))
             }
 
             Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
