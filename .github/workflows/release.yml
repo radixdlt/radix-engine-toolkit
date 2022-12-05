@@ -43,7 +43,7 @@ jobs:
           export CC="/opt/homebrew/opt/llvm/bin/clang"
           brew install binaryen
 
-      - name: Build wasm
+      - name: Build
         run: |
           ./build.sh
 #
