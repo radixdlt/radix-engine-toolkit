@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         target: [ native, wasm, jni ]
-      include:
-        - target: native
-          rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
-        - target: wasm
-          rust-target: "wasm32-unknown-unknown"
-        - target: jni
-          rust-target: "aarch64-apple-darwin x86_64-apple-darwin"
+        include:
+          - target: native
+            rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
+          - target: wasm
+            rust-target: "wasm32-unknown-unknown"
+          - target: jni
+            rust-target: "aarch64-apple-darwin x86_64-apple-darwin"
 
 
     steps:
