@@ -6,6 +6,7 @@ on:
 jobs:
   setup:
     runs-on: macos-latest
+    continue-on-error: true
     strategy:
       matrix:
         target: [ native, wasm, jni ]
@@ -29,8 +30,7 @@ jobs:
           rustup update
           rustup toolchain install nightly
 
-      - if: always()
-        name: Build ${{ matrix.target }}
+      - name: Build ${{ matrix.target }}
         run: |
           rustup target add ${{ matrix.rust-target }}
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
