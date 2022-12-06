@@ -9,8 +9,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        #target: [ native, wasm, jni ]
-        target: [ jni ]
+        target: [ native, wasm, jni ]
         include:
           - target: native
             rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
@@ -45,6 +44,7 @@ jobs:
           export CC="/usr/local/opt/llvm/bin/clang"
           brew install binaryen
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
+          ls
           ls build/
 
       - name: Upload ${{ matrix.target }} artifact
