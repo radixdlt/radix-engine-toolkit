@@ -38,17 +38,17 @@ do
         --release
 done
 
-# for target in $CROSS_TARGETS
-# do
-#     echo "Building for target '$target'"
+for target in $CROSS_TARGETS
+do
+    echo "Building for target '$target'"
 
-#     cross +nightly build \
-#         -Z build-std=std,panic_abort \
-#         -Z build-std-features=panic_immediate_abort \
-#         --target $target \
-#         --target-dir ./target \
-#         --release
-# done
+    cross +nightly build \
+       -Z build-std=std,panic_abort \
+       -Z build-std-features=panic_immediate_abort \
+       --target $target \
+       --target-dir ./target \
+       --release
+done
 
 # Creating a C-header and copying it to the directory of all of our build targets
 echo "Generating the C Header"
