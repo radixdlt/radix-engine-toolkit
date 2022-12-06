@@ -45,6 +45,7 @@ jobs:
           rustup toolchain install nightly
 
       - name: Build ${{ matrix.target }}
+        continue-on-error: true
         run: |
           rustup target add ${{ matrix.rust-target }}
           rustup +nightly target add ${{ matrix.rust-target }}
@@ -54,7 +55,7 @@ jobs:
           export AR="/usr/local/opt/llvm/bin/llvm-ar"
           export CC="/usr/local/opt/llvm/bin/clang"
           brew install binaryen
-          ./build.sh radix-engine-toolkit-${{ matrix.target }}
+          ./build.sh radix-engine-toolkit-${{ matrix.target }} || true
           ls
           ls build/
 
