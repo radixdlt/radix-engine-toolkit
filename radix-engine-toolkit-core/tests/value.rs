@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit_core::model::Value;
+use radix_engine_toolkit_core::model::{Value, ValueKind};
 
 #[test]
 fn value_has_expected_json_representation() {
@@ -93,6 +93,48 @@ fn value_has_expected_json_representation() {
                 }]),
             },
             r#"{"type": "Enum", "variant": "Create", "fields": [{"type": "String", "value": "Component"}]}"#,
+        ),
+        ValueJsonRepresentationTestVector::new(
+            Value::Option {
+                value: Box::new(Some(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            r#"{"type": "Option", "variant": "Some", "field": {"type": "String", "value": "Component"}}"#,
+        ),
+        ValueJsonRepresentationTestVector::new(
+            Value::Option {
+                value: Box::new(None),
+            },
+            r#"{"type": "Option", "variant": "None"}"#,
+        ),
+        ValueJsonRepresentationTestVector::new(
+            Value::Result {
+                value: Box::new(Ok(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            r#"{"type": "Result", "variant": "Ok", "field": {"type": "String", "value": "Component"}}"#,
+        ),
+        ValueJsonRepresentationTestVector::new(
+            Value::Result {
+                value: Box::new(Err(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            r#"{"type": "Result", "variant": "Err", "field": {"type": "String", "value": "Component"}}"#,
+        ),
+        // =================
+        // Collection Types
+        // =================
+        ValueJsonRepresentationTestVector::new(
+            Value::Array {
+                element_type: ValueKind::String,
+                elements: vec![Value::String {
+                    value: "World, Hello!".into(),
+                }],
+            },
+            r#"{"type": "Array", "element_type": "String", "elements": [{"type": "String", "value": "World, Hello!"}]}"#,
         ),
     ];
 
