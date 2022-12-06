@@ -1056,6 +1056,8 @@ components:
         - U128
         - String
         - Enum
+        - Option
+        - Result
         - Array
         - Tuple
         - Decimal
@@ -1093,6 +1095,8 @@ components:
         - $ref: "#/components/schemas/I128"
         - $ref: "#/components/schemas/String"
         - $ref: "#/components/schemas/Enum"
+        - $ref: "#/components/schemas/Option"
+        - $ref: "#/components/schemas/Result"
         - $ref: "#/components/schemas/Array"
         - $ref: "#/components/schemas/Tuple"
         - $ref: "#/components/schemas/Decimal"
@@ -1130,6 +1134,8 @@ components:
           I128: "#/components/schemas/I128"
           String: "#/components/schemas/String"
           Enum: "#/components/schemas/Enum"
+          Option: "#/components/schemas/Option"
+          Result: "#/components/schemas/Result"
           Array: "#/components/schemas/Array"
           Tuple: "#/components/schemas/Tuple"
           Decimal: "#/components/schemas/Decimal"
@@ -1290,6 +1296,10 @@ components:
           nullable: true
           items:
             $ref: "#/components/schemas/Value"
+    Option:
+      description: "TODO: Need to add this."
+    Result:
+      description: "TODO: Need to add this."
     Array:
       additionalProperties: false
       required:

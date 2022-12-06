@@ -346,17 +346,31 @@ impl Value {
                 value: value.clone(),
             },
 
-            AstValue::Enum(variant, fields) => Self::Enum {
-                variant: variant.clone(),
-                fields: {
-                    let fields = fields
-                        .iter()
-                        .map(|v| Self::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<Value>, _>>()?;
-                    match fields.len() {
-                        0 => None,
-                        _ => Some(fields),
-                    }
+            AstValue::Enum(variant, fields) => match (variant.as_str(), fields.len()) {
+                ("Some", 1) => Self::Option {
+                    value: Box::new(Some(Self::from_ast_value(&fields[0], bech32_coder)?)),
+                },
+                ("None", 0) => Self::Option {
+                    value: Box::new(None),
+                },
+                ("Ok", 1) => Self::Result {
+                    value: Box::new(Ok(Self::from_ast_value(&fields[0], bech32_coder)?)),
+                },
+                ("Err", 1) => Self::Result {
+                    value: Box::new(Err(Self::from_ast_value(&fields[0], bech32_coder)?)),
+                },
+                _ => Self::Enum {
+                    variant: variant.clone(),
+                    fields: {
+                        let fields = fields
+                            .iter()
+                            .map(|v| Self::from_ast_value(v, bech32_coder))
+                            .collect::<Result<Vec<Value>, _>>()?;
+                        match fields.len() {
+                            0 => None,
+                            _ => Some(fields),
+                        }
+                    },
                 },
             },
             AstValue::Some(value) => Self::Option {
