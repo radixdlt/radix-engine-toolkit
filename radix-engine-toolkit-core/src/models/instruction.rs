@@ -7,9 +7,9 @@ use serde_with::serde_as;
 use std::collections::HashSet;
 
 use crate::error::Error;
-use crate::model::re_node::*;
-use crate::model::value::*;
-use crate::model::{
+use crate::models::re_node::*;
+use crate::models::value::*;
+use crate::models::{
     Bech32Coder, BucketId, NetworkAwarePackageAddress, NetworkAwareResourceAddress, ProofId,
     ValueSerializationProxy,
 };

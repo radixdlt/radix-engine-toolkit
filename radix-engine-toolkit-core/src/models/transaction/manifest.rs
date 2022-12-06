@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::error::Error;
-use crate::model::address::Bech32Coder;
-use crate::model::{ManifestInstructions, ManifestInstructionsKind};
+use crate::models::address::Bech32Coder;
+use crate::models::{ManifestInstructions, ManifestInstructionsKind};
 use crate::traits::{TryIntoWithContext, ValidateWithContext};
 
 // =================

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::error::Error;
-use crate::model::TransactionIntent;
+use crate::models::TransactionIntent;
 use crate::traits::{CompilableIntent, Request, Validate};
 
 // ==========================

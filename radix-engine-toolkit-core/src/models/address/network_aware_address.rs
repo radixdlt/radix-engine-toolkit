@@ -6,7 +6,7 @@ use serde::de::Error as DeserializationError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::error::Error;
-use crate::model::address::bech32_coder::Bech32Coder;
+use crate::models::address::bech32_coder::Bech32Coder;
 
 // Defines a network aware address. This is needed for the serialization and deserialization using
 // serde.

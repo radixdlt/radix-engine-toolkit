@@ -3,7 +3,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::{DeserializeAs, SerializeAs};
 
 use crate::error::Error;
-use crate::model::value::Value;
+use crate::models::value::Value;
 
 /// A serde-as serializer that serializes and deserializes object as a [Value]. This is useful for
 /// consistent returns from the toolkit.

@@ -5,9 +5,9 @@ use scrypto::prelude::{scrypto_decode, scrypto_encode};
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
-use crate::model::address::Bech32Coder;
-use crate::model::transaction::{TransactionHeader, TransactionManifest};
-use crate::model::ManifestInstructionsKind;
+use crate::models::address::Bech32Coder;
+use crate::models::transaction::{TransactionHeader, TransactionManifest};
+use crate::models::ManifestInstructionsKind;
 use crate::traits::{CompilableIntent, TryIntoWithContext, Validate, ValidateWithContext};
 use crate::utils::validation_config_from_header;
 

@@ -1,7 +1,7 @@
 use crate::error::Error;
-use crate::model::address::NetworkAwareResourceAddress;
-use crate::model::helper::ValueSerializationProxy;
-use crate::model::NonFungibleAddress;
+use crate::models::address::NetworkAwareResourceAddress;
+use crate::models::helper::ValueSerializationProxy;
+use crate::models::NonFungibleAddress;
 use crate::traits::{Request, Validate};
 
 use scrypto::prelude::NonFungibleId;

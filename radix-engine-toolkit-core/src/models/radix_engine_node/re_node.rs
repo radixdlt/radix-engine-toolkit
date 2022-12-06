@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
 use crate::error::Error;
-use crate::model::{Identifier, NodeIdentifier};
+use crate::models::{Identifier, NodeIdentifier};
 
-use crate::model::value::ValueKind;
+use crate::models::value::ValueKind;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]

@@ -16,7 +16,7 @@ use super::{
     BucketId, Identifier, NodeIdentifier, NonFungibleAddress, OptionProxy, ProofId, ResultProxy,
 };
 use crate::error::Error;
-use crate::model::address::*;
+use crate::models::address::*;
 use crate::traits::ValidateWithContext;
 
 // ======
@@ -1739,7 +1739,7 @@ mod tests {
     use scrypto::prelude::*;
 
     use super::{Value, ValueKind};
-    use crate::model::address::*;
+    use crate::models::address::*;
 
     #[test]
     fn non_collection_validation_succeeds() {

@@ -1,6 +1,6 @@
 use crate::error::Error;
-use crate::model::helper::ValueSerializationProxy;
-use crate::model::NetworkAwareComponentAddress;
+use crate::models::helper::ValueSerializationProxy;
+use crate::models::NetworkAwareComponentAddress;
 use crate::traits::{Request, Validate};
 
 use scrypto::prelude::{ComponentAddress, PublicKey};

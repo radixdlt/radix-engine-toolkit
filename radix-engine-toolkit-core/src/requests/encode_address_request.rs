@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::model::EntityAddress;
+use crate::models::EntityAddress;
 use crate::traits::{Request, Validate};
 
 use serde::{Deserialize, Serialize};

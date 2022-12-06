@@ -6,7 +6,7 @@ use scrypto::prelude::{
 };
 
 use super::ValueSerializationProxy;
-use crate::model::NetworkAwareResourceAddress;
+use crate::models::NetworkAwareResourceAddress;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]

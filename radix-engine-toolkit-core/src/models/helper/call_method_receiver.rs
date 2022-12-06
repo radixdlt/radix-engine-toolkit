@@ -1,5 +1,5 @@
 use crate::error::Error;
-use crate::model::{Bech32Coder, NetworkAwareComponentAddress, NodeIdentifier, Value, ValueKind};
+use crate::models::{Bech32Coder, NetworkAwareComponentAddress, NodeIdentifier, Value, ValueKind};
 use radix_transaction::manifest::ast::{ScryptoReceiver as AstScryptoReceiver, Value as AstValue};
 
 #[derive(Clone, Debug)]

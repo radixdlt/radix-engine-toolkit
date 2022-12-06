@@ -1,10 +1,10 @@
-use radix_transaction::model::TransactionHeader as NativeTransactionHeader;
+suse radix_transaction::model::TransactionHeader as NativeTransactionHeader;
 use radix_transaction::validation::NotarizedTransactionValidator;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 
-use crate::model::{TransactionIntent, TransactionManifest};
+use crate::models::{TransactionIntent, TransactionManifest};
 use crate::traits::Validate;
 use crate::utils::validation_config_from_header;
 
@@ -80,7 +80,7 @@ impl Validate for TransactionHeader {
                 &TransactionIntent {
                     header: self.clone(),
                     manifest: TransactionManifest {
-                        instructions: crate::model::ManifestInstructions::JSON(Vec::new()),
+                        instructions: crate::models::ManifestInstructions::JSON(Vec::new()),
                         blobs: Vec::new(),
                     },
                 }

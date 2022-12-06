@@ -6,8 +6,8 @@ use scrypto::prelude::hash;
 use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
-use crate::model::address::Bech32Coder;
-use crate::model::Instruction;
+use crate::models::address::Bech32Coder;
+use crate::models::Instruction;
 use crate::traits::Validate;
 
 // ==================

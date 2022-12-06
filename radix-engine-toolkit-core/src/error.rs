@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::model::{value::ValueKind, RENodeKind};
+use crate::models::{value::ValueKind, RENodeKind};
 use serde::{Deserialize, Serialize};
 
 /// Represents an error encountered by the operations of the crate.
