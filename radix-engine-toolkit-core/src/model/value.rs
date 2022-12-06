@@ -29,12 +29,12 @@ use scrypto::prelude::{
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr, FromInto};
 
+use super::{
+    BucketId, Identifier, NodeIdentifier, NonFungibleAddress, OptionProxy, ProofId, ResultProxy,
+};
 use crate::error::Error;
 use crate::model::address::*;
-use crate::model::identifier::{BucketId, Identifier, ProofId};
 use crate::traits::ValidateWithContext;
-
-use super::{NodeIdentifier, NonFungibleAddress};
 
 // ======
 // Value
@@ -99,6 +99,16 @@ pub enum Value {
         variant: String,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         fields: Option<Vec<Value>>,
+    },
+    Option {
+        #[serde(flatten)]
+        #[serde_as(as = "Box<FromInto<OptionProxy<Value>>>")]
+        value: Box<Option<Value>>,
+    },
+    Result {
+        #[serde(flatten)]
+        #[serde_as(as = "Box<FromInto<ResultProxy<Value, Value>>>")]
+        value: Box<Result<Value, Value>>,
     },
 
     Array {
@@ -215,6 +225,8 @@ impl Value {
             Self::String { .. } => ValueKind::String,
 
             Self::Enum { .. } => ValueKind::Enum,
+            Self::Option { .. } => ValueKind::Option,
+            Self::Result { .. } => ValueKind::Result,
 
             Self::Array { .. } => ValueKind::Array,
             Self::Tuple { .. } => ValueKind::Tuple,
@@ -346,6 +358,18 @@ impl Value {
                         _ => Some(fields),
                     }
                 },
+            },
+            AstValue::Some(value) => Self::Option {
+                value: Box::new(Some(Self::from_ast_value(value, bech32_coder)?)),
+            },
+            AstValue::None => Self::Option {
+                value: Box::new(None),
+            },
+            AstValue::Ok(value) => Self::Result {
+                value: Box::new(Ok(Self::from_ast_value(value, bech32_coder)?)),
+            },
+            AstValue::Err(value) => Self::Result {
+                value: Box::new(Err(Self::from_ast_value(value, bech32_coder)?)),
             },
 
             AstValue::Array(ast_type, elements) => Self::Array {
@@ -555,7 +579,8 @@ impl Value {
                 },
             },
             AstValue::NonFungibleAddress(resource_address, non_fungible_id) => {
-                let resource_address = if let AstValue::String(address_string) = &**resource_address {
+                let resource_address = if let AstValue::String(address_string) = &**resource_address
+                {
                     let address = bech32_coder
                         .decoder
                         .validate_and_decode_resource_address(address_string)?;
@@ -760,6 +785,14 @@ impl Value {
                     .map(|v| v.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             ),
+            Value::Option { value } => match &**value {
+                Some(value) => AstValue::Some(Box::new(value.to_ast_value(bech32_coder)?)),
+                None => AstValue::None,
+            },
+            Value::Result { value } => match &**value {
+                Ok(value) => AstValue::Ok(Box::new(value.to_ast_value(bech32_coder)?)),
+                Err(value) => AstValue::Err(Box::new(value.to_ast_value(bech32_coder)?)),
+            },
 
             Value::Array {
                 element_type,
@@ -917,6 +950,26 @@ impl Value {
                     .map(|x| x.to_scrypto_value())
                     .collect::<Result<Vec<_>, _>>()?,
             },
+            Value::Option { value } => match &**value {
+                Some(value) => ScryptoValue::Enum {
+                    discriminator: "Some".into(),
+                    fields: vec![value.to_scrypto_value()?],
+                },
+                None => ScryptoValue::Enum {
+                    discriminator: "None".into(),
+                    fields: Vec::new(),
+                },
+            },
+            Value::Result { value } => match &**value {
+                Ok(value) => ScryptoValue::Enum {
+                    discriminator: "Ok".into(),
+                    fields: vec![value.to_scrypto_value()?],
+                },
+                Err(value) => ScryptoValue::Enum {
+                    discriminator: "Err".into(),
+                    fields: vec![value.to_scrypto_value()?],
+                },
+            },
             Value::Array {
                 element_type,
                 elements,
@@ -1056,18 +1109,32 @@ impl Value {
             ScryptoValue::Enum {
                 discriminator,
                 fields,
-            } => Value::Enum {
-                variant: discriminator.clone(),
-                fields: if fields.is_empty() {
-                    None
-                } else {
-                    Some(
-                        fields
-                            .clone()
-                            .into_iter()
-                            .map(|x| Self::from_scrypto_value(&x, network_id))
-                            .collect(),
-                    )
+            } => match (discriminator.as_str(), fields.len()) {
+                ("Some", 1) => Value::Option {
+                    value: Box::new(Some(Self::from_scrypto_value(&fields[0], network_id))),
+                },
+                ("None", 0) => Value::Option {
+                    value: Box::new(None),
+                },
+                ("Ok", 1) => Value::Result {
+                    value: Box::new(Ok(Self::from_scrypto_value(&fields[0], network_id))),
+                },
+                ("Err", 1) => Value::Result {
+                    value: Box::new(Ok(Self::from_scrypto_value(&fields[0], network_id))),
+                },
+                _ => Value::Enum {
+                    variant: discriminator.clone(),
+                    fields: if fields.is_empty() {
+                        None
+                    } else {
+                        Some(
+                            fields
+                                .clone()
+                                .into_iter()
+                                .map(|x| Self::from_scrypto_value(&x, network_id))
+                                .collect(),
+                        )
+                    },
                 },
             },
             ScryptoValue::Array {
@@ -1228,6 +1295,8 @@ pub enum ValueKind {
     String,
 
     Enum,
+    Option,
+    Result,
 
     Array,
     Tuple,
@@ -1283,6 +1352,8 @@ impl ValueKind {
             Self::String => TYPE_STRING,
 
             Self::Enum => TYPE_ENUM,
+            Self::Option => TYPE_ENUM,
+            Self::Result => TYPE_ENUM,
 
             Self::Array => TYPE_ARRAY,
             Self::Bytes => TYPE_ARRAY,
@@ -1393,6 +1464,8 @@ impl From<ValueKind> for radix_transaction::manifest::ast::Type {
             ValueKind::String => radix_transaction::manifest::ast::Type::String,
 
             ValueKind::Enum => radix_transaction::manifest::ast::Type::Enum,
+            ValueKind::Option => radix_transaction::manifest::ast::Type::Enum,
+            ValueKind::Result => radix_transaction::manifest::ast::Type::Enum,
 
             ValueKind::Array => radix_transaction::manifest::ast::Type::Array,
             ValueKind::Tuple => radix_transaction::manifest::ast::Type::Tuple,
@@ -1522,6 +1595,9 @@ impl From<ValueKind> for SborTypeId<ScryptoCustomTypeId> {
             ValueKind::String => SborTypeId::String,
 
             ValueKind::Enum => SborTypeId::Enum,
+            ValueKind::Option => SborTypeId::Enum,
+            ValueKind::Result => SborTypeId::Enum,
+
             ValueKind::Array => SborTypeId::Array,
             ValueKind::Bytes => SborTypeId::Array,
             ValueKind::Tuple => SborTypeId::Tuple,
@@ -1834,6 +1910,69 @@ mod tests {
                 fields: Some(vec![
                     Value::String { value: "Account".into() }
                 ])
+            }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "Option",
+                "variant": "None"
+            }
+            "#,
+            Value::Option {
+                value: Box::new(None),
+            }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "Option",
+                "variant": "Some",
+                "field": {
+                    "type": "String",
+                    "value": "Hello World!"
+                }
+            }
+            "#,
+            Value::Option {
+                value: Box::new(Some(Value::String {
+                    value: "Hello World!".into(),
+                })),
+            }
+        };
+
+        test_value! {
+            r#"
+            {
+                "type": "Result",
+                "variant": "Ok",
+                "field": {
+                    "type": "String",
+                    "value": "This is ok"
+                }
+            }
+            "#,
+            Value::Result {
+                value: Box::new(Ok(Value::String {
+                    value: "This is ok".into(),
+                })),
+            }
+        };
+        test_value! {
+            r#"
+            {
+                "type": "Result",
+                "variant": "Err",
+                "field": {
+                    "type": "String",
+                    "value": "This is err"
+                }
+            }
+            "#,
+            Value::Result {
+                value: Box::new(Err(Value::String {
+                    value: "This is err".into(),
+                })),
             }
         };
 
