@@ -9,7 +9,8 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        target: [ native, wasm, jni ]
+        #target: [ native, wasm, jni ]
+        target: [ jni ]
         include:
           - target: native
             rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
