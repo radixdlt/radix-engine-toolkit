@@ -104,6 +104,12 @@ impl From<NetworkAwarePackageAddress> for EntityAddress {
     }
 }
 
+impl From<NetworkAwareSystemAddress> for EntityAddress {
+    fn from(address: NetworkAwareSystemAddress) -> Self {
+        Self::SystemAddress(address)
+    }
+}
+
 impl Display for EntityAddress {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
