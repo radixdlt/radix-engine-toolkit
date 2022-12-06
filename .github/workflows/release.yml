@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  setup:
+  build:
     runs-on: macos-latest
     continue-on-error: true
     strategy:
@@ -22,6 +22,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+
       - name: Install rust toolchain
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
@@ -33,9 +36,9 @@ jobs:
       - name: Build ${{ matrix.target }}
         run: |
           rustup target add ${{ matrix.rust-target }}
+          rustup +nightly target add ${{ matrix.rust-target }}
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
           cargo install --force cbindgen cross
-          brew install docker --cask
           brew install llvm
           export AR="/usr/local/opt/llvm/bin/llvm-ar"
           export CC="/usr/local/opt/llvm/bin/clang"
