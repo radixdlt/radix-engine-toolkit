@@ -17,9 +17,10 @@
 
 use crate::error::Error;
 use crate::model::helper::ValueSerializationProxy;
+use crate::model::NonFungibleAddress;
 use crate::traits::{Request, Validate};
 
-use scrypto::prelude::{FromPublicKey, NonFungibleAddress, PublicKey};
+use scrypto::prelude::PublicKey;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
@@ -29,8 +30,8 @@ use serde_with::serde_as;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct DeriveNonFungibleAddressFromPublicKeyRequest {
-    #[serde(flatten)]
     pub public_key: PublicKey,
+    pub network_id: u8,
 }
 
 #[serde_as]
@@ -64,7 +65,8 @@ impl<'r> Request<'r, DeriveNonFungibleAddressFromPublicKeyResponse>
     for DeriveNonFungibleAddressFromPublicKeyRequest
 {
     fn handle_request(self) -> Result<DeriveNonFungibleAddressFromPublicKeyResponse, Error> {
-        let non_fungible_address = NonFungibleAddress::from_public_key(&self.public_key);
+        let non_fungible_address =
+            NonFungibleAddress::from_public_key(&self.public_key, self.network_id);
 
         Ok(DeriveNonFungibleAddressFromPublicKeyResponse {
             non_fungible_address,

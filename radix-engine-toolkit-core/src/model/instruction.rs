@@ -16,13 +16,9 @@
 // under the License.
 
 use radix_transaction::manifest::ast::{
-    Instruction as AstInstruction, Receiver as AstReceiver, ScryptoReceiver as AstScryptoReceiver,
-    Value as AstValue,
+    Instruction as AstInstruction, Receiver as AstReceiver, Value as AstValue,
 };
-use scrypto::prelude::Blob;
-use scrypto::prelude::Decimal;
-use scrypto::prelude::NonFungibleAddress;
-use scrypto::prelude::NonFungibleId;
+use scrypto::prelude::{Blob, Decimal, NonFungibleId};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
@@ -31,12 +27,14 @@ use crate::error::Error;
 use crate::model::re_node::*;
 use crate::model::value::*;
 use crate::model::{
-    Bech32Coder, BucketId, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress, ProofId, ValueSerializationProxy,
+    Bech32Coder, BucketId, NetworkAwarePackageAddress, NetworkAwareResourceAddress, ProofId,
+    ValueSerializationProxy,
 };
 use crate::traits::ValidateWithContext;
 
 use super::EntityAddress;
+use super::NonFungibleAddress;
+use super::ScryptoReceiver;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -67,9 +65,8 @@ pub enum Instruction {
     },
 
     CallMethod {
-        // TODO: Add back support for `ComponentId`.
         #[serde_as(as = "ValueSerializationProxy")]
-        component_address: NetworkAwareComponentAddress,
+        component_address: ScryptoReceiver,
 
         #[serde_as(as = "ValueSerializationProxy")]
         method_name: String,
@@ -270,11 +267,7 @@ impl Instruction {
                 method_name,
                 arguments,
             } => AstInstruction::CallMethod {
-                receiver: AstScryptoReceiver::Global(AstValue::String(
-                    bech32_coder
-                        .encoder
-                        .encode_component_address_to_string(&component_address.address),
-                )),
+                receiver: component_address.to_ast_scrypto_receiver(bech32_coder),
                 method: Value::from(method_name).to_ast_value(bech32_coder)?,
                 args: arguments
                     .unwrap_or_default()
@@ -490,34 +483,10 @@ impl Instruction {
                 method,
                 args,
             } => Self::CallMethod {
-                component_address: match receiver {
-                    AstScryptoReceiver::Global(value) => {
-                        if let Value::String { value } = Value::from_ast_value(value, bech32_coder)?
-                        {
-                            Value::ComponentAddress {
-                                address: NetworkAwareComponentAddress {
-                                    network_id: bech32_coder.network_id(),
-                                    address: bech32_coder
-                                        .decoder
-                                        .validate_and_decode_component_address(&value)?,
-                                },
-                            }
-                            .try_into()?
-                        } else {
-                            Err(Error::InvalidType {
-                                expected_types: vec![ValueKind::String],
-                                actual_type: value.kind().into(),
-                            })?
-                        }
-                    }
-                    AstScryptoReceiver::Component(value) => {
-                        // TODO: Support component as well as component address
-                        Err(Error::InvalidType {
-                            expected_types: vec![ValueKind::ComponentAddress, ValueKind::Component],
-                            actual_type: value.kind().into(),
-                        })?
-                    }
-                },
+                component_address: ScryptoReceiver::from_ast_scrypto_receiver(
+                    receiver,
+                    bech32_coder,
+                )?,
                 method_name: Value::from_ast_value(method, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
@@ -761,7 +730,10 @@ impl ValidateWithContext<u8> for Instruction {
                 arguments,
                 ..
             } => {
-                EntityAddress::from(component_address).validate(network_id)?;
+                if let ScryptoReceiver::ComponentAddress(address) = component_address {
+                    EntityAddress::from(address).validate(network_id)?;
+                } else {
+                }
                 arguments
                     .unwrap_or_default()
                     .iter()

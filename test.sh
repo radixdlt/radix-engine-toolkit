@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+(cd radix-engine-toolkit-core; cargo nextest run  --release)
+
 (cd radix-engine-toolkit-native; cargo nextest run  --release)
 (cd radix-engine-toolkit-wasm; cargo nextest run  --release)
 (cd radix-engine-toolkit-jni; cargo nextest run  --release)

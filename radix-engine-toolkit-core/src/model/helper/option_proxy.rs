@@ -15,16 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod call_method_receiver;
-pub mod non_fungible_address;
-pub mod non_fungible_id_proxy;
-pub mod option_proxy;
-pub mod result_proxy;
-pub mod value_proxy;
+use serde::{Deserialize, Serialize};
 
-pub use call_method_receiver::*;
-pub use non_fungible_address::*;
-pub use non_fungible_id_proxy::*;
-pub use option_proxy::*;
-pub use result_proxy::*;
-pub use value_proxy::*;
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "variant")]
+pub enum OptionProxy<T> {
+    Some { field: T },
+    None,
+}
+
+impl<T> From<Option<T>> for OptionProxy<T> {
+    fn from(option: Option<T>) -> Self {
+        match option {
+            Option::Some(field) => Self::Some { field },
+            Option::None => Self::None,
+        }
+    }
+}
+
+impl<T> From<OptionProxy<T>> for Option<T> {
+    fn from(option: OptionProxy<T>) -> Self {
+        match option {
+            OptionProxy::Some { field } => Self::Some(field),
+            OptionProxy::None => Self::None,
+        }
+    }
+}

@@ -329,11 +329,11 @@ components:
         - non_fungible_id
       properties:
         resource_address:
-          type: string
           description: "A bech32m encoded string of the resource address that the non-fungible belongs to"
+          $ref: "#/components/schemas/ValueResourceAddress"
         non_fungible_id:
-          type: string
           description: "A hex-encoded string of the SBOR-encoded NonFungibleId bytes"
+          $ref: "#/components/schemas/NonFungibleId"
 
     DeriveNonFungibleAddressResponse:
       type: object
@@ -343,8 +343,8 @@ components:
         - non_fungible_address
       properties:
         non_fungible_address:
-          type: string
           description: "A hex-encoded string of the `NonFungibleAddress`."
+          $ref: "#/components/schemas/ValueResourceAddress"
 
     # Derive NonFungibleAddress from PublicKey request
     DeriveNonFungibleAddressFromPublicKeyRequest:
@@ -359,8 +359,8 @@ components:
         - non_fungible_address
       properties:
         non_fungible_address:
-          type: string
           description: "A hex-encoded string of the `NonFungibleAddress`."
+          $ref: "#/components/schemas/ValueResourceAddress"
 
     # Derive NonFungibleAddress request
     DeriveVirtualAccountAddressRequest:
@@ -411,6 +411,7 @@ components:
         - Vault,
         - ResourceManager,
         - Package,
+        - Clock,
 
     RENode:
       oneOf:
@@ -428,6 +429,7 @@ components:
         - $ref: "#/components/schemas/ReNodeVault"
         - $ref: "#/components/schemas/ReNodeResourceManager"
         - $ref: "#/components/schemas/ReNodePackage"
+        - $ref: "#/components/schemas/ReNodeClock"
       discriminator:
         propertyName: error
         mapping:
@@ -443,6 +445,7 @@ components:
           Vault: "#/components/schemas/ReNodeVault"
           ResourceManager: "#/components/schemas/ReNodeResourceManager"
           Package: "#/components/schemas/ReNodePackage"
+          Clock: "#/components/schemas/ReNodeClock"
 
     ReNodeBucket:
       type: object
@@ -612,6 +615,17 @@ components:
           readOnly: true
         identifier:
           $ref: "#/components/schemas/NodeId"
+    ReNodeClock:
+      type: object
+      required:
+        - type
+        - identifier
+      properties:
+        type:
+          $ref: "#/components/schemas/RENodeKind"
+          readOnly: true
+        identifier:
+          $ref: "#/components/schemas/NodeId"
 
     NodeId:
       type: string
@@ -625,25 +639,31 @@ components:
       enum:
         - Resource
         - Package
-        - AccountComponent
-        - SystemComponent
+        - SystemClock
+        - SystemEpochManager
         - NormalComponent
+        - AccountComponent
+        - EcdsaSecp256k1VirtualAccount
+        - EddsaEd25519VirtualAccount
 
     AddressType:
       type: string
       enum:
+        - SystemAddress
         - PackageAddress
         - ResourceAddress
         - ComponentAddress
 
     Address:
       oneOf:
+        - $ref: "#/components/schemas/NonValueSystemAddress"
         - $ref: "#/components/schemas/NonValuePackageAddress"
         - $ref: "#/components/schemas/NonValueResourceAddress"
         - $ref: "#/components/schemas/NonValueComponentAddress"
       discriminator:
         propertyName: type
         mapping:
+          SystemAddress: "#/components/schemas/NonValueSystemAddress"
           PackageAddress: "#/components/schemas/NonValuePackageAddress"
           ResourceAddress: "#/components/schemas/NonValueResourceAddress"
           ComponentAddress: "#/components/schemas/NonValueComponentAddress"
@@ -675,6 +695,18 @@ components:
     NonValueResourceAddress:
       type: object
       description: "A Bech32m-encoded resource address"
+      required:
+        - type
+        - address
+      properties:
+        type:
+          readOnly: true
+          $ref: "#/components/schemas/AddressType"
+        address:
+          type: string
+    NonValueSystemAddress:
+      type: object
+      description: "A Bech32m-encoded system address"
       required:
         - type
         - address
@@ -735,8 +767,8 @@ components:
         tip_percentage:
           type: string
           minimum: 0x00
-          maximum: 0xFFFFFFFF
-          description: "A 32-bit unsigned integer of the percentage of the tip to give to validators"
+          maximum: 0xFF
+          description: "An 8-bit unsigned integer of the percentage of the tip to give to validators"
 
     TransactionManifest:
       type: object
@@ -1023,21 +1055,18 @@ components:
         - U64
         - U128
         - String
-        - Struct
         - Enum
         - Option
+        - Result
         - Array
         - Tuple
-        - Result
-        - List
-        - Set
-        - Map
         - Decimal
         - PreciseDecimal
         - Component
+        - SystemAddress
         - PackageAddress
-        - ComponentAddress
         - ResourceAddress
+        - ComponentAddress
         - Hash
         - Bucket
         - Proof
@@ -1065,21 +1094,18 @@ components:
         - $ref: "#/components/schemas/I64"
         - $ref: "#/components/schemas/I128"
         - $ref: "#/components/schemas/String"
-        - $ref: "#/components/schemas/Struct"
         - $ref: "#/components/schemas/Enum"
         - $ref: "#/components/schemas/Option"
         - $ref: "#/components/schemas/Result"
         - $ref: "#/components/schemas/Array"
         - $ref: "#/components/schemas/Tuple"
-        - $ref: "#/components/schemas/List"
-        - $ref: "#/components/schemas/Set"
-        - $ref: "#/components/schemas/Map"
         - $ref: "#/components/schemas/Decimal"
         - $ref: "#/components/schemas/PreciseDecimal"
         - $ref: "#/components/schemas/Component"
         - $ref: "#/components/schemas/ValueComponentAddress"
         - $ref: "#/components/schemas/ValueResourceAddress"
         - $ref: "#/components/schemas/ValuePackageAddress"
+        - $ref: "#/components/schemas/ValueSystemAddress"
         - $ref: "#/components/schemas/Hash"
         - $ref: "#/components/schemas/KeyValueStore"
         - $ref: "#/components/schemas/Bucket"
@@ -1107,21 +1133,18 @@ components:
           I64: "#/components/schemas/I64"
           I128: "#/components/schemas/I128"
           String: "#/components/schemas/String"
-          Struct: "#/components/schemas/Struct"
           Enum: "#/components/schemas/Enum"
           Option: "#/components/schemas/Option"
           Result: "#/components/schemas/Result"
           Array: "#/components/schemas/Array"
           Tuple: "#/components/schemas/Tuple"
-          List: "#/components/schemas/List"
-          Set: "#/components/schemas/Set"
-          Map: "#/components/schemas/Map"
           Decimal: "#/components/schemas/Decimal"
           PreciseDecimal: "#/components/schemas/PreciseDecimal"
           Component: "#/components/schemas/Component"
           ComponentAddress: "#/components/schemas/ValueComponentAddress"
           ResourceAddress: "#/components/schemas/ValueResourceAddress"
           PackageAddress: "#/components/schemas/ValuePackageAddress"
+          SystemAddress: "#/components/schemas/ValueSystemAddress"
           Hash: "#/components/schemas/Hash"
           KeyValueStore: "#/components/schemas/KeyValueStore"
           Bucket: "#/components/schemas/Bucket"
@@ -1256,19 +1279,6 @@ components:
           readOnly: true
         value:
           type: string
-    Struct:
-      additionalProperties: false
-      required:
-        - type
-        - fields
-      properties:
-        type:
-          $ref: "#/components/schemas/ValueKind"
-          readOnly: true
-        fields:
-          type: array
-          items:
-            $ref: "#/components/schemas/Value"
     Enum:
       additionalProperties: false
       required:
@@ -1319,57 +1329,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Value"
-    List:
-      additionalProperties: false
-      required:
-        - type
-        - element_type
-        - elements
-      properties:
-        type:
-          $ref: "#/components/schemas/ValueKind"
-          readOnly: true
-        element_type:
-          $ref: "#/components/schemas/ValueKind"
-        elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/Value"
-    Set:
-      additionalProperties: false
-      required:
-        - type
-        - element_type
-        - elements
-      properties:
-        type:
-          $ref: "#/components/schemas/ValueKind"
-          readOnly: true
-        element_type:
-          $ref: "#/components/schemas/ValueKind"
-        elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/Value"
-    Map:
-      additionalProperties: false
-      required:
-        - type
-        - key_type
-        - value_type
-        - elements
-      properties:
-        type:
-          $ref: "#/components/schemas/ValueKind"
-          readOnly: true
-        key_type:
-          $ref: "#/components/schemas/ValueKind"
-        value_type:
-          $ref: "#/components/schemas/ValueKind"
-        elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/Value"
     Decimal:
       additionalProperties: false
       required:
@@ -1404,6 +1363,17 @@ components:
         identifier:
           $ref: "#/components/schemas/NodeId"
     ValueComponentAddress:
+      additionalProperties: false
+      required:
+        - type
+        - address
+      properties:
+        type:
+          $ref: "#/components/schemas/ValueKind"
+          readOnly: true
+        address:
+          type: string
+    ValueSystemAddress:
       additionalProperties: false
       required:
         - type
@@ -2080,6 +2050,7 @@ components:
         - AddressError
         - UnrecognizedAddressFormat
         - SborDecodeError
+        - SborEncodeError
         - DeserializationError
         - InvalidRequestString
         - UnexpectedContents
@@ -2087,7 +2058,6 @@ components:
         - InvalidType
         - UnknownTypeId
         - ParseError
-        - NoManifestRepresentation
         - TransactionCompileError
         - TransactionDecompileError
         - UnsupportedTransactionVersion
@@ -2095,7 +2065,6 @@ components:
         - RequestResponseConversionError
         - UnrecognizedCompiledIntentFormat
         - TransactionValidationError
-        - ExtractAbiError
         - NetworkMismatchError
 
     ErrorResponse:
@@ -2103,6 +2072,7 @@ components:
         - $ref: "#/components/schemas/AddressError"
         - $ref: "#/components/schemas/UnrecognizedAddressFormat"
         - $ref: "#/components/schemas/SborDecodeError"
+        - $ref: "#/components/schemas/SborEncodeError"
         - $ref: "#/components/schemas/DeserializationError"
         - $ref: "#/components/schemas/InvalidRequestString"
         - $ref: "#/components/schemas/UnexpectedContents"
@@ -2110,7 +2080,6 @@ components:
         - $ref: "#/components/schemas/InvalidType"
         - $ref: "#/components/schemas/UnknownTypeId"
         - $ref: "#/components/schemas/ParseError"
-        - $ref: "#/components/schemas/NoManifestRepresentation"
         - $ref: "#/components/schemas/TransactionCompileError"
         - $ref: "#/components/schemas/TransactionDecompileError"
         - $ref: "#/components/schemas/UnsupportedTransactionVersion"
@@ -2118,7 +2087,6 @@ components:
         - $ref: "#/components/schemas/RequestResponseConversionError"
         - $ref: "#/components/schemas/UnrecognizedCompiledIntentFormat"
         - $ref: "#/components/schemas/TransactionValidationError"
-        - $ref: "#/components/schemas/ExtractAbiError"
         - $ref: "#/components/schemas/NetworkMismatchError"
       discriminator:
         propertyName: error
@@ -2126,6 +2094,7 @@ components:
           AddressError: "#/components/schemas/AddressError"
           UnrecognizedAddressFormat: "#/components/schemas/UnrecognizedAddressFormat"
           SborDecodeError: "#/components/schemas/SborDecodeError"
+          SborEncodeError: "#/components/schemas/SborEncodeError"
           DeserializationError: "#/components/schemas/DeserializationError"
           InvalidRequestString: "#/components/schemas/InvalidRequestString"
           UnexpectedContents: "#/components/schemas/UnexpectedContents"
@@ -2133,7 +2102,6 @@ components:
           InvalidType: "#/components/schemas/InvalidType"
           UnknownTypeId: "#/components/schemas/UnknownTypeId"
           ParseError: "#/components/schemas/ParseError"
-          NoManifestRepresentation: "#/components/schemas/NoManifestRepresentation"
           TransactionCompileError: "#/components/schemas/TransactionCompileError"
           TransactionDecompileError: "#/components/schemas/TransactionDecompileError"
           UnsupportedTransactionVersion: "#/components/schemas/UnsupportedTransactionVersion"
@@ -2141,7 +2109,6 @@ components:
           RequestResponseConversionError: "#/components/schemas/RequestResponseConversionError"
           UnrecognizedCompiledIntentFormat: "#/components/schemas/UnrecognizedCompiledIntentFormat"
           TransactionValidationError: "#/components/schemas/TransactionValidationError"
-          ExtractAbiError: "#/components/schemas/ExtractAbiError"
           NetworkMismatchError: "#/components/schemas/NetworkMismatchError"
 
     AddressError:
@@ -2166,6 +2133,18 @@ components:
           $ref: "#/components/schemas/ErrorKind"
           readOnly: true
     SborDecodeError:
+      type: object
+      description: An error emitted when the decoding of SBOR fails.
+      required:
+        - error
+        - value
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorKind"
+          readOnly: true
+        value:
+          type: string
+    SborEncodeError:
       type: object
       description: An error emitted when the decoding of SBOR fails.
       required:
@@ -2285,18 +2264,6 @@ components:
           $ref: "#/components/schemas/ValueKind"
         message:
           type: string
-    NoManifestRepresentation:
-      type: object
-      description: An error emitted when encountering a value that does not have a manifest representation and therefore a manifest can not be created containing this type.
-      required:
-        - error
-        - kind
-      properties:
-        error:
-          $ref: "#/components/schemas/ErrorKind"
-          readOnly: true
-        kind:
-          $ref: "#/components/schemas/ValueKind"
     TransactionCompileError:
       type: object
       description: An error emitted when an error is encountered during transaction compilation.
@@ -2369,18 +2336,6 @@ components:
     TransactionValidationError:
       type: object
       description: An error emitted when attempting to validate a transaction fails.
-      required:
-        - error
-        - value
-      properties:
-        error:
-          $ref: "#/components/schemas/ErrorKind"
-          readOnly: true
-        value:
-          type: string
-    ExtractAbiError:
-      type: object
-      description: An error emitted when the extraction of the package ABI fails.
       required:
         - error
         - value
