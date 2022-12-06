@@ -44,3 +44,4 @@ jobs:
           export CC="/usr/local/opt/llvm/bin/clang"
           brew install binaryen
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
+          ls build/
