@@ -15,17 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        crate:
-          - radix-engine-toolkit-core
-          - radix-engine-toolkit-native
-          - radix-engine-toolkit-jni
-          - radix-engine-toolkit-wasm
+        crate: [ radix-engine-toolkit-core, radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm]
 
     steps:
     - uses: actions/checkout@v3
-    - run: ls
-    - run: cd ./${{ matrix.crate }}
-    - name: Build
-      run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml
