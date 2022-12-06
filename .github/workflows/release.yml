@@ -12,10 +12,10 @@ jobs:
         #target: [ native, wasm, jni ]
         target: [ jni ]
         include:
-#          - target: native
-#            rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
-#          - target: wasm
-#            rust-target: "wasm32-unknown-unknown"
+          - target: native
+            rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
+          - target: wasm
+            rust-target: "wasm32-unknown-unknown"
           - target: jni
             rust-target: "aarch64-apple-darwin x86_64-apple-darwin"
 
@@ -46,3 +46,9 @@ jobs:
           brew install binaryen
           ./build.sh radix-engine-toolkit-${{ matrix.target }}
           ls build/
+
+      - name: Upload ${{ matrix.target }} artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: radix-engine-toolkit-${{ matrix.target }}
+          path: build/radix-engine-toolkit-${{ matrix.target }}-*
