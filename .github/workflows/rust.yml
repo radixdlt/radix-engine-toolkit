@@ -23,6 +23,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - run: ls
     - run: cd ./${{ matrix.crate }}
     - name: Build
       run: cargo build --verbose
