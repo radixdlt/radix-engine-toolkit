@@ -53,7 +53,7 @@ impl NonFungibleAddress {
                 network_id,
                 address: native_non_fungible_address.resource_address(),
             },
-            non_fungible_id: native_non_fungible_address.non_fungible_id(),
+            non_fungible_id: native_non_fungible_address.non_fungible_id().clone(),
         }
     }
 }

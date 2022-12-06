@@ -1247,7 +1247,7 @@ impl Value {
                             address: value.resource_address(),
                             network_id,
                         },
-                        non_fungible_id: value.non_fungible_id(),
+                        non_fungible_id: value.non_fungible_id().clone(),
                     },
                 },
             },

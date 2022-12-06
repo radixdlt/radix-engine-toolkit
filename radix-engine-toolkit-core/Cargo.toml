@@ -11,18 +11,11 @@ serde = { version = "1.0.144", default-features = false, features = ["serde_deri
 serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
 serde_with = { version = "2.0.0", default-features = false, features = ["hex", "macros"] }
 
-# Temporarily commented out. Should revert back as soon as some PRs have been merged
-# sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/SCRY-303-NonFungible-Address-Manifest" }
-# scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/SCRY-303-NonFungible-Address-Manifest", features = ["serde"] }
-# scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/SCRY-303-NonFungible-Address-Manifest", package = "utils" }
-# radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/SCRY-303-NonFungible-Address-Manifest", features = ["serde"], package = "transaction" }
-# radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "refactor/SCRY-303-NonFungible-Address-Manifest" }
-
-sbor = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/sbor" }
-scrypto = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/scrypto", features = ["serde"] }
-scrypto_utils = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/utils", package = "utils" }
-radix_transaction = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/transaction", features = ["serde"], package = "transaction" }
-radix-engine-constants = { path = "/Users/omarabdulla/Desktop/radixdlt-scrypto/radix-engine-constants" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temporary/omar-betanet-integration" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temporary/omar-betanet-integration", features = ["serde"] }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temporary/omar-betanet-integration", package = "utils" }
+radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temporary/omar-betanet-integration", features = ["serde"], package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "temporary/omar-betanet-integration" }
 
 [dev-dependencies]
 lazy_static = "1.4.0"
