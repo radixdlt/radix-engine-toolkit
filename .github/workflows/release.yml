@@ -35,7 +35,8 @@ jobs:
           rustup target add ${{ matrix.rust-target }}
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
           cargo install --force cbindgen cross
-          brew install llvm docker
+          brew install docker --cask
+          brew install llvm
           export AR="/usr/local/opt/llvm/bin/llvm-ar"
           export CC="/usr/local/opt/llvm/bin/clang"
           brew install binaryen
