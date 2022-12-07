@@ -17,20 +17,20 @@
 
 #[macro_use]
 extern crate lazy_static;
-use radix_engine_toolkit_core::model::{
-    Bech32Coder, BucketId, Identifier, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress, NetworkAwareSystemAddress, NonFungibleAddress, ProofId, Value,
-    ValueKind,
+use radix_engine_toolkit_core::{
+    error::Error,
+    model::{
+        Bech32Coder, BucketId, Identifier, NetworkAwareComponentAddress,
+        NetworkAwarePackageAddress, NetworkAwareResourceAddress, NetworkAwareSystemAddress,
+        NonFungibleAddress, ProofId, Value, ValueKind,
+    }, traits::ValidateWithContext,
 };
 use radix_transaction::manifest::{
     generator::{generate_value, NameResolver},
     lexer::tokenize,
 };
 use sbor::rust::collections::IndexMap;
-use scrypto::{
-    prelude::{scrypto_encode, Blob, Hash, NonFungibleId, ScryptoValue},
-    runtime::Expression,
-};
+use scrypto::prelude::*;
 
 #[test]
 fn serialized_values_match_expected() {
@@ -266,6 +266,30 @@ fn sbor_decoding_value_yields_expected_result() {
     }
 }
 
+#[test]
+fn validation_of_values_produces_expected_validation_response() {
+    // Arrange
+    let network_id = 0xf2;
+
+    for test_vector in VALUE_VALIDATION_TEST_VECTORS.iter() {
+        let expected_validation_result = &test_vector.validation_result;
+
+        // Act
+        let validation_result = test_vector.value.validate((network_id, Some(test_vector.value.kind())));
+
+        // Assert
+        assert_eq!(*expected_validation_result, validation_result);
+    }
+
+    for test_vector in JSON_CONVERSION_TEST_VECTORS.iter() {
+        // Act
+        let validation_result = test_vector.value.validate((network_id, Some(test_vector.value.kind())));
+
+        // Assert
+        assert_eq!(validation_result, Ok(()))
+    }
+}
+
 struct ValueJsonRepresentationTestVector {
     value: Value,
     json_representation: String,
@@ -320,6 +344,20 @@ impl ValueAstConversionsTestVector {
             &blobs,
         )
         .expect("Failed to generate scrypto value from ast_value")
+    }
+}
+
+struct ValueValidationTestVector {
+    value: Value,
+    validation_result: Result<(), Error>,
+}
+
+impl ValueValidationTestVector {
+    fn new(value: Value, validation_result: Result<(), Error>) -> Self {
+        Self {
+            value,
+            validation_result,
+        }
     }
 }
 
@@ -1055,6 +1093,158 @@ lazy_static! {
         ValueAstConversionsTestVector::new(
             Value::Bytes { value: vec![0x12, 0x19, 0x12, 0x20, 0x8] },
             r#"Bytes("1219122008")"#
+        ),
+    ];
+
+    static ref VALUE_VALIDATION_TEST_VECTORS: Vec<ValueValidationTestVector> = vec![
+        // ====================================
+        // Address Network Mismatch Validation
+        // ====================================
+        ValueValidationTestVector::new(
+            Value::ResourceAddress { 
+                address: NetworkAwareResourceAddress { 
+                    network_id: 0x10, 
+                    address: scrypto::prelude::ResourceAddress::Normal([0; 26]) 
+                } 
+            },
+            Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
+        ),
+        ValueValidationTestVector::new(
+            Value::ComponentAddress { 
+                address: NetworkAwareComponentAddress { 
+                    network_id: 0x10, 
+                    address: scrypto::prelude::ComponentAddress::Normal([0; 26]) 
+                } 
+            },
+            Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
+        ),
+        ValueValidationTestVector::new(
+            Value::SystemAddress { 
+                address: NetworkAwareSystemAddress { 
+                    network_id: 0x10, 
+                    address: scrypto::prelude::SystemAddress::EpochManager([0; 26]) 
+                } 
+            },
+            Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
+        ),
+        ValueValidationTestVector::new(
+            Value::PackageAddress { 
+                address: NetworkAwarePackageAddress { 
+                    network_id: 0x10, 
+                    address: scrypto::prelude::PackageAddress::Normal([0; 26]) 
+                } 
+            },
+            Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
+        ),
+        
+        ValueValidationTestVector::new(
+            Value::Array { element_type: ValueKind::Array, elements: vec![
+                Value::Array { element_type: ValueKind::Tuple, elements: vec![
+                    Value::Tuple { elements: vec![
+                        Value::Array { element_type: ValueKind::Tuple, elements: vec![
+                            Value::Tuple { elements: vec![
+                                Value::PackageAddress { 
+                                    address: NetworkAwarePackageAddress { 
+                                        network_id: 0x10, 
+                                        address: scrypto::prelude::PackageAddress::Normal([0; 26]) 
+                                    } 
+                                }
+                            ] }
+                        ] }
+                    ] }
+                ] }
+            ] },
+            Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
+        ),
+        // ============================
+        // Collection Types Validation
+        // ============================
+        ValueValidationTestVector::new(
+            Value::Array {
+                element_type: ValueKind::Decimal,
+                elements: vec![
+                    Value::Decimal { value: dec!("20") },
+                    Value::Decimal { value: dec!("100") },
+                    Value::Decimal {
+                        value: dec!("192.31"),
+                    },
+                ],
+            },
+            Ok(())
+        ),
+        ValueValidationTestVector::new(
+            Value::Array {
+                element_type: ValueKind::Decimal,
+                elements: vec![
+                    Value::Decimal { value: dec!("20") },
+                    Value::Decimal { value: dec!("100") },
+                    Value::Decimal {
+                        value: dec!("192.31"),
+                    },
+                    Value::PreciseDecimal {
+                        value: pdec!("192.31"),
+                    },
+                ],
+            },
+            Err(Error::InvalidType { 
+                expected_types: vec![ValueKind::Decimal], 
+                actual_type: ValueKind::PreciseDecimal 
+            })
+        ),
+        ValueValidationTestVector::new(
+            Value::Tuple {
+                elements: vec![
+                    Value::Decimal { value: dec!("10") },
+                    Value::PreciseDecimal { value: pdec!("10") },
+                    Value::String {
+                        value: "Hello World!".into(),
+                    },
+                    Value::Tuple {
+                        elements: vec![
+                            Value::Decimal { value: dec!("10") },
+                            Value::PreciseDecimal { value: pdec!("10") },
+                            Value::String {
+                                value: "Hello World!".into(),
+                            },
+                            Value::Tuple {
+                                elements: vec![
+                                    Value::Decimal { value: dec!("10") },
+                                    Value::PreciseDecimal { value: pdec!("10") },
+                                    Value::String {
+                                        value: "Hello World!".into(),
+                                    },
+                                    Value::Tuple {
+                                        elements: vec![
+                                            Value::Decimal { value: dec!("10") },
+                                            Value::PreciseDecimal { value: pdec!("10") },
+                                            Value::String {
+                                                value: "Hello World!".into(),
+                                            },
+                                            Value::Array {
+                                                element_type: ValueKind::Decimal,
+                                                elements: vec![
+                                                    Value::Decimal { value: dec!("20") },
+                                                    Value::Decimal { value: dec!("100") },
+                                                    Value::Decimal {
+                                                        value: dec!("192.31"),
+                                                    },
+                                                    Value::PreciseDecimal {
+                                                        value: pdec!("192.31"),
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+            Err(Error::InvalidType { 
+                expected_types: vec![ValueKind::Decimal], 
+                actual_type: ValueKind::PreciseDecimal 
+            })
         ),
     ];
 }

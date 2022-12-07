@@ -43,7 +43,7 @@ use serde::{Deserialize, Serialize};
 /// `Serialize`. But, a variant can be created which holds a `String` value and a
 /// `From<DecimalParseError>` trait can be implemented for this error type to allow for
 /// `DecimalParseError` errors to be represented through this type.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, PartialOrd, Ord, Eq)]
 #[serde(tag = "error", content = "value")]
 pub enum Error {
     // ===============

@@ -277,7 +277,7 @@ impl Value {
         }
     }
 
-    fn validate_if_collection(&self) -> Result<(), Error> {
+    fn validate_if_collection(&self, network_id: u8) -> Result<(), Error> {
         match self {
             Self::Array {
                 element_type,
@@ -285,17 +285,14 @@ impl Value {
             } => {
                 elements
                     .iter()
-                    .map(|item| match item.validate_if_collection() {
-                        Ok(_) => item.validate_kind(*element_type),
-                        Err(error) => Err(error),
-                    })
+                    .map(|item| item.validate((network_id, Some(*element_type))))
                     .collect::<Result<Vec<()>, _>>()?;
                 Ok(())
             }
             Self::Tuple { elements } => {
                 elements
                     .iter()
-                    .map(|item| item.validate_if_collection())
+                    .map(|item| item.validate((network_id, None)))
                     .collect::<Result<Vec<()>, _>>()?;
                 Ok(())
             }
@@ -309,6 +306,7 @@ impl Value {
             Self::ComponentAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
+            Self::SystemAddress { address } => address.network_id,
             _ => return Ok(()),
         };
         if network_id == expected_network_id {
@@ -811,16 +809,13 @@ impl Value {
             Value::Array {
                 element_type,
                 elements,
-            } => {
-                self.validate_if_collection()?;
-                AstValue::Array(
-                    (*element_type).into(),
-                    elements
-                        .iter()
-                        .map(|id| id.to_ast_value(bech32_coder))
-                        .collect::<Result<Vec<AstValue>, Error>>()?,
-                )
-            }
+            } => AstValue::Array(
+                (*element_type).into(),
+                elements
+                    .iter()
+                    .map(|id| id.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<AstValue>, Error>>()?,
+            ),
             Value::Tuple { elements } => AstValue::Tuple(
                 elements
                     .iter()
@@ -1275,7 +1270,7 @@ impl Value {
 
 impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
     fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
-        self.validate_if_collection()?;
+        self.validate_if_collection(network_id)?;
         self.validate_address_network_id(network_id)?;
         if let Some(expected_kind) = expected_kind {
             self.validate_kind(expected_kind)?;
@@ -1746,216 +1741,3 @@ impl_from_and_try_from_value! {NonFungibleAddress, NonFungibleAddress, address}
 impl_from_and_try_from_value! {PackageAddress, NetworkAwarePackageAddress, address}
 impl_from_and_try_from_value! {ResourceAddress, NetworkAwareResourceAddress, address}
 impl_from_and_try_from_value! {ComponentAddress, NetworkAwareComponentAddress, address}
-
-// ===========
-// Unit Tests
-// ===========
-
-#[cfg(test)]
-mod tests {
-    use scrypto::prelude::*;
-
-    use super::{Value, ValueKind};
-    use crate::model::address::*;
-
-    #[test]
-    fn non_collection_validation_succeeds() {
-        // Arrange
-        let value = Value::Bool { value: false };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Ok(())))
-    }
-
-    #[test]
-    fn array_of_decimals_validation_succeeds() {
-        // Arrange
-        let value = Value::Array {
-            element_type: ValueKind::Decimal,
-            elements: vec![
-                Value::Decimal { value: dec!("20") },
-                Value::Decimal { value: dec!("100") },
-                Value::Decimal {
-                    value: dec!("192.31"),
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Ok(())))
-    }
-
-    #[test]
-    fn array_of_decimal_and_precise_decimal_validation_fails() {
-        // Arrange
-        let value = Value::Array {
-            element_type: ValueKind::Decimal,
-            elements: vec![
-                Value::Decimal { value: dec!("20") },
-                Value::Decimal { value: dec!("100") },
-                Value::Decimal {
-                    value: dec!("192.31"),
-                },
-                Value::PreciseDecimal {
-                    value: pdec!("192.31"),
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        let _expected_types = vec![ValueKind::Decimal];
-        assert!(matches!(
-            result,
-            Err(crate::error::Error::InvalidType {
-                expected_types: _,
-                actual_type: ValueKind::PreciseDecimal
-            })
-        ))
-    }
-
-    #[test]
-    fn validation_of_deeply_nested_tuple_with_non_matching_types_fails() {
-        // Arrange
-        let value = Value::Tuple {
-            elements: vec![
-                Value::Decimal { value: dec!("10") },
-                Value::PreciseDecimal { value: pdec!("10") },
-                Value::String {
-                    value: "Hello World!".into(),
-                },
-                Value::Tuple {
-                    elements: vec![
-                        Value::Decimal { value: dec!("10") },
-                        Value::PreciseDecimal { value: pdec!("10") },
-                        Value::String {
-                            value: "Hello World!".into(),
-                        },
-                        Value::Tuple {
-                            elements: vec![
-                                Value::Decimal { value: dec!("10") },
-                                Value::PreciseDecimal { value: pdec!("10") },
-                                Value::String {
-                                    value: "Hello World!".into(),
-                                },
-                                Value::Tuple {
-                                    elements: vec![
-                                        Value::Decimal { value: dec!("10") },
-                                        Value::PreciseDecimal { value: pdec!("10") },
-                                        Value::String {
-                                            value: "Hello World!".into(),
-                                        },
-                                        Value::Array {
-                                            element_type: ValueKind::Decimal,
-                                            elements: vec![
-                                                Value::Decimal { value: dec!("20") },
-                                                Value::Decimal { value: dec!("100") },
-                                                Value::Decimal {
-                                                    value: dec!("192.31"),
-                                                },
-                                                Value::PreciseDecimal {
-                                                    value: pdec!("192.31"),
-                                                },
-                                            ],
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Err(_)))
-    }
-
-    #[test]
-    fn no_data_loss_to_ast_value_and_back() {
-        // Arrange
-        let values = vec![
-            Value::NonFungibleId {
-                value: NonFungibleId::U32(1144418947),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::U64(114441894733333),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::UUID(11444189334733333),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::String("Hello World!".into()),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::U32(1144418947),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::U64(114441894733333),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::UUID(11444189334733333),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::String("Hello World!".into()),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
-                },
-            },
-        ];
-        let bech32_coder = Bech32Coder::new(0xf2);
-
-        for value in values {
-            // Act
-            let ast_value = value.to_ast_value(&bech32_coder).unwrap();
-            let converted_value = Value::from_ast_value(&ast_value, &bech32_coder).unwrap();
-
-            // Assert
-            assert_eq!(value, converted_value)
-        }
-    }
-}

@@ -46,7 +46,7 @@ pub enum RENode {
     Clock(NodeIdentifier),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq)]
 pub enum RENodeKind {
     Bucket,
     Proof,
