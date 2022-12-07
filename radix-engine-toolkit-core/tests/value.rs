@@ -29,6 +29,7 @@ use radix_transaction::manifest::{
     generator::{generate_value, NameResolver},
     lexer::tokenize,
 };
+use radix_transaction::manifest::ast::Type as AstValueKind;
 use sbor::rust::collections::IndexMap;
 use scrypto::prelude::*;
 
@@ -290,6 +291,48 @@ fn validation_of_values_produces_expected_validation_response() {
     }
 }
 
+#[test]
+fn value_has_expected_value_kind() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.value_kind;
+
+        // Act
+        let value_kind = test_vector.value.kind();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
+    }
+}
+
+#[test]
+fn value_has_expected_ast_value_kind() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.ast_value_kind;
+
+        // Act
+        let value_kind = test_vector.value.kind().into();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
+    }
+}
+
+#[test]
+fn value_kind_to_ast_value_kind_is_converted_as_expected() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.ast_value_kind;
+
+        // Act
+        let value_kind = test_vector.value_kind.into();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
+    }
+}
+
 struct ValueJsonRepresentationTestVector {
     value: Value,
     json_representation: String,
@@ -358,6 +401,18 @@ impl ValueValidationTestVector {
             value,
             validation_result,
         }
+    }
+}
+
+struct ValueKindTestVector {
+    value: Value,
+    value_kind: ValueKind,
+    ast_value_kind: AstValueKind,
+}
+
+impl ValueKindTestVector {
+    pub fn new(value: Value, value_kind: ValueKind, ast_value_kind: AstValueKind) -> Self {
+        Self{value, value_kind, ast_value_kind}
     }
 }
 
@@ -1245,6 +1300,439 @@ lazy_static! {
                 expected_types: vec![ValueKind::Decimal], 
                 actual_type: ValueKind::PreciseDecimal 
             })
+        ),
+    ];
+
+    static ref VALUE_KIND_TEST_VECTORS: Vec<ValueKindTestVector> = vec![
+        // ================
+        // Primitive Types
+        // ================
+
+        // Unit and Boolean
+        ValueKindTestVector::new(
+            Value::Unit, 
+            ValueKind::Unit,
+            AstValueKind::Unit
+        ),
+        ValueKindTestVector::new(
+            Value::Bool { value: true },
+            ValueKind::Bool,
+            AstValueKind::Bool,
+        ),
+        ValueKindTestVector::new(
+            Value::Bool { value: false },
+            ValueKind::Bool,
+            AstValueKind::Bool,
+        ),
+        // Unsigned Integers
+        ValueKindTestVector::new(
+            Value::U8 { value: 19 },
+            ValueKind::U8,
+            AstValueKind::U8,
+        ),
+        ValueKindTestVector::new(
+            Value::U16 { value: 19 },
+            ValueKind::U16,
+            AstValueKind::U16,
+        ),
+        ValueKindTestVector::new(
+            Value::U32 { value: 19 },
+            ValueKind::U32,
+            AstValueKind::U32,
+        ),
+        ValueKindTestVector::new(
+            Value::U64 { value: 19 },
+            ValueKind::U64,
+            AstValueKind::U64,
+        ),
+        ValueKindTestVector::new(
+            Value::U128 { value: 19 },
+            ValueKind::U128,
+            AstValueKind::U128,
+        ),
+        // Signed Integers
+        ValueKindTestVector::new(
+            Value::I8 { value: 19 },
+            ValueKind::I8,
+            AstValueKind::I8,
+        ),
+        ValueKindTestVector::new(
+            Value::I16 { value: 19 },
+            ValueKind::I16,
+            AstValueKind::I16,
+        ),
+        ValueKindTestVector::new(
+            Value::I32 { value: 19 },
+            ValueKind::I32,
+            AstValueKind::I32,
+        ),
+        ValueKindTestVector::new(
+            Value::I64 { value: 19 },
+            ValueKind::I64,
+            AstValueKind::I64,
+        ),
+        ValueKindTestVector::new(
+            Value::I128 { value: 19 },
+            ValueKind::I128,
+            AstValueKind::I128,
+        ),
+        // String
+        ValueKindTestVector::new(
+            Value::String {
+                value: "P2P Cash System".into(),
+            },
+            ValueKind::String,
+            AstValueKind::String,
+        ),
+        // Enums and Enum Aliases (Option & Result)
+        ValueKindTestVector::new(
+            Value::Enum {
+                variant: "Create".into(),
+                fields: Some(vec![Value::String {
+                    value: "Component".into(),
+                }]),
+            },
+            ValueKind::Enum,
+            AstValueKind::Enum,
+        ),
+        ValueKindTestVector::new(
+            Value::Option {
+                value: Box::new(Some(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            ValueKind::Option,
+            AstValueKind::Enum,
+        ),
+        ValueKindTestVector::new(
+            Value::Option {
+                value: Box::new(None),
+            },
+            ValueKind::Option,
+            AstValueKind::Enum,
+        ),
+        ValueKindTestVector::new(
+            Value::Result {
+                value: Box::new(Ok(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            ValueKind::Result,
+            AstValueKind::Enum,
+        ),
+        ValueKindTestVector::new(
+            Value::Result {
+                value: Box::new(Err(Value::String {
+                    value: "Component".into(),
+                })),
+            },
+            ValueKind::Result,
+            AstValueKind::Enum,
+        ),
+        // =================
+        // Collection Types
+        // =================
+        ValueKindTestVector::new(
+            Value::Array {
+                element_type: ValueKind::String,
+                elements: vec![Value::String {
+                    value: "World, Hello!".into(),
+                }],
+            },
+            ValueKind::Array,
+            AstValueKind::Array,
+        ),
+        ValueKindTestVector::new(
+            Value::Tuple {
+                elements: vec![Value::I64 { value: 19 }, Value::I8 { value: 19 }],
+            },
+            ValueKind::Tuple,
+            AstValueKind::Tuple,
+        ),
+        // =========================
+        // Node Identifier Wrappers
+        // =========================
+        ValueKindTestVector::new(
+            Value::KeyValueStore {
+                identifier:
+                    "000000000000000000000000000000000000000000000000000000000000000000000005"
+                        .parse()
+                        .unwrap(),
+            },
+            ValueKind::KeyValueStore,
+            AstValueKind::KeyValueStore,
+        ),
+        ValueKindTestVector::new(
+            Value::Component {
+                identifier:
+                    "000000000000000000000000000000000000000000000000000000000000000000000005"
+                        .parse()
+                        .unwrap(),
+            },
+            ValueKind::Component,
+            AstValueKind::Component,
+        ),
+        ValueKindTestVector::new(
+            Value::Vault {
+                identifier:
+                    "000000000000000000000000000000000000000000000000000000000000000000000005"
+                        .parse()
+                        .unwrap(),
+            },
+            ValueKind::Vault,
+            AstValueKind::Vault,
+        ),
+        // ============================
+        // Decimal And Precise Decimal
+        // ============================
+        ValueKindTestVector::new(
+            Value::Decimal {
+                value: "1923319912.102221313".parse().unwrap(),
+            },
+            ValueKind::Decimal,
+            AstValueKind::Decimal,
+        ),
+        ValueKindTestVector::new(
+            Value::PreciseDecimal {
+                value: "1923319912.102221313".parse().unwrap(),
+            },
+            ValueKind::PreciseDecimal,
+            AstValueKind::PreciseDecimal,
+        ),
+        // ==============
+        // Address Types
+        // ==============
+        ValueKindTestVector::new(
+            Value::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
+                },
+            },
+            ValueKind::ComponentAddress,
+            AstValueKind::ComponentAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::ComponentAddress::Account([0; 26]),
+                },
+            },
+            ValueKind::ComponentAddress,
+            AstValueKind::ComponentAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                },
+            },
+            ValueKind::ResourceAddress,
+            AstValueKind::ResourceAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::PackageAddress::Normal([0; 26]),
+                },
+            },
+            ValueKind::PackageAddress,
+            AstValueKind::PackageAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::SystemAddress {
+                address: NetworkAwareSystemAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::SystemAddress::EpochManager([0; 26]),
+                },
+            },
+            ValueKind::SystemAddress,
+            AstValueKind::SystemAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::SystemAddress {
+                address: NetworkAwareSystemAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::SystemAddress::Clock([0; 26]),
+                },
+            },
+            ValueKind::SystemAddress,
+            AstValueKind::SystemAddress,
+        ),
+        // ==============
+        // Cryptographic
+        // ==============
+        ValueKindTestVector::new(
+            Value::Hash { value: "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap() },
+            ValueKind::Hash,
+            AstValueKind::Hash,
+        ),
+        ValueKindTestVector::new(
+            Value::EcdsaSecp256k1PublicKey { public_key: "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798".parse().unwrap() },
+            ValueKind::EcdsaSecp256k1PublicKey,
+            AstValueKind::EcdsaSecp256k1PublicKey,
+        ),
+        ValueKindTestVector::new(
+            Value::EddsaEd25519PublicKey { public_key: "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29".parse().unwrap() },
+            ValueKind::EddsaEd25519PublicKey,
+            AstValueKind::EddsaEd25519PublicKey,
+        ),
+        ValueKindTestVector::new(
+            Value::EcdsaSecp256k1Signature { signature: "0079224ea514206706298d8d620f660828f7987068d6d02757e6f3cbbf4a51ab133395db69db1bc9b2726dd99e34efc252d8258dcb003ebaba42be349f50f7765e".parse().unwrap() },
+            ValueKind::EcdsaSecp256k1Signature,
+            AstValueKind::EcdsaSecp256k1Signature,
+        ),
+        ValueKindTestVector::new(
+            Value::EddsaEd25519Signature { signature: "ce993adc51111309a041faa65cbcf1154d21ed0ecdc2d54070bc90b9deb744aa8605b3f686fa178fba21070b4a4678e54eee3486a881e0e328251cd37966de09".parse().unwrap() },
+            ValueKind::EddsaEd25519Signature,
+            AstValueKind::EddsaEd25519Signature,
+        ),
+
+        // ===================
+        // Buckets and Proofs
+        // ===================
+        ValueKindTestVector::new(
+            Value::Bucket { identifier: BucketId(Identifier::String("xrd_bucket".into())) },
+            ValueKind::Bucket,
+            AstValueKind::Bucket
+        ),
+        ValueKindTestVector::new(
+            Value::Bucket { identifier: BucketId(Identifier::U32(28)) },
+            ValueKind::Bucket,
+            AstValueKind::Bucket
+        ),
+        ValueKindTestVector::new(
+            Value::Proof { identifier: ProofId(Identifier::String("xrd_proof".into())) },
+            ValueKind::Proof,
+            AstValueKind::Proof
+        ),
+        ValueKindTestVector::new(
+            Value::Proof { identifier: ProofId(Identifier::U32(28)) },
+            ValueKind::Proof,
+            AstValueKind::Proof
+        ),
+
+        // ==========================
+        // Non Fungible Id & Address
+        // ==========================
+
+        ValueKindTestVector::new(
+            Value::NonFungibleId { value: NonFungibleId::U32(1144418947) },
+            ValueKind::NonFungibleId,
+            AstValueKind::NonFungibleId,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleId { value: NonFungibleId::U64(114441894733333) },
+            ValueKind::NonFungibleId,
+            AstValueKind::NonFungibleId,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleId { value: NonFungibleId::UUID(11444189334733333) },
+            ValueKind::NonFungibleId,
+            AstValueKind::NonFungibleId,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleId { value: NonFungibleId::String("hello_world".into()) },
+            ValueKind::NonFungibleId,
+            AstValueKind::NonFungibleId,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleId { value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) },
+            ValueKind::NonFungibleId,
+            AstValueKind::NonFungibleId,
+        ),
+
+        ValueKindTestVector::new(
+            Value::NonFungibleAddress {
+                address: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::U32(1144418947)
+                }
+            },
+            ValueKind::NonFungibleAddress,
+            AstValueKind::NonFungibleAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleAddress {
+                address: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::U64(114441894733333)
+                }
+            },
+            ValueKind::NonFungibleAddress,
+            AstValueKind::NonFungibleAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleAddress {
+                address: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::UUID(11444189334733333)
+                }
+            },
+            ValueKind::NonFungibleAddress,
+            AstValueKind::NonFungibleAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleAddress {
+                address: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::String("hello_world".into())
+                }
+            },
+            ValueKind::NonFungibleAddress,
+            AstValueKind::NonFungibleAddress,
+        ),
+        ValueKindTestVector::new(
+            Value::NonFungibleAddress {
+                address: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01])
+                }
+            },
+            ValueKind::NonFungibleAddress,
+            AstValueKind::NonFungibleAddress,
+        ),
+
+        // =================
+        // Other Misc Types
+        // =================
+        ValueKindTestVector::new(
+            Value::Blob { hash: Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
+            ValueKind::Blob,
+            AstValueKind::Blob
+        ),
+        ValueKindTestVector::new(
+            Value::Expression { value: Expression::entire_auth_zone() },
+            ValueKind::Expression,
+            AstValueKind::Expression
+        ),
+        ValueKindTestVector::new(
+            Value::Expression { value: Expression::entire_worktop() },
+            ValueKind::Expression,
+            AstValueKind::Expression
+        ),
+        ValueKindTestVector::new(
+            Value::Bytes { value: vec![0x12, 0x19, 0x12, 0x20, 0x8] },
+            ValueKind::Bytes,
+            AstValueKind::Bytes
         ),
     ];
 }
