@@ -17,6 +17,7 @@
 
 #[macro_use]
 extern crate lazy_static;
+
 use radix_engine_toolkit_core::{
     error::Error,
     model::{
@@ -55,7 +56,7 @@ fn deserialized_values_match_expected() {
     for test_vector in JSON_CONVERSION_TEST_VECTORS.iter() {
         // Act
         let expected_value = &test_vector.value;
-        let deserialized_value: Value = serde_json::from_str(&test_vector.json_representation)
+        let deserialized_value = serde_json::from_str(&test_vector.json_representation)
             .expect("Deserialization failed!");
 
         // Assert

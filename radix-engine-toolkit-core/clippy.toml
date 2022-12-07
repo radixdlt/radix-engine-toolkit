@@ -1,0 +1,11 @@
+# In the future, the following types will not be allowed to be used in the repository and will lead
+# to linting errors if used. These types are not allowed as they can lead to non-determinisim in the 
+# Radix Engine Toolkit which is extremely undesirable.
+
+disallowed-types = [
+    { path = "std::collections::BTreeMap", reason = "Non determinstic types such as this type can lead to non-determinism in compiled transactions. Use IndexMap as a deterministic alternative to this type." },
+    { path = "std::collections::HashMap", reason = "Non determinstic types such as this type can lead to non-determinism in compiled transactions. Use IndexMap as a deterministic alternative to this type." },
+    
+    { path = "std::collections::BTreeSet", reason = "Non determinstic types such as this type can lead to non-determinism in compiled transactions. Use IndexSet as a deterministic alternative to this type" },
+    { path = "std::collections::HashSet", reason = "Non determinstic types such as this type can lead to non-determinism in compiled transactions. Use IndexSet as a deterministic alternative to this type" },
+]

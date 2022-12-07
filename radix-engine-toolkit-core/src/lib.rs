@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// When ready to completely not allow for the disallowed types, switch this to from `warn` to `deny`
+// and clippy will error out when these types are used.
+#![warn(clippy::disallowed_types)]
+
 pub mod error;
 pub mod memory;
 pub mod model;

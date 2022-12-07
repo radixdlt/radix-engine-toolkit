@@ -37,7 +37,7 @@ use super::NonFungibleAddress;
 use super::ScryptoReceiver;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(tag = "instruction", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Instruction {
     CallFunction {
@@ -819,7 +819,6 @@ impl ValidateWithContext<u8> for Instruction {
             Self::PublishPackageWithOwner { .. } => Ok(()),
 
             Self::MintFungible { .. } => {
-                // TODO: Add validation for this instruction
                 Ok(())
             }
             Self::BurnBucket { bucket: _ } => Ok(()),
