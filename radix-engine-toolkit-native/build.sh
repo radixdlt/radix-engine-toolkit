@@ -96,11 +96,14 @@ cp -r include ./target/macos-arm64_x86_64
 cp -r include ./target/ios-simulator-arm64_x86_64
 
 mkdir target/iOS
+echo "Creating now"
 xcodebuild -create-xcframework \
-    -library target/aarch64-apple-ios/release/$LIBRARY_FILE_NAME \
-    -library target/ios-simulator-arm64_x86_64/$LIBRARY_FILE_NAME \
-    -library target/macos-arm64_x86_64/$LIBRARY_FILE_NAME \
+    -library ./target/aarch64-apple-ios/release/$LIBRARY_FILE_NAME \
     -headers ./include \
-    -output target/iOS/RadixEngineToolkit.xcframework
+    -library ./target/ios-simulator-arm64_x86_64/$LIBRARY_FILE_NAME \
+    -headers ./target/ios-simulator-arm64_x86_64/include \
+    -library ./target/macos-arm64_x86_64/$LIBRARY_FILE_NAME \
+    -headers ./target/macos-arm64_x86_64/include \
+    -output ./target/iOS/RadixEngineToolkit.xcframework
 
 rm -rf include
