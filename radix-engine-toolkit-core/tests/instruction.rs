@@ -16,8 +16,9 @@
 // under the License.
 
 use radix_engine_toolkit_core::model::{
-    BucketId, Identifier, Instruction, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress, ScryptoReceiver, Value, ProofId, NonFungibleAddress, ValueKind, Bech32Coder,
+    Bech32Coder, BucketId, Identifier, Instruction, NetworkAwareComponentAddress,
+    NetworkAwarePackageAddress, NetworkAwareResourceAddress, NonFungibleAddress, ProofId,
+    ScryptoReceiver, Value, ValueKind,
 };
 use radix_transaction::manifest::lexer::tokenize;
 use scrypto::prelude::*;
@@ -130,7 +131,9 @@ impl InstructionAstConversionsTestVector {
         }
     }
 
-    fn manifest_representation_as_ast_instruction(&self) -> radix_transaction::manifest::ast::Instruction {
+    fn manifest_representation_as_ast_instruction(
+        &self,
+    ) -> radix_transaction::manifest::ast::Instruction {
         radix_transaction::manifest::parser::Parser::new(
             tokenize(&self.manifest_representation).expect("Failed to tokenize trusted value"),
         )
@@ -475,7 +478,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::ReturnToWorktop { 
+            Instruction::ReturnToWorktop {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"{
@@ -487,7 +490,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::ReturnToWorktop { 
+            Instruction::ReturnToWorktop {
                 bucket: BucketId(Identifier::U32(12))
             },
             r#"{
@@ -615,7 +618,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::PopFromAuthZone { 
+            Instruction::PopFromAuthZone {
                 into_proof: ProofId(Identifier::String("proof".into()))
             },
             r#"{
@@ -627,7 +630,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::PopFromAuthZone { 
+            Instruction::PopFromAuthZone {
                 into_proof: ProofId(Identifier::U32(12))
             },
             r#"{
@@ -640,7 +643,7 @@ lazy_static! {
         ),
 
         InstructionSerializationTestVector::new(
-            Instruction::PushToAuthZone { 
+            Instruction::PushToAuthZone {
                 proof: ProofId(Identifier::String("proof".into()))
             },
             r#"{
@@ -652,7 +655,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::PushToAuthZone { 
+            Instruction::PushToAuthZone {
                 proof: ProofId(Identifier::U32(12))
             },
             r#"{
@@ -663,7 +666,7 @@ lazy_static! {
                 }
             }"#
         ),
-        
+
         InstructionSerializationTestVector::new(
             Instruction::ClearAuthZone{},
             r#"{
@@ -819,7 +822,7 @@ lazy_static! {
         ),
 
         InstructionSerializationTestVector::new(
-            Instruction::CreateProofFromBucket { 
+            Instruction::CreateProofFromBucket {
                 bucket: BucketId(Identifier::U32(12)),
                 into_proof: ProofId(Identifier::U32(12))
             },
@@ -835,9 +838,9 @@ lazy_static! {
                 }
             }"#
         ),
-        
+
         InstructionSerializationTestVector::new(
-            Instruction::CloneProof { 
+            Instruction::CloneProof {
                 proof: ProofId(Identifier::U32(12)),
                 into_proof: ProofId(Identifier::U32(13))
             },
@@ -854,7 +857,7 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::DropProof { 
+            Instruction::DropProof {
                 proof: ProofId(Identifier::U32(12)),
             },
             r#"{
@@ -872,9 +875,9 @@ lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::PublishPackageWithOwner { 
-                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()), 
-                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()), 
+            Instruction::PublishPackageWithOwner {
+                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
+                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
                 owner_badge: NonFungibleAddress {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -908,9 +911,9 @@ lazy_static! {
             }"#
         ),
 
-        // TODO: Better test and more structured `CreateResource` is needed here. 
+        // TODO: Better test and more structured `CreateResource` is needed here.
         InstructionSerializationTestVector::new(
-            Instruction::CreateResource { 
+            Instruction::CreateResource {
                 resource_type: Value::Enum { variant: "Fungible".into(), fields: Some(vec![Value::U8 { value: 18 }]) },
                 metadata: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
                 access_rules: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
@@ -946,7 +949,7 @@ lazy_static! {
         ),
 
         InstructionSerializationTestVector::new(
-            Instruction::BurnBucket { 
+            Instruction::BurnBucket {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"{
@@ -978,7 +981,7 @@ lazy_static! {
             }"#
         ),
     ];
-    
+
     static ref INSTRUCTION_AST_CONVERSIONS_TEST_VECTORS: Vec<InstructionAstConversionsTestVector> = vec![
         InstructionAstConversionsTestVector::new(
             Instruction::CallFunction {
@@ -1128,13 +1131,13 @@ lazy_static! {
             r#"TAKE_FROM_WORKTOP_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket(29u32);"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::ReturnToWorktop { 
+            Instruction::ReturnToWorktop {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"RETURN_TO_WORKTOP Bucket("bucket");"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::ReturnToWorktop { 
+            Instruction::ReturnToWorktop {
                 bucket: BucketId(Identifier::U32(12))
             },
             r#"RETURN_TO_WORKTOP Bucket(12u32);"#
@@ -1198,31 +1201,31 @@ lazy_static! {
             r#"ASSERT_WORKTOP_CONTAINS_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::PopFromAuthZone { 
+            Instruction::PopFromAuthZone {
                 into_proof: ProofId(Identifier::String("proof".into()))
             },
             r#"POP_FROM_AUTH_ZONE Proof("proof");"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::PopFromAuthZone { 
+            Instruction::PopFromAuthZone {
                 into_proof: ProofId(Identifier::U32(12))
             },
             r#"POP_FROM_AUTH_ZONE Proof(12u32);"#
         ),
 
         InstructionAstConversionsTestVector::new(
-            Instruction::PushToAuthZone { 
+            Instruction::PushToAuthZone {
                 proof: ProofId(Identifier::String("proof".into()))
             },
             r#"PUSH_TO_AUTH_ZONE Proof("proof");"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::PushToAuthZone { 
+            Instruction::PushToAuthZone {
                 proof: ProofId(Identifier::U32(12))
             },
             r#"PUSH_TO_AUTH_ZONE Proof(12u32);"#
         ),
-        
+
         InstructionAstConversionsTestVector::new(
             Instruction::ClearAuthZone{},
             r#"CLEAR_AUTH_ZONE;"#
@@ -1294,22 +1297,22 @@ lazy_static! {
         ),
 
         InstructionAstConversionsTestVector::new(
-            Instruction::CreateProofFromBucket { 
+            Instruction::CreateProofFromBucket {
                 bucket: BucketId(Identifier::U32(12)),
                 into_proof: ProofId(Identifier::U32(12))
             },
             r#"CREATE_PROOF_FROM_BUCKET Bucket(12u32) Proof(12u32);"#
         ),
-        
+
         InstructionAstConversionsTestVector::new(
-            Instruction::CloneProof { 
+            Instruction::CloneProof {
                 proof: ProofId(Identifier::U32(12)),
                 into_proof: ProofId(Identifier::U32(13))
             },
             r#"CLONE_PROOF Proof(12u32) Proof(13u32);"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::DropProof { 
+            Instruction::DropProof {
                 proof: ProofId(Identifier::U32(12)),
             },
             r#"DROP_PROOF Proof(12u32);"#
@@ -1319,9 +1322,9 @@ lazy_static! {
             r#"DROP_ALL_PROOFS;"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::PublishPackageWithOwner { 
-                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()), 
-                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()), 
+            Instruction::PublishPackageWithOwner {
+                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
+                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
                 owner_badge: NonFungibleAddress {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -1333,9 +1336,9 @@ lazy_static! {
             r#"PUBLISH_PACKAGE_WITH_OWNER Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618") Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d") NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 1144418947u32);"#
         ),
 
-        // TODO: Better test and more structured `CreateResource` is needed here. 
+        // TODO: Better test and more structured `CreateResource` is needed here.
         InstructionAstConversionsTestVector::new(
-            Instruction::CreateResource { 
+            Instruction::CreateResource {
                 resource_type: Value::Enum { variant: "Fungible".into(), fields: Some(vec![Value::U8 { value: 18 }]) },
                 metadata: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
                 access_rules: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
@@ -1345,7 +1348,7 @@ lazy_static! {
         ),
 
         InstructionAstConversionsTestVector::new(
-            Instruction::BurnBucket { 
+            Instruction::BurnBucket {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"BURN_BUCKET Bucket("bucket");"#

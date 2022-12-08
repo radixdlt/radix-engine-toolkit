@@ -24,13 +24,14 @@ use radix_engine_toolkit_core::{
         Bech32Coder, BucketId, Identifier, NetworkAwareComponentAddress,
         NetworkAwarePackageAddress, NetworkAwareResourceAddress, NetworkAwareSystemAddress,
         NonFungibleAddress, ProofId, Value, ValueKind,
-    }, traits::ValidateWithContext,
+    },
+    traits::ValidateWithContext,
 };
+use radix_transaction::manifest::ast::Type as AstValueKind;
 use radix_transaction::manifest::{
     generator::{generate_value, NameResolver},
     lexer::tokenize,
 };
-use radix_transaction::manifest::ast::Type as AstValueKind;
 use sbor::rust::collections::IndexMap;
 use scrypto::prelude::*;
 
@@ -277,7 +278,9 @@ fn validation_of_values_produces_expected_validation_response() {
         let expected_validation_result = &test_vector.validation_result;
 
         // Act
-        let validation_result = test_vector.value.validate((network_id, Some(test_vector.value.kind())));
+        let validation_result = test_vector
+            .value
+            .validate((network_id, Some(test_vector.value.kind())));
 
         // Assert
         assert_eq!(*expected_validation_result, validation_result);
@@ -285,7 +288,9 @@ fn validation_of_values_produces_expected_validation_response() {
 
     for test_vector in JSON_CONVERSION_TEST_VECTORS.iter() {
         // Act
-        let validation_result = test_vector.value.validate((network_id, Some(test_vector.value.kind())));
+        let validation_result = test_vector
+            .value
+            .validate((network_id, Some(test_vector.value.kind())));
 
         // Assert
         assert_eq!(validation_result, Ok(()))
@@ -413,7 +418,11 @@ struct ValueKindTestVector {
 
 impl ValueKindTestVector {
     pub fn new(value: Value, value_kind: ValueKind, ast_value_kind: AstValueKind) -> Self {
-        Self{value, value_kind, ast_value_kind}
+        Self {
+            value,
+            value_kind,
+            ast_value_kind,
+        }
     }
 }
 
@@ -1157,53 +1166,53 @@ lazy_static! {
         // Address Network Mismatch Validation
         // ====================================
         ValueValidationTestVector::new(
-            Value::ResourceAddress { 
-                address: NetworkAwareResourceAddress { 
-                    network_id: 0x10, 
-                    address: scrypto::prelude::ResourceAddress::Normal([0; 26]) 
-                } 
+            Value::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x10,
+                    address: scrypto::prelude::ResourceAddress::Normal([0; 26])
+                }
             },
             Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
         ),
         ValueValidationTestVector::new(
-            Value::ComponentAddress { 
-                address: NetworkAwareComponentAddress { 
-                    network_id: 0x10, 
-                    address: scrypto::prelude::ComponentAddress::Normal([0; 26]) 
-                } 
+            Value::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x10,
+                    address: scrypto::prelude::ComponentAddress::Normal([0; 26])
+                }
             },
             Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
         ),
         ValueValidationTestVector::new(
-            Value::SystemAddress { 
-                address: NetworkAwareSystemAddress { 
-                    network_id: 0x10, 
-                    address: scrypto::prelude::SystemAddress::EpochManager([0; 26]) 
-                } 
+            Value::SystemAddress {
+                address: NetworkAwareSystemAddress {
+                    network_id: 0x10,
+                    address: scrypto::prelude::SystemAddress::EpochManager([0; 26])
+                }
             },
             Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
         ),
         ValueValidationTestVector::new(
-            Value::PackageAddress { 
-                address: NetworkAwarePackageAddress { 
-                    network_id: 0x10, 
-                    address: scrypto::prelude::PackageAddress::Normal([0; 26]) 
-                } 
+            Value::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0x10,
+                    address: scrypto::prelude::PackageAddress::Normal([0; 26])
+                }
             },
             Err(Error::NetworkMismatchError { expected: 0xf2, found: 0x10 })
         ),
-        
+
         ValueValidationTestVector::new(
             Value::Array { element_type: ValueKind::Array, elements: vec![
                 Value::Array { element_type: ValueKind::Tuple, elements: vec![
                     Value::Tuple { elements: vec![
                         Value::Array { element_type: ValueKind::Tuple, elements: vec![
                             Value::Tuple { elements: vec![
-                                Value::PackageAddress { 
-                                    address: NetworkAwarePackageAddress { 
-                                        network_id: 0x10, 
-                                        address: scrypto::prelude::PackageAddress::Normal([0; 26]) 
-                                    } 
+                                Value::PackageAddress {
+                                    address: NetworkAwarePackageAddress {
+                                        network_id: 0x10,
+                                        address: scrypto::prelude::PackageAddress::Normal([0; 26])
+                                    }
                                 }
                             ] }
                         ] }
@@ -1242,9 +1251,9 @@ lazy_static! {
                     },
                 ],
             },
-            Err(Error::InvalidType { 
-                expected_types: vec![ValueKind::Decimal], 
-                actual_type: ValueKind::PreciseDecimal 
+            Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Decimal],
+                actual_type: ValueKind::PreciseDecimal
             })
         ),
         ValueValidationTestVector::new(
@@ -1297,9 +1306,9 @@ lazy_static! {
                     },
                 ],
             },
-            Err(Error::InvalidType { 
-                expected_types: vec![ValueKind::Decimal], 
-                actual_type: ValueKind::PreciseDecimal 
+            Err(Error::InvalidType {
+                expected_types: vec![ValueKind::Decimal],
+                actual_type: ValueKind::PreciseDecimal
             })
         ),
     ];
@@ -1311,7 +1320,7 @@ lazy_static! {
 
         // Unit and Boolean
         ValueKindTestVector::new(
-            Value::Unit, 
+            Value::Unit,
             ValueKind::Unit,
             AstValueKind::Unit
         ),

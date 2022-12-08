@@ -818,9 +818,7 @@ impl ValidateWithContext<u8> for Instruction {
 
             Self::PublishPackageWithOwner { .. } => Ok(()),
 
-            Self::MintFungible { .. } => {
-                Ok(())
-            }
+            Self::MintFungible { .. } => Ok(()),
             Self::BurnBucket { bucket: _ } => Ok(()),
             Self::CreateResource { .. } => {
                 // TODO: Add validation for this instruction
