@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod test_vectors;
+mod test_vector;
 
 use radix_engine_toolkit_core::{
     model::{Bech32Coder, Identifier, Value},
     traits::ValidateWithContext,
 };
 use scrypto::prelude::*;
-pub use test_vectors::*;
+pub use test_vector::*;
 
 #[test]
 fn serialized_values_match_expected() {

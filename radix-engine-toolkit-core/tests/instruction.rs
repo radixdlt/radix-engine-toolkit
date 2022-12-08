@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod test_vectors;
+mod test_vector;
 
 use radix_engine_toolkit_core::{
     model::{Bech32Coder, Instruction, NetworkAwarePackageAddress},
     traits::ValidateWithContext,
 };
 use scrypto::prelude::PackageAddress;
-use test_vectors::*;
+use test_vector::*;
 
 #[test]
 fn serialized_instructions_match_expected() {
@@ -31,7 +31,7 @@ fn serialized_instructions_match_expected() {
         // Act
         let expected_serialized_instruction: serde_json::Value =
             serde_json::from_str(&test_vector.json_representation)
-                .expect("Failed to deserialize trusted value");
+                .expect("Failed to deserialize trusted instruction");
         let serialized_instruction = serde_json::to_value(&test_vector.instruction)
             .expect("Failed to serialize trusted instruction");
 
@@ -41,8 +41,8 @@ fn serialized_instructions_match_expected() {
 }
 
 #[test]
-fn deserialized_values_match_expected() {
-    // Checking that the deserialization of values matches
+fn deserialized_instructions_match_expected() {
+    // Checking that the deserialization of instructions matches
     for test_vector in INSTRUCTION_JSON_CONVERSION_TEST_VECTORS.iter() {
         // Act
         let expected_instruction = &test_vector.instruction;
