@@ -17,8 +17,9 @@
 
 use radix_engine_toolkit_core::model::{
     BucketId, Identifier, Instruction, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress, ScryptoReceiver, Value, ProofId, NonFungibleAddress, ValueKind,
+    NetworkAwareResourceAddress, ScryptoReceiver, Value, ProofId, NonFungibleAddress, ValueKind, Bech32Coder,
 };
+use radix_transaction::manifest::lexer::tokenize;
 use scrypto::prelude::*;
 
 #[macro_use]
@@ -54,6 +55,50 @@ fn deserialized_values_match_expected() {
     }
 }
 
+#[test]
+fn instruction_ast_conversions_match_that_produced_by_transaction_compiler() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing the manifest
+    for test_vector in INSTRUCTION_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        let expected_ast_instruction = test_vector.manifest_representation_as_ast_instruction();
+
+        // Act
+        let ast_instruction = test_vector
+            .instruction
+            .to_ast_instruction(&bech32_coder)
+            .expect("Instruction -> AstInstruction conversion of trusted instruction failed");
+
+        // Assert
+        assert_eq!(expected_ast_instruction, ast_instruction)
+    }
+}
+
+#[test]
+fn no_information_is_lost_when_converting_instruction_to_ast_instruction_and_back() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing the manifest
+    for test_vector in INSTRUCTION_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        let expected_instruction = &test_vector.instruction;
+
+        // Act
+        let ast_instruction = Instruction::from_ast_instruction(
+            &test_vector
+                .instruction
+                .to_ast_instruction(&bech32_coder)
+                .expect("Instruction -> AstInstruction conversion of trusted instruction failed"),
+            &bech32_coder,
+        )
+        .expect("AstInstruction -> Instruction for a trusted instruction failed");
+
+        // Assert
+        assert_eq!(*expected_instruction, ast_instruction)
+    }
+}
+
 struct InstructionSerializationTestVector {
     instruction: Instruction,
     json_representation: String,
@@ -67,6 +112,30 @@ impl InstructionSerializationTestVector {
             instruction,
             json_representation,
         }
+    }
+}
+
+struct InstructionAstConversionsTestVector {
+    instruction: Instruction,
+    manifest_representation: String,
+}
+
+impl InstructionAstConversionsTestVector {
+    fn new<S: AsRef<str>>(instruction: Instruction, manifest_representation: S) -> Self {
+        let manifest_representation: &str = manifest_representation.as_ref();
+        let manifest_representation: String = manifest_representation.into();
+        Self {
+            manifest_representation,
+            instruction,
+        }
+    }
+
+    fn manifest_representation_as_ast_instruction(&self) -> radix_transaction::manifest::ast::Instruction {
+        radix_transaction::manifest::parser::Parser::new(
+            tokenize(&self.manifest_representation).expect("Failed to tokenize trusted value"),
+        )
+        .parse_instruction()
+        .expect("Failed to parse trusted value to ast value")
     }
 }
 
@@ -770,7 +839,7 @@ lazy_static! {
         InstructionSerializationTestVector::new(
             Instruction::CloneProof { 
                 proof: ProofId(Identifier::U32(12)),
-                into_proof: ProofId(Identifier::U32(12))
+                into_proof: ProofId(Identifier::U32(13))
             },
             r#"{
                 "instruction": "CLONE_PROOF",
@@ -780,7 +849,7 @@ lazy_static! {
                 },
                 "into_proof": {
                     "type": "Proof",
-                    "identifier": 12
+                    "identifier": 13
                 }
             }"#
         ),
@@ -907,6 +976,389 @@ lazy_static! {
                     "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"
                 }
             }"#
+        ),
+    ];
+    
+    static ref INSTRUCTION_AST_CONVERSIONS_TEST_VECTORS: Vec<InstructionAstConversionsTestVector> = vec![
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallFunction {
+                package_address: NetworkAwarePackageAddress {
+                    network_id: 0xf2,
+                    address: PackageAddress::Normal([0; 26]),
+                },
+                blueprint_name: "HelloWorld".into(),
+                function_name: "world_hello".into(),
+                arguments: Some(vec![Value::Decimal {
+                    value: "129333".parse().unwrap()
+                }])
+            },
+            r#"CALL_FUNCTION PackageAddress("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxrmwtq") "HelloWorld" "world_hello" Decimal("129333");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallFunction {
+                package_address: NetworkAwarePackageAddress {
+                    network_id: 0xf2,
+                    address: PackageAddress::Normal([0; 26]),
+                },
+                blueprint_name: "HelloWorld".into(),
+                function_name: "world_hello".into(),
+                arguments: None
+            },
+            r#"CALL_FUNCTION PackageAddress("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxrmwtq") "HelloWorld" "world_hello";"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallNativeFunction {
+                blueprint_name: "HelloWorld".into(),
+                function_name: "world_hello".into(),
+                arguments: Some(vec![Value::Decimal {
+                    value: "129333".parse().unwrap()
+                }])
+            },
+            r#"CALL_NATIVE_FUNCTION "HelloWorld" "world_hello" Decimal("129333");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallNativeFunction {
+                blueprint_name: "HelloWorld".into(),
+                function_name: "world_hello".into(),
+                arguments: None
+            },
+            r#"CALL_NATIVE_FUNCTION "HelloWorld" "world_hello";"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallMethod {
+                component_address: ScryptoReceiver::ComponentAddress(
+                    NetworkAwareComponentAddress {
+                        network_id: 0xf2,
+                        address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
+                    }
+                ),
+                method_name: "remove_user".into(),
+                arguments: Some(vec![Value::NonFungibleId {
+                    value: scrypto::prelude::NonFungibleId::U64(18)
+                }])
+            },
+            r#"CALL_METHOD ComponentAddress("component_sim1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8ecz5v") "remove_user" NonFungibleId(18u64);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallMethod {
+                component_address: ScryptoReceiver::Component(
+                    "000000000000000000000000000000000000000000000000000000000000000000000005"
+                        .parse()
+                        .unwrap()
+                ),
+                method_name: "remove_user".into(),
+                arguments: Some(vec![Value::NonFungibleId {
+                    value: scrypto::prelude::NonFungibleId::U64(18)
+                }])
+            },
+            r#"CALL_METHOD Component("000000000000000000000000000000000000000000000000000000000000000000000005") "remove_user" NonFungibleId(18u64);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CallNativeMethod {
+                receiver: radix_engine_toolkit_core::model::RENode::Bucket(
+                    radix_engine_toolkit_core::model::Identifier::U32(32)
+                ),
+                method_name: "inspect".into(),
+                arguments: None
+            },
+            r#"CALL_NATIVE_METHOD Bucket(32u32) "inspect";"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktop {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::String("bucket".into()))
+            },
+            r#"TAKE_FROM_WORKTOP ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket("bucket");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktop {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::U32(29))
+            },
+            r#"TAKE_FROM_WORKTOP ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket(29u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktopByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::String("bucket".into()))
+            },
+            r#"TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket("bucket");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktopByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::U32(29))
+            },
+            r#"TAKE_FROM_WORKTOP_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket(29u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktopByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::String("bucket".into()))
+            },
+            r#"TAKE_FROM_WORKTOP_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket("bucket");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::TakeFromWorktopByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_bucket: BucketId(Identifier::U32(29))
+            },
+            r#"TAKE_FROM_WORKTOP_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Bucket(29u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::ReturnToWorktop { 
+                bucket: BucketId(Identifier::String("bucket".into()))
+            },
+            r#"RETURN_TO_WORKTOP Bucket("bucket");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::ReturnToWorktop { 
+                bucket: BucketId(Identifier::U32(12))
+            },
+            r#"RETURN_TO_WORKTOP Bucket(12u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContains {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContains {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContainsByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContainsByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContainsByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::AssertWorktopContainsByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"ASSERT_WORKTOP_CONTAINS_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::PopFromAuthZone { 
+                into_proof: ProofId(Identifier::String("proof".into()))
+            },
+            r#"POP_FROM_AUTH_ZONE Proof("proof");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::PopFromAuthZone { 
+                into_proof: ProofId(Identifier::U32(12))
+            },
+            r#"POP_FROM_AUTH_ZONE Proof(12u32);"#
+        ),
+
+        InstructionAstConversionsTestVector::new(
+            Instruction::PushToAuthZone { 
+                proof: ProofId(Identifier::String("proof".into()))
+            },
+            r#"PUSH_TO_AUTH_ZONE Proof("proof");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::PushToAuthZone { 
+                proof: ProofId(Identifier::U32(12))
+            },
+            r#"PUSH_TO_AUTH_ZONE Proof(12u32);"#
+        ),
+        
+        InstructionAstConversionsTestVector::new(
+            Instruction::ClearAuthZone{},
+            r#"CLEAR_AUTH_ZONE;"#
+        ),
+
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZone {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::String("proof".into()))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof("proof");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZone {
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::U32(29))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof(29u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZoneByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::String("proof".into()))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof("proof");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZoneByAmount {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::U32(29))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT Decimal("123") ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof(29u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZoneByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::String("proof".into()))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof("proof");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromAuthZoneByIds {
+                ids: HashSet::from([NonFungibleId::U32(18),]),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+                into_proof: ProofId(Identifier::U32(29))
+            },
+            r#"CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS Array<NonFungibleId>(NonFungibleId(18u32)) ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Proof(29u32);"#
+        ),
+
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateProofFromBucket { 
+                bucket: BucketId(Identifier::U32(12)),
+                into_proof: ProofId(Identifier::U32(12))
+            },
+            r#"CREATE_PROOF_FROM_BUCKET Bucket(12u32) Proof(12u32);"#
+        ),
+        
+        InstructionAstConversionsTestVector::new(
+            Instruction::CloneProof { 
+                proof: ProofId(Identifier::U32(12)),
+                into_proof: ProofId(Identifier::U32(13))
+            },
+            r#"CLONE_PROOF Proof(12u32) Proof(13u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::DropProof { 
+                proof: ProofId(Identifier::U32(12)),
+            },
+            r#"DROP_PROOF Proof(12u32);"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::DropAllProofs {},
+            r#"DROP_ALL_PROOFS;"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::PublishPackageWithOwner { 
+                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()), 
+                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()), 
+                owner_badge: NonFungibleAddress {
+                    resource_address: NetworkAwareResourceAddress {
+                            network_id: 0xf2,
+                            address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
+                        },
+                    non_fungible_id: NonFungibleId::U32(1144418947)
+                }
+            },
+            r#"PUBLISH_PACKAGE_WITH_OWNER Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618") Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d") NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 1144418947u32);"#
+        ),
+
+        // TODO: Better test and more structured `CreateResource` is needed here. 
+        InstructionAstConversionsTestVector::new(
+            Instruction::CreateResource { 
+                resource_type: Value::Enum { variant: "Fungible".into(), fields: Some(vec![Value::U8 { value: 18 }]) },
+                metadata: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
+                access_rules: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
+                mint_params: Value::Option { value: Box::new(None) }
+            },
+            r#"CREATE_RESOURCE Enum("Fungible", 18u8) Array<Tuple>() Array<Tuple>() None;"#
+        ),
+
+        InstructionAstConversionsTestVector::new(
+            Instruction::BurnBucket { 
+                bucket: BucketId(Identifier::String("bucket".into()))
+            },
+            r#"BURN_BUCKET Bucket("bucket");"#
+        ),
+        InstructionAstConversionsTestVector::new(
+            Instruction::MintFungible {
+                amount: dec!("123"),
+                resource_address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: ResourceAddress::Normal([0; 26]),
+                },
+            },
+            r#"MINT_FUNGIBLE ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Decimal("123");"#
         ),
     ];
 }
