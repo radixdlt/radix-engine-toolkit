@@ -1,0 +1,23 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main", "develop", "betanet" ]
+  pull_request:
+    branches: [ "main", "develop", "betanet" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        crate: [ radix-engine-toolkit-core, radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run tests
+      run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose

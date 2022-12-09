@@ -15,89 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit_core::model::Value;
+mod test_vector;
+
+use radix_engine_toolkit_core::{
+    model::{Bech32Coder, Identifier, Value},
+    traits::ValidateWithContext,
+};
+use scrypto::prelude::*;
+pub use test_vector::*;
 
 #[test]
-fn value_has_expected_json_representation() {
-    // Arrange
-    let test_vectors = vec![
-        // ================
-        // Primitive Types
-        // ================
-
-        // Unit and Boolean
-        ValueJsonRepresentationTestVector::new(Value::Unit, r#"{"type": "Unit"}"#),
-        ValueJsonRepresentationTestVector::new(
-            Value::Bool { value: true },
-            r#"{"type": "Bool", "value": true}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::Bool { value: false },
-            r#"{"type": "Bool", "value": false}"#,
-        ),
-        // Unsigned Integers
-        ValueJsonRepresentationTestVector::new(
-            Value::U8 { value: 19 },
-            r#"{"type": "U8", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::U16 { value: 19 },
-            r#"{"type": "U16", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::U32 { value: 19 },
-            r#"{"type": "U32", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::U64 { value: 19 },
-            r#"{"type": "U64", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::U128 { value: 19 },
-            r#"{"type": "U128", "value": "19"}"#,
-        ),
-        // Signed Integers
-        ValueJsonRepresentationTestVector::new(
-            Value::I8 { value: 19 },
-            r#"{"type": "I8", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::I16 { value: 19 },
-            r#"{"type": "I16", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::I32 { value: 19 },
-            r#"{"type": "I32", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::I64 { value: 19 },
-            r#"{"type": "I64", "value": "19"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::I128 { value: 19 },
-            r#"{"type": "I128", "value": "19"}"#,
-        ),
-        // String
-        ValueJsonRepresentationTestVector::new(
-            Value::String {
-                value: "P2P Cash System".into(),
-            },
-            r#"{"type": "String", "value": "P2P Cash System"}"#,
-        ),
-        // Enums and Enum Aliases (Option & Result)
-        ValueJsonRepresentationTestVector::new(
-            Value::Enum {
-                variant: "Create".into(),
-                fields: Some(vec![Value::String {
-                    value: "Component".into(),
-                }]),
-            },
-            r#"{"type": "Enum", "variant": "Create", "fields": [{"type": "String", "value": "Component"}]}"#,
-        ),
-    ];
-
+fn serialized_values_match_expected() {
     // Checking that the serialization of values matches
-    for test_vector in test_vectors.iter() {
+    for test_vector in VALUE_JSON_CONVERSION_TEST_VECTORS.iter() {
         // Act
         let expected_serialized_value: serde_json::Value =
             serde_json::from_str(&test_vector.json_representation)
@@ -108,12 +38,15 @@ fn value_has_expected_json_representation() {
         // Assert
         assert_eq!(expected_serialized_value, serialized_value);
     }
+}
 
+#[test]
+fn deserialized_values_match_expected() {
     // Checking that the deserialization of values matches
-    for test_vector in test_vectors.iter() {
+    for test_vector in VALUE_JSON_CONVERSION_TEST_VECTORS.iter() {
         // Act
         let expected_value = &test_vector.value;
-        let deserialized_value: Value = serde_json::from_str(&test_vector.json_representation)
+        let deserialized_value = serde_json::from_str(&test_vector.json_representation)
             .expect("Deserialization failed!");
 
         // Assert
@@ -121,18 +54,276 @@ fn value_has_expected_json_representation() {
     }
 }
 
-struct ValueJsonRepresentationTestVector {
-    value: Value,
-    json_representation: String,
+/// # Background
+///
+/// There are methods on the [Value] model to convert a [Value] to a
+/// [radix_transaction::manifest::ast::Value]. This conversion requires some domain-specific
+/// knowledge as to what the abstract syntax tree looks like.
+///
+/// As an example for a `ResourceAddress("some_address")` in the manifest we know that this is an
+/// `AstValue::ResourceAddress` with a `AstValue::String` inside of it. Because of the
+/// domain-knowledge requirement for this conversion, the transaction compiler could have a change
+/// made to it which changes the expected structure of the AST. There would likely be no
+/// compile-time errors as the AST uses an unstructured value model.
+///
+/// # Purpose
+///
+/// The purpose of this test is to check that the conversion of a [Value] to a
+/// [radix_transaction::manifest::ast::Value] matches the abstract syntax tree that is generated by
+/// the transaction compiler for an equivalent manifest string value.
+#[test]
+fn value_ast_conversions_match_that_produced_by_transaction_compiler() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        let expected_ast_value = test_vector.manifest_representation_as_ast_value();
+
+        // Act
+        let ast_value = test_vector
+            .value
+            .to_ast_value(&bech32_coder)
+            .expect("Value -> AstValue conversion of trusted value failed");
+
+        // Assert
+        assert_eq!(expected_ast_value, ast_value)
+    }
 }
 
-impl ValueJsonRepresentationTestVector {
-    pub fn new<S: AsRef<str>>(value: Value, json_representation: S) -> Self {
-        let json_representation: &str = json_representation.as_ref();
-        let json_representation: String = json_representation.into();
-        Self {
-            value,
-            json_representation,
+#[test]
+fn value_scrypto_value_conversion_match_that_produced_by_transaction_compiler() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        // This test will fail (as expected) for buckets and proofs with string identifiers. So,
+        // we skip those tests
+        if let Value::Bucket { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Proof { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
         }
+
+        let expected_scrypto_value =
+            test_vector.manifest_representation_as_scrypto_value(&bech32_coder);
+
+        // Act
+        let scrypto_value = test_vector
+            .value
+            .to_scrypto_value()
+            .expect("Failed to convert a trusted value to a scrypto value");
+
+        // Assert
+        assert_eq!(scrypto_value, expected_scrypto_value);
+    }
+}
+
+#[test]
+fn no_information_is_lost_when_converting_value_to_ast_value_and_back() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        let expected_value = &test_vector.value;
+
+        // Act
+        let ast_value = Value::from_ast_value(
+            &test_vector
+                .value
+                .to_ast_value(&bech32_coder)
+                .expect("Value -> AstValue conversion of trusted value failed"),
+            &bech32_coder,
+        )
+        .expect("AstValue -> Value for a trusted value failed");
+
+        // Assert
+        assert_eq!(*expected_value, ast_value)
+    }
+}
+
+#[test]
+fn no_information_is_lost_when_converting_value_to_scrypto_value_and_back() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        // This test will fail (as expected) for buckets and proofs with string identifiers. So,
+        // we skip those tests
+        if let Value::Bucket { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Proof { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Bytes { .. } = test_vector.value {
+            // TODO: Remove this. Currently we ignore this test because converting bytes to a
+            // Scrypto value yields an Array<u8>. Converting an Array<u8> back to Value yields a
+            // Array<u8>. So, converting back does not currently mean the same thing in manifest
+            // land, but means the same thing in SBOR land.
+            continue;
+        }
+
+        let expected_value = &test_vector.value;
+
+        // Act
+        let ast_value = Value::from_scrypto_value(
+            &test_vector
+                .value
+                .to_scrypto_value()
+                .expect("Value -> AstValue conversion of trusted value failed"),
+            bech32_coder.network_id(),
+        );
+
+        // Assert
+        assert_eq!(*expected_value, ast_value)
+    }
+}
+
+#[test]
+fn sbor_encoding_value_yields_expected_result() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        // This test will fail (as expected) for buckets and proofs with string identifiers. So,
+        // we skip those tests
+        if let Value::Bucket { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Proof { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        }
+
+        let expected_encoding =
+            scrypto_encode(&test_vector.manifest_representation_as_scrypto_value(&bech32_coder))
+                .unwrap();
+
+        // Act
+        let encoded_value = test_vector.value.encode().unwrap();
+
+        // Assert
+        assert_eq!(*expected_encoding, encoded_value)
+    }
+}
+
+#[test]
+fn sbor_decoding_value_yields_expected_result() {
+    // Arrange
+    let bech32_coder = Bech32Coder::new(0xf2);
+
+    // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
+    for test_vector in VALUE_AST_CONVERSIONS_TEST_VECTORS.iter() {
+        // This test will fail (as expected) for buckets and proofs with string identifiers. So,
+        // we skip those tests
+        if let Value::Bucket { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Proof { ref identifier } = test_vector.value {
+            if let Identifier::String(..) = identifier.0 {
+                continue;
+            }
+        } else if let Value::Bytes { .. } = test_vector.value {
+            // TODO: Remove this. Currently we ignore this test because converting bytes to a
+            // Scrypto value yields an Array<u8>. Converting an Array<u8> back to Value yields a
+            // Array<u8>. So, converting back does not currently mean the same thing in manifest
+            // land, but means the same thing in SBOR land.
+            continue;
+        }
+
+        let expected_value = &test_vector.value;
+        let encoded_value =
+            scrypto_encode(&test_vector.manifest_representation_as_scrypto_value(&bech32_coder))
+                .unwrap();
+
+        // Act
+        let value =
+            Value::decode(&encoded_value, 0xf2).expect("Failed to SBOR decode trusted value");
+
+        // Assert
+        assert_eq!(*expected_value, value)
+    }
+}
+
+#[test]
+fn validation_of_values_produces_expected_validation_response() {
+    // Arrange
+    let network_id = 0xf2;
+
+    for test_vector in VALUE_VALIDATION_TEST_VECTORS.iter() {
+        let expected_validation_result = &test_vector.validation_result;
+
+        // Act
+        let validation_result = test_vector
+            .value
+            .validate((network_id, Some(test_vector.value.kind())));
+
+        // Assert
+        assert_eq!(*expected_validation_result, validation_result);
+    }
+
+    for test_vector in VALUE_JSON_CONVERSION_TEST_VECTORS.iter() {
+        // Act
+        let validation_result = test_vector
+            .value
+            .validate((network_id, Some(test_vector.value.kind())));
+
+        // Assert
+        assert_eq!(validation_result, Ok(()))
+    }
+}
+
+#[test]
+fn value_has_expected_value_kind() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.value_kind;
+
+        // Act
+        let value_kind = test_vector.value.kind();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
+    }
+}
+
+#[test]
+fn value_has_expected_ast_value_kind() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.ast_value_kind;
+
+        // Act
+        let value_kind = test_vector.value.kind().into();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
+    }
+}
+
+#[test]
+fn value_kind_to_ast_value_kind_is_converted_as_expected() {
+    // Arrange
+    for test_vector in VALUE_KIND_TEST_VECTORS.iter() {
+        let expected_value_kind = test_vector.ast_value_kind;
+
+        // Act
+        let value_kind = test_vector.value_kind.into();
+
+        // Assert
+        assert_eq!(expected_value_kind, value_kind);
     }
 }

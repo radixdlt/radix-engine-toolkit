@@ -15,56 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit_core::model::TransactionManifest;
+use radix_engine_toolkit_core::model::ManifestInstructionsKind;
 use radix_engine_toolkit_core::requests::ConvertManifestRequest;
+
+mod test_vector;
 use radix_engine_toolkit_core::traits::Request;
+use test_vector::TRANSACTION_MANIFEST_TEST_VECTORS;
 
 #[test]
-pub fn basic_manifest_conversion_succeeds() {
+pub fn conversion_of_manifests_succeeds() {
     // Arrange
-    let test_vectors = vec![
-        (
-            include_str!("test_manifests/manifest1.rtm").to_string(),
-            vec![
-                include_bytes!("test_manifests/manifest1_code.blob").to_vec(),
-                include_bytes!("test_manifests/manifest1_abi.blob").to_vec(),
-            ],
-        ),
-        (
-            include_str!("test_manifests/manifest2.rtm").to_string(),
-            vec![],
-        ),
-        (
-            include_str!("test_manifests/manifest3.rtm").to_string(),
-            vec![],
-        ),
-        (
-            include_str!("test_manifests/manifest4.rtm").to_string(),
-            vec![include_bytes!("test_manifests/manifest4.blob").to_vec()],
-        ),
-    ];
+    let network_id: u8 = 0xF2;
 
-    let requests = test_vectors
-        .iter()
-        .map(|x| ConvertManifestRequest {
+    for test_vector in TRANSACTION_MANIFEST_TEST_VECTORS.iter() {
+        let request = ConvertManifestRequest {
+            manifest: test_vector.manifest.clone(),
+            network_id,
             transaction_version: 0x01,
-            network_id: 0xF2,
-            manifest_instructions_output_format:
-                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
-            manifest: TransactionManifest {
-                instructions: radix_engine_toolkit_core::model::ManifestInstructions::String(
-                    x.0.clone(),
-                ),
-                blobs: x.1.clone(),
-            },
-        })
-        .collect::<Vec<_>>();
+            manifest_instructions_output_format: ManifestInstructionsKind::JSON,
+        };
 
-    for request in requests {
         // Act
         let response = request.fulfill_request();
 
         // Assert
-        assert!(response.is_ok());
+        assert!(matches!(response, Ok(..)));
     }
 }

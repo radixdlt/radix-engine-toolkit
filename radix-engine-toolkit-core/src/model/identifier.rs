@@ -24,6 +24,18 @@ pub enum Identifier {
     U32(u32),
 }
 
+impl From<String> for Identifier {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
+impl From<u32> for Identifier {
+    fn from(value: u32) -> Self {
+        Self::U32(value)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone, PartialOrd, Ord)]
 pub struct BucketId(pub Identifier);
 

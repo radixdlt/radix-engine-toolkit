@@ -277,7 +277,7 @@ impl Value {
         }
     }
 
-    fn validate_if_collection(&self) -> Result<(), Error> {
+    fn validate_if_collection(&self, network_id: u8) -> Result<(), Error> {
         match self {
             Self::Array {
                 element_type,
@@ -285,17 +285,14 @@ impl Value {
             } => {
                 elements
                     .iter()
-                    .map(|item| match item.validate_if_collection() {
-                        Ok(_) => item.validate_kind(*element_type),
-                        Err(error) => Err(error),
-                    })
+                    .map(|item| item.validate((network_id, Some(*element_type))))
                     .collect::<Result<Vec<()>, _>>()?;
                 Ok(())
             }
             Self::Tuple { elements } => {
                 elements
                     .iter()
-                    .map(|item| item.validate_if_collection())
+                    .map(|item| item.validate((network_id, None)))
                     .collect::<Result<Vec<()>, _>>()?;
                 Ok(())
             }
@@ -309,6 +306,7 @@ impl Value {
             Self::ComponentAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
+            Self::SystemAddress { address } => address.network_id,
             _ => return Ok(()),
         };
         if network_id == expected_network_id {
@@ -811,16 +809,13 @@ impl Value {
             Value::Array {
                 element_type,
                 elements,
-            } => {
-                self.validate_if_collection()?;
-                AstValue::Array(
-                    (*element_type).into(),
-                    elements
-                        .iter()
-                        .map(|id| id.to_ast_value(bech32_coder))
-                        .collect::<Result<Vec<AstValue>, Error>>()?,
-                )
-            }
+            } => AstValue::Array(
+                (*element_type).into(),
+                elements
+                    .iter()
+                    .map(|id| id.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<AstValue>, Error>>()?,
+            ),
             Value::Tuple { elements } => AstValue::Tuple(
                 elements
                     .iter()
@@ -935,7 +930,7 @@ impl Value {
         Ok(ast_value)
     }
 
-    fn to_scrypto_value(&self) -> Result<ScryptoValue, Error> {
+    pub fn to_scrypto_value(&self) -> Result<ScryptoValue, Error> {
         let scrypto_value = match self {
             Value::Unit => ScryptoValue::Unit,
             Value::Bool { value } => ScryptoValue::Bool { value: *value },
@@ -1099,7 +1094,7 @@ impl Value {
         Ok(scrypto_value)
     }
 
-    fn from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
+    pub fn from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
         match scrypto_value {
             ScryptoValue::Unit => Value::Unit,
             ScryptoValue::Bool { value } => Value::Bool { value: *value },
@@ -1134,7 +1129,7 @@ impl Value {
                     value: Box::new(Ok(Self::from_scrypto_value(&fields[0], network_id))),
                 },
                 ("Err", 1) => Value::Result {
-                    value: Box::new(Ok(Self::from_scrypto_value(&fields[0], network_id))),
+                    value: Box::new(Err(Self::from_scrypto_value(&fields[0], network_id))),
                 },
                 _ => Value::Enum {
                     variant: discriminator.clone(),
@@ -1275,7 +1270,7 @@ impl Value {
 
 impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
     fn validate(&self, (network_id, expected_kind): (u8, Option<ValueKind>)) -> Result<(), Error> {
-        self.validate_if_collection()?;
+        self.validate_if_collection(network_id)?;
         self.validate_address_network_id(network_id)?;
         if let Some(expected_kind) = expected_kind {
             self.validate_kind(expected_kind)?;
@@ -1746,688 +1741,3 @@ impl_from_and_try_from_value! {NonFungibleAddress, NonFungibleAddress, address}
 impl_from_and_try_from_value! {PackageAddress, NetworkAwarePackageAddress, address}
 impl_from_and_try_from_value! {ResourceAddress, NetworkAwareResourceAddress, address}
 impl_from_and_try_from_value! {ComponentAddress, NetworkAwareComponentAddress, address}
-
-// ===========
-// Unit Tests
-// ===========
-
-#[cfg(test)]
-mod tests {
-    use scrypto::{
-        prelude::*,
-        radix_engine_interface::{address::Bech32Decoder, core::NetworkDefinition},
-    };
-
-    use super::{Value, ValueKind};
-    use crate::model::address::*;
-
-    macro_rules! test_value {
-        ($string: expr, $value: expr) => {
-            assert_serialization_matches($string, $value);
-            assert_deserialization_matches($string, $value);
-        };
-    }
-
-    fn assert_serialization_matches(string: &str, value: Value) {
-        let expected_serialization: serde_json::Value = serde_json::from_str(string).unwrap();
-        let serialized_value = serde_json::to_value(&value).unwrap();
-        assert_eq!(expected_serialization, serialized_value);
-    }
-
-    fn assert_deserialization_matches(string: &str, value: Value) {
-        let deserialized_value: Value =
-            serde_json::from_str(string).expect("Deserialization failed.");
-        assert_eq!(value, deserialized_value);
-    }
-
-    #[test]
-    fn value_serialization_and_deserialization_succeeds() {
-        test_value! {
-            r#"
-            {
-                "type": "U8",
-                "value": "192"
-            }
-            "#,
-            Value::U8 { value: 192 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "U16",
-                "value": "18947"
-            }
-            "#,
-            Value::U16 { value: 18947 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "U32",
-                "value": "1144418947"
-            }
-            "#,
-            Value::U32 { value: 1144418947 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "U64",
-                "value": "114441894733333"
-            }
-            "#,
-            Value::U64 {
-                value: 114441894733333,
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "U128",
-                "value": "11444189334733333"
-            }
-            "#,
-            Value::U128 {
-                value: 11444189334733333,
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "I8",
-                "value": "-100"
-            }
-            "#,
-            Value::I8 { value: -100 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "I16",
-                "value": "-18947"
-            }
-            "#,
-            Value::I16 { value: -18947 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "I32",
-                "value": "-1144418947"
-            }
-            "#,
-            Value::I32 { value: -1144418947 }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "I64",
-                "value": "-114441894733333"
-            }
-            "#,
-            Value::I64 {
-                value: -114441894733333,
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "I128",
-                "value": "-11444189334733333"
-            }
-            "#,
-            Value::I128 {
-                value: -11444189334733333,
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "String",
-                "value": "Hello World!"
-            }
-            "#,
-            Value::String {
-                value: "Hello World!".into(),
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Enum",
-                "variant": "Component"
-            }
-            "#,
-            Value::Enum {
-                variant: "Component".into(),
-                fields: None,
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Enum",
-                "variant": "Component",
-                "fields": [
-                    {
-                        "type": "String",
-                        "value": "Account"
-                    }
-                ]
-            }
-            "#,
-            Value::Enum {
-                variant: "Component".into(),
-                fields: Some(vec![
-                    Value::String { value: "Account".into() }
-                ])
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Option",
-                "variant": "None"
-            }
-            "#,
-            Value::Option {
-                value: Box::new(None),
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Option",
-                "variant": "Some",
-                "field": {
-                    "type": "String",
-                    "value": "Hello World!"
-                }
-            }
-            "#,
-            Value::Option {
-                value: Box::new(Some(Value::String {
-                    value: "Hello World!".into(),
-                })),
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Result",
-                "variant": "Ok",
-                "field": {
-                    "type": "String",
-                    "value": "This is ok"
-                }
-            }
-            "#,
-            Value::Result {
-                value: Box::new(Ok(Value::String {
-                    value: "This is ok".into(),
-                })),
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Result",
-                "variant": "Err",
-                "field": {
-                    "type": "String",
-                    "value": "This is err"
-                }
-            }
-            "#,
-            Value::Result {
-                value: Box::new(Err(Value::String {
-                    value: "This is err".into(),
-                })),
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Array",
-                "element_type": "Decimal",
-                "elements": [
-                    {
-                        "type": "Decimal",
-                        "value": "192.38"
-                    },
-                    {
-                        "type": "Decimal",
-                        "value": "10012"
-                    }
-                ]
-            }
-            "#,
-            Value::Array {
-                element_type: ValueKind::Decimal,
-                elements: vec![
-                    Value::Decimal {
-                        value: dec!("192.38"),
-                    },
-                    Value::Decimal {
-                        value: dec!("10012"),
-                    },
-                ],
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Tuple",
-                "elements": [
-                    {
-                        "type": "Decimal",
-                        "value": "192.38"
-                    },
-                    {
-                        "type": "Bucket",
-                        "identifier": "my_xrd_bucket"
-                    }
-                ]
-            }
-            "#,
-            Value::Tuple {
-                elements: vec![
-                    Value::Decimal {
-                        value: dec!("192.38")
-                    },
-                    Value::Bucket {
-                        identifier: crate::model::identifier::Identifier::String("my_xrd_bucket".into()).into()
-                    }
-                ]
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "variant": "U32",
-                "value": "1144418947"
-            }
-            "#,
-            Value::NonFungibleId { value: NonFungibleId::U32(1144418947) }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "variant": "U64",
-                "value": "114441894733333"
-            }
-            "#,
-            Value::NonFungibleId { value: NonFungibleId::U64(114441894733333) }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "variant": "UUID",
-                "value": "11444189334733333"
-            }
-            "#,
-            Value::NonFungibleId { value: NonFungibleId::UUID(11444189334733333) }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "variant": "String",
-                "value": "Hello World!"
-            }
-            "#,
-            Value::NonFungibleId { value: NonFungibleId::String("Hello World!".into()) }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "NonFungibleId",
-                "variant": "Bytes",
-                "value": "10a23101"
-            }
-            "#,
-            Value::NonFungibleId { value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Decimal",
-                "value": "100"
-            }
-            "#,
-            Value::Decimal {
-                value: dec!("100")
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "PreciseDecimal",
-                "value": "100"
-            }
-            "#,
-            Value::PreciseDecimal {
-                value: pdec!("100")
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "ComponentAddress",
-                "address": "account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr"
-            }
-            "#,
-            Value::ComponentAddress {
-                address: NetworkAwareComponentAddress {
-                    network_id: 0xf2,
-                    address: Bech32Decoder::new(&NetworkDefinition::simulator())
-                        .validate_and_decode_component_address("account_sim1qwssnwt0yzhzjydxj7u9uvnljtgaug23re8p32jrjecqajtsvr")
-                        .expect("Decoding of a trusted address string failed")
-                }
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "PackageAddress",
-                "address": "package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n"
-            }
-            "#,
-            Value::PackageAddress {
-                address: NetworkAwarePackageAddress {
-                    network_id: 0xf2,
-                    address: Bech32Decoder::new(&NetworkDefinition::simulator())
-                        .validate_and_decode_package_address("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsnznk7n")
-                        .expect("Decoding of a trusted address string failed")
-                }
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "ResourceAddress",
-                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
-            }
-            "#,
-            Value::ResourceAddress {
-                address: NetworkAwareResourceAddress {
-                    network_id: 0xf2,
-                    address: Bech32Decoder::new(&NetworkDefinition::simulator())
-                        .validate_and_decode_resource_address("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h")
-                        .expect("Decoding of a trusted address string failed")
-                }
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Hash",
-                "value": "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d"
-            }
-            "#,
-            Value::Hash {
-                value: "910edb2dabf107c7628ecdb9126535676d61bc39a843475f3057d809bfd2d65d".parse().unwrap()
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Bucket",
-                "identifier": 192
-            }
-            "#,
-            Value::Bucket {
-                identifier: crate::model::identifier::Identifier::U32(192).into()
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Bucket",
-                "identifier": "HelloBucket"
-            }
-            "#,
-            Value::Bucket {
-                identifier: crate::model::identifier::Identifier::String("HelloBucket".into()).into()
-            }
-        };
-
-        test_value! {
-            r#"
-            {
-                "type": "Proof",
-                "identifier": 192
-            }
-            "#,
-            Value::Proof {
-                identifier: crate::model::identifier::Identifier::U32(192).into()
-            }
-        };
-        test_value! {
-            r#"
-            {
-                "type": "Proof",
-                "identifier": "HelloProof"
-            }
-            "#,
-            Value::Proof {
-                identifier: crate::model::identifier::Identifier::String("HelloProof".into()).into()
-            }
-        };
-    }
-
-    #[test]
-    fn non_collection_validation_succeeds() {
-        // Arrange
-        let value = Value::Bool { value: false };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Ok(())))
-    }
-
-    #[test]
-    fn array_of_decimals_validation_succeeds() {
-        // Arrange
-        let value = Value::Array {
-            element_type: ValueKind::Decimal,
-            elements: vec![
-                Value::Decimal { value: dec!("20") },
-                Value::Decimal { value: dec!("100") },
-                Value::Decimal {
-                    value: dec!("192.31"),
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Ok(())))
-    }
-
-    #[test]
-    fn array_of_decimal_and_precise_decimal_validation_fails() {
-        // Arrange
-        let value = Value::Array {
-            element_type: ValueKind::Decimal,
-            elements: vec![
-                Value::Decimal { value: dec!("20") },
-                Value::Decimal { value: dec!("100") },
-                Value::Decimal {
-                    value: dec!("192.31"),
-                },
-                Value::PreciseDecimal {
-                    value: pdec!("192.31"),
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        let _expected_types = vec![ValueKind::Decimal];
-        assert!(matches!(
-            result,
-            Err(crate::error::Error::InvalidType {
-                expected_types: _,
-                actual_type: ValueKind::PreciseDecimal
-            })
-        ))
-    }
-
-    #[test]
-    fn validation_of_deeply_nested_tuple_with_non_matching_types_fails() {
-        // Arrange
-        let value = Value::Tuple {
-            elements: vec![
-                Value::Decimal { value: dec!("10") },
-                Value::PreciseDecimal { value: pdec!("10") },
-                Value::String {
-                    value: "Hello World!".into(),
-                },
-                Value::Tuple {
-                    elements: vec![
-                        Value::Decimal { value: dec!("10") },
-                        Value::PreciseDecimal { value: pdec!("10") },
-                        Value::String {
-                            value: "Hello World!".into(),
-                        },
-                        Value::Tuple {
-                            elements: vec![
-                                Value::Decimal { value: dec!("10") },
-                                Value::PreciseDecimal { value: pdec!("10") },
-                                Value::String {
-                                    value: "Hello World!".into(),
-                                },
-                                Value::Tuple {
-                                    elements: vec![
-                                        Value::Decimal { value: dec!("10") },
-                                        Value::PreciseDecimal { value: pdec!("10") },
-                                        Value::String {
-                                            value: "Hello World!".into(),
-                                        },
-                                        Value::Array {
-                                            element_type: ValueKind::Decimal,
-                                            elements: vec![
-                                                Value::Decimal { value: dec!("20") },
-                                                Value::Decimal { value: dec!("100") },
-                                                Value::Decimal {
-                                                    value: dec!("192.31"),
-                                                },
-                                                Value::PreciseDecimal {
-                                                    value: pdec!("192.31"),
-                                                },
-                                            ],
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        };
-
-        // Act
-        let result = value.validate_if_collection();
-
-        // Assert
-        assert!(matches!(result, Err(_)))
-    }
-
-    #[test]
-    fn no_data_loss_to_ast_value_and_back() {
-        // Arrange
-        let values = vec![
-            Value::NonFungibleId {
-                value: NonFungibleId::U32(1144418947),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::U64(114441894733333),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::UUID(11444189334733333),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::String("Hello World!".into()),
-            },
-            Value::NonFungibleId {
-                value: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::U32(1144418947),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::U64(114441894733333),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::UUID(11444189334733333),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::String("Hello World!".into()),
-                },
-            },
-            Value::NonFungibleAddress {
-                address: super::NonFungibleAddress {
-                    resource_address: NetworkAwareResourceAddress {
-                        network_id: 0xf2,
-                        address: RADIX_TOKEN,
-                    },
-                    non_fungible_id: NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]),
-                },
-            },
-        ];
-        let bech32_coder = Bech32Coder::new(0xf2);
-
-        for value in values {
-            // Act
-            let ast_value = value.to_ast_value(&bech32_coder).unwrap();
-            let converted_value = Value::from_ast_value(&ast_value, &bech32_coder).unwrap();
-
-            // Assert
-            assert_eq!(value, converted_value)
-        }
-    }
-}

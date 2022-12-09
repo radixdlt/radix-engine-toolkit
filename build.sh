@@ -35,7 +35,7 @@ do
     CRATE_DIR="$SCRIPT_DIR/$CRATE_NAME"
     echo "Building $CRATE_NAME"
     cd $CRATE_DIR
-    ./build.sh
+    ./build.sh 
 
     for TARGET_NAME in `find "$CRATE_DIR/target" -name "*-*" -maxdepth 1 -exec basename {} \;`; do
         for EXTENSION in "dylib" "a" "dll" "so" "wasm"; do
