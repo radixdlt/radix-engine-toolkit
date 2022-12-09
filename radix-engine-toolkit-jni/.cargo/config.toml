@@ -1,0 +1,3 @@
+[target.aarch64-linux-android]
+ar = "/Users/omarabdulla/Downloads/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar"
+linker = "/Users/omarabdulla/Downloads/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang"
