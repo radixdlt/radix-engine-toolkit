@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::{str::FromStr, convert::Infallible};
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone, PartialOrd, Ord)]
@@ -33,6 +35,14 @@ impl From<String> for Identifier {
 impl From<u32> for Identifier {
     fn from(value: u32) -> Self {
         Self::U32(value)
+    }
+}
+
+impl FromStr for Identifier {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::String(s.into()))
     }
 }
 

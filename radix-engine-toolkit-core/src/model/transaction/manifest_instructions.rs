@@ -40,7 +40,7 @@ pub enum ManifestInstructionsKind {
 
 /// A union type of the two states that manifest instructions can be represented in: as a string or
 /// as a vector of instructions (called JSON in this case for user friendliness when serialized).
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(tag = "type", content = "value")]
 pub enum ManifestInstructions {
     String(String),

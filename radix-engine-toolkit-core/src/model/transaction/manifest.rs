@@ -33,7 +33,7 @@ use crate::traits::{TryIntoWithContext, ValidateWithContext};
 // =================
 
 #[serde_as]
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct TransactionManifest {
     pub instructions: ManifestInstructions,
     #[serde_as(as = "Vec<serde_with::hex::Hex>")]

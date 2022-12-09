@@ -23,7 +23,7 @@ use radix_engine_toolkit_core::traits::Request;
 use test_vector::TRANSACTION_MANIFEST_TEST_VECTORS;
 
 #[test]
-pub fn conversion_of_manifests_succeeds() {
+pub fn manifests_converted_from_string_to_json_match_expected() {
     // Arrange
     let network_id: u8 = 0xF2;
 
@@ -36,9 +36,11 @@ pub fn conversion_of_manifests_succeeds() {
         };
 
         // Act
-        let response = request.fulfill_request();
+        let response = request
+            .fulfill_request()
+            .expect("Failed to convert a trusted manifest");
 
         // Assert
-        assert!(matches!(response, Ok(..)));
+        assert_eq!(test_vector.expected_json_representation, response.manifest);
     }
 }

@@ -9,12 +9,16 @@ CALL_METHOD
     # Test aliases and their non-aliased versions
     None
     Enum("None")
+
     Some("hello")
     Enum("Some", "hello")
+
     Ok("test")
     Enum("Ok", "test")
+
     Err("test123")
     Enum("Err", "test123")
+    
     Bytes("050aff")
     Array<U8>(5u8, 10u8, 255u8)
     ;
