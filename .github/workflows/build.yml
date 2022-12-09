@@ -1,0 +1,59 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        target: [ native, wasm, jni ]
+        include:
+          - target: native
+            rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
+          - target: wasm
+            rust-target: "wasm32-unknown-unknown"
+          - target: jni
+            rust-target: "aarch64-apple-darwin x86_64-apple-darwin"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+
+      - name: Install rust toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+          chmod +x rustup.sh
+          ./rustup.sh -y
+          rustup update
+          rustup toolchain install nightly
+
+      - name: Build ${{ matrix.target }}
+        continue-on-error: true
+        run: |
+          rustup target add ${{ matrix.rust-target }}
+          rustup +nightly target add ${{ matrix.rust-target }}
+          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
+          cargo install --force cbindgen cross
+          brew install llvm
+          export AR="/usr/local/opt/llvm/bin/llvm-ar"
+          export CC="/usr/local/opt/llvm/bin/clang"
+          brew install binaryen
+          ./build.sh radix-engine-toolkit-${{ matrix.target }}
+
+      - name: Upload ${{ matrix.target }} artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: radix-engine-toolkit-${{ matrix.target }}
+          path: build/radix-engine-toolkit-${{ matrix.target }}-*

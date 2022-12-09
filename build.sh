@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -23,8 +25,11 @@ BUILD_DIR="$SCRIPT_DIR/build"
 rm -rf $BUILD_DIR
 mkdir $BUILD_DIR
 
-# This is a list of all of all of the crates that we would like to build. 
+# This is a list of all of all of the crates that we would like to build.
 CRATES_TO_BUILD="radix-engine-toolkit-native radix-engine-toolkit-wasm radix-engine-toolkit-jni"
+if [ $# -eq 1 ]; then
+  CRATES_TO_BUILD="${1}"
+fi
 for CRATE_NAME in $CRATES_TO_BUILD
 do
     CRATE_DIR="$SCRIPT_DIR/$CRATE_NAME"
