@@ -20,7 +20,9 @@
 extern crate lazy_static;
 
 pub mod instruction;
+pub mod manifest;
 pub mod value;
 
 pub use instruction::*;
+pub use manifest::*;
 pub use value::*;
