@@ -22,7 +22,7 @@ use scrypto::radix_engine_interface::{address::AddressError, core::NetworkDefini
 use crate::model::TransactionHeader;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented with reference to
-/// https://github.com/radixdlt/babylon-node/blob/51e4fb9dbb999b8e02aa6cce07162aef2affd6a7/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
+/// https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
 pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
     match network_id {
         0x01 => NetworkDefinition::mainnet(),
@@ -56,6 +56,16 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         0x22 => NetworkDefinition {
             id: network_id,
             logical_name: "hammunet".into(),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
+        },
+        0x23 => NetworkDefinition {
+            id: network_id,
+            logical_name: "nergalnet".into(),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
+        },
+        0x24 => NetworkDefinition {
+            id: network_id,
+            logical_name: "mardunet".into(),
             hrp_suffix: format!("tdx_{:x}_", network_id),
         },
 
