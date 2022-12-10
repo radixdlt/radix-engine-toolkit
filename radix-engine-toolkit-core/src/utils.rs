@@ -26,55 +26,55 @@ use crate::model::TransactionHeader;
 pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
     match network_id {
         0x01 => NetworkDefinition::mainnet(),
-        i @ 0x02 => NetworkDefinition {
-            id: i,
+        0x02 => NetworkDefinition {
+            id: network_id,
             logical_name: "stokenet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
 
-        i @ 0x0A => NetworkDefinition {
-            id: i,
+        0x0A => NetworkDefinition {
+            id: network_id,
             logical_name: "adapanet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
-        i @ 0x0B => NetworkDefinition {
-            id: i,
+        0x0B => NetworkDefinition {
+            id: network_id,
             logical_name: "nebunet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
 
-        i @ 0x20 => NetworkDefinition {
-            id: i,
+        0x20 => NetworkDefinition {
+            id: network_id,
             logical_name: "gilganet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
-        i @ 0x21 => NetworkDefinition {
-            id: i,
+        0x21 => NetworkDefinition {
+            id: network_id,
             logical_name: "enkinet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
-        i @ 0x22 => NetworkDefinition {
-            id: i,
+        0x22 => NetworkDefinition {
+            id: network_id,
             logical_name: "hammunet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
 
-        i @ 0xF0 => NetworkDefinition {
-            id: i,
+        0xF0 => NetworkDefinition {
+            id: network_id,
             logical_name: "localnet".into(),
             hrp_suffix: "loc".into(),
         },
-        i @ 0xF1 => NetworkDefinition {
-            id: i,
+        0xF1 => NetworkDefinition {
+            id: network_id,
             logical_name: "inttestnet".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
         0xF2 => NetworkDefinition::simulator(),
 
-        i => NetworkDefinition {
-            id: i,
+        _ => NetworkDefinition {
+            id: network_id,
             logical_name: "Unnamed Numeric Test Network".into(),
-            hrp_suffix: format!("tdx_{:x}_", i),
+            hrp_suffix: format!("tdx_{:x}_", network_id),
         },
     }
 }
