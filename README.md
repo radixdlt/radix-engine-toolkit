@@ -17,7 +17,7 @@ Babylon transactions are composed of a number of different parts, but their buil
 
 When we have a transaction intent, getting to a signed transaction intent requires that the transaction intent is "compiled" and signed. In this context, compiling something simply refers to encoding it in SBOR. Once all of the signers have signed the compiled transaction intent, we have all we need to for a signed transaction intent. 
 
-Similarity, when the notary wishes to notarize a signed transaction intent, they compile the signed transaction intent (as explained above, they encode the signed transaction intent in SBOR), sign that, and with that they have the notary signature required to form a complete transaction. 
+Similarly, when the notary wishes to notarize a signed transaction intent, they compile the signed transaction intent (as explained above, they encode the signed transaction intent in SBOR), sign that, and with that they have the notary signature required to form a complete transaction. 
 
 ## Motivation
 
@@ -25,7 +25,7 @@ As can be seen in the [background section](#background), the process of creating
 
 The main implementation of SBOR is written in Rust. That being said, clients wishing to integrate their services with Radix (or just build and send programmatic transactions) could have clients written in a any programming languages. It is unrealistic to expect that clients would write, test, and maintain their own SBOR implementation in their client language as this is a high implementation burden on the client.
 
-In addition to the building of transaction requiring SBOR for compilation, certain clients might wish to decompile transactions to figure out what the transaction intent is. Much like compilation, without an SBOR implementation available to the client, the decompilation of transactions would be impossible. 
+In addition to the building of transactions requiring SBOR for compilation, certain clients might wish to decompile transactions to figure out what the transaction intent is. Much like compilation, without an SBOR implementation available to the client, the decompilation of transactions would be impossible. 
 
 Therefore, there is a strong need to **not** rewrite SBOR in different languages, instead, to reuse and reutilize the original SBOR implementation for clients written in any language. This library achieves that by being fully written in rust; thus leveraging the ability to use the original SBOR implementation, and being compilable to different targets with WASM and native iOS being the two main compilation targets for this library. WASM being a main compilation target means that any programming language with a WASM runtime can leverage and make use of this library. 
 

@@ -32,7 +32,7 @@ use crate::traits::{Request, Validate, ValidateWithContext};
 // Request & Response Models
 // ==========================
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct ConvertManifestRequest {
     /// The version of the passed transaction manifest. Used to determine how the manifest is
     /// interpreted by the library.
@@ -50,7 +50,7 @@ pub struct ConvertManifestRequest {
     pub manifest: TransactionManifest,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct ConvertManifestResponse {
     /// The manifest after it has been converted to the type specified in the [ConvertManifestRequest]
     #[serde(flatten)]
@@ -93,54 +93,5 @@ impl<'r> Request<'r, ConvertManifestResponse> for ConvertManifestRequest {
                 blobs: self.manifest.blobs,
             },
         })
-    }
-}
-
-// ======
-// Tests
-// ======
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::model::address::NetworkAwarePackageAddress;
-    use crate::model::{Instruction, TransactionManifest};
-    use scrypto::prelude::PackageAddress;
-
-    #[test]
-    pub fn convert_manifest_with_mismatch_addresses_fails() {
-        // Arrange
-        let manifest_instructions = vec![Instruction::CallFunction {
-            package_address: NetworkAwarePackageAddress {
-                address: PackageAddress::Normal([1; 26]),
-                network_id: 0x19,
-            },
-            blueprint_name: "HelloWorld".into(),
-            function_name: "HelloWorld".into(),
-            arguments: None,
-        }];
-        let network_id = 0xF2;
-
-        let request = ConvertManifestRequest {
-            transaction_version: 0x01,
-            network_id,
-            manifest_instructions_output_format: crate::model::ManifestInstructionsKind::String,
-            manifest: TransactionManifest {
-                instructions: crate::model::ManifestInstructions::JSON(manifest_instructions),
-                blobs: vec![],
-            },
-        };
-
-        // Act
-        let response = request.fulfill_request();
-
-        // Assert
-        assert!(matches!(
-            response,
-            Err(Error::NetworkMismatchError {
-                expected: 0xF2,
-                found: 0x19
-            })
-        ))
     }
 }

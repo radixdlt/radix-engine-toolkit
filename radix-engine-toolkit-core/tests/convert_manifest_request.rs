@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_toolkit_core::error::Error;
 use radix_engine_toolkit_core::model::ManifestInstructionsKind;
 use radix_engine_toolkit_core::requests::ConvertManifestRequest;
 
@@ -25,7 +26,7 @@ use test_vector::TRANSACTION_MANIFEST_TEST_VECTORS;
 #[test]
 pub fn manifests_converted_from_string_to_json_match_expected() {
     // Arrange
-    let network_id: u8 = 0xF2;
+    let network_id = 0xF2;
 
     for test_vector in TRANSACTION_MANIFEST_TEST_VECTORS.iter() {
         let request = ConvertManifestRequest {
@@ -42,5 +43,27 @@ pub fn manifests_converted_from_string_to_json_match_expected() {
 
         // Assert
         assert_eq!(test_vector.expected_json_representation, response.manifest);
+    }
+}
+
+#[test]
+pub fn validation_fails_on_a_convert_manifest_request_with_network_mismatches() {
+    // Arrange
+    let network_id = 0x01; // Incorrect network. All test vectors use local simulator (0xF2).
+
+    for test_vector in TRANSACTION_MANIFEST_TEST_VECTORS.iter() {
+        let request = ConvertManifestRequest {
+            manifest: test_vector.manifest.clone(),
+            network_id,
+            transaction_version: 0x01,
+            manifest_instructions_output_format: ManifestInstructionsKind::JSON,
+        };
+
+        // Act
+        let response = request.fulfill_request();
+
+        // Assert
+        // TODO: Feels like this should be a network mismatch error and not an "invalid HRP" error.
+        assert!(matches!(response, Err(Error::AddressError(..))));
     }
 }
