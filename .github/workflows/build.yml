@@ -128,13 +128,13 @@ jobs:
 
       - name: Aggregate and Collect Builds
         run: |
-          BUILDS_DIRECTORY="$SCRIPT_DIR/build"
+          BUILDS_DIRECTORY="$CURRENT_DIRECTORY/build"
           [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
           mkdir $BUILDS_DIRECTORY
 
           for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
           do
-              CRATE_PATH="$SCRIPT_DIR/$crate_name"
+              CRATE_PATH="$CURRENT_DIRECTORY/$crate_name"
               TARGET_PATH="$CRATE_PATH/target"
 
               ARGUMENTS=""
