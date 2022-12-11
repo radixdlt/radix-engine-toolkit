@@ -36,6 +36,7 @@ jobs:
         run: |
           rustup target install ${{ matrix.build-target }}
           rustup +nightly target install ${{ matrix.build-target }}
+          rustup component add rust-src --toolchain nightly-${{ matrix.build-target }}
 
       - name: Install Build Dependencies
         run: |
@@ -44,6 +45,16 @@ jobs:
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64
 
+      # =====================================
+      # Crate and Target Dependendent builds
+      # =====================================
+      # Note: There is no other way to do a "if else" type logic. What we are trying to achieve
+      # here is to have different build parameters depending on the crate and the target that the
+      # toolkit is being built for.
+      
+      # TODO: Determine if some of this logic could be changed to a matrix of objects which define
+      # the crate, target, CC, AR, and LINKER
+
       - name: Building radix-engine-toolkit-native for aarch64-apple-darwin
         if: ${{ matrix.crate=='radix-engine-toolkit-native' && matrix.build-target=='aarch64-apple-darwin' }}
         run: |
@@ -51,6 +62,9 @@ jobs:
           export CC="/usr/local/opt/llvm/bin/clang"
           export AR="/usr/local/opt/llvm/bin/llvm-ar"
           cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target aarch64-apple-darwin --release
+
+      # =================
+      # Aggregate and 
 
       # - name: Build ${{ matrix.target }}
       #   continue-on-error: true
