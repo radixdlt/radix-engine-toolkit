@@ -11,27 +11,19 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
       matrix:
-        target: [ native, wasm, jni ]
-        include:
-          - target: native
-            rust-target: "aarch64-apple-darwin x86_64-apple-darwin aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-ios"
-          - target: wasm
-            rust-target: "wasm32-unknown-unknown"
-          - target: jni
-            rust-target: "aarch64-apple-darwin x86_64-apple-darwin"
+        # Update this when we add new interface crates or targets
+        crate: [ radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm ]
+        build-target: [ aarch64-apple-ios-sim, x86_64-unknown-linux-gnu, wasm32-unknown-unknown, i686-linux-android, x86_64-apple-ios, aarch64-apple-ios, x86_64-pc-windows-gnu, aarch64-apple-darwin, aarch64-linux-android, armv7-linux-androideabi, x86_64-apple-darwin ]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
-
-      - name: Install rust toolchain
+      - name: Install Rust Toolchain
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
           chmod +x rustup.sh
@@ -39,21 +31,34 @@ jobs:
           rustup update
           rustup toolchain install nightly
 
-      - name: Build ${{ matrix.target }}
-        continue-on-error: true
+      # When we require an additional target, do not forget to add it to this list of targets that
+      - name: Install Rust Targets
         run: |
-          rustup target add ${{ matrix.rust-target }}
-          rustup +nightly target add ${{ matrix.rust-target }}
-          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
-          cargo install --force cbindgen cross
-          brew install llvm
-          export AR="/usr/local/opt/llvm/bin/llvm-ar"
-          export CC="/usr/local/opt/llvm/bin/clang"
-          brew install binaryen
-          ./build.sh radix-engine-toolkit-${{ matrix.target }}
+          rustup target install ${{ matrix.build-target }}
+          rustup +nightly target install ${{ matrix.build-target }}
 
-      - name: Upload ${{ matrix.target }} artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: radix-engine-toolkit-${{ matrix.target }}
-          path: build/radix-engine-toolkit-${{ matrix.target }}-*
+      - name: Install Build Dependencies
+        run: |
+          brew tap SergioBenitez/osxct
+          brew install llvm
+          brew install x86_64-unknown-linux-gnu
+          brew install mingw-w64
+
+      # - name: Build ${{ matrix.target }}
+      #   continue-on-error: true
+      #   run: |
+      #     rustup target add ${{ matrix.rust-target }}
+      #     rustup +nightly target add ${{ matrix.rust-target }}
+      #     rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
+      #     cargo install --force cbindgen cross
+      #     brew install llvm
+      #     export AR="/usr/local/opt/llvm/bin/llvm-ar"
+      #     export CC="/usr/local/opt/llvm/bin/clang"
+      #     brew install binaryen
+      #     ./build.sh radix-engine-toolkit-${{ matrix.target }}
+
+      # - name: Upload ${{ matrix.target }} artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: radix-engine-toolkit-${{ matrix.target }}
+      #     path: build/radix-engine-toolkit-${{ matrix.target }}-*
