@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - develop
+      - main
   push:
     branches:
       - develop
@@ -83,6 +84,70 @@ jobs:
           echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
           echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
           echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+
+          (
+            BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
+            cd $BUILD_PATH
+
+            BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+            tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+          )
+
+      - name: Build XCFramework
+        run: |
+          CRATE_NAME="radix-engine-toolkit-native"
+          CRATE_PATH="$CURRENT_DIRECTORY/$CRATE_NAME"
+          cd $CRATE_PATH
+
+          mkdir $CRATE_PATH/target/macos-arm64_x86_64/
+          mkdir $CRATE_PATH/target/ios-simulator-arm64_x86_64
+
+          lipo -create \
+              "$CRATE_PATH/target/aarch64-apple-darwin/release/$LIBRARY_NAME.a" \
+              "$CRATE_PATH/target/x86_64-apple-darwin/release/$LIBRARY_NAME.a" \
+              -o "$CRATE_PATH/target/macos-arm64_x86_64/$LIBRARY_NAME.a"
+          lipo -create \
+              "$CRATE_PATH/target/aarch64-apple-ios-sim/release/$LIBRARY_NAME.a" \
+              "$CRATE_PATH/target/x86_64-apple-ios/release/$LIBRARY_NAME.a" \
+              -o "$CRATE_PATH/target/ios-simulator-arm64_x86_64/$LIBRARY_NAME.a"
+
+          cp -r $CRATE_PATH/target/aarch64-apple-darwin/release/include $CRATE_PATH/target/macos-arm64_x86_64/
+          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/release/include $CRATE_PATH/target/ios-simulator-arm64_x86_64/
+
+          xcodebuild -create-xcframework \
+              -library "$CRATE_PATH/target/aarch64-apple-ios/release/$LIBRARY_NAME.a" \
+              -headers "$CRATE_PATH/target/aarch64-apple-ios/release/include" \
+              -library "$CRATE_PATH/target/macos-arm64_x86_64/$LIBRARY_NAME.a" \
+              -headers "$CRATE_PATH/target/macos-arm64_x86_64/include" \
+              -library "$CRATE_PATH/target/ios-simulator-arm64_x86_64/$LIBRARY_NAME.a" \
+              -headers "$CRATE_PATH/target/ios-simulator-arm64_x86_64/include" \
+              -output "$CRATE_PATH/target/RadixEngineToolkit.xcframework"
+
+          rm -rf $CRATE_PATH/target/macos-arm64_x86_64/
+          rm -rf $CRATE_PATH/target/ios-simulator-arm64_x86_64
+
+      - name: Aggregate and Collect Builds
+        run: |
+          BUILDS_DIRECTORY="$SCRIPT_DIR/build"
+          [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
+          mkdir $BUILDS_DIRECTORY
+
+          for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
+          do
+              CRATE_PATH="$SCRIPT_DIR/$crate_name"
+              TARGET_PATH="$CRATE_PATH/target"
+
+              ARGUMENTS=""
+              for path in $(find $TARGET_PATH \( -name "*.xcframework" -o -name "*.tar.gz" \) -maxdepth 3);
+              do
+                  ARTIFACT_DIRECTORY_PATH=$(cd $(dirname $path); pwd)
+                  ARTIFACT_FILE_NAME=$(basename $path)
+
+                  ARGUMENTS+=" -C $ARTIFACT_DIRECTORY_PATH $ARTIFACT_FILE_NAME "
+              done
+              gtar -czf "$BUILDS_DIRECTORY/$crate_name.tar.gz" $ARGUMENTS
+          done
+          
 
       # - name: Build ${{ matrix.target }}
       #   continue-on-error: true
