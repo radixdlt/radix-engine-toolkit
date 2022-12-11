@@ -48,6 +48,50 @@ jobs:
             custom-linker: x86_64-unknown-linux-gnu-gcc
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          
+          # radix-engine-toolkit-wasm Crate
+          - crate: radix-engine-toolkit-wasm
+            target-triple: wasm32-unknown-unknown
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          
+          # radix-engine-toolkit-jni Crate
+          - crate: radix-engine-toolkit-jni
+            target-triple: aarch64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-pc-windows-gnu
+            custom-linker: ""
+            custom-compiler: x86_64-w64-mingw32-gcc
+            custom-archiver: x86_64-w64-mingw32-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: aarch64-linux-android
+            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: armv7-linux-androideabi
+            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: i686-linux-android
+            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - name: Checkout
@@ -59,6 +103,7 @@ jobs:
           brew install llvm
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64
+          brew install --cask android-ndk
 
       - name: Install Rust Toolchain
         run: |
@@ -119,39 +164,6 @@ jobs:
             tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
           )
 
-      - name: Build XCFramework
-        run: |
-          CRATE_NAME="radix-engine-toolkit-native"
-          CRATE_PATH="$CURRENT_DIRECTORY/$CRATE_NAME"
-          cd $CRATE_PATH
-
-          mkdir $CRATE_PATH/target/macos-arm64_x86_64/
-          mkdir $CRATE_PATH/target/ios-simulator-arm64_x86_64
-
-          lipo -create \
-              "$CRATE_PATH/target/aarch64-apple-darwin/release/$LIBRARY_NAME.a" \
-              "$CRATE_PATH/target/x86_64-apple-darwin/release/$LIBRARY_NAME.a" \
-              -o "$CRATE_PATH/target/macos-arm64_x86_64/$LIBRARY_NAME.a"
-          lipo -create \
-              "$CRATE_PATH/target/aarch64-apple-ios-sim/release/$LIBRARY_NAME.a" \
-              "$CRATE_PATH/target/x86_64-apple-ios/release/$LIBRARY_NAME.a" \
-              -o "$CRATE_PATH/target/ios-simulator-arm64_x86_64/$LIBRARY_NAME.a"
-
-          cp -r $CRATE_PATH/target/aarch64-apple-darwin/release/include $CRATE_PATH/target/macos-arm64_x86_64/
-          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/release/include $CRATE_PATH/target/ios-simulator-arm64_x86_64/
-
-          xcodebuild -create-xcframework \
-              -library "$CRATE_PATH/target/aarch64-apple-ios/release/$LIBRARY_NAME.a" \
-              -headers "$CRATE_PATH/target/aarch64-apple-ios/release/include" \
-              -library "$CRATE_PATH/target/macos-arm64_x86_64/$LIBRARY_NAME.a" \
-              -headers "$CRATE_PATH/target/macos-arm64_x86_64/include" \
-              -library "$CRATE_PATH/target/ios-simulator-arm64_x86_64/$LIBRARY_NAME.a" \
-              -headers "$CRATE_PATH/target/ios-simulator-arm64_x86_64/include" \
-              -output "$CRATE_PATH/target/RadixEngineToolkit.xcframework"
-
-          rm -rf $CRATE_PATH/target/macos-arm64_x86_64/
-          rm -rf $CRATE_PATH/target/ios-simulator-arm64_x86_64
-
       - name: Aggregate and Collect Builds
         run: |
           BUILDS_DIRECTORY="$CURRENT_DIRECTORY/build"
@@ -164,7 +176,7 @@ jobs:
               TARGET_PATH="$CRATE_PATH/target"
 
               ARGUMENTS=""
-              for path in $(find $TARGET_PATH \( -name "*.xcframework" -o -name "*.tar.gz" \) -maxdepth 3);
+              for path in $(find $TARGET_PATH \( -name "*.tar.gz" \) -maxdepth 3);
               do
                   ARTIFACT_DIRECTORY_PATH=$(cd $(dirname $path); pwd)
                   ARTIFACT_FILE_NAME=$(basename $path)
