@@ -15,10 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![allow(dead_code)]
-#![macro_use]
-extern crate lazy_static;
-
 pub mod instruction;
 pub mod manifest;
 pub mod value;

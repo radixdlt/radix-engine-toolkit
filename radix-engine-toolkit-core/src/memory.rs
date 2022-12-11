@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 use std::alloc::{alloc, dealloc, Layout};
 
 /// A type alias of the main pointer type that this module uses.
-pub type Pointer = *mut u8;
+pub type Pointer = *mut std::ffi::c_char;
 
 /// Allocates memory of the specified capacity and returns a pointer to that memory location.
 ///
@@ -48,7 +48,7 @@ pub type Pointer = *mut u8;
 pub unsafe extern "C" fn toolkit_alloc(capacity: usize) -> Pointer {
     let align = std::mem::align_of::<usize>();
     let layout = Layout::from_size_align_unchecked(capacity, align);
-    alloc(layout)
+    alloc(layout) as Pointer
 }
 
 /// Fees up memory of a specific `capacity` beginning from the specified `pointer` location.
@@ -66,7 +66,7 @@ pub unsafe extern "C" fn toolkit_alloc(capacity: usize) -> Pointer {
 pub unsafe extern "C" fn toolkit_free(pointer: Pointer, capacity: usize) {
     let align = std::mem::align_of::<usize>();
     let layout = Layout::from_size_align_unchecked(capacity, align);
-    dealloc(pointer, layout);
+    dealloc(pointer as *mut _, layout);
 }
 
 /// Fees up memory allocated for a c-string at `pointer` location.
@@ -160,6 +160,6 @@ where
     let byte_count = object_bytes.len() + 1;
 
     let pointer = toolkit_alloc(byte_count);
-    pointer.copy_from([object_bytes, &[0]].concat().as_ptr(), byte_count);
+    pointer.copy_from([object_bytes, &[0]].concat().as_ptr() as Pointer, byte_count);
     Ok(pointer)
 }
