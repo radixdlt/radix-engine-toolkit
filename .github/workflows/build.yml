@@ -132,6 +132,8 @@ jobs:
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
 
+            printenv
+
             cargo build \
               --target ${{ matrix.build-target.target-triple }} \
               --release
