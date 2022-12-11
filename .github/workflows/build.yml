@@ -132,9 +132,7 @@ jobs:
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
 
-            cargo +nightly build \
-              -Z build-std=std,panic_abort \
-              -Z build-std-features=panic_immediate_abort \
+            cargo build \
               --target ${{ matrix.build-target.target-triple }} \
               --release
 
