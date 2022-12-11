@@ -121,52 +121,54 @@ jobs:
 
       - name: Building Toolkit
         run: |
-          export CURRENT_DIRECTORY=$(pwd)
-          export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
-          cd $CRATE_PATH
-
-          export LINKER_ENVIRONMENT_VARIABLE=$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')
-          
-          export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
-          export CC=${{ matrix.build-target.custom-compiler }}
-          export AR=${{ matrix.build-target.custom-archiver }}
-
-          cargo +nightly build \
-            -Z build-std=std,panic_abort \
-            -Z build-std-features=panic_immediate_abort \
-            --target ${{ matrix.build-target.target-triple }} \
-            --release
-
-          export $LINKER_ENVIRONMENT_VARIABLE=""
-          export CC="/usr/local/opt/llvm/bin/clang"
-          export AR="/usr/local/opt/llvm/bin/llvm-ar"
-
-          INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
-          mkdir $INCLUDE_DIRECTORY_PATH
-
-          rustup default nightly
-          cbindgen \
-            --lang c \
-            --config cbindgen.toml \
-            --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
-          rustup default stable
-
-          echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-          echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-          echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-          echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-
           (
-            BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
-            cd $BUILD_PATH
+            export CURRENT_DIRECTORY=$(pwd)
+            export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
+            cd $CRATE_PATH
 
-            BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
-            tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+            export LINKER_ENVIRONMENT_VARIABLE=$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')
+            
+            export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+            export CC=${{ matrix.build-target.custom-compiler }}
+            export AR=${{ matrix.build-target.custom-archiver }}
+
+            cargo +nightly build \
+              -Z build-std=std,panic_abort \
+              -Z build-std-features=panic_immediate_abort \
+              --target ${{ matrix.build-target.target-triple }} \
+              --release
+
+            export $LINKER_ENVIRONMENT_VARIABLE=""
+            export CC="/usr/local/opt/llvm/bin/clang"
+            export AR="/usr/local/opt/llvm/bin/llvm-ar"
+
+            INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
+            mkdir $INCLUDE_DIRECTORY_PATH
+
+            rustup default nightly
+            cbindgen \
+              --lang c \
+              --config cbindgen.toml \
+              --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
+            rustup default stable
+
+            echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+
+            (
+              BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
+              cd $BUILD_PATH
+
+              BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+              tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+            )
           )
 
       - name: Aggregate and Collect Builds
         run: |
-          BUILDS_DIRECTORY="$CURRENT_DIRECTORY/build"
+          BUILDS_DIRECTORY="$./build"
           [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
           mkdir $BUILDS_DIRECTORY
 
