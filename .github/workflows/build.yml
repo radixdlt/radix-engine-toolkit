@@ -79,19 +79,19 @@ jobs:
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           - crate: radix-engine-toolkit-jni
             target-triple: aarch64-linux-android
-            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           - crate: radix-engine-toolkit-jni
             target-triple: armv7-linux-androideabi
-            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           - crate: radix-engine-toolkit-jni
             target-triple: i686-linux-android
-            custom-linker: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /opt/homebrew/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - name: Checkout
