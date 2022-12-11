@@ -16,8 +16,13 @@ jobs:
     strategy:
       matrix:
         # Update this when we add new interface crates or targets
-        crate: [ radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm ]
-        build-target: [ aarch64-apple-ios-sim, x86_64-unknown-linux-gnu, wasm32-unknown-unknown, i686-linux-android, x86_64-apple-ios, aarch64-apple-ios, x86_64-pc-windows-gnu, aarch64-apple-darwin, aarch64-linux-android, armv7-linux-androideabi, x86_64-apple-darwin ]
+        crate:
+          - name: radix-engine-toolkit-native
+            build-target: [aarch64-apple-darwin, x86_64-apple-darwin, aarch64-apple-ios-sim, aarch64-apple-ios, x86_64-apple-ios, x86_64-pc-windows-gnu, x86_64-unknown-linux-gnu]
+          - name: radix-engine-toolkit-wasm
+            build-target: [wasm32-unknown-unknown]
+          - name: radix-engine-toolkit-jni
+            build-target: [aarch64-apple-darwin, x86_64-apple-darwin, aarch64-apple-ios-sim, aarch64-apple-ios, x86_64-apple-ios, x86_64-pc-windows-gnu, x86_64-unknown-linux-gnu, aarch64-linux-android, armv7-linux-androideabi, i686-linux-android]
 
     steps:
       - name: Checkout
@@ -34,8 +39,8 @@ jobs:
       # When we require an additional target, do not forget to add it to this list of targets that
       - name: Install Rust Targets
         run: |
-          rustup target install ${{ matrix.build-target }}
-          rustup +nightly target install ${{ matrix.build-target }}
+          rustup target install ${{ matrix.crate.build-target }}
+          rustup +nightly target install ${{ matrix.crate.build-target }}
 
       - name: Install Build Dependencies
         run: |
