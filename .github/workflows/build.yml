@@ -15,9 +15,12 @@ jobs:
     continue-on-error: false
     strategy:
       matrix:
-        # Update this when we add new interface crates or targets
-        crate: [ radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm ]
-        build-target: [ aarch64-apple-ios-sim, x86_64-unknown-linux-gnu, wasm32-unknown-unknown, i686-linux-android, x86_64-apple-ios, aarch64-apple-ios, x86_64-pc-windows-gnu, aarch64-apple-darwin, aarch64-linux-android, armv7-linux-androideabi, x86_64-apple-darwin ]
+        build-target:
+          - crate: radix-engine-toolkit-native
+            target-triple: aarch64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/ar
 
     steps:
       - name: Checkout
@@ -34,8 +37,8 @@ jobs:
       # When we require an additional target, do not forget to add it to this list of targets that
       - name: Install Rust Targets
         run: |
-          rustup target install ${{ matrix.build-target }}
-          rustup +nightly target install ${{ matrix.build-target }}
+          rustup target install ${{ matrix.build-target.target-triple }}
+          rustup +nightly target install ${{ matrix.build-target.target-triple }}
           rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
 
       - name: Install Build Dependencies
@@ -55,16 +58,21 @@ jobs:
       # TODO: Determine if some of this logic could be changed to a matrix of objects which define
       # the crate, target, CC, AR, and LINKER
 
-      - name: Building radix-engine-toolkit-native for aarch64-apple-darwin
-        if: ${{ matrix.crate=='radix-engine-toolkit-native' && matrix.build-target=='aarch64-apple-darwin' }}
+      - name: Building Toolkit
         run: |
-          cd radix-engine-toolkit-native
-          export CC="/usr/local/opt/llvm/bin/clang"
-          export AR="/usr/local/opt/llvm/bin/llvm-ar"
-          cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target aarch64-apple-darwin --release
+          cd ${{matrix.build-target.crate}}
 
-      # =================
-      # Aggregate and 
+          export LINKER_ENVIRONMENT_VARIABLE=$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')
+          
+          export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+          export CC=${{ matrix.build-target.custom-compiler }}
+          export AR=${{ matrix.build-target.custom-archiver }}
+
+          cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target ${{ matrix.build-target.target-triple }} --release
+
+      # ===================================
+      # Aggregate and Collect Dependencies
+      # ===================================
 
       # - name: Build ${{ matrix.target }}
       #   continue-on-error: true
