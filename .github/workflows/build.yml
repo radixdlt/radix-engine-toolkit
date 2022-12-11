@@ -44,6 +44,14 @@ jobs:
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64
 
+      - name: Building radix-engine-toolkit-native for aarch64-apple-darwin
+        if: ${{ matrix.crate=='radix-engine-toolkit-native' && matrix.build-target=='aarch64-apple-darwin' }}
+        run: |
+          cd radix-engine-toolkit-native
+          export CC="/usr/local/opt/llvm/bin/clang"
+          export AR="/usr/local/opt/llvm/bin/llvm-ar"
+          cargo +nightly build -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort --target aarch64-apple-darwin --release
+
       # - name: Build ${{ matrix.target }}
       #   continue-on-error: true
       #   run: |
