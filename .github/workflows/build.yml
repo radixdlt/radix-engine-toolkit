@@ -36,7 +36,7 @@ jobs:
         run: |
           rustup target install ${{ matrix.build-target }}
           rustup +nightly target install ${{ matrix.build-target }}
-          rustup component add rust-src --toolchain nightly-${{ matrix.build-target }}
+          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
 
       - name: Install Build Dependencies
         run: |
