@@ -104,6 +104,7 @@ jobs:
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64
           brew install --cask android-ndk
+          brew install gcc
 
       - name: Install Rust Toolchain
         run: |
@@ -122,6 +123,10 @@ jobs:
       - name: Building Toolkit
         run: |
           (
+            export PATH="/usr/local/opt/llvm/bin:$PATH"
+            export LDFLAGS="-L/usr/local/opt/llvm/lib"
+            export CPPFLAGS="-I/usr/local/opt/llvm/include"
+
             export CURRENT_DIRECTORY=$(pwd)
             export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
             cd $CRATE_PATH
