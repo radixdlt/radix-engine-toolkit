@@ -1,4 +1,9 @@
-### Information
+# Requests Examples
+
+        This document contains examples and descriptions of the different requests and responses which the Radix Engine Toolkit may provide. As long as all of the CI test pass, then you may treat this document as the canonical truth for the format of the different requests and as valid examples of the payload and responses of these requests.
+
+
+## Information
 
 | Function Name     | `information` |
 | ----------------- | :----------------- |
@@ -25,7 +30,7 @@
 ```
 </details>
 
-### Convert Manifest
+## Convert Manifest
 
 | Function Name     | `convert_manifest` |
 | ----------------- | :----------------- |
@@ -353,7 +358,7 @@
 ```
 </details>
 
-### Compile Transaction Intent
+## Compile Transaction Intent
 
 | Function Name     | `compile_transaction_intent` |
 | ----------------- | :----------------- |
@@ -405,7 +410,7 @@
 ```
 </details>
 
-### Decompile Transaction Intent
+## Decompile Transaction Intent
 
 | Function Name     | `decompile_transaction_intent` |
 | ----------------- | :----------------- |
@@ -738,7 +743,7 @@
 ```
 </details>
 
-### Compile Signed Transaction Intent
+## Compile Signed Transaction Intent
 
 | Function Name     | `compile_signed_transaction_intent` |
 | ----------------- | :----------------- |
@@ -821,7 +826,7 @@
 ```
 </details>
 
-### Decompile Signed Transaction Intent
+## Decompile Signed Transaction Intent
 
 | Function Name     | `decompile_signed_transaction_intent` |
 | ----------------- | :----------------- |
@@ -1185,7 +1190,7 @@
 ```
 </details>
 
-### Compile Notarized Transaction Intent
+## Compile Notarized Transaction Intent
 
 | Function Name     | `compile_notarized_transaction_intent` |
 | ----------------- | :----------------- |
@@ -1274,7 +1279,7 @@
 ```
 </details>
 
-### Decompile Notarized Transaction Intent
+## Decompile Notarized Transaction Intent
 
 | Function Name     | `decompile_notarized_transaction_intent` |
 | ----------------- | :----------------- |
@@ -1644,7 +1649,7 @@
 ```
 </details>
 
-### Encode Address
+## Encode Address
 
 | Function Name     | `encode_address` |
 | ----------------- | :----------------- |
@@ -1675,7 +1680,7 @@
 ```
 </details>
 
-### Decode Address
+## Decode Address
 
 | Function Name     | `decode_address` |
 | ----------------- | :----------------- |
@@ -1712,7 +1717,7 @@
 ```
 </details>
 
-### Sbor Encode
+## Sbor Encode
 
 | Function Name     | `sbor_encode` |
 | ----------------- | :----------------- |
@@ -1824,7 +1829,7 @@
 ```
 </details>
 
-### Sbor Decode
+## Sbor Decode
 
 | Function Name     | `sbor_decode` |
 | ----------------- | :----------------- |
@@ -1937,7 +1942,7 @@
 ```
 </details>
 
-### Derive Non Fungible Address
+## Derive Non Fungible Address
 
 | Function Name     | `derive_non_fungible_address` |
 | ----------------- | :----------------- |
@@ -1985,7 +1990,7 @@
 ```
 </details>
 
-### Derive Non Fungible Address From Public Key
+## Derive Non Fungible Address From Public Key
 
 | Function Name     | `derive_non_fungible_address_from_public_key` |
 | ----------------- | :----------------- |
@@ -2029,7 +2034,7 @@
 ```
 </details>
 
-### Derive Virtual Account Address
+## Derive Virtual Account Address
 
 | Function Name     | `derive_virtual_account_address` |
 | ----------------- | :----------------- |
