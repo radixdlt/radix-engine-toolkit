@@ -177,7 +177,7 @@ jobs:
 
           for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
           do
-              CRATE_PATH="$CURRENT_DIRECTORY/$crate_name"
+              CRATE_PATH="./$crate_name"
               TARGET_PATH="$CRATE_PATH/target"
 
               ARGUMENTS=""
