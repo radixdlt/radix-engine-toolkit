@@ -171,6 +171,9 @@ jobs:
 
       - name: Aggregate and Collect Builds
         run: |
+          pwd
+          ls
+
           BUILDS_DIRECTORY="./build"
           [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
           mkdir $BUILDS_DIRECTORY
