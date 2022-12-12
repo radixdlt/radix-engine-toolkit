@@ -126,9 +126,12 @@ jobs:
             export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
             cd $CRATE_PATH
 
-            export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+            if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
+            then
+                  export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+                  export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+            fi
             
-            export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
 
