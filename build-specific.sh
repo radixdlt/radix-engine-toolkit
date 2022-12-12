@@ -37,3 +37,33 @@ set -e
 
 # The path of the directory that this script is in.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# A function which builds the create the current working directory for the specified target triple.
+cargo_build() {
+    local target_triple=$1
+    cargo +nightly build \
+        -Z build-std=std,panic_abort \
+        -Z build-std-features=panic_immediate_abort \
+        --target $target_triple \
+        --release
+}
+
+# The environment variable that cargo uses to specify the linter is dependent on the target triple.
+# So, we need to perform some actions to get to that environment variable.
+export LINKER_ENVIRONMENT_VARIABLE_NAME="CARGO_TARGET_"$(echo $TARGET_TRIPLE | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+
+# Setting the `LINKER_ENVIRONMENT_VARIABLE_NAME` environment variable only if a custom linker was
+# specified. Otherwise, there is no need to set this environment variable.
+if [ ! -z "$CUSTOM_LINKER" ]
+then
+    export $LINKER_ENVIRONMENT_VARIABLE_NAME=$CUSTOM_LINKER
+fi
+
+# Setting the CC and AR environment variables to the specified custom compiler and archiver
+export CC=$CUSTOM_COMPILER
+export AR=$CUSTOM_ARCHIVER
+
+# Go into the crate directory and run the build command
+CRATE_DIRECTORY="$SCRIPT_DIR/$CRATE_NAME"
+cd $CRATE_DIRECTORY
+cargo_build $TARGET_TRIPLE
