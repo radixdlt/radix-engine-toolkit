@@ -46,138 +46,62 @@ CLEANED_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr "-" "_")
 # The library name. By convention, this is `lib` concatenated with the package name
 LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
 
-# Generates the CBindgen header for that specific target.
-generate_cbindgen_header() {
-    local target_triple=$1
-    local crate_path=$2
-
-    # Creating an include directory in the path of the target. This will store the header and the 
-    # module map
-    INCLUDE_DIRECTORY_PATH="$crate_path/target/$target_triple/release/include"
-    mkdir $INCLUDE_DIRECTORY_PATH
-
-    rustup default nightly
-    CC="$LLVM_BIN_PATH/clang" AR="$LLVM_BIN_PATH/llvm-ar" cbindgen \
-        --lang c \
-        --config cbindgen.toml \
-        --output "$INCLUDE_DIRECTORY_PATH/$LIBRARY_NAME.h" 
-    rustup default stable
-
-    # Create a module map which links to the generated header in the include directory
-    echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-}
-
-# A function which is used to create a compressed zip file of the build artifacts for a given target
-# and crate
-package_and_compress_build() {
-    local target_triple=$1
-    local crate_path=$2
-
-    (
-        # The path where all of the build artifacts for this given crate and target triple can be found
-        BUILD_PATH="$crate_path/target/$target_triple/release"
-        cd $BUILD_PATH
-
-        # Finding all of build artifacts which we want to zip up in a file
-        BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
-        gtar -czf "./$target_triple.tar.gz" $BUILD_ARTIFACTS_PATH ./include
-    )
-}
-
-cargo_build() {
-    local target_triple=$1
-    cargo +nightly build \
-        -Z build-std=std,panic_abort \
-        -Z build-std-features=panic_immediate_abort \
-        --target $target_triple \
-        --release
-}
-
 # =================================================
 # Building the "radix-engine-toolkit-native" crate
 # =================================================
 (
     # The name of the crate that we are building
-    CRATE_NAME="radix-engine-toolkit-native"
-
-    # The path of the crate
-    CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
-    
-    cd $CRATE_PATH
+    export CRATE_NAME="radix-engine-toolkit-native"
 
     # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
-    TARGET_TRIPLE="aarch64-apple-darwin"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-darwin"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
-    TARGET_TRIPLE="x86_64-apple-darwin"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-apple-darwin"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
-    TARGET_TRIPLE="aarch64-apple-ios-sim"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-ios-sim"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
-    TARGET_TRIPLE="aarch64-apple-ios"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-ios"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
-    TARGET_TRIPLE="x86_64-apple-ios"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-apple-ios"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
-    TARGET_TRIPLE="x86_64-pc-windows-gnu"
-    
-    export CC="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
-    export AR="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-pc-windows-gnu"
+    export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
+    export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
 
     # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
-    TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+    export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
+    $SCRIPT_DIR/build-specific.sh
     
-    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
 )
 
 # =================================================
@@ -185,22 +109,14 @@ cargo_build() {
 # =================================================
 (
     # The name of the crate that we are building
-    CRATE_NAME="radix-engine-toolkit-wasm"
-
-    # The path of the crate
-    CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
-    
-    cd $CRATE_PATH
+    export CRATE_NAME="radix-engine-toolkit-wasm"
 
     # Building the Radix Engine Toolkit for a `wasm32-unknown-unknown` target
-    TARGET_TRIPLE="wasm32-unknown-unknown"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="wasm32-unknown-unknown"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
 )
 
 # ==============================================
@@ -208,116 +124,77 @@ cargo_build() {
 # ==============================================
 (
     # The name of the crate that we are building
-    CRATE_NAME="radix-engine-toolkit-jni"
-
-    # The path of the crate
-    CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
-    
-    cd $CRATE_PATH
+    export CRATE_NAME="radix-engine-toolkit-jni"
 
     # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
-    TARGET_TRIPLE="aarch64-apple-darwin"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-darwin"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
-    TARGET_TRIPLE="x86_64-apple-darwin"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-apple-darwin"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
-    TARGET_TRIPLE="aarch64-apple-ios-sim"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-ios-sim"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
-    TARGET_TRIPLE="aarch64-apple-ios"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-apple-ios"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
-    TARGET_TRIPLE="x86_64-apple-ios"
-    
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-apple-ios"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
-    TARGET_TRIPLE="x86_64-pc-windows-gnu"
-    
-    export CC="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
-    export AR="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-pc-windows-gnu"
+    export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
+    export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
+    export CUSTOM_LINKER=""
+    $SCRIPT_DIR/build-specific.sh
 
     # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
-    TARGET_TRIPLE="x86_64-unknown-linux-gnu"
-    
-    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
-    export CC="$LLVM_BIN_PATH/clang"
-    export AR="$LLVM_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-linux-android` target
-    TARGET_TRIPLE="aarch64-linux-android"
-    
-    export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$NDK_BIN_PATH/aarch64-linux-android21-clang"
-    export CC="$NDK_BIN_PATH/aarch64-linux-android21-clang"
-    export AR="$NDK_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="aarch64-linux-android"
+    export CUSTOM_COMPILER="$NDK_BIN_PATH/aarch64-linux-android21-clang"
+    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=$CUSTOM_COMPILER
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `armv7-linux-androideabi` target
-    TARGET_TRIPLE="armv7-linux-androideabi"
-    
-    export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
-    export CC="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
-    export AR="$NDK_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="armv7-linux-androideabi"
+    export CUSTOM_COMPILER="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
+    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=$CUSTOM_COMPILER
+    $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `i686-linux-android` target
-    TARGET_TRIPLE="i686-linux-android"
-    
-    export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_BIN_PATH/i686-linux-android19-clang"
-    export CC="$NDK_BIN_PATH/i686-linux-android19-clang"
-    export AR="$NDK_BIN_PATH/llvm-ar"
-    cargo_build $TARGET_TRIPLE
-
-    generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
-    package_and_compress_build $TARGET_TRIPLE $CRATE_PATH
+    export TARGET_TRIPLE="i686-linux-android"
+    export CUSTOM_COMPILER="$NDK_BIN_PATH/i686-linux-android19-clang"
+    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    export CUSTOM_LINKER=$CUSTOM_COMPILER
+    $SCRIPT_DIR/build-specific.sh
 )
 
 # =================
