@@ -5,5 +5,7 @@
         "radix-engine-toolkit-native/Cargo.toml",
         "radix-engine-toolkit-wasm/Cargo.toml",
         "radix-engine-toolkit-jni/Cargo.toml",
+        
+        "docs-examples-generator/Cargo.toml",
     ]
 }
