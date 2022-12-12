@@ -1,16 +1,22 @@
-name: Rust
+name: Test
 
 on:
-  push:
-    branches: [ "main", "develop", "betanet" ]
   pull_request:
-    branches: [ "main", "develop", "betanet" ]
+    branches:
+      - betanet
+      - develop
+      - main
+  push:
+    branches:
+      - betanet
+      - develop
+      - main
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     strategy:
@@ -19,5 +25,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install Targets
+      run: rustup target install wasm32-unknown-unknown
     - name: Run tests
       run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose

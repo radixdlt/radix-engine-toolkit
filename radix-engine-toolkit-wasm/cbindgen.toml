@@ -1,0 +1,10 @@
+documentation = false
+
+[parse]
+clean = true
+parse_deps = true
+include = ["radix-engine-toolkit-core"]
+extra_bindings = ["radix-engine-toolkit-core"]
+
+[parse.expand]
+crates = ["radix-engine-toolkit-wasm"]
