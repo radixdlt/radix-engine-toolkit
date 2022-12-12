@@ -27,5 +27,5 @@ fn main() {
         .add_example::<'_, DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse>()
         .add_example::<'_, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
         .build();
-    fs::write("./generated_examples.md", examples).unwrap();
+    fs::write("./request-examples.md", examples).unwrap();
 }

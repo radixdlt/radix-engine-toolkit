@@ -16,8 +16,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
-
+  rust-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,3 +28,14 @@ jobs:
       run: rustup target install wasm32-unknown-unknown
     - name: Run tests
       run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
+
+  generated-requests-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Checking Generated Requests
+        run: |
+          cd docs-examples-generator
+          mv request-examples.md old-request-examples.md
+          cargo run
+          cmp --quiet request-examples.md old-request-examples.md && exit 0 || exit 1
