@@ -12,6 +12,6 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.144", default-features = false, features = ["serde_derive"] }
 serde_json = "1.0.89"
 
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125"}
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab"}
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab" }
 hex = "0.4.3"

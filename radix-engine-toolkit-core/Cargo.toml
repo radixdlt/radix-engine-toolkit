@@ -12,11 +12,11 @@ serde = { version = "1.0.144", default-features = false, features = ["serde_deri
 serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
 serde_with = { version = "2.0.0", default-features = false, features = ["hex", "macros"] }
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125", features = ["serde"] }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125", package = "utils" }
-radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125", features = ["serde"], package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-6f1a42125" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab", features = ["serde"] }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab", package = "utils" }
+radix_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab", features = ["serde"], package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v1-9ec92c1ab" }
 
 [dev-dependencies]
 lazy_static = "1.4.0"
