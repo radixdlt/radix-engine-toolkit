@@ -49,19 +49,19 @@ jobs:
           #   custom-compiler: /usr/local/opt/llvm/bin/clang
           #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           
-          # # radix-engine-toolkit-wasm Crate
-          # - crate: radix-engine-toolkit-wasm
-          #   target-triple: wasm32-unknown-unknown
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # radix-engine-toolkit-wasm Crate
+          - crate: radix-engine-toolkit-wasm
+            target-triple: wasm32-unknown-unknown
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           
-          # # radix-engine-toolkit-jni Crate
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: aarch64-apple-darwin
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # radix-engine-toolkit-jni Crate
+          - crate: radix-engine-toolkit-jni
+            target-triple: aarch64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           # - crate: radix-engine-toolkit-jni
           #   target-triple: x86_64-apple-darwin
           #   custom-linker: ""
