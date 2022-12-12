@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    continue-on-error: false
+    continue-on-error: true
     strategy:
       matrix:
         build-target:
@@ -23,31 +23,31 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-native
-          #   target-triple: x86_64-apple-darwin
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-native
-          #   target-triple: aarch64-apple-ios
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-native
-          #   target-triple: aarch64-apple-ios-sim
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-native
-          #   target-triple: x86_64-pc-windows-gnu
-          #   custom-linker: ""
-          #   custom-compiler: x86_64-w64-mingw32-gcc
-          #   custom-archiver: x86_64-w64-mingw32-ar
-          # - crate: radix-engine-toolkit-native
-          #   target-triple: x86_64-unknown-linux-gnu
-          #   custom-linker: x86_64-unknown-linux-gnu-gcc
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: aarch64-apple-ios
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: aarch64-apple-ios-sim
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: x86_64-pc-windows-gnu
+            custom-linker: ""
+            custom-compiler: x86_64-w64-mingw32-gcc
+            custom-archiver: x86_64-w64-mingw32-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           
           # radix-engine-toolkit-wasm Crate
           - crate: radix-engine-toolkit-wasm
@@ -62,36 +62,36 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: x86_64-apple-darwin
-          #   custom-linker: ""
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: x86_64-pc-windows-gnu
-          #   custom-linker: ""
-          #   custom-compiler: x86_64-w64-mingw32-gcc
-          #   custom-archiver: x86_64-w64-mingw32-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: x86_64-unknown-linux-gnu
-          #   custom-linker: x86_64-unknown-linux-gnu-gcc
-          #   custom-compiler: /usr/local/opt/llvm/bin/clang
-          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: aarch64-linux-android
-          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: armv7-linux-androideabi
-          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          # - crate: radix-engine-toolkit-jni
-          #   target-triple: i686-linux-android
-          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-pc-windows-gnu
+            custom-linker: ""
+            custom-compiler: x86_64-w64-mingw32-gcc
+            custom-archiver: x86_64-w64-mingw32-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: aarch64-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: armv7-linux-androideabi
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: i686-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - name: Checkout
@@ -172,42 +172,3 @@ jobs:
         with:
           name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
           path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
-
-  aggregate:
-    runs-on: macos-latest
-    continue-on-error: false
-    if: ${{ always() }}
-    needs: [build]
-    steps:
-      - name: Aggregate
-        run: |
-          pwd
-          ls
-
-          ls ./radix-engine-toolkit-jni
-          ls ./radix-engine-toolkit-native
-          ls ./radix-engine-toolkit-wasm
-          
-          ls ./radix-engine-toolkit-jni/target
-          ls ./radix-engine-toolkit-native/target
-          ls ./radix-engine-toolkit-wasm/target
-
-          BUILDS_DIRECTORY="./build"
-          [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
-          mkdir $BUILDS_DIRECTORY
-  
-          for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
-          do
-              CRATE_PATH="./$crate_name"
-              TARGET_PATH="$CRATE_PATH/target"
-              ARGUMENTS=""
-              for path in $(find $TARGET_PATH \( -name "*.tar.gz" \) -maxdepth 3);
-              do
-                  ARTIFACT_DIRECTORY_PATH=$(cd $(dirname $path); pwd)
-                  ARTIFACT_FILE_NAME=$(basename $path)
-                  ARGUMENTS+=" -C $ARTIFACT_DIRECTORY_PATH $ARTIFACT_FILE_NAME "
-              done
-              gtar -czf "$BUILDS_DIRECTORY/$crate_name.tar.gz" $ARGUMENTS
-          done
-
-          ls $BUILDS_DIRECTORY
