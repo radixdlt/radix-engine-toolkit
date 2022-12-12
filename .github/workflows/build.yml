@@ -181,6 +181,17 @@ jobs:
     steps:
       - name: Aggregate
         run: |
+          pwd
+          ls
+
+          ls ./radix-engine-toolkit-jni
+          ls ./radix-engine-toolkit-native
+          ls ./radix-engine-toolkit-wasm
+          
+          ls ./radix-engine-toolkit-jni/target
+          ls ./radix-engine-toolkit-native/target
+          ls ./radix-engine-toolkit-wasm/target
+
           BUILDS_DIRECTORY="./build"
           [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
           mkdir $BUILDS_DIRECTORY
