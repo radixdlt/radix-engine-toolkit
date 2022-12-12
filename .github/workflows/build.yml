@@ -172,3 +172,31 @@ jobs:
         with:
           name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
           path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
+
+  aggregate:
+    runs-on: macos-latest
+    continue-on-error: false
+    if: ${{ always() }}
+    needs: [build]
+    steps:
+      - name: Aggregate
+        run: |
+          BUILDS_DIRECTORY="./build"
+          [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
+          mkdir $BUILDS_DIRECTORY
+  
+          for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
+          do
+              CRATE_PATH="./$crate_name"
+              TARGET_PATH="$CRATE_PATH/target"
+              ARGUMENTS=""
+              for path in $(find $TARGET_PATH \( -name "*.tar.gz" \) -maxdepth 3);
+              do
+                  ARTIFACT_DIRECTORY_PATH=$(cd $(dirname $path); pwd)
+                  ARTIFACT_FILE_NAME=$(basename $path)
+                  ARGUMENTS+=" -C $ARTIFACT_DIRECTORY_PATH $ARTIFACT_FILE_NAME "
+              done
+              gtar -czf "$BUILDS_DIRECTORY/$crate_name.tar.gz" $ARGUMENTS
+          done
+
+          ls $BUILDS_DIRECTORY
