@@ -15,26 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transaction::manifest::ast::{
-    Instruction as AstInstruction, Receiver as AstReceiver, Value as AstValue,
-};
+use radix_transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
 use scrypto::prelude::{Blob, Decimal, NonFungibleId};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
 
 use crate::error::Error;
-use crate::model::re_node::*;
 use crate::model::value::*;
 use crate::model::{
-    Bech32Coder, BucketId, NetworkAwarePackageAddress, NetworkAwareResourceAddress, ProofId,
-    ValueSerializationProxy,
+    Bech32Coder, BucketId, EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress, NonFungibleAddress, ProofId, ValueSerializationProxy,
 };
 use crate::traits::ValidateWithContext;
-
-use super::EntityAddress;
-use super::NonFungibleAddress;
-use super::ScryptoReceiver;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -53,29 +46,10 @@ pub enum Instruction {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arguments: Option<Vec<Value>>,
     },
-    CallNativeFunction {
-        #[serde_as(as = "ValueSerializationProxy")]
-        blueprint_name: String,
-
-        #[serde_as(as = "ValueSerializationProxy")]
-        function_name: String,
-
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        arguments: Option<Vec<Value>>,
-    },
 
     CallMethod {
         #[serde_as(as = "ValueSerializationProxy")]
-        component_address: ScryptoReceiver,
-
-        #[serde_as(as = "ValueSerializationProxy")]
-        method_name: String,
-
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        arguments: Option<Vec<Value>>,
-    },
-    CallNativeMethod {
-        receiver: RENode,
+        component_address: NetworkAwareComponentAddress,
 
         #[serde_as(as = "ValueSerializationProxy")]
         method_name: String,
@@ -194,6 +168,18 @@ pub enum Instruction {
     },
     DropAllProofs,
 
+    PublishPackage {
+        #[serde_as(as = "ValueSerializationProxy")]
+        code: Blob,
+
+        #[serde_as(as = "ValueSerializationProxy")]
+        abi: Blob,
+
+        // TODO: Switch to a more structured format
+        royalty_config: Value,
+        metadata: Value,
+        access_rules: Value,
+    },
     PublishPackageWithOwner {
         #[serde_as(as = "ValueSerializationProxy")]
         code: Blob,
@@ -213,12 +199,56 @@ pub enum Instruction {
         mint_params: Value,
     },
 
-    BurnBucket {
+    // TODO: Figure out the structured model of this.
+    CreateResourceWithOwner {
+        resource_type: Value,
+        metadata: Value,
+        owner_badge: Value,
+        mint_params: Value,
+    },
+
+    BurnResource {
         #[serde_as(as = "ValueSerializationProxy")]
         bucket: BucketId,
     },
+    // TODO: Switch to a more structured format
+    RecallResource {
+        vault_id: Value,
+        amount: Value,
+    },
+    SetMetadata {
+        entity_address: Value,
+        key: Value,
+        value: Value,
+    },
+    SetPackageRoyaltyConfig {
+        package_address: Value,
+        royalty_config: Value,
+    },
 
-    MintFungible {
+    SetComponentRoyaltyConfig {
+        component_address: Value,
+        royalty_config: Value,
+    },
+
+    // TODO: Dedicated bucket for this?
+    ClaimPackageRoyalty {
+        package_address: Value,
+    },
+
+    // TODO: Dedicated bucket for this?
+    ClaimComponentRoyalty {
+        component_address: Value,
+    },
+
+    SetMethodAccessRule {
+        entity_address: Value,
+        index: Value,
+        key: Value,
+        rule: Value,
+    },
+
+    MintResource {
         #[serde_as(as = "ValueSerializationProxy")]
         resource_address: NetworkAwareResourceAddress,
 
@@ -249,46 +279,19 @@ impl Instruction {
                     .map(|v| v.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             },
-            Self::CallNativeFunction {
-                blueprint_name,
-                function_name,
-                arguments,
-            } => AstInstruction::CallNativeFunction {
-                blueprint_name: Value::from(blueprint_name).to_ast_value(bech32_coder)?,
-                function_name: Value::from(function_name).to_ast_value(bech32_coder)?,
-                args: arguments
-                    .unwrap_or_default()
-                    .iter()
-                    .map(|v| v.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<AstValue>, _>>()?,
-            },
             Self::CallMethod {
                 component_address,
                 method_name,
                 arguments,
             } => AstInstruction::CallMethod {
-                receiver: component_address.to_ast_scrypto_receiver(bech32_coder),
-                method: Value::from(method_name).to_ast_value(bech32_coder)?,
+                component_address: Value::from(component_address).to_ast_value(bech32_coder)?,
+                method_name: Value::from(method_name).to_ast_value(bech32_coder)?,
                 args: arguments
                     .unwrap_or_default()
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<AstValue>, _>>()?,
             },
-            Self::CallNativeMethod {
-                receiver,
-                method_name,
-                arguments,
-            } => AstInstruction::CallNativeMethod {
-                receiver: AstReceiver::Ref(ast_re_node_from_re_node(&receiver)),
-                method: Value::from(method_name).to_ast_value(bech32_coder)?,
-                args: arguments
-                    .unwrap_or_default()
-                    .iter()
-                    .map(|v| v.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<AstValue>, _>>()?,
-            },
-
             Self::TakeFromWorktop {
                 resource_address,
                 into_bucket,
@@ -409,14 +412,14 @@ impl Instruction {
                 abi: Value::from(abi).to_ast_value(bech32_coder)?,
             },
 
-            Self::MintFungible {
+            Self::MintResource {
                 resource_address,
                 amount,
-            } => AstInstruction::MintFungible {
+            } => AstInstruction::MintResource {
                 resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
                 amount: Value::from(amount).to_ast_value(bech32_coder)?,
             },
-            Self::BurnBucket { bucket } => AstInstruction::BurnBucket {
+            Self::BurnResource { bucket } => AstInstruction::BurnResource {
                 bucket: Value::from(bucket).to_ast_value(bech32_coder)?,
             },
             Self::CreateResource {
@@ -429,6 +432,86 @@ impl Instruction {
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
                 mint_params: mint_params.to_ast_value(bech32_coder)?,
+            },
+            Self::PublishPackage {
+                code,
+                abi,
+                royalty_config,
+                metadata,
+                access_rules,
+            } => AstInstruction::PublishPackage {
+                code: Value::from(code).to_ast_value(bech32_coder)?,
+                abi: Value::from(abi).to_ast_value(bech32_coder)?,
+                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                access_rules: access_rules.to_ast_value(bech32_coder)?,
+            },
+
+            Self::CreateResourceWithOwner {
+                resource_type,
+                metadata,
+                owner_badge,
+                mint_params,
+            } => AstInstruction::CreateResourceWithOwner {
+                resource_type: resource_type.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                owner_badge: owner_badge.to_ast_value(bech32_coder)?,
+                mint_params: mint_params.to_ast_value(bech32_coder)?,
+            },
+
+            Self::RecallResource { vault_id, amount } => AstInstruction::RecallResource {
+                vault_id: vault_id.to_ast_value(bech32_coder)?,
+                amount: amount.to_ast_value(bech32_coder)?,
+            },
+
+            Self::SetMetadata {
+                entity_address,
+                key,
+                value,
+            } => AstInstruction::SetMetadata {
+                entity_address: entity_address.to_ast_value(bech32_coder)?,
+                key: key.to_ast_value(bech32_coder)?,
+                value: value.to_ast_value(bech32_coder)?,
+            },
+
+            Self::SetPackageRoyaltyConfig {
+                package_address,
+                royalty_config,
+            } => AstInstruction::SetPackageRoyaltyConfig {
+                package_address: package_address.to_ast_value(bech32_coder)?,
+                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+            },
+
+            Self::SetComponentRoyaltyConfig {
+                component_address,
+                royalty_config,
+            } => AstInstruction::SetComponentRoyaltyConfig {
+                component_address: component_address.to_ast_value(bech32_coder)?,
+                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+            },
+
+            // TODO: Dedicated bucket for this?
+            Self::ClaimPackageRoyalty { package_address } => AstInstruction::ClaimPackageRoyalty {
+                package_address: package_address.to_ast_value(bech32_coder)?,
+            },
+
+            // TODO: Dedicated bucket for this?
+            Self::ClaimComponentRoyalty { component_address } => {
+                AstInstruction::ClaimComponentRoyalty {
+                    component_address: component_address.to_ast_value(bech32_coder)?,
+                }
+            }
+
+            Self::SetMethodAccessRule {
+                entity_address,
+                index,
+                key,
+                rule,
+            } => AstInstruction::SetMethodAccessRule {
+                entity_address: entity_address.to_ast_value(bech32_coder)?,
+                index: index.to_ast_value(bech32_coder)?,
+                key: key.to_ast_value(bech32_coder)?,
+                rule: rule.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -460,54 +543,14 @@ impl Instruction {
                     }
                 },
             },
-            AstInstruction::CallNativeFunction {
-                blueprint_name,
-                function_name,
-                args,
-            } => Self::CallNativeFunction {
-                blueprint_name: Value::from_ast_value(blueprint_name, bech32_coder)?.try_into()?,
-                function_name: Value::from_ast_value(function_name, bech32_coder)?.try_into()?,
-                arguments: {
-                    let arguments = args
-                        .iter()
-                        .map(|v| Value::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<Value>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
-                },
-            },
             AstInstruction::CallMethod {
-                receiver,
-                method,
+                component_address,
+                method_name,
                 args,
             } => Self::CallMethod {
-                component_address: ScryptoReceiver::from_ast_scrypto_receiver(
-                    receiver,
-                    bech32_coder,
-                )?,
-                method_name: Value::from_ast_value(method, bech32_coder)?.try_into()?,
-                arguments: {
-                    let arguments = args
-                        .iter()
-                        .map(|v| Value::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<Value>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
-                },
-            },
-            AstInstruction::CallNativeMethod {
-                receiver,
-                method,
-                args,
-            } => Self::CallNativeMethod {
-                receiver: match receiver {
-                    AstReceiver::Ref(ast_re_node) => re_node_from_ast_re_node(ast_re_node)?,
-                },
-                method_name: Value::from_ast_value(method, bech32_coder)?.try_into()?,
+                component_address: Value::from_ast_value(component_address, bech32_coder)?
+                    .try_into()?,
+                method_name: Value::from_ast_value(method_name, bech32_coder)?.try_into()?,
                 arguments: {
                     let arguments = args
                         .iter()
@@ -668,15 +711,15 @@ impl Instruction {
                 code: Value::from_ast_value(code, bech32_coder)?.try_into()?,
                 abi: Value::from_ast_value(abi, bech32_coder)?.try_into()?,
             },
-            AstInstruction::MintFungible {
+            AstInstruction::MintResource {
                 resource_address,
                 amount,
-            } => Self::MintFungible {
+            } => Self::MintResource {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?
                     .try_into()?,
                 amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
             },
-            AstInstruction::BurnBucket { bucket } => Self::BurnBucket {
+            AstInstruction::BurnResource { bucket } => Self::BurnResource {
                 bucket: Value::from_ast_value(bucket, bech32_coder)?.try_into()?,
             },
             AstInstruction::CreateResource {
@@ -689,6 +732,81 @@ impl Instruction {
                 metadata: Value::from_ast_value(metadata, bech32_coder)?,
                 access_rules: Value::from_ast_value(access_rules, bech32_coder)?,
                 mint_params: Value::from_ast_value(mint_params, bech32_coder)?,
+            },
+            AstInstruction::CreateResourceWithOwner {
+                resource_type,
+                metadata,
+                owner_badge,
+                mint_params,
+            } => Self::CreateResourceWithOwner {
+                resource_type: Value::from_ast_value(resource_type, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?,
+                mint_params: Value::from_ast_value(mint_params, bech32_coder)?,
+            },
+            AstInstruction::PublishPackage {
+                code,
+                abi,
+                royalty_config,
+                metadata,
+                access_rules,
+            } => Self::PublishPackage {
+                code: Value::from_ast_value(code, bech32_coder)?.try_into()?,
+                abi: Value::from_ast_value(abi, bech32_coder)?.try_into()?,
+                royalty_config: Value::from_ast_value(royalty_config, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                access_rules: Value::from_ast_value(access_rules, bech32_coder)?,
+            },
+            AstInstruction::RecallResource { vault_id, amount } => Self::RecallResource {
+                vault_id: Value::from_ast_value(vault_id, bech32_coder)?,
+                amount: Value::from_ast_value(amount, bech32_coder)?,
+            },
+            AstInstruction::SetMetadata {
+                entity_address,
+                key,
+                value,
+            } => Self::SetMetadata {
+                entity_address: Value::from_ast_value(entity_address, bech32_coder)?,
+                key: Value::from_ast_value(key, bech32_coder)?,
+                value: Value::from_ast_value(value, bech32_coder)?,
+            },
+
+            AstInstruction::SetPackageRoyaltyConfig {
+                package_address,
+                royalty_config,
+            } => Self::SetPackageRoyaltyConfig {
+                package_address: Value::from_ast_value(package_address, bech32_coder)?,
+                royalty_config: Value::from_ast_value(royalty_config, bech32_coder)?,
+            },
+
+            AstInstruction::SetComponentRoyaltyConfig {
+                component_address,
+                royalty_config,
+            } => Self::SetComponentRoyaltyConfig {
+                component_address: Value::from_ast_value(component_address, bech32_coder)?,
+                royalty_config: Value::from_ast_value(royalty_config, bech32_coder)?,
+            },
+
+            AstInstruction::ClaimPackageRoyalty { package_address } => Self::ClaimPackageRoyalty {
+                package_address: Value::from_ast_value(package_address, bech32_coder)?,
+            },
+
+            AstInstruction::ClaimComponentRoyalty { component_address } => {
+                Self::ClaimComponentRoyalty {
+                    component_address: Value::from_ast_value(component_address, bech32_coder)?,
+                }
+            }
+
+            AstInstruction::SetMethodAccessRule {
+                entity_address,
+                index,
+                key,
+                rule,
+            } => Self::SetMethodAccessRule {
+                entity_address: Value::from_ast_value(entity_address, bech32_coder)?,
+                index: Value::from_ast_value(index, bech32_coder)?,
+                key: Value::from_ast_value(key, bech32_coder)?,
+                rule: Value::from_ast_value(rule, bech32_coder)?,
             },
         };
         Ok(instruction)
@@ -716,32 +834,13 @@ impl ValidateWithContext<u8> for Instruction {
                     .collect::<Result<Vec<()>, Error>>()?;
                 Ok(())
             }
-            Self::CallNativeFunction { arguments, .. } => {
-                arguments
-                    .unwrap_or_default()
-                    .iter()
-                    .map(|arg| arg.validate((network_id, None)))
-                    .collect::<Result<Vec<()>, Error>>()?;
-                Ok(())
-            }
 
             Self::CallMethod {
                 component_address,
                 arguments,
                 ..
             } => {
-                if let ScryptoReceiver::ComponentAddress(address) = component_address {
-                    EntityAddress::from(address).validate(network_id)?;
-                } else {
-                }
-                arguments
-                    .unwrap_or_default()
-                    .iter()
-                    .map(|arg| arg.validate((network_id, None)))
-                    .collect::<Result<Vec<()>, Error>>()?;
-                Ok(())
-            }
-            Self::CallNativeMethod { arguments, .. } => {
+                EntityAddress::from(component_address).validate(network_id)?;
                 arguments
                     .unwrap_or_default()
                     .iter()
@@ -818,12 +917,14 @@ impl ValidateWithContext<u8> for Instruction {
 
             Self::PublishPackageWithOwner { .. } => Ok(()),
 
-            Self::MintFungible { .. } => Ok(()),
-            Self::BurnBucket { bucket: _ } => Ok(()),
+            Self::MintResource { .. } => Ok(()),
+            Self::BurnResource { bucket: _ } => Ok(()),
             Self::CreateResource { .. } => {
                 // TODO: Add validation for this instruction
                 Ok(())
             }
+            // TODO: Add validation for these instructions
+            _ => Ok(()),
         }
     }
 }

@@ -118,7 +118,11 @@ impl Validate for NotarizedTransaction {
         NotarizedTransactionValidator::new(validation_config_from_header(
             &self.signed_intent.intent.header,
         ))
-        .validate(&self.clone().try_into()?, &TestIntentHashManager::new())?;
+        .validate(
+            &self.clone().try_into()?,
+            self.compile().unwrap().len(),
+            &TestIntentHashManager::new(),
+        )?;
 
         Ok(())
     }

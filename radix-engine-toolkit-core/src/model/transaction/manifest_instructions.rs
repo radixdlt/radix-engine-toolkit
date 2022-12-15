@@ -17,7 +17,7 @@
 
 use radix_transaction::manifest::ast::Instruction as AstInstruction;
 use radix_transaction::manifest::decompile;
-use radix_transaction::model::Instruction as TransactionInstruction;
+use radix_transaction::model::BasicInstruction as TransactionInstruction;
 
 use scrypto::prelude::hash;
 use serde::{Deserialize, Serialize};

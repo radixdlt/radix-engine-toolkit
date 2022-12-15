@@ -70,7 +70,7 @@ impl ValueAstConversionsTestVector {
         &self,
         bech32_coder: &Bech32Coder,
     ) -> ScryptoValue {
-        let mut blobs = IndexMap::<Hash, Vec<u8>>::new();
+        let mut blobs = BTreeMap::<Hash, Vec<u8>>::new();
         if let Value::Blob { ref hash } = self.value {
             blobs.insert(hash.0, Vec::new());
         };

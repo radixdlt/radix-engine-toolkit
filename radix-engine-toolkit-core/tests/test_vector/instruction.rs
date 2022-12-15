@@ -128,57 +128,11 @@ lazy_static::lazy_static! {
                 }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::CallNativeFunction {
-                blueprint_name: "HelloWorld".into(),
-                function_name: "world_hello".into(),
-                arguments: Some(vec![Value::Decimal {
-                    value: "129333".parse().unwrap()
-                }])
-            },
-            r#"{
-                    "instruction": "CALL_NATIVE_FUNCTION",
-                    "blueprint_name": {
-                        "type": "String",
-                        "value": "HelloWorld"
-                    },
-                    "function_name": {
-                        "type": "String",
-                        "value": "world_hello"
-                    },
-                    "arguments": [
-                        {
-                            "type": "Decimal",
-                            "value": "129333"
-                        }
-                    ]
-                }"#
-        ),
-        InstructionSerializationTestVector::new(
-            Instruction::CallNativeFunction {
-                blueprint_name: "HelloWorld".into(),
-                function_name: "world_hello".into(),
-                arguments: None
-            },
-            r#"{
-                    "instruction": "CALL_NATIVE_FUNCTION",
-                    "blueprint_name": {
-                        "type": "String",
-                        "value": "HelloWorld"
-                    },
-                    "function_name": {
-                        "type": "String",
-                        "value": "world_hello"
-                    }
-                }"#
-        ),
-        InstructionSerializationTestVector::new(
             Instruction::CallMethod {
-                component_address: ScryptoReceiver::ComponentAddress(
-                    NetworkAwareComponentAddress {
-                        network_id: 0xf2,
-                        address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
-                    }
-                ),
+                component_address: NetworkAwareComponentAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
+                },
                 method_name: "remove_user".into(),
                 arguments: Some(vec![Value::NonFungibleId {
                     value: scrypto::prelude::NonFungibleId::U64(18)
@@ -201,57 +155,6 @@ lazy_static::lazy_static! {
                             "value": "18"
                         }
                     ]
-                }"#
-        ),
-        InstructionSerializationTestVector::new(
-            Instruction::CallMethod {
-                component_address: ScryptoReceiver::Component(
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap()
-                ),
-                method_name: "remove_user".into(),
-                arguments: Some(vec![Value::NonFungibleId {
-                    value: scrypto::prelude::NonFungibleId::U64(18)
-                }])
-            },
-            r#"{
-                    "instruction": "CALL_METHOD",
-                    "component_address": {
-                        "type": "Component",
-                        "identifier": "000000000000000000000000000000000000000000000000000000000000000000000005"
-                    },
-                    "method_name": {
-                        "type": "String",
-                        "value": "remove_user"
-                    },
-                    "arguments": [
-                        {
-                            "type": "NonFungibleId",
-                            "variant": "U64",
-                            "value": "18"
-                        }
-                    ]
-                }"#
-        ),
-        InstructionSerializationTestVector::new(
-            Instruction::CallNativeMethod {
-                receiver: radix_engine_toolkit_core::model::RENode::Bucket(
-                    radix_engine_toolkit_core::model::Identifier::U32(32)
-                ),
-                method_name: "inspect".into(),
-                arguments: None
-            },
-            r#"{
-                    "instruction": "CALL_NATIVE_METHOD",
-                    "receiver": {
-                        "type": "Bucket",
-                        "identifier": 32
-                    },
-                    "method_name": {
-                        "type": "String",
-                        "value": "inspect"
-                    }
                 }"#
         ),
         InstructionSerializationTestVector::new(
@@ -872,7 +775,7 @@ lazy_static::lazy_static! {
         ),
 
         InstructionSerializationTestVector::new(
-            Instruction::BurnBucket {
+            Instruction::BurnResource {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"{
@@ -884,7 +787,7 @@ lazy_static::lazy_static! {
             }"#
         ),
         InstructionSerializationTestVector::new(
-            Instruction::MintFungible {
+            Instruction::MintResource {
                 amount: dec!("123"),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
@@ -933,61 +836,17 @@ lazy_static::lazy_static! {
             r#"CALL_FUNCTION PackageAddress("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxrmwtq") "HelloWorld" "world_hello";"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::CallNativeFunction {
-                blueprint_name: "HelloWorld".into(),
-                function_name: "world_hello".into(),
-                arguments: Some(vec![Value::Decimal {
-                    value: "129333".parse().unwrap()
-                }])
-            },
-            r#"CALL_NATIVE_FUNCTION "HelloWorld" "world_hello" Decimal("129333");"#
-        ),
-        InstructionAstConversionsTestVector::new(
-            Instruction::CallNativeFunction {
-                blueprint_name: "HelloWorld".into(),
-                function_name: "world_hello".into(),
-                arguments: None
-            },
-            r#"CALL_NATIVE_FUNCTION "HelloWorld" "world_hello";"#
-        ),
-        InstructionAstConversionsTestVector::new(
             Instruction::CallMethod {
-                component_address: ScryptoReceiver::ComponentAddress(
-                    NetworkAwareComponentAddress {
-                        network_id: 0xf2,
-                        address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
-                    }
-                ),
+                component_address: NetworkAwareComponentAddress {
+                    network_id: 0xf2,
+                    address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
+                },
                 method_name: "remove_user".into(),
                 arguments: Some(vec![Value::NonFungibleId {
                     value: scrypto::prelude::NonFungibleId::U64(18)
                 }])
             },
             r#"CALL_METHOD ComponentAddress("component_sim1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8ecz5v") "remove_user" NonFungibleId(18u64);"#
-        ),
-        InstructionAstConversionsTestVector::new(
-            Instruction::CallMethod {
-                component_address: ScryptoReceiver::Component(
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap()
-                ),
-                method_name: "remove_user".into(),
-                arguments: Some(vec![Value::NonFungibleId {
-                    value: scrypto::prelude::NonFungibleId::U64(18)
-                }])
-            },
-            r#"CALL_METHOD Component("000000000000000000000000000000000000000000000000000000000000000000000005") "remove_user" NonFungibleId(18u64);"#
-        ),
-        InstructionAstConversionsTestVector::new(
-            Instruction::CallNativeMethod {
-                receiver: radix_engine_toolkit_core::model::RENode::Bucket(
-                    radix_engine_toolkit_core::model::Identifier::U32(32)
-                ),
-                method_name: "inspect".into(),
-                arguments: None
-            },
-            r#"CALL_NATIVE_METHOD Bucket(32u32) "inspect";"#
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::TakeFromWorktop {
@@ -1271,13 +1130,13 @@ lazy_static::lazy_static! {
         ),
 
         InstructionAstConversionsTestVector::new(
-            Instruction::BurnBucket {
+            Instruction::BurnResource {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"BURN_BUCKET Bucket("bucket");"#
         ),
         InstructionAstConversionsTestVector::new(
-            Instruction::MintFungible {
+            Instruction::MintResource {
                 amount: dec!("123"),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,

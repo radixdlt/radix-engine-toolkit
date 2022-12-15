@@ -17,7 +17,7 @@
 
 use std::fmt::Display;
 
-use crate::model::{value::ValueKind, RENodeKind};
+use crate::model::value::ValueKind;
 use serde::{Deserialize, Serialize};
 
 /// Represents an error encountered by the operations of the crate.
@@ -79,18 +79,6 @@ pub enum Error {
     /// a package address being found inside of a [`radix_transaction::manifest::ast::Value::Decimal`].
     UnexpectedContents {
         kind_being_parsed: ValueKind,
-        allowed_children_kinds: Vec<ValueKind>,
-        found_child_kind: ValueKind,
-    },
-
-    /// An error emitted during the conversion of [`crate::model::RENode`] into the AST's native
-    /// type. This error signals that unexpected contents were found when parsing the contents of
-    /// RENode. For example, for the case where we are parsing a [`crate::model::RENode::Bucket`],
-    /// we expect that it consists of a [`radix_transaction::manifest::ast::Value::String`] or a
-    /// [`radix_transaction::manifest::ast::Value::U32`]. If when parsing this `RENode`, we
-    /// encounter anything else that is not the types we expect, then this error is emitted.
-    UnexpectedReNodeContents {
-        kind_being_parsed: RENodeKind,
         allowed_children_kinds: Vec<ValueKind>,
         found_child_kind: ValueKind,
     },

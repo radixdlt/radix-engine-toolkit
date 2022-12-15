@@ -23,8 +23,8 @@
 use std::collections::HashSet;
 
 use radix_engine_toolkit_core::model::{
-    Identifier, Instruction::*, ManifestInstructions, NonFungibleAddress, RENode, ScryptoReceiver,
-    TransactionManifest, Value, ValueKind,
+    Identifier, Instruction::*, ManifestInstructions, NonFungibleAddress, TransactionManifest, 
+    Value, ValueKind,
 };
 use scrypto::prelude::{Expression, NonFungibleId};
 
@@ -68,7 +68,7 @@ lazy_static::lazy_static! {
                 instructions: ManifestInstructions::JSON(vec![
                     // Withdraw XRD from account
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064")),
+                        component_address: parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"),
                         method_name: parse!("withdraw_by_amount"),
                         arguments: Some(vec![
                             Value::Decimal { value: parse!("5.0") },
@@ -83,7 +83,7 @@ lazy_static::lazy_static! {
                         into_bucket: Identifier::String(parse!("xrd")).into()
                     },
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum")),
+                        component_address: parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"),
                         method_name: parse!("buy_gumball"),
                         arguments: Some(vec![
                             Value::Bucket { identifier: Identifier::String(parse!("xrd")).into() }
@@ -119,7 +119,7 @@ lazy_static::lazy_static! {
 
                     // Create a proof from account and drop it
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064")),
+                        component_address: parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"),
                         method_name: parse!("create_proof_by_amount"),
                         arguments: Some(vec![
                             Value::Decimal { value: parse!("5.0") },
@@ -169,7 +169,7 @@ lazy_static::lazy_static! {
 
                     // Cancel all buckets and move resources to account
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064")),
+                        component_address: parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"),
                         method_name: parse!("deposit_batch"),
                         arguments: Some(vec![Value::Expression { value: Expression::entire_worktop() }])
                     },
@@ -179,7 +179,7 @@ lazy_static::lazy_static! {
 
                     // Complicated method that takes all of the number types
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum")),
+                        component_address: parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"),
                         method_name: parse!("complicated_method"),
                         arguments: Some(vec![
                             Value::Decimal { value: parse!("1") },
@@ -211,12 +211,7 @@ lazy_static::lazy_static! {
                 instructions: ManifestInstructions::JSON(vec![
                     // Invoke scrypto method (both global and local)
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("component_sim1qgvyxt5rrjhwctw7krgmgkrhv82zuamcqkq75tkkrwgs00m736")),
-                        method_name: parse!("free_xrd"),
-                        arguments: None
-                    },
-                    CallMethod {
-                        component_address: ScryptoReceiver::Component(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
+                        component_address: parse!("component_sim1qgvyxt5rrjhwctw7krgmgkrhv82zuamcqkq75tkkrwgs00m736"),
                         method_name: parse!("free_xrd"),
                         arguments: None
                     },
@@ -229,77 +224,6 @@ lazy_static::lazy_static! {
                     CreateProofFromAuthZone {
                         resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_proof: Identifier::String(parse!("proof")).into()
-                    },
-
-                    CallNativeMethod {
-                        receiver: RENode::Bucket(parse!("xrd")),
-                        method_name: parse!("get_resource_address"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Bucket(1u32.into()),
-                        method_name: parse!("get_resource_address"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Proof(parse!("proof")),
-                        method_name: parse!("get_resource_address"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Proof(1u32.into()),
-                        method_name: parse!("get_resource_address"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::AuthZoneStack(1u32),
-                        method_name: parse!("drain"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Worktop,
-                        method_name: parse!("drain"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::KeyValueStore(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
-                        method_name: parse!("method"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::NonFungibleStore(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
-                        method_name: parse!("method"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Component(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
-                        method_name: parse!("add_access_check"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::EpochManager(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
-                        method_name: parse!("get_transaction_hash"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Vault(parse!("000000000000000000000000000000000000000000000000000000000000000005000000")),
-                        method_name: parse!("get_resource_address"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::ResourceManager(parse!("000000000000000000000000000000000000000000000000000000000000000000000005")),
-                        method_name: parse!("burn"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Package(parse!("000000000000000000000000000000000000000000000000000000000000000000000005")),
-                        method_name: parse!("method"),
-                        arguments: None
-                    },
-                    CallNativeMethod {
-                        receiver: RENode::Global(parse!("resource_sim1qrc4s082h9trka3yrghwragylm3sdne0u668h2sy6c9sckkpn6")),
-                        method_name: parse!("method"),
-                        arguments: None
                     },
                 ]),
                 blobs: Vec::new()
@@ -316,28 +240,6 @@ lazy_static::lazy_static! {
                         blueprint_name: parse!("Blueprint"),
                         function_name: parse!("function"),
                         arguments: None,
-                    },
-
-                    // Invoke native function
-                    CallNativeFunction {
-                        blueprint_name: parse!("EpochManager"),
-                        function_name: parse!("create"),
-                        arguments: None
-                    },
-                    CallNativeFunction {
-                        blueprint_name: parse!("ResourceManager"),
-                        function_name: parse!("create"),
-                        arguments: None
-                    },
-                    CallNativeFunction {
-                        blueprint_name: parse!("Package"),
-                        function_name: parse!("publish"),
-                        arguments: None
-                    },
-                    CallNativeFunction {
-                        blueprint_name: parse!("TransactionProcessor"),
-                        function_name: parse!("run"),
-                        arguments: None
                     },
                 ]),
                 blobs: vec![]
@@ -359,7 +261,7 @@ lazy_static::lazy_static! {
                     },
 
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum")),
+                        component_address: parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"),
                         method_name: parse!("with_aliases"),
                         arguments: Some(vec![
                             // Test aliases and their non-aliased versions
@@ -379,9 +281,9 @@ lazy_static::lazy_static! {
                             Value::Array { element_type: ValueKind::U8, elements: [5u8, 10u8, 255u8].iter().map(|x| Value::U8 { value: *x }).collect() },
                         ])
                     },
-                    
+
                     CallMethod {
-                        component_address: ScryptoReceiver::ComponentAddress(parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum")),
+                        component_address: parse!("component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"),
                         method_name: parse!("with_all_types"),
                         arguments: Some(vec![
                             // Global address types
@@ -400,41 +302,41 @@ lazy_static::lazy_static! {
                             // Other interpreted types
                             Value::Expression { value: Expression::new("ALL_WORKTOP_RESOURCES") },
                             Value::Blob { hash: parse!("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618") },
-                            Value::NonFungibleAddress { address: NonFungibleAddress { 
-                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
-                                non_fungible_id: NonFungibleId::String(parse!("value")) 
+                            Value::NonFungibleAddress { address: NonFungibleAddress {
+                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
+                                non_fungible_id: NonFungibleId::String(parse!("value"))
                             }},
-                            Value::NonFungibleAddress { address: NonFungibleAddress { 
-                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                            Value::NonFungibleAddress { address: NonFungibleAddress {
+                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                                 non_fungible_id: NonFungibleId::U32(123)
                             }},
-                            Value::NonFungibleAddress { address: NonFungibleAddress { 
-                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                            Value::NonFungibleAddress { address: NonFungibleAddress {
+                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                                 non_fungible_id: NonFungibleId::U64(456)
                             }},
-                            Value::NonFungibleAddress { address: NonFungibleAddress { 
-                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                            Value::NonFungibleAddress { address: NonFungibleAddress {
+                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                                 non_fungible_id: NonFungibleId::Bytes(hex::decode("031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f").unwrap())
                             }},
-                            Value::NonFungibleAddress { address: NonFungibleAddress { 
-                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                            Value::NonFungibleAddress { address: NonFungibleAddress {
+                                resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                                 non_fungible_id: NonFungibleId::UUID(1234567890)
                             }},
 
                             // Uninterpreted
-                            Value::Hash { 
+                            Value::Hash {
                                 value: parse!("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
                             },
-                            Value::EcdsaSecp256k1PublicKey { 
+                            Value::EcdsaSecp256k1PublicKey {
                                 public_key: parse!("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")
                             },
-                            Value::EcdsaSecp256k1Signature { 
+                            Value::EcdsaSecp256k1Signature {
                                 signature: parse!("0079224ea514206706298d8d620f660828f7987068d6d02757e6f3cbbf4a51ab133395db69db1bc9b2726dd99e34efc252d8258dcb003ebaba42be349f50f7765e")
                             },
-                            Value::EddsaEd25519PublicKey { 
+                            Value::EddsaEd25519PublicKey {
                                 public_key: parse!("4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29")
                             },
-                            Value::EddsaEd25519Signature { 
+                            Value::EddsaEd25519Signature {
                                 signature: parse!("ce993adc51111309a041faa65cbcf1154d21ed0ecdc2d54070bc90b9deb744aa8605b3f686fa178fba21070b4a4678e54eee3486a881e0e328251cd37966de09")
                             },
                             Value::Decimal { value: parse!("1.2") },
@@ -455,34 +357,34 @@ lazy_static::lazy_static! {
         TransactionManifestTestVector::new(
             include_str!("./non_fungible_ids_canonical.rtm"),
             &[],
-            TransactionManifest { 
+            TransactionManifest {
                 instructions: ManifestInstructions::JSON(vec![
-                    TakeFromWorktopByIds { 
-                        ids: HashSet::from([NonFungibleId::U32(12)]), 
-                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                    TakeFromWorktopByIds {
+                        ids: HashSet::from([NonFungibleId::U32(12)]),
+                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_bucket: Identifier::String(parse!("bucket1")).into()
                     },
-                    TakeFromWorktopByIds { 
-                        ids: HashSet::from([NonFungibleId::U64(19)]), 
-                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                    TakeFromWorktopByIds {
+                        ids: HashSet::from([NonFungibleId::U64(19)]),
+                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_bucket: Identifier::String(parse!("bucket2")).into()
                     },
-                    TakeFromWorktopByIds { 
-                        ids: HashSet::from([NonFungibleId::String(parse!("HelloWorld"))]), 
-                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                    TakeFromWorktopByIds {
+                        ids: HashSet::from([NonFungibleId::String(parse!("HelloWorld"))]),
+                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_bucket: Identifier::String(parse!("bucket3")).into()
                     },
-                    TakeFromWorktopByIds { 
-                        ids: HashSet::from([NonFungibleId::Bytes(hex::decode("121922ff03").unwrap())]), 
-                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                    TakeFromWorktopByIds {
+                        ids: HashSet::from([NonFungibleId::Bytes(hex::decode("121922ff03").unwrap())]),
+                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_bucket: Identifier::String(parse!("bucket4")).into()
                     },
-                    TakeFromWorktopByIds { 
-                        ids: HashSet::from([NonFungibleId::UUID(1922931322)]), 
-                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"), 
+                    TakeFromWorktopByIds {
+                        ids: HashSet::from([NonFungibleId::UUID(1922931322)]),
+                        resource_address: parse!("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"),
                         into_bucket: Identifier::String(parse!("bucket5")).into()
                     },
-                ]), 
+                ]),
                 blobs: vec![]
             }
         ),
