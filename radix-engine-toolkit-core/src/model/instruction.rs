@@ -191,22 +191,6 @@ pub enum Instruction {
         owner_badge: NonFungibleAddress,
     },
 
-    // TODO: Figure out the structured model of this.
-    CreateResource {
-        resource_type: Value,
-        metadata: Value,
-        access_rules: Value,
-        mint_params: Value,
-    },
-
-    // TODO: Figure out the structured model of this.
-    CreateResourceWithOwner {
-        resource_type: Value,
-        metadata: Value,
-        owner_badge: Value,
-        mint_params: Value,
-    },
-
     BurnResource {
         #[serde_as(as = "ValueSerializationProxy")]
         bucket: BucketId,
@@ -248,12 +232,47 @@ pub enum Instruction {
         rule: Value,
     },
 
-    MintResource {
-        #[serde_as(as = "ValueSerializationProxy")]
-        resource_address: NetworkAwareResourceAddress,
+    // TODO: Figure out a better structured format for this
+    CreateFungibleResource {
+        divisibility: Value,
+        metadata: Value,
+        access_rules: Value,
+        initial_supply: Value,
+    },
 
-        #[serde_as(as = "ValueSerializationProxy")]
-        amount: Decimal,
+    // TODO: Figure out a better structured format for this
+    CreateFungibleResourceWithOwner {
+        divisibility: Value,
+        metadata: Value,
+        owner_badge: Value,
+        initial_supply: Value,
+    },
+
+    // TODO: Figure out a better structured format for this
+    CreateNonFungibleResource {
+        id_type: Value,
+        metadata: Value,
+        access_rules: Value,
+        initial_supply: Value,
+    },
+
+    // TODO: Figure out a better structured format for this
+    CreateNonFungibleResourceWithOwner {
+        id_type: Value,
+        metadata: Value,
+        owner_badge: Value,
+        initial_supply: Value,
+    },
+
+    // TODO: Figure out a better structured format for this
+    MintFungible {
+        resource_address: Value,
+        amount: Value,
+    },
+    // TODO: Figure out a better structured format for this
+    MintNonFungible {
+        resource_address: Value,
+        entries: Value,
     },
 }
 
@@ -411,27 +430,8 @@ impl Instruction {
                 code: Value::from(code).to_ast_value(bech32_coder)?,
                 abi: Value::from(abi).to_ast_value(bech32_coder)?,
             },
-
-            Self::MintResource {
-                resource_address,
-                amount,
-            } => AstInstruction::MintResource {
-                resource_address: Value::from(resource_address).to_ast_value(bech32_coder)?,
-                amount: Value::from(amount).to_ast_value(bech32_coder)?,
-            },
             Self::BurnResource { bucket } => AstInstruction::BurnResource {
                 bucket: Value::from(bucket).to_ast_value(bech32_coder)?,
-            },
-            Self::CreateResource {
-                resource_type,
-                metadata,
-                access_rules,
-                mint_params,
-            } => AstInstruction::CreateResource {
-                resource_type: resource_type.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
-                mint_params: mint_params.to_ast_value(bech32_coder)?,
             },
             Self::PublishPackage {
                 code,
@@ -445,18 +445,6 @@ impl Instruction {
                 royalty_config: royalty_config.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
-            },
-
-            Self::CreateResourceWithOwner {
-                resource_type,
-                metadata,
-                owner_badge,
-                mint_params,
-            } => AstInstruction::CreateResourceWithOwner {
-                resource_type: resource_type.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                owner_badge: owner_badge.to_ast_value(bech32_coder)?,
-                mint_params: mint_params.to_ast_value(bech32_coder)?,
             },
 
             Self::RecallResource { vault_id, amount } => AstInstruction::RecallResource {
@@ -512,6 +500,65 @@ impl Instruction {
                 index: index.to_ast_value(bech32_coder)?,
                 key: key.to_ast_value(bech32_coder)?,
                 rule: rule.to_ast_value(bech32_coder)?,
+            },
+
+            Self::CreateFungibleResource {
+                divisibility,
+                metadata,
+                access_rules,
+                initial_supply,
+            } => AstInstruction::CreateFungibleResource {
+                divisibility: divisibility.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                access_rules: access_rules.to_ast_value(bech32_coder)?,
+                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateFungibleResourceWithOwner {
+                divisibility,
+                metadata,
+                owner_badge,
+                initial_supply,
+            } => AstInstruction::CreateFungibleResourceWithOwner {
+                divisibility: divisibility.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                owner_badge: owner_badge.to_ast_value(bech32_coder)?,
+                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateNonFungibleResource {
+                id_type,
+                metadata,
+                access_rules,
+                initial_supply,
+            } => AstInstruction::CreateNonFungibleResource {
+                id_type: id_type.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                access_rules: access_rules.to_ast_value(bech32_coder)?,
+                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateNonFungibleResourceWithOwner {
+                id_type,
+                metadata,
+                owner_badge,
+                initial_supply,
+            } => AstInstruction::CreateNonFungibleResourceWithOwner {
+                id_type: id_type.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+                owner_badge: owner_badge.to_ast_value(bech32_coder)?,
+                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+            },
+            Self::MintFungible {
+                resource_address,
+                amount,
+            } => AstInstruction::MintFungible {
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                amount: amount.to_ast_value(bech32_coder)?,
+            },
+            Self::MintNonFungible {
+                resource_address,
+                entries,
+            } => AstInstruction::MintNonFungible {
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                entries: entries.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -711,38 +758,8 @@ impl Instruction {
                 code: Value::from_ast_value(code, bech32_coder)?.try_into()?,
                 abi: Value::from_ast_value(abi, bech32_coder)?.try_into()?,
             },
-            AstInstruction::MintResource {
-                resource_address,
-                amount,
-            } => Self::MintResource {
-                resource_address: Value::from_ast_value(resource_address, bech32_coder)?
-                    .try_into()?,
-                amount: Value::from_ast_value(amount, bech32_coder)?.try_into()?,
-            },
             AstInstruction::BurnResource { bucket } => Self::BurnResource {
                 bucket: Value::from_ast_value(bucket, bech32_coder)?.try_into()?,
-            },
-            AstInstruction::CreateResource {
-                resource_type,
-                metadata,
-                access_rules,
-                mint_params,
-            } => Self::CreateResource {
-                resource_type: Value::from_ast_value(resource_type, bech32_coder)?,
-                metadata: Value::from_ast_value(metadata, bech32_coder)?,
-                access_rules: Value::from_ast_value(access_rules, bech32_coder)?,
-                mint_params: Value::from_ast_value(mint_params, bech32_coder)?,
-            },
-            AstInstruction::CreateResourceWithOwner {
-                resource_type,
-                metadata,
-                owner_badge,
-                mint_params,
-            } => Self::CreateResourceWithOwner {
-                resource_type: Value::from_ast_value(resource_type, bech32_coder)?,
-                metadata: Value::from_ast_value(metadata, bech32_coder)?,
-                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?,
-                mint_params: Value::from_ast_value(mint_params, bech32_coder)?,
             },
             AstInstruction::PublishPackage {
                 code,
@@ -807,6 +824,66 @@ impl Instruction {
                 index: Value::from_ast_value(index, bech32_coder)?,
                 key: Value::from_ast_value(key, bech32_coder)?,
                 rule: Value::from_ast_value(rule, bech32_coder)?,
+            },
+
+            AstInstruction::CreateFungibleResource {
+                divisibility,
+                metadata,
+                access_rules,
+                initial_supply,
+            } => Self::CreateFungibleResource {
+                divisibility: Value::from_ast_value(divisibility, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                access_rules: Value::from_ast_value(access_rules, bech32_coder)?,
+                initial_supply: Value::from_ast_value(initial_supply, bech32_coder)?,
+            },
+            AstInstruction::CreateFungibleResourceWithOwner {
+                divisibility,
+                metadata,
+                owner_badge,
+                initial_supply,
+            } => Self::CreateFungibleResourceWithOwner {
+                divisibility: Value::from_ast_value(divisibility, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?,
+                initial_supply: Value::from_ast_value(initial_supply, bech32_coder)?,
+            },
+            AstInstruction::CreateNonFungibleResource {
+                id_type,
+                metadata,
+                access_rules,
+                initial_supply,
+            } => Self::CreateNonFungibleResource {
+                id_type: Value::from_ast_value(id_type, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                access_rules: Value::from_ast_value(access_rules, bech32_coder)?,
+                initial_supply: Value::from_ast_value(initial_supply, bech32_coder)?,
+            },
+            AstInstruction::CreateNonFungibleResourceWithOwner {
+                id_type,
+                metadata,
+                owner_badge,
+                initial_supply,
+            } => Self::CreateNonFungibleResourceWithOwner {
+                id_type: Value::from_ast_value(id_type, bech32_coder)?,
+                metadata: Value::from_ast_value(metadata, bech32_coder)?,
+                owner_badge: Value::from_ast_value(owner_badge, bech32_coder)?,
+                initial_supply: Value::from_ast_value(initial_supply, bech32_coder)?,
+            },
+
+            AstInstruction::MintFungible {
+                resource_address,
+                amount,
+            } => Self::MintFungible {
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                amount: Value::from_ast_value(amount, bech32_coder)?,
+            },
+            AstInstruction::MintNonFungible {
+                resource_address,
+                entries,
+            } => Self::MintNonFungible {
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                entries: Value::from_ast_value(entries, bech32_coder)?,
             },
         };
         Ok(instruction)
@@ -917,12 +994,7 @@ impl ValidateWithContext<u8> for Instruction {
 
             Self::PublishPackageWithOwner { .. } => Ok(()),
 
-            Self::MintResource { .. } => Ok(()),
             Self::BurnResource { bucket: _ } => Ok(()),
-            Self::CreateResource { .. } => {
-                // TODO: Add validation for this instruction
-                Ok(())
-            }
             // TODO: Add validation for these instructions
             _ => Ok(()),
         }

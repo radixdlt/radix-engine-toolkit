@@ -145,28 +145,6 @@ lazy_static::lazy_static! {
                         into_bucket: Identifier::String(parse!("nfts")).into()
                     },
 
-                    // Create a new fungible resource
-                    CreateResource {
-                        resource_type: Value::Enum {
-                            variant: parse!("Fungible"),
-                            fields: Some(vec![Value::U8 { value: 0 }])
-                        },
-                        metadata: Value::Array {
-                            element_type: ValueKind::Tuple,
-                            elements: vec![]
-                        },
-                        access_rules: Value::Array {
-                            element_type: ValueKind::Tuple,
-                            elements: vec![]
-                        },
-                        mint_params: Value::Option {
-                            value: Box::new(Some(Value::Enum {
-                                variant: parse!("Fungible"),
-                                fields: Some(vec![Value::Decimal { value: parse!("1.0") }])
-                            }))
-                        }
-                    },
-
                     // Cancel all buckets and move resources to account
                     CallMethod {
                         component_address: parse!("account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"),

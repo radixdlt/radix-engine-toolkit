@@ -737,43 +737,6 @@ lazy_static::lazy_static! {
             }"#
         ),
 
-        // TODO: Better test and more structured `CreateResource` is needed here.
-        InstructionSerializationTestVector::new(
-            Instruction::CreateResource {
-                resource_type: Value::Enum { variant: "Fungible".into(), fields: Some(vec![Value::U8 { value: 18 }]) },
-                metadata: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
-                access_rules: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
-                mint_params: Value::Option { value: Box::new(None) }
-            },
-            r#"{
-                "instruction": "CREATE_RESOURCE",
-                "resource_type": {
-                    "type": "Enum",
-                    "variant": "Fungible",
-                    "fields": [
-                        {
-                            "type": "U8",
-                            "value": "18"
-                        }
-                    ]
-                },
-                "metadata": {
-                    "type": "Array",
-                    "element_type": "Tuple",
-                    "elements": []
-                },
-                "access_rules": {
-                    "type": "Array",
-                    "element_type": "Tuple",
-                    "elements": []
-                },
-                "mint_params": {
-                    "type": "Option",
-                    "variant": "None"
-                }
-            }"#
-        ),
-
         InstructionSerializationTestVector::new(
             Instruction::BurnResource {
                 bucket: BucketId(Identifier::String("bucket".into()))
@@ -783,26 +746,6 @@ lazy_static::lazy_static! {
                 "bucket": {
                     "type": "Bucket",
                     "identifier": "bucket"
-                }
-            }"#
-        ),
-        InstructionSerializationTestVector::new(
-            Instruction::MintResource {
-                amount: dec!("123"),
-                resource_address: NetworkAwareResourceAddress {
-                    network_id: 0xf2,
-                    address: ResourceAddress::Normal([0; 26]),
-                },
-            },
-            r#"{
-                "instruction": "MINT_FUNGIBLE",
-                "amount": {
-                    "type": "Decimal",
-                    "value": "123"
-                },
-                "resource_address": {
-                    "type": "ResourceAddress",
-                    "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"
                 }
             }"#
         ),
@@ -1118,32 +1061,11 @@ lazy_static::lazy_static! {
             r#"PUBLISH_PACKAGE_WITH_OWNER Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618") Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d") NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 1144418947u32);"#
         ),
 
-        // TODO: Better test and more structured `CreateResource` is needed here.
-        InstructionAstConversionsTestVector::new(
-            Instruction::CreateResource {
-                resource_type: Value::Enum { variant: "Fungible".into(), fields: Some(vec![Value::U8 { value: 18 }]) },
-                metadata: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
-                access_rules: Value::Array { element_type: ValueKind::Tuple, elements: vec![] },
-                mint_params: Value::Option { value: Box::new(None) }
-            },
-            r#"CREATE_RESOURCE Enum("Fungible", 18u8) Array<Tuple>() Array<Tuple>() None;"#
-        ),
-
         InstructionAstConversionsTestVector::new(
             Instruction::BurnResource {
                 bucket: BucketId(Identifier::String("bucket".into()))
             },
             r#"BURN_BUCKET Bucket("bucket");"#
-        ),
-        InstructionAstConversionsTestVector::new(
-            Instruction::MintResource {
-                amount: dec!("123"),
-                resource_address: NetworkAwareResourceAddress {
-                    network_id: 0xf2,
-                    address: ResourceAddress::Normal([0; 26]),
-                },
-            },
-            r#"MINT_FUNGIBLE ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety") Decimal("123");"#
         ),
     ];
 }
