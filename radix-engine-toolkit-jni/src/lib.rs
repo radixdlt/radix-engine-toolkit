@@ -29,7 +29,7 @@ macro_rules! export_request {
         paste::paste!{
             /// This function exports a request function and builds a wrapper for it.
             #[no_mangle]
-            pub extern "system" fn [< Java_RadixEngineToolkitFFI_ $export_ident >](
+            pub extern "system" fn [< Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_ $export_ident >](
                 env: jni::JNIEnv,
                 _class: jni::objects::JClass,
                 input: jni::objects::JString,
