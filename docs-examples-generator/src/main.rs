@@ -1,8 +1,8 @@
 #![macro_use]
 extern crate lazy_static;
 
-mod examples_builder;
 mod examples;
+mod examples_builder;
 
 use std::fs;
 
@@ -23,8 +23,6 @@ fn main() {
         .add_example::<'_, DecodeAddressRequest, DecodeAddressResponse>()
         .add_example::<'_, SBOREncodeRequest, SBOREncodeResponse>()
         .add_example::<'_, SBORDecodeRequest, SBORDecodeResponse>()
-        .add_example::<'_, DeriveNonFungibleAddressRequest, DeriveNonFungibleAddressResponse>()
-        .add_example::<'_, DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse>()
         .add_example::<'_, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
         .build();
     fs::write("./request-examples.md", examples).unwrap();

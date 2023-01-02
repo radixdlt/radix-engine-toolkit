@@ -81,11 +81,6 @@ export_request!(DecompileSignedTransactionIntentRequest as decompileSignedTransa
 export_request!(DecompileNotarizedTransactionIntentRequest as decompileNotarizedTransactionIntent);
 export_request!(DecompileUnknownTransactionIntentRequest as decompileUnknownTransactionIntent);
 
-export_request!(DeriveNonFungibleAddressRequest as deriveNonFungibleAddress);
-export_request!(
-    DeriveNonFungibleAddressFromPublicKeyRequest as deriveNonFungibleAddressFromPublicKey
-);
-
 export_request!(DeriveVirtualAccountAddressRequest as deriveVirtualAccountAddress);
 
 export_request!(EncodeAddressRequest as encodeAddress);

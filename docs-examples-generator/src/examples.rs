@@ -1,5 +1,5 @@
 use radix_engine_toolkit_core::{
-    model::{Bech32Coder, Value, ValueKind, NetworkAwareResourceAddress},
+    model::{Bech32Coder, Value, ValueKind},
     requests::*,
     traits::{Request, TryIntoWithContext, Validate},
 };
@@ -197,7 +197,16 @@ where
     }
 
     fn example_request() -> Self {
-        Self { transaction_intent: NOTARIZED_TRANSACTION.signed_intent.intent.clone().try_into_with_context(radix_engine_toolkit_core::model::ManifestInstructionsKind::String).unwrap() }
+        Self {
+            transaction_intent: NOTARIZED_TRANSACTION
+                .signed_intent
+                .intent
+                .clone()
+                .try_into_with_context(
+                    radix_engine_toolkit_core::model::ManifestInstructionsKind::String,
+                )
+                .unwrap(),
+        }
     }
 }
 
@@ -211,10 +220,12 @@ where
     }
 
     fn example_request() -> Self {
-        let compiled_transaction_intent = scrypto_encode(&NOTARIZED_TRANSACTION.signed_intent.intent).unwrap();
+        let compiled_transaction_intent =
+            scrypto_encode(&NOTARIZED_TRANSACTION.signed_intent.intent).unwrap();
         Self {
             compiled_intent: compiled_transaction_intent,
-            manifest_instructions_output_format: radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON
+            manifest_instructions_output_format:
+                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
         }
     }
 }
@@ -229,7 +240,15 @@ where
     }
 
     fn example_request() -> Self {
-        Self { signed_intent: NOTARIZED_TRANSACTION.signed_intent.clone().try_into_with_context(radix_engine_toolkit_core::model::ManifestInstructionsKind::String).unwrap() }
+        Self {
+            signed_intent: NOTARIZED_TRANSACTION
+                .signed_intent
+                .clone()
+                .try_into_with_context(
+                    radix_engine_toolkit_core::model::ManifestInstructionsKind::String,
+                )
+                .unwrap(),
+        }
     }
 }
 
@@ -243,10 +262,12 @@ where
     }
 
     fn example_request() -> Self {
-        let compiled_transaction_intent = scrypto_encode(&NOTARIZED_TRANSACTION.signed_intent).unwrap();
+        let compiled_transaction_intent =
+            scrypto_encode(&NOTARIZED_TRANSACTION.signed_intent).unwrap();
         Self {
             compiled_signed_intent: compiled_transaction_intent,
-            manifest_instructions_output_format: radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON
+            manifest_instructions_output_format:
+                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
         }
     }
 }
@@ -261,7 +282,14 @@ where
     }
 
     fn example_request() -> Self {
-        Self { notarized_transaction: NOTARIZED_TRANSACTION.clone().try_into_with_context(radix_engine_toolkit_core::model::ManifestInstructionsKind::String).unwrap() }
+        Self {
+            notarized_transaction: NOTARIZED_TRANSACTION
+                .clone()
+                .try_into_with_context(
+                    radix_engine_toolkit_core::model::ManifestInstructionsKind::String,
+                )
+                .unwrap(),
+        }
     }
 }
 
@@ -278,7 +306,8 @@ where
         let compiled_transaction_intent = scrypto_encode(&*NOTARIZED_TRANSACTION).unwrap();
         Self {
             compiled_notarized_intent: compiled_transaction_intent,
-            manifest_instructions_output_format: radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON
+            manifest_instructions_output_format:
+                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
         }
     }
 }
@@ -296,7 +325,8 @@ where
         let compiled_transaction_intent = scrypto_encode(&*NOTARIZED_TRANSACTION).unwrap();
         Self {
             compiled_unknown_intent: compiled_transaction_intent,
-            manifest_instructions_output_format: radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON
+            manifest_instructions_output_format:
+                radix_engine_toolkit_core::model::ManifestInstructionsKind::JSON,
         }
     }
 }
@@ -311,9 +341,11 @@ where
     }
 
     fn example_request() -> Self {
-        Self { 
-            address_bytes: vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
-            network_id: 0xf2
+        Self {
+            address_bytes: vec![
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+            ],
+            network_id: 0xf2,
         }
     }
 }
@@ -328,8 +360,8 @@ where
     }
 
     fn example_request() -> Self {
-        Self { 
-            address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqd60rqz".into()
+        Self {
+            address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqd60rqz".into(),
         }
     }
 }
@@ -344,8 +376,8 @@ where
     }
 
     fn example_request() -> Self {
-        Self { 
-            value: (*VALUE).clone()
+        Self {
+            value: (*VALUE).clone(),
         }
     }
 }
@@ -362,44 +394,7 @@ where
     fn example_request() -> Self {
         Self {
             encoded_value: (*VALUE).encode().unwrap(),
-            network_id: 0xf2
-        }
-    }
-}
-
-impl<'a, R> RequestExample<'a, R> for DeriveNonFungibleAddressFromPublicKeyRequest
-where
-    DeriveNonFungibleAddressFromPublicKeyRequest: Request<'a, R>,
-    R: Serialize + Validate,
-{
-    fn description() -> String {
-        r#"This function derives the `NonFungibleAddress` of the virtual badge associated with a given public key."#.to_owned()
-    }
-
-    fn example_request() -> Self {
-        Self { 
-            public_key: NOTARY_PRIVATE_KEY.public_key().into(), 
-            network_id: 0xf2 
-        }
-    }
-}
-
-impl<'a, R> RequestExample<'a, R> for DeriveNonFungibleAddressRequest
-where
-    DeriveNonFungibleAddressRequest: Request<'a, R>,
-    R: Serialize + Validate,
-{
-    fn description() -> String {
-        r#"Given a ResourceAddress and a NonFungibleId, this function is able to derive the NonFungibleAddress corresponding to a specific NonFungible."#.to_owned()
-    }
-
-    fn example_request() -> Self {
-        Self { 
-            resource_address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0xf2
-            }, 
-            non_fungible_id: NonFungibleId::U64(192) 
+            network_id: 0xf2,
         }
     }
 }
@@ -410,10 +405,14 @@ where
     R: Serialize + Validate,
 {
     fn description() -> String {
-        r#"Derives the virtual account component address given a public key and a network id."#.to_owned()
+        r#"Derives the virtual account component address given a public key and a network id."#
+            .to_owned()
     }
 
     fn example_request() -> Self {
-        Self { network_id: 0xf2, public_key: NOTARY_PRIVATE_KEY.public_key().into() }
+        Self {
+            network_id: 0xf2,
+            public_key: NOTARY_PRIVATE_KEY.public_key().into(),
+        }
     }
 }

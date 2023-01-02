@@ -80,11 +80,6 @@ export_request!(
 );
 export_request!(DecompileUnknownTransactionIntentRequest as decompile_unknown_transaction_intent);
 
-export_request!(DeriveNonFungibleAddressRequest as derive_non_fungible_address);
-export_request!(
-    DeriveNonFungibleAddressFromPublicKeyRequest as derive_non_fungible_address_from_public_key
-);
-
 export_request!(DeriveVirtualAccountAddressRequest as derive_virtual_account_address);
 
 export_request!(EncodeAddressRequest as encode_address);

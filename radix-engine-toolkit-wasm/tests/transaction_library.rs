@@ -164,8 +164,6 @@ impl RadixEngineToolkit {
     crate::define_request_function! {EncodeAddressRequest, EncodeAddressResponse, encode_address}
     crate::define_request_function! {SBORDecodeRequest, SBORDecodeResponse, sbor_decode}
     crate::define_request_function! {SBOREncodeRequest, SBOREncodeResponse, sbor_encode}
-    crate::define_request_function! {DeriveNonFungibleAddressFromPublicKeyRequest, DeriveNonFungibleAddressFromPublicKeyResponse, derive_non_fungible_address_from_public_key}
-    crate::define_request_function! {DeriveNonFungibleAddressRequest, DeriveNonFungibleAddressResponse, derive_non_fungible_address}
     crate::define_request_function! {DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse, derive_virtual_account_address}
 
     /// Calls a function in the WASM instance with a given request
