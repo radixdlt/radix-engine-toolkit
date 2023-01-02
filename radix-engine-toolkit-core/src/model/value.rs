@@ -1738,6 +1738,7 @@ impl_from_and_try_from_value! {Proof, ProofId, identifier}
 impl_from_and_try_from_value! {Bucket, BucketId, identifier}
 impl_from_and_try_from_value! {NonFungibleId, NonFungibleId, value}
 impl_from_and_try_from_value! {NonFungibleAddress, NonFungibleAddress, address}
+impl_from_and_try_from_value! {SystemAddress, NetworkAwareSystemAddress, address}
 impl_from_and_try_from_value! {PackageAddress, NetworkAwarePackageAddress, address}
 impl_from_and_try_from_value! {ResourceAddress, NetworkAwareResourceAddress, address}
 impl_from_and_try_from_value! {ComponentAddress, NetworkAwareComponentAddress, address}

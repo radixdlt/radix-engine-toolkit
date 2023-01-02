@@ -24,6 +24,7 @@ fn main() {
         .add_example::<'_, SBOREncodeRequest, SBOREncodeResponse>()
         .add_example::<'_, SBORDecodeRequest, SBORDecodeResponse>()
         .add_example::<'_, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
+        .add_example::<'_, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
         .build();
     fs::write("./request-examples.md", examples).unwrap();
 }

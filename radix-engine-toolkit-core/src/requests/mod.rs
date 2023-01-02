@@ -38,6 +38,8 @@ pub mod sbor_encode_request;
 
 pub mod derive_virtual_account_address;
 
+pub mod known_entity_addresses;
+
 pub use compile_notarized_transaction_intent_request::*;
 pub use compile_signed_transaction_intent_request::*;
 pub use compile_transaction_intent_request::*;
@@ -50,5 +52,6 @@ pub use decompile_unknown_transaction_intent_request::*;
 pub use derive_virtual_account_address::*;
 pub use encode_address_request::*;
 pub use information_request::*;
+pub use known_entity_addresses::*;
 pub use sbor_decode_request::*;
 pub use sbor_encode_request::*;

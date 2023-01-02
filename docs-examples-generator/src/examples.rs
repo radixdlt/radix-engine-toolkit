@@ -416,3 +416,20 @@ where
         }
     }
 }
+
+impl<'a, R> RequestExample<'a, R> for KnownEntityAddressesRequest
+where
+    KnownEntityAddressesRequest: Request<'a, R>,
+    R: Serialize + Validate,
+{
+    fn description() -> String {
+        r#"Given a network id, this function derives the Bech32m-encoded addresses of the set of known addresses.
+        
+        As an example, this function allows users to derive the XRD resource address, faucet component address, or account package address on any network (given that they know its network id)."#
+            .to_owned()
+    }
+
+    fn example_request() -> Self {
+        Self { network_id: 0x01 }
+    }
+}

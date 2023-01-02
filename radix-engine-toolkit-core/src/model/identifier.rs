@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::{str::FromStr, convert::Infallible};
+use std::{convert::Infallible, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 

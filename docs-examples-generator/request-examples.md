@@ -1942,98 +1942,6 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
-## Derive Non Fungible Address
-
-| Function Name     | `derive_non_fungible_address` |
-| ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveNonFungibleAddress` |
-| Functionality     | Given a ResourceAddress and a NonFungibleId, this function is able to derive the NonFungibleAddress corresponding to a specific NonFungible. |
-| Request Type      | `DeriveNonFungibleAddressRequest` |
-| Response Type     | `DeriveNonFungibleAddressResponse` |
-
-<details>
-    <summary>Request Example</summary>
-    
-```json
-{
-  "resource_address": {
-    "type": "ResourceAddress",
-    "address": "resource_sim1qzkcyv5dwq3r6kawy6pxpvcythx8rh8ntum6ws62p95sqjjpwr"
-  },
-  "non_fungible_id": {
-    "type": "NonFungibleId",
-    "variant": "U64",
-    "value": "192"
-  }
-}
-```
-</details>
-
-<details>
-    <summary>Response Example</summary>
-    
-```json
-{
-  "non_fungible_address": {
-    "type": "NonFungibleAddress",
-    "resource_address": {
-      "type": "ResourceAddress",
-      "address": "resource_sim1qzkcyv5dwq3r6kawy6pxpvcythx8rh8ntum6ws62p95sqjjpwr"
-    },
-    "non_fungible_id": {
-      "type": "NonFungibleId",
-      "variant": "U64",
-      "value": "192"
-    }
-  }
-}
-```
-</details>
-
-## Derive Non Fungible Address From Public Key
-
-| Function Name     | `derive_non_fungible_address_from_public_key` |
-| ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveNonFungibleAddressFromPublicKey` |
-| Functionality     | This function derives the `NonFungibleAddress` of the virtual badge associated with a given public key. |
-| Request Type      | `DeriveNonFungibleAddressFromPublicKeyRequest` |
-| Response Type     | `DeriveNonFungibleAddressFromPublicKeyResponse` |
-
-<details>
-    <summary>Request Example</summary>
-    
-```json
-{
-  "public_key": {
-    "type": "EcdsaSecp256k1",
-    "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-  },
-  "network_id": 242
-}
-```
-</details>
-
-<details>
-    <summary>Response Example</summary>
-    
-```json
-{
-  "non_fungible_address": {
-    "type": "NonFungibleAddress",
-    "resource_address": {
-      "type": "ResourceAddress",
-      "address": "resource_sim1qzu3wdlw3fx7t82fmt2qme2kpet4g3n2epx02sew49wsyz7uhu"
-    },
-    "non_fungible_id": {
-      "type": "NonFungibleId",
-      "variant": "Bytes",
-      "value": "02cc806dddfd673d994986293a997a50e8c10d95443beb52b06e"
-    }
-  }
-}
-```
-</details>
-
 ## Derive Virtual Account Address
 
 | Function Name     | `derive_virtual_account_address` |
@@ -2065,6 +1973,70 @@ This document contains examples and descriptions of the different requests and r
   "virtual_account_address": {
     "type": "ComponentAddress",
     "address": "account_sim1qcpveqrdmh7kw0vefxrzjw5e0fgw3sgdj4zrh66jkphqqc62xd"
+  }
+}
+```
+</details>
+
+## Known Entity Addresses
+
+| Function Name     | `known_entity_addresses` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_knownEntityAddresses` |
+| Functionality     | Given a network id, this function derives the Bech32m-encoded addresses of the set of known addresses.</br>        </br>        As an example, this function allows users to derive the XRD resource address, faucet component address, or account package address on any network (given that they know its network id). |
+| Request Type      | `KnownEntityAddressesRequest` |
+| Response Type     | `KnownEntityAddressesResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": 1
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "faucet_component_address": {
+    "type": "ComponentAddress",
+    "address": "component_rdx1qftacppvmr9ezmekxqpq58en0nk954x0a7jv2zz0hc7qp7wydu"
+  },
+  "faucet_package_address": {
+    "type": "PackageAddress",
+    "address": "package_rdx1qyqzcexvnyg60z7lnlwauh66nhzg3m8tch2j8wc0e70qsxg0vu"
+  },
+  "account_package_address": {
+    "type": "PackageAddress",
+    "address": "package_rdx1qy4hrp8a9apxldp5cazvxgwdj80cxad4u8cpkaqqnhlsmn6s2x"
+  },
+  "xrd_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qzkcyv5dwq3r6kawy6pxpvcythx8rh8ntum6ws62p95sxshc9u"
+  },
+  "system_token_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qzfzxp4x6ya0vwrxk6yvjyphr8gyk9xqvz7y3xdxzw6sfg0scu"
+  },
+  "ecdsa_secp256k1_token_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qzu3wdlw3fx7t82fmt2qme2kpet4g3n2epx02sew49wszqm9ur"
+  },
+  "eddsa_ed25519_token_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qq8cays25704xdyap2vhgmshkkfyr023uxdtk59ddd4qk9a6ln"
+  },
+  "epoch_manager_system_address": {
+    "type": "SystemAddress",
+    "address": "system_rdx1qne8qu4seyvzfgd94p3z8rjcdl3v0nfhv84judpum2lqcysr6t"
+  },
+  "clock_system_address": {
+    "type": "SystemAddress",
+    "address": "system_rdx1qhrvq0wjqnnzcwwm8jhzxw2ctd3t4aqql0a56a9mu5nsq4wurk"
   }
 }
 ```
