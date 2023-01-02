@@ -165,6 +165,8 @@ impl RadixEngineToolkit {
     crate::define_request_function! {SBORDecodeRequest, SBORDecodeResponse, sbor_decode}
     crate::define_request_function! {SBOREncodeRequest, SBOREncodeResponse, sbor_encode}
     crate::define_request_function! {DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse, derive_virtual_account_address}
+    crate::define_request_function! {KnownEntityAddressesRequest, KnownEntityAddressesResponse, known_entity_addresses}
+    crate::define_request_function! {StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse, statically_validate_transaction}
 
     /// Calls a function in the WASM instance with a given request
     ///
@@ -437,10 +439,10 @@ crate::define_function_store! {
         pub encode_address: TypedFunc<i32, i32>,
         pub decode_address: TypedFunc<i32, i32>,
 
-        pub derive_non_fungible_address_from_public_key: TypedFunc<i32, i32>,
-        pub derive_non_fungible_address: TypedFunc<i32, i32>,
-
         pub derive_virtual_account_address: TypedFunc<i32, i32>,
+
+        pub known_entity_addresses: TypedFunc<i32, i32>,
+        pub statically_validate_transaction: TypedFunc<i32, i32>,
 
         pub toolkit_alloc: TypedFunc<i32, i32>,
         pub toolkit_free_c_string: TypedFunc<i32, ()>

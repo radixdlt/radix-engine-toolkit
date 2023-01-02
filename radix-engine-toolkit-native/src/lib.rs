@@ -87,3 +87,4 @@ export_request!(SBOREncodeRequest as sbor_encode);
 export_request!(SBORDecodeRequest as sbor_decode);
 
 export_request!(KnownEntityAddressesRequest as known_entity_addresses);
+export_request!(StaticallyValidateTransactionRequest as statically_validate_transaction);

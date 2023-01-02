@@ -7,7 +7,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `information` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_information` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_information` |
 | Functionality     | The function provides information information on the currently in-use radix engine toolkit such as the version of the radix engine toolkit. In most cases, this is the first function written when integrating new clients; so, this function is often times seen as the "Hello World" example of the radix engine toolkit. |
 | Request Type      | `InformationRequest` |
 | Response Type     | `InformationResponse` |
@@ -34,7 +34,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `convert_manifest` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_convertManifest` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_convertManifest` |
 | Functionality     | Clients have a need to be able to read, parse, understand, and interrogate transaction manifests to get more information on what a transactions might be doing. Transaction manifests have so far existed in one format: as strings. While the string format is very human readable, it is not easily readable by machines as a lexer and parser are needed to make sense of them; thus, it is for clients to programmatically make sense of transactions. As such, there is a need for another transaction manifest format (to supplement, NOT replace) which machines can easily make sense of without the need to implement a lexer and parser.</br></br>Therefore, this library introduces a JSON format for transaction manifests which clients can use when wanting to read and interrogate their transaction manifests in code. The transaction manifest JSON format has a 1:1 mapping to the string format of transaction manifests, meaning that anything which can be done in the string format of transaction manifests, can be done in the JSON format as well.</br></br>This function allows the client the convert their manifest between the two supported manifest types: string and JSON. |
 | Request Type      | `ConvertManifestRequest` |
 | Response Type     | `ConvertManifestResponse` |
@@ -362,7 +362,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `compile_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_compileTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileTransactionIntent` |
 | Functionality     | Takes a transaction intent and compiles it by SBOR encoding it and returning it back to the caller. This is mainly useful when creating a transaction. |
 | Request Type      | `CompileTransactionIntentRequest` |
 | Response Type     | `CompileTransactionIntentResponse` |
@@ -414,7 +414,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `decompile_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_decompileTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileTransactionIntent` |
 | Functionality     | This function does the opposite of the compile_transaction_intent function. It takes in a compiled transaction intent and decompiles it into its human-readable / machine-readable format. |
 | Request Type      | `DecompileTransactionIntentRequest` |
 | Response Type     | `DecompileTransactionIntentResponse` |
@@ -747,7 +747,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `compile_signed_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_compileSignedTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileSignedTransactionIntent` |
 | Functionality     | This function takes in a raw transaction intent as well as its signatures and compiles it. This is useful when a notary wishes to notarize a signed transaction intent. |
 | Request Type      | `CompileSignedTransactionIntentRequest` |
 | Response Type     | `CompileSignedTransactionIntentResponse` |
@@ -830,7 +830,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `decompile_signed_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_decompileSignedTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileSignedTransactionIntent` |
 | Functionality     | This function does the opposite of the compile_signed_transaction_intent function. This function takes in a compiled signed transaction intent and decompiles it into its transaction intent and signatures. |
 | Request Type      | `DecompileSignedTransactionIntentRequest` |
 | Response Type     | `DecompileSignedTransactionIntentResponse` |
@@ -1194,7 +1194,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `compile_notarized_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_compileNotarizedTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileNotarizedTransactionIntent` |
 | Functionality     | This function takes in a raw signed transaction intent as well as the notary signature and compiles it. This is useful when we wish to submit a transaction to the Gateway API |
 | Request Type      | `CompileNotarizedTransactionIntentRequest` |
 | Response Type     | `CompileNotarizedTransactionIntentResponse` |
@@ -1283,7 +1283,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `decompile_notarized_transaction_intent` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_decompileNotarizedTransactionIntent` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileNotarizedTransactionIntent` |
 | Functionality     | This function does the opposite of the compile_notarized_transaction_intent function. This function takes in a compiled notarized transaction intent and decompiles it into its signed transaction intent and notary signature. |
 | Request Type      | `DecompileNotarizedTransactionIntentRequest` |
 | Response Type     | `DecompileNotarizedTransactionIntentResponse` |
@@ -1653,7 +1653,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `encode_address` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_encodeAddress` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_encodeAddress` |
 | Functionality     | This function can be used when we have a byte array which we wish to do Bech32m encoding on. In this case, the HRP to use will be determined through the entity byte of the passed address hex string. |
 | Request Type      | `EncodeAddressRequest` |
 | Response Type     | `EncodeAddressResponse` |
@@ -1684,7 +1684,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `decode_address` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_decodeAddress` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decodeAddress` |
 | Functionality     | This function can be used to decode a Bech32m encoded address string into its equivalent hrp and data. In addition to that, this function provides other useful information on the address such as the network id and name that it is used for, and the entity type of the address. |
 | Request Type      | `DecodeAddressRequest` |
 | Response Type     | `DecodeAddressResponse` |
@@ -1721,7 +1721,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `sbor_encode` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_sborEncode` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborEncode` |
 | Functionality     | This function takes in a Value and encodes it in SBOR. |
 | Request Type      | `SBOREncodeRequest` |
 | Response Type     | `SBOREncodeResponse` |
@@ -1833,7 +1833,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `sbor_decode` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_sborDecode` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborDecode` |
 | Functionality     | This function takes in a hex string and attemps to decode it into a Value. |
 | Request Type      | `SBORDecodeRequest` |
 | Response Type     | `SBORDecodeResponse` |
@@ -1946,7 +1946,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `derive_virtual_account_address` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveVirtualAccountAddress` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualAccountAddress` |
 | Functionality     | Derives the virtual account component address given a public key and a network id. |
 | Request Type      | `DeriveVirtualAccountAddressRequest` |
 | Response Type     | `DeriveVirtualAccountAddressResponse` |
@@ -1982,7 +1982,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `known_entity_addresses` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_knownEntityAddresses` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_knownEntityAddresses` |
 | Functionality     | Given a network id, this function derives the Bech32m-encoded addresses of the set of known addresses.</br>        </br>        As an example, this function allows users to derive the XRD resource address, faucet component address, or account package address on any network (given that they know its network id). |
 | Request Type      | `KnownEntityAddressesRequest` |
 | Response Type     | `KnownEntityAddressesResponse` |
@@ -2046,7 +2046,7 @@ This document contains examples and descriptions of the different requests and r
 
 | Function Name     | `statically_validate_transaction` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_staticallyValidateTransaction` |
+| JNI Function Name | `Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction` |
 | Functionality     | Performs static validation on the given notarized transaction. |
 | Request Type      | `StaticallyValidateTransactionRequest` |
 | Response Type     | `StaticallyValidateTransactionResponse` |
