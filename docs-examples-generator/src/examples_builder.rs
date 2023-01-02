@@ -1,5 +1,5 @@
-use radix_engine_toolkit_core::traits::Validate;
 use convert_case::{Case, Casing};
+use radix_engine_toolkit_core::traits::Validate;
 use serde::Serialize;
 
 use crate::examples::{Example, RequestExample};
@@ -10,7 +10,9 @@ pub struct InMemoryExamplesBuilder {
 
 impl InMemoryExamplesBuilder {
     pub fn new() -> Self {
-        Self { examples: Vec::new() }
+        Self {
+            examples: Vec::new(),
+        }
     }
 
     pub fn add_example<'a, T, R>(mut self) -> Self
@@ -30,8 +32,11 @@ impl InMemoryExamplesBuilder {
 
             let title = request_cleaned_name.to_case(Case::Title);
             let function_name = request_cleaned_name.to_case(Case::Snake);
-            let jni_function_name = format!("Java_RadixEngineToolkitFFI_{}", request_cleaned_name.to_case(Case::Camel));
-            
+            let jni_function_name = format!(
+                "Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_{}",
+                request_cleaned_name.to_case(Case::Camel)
+            );
+
             let example_string = format!(
                 r#"## {}
 

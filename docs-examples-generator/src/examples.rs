@@ -3,10 +3,10 @@ use radix_engine_toolkit_core::{
     requests::*,
     traits::{Request, TryIntoWithContext, Validate},
 };
-use transaction::builder::TransactionBuilder;
 use transaction::manifest::compile;
 use transaction::model::{NotarizedTransaction, TransactionHeader};
 use transaction::signing::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
+use transaction::{builder::TransactionBuilder, validation::ValidationConfig};
 
 use scrypto::{prelude::*, radix_engine_interface::core::NetworkDefinition};
 use serde::Serialize;
@@ -431,5 +431,32 @@ where
 
     fn example_request() -> Self {
         Self { network_id: 0x01 }
+    }
+}
+
+impl<'a, R> RequestExample<'a, R> for StaticallyValidateTransactionRequest
+where
+    StaticallyValidateTransactionRequest: Request<'a, R>,
+    R: Serialize + Validate,
+{
+    fn description() -> String {
+        r#"Performs static validation on the given notarized transaction."#.to_owned()
+    }
+
+    fn example_request() -> Self {
+        // Making the notarized transaction invalid
+        let notarized_transaction = {
+            let mut transaction = NOTARIZED_TRANSACTION.clone();
+            transaction.notary_signature =
+                transaction.signed_intent.intent_signatures[0].signature();
+            transaction
+        };
+
+        let compiled_transaction_intent = scrypto_encode(&notarized_transaction).unwrap();
+        let validation_config = ValidationConfig::default(0x0f2);
+        Self {
+            compiled_notarized_intent: compiled_transaction_intent,
+            validation_config,
+        }
     }
 }

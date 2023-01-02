@@ -25,6 +25,7 @@ fn main() {
         .add_example::<'_, SBORDecodeRequest, SBORDecodeResponse>()
         .add_example::<'_, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
         .add_example::<'_, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
+        .add_example::<'_, StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>()
         .build();
     fs::write("./request-examples.md", examples).unwrap();
 }
