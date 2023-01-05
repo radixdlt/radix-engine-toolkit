@@ -53,6 +53,7 @@ jobs:
         working-directory: interop/csharp
         run: nuget pack
       - name: Publish Packages
+        working-directory: interop/csharp
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.Native.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
         
           
