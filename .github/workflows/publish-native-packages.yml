@@ -18,9 +18,14 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
           path: artifacts
+          skip_unpack: true
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
+          for z in *.zip; do
+            unzip "$z";
+          done
+          
           for f in *.tar.gz; do 
             mkdir $(basename "$f" .tar.gz);
             tar -xvzf "$f" --directory=$(basename "$f" .tar.gz);
