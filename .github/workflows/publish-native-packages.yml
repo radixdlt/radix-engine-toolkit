@@ -18,17 +18,21 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
           path: artifacts
-          skip_unpack: true
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
-          for z in *.zip; do
-            unzip "$z";
+          mkdir native
+          
+          for d in radix-engine-toolkit-native-*.tar.gz; do
+            mv ./$d/* ./native/
           done
           
+          cd native
+          
           for f in *.tar.gz; do 
-            mkdir $(basename "$f" .tar.gz);
-            tar -xvzf "$f" --directory=$(basename "$f" .tar.gz);
+            fn=`echo "$f" | cut -d'.' -f 1`
+            mkdir "$fn"
+            tar -xvzf "$f" --directory="$fn";
           done
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
@@ -44,7 +48,7 @@ jobs:
 
           sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" interop/csharp/RadixDlt.RadixEngineToolkit.Native.nuspec
 
-          echo "Configured Version: VERSION"
+          echo "Configured Version: $VERSION"
       - name: NuGet Pack
         working-directory: interop/csharp
         run: nuget pack
