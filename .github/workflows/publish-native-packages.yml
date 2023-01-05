@@ -21,9 +21,9 @@ jobs:
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
-          for f in *.tar; do 
-            mkdir $(basename "$f" .tar);
-            tar -xvf "$f" --directory=$(basename "$f" .tar);
+          for f in *.tar.gz; do 
+            mkdir $(basename "$f" .tar.gz);
+            tar -xvzf "$f" --directory=$(basename "$f" .tar.gz);
           done
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
