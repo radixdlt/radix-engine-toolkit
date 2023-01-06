@@ -19,7 +19,7 @@ openapi: 3.0.3
 info:
   title: Radix Engine Toolkit
   description: "A Rust library with multiple compilation targets that aims to make the creation and decompilation of transactions possible with clients written in any language."
-  version: 0.1.0
+  version: 0.7.0
 servers: []
 paths: {}
 components:
@@ -44,7 +44,7 @@ components:
         package_version:
           type: string
       example:
-        package_version: "0.1.0"
+        package_version: "0.7.0"
 
     # Convert Manifest
     ConvertManifestRequest:
