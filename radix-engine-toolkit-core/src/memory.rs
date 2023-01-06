@@ -160,6 +160,9 @@ where
     let byte_count = object_bytes.len() + 1;
 
     let pointer = toolkit_alloc(byte_count);
-    pointer.copy_from([object_bytes, &[0]].concat().as_ptr() as Pointer, byte_count);
+    pointer.copy_from(
+        [object_bytes, &[0]].concat().as_ptr() as Pointer,
+        byte_count,
+    );
     Ok(pointer)
 }

@@ -38,7 +38,7 @@ pub struct EncodeAddressRequest {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EncodeAddressResponse {
     #[serde(flatten)]
-    address: EntityAddress,
+    pub address: EntityAddress,
 }
 
 // ===========
