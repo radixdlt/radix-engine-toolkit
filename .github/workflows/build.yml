@@ -44,6 +44,16 @@ jobs:
             custom-linker: x86_64-unknown-linux-gnu-gcc
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: i686-unknown-linux-gnu
+            custom-linker: i686-unknown-linux-gnu-gcc
+            custom-compiler: i686-unknown-linux-gnu-gcc
+            custom-archiver: i686-unknown-linux-gnu-gcc-ar
           
           # radix-engine-toolkit-wasm Crate
           - crate: radix-engine-toolkit-wasm
@@ -74,6 +84,16 @@ jobs:
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           - crate: radix-engine-toolkit-jni
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          - crate: radix-engine-toolkit-jni
+            target-triple: i686-unknown-linux-gnu
+            custom-linker: i686-unknown-linux-gnu-gcc
+            custom-compiler: i686-unknown-linux-gnu-gcc
+            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          - crate: radix-engine-toolkit-jni
             target-triple: aarch64-linux-android
             custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
             custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
@@ -99,6 +119,10 @@ jobs:
           brew install llvm
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64
+
+          brew tap messense/macos-cross-toolchains
+          brew install aarch64-unknown-linux-gnu
+          brew install i686-unknown-linux-gnu
           
           wget https://dl.google.com/android/repository/android-ndk-r22b-darwin-x86_64.zip
           unzip -q android-ndk-r22b-darwin-x86_64.zip -d $HOME/android-ndk
