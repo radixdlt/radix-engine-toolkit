@@ -8,10 +8,18 @@
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
+    
     <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-x64\native\libradix_engine_toolkit.so">
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>native\linux-x64\libradix_engine_toolkit.so</Link>
+      <Visible>true</Visible>
+      <Pack>false</Pack>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-x32\native\libradix_engine_toolkit.so">
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>native\linux-x32\libradix_engine_toolkit.so</Link>
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
@@ -22,6 +30,7 @@
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
+    
     <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\osx-x64\native\libradix_engine_toolkit.dylib">
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

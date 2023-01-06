@@ -13,10 +13,14 @@
   </metadata>
   <files>
     <file src="../../artifacts/native/x86_64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x64/native/libradix_engine_toolkit.so" />
+    <file src="../../artifacts/native/i686-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x32/native/libradix_engine_toolkit.so" />
     <file src="../../artifacts/native/aarch64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-arm64/native/libradix_engine_toolkit.so" />
+    
     <file src="../../artifacts/native/x86_64-apple-darwin/libradix_engine_toolkit.dylib" target="runtimes/osx-x64/native/libradix_engine_toolkit.dylib" />
     <file src="../../artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib" target="runtimes/osx-arm64/native/libradix_engine_toolkit.dylib" />
+    
     <file src="../../artifacts/native/x86_64-pc-windows-gnu/radix_engine_toolkit.dll" target="runtimes/win-x64/native/radix_engine_toolkit.dll" />
+    
     <file src="RadixDlt.RadixEngineToolkit.Native.targets" target="build/netstandard1.0" />
   </files>
 </package>
