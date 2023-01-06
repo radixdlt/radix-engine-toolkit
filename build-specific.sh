@@ -48,31 +48,6 @@ cargo_build() {
         --release
 }
 
-# Generates the CBindgen header for that specific target.
-generate_cbindgen_header() {
-    local target_triple=$1
-    local crate_path=$2
-
-    # Creating an include directory in the path of the target. This will store the header and the 
-    # module map
-    INCLUDE_DIRECTORY_PATH="$crate_path/target/$target_triple/release/include"
-    mkdir $INCLUDE_DIRECTORY_PATH
-
-    rustup default nightly
-    unset $LINKER_ENVIRONMENT_VARIABLE_NAME
-    CC=$(which clang) AR=$(which llvm-ar) cbindgen \
-        --lang c \
-        --config cbindgen.toml \
-        --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
-    rustup default stable
-
-    # Create a module map which links to the generated header in the include directory
-    echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-    echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-}
-
 # A function which is used to create a compressed zip file of the build artifacts for a given target
 # and crate
 package_and_compress_build() {
@@ -110,5 +85,25 @@ CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
 cd $CRATE_PATH
 
 cargo_build $TARGET_TRIPLE
-generate_cbindgen_header $TARGET_TRIPLE $CRATE_PATH
+target_triple=$TARGET_TRIPLE
+crate_path=$CRATE_PATH
+
+# Creating an include directory in the path of the target. This will store the header and the 
+# module map
+INCLUDE_DIRECTORY_PATH="$crate_path/target/$target_triple/release/include"
+# mkdir $INCLUDE_DIRECTORY_PATH
+
+rustup default nightly
+unset $LINKER_ENVIRONMENT_VARIABLE_NAME
+CC=$(which clang) AR=$(which llvm-ar) cbindgen \
+    --lang c \
+    --config cbindgen.toml \
+    --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
+rustup default stable
+
+# Create a module map which links to the generated header in the include directory
+echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
 package_and_compress_build $TARGET_TRIPLE $CRATE_PATH

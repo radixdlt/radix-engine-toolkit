@@ -44,6 +44,11 @@ jobs:
             custom-linker: x86_64-unknown-linux-gnu-gcc
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-native
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
           
           # radix-engine-toolkit-wasm Crate
           - crate: radix-engine-toolkit-wasm
@@ -96,6 +101,7 @@ jobs:
       - name: Install Build Dependencies
         run: |
           brew tap SergioBenitez/osxct
+          brew tap messense/macos-cross-toolchains
           brew install llvm
           brew install x86_64-unknown-linux-gnu
           brew install mingw-w64

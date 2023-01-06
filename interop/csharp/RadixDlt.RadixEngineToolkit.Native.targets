@@ -15,6 +15,13 @@
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-arm64\native\libradix_engine_toolkit.so">
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>native\linux-arm64\libradix_engine_toolkit.so</Link>
+      <Visible>true</Visible>
+      <Pack>false</Pack>
+    </Content>
     <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\osx-x64\native\libradix_engine_toolkit.dylib">
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
