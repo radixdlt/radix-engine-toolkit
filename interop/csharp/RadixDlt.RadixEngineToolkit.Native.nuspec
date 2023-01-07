@@ -12,8 +12,8 @@
     <tags>radix sbor</tags>
   </metadata>
   <files>
+    <file src="../../artifacts/native/i686-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x86/native/libradix_engine_toolkit.so" />
     <file src="../../artifacts/native/x86_64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x64/native/libradix_engine_toolkit.so" />
-    <file src="../../artifacts/native/i686-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x32/native/libradix_engine_toolkit.so" />
     <file src="../../artifacts/native/aarch64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-arm64/native/libradix_engine_toolkit.so" />
     
     <file src="../../artifacts/native/x86_64-apple-darwin/libradix_engine_toolkit.dylib" target="runtimes/osx-x64/native/libradix_engine_toolkit.dylib" />
