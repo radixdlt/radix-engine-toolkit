@@ -17,7 +17,8 @@
 
 use bech32;
 use radix_transaction::validation::ValidationConfig;
-use scrypto::radix_engine_interface::{address::AddressError, core::NetworkDefinition};
+use scrypto::radix_engine_interface::address::AddressError;
+use scrypto::radix_engine_interface::node::NetworkDefinition;
 
 use crate::model::TransactionHeader;
 

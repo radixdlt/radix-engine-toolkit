@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::radix_engine_interface::address::{Bech32Decoder, Bech32Encoder};
-use scrypto::radix_engine_interface::core::NetworkDefinition;
+use scrypto::radix_engine_interface::node::NetworkDefinition;
 
 use crate::error::Error;
 use crate::utils::{

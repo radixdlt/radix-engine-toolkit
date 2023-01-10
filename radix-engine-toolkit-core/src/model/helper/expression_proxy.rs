@@ -15,18 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod expression_proxy;
-pub mod non_fungible_address;
-pub mod non_fungible_id_proxy;
-pub mod option_proxy;
-pub mod own_proxy;
-pub mod result_proxy;
-pub mod value_proxy;
+use scrypto::runtime::ManifestExpression;
+use serde::{Deserialize, Serialize};
 
-pub use expression_proxy::*;
-pub use non_fungible_address::*;
-pub use non_fungible_id_proxy::*;
-pub use option_proxy::*;
-pub use own_proxy::*;
-pub use result_proxy::*;
-pub use value_proxy::*;
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ExpressionProxy {
+    EntireWorktop,
+    EntireAuthZone,
+}
+
+impl From<ManifestExpression> for ExpressionProxy {
+    fn from(value: ManifestExpression) -> Self {
+        match value {
+            ManifestExpression::EntireAuthZone => Self::EntireAuthZone,
+            ManifestExpression::EntireWorktop => Self::EntireWorktop,
+        }
+    }
+}
+
+impl From<ExpressionProxy> for ManifestExpression {
+    fn from(value: ExpressionProxy) -> Self {
+        match value {
+            ExpressionProxy::EntireAuthZone => Self::EntireAuthZone,
+            ExpressionProxy::EntireWorktop => Self::EntireWorktop,
+        }
+    }
+}

@@ -240,36 +240,6 @@ lazy_static::lazy_static! {
             },
             r#"{"type": "Tuple", "elements": [{"type": "I64", "value": "19"}, {"type": "I8", "value": "19"}]}"#,
         ),
-        // =========================
-        // Node Identifier Wrappers
-        // =========================
-        ValueJsonRepresentationTestVector::new(
-            Value::KeyValueStore {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"{"type": "KeyValueStore", "identifier": "000000000000000000000000000000000000000000000000000000000000000000000005"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::Component {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"{"type": "Component", "identifier": "000000000000000000000000000000000000000000000000000000000000000000000005"}"#,
-        ),
-        ValueJsonRepresentationTestVector::new(
-            Value::Vault {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"{"type": "Vault", "identifier": "000000000000000000000000000000000000000000000000000000000000000000000005"}"#,
-        ),
         // ============================
         // Decimal And Precise Decimal
         // ============================
@@ -480,11 +450,11 @@ lazy_static::lazy_static! {
             r#"{"type": "Blob", "hash": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"}"#
         ),
         ValueJsonRepresentationTestVector::new(
-            Value::Expression { value: Expression::entire_auth_zone() },
+            Value::Expression { value: ManifestExpression::EntireAuthZone },
             r#"{"type": "Expression", "value": "ENTIRE_AUTH_ZONE"}"#
         ),
         ValueJsonRepresentationTestVector::new(
-            Value::Expression { value: Expression::entire_worktop() },
+            Value::Expression { value: ManifestExpression::EntireWorktop },
             r#"{"type": "Expression", "value": "ENTIRE_WORKTOP"}"#
         ),
         ValueJsonRepresentationTestVector::new(
@@ -617,36 +587,6 @@ lazy_static::lazy_static! {
                 elements: vec![Value::I64 { value: 19 }, Value::I8 { value: 19 }],
             },
             "Tuple(19i64, 19i8)"
-        ),
-        // =========================
-        // Node Identifier Wrappers
-        // =========================
-        ValueAstConversionsTestVector::new(
-            Value::KeyValueStore {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"KeyValueStore("000000000000000000000000000000000000000000000000000000000000000000000005")"#,
-        ),
-        ValueAstConversionsTestVector::new(
-            Value::Component {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"Component("000000000000000000000000000000000000000000000000000000000000000000000005")"#,
-        ),
-        ValueAstConversionsTestVector::new(
-            Value::Vault {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            r#"Vault("000000000000000000000000000000000000000000000000000000000000000000000005")"#,
         ),
         // ============================
         // Decimal And Precise Decimal
@@ -839,11 +779,11 @@ lazy_static::lazy_static! {
             r#"Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")"#
         ),
         ValueAstConversionsTestVector::new(
-            Value::Expression { value: Expression::entire_auth_zone() },
+            Value::Expression { value: ManifestExpression::EntireAuthZone },
             r#"Expression("ENTIRE_AUTH_ZONE")"#
         ),
         ValueAstConversionsTestVector::new(
-            Value::Expression { value: Expression::entire_worktop() },
+            Value::Expression { value: ManifestExpression::EntireWorktop },
             r#"Expression("ENTIRE_WORKTOP")"#
         ),
         ValueAstConversionsTestVector::new(
@@ -1150,39 +1090,6 @@ lazy_static::lazy_static! {
             ValueKind::Tuple,
             AstValueKind::Tuple,
         ),
-        // =========================
-        // Node Identifier Wrappers
-        // =========================
-        ValueKindTestVector::new(
-            Value::KeyValueStore {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            ValueKind::KeyValueStore,
-            AstValueKind::KeyValueStore,
-        ),
-        ValueKindTestVector::new(
-            Value::Component {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            ValueKind::Component,
-            AstValueKind::Component,
-        ),
-        ValueKindTestVector::new(
-            Value::Vault {
-                identifier:
-                    "000000000000000000000000000000000000000000000000000000000000000000000005"
-                        .parse()
-                        .unwrap(),
-            },
-            ValueKind::Vault,
-            AstValueKind::Vault,
-        ),
         // ============================
         // Decimal And Precise Decimal
         // ============================
@@ -1421,12 +1328,12 @@ lazy_static::lazy_static! {
             AstValueKind::Blob
         ),
         ValueKindTestVector::new(
-            Value::Expression { value: Expression::entire_auth_zone() },
+            Value::Expression { value: ManifestExpression::EntireAuthZone },
             ValueKind::Expression,
             AstValueKind::Expression
         ),
         ValueKindTestVector::new(
-            Value::Expression { value: Expression::entire_worktop() },
+            Value::Expression { value: ManifestExpression::EntireWorktop },
             ValueKind::Expression,
             AstValueKind::Expression
         ),
