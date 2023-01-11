@@ -167,7 +167,7 @@ impl_from_parse_error! {
     scrypto::prelude::ParseHashError => Hash,
     scrypto::prelude::ParseNonFungibleIdError => NonFungibleId,
     scrypto::prelude::ParseNonFungibleAddressError => NonFungibleAddress,
-    scrypto::prelude::ParseBlobError => Blob,
+    scrypto::prelude::ParseManifestBlobRefError => Blob,
     scrypto::prelude::ParseEcdsaSecp256k1PublicKeyError => EcdsaSecp256k1PublicKey,
     scrypto::prelude::ParseEcdsaSecp256k1SignatureError => EcdsaSecp256k1Signature,
     scrypto::prelude::ParseEddsaEd25519PublicKeyError => EddsaEd25519PublicKey,

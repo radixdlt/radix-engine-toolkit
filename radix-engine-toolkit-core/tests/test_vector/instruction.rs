@@ -702,8 +702,8 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::PublishPackageWithOwner {
-                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
-                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
+                code: ManifestBlobRef("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
+                abi: ManifestBlobRef("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
                 owner_badge: radix_engine_toolkit_core::model::NonFungibleAddress {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -1048,8 +1048,8 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::PublishPackageWithOwner {
-                code: Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
-                abi: Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
+                code: ManifestBlobRef("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618".parse().unwrap()),
+                abi: ManifestBlobRef("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d".parse().unwrap()),
                 owner_badge: radix_engine_toolkit_core::model::NonFungibleAddress {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,

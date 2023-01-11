@@ -16,7 +16,9 @@
 // under the License.
 
 use radix_transaction::manifest::ast::{Instruction as AstInstruction, Value as AstValue};
-use scrypto::prelude::{Blob, Decimal, NonFungibleId};
+use scrypto::prelude::{
+    Decimal, EcdsaSecp256k1PublicKey, ManifestBlobRef, NonFungibleId, SystemAddress,
+};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::collections::HashSet;
@@ -28,6 +30,8 @@ use crate::model::{
     NetworkAwareResourceAddress, NonFungibleAddress, ProofId, ValueSerializationProxy,
 };
 use crate::traits::ValidateWithContext;
+
+use super::NetworkAwareSystemAddress;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -170,10 +174,10 @@ pub enum Instruction {
 
     PublishPackage {
         #[serde_as(as = "ValueSerializationProxy")]
-        code: Blob,
+        code: ManifestBlobRef,
 
         #[serde_as(as = "ValueSerializationProxy")]
-        abi: Blob,
+        abi: ManifestBlobRef,
 
         // TODO: Switch to a more structured format
         royalty_config: Value,
@@ -182,10 +186,10 @@ pub enum Instruction {
     },
     PublishPackageWithOwner {
         #[serde_as(as = "ValueSerializationProxy")]
-        code: Blob,
+        code: ManifestBlobRef,
 
         #[serde_as(as = "ValueSerializationProxy")]
-        abi: Blob,
+        abi: ManifestBlobRef,
 
         #[serde_as(as = "ValueSerializationProxy")]
         owner_badge: NonFungibleAddress,
@@ -274,6 +278,16 @@ pub enum Instruction {
         resource_address: Value,
         entries: Value,
     },
+
+    RegisterValidator {
+        #[serde_as(as = "ValueSerializationProxy")]
+        validator: EcdsaSecp256k1PublicKey,
+    },
+
+    UnregisterValidator {
+        #[serde_as(as = "ValueSerializationProxy")]
+        validator: EcdsaSecp256k1PublicKey,
+    },
 }
 
 impl Instruction {
@@ -333,7 +347,7 @@ impl Instruction {
                 into_bucket,
             } => AstInstruction::TakeFromWorktopByIds {
                 ids: Value::Array {
-                    element_type: ValueKind::NonFungibleId,
+                    element_type: crate::model::value::ValueKind::Bucket,
                     elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -361,7 +375,7 @@ impl Instruction {
                 resource_address,
             } => AstInstruction::AssertWorktopContainsByIds {
                 ids: Value::Array {
-                    element_type: ValueKind::NonFungibleId,
+                    element_type: crate::model::value::ValueKind::Bucket,
                     elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -398,7 +412,7 @@ impl Instruction {
                 into_proof,
             } => AstInstruction::CreateProofFromAuthZoneByIds {
                 ids: Value::Array {
-                    element_type: ValueKind::NonFungibleId,
+                    element_type: crate::model::value::ValueKind::Bucket,
                     elements: ids.into_iter().map(Value::from).collect(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -559,6 +573,12 @@ impl Instruction {
             } => AstInstruction::MintNonFungible {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 entries: entries.to_ast_value(bech32_coder)?,
+            },
+            Self::RegisterValidator { validator } => AstInstruction::RegisterValidator {
+                validator: Value::from(validator).to_ast_value(bech32_coder)?,
+            },
+            Self::UnregisterValidator { validator } => AstInstruction::RegisterValidator {
+                validator: Value::from(validator).to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -884,6 +904,12 @@ impl Instruction {
             } => Self::MintNonFungible {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
                 entries: Value::from_ast_value(entries, bech32_coder)?,
+            },
+            AstInstruction::RegisterValidator { validator } => Self::RegisterValidator {
+                validator: Value::from_ast_value(validator, bech32_coder)?.try_into()?,
+            },
+            AstInstruction::UnregisterValidator { validator } => Self::UnregisterValidator {
+                validator: Value::from_ast_value(validator, bech32_coder)?.try_into()?,
             },
         };
         Ok(instruction)

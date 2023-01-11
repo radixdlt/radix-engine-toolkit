@@ -124,7 +124,6 @@ lazy_static::lazy_static! {
         // ================
 
         // Unit and Boolean
-        ValueJsonRepresentationTestVector::new(Value::Unit, r#"{"type": "Unit"}"#),
         ValueJsonRepresentationTestVector::new(
             Value::Bool { value: true },
             r#"{"type": "Bool", "value": true}"#,
@@ -446,7 +445,7 @@ lazy_static::lazy_static! {
         // Other Misc Types
         // =================
         ValueJsonRepresentationTestVector::new(
-            Value::Blob { hash: Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
+            Value::Blob { hash: ManifestBlobRef("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
             r#"{"type": "Blob", "hash": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"}"#
         ),
         ValueJsonRepresentationTestVector::new(
@@ -469,10 +468,6 @@ lazy_static::lazy_static! {
         // ================
 
         // Unit and Boolean
-        ValueAstConversionsTestVector::new(
-            Value::Unit,
-            r#"()"#
-        ),
         ValueAstConversionsTestVector::new(
             Value::Bool { value: true },
             r#"true"#,
@@ -775,7 +770,7 @@ lazy_static::lazy_static! {
         // Other Misc Types
         // =================
         ValueAstConversionsTestVector::new(
-            Value::Blob { hash: Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
+            Value::Blob { hash: ManifestBlobRef("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
             r#"Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")"#
         ),
         ValueAstConversionsTestVector::new(
@@ -949,12 +944,7 @@ lazy_static::lazy_static! {
         // Primitive Types
         // ================
 
-        // Unit and Boolean
-        ValueKindTestVector::new(
-            Value::Unit,
-            ValueKind::Unit,
-            AstValueKind::Unit
-        ),
+        // Boolean
         ValueKindTestVector::new(
             Value::Bool { value: true },
             ValueKind::Bool,
@@ -1323,7 +1313,7 @@ lazy_static::lazy_static! {
         // Other Misc Types
         // =================
         ValueKindTestVector::new(
-            Value::Blob { hash: Blob("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
+            Value::Blob { hash: ManifestBlobRef("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824".parse().unwrap()) },
             ValueKind::Blob,
             AstValueKind::Blob
         ),

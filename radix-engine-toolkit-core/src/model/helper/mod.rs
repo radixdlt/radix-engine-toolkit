@@ -16,6 +16,7 @@
 // under the License.
 
 pub mod expression_proxy;
+pub mod manifest_blob_ref_proxy;
 pub mod non_fungible_address;
 pub mod non_fungible_id_proxy;
 pub mod option_proxy;
@@ -24,6 +25,7 @@ pub mod result_proxy;
 pub mod value_proxy;
 
 pub use expression_proxy::*;
+pub use manifest_blob_ref_proxy::*;
 pub use non_fungible_address::*;
 pub use non_fungible_id_proxy::*;
 pub use option_proxy::*;

@@ -19,12 +19,13 @@
 //! and validation.
 
 use radix_transaction::manifest::ast::Value as AstValue;
-use sbor::type_id::*;
-use scrypto::data::ScryptoCustomTypeId;
+use sbor::value_kind::*;
+use sbor::CustomValueKind;
 use scrypto::prelude::{
-    scrypto_decode, scrypto_encode, Blob, Decimal, EcdsaSecp256k1PublicKey,
-    EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature, Hash,
-    ManifestExpression, NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoValue,
+    scrypto_decode, scrypto_encode, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature,
+    EddsaEd25519PublicKey, EddsaEd25519Signature, Hash, ManifestBlobRef, ManifestExpression,
+    NonFungibleId, PreciseDecimal, ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue,
+    ScryptoValueKind,
 };
 use scrypto::runtime::{ManifestBucket, ManifestProof, Own};
 use serde::{Deserialize, Serialize};
@@ -43,7 +44,6 @@ use crate::traits::ValidateWithContext;
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
 #[serde(tag = "type")]
 pub enum Value {
-    Unit,
     Bool {
         value: bool,
     },
@@ -179,8 +179,8 @@ pub enum Value {
     },
 
     Blob {
-        #[serde_as(as = "DisplayFromStr")]
-        hash: Blob,
+        #[serde_as(as = "FromInto<crate::model::helper::ManifestBlobRefProxy>")]
+        hash: ManifestBlobRef,
     },
     Expression {
         #[serde_as(as = "FromInto<crate::model::helper::ExpressionProxy>")]
@@ -200,7 +200,6 @@ pub enum Value {
 impl Value {
     pub fn kind(&self) -> ValueKind {
         match self {
-            Self::Unit => ValueKind::Unit,
             Self::Bool { .. } => ValueKind::Bool,
 
             Self::I8 { .. } => ValueKind::I8,
@@ -315,7 +314,6 @@ impl Value {
 
     pub fn from_ast_value(ast_value: &AstValue, bech32_coder: &Bech32Coder) -> Result<Self, Error> {
         let value = match ast_value {
-            AstValue::Unit => Self::Unit,
             AstValue::Bool(value) => Self::Bool { value: *value },
 
             AstValue::I8(value) => Self::I8 { value: *value },
@@ -397,7 +395,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Decimal,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -410,7 +408,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::PreciseDecimal,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -429,7 +427,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::PackageAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -447,7 +445,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::ComponentAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -465,7 +463,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::ResourceAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -483,7 +481,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::SystemAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -497,7 +495,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Hash,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -515,7 +513,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Bucket,
                         allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -532,7 +530,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Proof,
                         allowed_children_kinds: vec![ValueKind::U32, ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -550,7 +548,7 @@ impl Value {
                             Err(Error::UnexpectedContents {
                                 kind_being_parsed: ValueKind::NonFungibleId,
                                 allowed_children_kinds: vec![ValueKind::String],
-                                found_child_kind: value.kind().into(),
+                                found_child_kind: value.type_id().into(),
                             })?
                         }
                     }
@@ -563,7 +561,7 @@ impl Value {
                             ValueKind::String,
                             ValueKind::Bytes,
                         ],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?,
                 },
             },
@@ -581,7 +579,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::NonFungibleAddress,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: resource_address.kind().into(),
+                        found_child_kind: resource_address.type_id().into(),
                     })?
                 };
 
@@ -598,7 +596,7 @@ impl Value {
                             Err(Error::UnexpectedContents {
                                 kind_being_parsed: ValueKind::NonFungibleAddress,
                                 allowed_children_kinds: vec![ValueKind::String],
-                                found_child_kind: value.kind().into(),
+                                found_child_kind: value.type_id().into(),
                             })?
                         }
                     }
@@ -611,7 +609,7 @@ impl Value {
                             ValueKind::String,
                             ValueKind::Bytes,
                         ],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?,
                 };
 
@@ -627,13 +625,13 @@ impl Value {
             AstValue::Blob(value) => {
                 if let AstValue::String(value) = &**value {
                     Self::Blob {
-                        hash: value.parse()?,
+                        hash: ManifestBlobRef::try_from(hex::decode(value)?.as_slice())?,
                     }
                 } else {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Blob,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -650,7 +648,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Expression,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -664,7 +662,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::EcdsaSecp256k1PublicKey,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -677,7 +675,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::EcdsaSecp256k1Signature,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -690,7 +688,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::EddsaEd25519PublicKey,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -703,7 +701,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::EddsaEd25519Signature,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -716,7 +714,7 @@ impl Value {
                     Err(Error::UnexpectedContents {
                         kind_being_parsed: ValueKind::Bytes,
                         allowed_children_kinds: vec![ValueKind::String],
-                        found_child_kind: value.kind().into(),
+                        found_child_kind: value.type_id().into(),
                     })?
                 }
             }
@@ -727,7 +725,6 @@ impl Value {
 
     pub fn to_ast_value(&self, bech32_coder: &Bech32Coder) -> Result<AstValue, Error> {
         let ast_value = match self {
-            Value::Unit => AstValue::Unit,
             Value::Bool { value } => AstValue::Bool(*value),
 
             Value::I8 { value } => AstValue::I8(*value),
@@ -851,7 +848,7 @@ impl Value {
                 AstValue::NonFungibleAddress(Box::new(resource_address), Box::new(non_fungible_id))
             }
 
-            Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.to_string()))),
+            Value::Blob { hash } => AstValue::Blob(Box::new(AstValue::String(hash.0.to_string()))),
             Value::Expression { value } => {
                 AstValue::Expression(Box::new(AstValue::String(match value {
                     ManifestExpression::EntireWorktop => "ENTIRE_WORKTOP".into(),
@@ -886,7 +883,6 @@ impl Value {
         let scrypto_value = match self {
             Value::Own { value } => todo!(), // TODO: TODO
 
-            Value::Unit => ScryptoValue::Unit,
             Value::Bool { value } => ScryptoValue::Bool { value: *value },
 
             Value::U8 { value } => ScryptoValue::U8 { value: *value },
@@ -937,7 +933,7 @@ impl Value {
                 element_type,
                 elements,
             } => ScryptoValue::Array {
-                element_type_id: (*element_type).into(),
+                element_value_kind: (*element_type).into(),
                 elements: elements
                     .clone()
                     .into_iter()
@@ -1017,8 +1013,17 @@ impl Value {
             Value::NonFungibleId { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::NonFungibleId(value.clone()),
             },
-            Value::NonFungibleAddress { address } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::NonFungibleAddress(address.clone().into()),
+            Value::NonFungibleAddress { address } => ScryptoValue::Tuple {
+                fields: vec![
+                    Value::ResourceAddress {
+                        address: address.resource_address.clone(),
+                    }
+                    .to_scrypto_value()?,
+                    Value::NonFungibleId {
+                        value: address.non_fungible_id.clone(),
+                    }
+                    .to_scrypto_value()?,
+                ],
             },
 
             Value::Blob { hash } => ScryptoValue::Custom {
@@ -1028,7 +1033,7 @@ impl Value {
                 value: ScryptoCustomValue::Expression(value.clone()),
             },
             Value::Bytes { value } => ScryptoValue::Array {
-                element_type_id: SborTypeId::U8,
+                element_value_kind: ScryptoValueKind::U8,
                 elements: value
                     .clone()
                     .into_iter()
@@ -1041,7 +1046,6 @@ impl Value {
 
     pub fn from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
         match scrypto_value {
-            ScryptoValue::Unit => Value::Unit,
             ScryptoValue::Bool { value } => Value::Bool { value: *value },
 
             ScryptoValue::U8 { value } => Value::U8 { value: *value },
@@ -1092,10 +1096,10 @@ impl Value {
                 },
             },
             ScryptoValue::Array {
-                element_type_id,
+                element_value_kind,
                 elements,
             } => Value::Array {
-                element_type: (*element_type_id).into(),
+                element_type: (*element_value_kind).into(),
                 elements: elements
                     .clone()
                     .into_iter()
@@ -1172,15 +1176,6 @@ impl Value {
                 ScryptoCustomValue::NonFungibleId(value) => Value::NonFungibleId {
                     value: value.clone(),
                 },
-                ScryptoCustomValue::NonFungibleAddress(value) => Value::NonFungibleAddress {
-                    address: NonFungibleAddress {
-                        resource_address: NetworkAwareResourceAddress {
-                            address: value.resource_address(),
-                            network_id,
-                        },
-                        non_fungible_id: value.non_fungible_id().clone(),
-                    },
-                },
                 ScryptoCustomValue::Own(value) => todo!(), // TODO: TODO
             },
         }
@@ -1223,7 +1218,6 @@ impl ValidateWithContext<(u8, Option<ValueKind>)> for Value {
 #[repr(C)]
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ValueKind {
-    Unit,
     Bool,
 
     I8,
@@ -1277,102 +1271,107 @@ pub enum ValueKind {
 impl ValueKind {
     pub fn type_id(&self) -> u8 {
         match self {
-            Self::Unit => TYPE_UNIT,
-            Self::Bool => TYPE_BOOL,
+            Self::Bool => ScryptoValueKind::Bool.as_u8(),
 
-            Self::U8 => TYPE_U8,
-            Self::U16 => TYPE_U16,
-            Self::U32 => TYPE_U32,
-            Self::U64 => TYPE_U64,
-            Self::U128 => TYPE_U128,
+            Self::U8 => ScryptoValueKind::U8.as_u8(),
+            Self::U16 => ScryptoValueKind::U16.as_u8(),
+            Self::U32 => ScryptoValueKind::U32.as_u8(),
+            Self::U64 => ScryptoValueKind::U64.as_u8(),
+            Self::U128 => ScryptoValueKind::U128.as_u8(),
 
-            Self::I8 => TYPE_I8,
-            Self::I16 => TYPE_I16,
-            Self::I32 => TYPE_I32,
-            Self::I64 => TYPE_I64,
-            Self::I128 => TYPE_I128,
+            Self::I8 => ScryptoValueKind::I8.as_u8(),
+            Self::I16 => ScryptoValueKind::I16.as_u8(),
+            Self::I32 => ScryptoValueKind::I32.as_u8(),
+            Self::I64 => ScryptoValueKind::I64.as_u8(),
+            Self::I128 => ScryptoValueKind::I128.as_u8(),
 
-            Self::String => TYPE_STRING,
+            Self::String => ScryptoValueKind::String.as_u8(),
 
-            Self::Enum => TYPE_ENUM,
-            Self::Option => TYPE_ENUM,
-            Self::Result => TYPE_ENUM,
+            Self::Enum => ScryptoValueKind::Enum.as_u8(),
+            Self::Option => ScryptoValueKind::Enum.as_u8(),
+            Self::Result => ScryptoValueKind::Enum.as_u8(),
 
-            Self::Array => TYPE_ARRAY,
-            Self::Bytes => TYPE_ARRAY,
-            Self::Tuple => TYPE_TUPLE,
+            Self::Array => ScryptoValueKind::Array.as_u8(),
+            Self::Bytes => ScryptoValueKind::Array.as_u8(),
+            Self::Tuple => ScryptoValueKind::Tuple.as_u8(),
 
-            Self::Decimal => ScryptoCustomTypeId::Decimal.as_u8(),
-            Self::PreciseDecimal => ScryptoCustomTypeId::PreciseDecimal.as_u8(),
+            Self::Decimal => ScryptoCustomValueKind::Decimal.as_u8(),
+            Self::PreciseDecimal => ScryptoCustomValueKind::PreciseDecimal.as_u8(),
 
-            Self::PackageAddress => ScryptoCustomTypeId::PackageAddress.as_u8(),
-            Self::ResourceAddress => ScryptoCustomTypeId::ResourceAddress.as_u8(),
-            Self::ComponentAddress => ScryptoCustomTypeId::ComponentAddress.as_u8(),
-            Self::SystemAddress => ScryptoCustomTypeId::SystemAddress.as_u8(),
+            Self::PackageAddress => ScryptoCustomValueKind::PackageAddress.as_u8(),
+            Self::ResourceAddress => ScryptoCustomValueKind::ResourceAddress.as_u8(),
+            Self::ComponentAddress => ScryptoCustomValueKind::ComponentAddress.as_u8(),
+            Self::SystemAddress => ScryptoCustomValueKind::SystemAddress.as_u8(),
 
-            Self::Hash => ScryptoCustomTypeId::Hash.as_u8(),
+            Self::Hash => ScryptoCustomValueKind::Hash.as_u8(),
 
-            Self::Bucket => ScryptoCustomTypeId::Bucket.as_u8(),
-            Self::Proof => ScryptoCustomTypeId::Proof.as_u8(),
+            Self::Bucket => ScryptoCustomValueKind::Bucket.as_u8(),
+            Self::Proof => ScryptoCustomValueKind::Proof.as_u8(),
 
-            Self::NonFungibleId => ScryptoCustomTypeId::NonFungibleId.as_u8(),
-            Self::NonFungibleAddress => ScryptoCustomTypeId::NonFungibleAddress.as_u8(),
+            Self::NonFungibleId => ScryptoCustomValueKind::NonFungibleId.as_u8(),
+            Self::NonFungibleAddress => ScryptoValueKind::Tuple.as_u8(),
 
-            Self::EcdsaSecp256k1PublicKey => ScryptoCustomTypeId::EcdsaSecp256k1PublicKey.as_u8(),
-            Self::EcdsaSecp256k1Signature => ScryptoCustomTypeId::EcdsaSecp256k1Signature.as_u8(),
-            Self::EddsaEd25519PublicKey => ScryptoCustomTypeId::EddsaEd25519PublicKey.as_u8(),
-            Self::EddsaEd25519Signature => ScryptoCustomTypeId::EddsaEd25519Signature.as_u8(),
+            Self::EcdsaSecp256k1PublicKey => {
+                ScryptoCustomValueKind::EcdsaSecp256k1PublicKey.as_u8()
+            }
+            Self::EcdsaSecp256k1Signature => {
+                ScryptoCustomValueKind::EcdsaSecp256k1Signature.as_u8()
+            }
+            Self::EddsaEd25519PublicKey => ScryptoCustomValueKind::EddsaEd25519PublicKey.as_u8(),
+            Self::EddsaEd25519Signature => ScryptoCustomValueKind::EddsaEd25519Signature.as_u8(),
 
-            Self::Blob => ScryptoCustomTypeId::Blob.as_u8(),
-            Self::Expression => ScryptoCustomTypeId::Expression.as_u8(),
-            Self::Own => ScryptoCustomTypeId::Own.as_u8(),
+            Self::Blob => ScryptoCustomValueKind::Blob.as_u8(),
+            Self::Expression => ScryptoCustomValueKind::Expression.as_u8(),
+            Self::Own => ScryptoCustomValueKind::Own.as_u8(),
         }
     }
 
     pub fn from_type_id(type_id: u8) -> Result<Self, Error> {
         let value_kind = match type_id {
-            TYPE_UNIT => Self::Unit,
-            TYPE_BOOL => Self::Bool,
+            VALUE_KIND_BOOL => Self::Bool,
 
-            TYPE_U8 => Self::U8,
-            TYPE_U16 => Self::U16,
-            TYPE_U32 => Self::U32,
-            TYPE_U64 => Self::U64,
-            TYPE_U128 => Self::U128,
+            VALUE_KIND_U8 => Self::U8,
+            VALUE_KIND_U16 => Self::U16,
+            VALUE_KIND_U32 => Self::U32,
+            VALUE_KIND_U64 => Self::U64,
+            VALUE_KIND_U128 => Self::U128,
 
-            TYPE_I8 => Self::I8,
-            TYPE_I16 => Self::I16,
-            TYPE_I32 => Self::I32,
-            TYPE_I64 => Self::I64,
-            TYPE_I128 => Self::I128,
+            VALUE_KIND_I8 => Self::I8,
+            VALUE_KIND_I16 => Self::I16,
+            VALUE_KIND_I32 => Self::I32,
+            VALUE_KIND_I64 => Self::I64,
+            VALUE_KIND_I128 => Self::I128,
 
-            TYPE_STRING => Self::String,
+            VALUE_KIND_STRING => Self::String,
 
-            TYPE_ENUM => Self::Enum,
+            VALUE_KIND_ENUM => Self::Enum,
 
-            TYPE_ARRAY => Self::Array,
-            TYPE_TUPLE => Self::Tuple,
+            VALUE_KIND_ARRAY => Self::Array,
+            VALUE_KIND_TUPLE => Self::Tuple,
 
-            type_id => match ScryptoCustomTypeId::from_u8(type_id) {
+            type_id => match ScryptoCustomValueKind::from_u8(type_id) {
                 Some(scrypto_type) => match scrypto_type {
-                    ScryptoCustomTypeId::Decimal => Self::Decimal,
-                    ScryptoCustomTypeId::PreciseDecimal => Self::PreciseDecimal,
-                    ScryptoCustomTypeId::PackageAddress => Self::PackageAddress,
-                    ScryptoCustomTypeId::ResourceAddress => Self::ResourceAddress,
-                    ScryptoCustomTypeId::ComponentAddress => Self::ComponentAddress,
-                    ScryptoCustomTypeId::SystemAddress => Self::SystemAddress,
-                    ScryptoCustomTypeId::Hash => Self::Hash,
-                    ScryptoCustomTypeId::Bucket => Self::Bucket,
-                    ScryptoCustomTypeId::Proof => Self::Proof,
-                    ScryptoCustomTypeId::NonFungibleId => Self::NonFungibleId,
-                    ScryptoCustomTypeId::NonFungibleAddress => Self::NonFungibleAddress,
-                    ScryptoCustomTypeId::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
-                    ScryptoCustomTypeId::EcdsaSecp256k1Signature => Self::EcdsaSecp256k1Signature,
-                    ScryptoCustomTypeId::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
-                    ScryptoCustomTypeId::EddsaEd25519Signature => Self::EddsaEd25519Signature,
-                    ScryptoCustomTypeId::Blob => Self::Blob,
-                    ScryptoCustomTypeId::Expression => Self::Expression,
-                    ScryptoCustomTypeId::Own => Self::Own,
+                    ScryptoCustomValueKind::Decimal => Self::Decimal,
+                    ScryptoCustomValueKind::PreciseDecimal => Self::PreciseDecimal,
+                    ScryptoCustomValueKind::PackageAddress => Self::PackageAddress,
+                    ScryptoCustomValueKind::ResourceAddress => Self::ResourceAddress,
+                    ScryptoCustomValueKind::ComponentAddress => Self::ComponentAddress,
+                    ScryptoCustomValueKind::SystemAddress => Self::SystemAddress,
+                    ScryptoCustomValueKind::Hash => Self::Hash,
+                    ScryptoCustomValueKind::Bucket => Self::Bucket,
+                    ScryptoCustomValueKind::Proof => Self::Proof,
+                    ScryptoCustomValueKind::NonFungibleId => Self::NonFungibleId,
+                    ScryptoCustomValueKind::EcdsaSecp256k1PublicKey => {
+                        Self::EcdsaSecp256k1PublicKey
+                    }
+                    ScryptoCustomValueKind::EcdsaSecp256k1Signature => {
+                        Self::EcdsaSecp256k1Signature
+                    }
+                    ScryptoCustomValueKind::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
+                    ScryptoCustomValueKind::EddsaEd25519Signature => Self::EddsaEd25519Signature,
+                    ScryptoCustomValueKind::Blob => Self::Blob,
+                    ScryptoCustomValueKind::Expression => Self::Expression,
+                    ScryptoCustomValueKind::Own => Self::Own,
                 },
                 None => return Err(Error::UnknownTypeId { type_id }),
             },
@@ -1384,8 +1383,6 @@ impl ValueKind {
 impl From<ValueKind> for radix_transaction::manifest::ast::Type {
     fn from(value: ValueKind) -> radix_transaction::manifest::ast::Type {
         match value {
-            ValueKind::Unit => radix_transaction::manifest::ast::Type::Unit,
-
             ValueKind::Bool => radix_transaction::manifest::ast::Type::Bool,
             ValueKind::I8 => radix_transaction::manifest::ast::Type::I8,
             ValueKind::I16 => radix_transaction::manifest::ast::Type::I16,
@@ -1450,7 +1447,6 @@ impl From<ValueKind> for radix_transaction::manifest::ast::Type {
 impl From<radix_transaction::manifest::ast::Type> for ValueKind {
     fn from(value: radix_transaction::manifest::ast::Type) -> ValueKind {
         match value {
-            radix_transaction::manifest::ast::Type::Unit => Self::Unit,
             radix_transaction::manifest::ast::Type::Bool => Self::Bool,
 
             radix_transaction::manifest::ast::Type::I8 => Self::I8,
@@ -1507,117 +1503,126 @@ impl From<radix_transaction::manifest::ast::Type> for ValueKind {
     }
 }
 
-impl From<ValueKind> for SborTypeId<ScryptoCustomTypeId> {
+impl From<ValueKind> for ScryptoValueKind {
     fn from(value: ValueKind) -> Self {
         match value {
-            ValueKind::Unit => SborTypeId::Unit,
-            ValueKind::Bool => SborTypeId::Bool,
+            ValueKind::Bool => ScryptoValueKind::Bool,
 
-            ValueKind::U8 => SborTypeId::U8,
-            ValueKind::U16 => SborTypeId::U16,
-            ValueKind::U32 => SborTypeId::U32,
-            ValueKind::U64 => SborTypeId::U64,
-            ValueKind::U128 => SborTypeId::U128,
+            ValueKind::U8 => ScryptoValueKind::U8,
+            ValueKind::U16 => ScryptoValueKind::U16,
+            ValueKind::U32 => ScryptoValueKind::U32,
+            ValueKind::U64 => ScryptoValueKind::U64,
+            ValueKind::U128 => ScryptoValueKind::U128,
 
-            ValueKind::I8 => SborTypeId::I8,
-            ValueKind::I16 => SborTypeId::I16,
-            ValueKind::I32 => SborTypeId::I32,
-            ValueKind::I64 => SborTypeId::I64,
-            ValueKind::I128 => SborTypeId::I128,
+            ValueKind::I8 => ScryptoValueKind::I8,
+            ValueKind::I16 => ScryptoValueKind::I16,
+            ValueKind::I32 => ScryptoValueKind::I32,
+            ValueKind::I64 => ScryptoValueKind::I64,
+            ValueKind::I128 => ScryptoValueKind::I128,
 
-            ValueKind::String => SborTypeId::String,
+            ValueKind::String => ScryptoValueKind::String,
 
-            ValueKind::Enum => SborTypeId::Enum,
-            ValueKind::Option => SborTypeId::Enum,
-            ValueKind::Result => SborTypeId::Enum,
+            ValueKind::Enum => ScryptoValueKind::Enum,
+            ValueKind::Option => ScryptoValueKind::Enum,
+            ValueKind::Result => ScryptoValueKind::Enum,
 
-            ValueKind::Array => SborTypeId::Array,
-            ValueKind::Bytes => SborTypeId::Array,
-            ValueKind::Tuple => SborTypeId::Tuple,
+            ValueKind::Array => ScryptoValueKind::Array,
+            ValueKind::Bytes => ScryptoValueKind::Array,
+            ValueKind::Tuple => ScryptoValueKind::Tuple,
 
-            ValueKind::SystemAddress => SborTypeId::Custom(ScryptoCustomTypeId::SystemAddress),
-            ValueKind::PackageAddress => SborTypeId::Custom(ScryptoCustomTypeId::PackageAddress),
-            ValueKind::ResourceAddress => SborTypeId::Custom(ScryptoCustomTypeId::ResourceAddress),
+            ValueKind::SystemAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::SystemAddress)
+            }
+            ValueKind::PackageAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::PackageAddress)
+            }
+            ValueKind::ResourceAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::ResourceAddress)
+            }
             ValueKind::ComponentAddress => {
-                SborTypeId::Custom(ScryptoCustomTypeId::ComponentAddress)
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::ComponentAddress)
             }
 
-            ValueKind::Proof => SborTypeId::Custom(ScryptoCustomTypeId::Proof),
-            ValueKind::Bucket => SborTypeId::Custom(ScryptoCustomTypeId::Bucket),
+            ValueKind::Proof => ScryptoValueKind::Custom(ScryptoCustomValueKind::Proof),
+            ValueKind::Bucket => ScryptoValueKind::Custom(ScryptoCustomValueKind::Bucket),
 
-            ValueKind::Expression => SborTypeId::Custom(ScryptoCustomTypeId::Expression),
-            ValueKind::Blob => SborTypeId::Custom(ScryptoCustomTypeId::Blob),
-            ValueKind::NonFungibleAddress => {
-                SborTypeId::Custom(ScryptoCustomTypeId::NonFungibleAddress)
-            }
+            ValueKind::Expression => ScryptoValueKind::Custom(ScryptoCustomValueKind::Expression),
+            ValueKind::Blob => ScryptoValueKind::Custom(ScryptoCustomValueKind::Blob),
+            ValueKind::NonFungibleAddress => ScryptoValueKind::Tuple,
 
-            ValueKind::Hash => SborTypeId::Custom(ScryptoCustomTypeId::Hash),
+            ValueKind::Hash => ScryptoValueKind::Custom(ScryptoCustomValueKind::Hash),
             ValueKind::EcdsaSecp256k1PublicKey => {
-                SborTypeId::Custom(ScryptoCustomTypeId::EcdsaSecp256k1PublicKey)
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EcdsaSecp256k1PublicKey)
             }
             ValueKind::EcdsaSecp256k1Signature => {
-                SborTypeId::Custom(ScryptoCustomTypeId::EcdsaSecp256k1Signature)
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EcdsaSecp256k1Signature)
             }
             ValueKind::EddsaEd25519PublicKey => {
-                SborTypeId::Custom(ScryptoCustomTypeId::EddsaEd25519PublicKey)
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EddsaEd25519PublicKey)
             }
             ValueKind::EddsaEd25519Signature => {
-                SborTypeId::Custom(ScryptoCustomTypeId::EddsaEd25519Signature)
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EddsaEd25519Signature)
             }
-            ValueKind::Decimal => SborTypeId::Custom(ScryptoCustomTypeId::Decimal),
-            ValueKind::PreciseDecimal => SborTypeId::Custom(ScryptoCustomTypeId::PreciseDecimal),
-            ValueKind::NonFungibleId => SborTypeId::Custom(ScryptoCustomTypeId::NonFungibleId),
-            ValueKind::Own => SborTypeId::Custom(ScryptoCustomTypeId::Own),
+            ValueKind::Decimal => ScryptoValueKind::Custom(ScryptoCustomValueKind::Decimal),
+            ValueKind::PreciseDecimal => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::PreciseDecimal)
+            }
+            ValueKind::NonFungibleId => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::NonFungibleId)
+            }
+            ValueKind::Own => ScryptoValueKind::Custom(ScryptoCustomValueKind::Own),
         }
     }
 }
 
-impl From<SborTypeId<ScryptoCustomTypeId>> for ValueKind {
-    fn from(value: SborTypeId<ScryptoCustomTypeId>) -> Self {
+impl From<ScryptoValueKind> for ValueKind {
+    fn from(value: ScryptoValueKind) -> Self {
         match value {
-            SborTypeId::Unit => ValueKind::Unit,
-            SborTypeId::Bool => ValueKind::Bool,
+            ScryptoValueKind::Bool => ValueKind::Bool,
 
-            SborTypeId::U8 => ValueKind::U8,
-            SborTypeId::U16 => ValueKind::U16,
-            SborTypeId::U32 => ValueKind::U32,
-            SborTypeId::U64 => ValueKind::U64,
-            SborTypeId::U128 => ValueKind::U128,
+            ScryptoValueKind::U8 => ValueKind::U8,
+            ScryptoValueKind::U16 => ValueKind::U16,
+            ScryptoValueKind::U32 => ValueKind::U32,
+            ScryptoValueKind::U64 => ValueKind::U64,
+            ScryptoValueKind::U128 => ValueKind::U128,
 
-            SborTypeId::I8 => ValueKind::I8,
-            SborTypeId::I16 => ValueKind::I16,
-            SborTypeId::I32 => ValueKind::I32,
-            SborTypeId::I64 => ValueKind::I64,
-            SborTypeId::I128 => ValueKind::I128,
+            ScryptoValueKind::I8 => ValueKind::I8,
+            ScryptoValueKind::I16 => ValueKind::I16,
+            ScryptoValueKind::I32 => ValueKind::I32,
+            ScryptoValueKind::I64 => ValueKind::I64,
+            ScryptoValueKind::I128 => ValueKind::I128,
 
-            SborTypeId::String => ValueKind::String,
+            ScryptoValueKind::String => ValueKind::String,
 
-            SborTypeId::Enum => ValueKind::Enum,
-            SborTypeId::Array => ValueKind::Array,
-            SborTypeId::Tuple => ValueKind::Tuple,
+            ScryptoValueKind::Enum => ValueKind::Enum,
+            ScryptoValueKind::Array => ValueKind::Array,
+            ScryptoValueKind::Tuple => ValueKind::Tuple,
 
-            SborTypeId::Custom(custom_type_id) => match custom_type_id {
-                ScryptoCustomTypeId::PackageAddress => ValueKind::PackageAddress,
-                ScryptoCustomTypeId::ComponentAddress => ValueKind::ComponentAddress,
-                ScryptoCustomTypeId::ResourceAddress => ValueKind::ResourceAddress,
-                ScryptoCustomTypeId::SystemAddress => ValueKind::SystemAddress,
+            ScryptoValueKind::Custom(custom_type_id) => match custom_type_id {
+                ScryptoCustomValueKind::PackageAddress => ValueKind::PackageAddress,
+                ScryptoCustomValueKind::ComponentAddress => ValueKind::ComponentAddress,
+                ScryptoCustomValueKind::ResourceAddress => ValueKind::ResourceAddress,
+                ScryptoCustomValueKind::SystemAddress => ValueKind::SystemAddress,
 
-                ScryptoCustomTypeId::Bucket => ValueKind::Bucket,
-                ScryptoCustomTypeId::Proof => ValueKind::Proof,
+                ScryptoCustomValueKind::Bucket => ValueKind::Bucket,
+                ScryptoCustomValueKind::Proof => ValueKind::Proof,
 
-                ScryptoCustomTypeId::Expression => ValueKind::Expression,
-                ScryptoCustomTypeId::Blob => ValueKind::Blob,
-                ScryptoCustomTypeId::NonFungibleAddress => ValueKind::NonFungibleAddress,
+                ScryptoCustomValueKind::Expression => ValueKind::Expression,
+                ScryptoCustomValueKind::Blob => ValueKind::Blob,
 
-                ScryptoCustomTypeId::Hash => ValueKind::Hash,
-                ScryptoCustomTypeId::EcdsaSecp256k1PublicKey => ValueKind::EcdsaSecp256k1PublicKey,
-                ScryptoCustomTypeId::EcdsaSecp256k1Signature => ValueKind::EcdsaSecp256k1Signature,
-                ScryptoCustomTypeId::EddsaEd25519PublicKey => ValueKind::EddsaEd25519PublicKey,
-                ScryptoCustomTypeId::EddsaEd25519Signature => ValueKind::EddsaEd25519Signature,
-                ScryptoCustomTypeId::Decimal => ValueKind::Decimal,
-                ScryptoCustomTypeId::PreciseDecimal => ValueKind::PreciseDecimal,
-                ScryptoCustomTypeId::NonFungibleId => ValueKind::NonFungibleId,
-                ScryptoCustomTypeId::Own => ValueKind::Own,
+                ScryptoCustomValueKind::Hash => ValueKind::Hash,
+                ScryptoCustomValueKind::EcdsaSecp256k1PublicKey => {
+                    ValueKind::EcdsaSecp256k1PublicKey
+                }
+                ScryptoCustomValueKind::EcdsaSecp256k1Signature => {
+                    ValueKind::EcdsaSecp256k1Signature
+                }
+                ScryptoCustomValueKind::EddsaEd25519PublicKey => ValueKind::EddsaEd25519PublicKey,
+                ScryptoCustomValueKind::EddsaEd25519Signature => ValueKind::EddsaEd25519Signature,
+                ScryptoCustomValueKind::Decimal => ValueKind::Decimal,
+                ScryptoCustomValueKind::PreciseDecimal => ValueKind::PreciseDecimal,
+                ScryptoCustomValueKind::NonFungibleId => ValueKind::NonFungibleId,
+                ScryptoCustomValueKind::Own => ValueKind::Own,
             },
         }
     }
@@ -1651,7 +1656,7 @@ macro_rules! impl_from_and_try_from_value {
     };
 }
 
-impl_from_and_try_from_value! {Blob, Blob, hash}
+impl_from_and_try_from_value! {Blob, ManifestBlobRef, hash}
 impl_from_and_try_from_value! {String, String, value}
 impl_from_and_try_from_value! {Decimal, Decimal, value}
 impl_from_and_try_from_value! {Proof, ProofId, identifier}
@@ -1661,3 +1666,4 @@ impl_from_and_try_from_value! {NonFungibleAddress, NonFungibleAddress, address}
 impl_from_and_try_from_value! {PackageAddress, NetworkAwarePackageAddress, address}
 impl_from_and_try_from_value! {ResourceAddress, NetworkAwareResourceAddress, address}
 impl_from_and_try_from_value! {ComponentAddress, NetworkAwareComponentAddress, address}
+impl_from_and_try_from_value! {EcdsaSecp256k1PublicKey, EcdsaSecp256k1PublicKey, public_key}
