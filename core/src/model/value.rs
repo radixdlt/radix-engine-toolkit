@@ -319,20 +319,19 @@ pub enum Value {
 /// An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is
 /// essentially the `type` tags used for the value model.
 pub enum ValueKind {
-    Unit,
     Bool,
-
-    I8,
-    I16,
-    I32,
-    I64,
-    I128,
 
     U8,
     U16,
     U32,
     U64,
     U128,
+
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
 
     String,
 
@@ -349,30 +348,28 @@ pub enum ValueKind {
     Decimal,
     PreciseDecimal,
 
-    Component,
-    PackageAddress,
+    Own,
+
     ComponentAddress,
     ResourceAddress,
     SystemAddress,
+    PackageAddress,
 
     Hash,
-
-    Bucket,
-    Proof,
-    Vault,
-
-    NonFungibleId,
-    NonFungibleAddress,
-
-    KeyValueStore,
 
     EcdsaSecp256k1PublicKey,
     EcdsaSecp256k1Signature,
     EddsaEd25519PublicKey,
     EddsaEd25519Signature,
 
-    Blob,
+    Bucket,
+    Proof,
+
+    NonFungibleId,
+    NonFungibleAddress,
+
     Expression,
+    Blob,
     Bytes,
 }
 
