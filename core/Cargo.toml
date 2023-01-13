@@ -9,7 +9,7 @@ serde = { version = "1.0.152" }
 serde_with = { version = "2.2.0", features = ["hex"] }
 
 # A library which allows us to generate a JSON schema from Rust models
-schemars = { version = "0.8.11" }
+schemars = { version = "0.8.11", features = ["preserve_order"] }
 
 # An attribute macro to setup a model to be serializable and also to have a JSON schema. 
 serializable = { path = "../serializable" }

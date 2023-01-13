@@ -8,61 +8,6 @@
     }
   ],
   "definitions": {
-    "Blob": {
-      "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
-      "type": "array",
-      "items": {
-        "type": "integer",
-        "format": "uint8",
-        "minimum": 0.0
-      },
-      "maxItems": 64,
-      "minItems": 64
-    },
-    "BucketId": {
-      "description": "Represents a BucketId which uses a transient identifier.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
-    },
-    "Expression": {
-      "description": "Represents a transaction manifest expression.",
-      "type": "string",
-      "enum": [
-        "ENTIRE_WORKTOP",
-        "ENTIRE_AUTH_ZONE"
-      ]
-    },
-    "NodeIdentifier": {
-      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
-      "type": "string",
-      "maxLength": 72,
-      "minLength": 72,
-      "pattern": "[0-9a-fA-F]+"
-    },
-    "ProofId": {
-      "description": "Represents a ProofId which uses a transient identifier.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
-    },
-    "TransientIdentifier": {
-      "description": "Represents an untagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "integer",
-          "format": "uint32",
-          "minimum": 0.0
-        }
-      ]
-    },
     "Value": {
       "description": "The Value model used to describe all of the types that the Radix Engine Toolkit accepts and returns.",
       "oneOf": [
@@ -312,16 +257,6 @@
             "variant"
           ],
           "properties": {
-            "fields": {
-              "description": "Optional fields that the enum may have",
-              "type": [
-                "array",
-                "null"
-              ],
-              "items": {
-                "$ref": "#/definitions/Value"
-              }
-            },
             "type": {
               "type": "string",
               "enum": [
@@ -331,6 +266,16 @@
             "variant": {
               "description": "The name of the variant of the enum",
               "type": "string"
+            },
+            "fields": {
+              "description": "Optional fields that the enum may have",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/Value"
+              }
             }
           }
         },
@@ -415,6 +360,12 @@
             "type"
           ],
           "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Array"
+              ]
+            },
             "element_kind": {
               "description": "The kind of elements that the array contains. An array will be validated to ensure that it contains a single element kind.",
               "allOf": [
@@ -429,12 +380,6 @@
               "items": {
                 "$ref": "#/definitions/Value"
               }
-            },
-            "type": {
-              "type": "string",
-              "enum": [
-                "Array"
-              ]
             }
           }
         },
@@ -446,17 +391,17 @@
             "type"
           ],
           "properties": {
-            "elements": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Value"
-              }
-            },
             "type": {
               "type": "string",
               "enum": [
                 "Tuple"
               ]
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Value"
+              }
             }
           }
         },
@@ -512,14 +457,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "KeyValueStore"
                   ]
+                },
+                "value": {
+                  "$ref": "#/definitions/NodeIdentifier"
                 }
               }
             },
@@ -531,14 +476,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "Component"
                   ]
+                },
+                "value": {
+                  "$ref": "#/definitions/NodeIdentifier"
                 }
               }
             },
@@ -550,14 +495,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "Vault"
                   ]
+                },
+                "value": {
+                  "$ref": "#/definitions/NodeIdentifier"
                 }
               }
             },
@@ -569,14 +514,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "Bucket"
                   ]
+                },
+                "value": {
+                  "type": "string"
                 }
               }
             },
@@ -588,14 +533,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "Proof"
                   ]
+                },
+                "value": {
+                  "type": "string"
                 }
               }
             }
@@ -620,14 +565,14 @@
             "type"
           ],
           "properties": {
-            "address": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "ComponentAddress"
               ]
+            },
+            "address": {
+              "type": "string"
             }
           }
         },
@@ -639,14 +584,14 @@
             "type"
           ],
           "properties": {
-            "address": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "ResourceAddress"
               ]
+            },
+            "address": {
+              "type": "string"
             }
           }
         },
@@ -658,14 +603,14 @@
             "type"
           ],
           "properties": {
-            "address": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "SystemAddress"
               ]
+            },
+            "address": {
+              "type": "string"
             }
           }
         },
@@ -677,14 +622,14 @@
             "type"
           ],
           "properties": {
-            "address": {
-              "type": "string"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "PackageAddress"
               ]
+            },
+            "address": {
+              "type": "string"
             }
           }
         },
@@ -718,17 +663,17 @@
             "type"
           ],
           "properties": {
-            "public_key": {
-              "type": "string",
-              "maxLength": 66,
-              "minLength": 66,
-              "pattern": "[0-9a-fA-F]+"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "EcdsaSecp256k1PublicKey"
               ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -740,17 +685,17 @@
             "type"
           ],
           "properties": {
-            "signature": {
-              "type": "string",
-              "maxLength": 130,
-              "minLength": 130,
-              "pattern": "[0-9a-fA-F]+"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "EcdsaSecp256k1Signature"
               ]
+            },
+            "signature": {
+              "type": "string",
+              "maxLength": 130,
+              "minLength": 130,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -762,17 +707,17 @@
             "type"
           ],
           "properties": {
-            "public_key": {
-              "type": "string",
-              "maxLength": 64,
-              "minLength": 64,
-              "pattern": "[0-9a-fA-F]+"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "EddsaEd25519PublicKey"
               ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 64,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -784,17 +729,17 @@
             "type"
           ],
           "properties": {
-            "signature": {
-              "type": "string",
-              "maxLength": 128,
-              "minLength": 128,
-              "pattern": "[0-9a-fA-F]+"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "EddsaEd25519Signature"
               ]
+            },
+            "signature": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 128,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -806,14 +751,14 @@
             "type"
           ],
           "properties": {
-            "identifier": {
-              "$ref": "#/definitions/BucketId"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "Bucket"
               ]
+            },
+            "identifier": {
+              "$ref": "#/definitions/BucketId"
             }
           }
         },
@@ -825,14 +770,14 @@
             "type"
           ],
           "properties": {
-            "identifier": {
-              "$ref": "#/definitions/ProofId"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "Proof"
               ]
+            },
+            "identifier": {
+              "$ref": "#/definitions/ProofId"
             }
           }
         },
@@ -848,15 +793,15 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "U32"
                   ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "[0-9]+"
                 }
               }
             },
@@ -868,15 +813,15 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "U64"
                   ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "[0-9]+"
                 }
               }
             },
@@ -888,15 +833,15 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "UUID"
                   ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "[0-9]+"
                 }
               }
             },
@@ -908,15 +853,15 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9a-fA-F]+"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "Bytes"
                   ]
+                },
+                "value": {
+                  "type": "string",
+                  "pattern": "[0-9a-fA-F]+"
                 }
               }
             },
@@ -928,14 +873,14 @@
                 "variant"
               ],
               "properties": {
-                "value": {
-                  "type": "string"
-                },
                 "variant": {
                   "type": "string",
                   "enum": [
                     "String"
                   ]
+                },
+                "value": {
+                  "type": "string"
                 }
               }
             }
@@ -961,17 +906,17 @@
             "type"
           ],
           "properties": {
-            "non_fungible_id": {
-              "$ref": "#/definitions/Value"
-            },
-            "resource_address": {
-              "$ref": "#/definitions/Value"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "NonFungibleAddress"
               ]
+            },
+            "resource_address": {
+              "$ref": "#/definitions/Value"
+            },
+            "non_fungible_id": {
+              "$ref": "#/definitions/Value"
             }
           }
         },
@@ -1002,14 +947,14 @@
             "type"
           ],
           "properties": {
-            "hash": {
-              "$ref": "#/definitions/Blob"
-            },
             "type": {
               "type": "string",
               "enum": [
                 "Blob"
               ]
+            },
+            "hash": {
+              "$ref": "#/definitions/Blob"
             }
           }
         },
@@ -1080,6 +1025,61 @@
         "Expression",
         "Bytes"
       ]
+    },
+    "NodeIdentifier": {
+      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
+      "type": "string",
+      "maxLength": 72,
+      "minLength": 72,
+      "pattern": "[0-9a-fA-F]+"
+    },
+    "BucketId": {
+      "description": "Represents a BucketId which uses a transient identifier.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TransientIdentifier"
+        }
+      ]
+    },
+    "TransientIdentifier": {
+      "description": "Represents an untagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      ]
+    },
+    "ProofId": {
+      "description": "Represents a ProofId which uses a transient identifier.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TransientIdentifier"
+        }
+      ]
+    },
+    "Expression": {
+      "description": "Represents a transaction manifest expression.",
+      "type": "string",
+      "enum": [
+        "ENTIRE_WORKTOP",
+        "ENTIRE_AUTH_ZONE"
+      ]
+    },
+    "Blob": {
+      "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint8",
+        "minimum": 0.0
+      },
+      "maxItems": 64,
+      "minItems": 64
     }
   }
 }
