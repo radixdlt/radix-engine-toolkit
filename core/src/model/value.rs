@@ -19,12 +19,17 @@ use crate::address::network_aware_address::*;
 use crate::engine_identifier::{BucketId, ProofId};
 use crate::NonFungibleAddress;
 
+use sbor::{Decode, Encode};
 use scrypto::prelude::{
-    Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature, EddsaEd25519PublicKey,
-    EddsaEd25519Signature, Hash, NonFungibleId, PreciseDecimal,
+    scrypto_decode, scrypto_encode, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature,
+    EddsaEd25519PublicKey, EddsaEd25519Signature, Hash, NonFungibleId, PreciseDecimal,
+    ScryptoCustomValueKind, ScryptoDecode, ScryptoDecoder, ScryptoEncode, ScryptoEncoder,
 };
 use scrypto::runtime::{ManifestBlobRef, ManifestExpression, Own};
-use serde_with::serde_as;
+use serde::de::Error as DeserializationError;
+use serde::ser::Error as SerializationError;
+use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DeserializeAs, SerializeAs};
 use serializable::serializable;
 
 #[serializable]
@@ -156,7 +161,8 @@ pub enum Value {
 
     /// A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum
     /// of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and
-    /// -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively
+    /// -57896044618658097711785492504343953926634992332820282019728.792003956564819968
+    /// respectively
     Decimal {
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
         #[schemars(with = "String")]
@@ -165,7 +171,9 @@ pub enum Value {
     },
 
     /// A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and
-    /// minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042047
+    /// minimum of
+    /// 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.
+    /// 9083451713845015929093243025426876941405973284973216824503042047
     /// and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048
     /// respectively
     PreciseDecimal {
@@ -184,28 +192,32 @@ pub enum Value {
         value: Own,
     },
 
-    /// Represents a Bech32m encoded human-readable component address
+    /// Represents a Bech32m encoded human-readable component address. This address is serialized
+    /// as a human-readable bech32m encoded string.
     ComponentAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareComponentAddress,
     },
 
-    /// Represents a Bech32m encoded human-readable resource address
+    /// Represents a Bech32m encoded human-readable resource address. This address is serialized
+    /// as a human-readable bech32m encoded string.
     ResourceAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareResourceAddress,
     },
 
-    /// Represents a Bech32m encoded human-readable system address
+    /// Represents a Bech32m encoded human-readable system address. This address is serialized
+    /// as a human-readable bech32m encoded string.
     SystemAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareSystemAddress,
     },
 
-    /// Represents a Bech32m encoded human-readable package address
+    /// Represents a Bech32m encoded human-readable package address. This address is serialized
+    /// as a human-readable bech32m encoded string.
     PackageAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -214,8 +226,8 @@ pub enum Value {
 
     /// Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The
     /// hashing function that they use is SHA256 which produces 32 byte long hashes which are
-    /// serialized as a 64 character long hex string (since hex encoding doubles the number of bytes
-    /// needed)
+    /// serialized as a 64 character long hex string (since hex encoding doubles the number of
+    /// bytes needed)
     Hash {
         #[schemars(length(equal = 64))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
@@ -299,8 +311,8 @@ pub enum Value {
         value: ManifestExpression,
     },
 
-    /// Represents the hash of a blob provided as part of a transaction manifest. This is represented as
-    /// a byte array of 32 bytes which is serialized as a hex string.
+    /// Represents the hash of a blob provided as part of a transaction manifest. This is
+    /// represented as a byte array of 32 bytes which is serialized as a hex string.
     Blob {
         #[schemars(with = "crate::Blob")]
         #[serde_as(as = "serde_with::FromInto<crate::Blob>")]
@@ -379,6 +391,32 @@ impl Value {
     }
 }
 
+// =====
+// SBOR
+// =====
+
+impl<'a> Encode<ScryptoCustomValueKind, ScryptoEncoder<'a>> for Value {
+    fn encode_value_kind(
+        &self,
+        _encoder: &mut ScryptoEncoder<'a>,
+    ) -> Result<(), sbor::EncodeError> {
+        todo!()
+    }
+
+    fn encode_body(&self, _encoder: &mut ScryptoEncoder<'a>) -> Result<(), sbor::EncodeError> {
+        todo!()
+    }
+}
+
+impl<'a> Decode<ScryptoCustomValueKind, ScryptoDecoder<'a>> for Value {
+    fn decode_body_with_value_kind(
+        _decoder: &mut ScryptoDecoder<'a>,
+        _value_kind: sbor::ValueKind<ScryptoCustomValueKind>,
+    ) -> Result<Self, sbor::DecodeError> {
+        todo!()
+    }
+}
+
 // ============
 // Conversions
 // ============
@@ -409,5 +447,69 @@ macro_rules! value_invertible {
     };
 }
 
+value_invertible! {U8, u8, value}
+value_invertible! {U32, u32, value}
+value_invertible! {Own, Own, value}
+value_invertible! {String, String, value}
+value_invertible! {Decimal, Decimal, value}
+value_invertible! {Proof, ProofId, identifier}
+value_invertible! {Blob, ManifestBlobRef, hash}
+value_invertible! {Bucket, BucketId, identifier}
 value_invertible! {NonFungibleId, NonFungibleId, value}
+value_invertible! {NonFungibleAddress, NonFungibleAddress, address}
+value_invertible! {SystemAddress, NetworkAwareSystemAddress, address}
+value_invertible! {PackageAddress, NetworkAwarePackageAddress, address}
 value_invertible! {ResourceAddress, NetworkAwareResourceAddress, address}
+value_invertible! {ComponentAddress, NetworkAwareComponentAddress, address}
+value_invertible! {EcdsaSecp256k1PublicKey, EcdsaSecp256k1PublicKey, public_key}
+
+/// A value proxy allowing any SBOR encodable and decodable type to be represented and serialized as
+/// a [`Value`].
+///
+/// # Known Side Effects
+///
+/// * Say we have an instruction that accepts a `NonFungibleIdType` and somebody provided a value of
+/// `Enum("HashMap")` instead of the supported types. This will result in an SBOR decode error which
+/// doesn't quite tell the caller what went wrong, it just tells them that something went wrong. Is
+/// this a reasonable price to pay for strong validation?
+pub struct SborValueProxy;
+
+impl<T> SerializeAs<T> for SborValueProxy
+where
+    T: ScryptoEncode,
+{
+    fn serialize_as<S>(source: &T, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        // Encode the passed value to a byte array
+        let sbor_bytes =
+            scrypto_encode(source).map_err(|err| S::Error::custom(format!("{:?}", err)))?;
+
+        // Decode the SBOR bytes as a Value
+        let value = scrypto_decode::<Value>(&sbor_bytes)
+            .map_err(|err| S::Error::custom(format!("{:?}", err)))?;
+
+        value.serialize(serializer)
+    }
+}
+
+impl<'de, T> DeserializeAs<'de, T> for SborValueProxy
+where
+    T: ScryptoDecode,
+{
+    fn deserialize_as<D>(deserializer: D) -> Result<T, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // Deserialize it as a value
+        let value = Value::deserialize(deserializer)?;
+
+        // SBOR encode the deserialized value
+        let sbor_bytes =
+            scrypto_encode(&value).map_err(|err| D::Error::custom(format!("{:?}", err)))?;
+
+        // Attempt to decode the SBOR bytes as the type
+        scrypto_decode::<T>(&sbor_bytes).map_err(|err| D::Error::custom(format!("{:?}", err)))
+    }
+}

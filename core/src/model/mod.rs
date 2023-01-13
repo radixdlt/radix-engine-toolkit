@@ -18,11 +18,13 @@
 pub mod address;
 pub mod constants;
 pub mod engine_identifier;
+pub mod instruction;
 pub mod runtime;
 pub mod value;
 
 pub use address::*;
 pub use constants::*;
 pub use engine_identifier::*;
+pub use instruction::*;
 pub use runtime::*;
 pub use value::*;

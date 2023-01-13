@@ -5,6 +5,12 @@
   "anyOf": [
     {
       "$ref": "#/definitions/Value"
+    },
+    {
+      "$ref": "#/definitions/Error"
+    },
+    {
+      "$ref": "#/definitions/Instruction"
     }
   ],
   "definitions": {
@@ -426,7 +432,7 @@
           }
         },
         {
-          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
           "type": "object",
           "required": [
             "type",
@@ -558,7 +564,7 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable component address",
+          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
             "address",
@@ -577,7 +583,7 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable resource address",
+          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
             "address",
@@ -596,7 +602,7 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable system address",
+          "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
             "address",
@@ -615,7 +621,7 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable package address",
+          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
             "address",
@@ -1077,6 +1083,1531 @@
       },
       "maxItems": 64,
       "minItems": 64
+    },
+    "Error": {
+      "description": "The error model used by the Radix Engine Toolkit - Represents the set of all errors which the Radix Engine Toolkit may return for a request.",
+      "oneOf": [
+        {
+          "description": "An error emitted when the toolkit attempts to decode some string as a hex string and fails",
+          "type": "object",
+          "required": [
+            "error",
+            "value"
+          ],
+          "properties": {
+            "error": {
+              "type": "string",
+              "enum": [
+                "FailedToDecodeHex"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "A generic error where an operation expected something to be of one length but it was found to be of a different length",
+          "type": "object",
+          "required": [
+            "error",
+            "expected",
+            "found"
+          ],
+          "properties": {
+            "error": {
+              "type": "string",
+              "enum": [
+                "InvalidLength"
+              ]
+            },
+            "expected": {
+              "description": "The length that the object was expected to be.",
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "found": {
+              "description": "The length that the object was found to be.",
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "Represents an address error encountered during the Bech32 encoding or decoding phase",
+          "type": "object",
+          "required": [
+            "error",
+            "value"
+          ],
+          "properties": {
+            "error": {
+              "type": "string",
+              "enum": [
+                "AddressError"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "An error emitted when the passed `Value` is not one of the accepted value types for a given request or operation.",
+          "type": "object",
+          "required": [
+            "error",
+            "expected",
+            "found"
+          ],
+          "properties": {
+            "error": {
+              "type": "string",
+              "enum": [
+                "InvalidKind"
+              ]
+            },
+            "expected": {
+              "description": "A set of the expected `ValueKind`s for a given request or operation (this set forms an 'or' and not an 'and').",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ValueKind"
+              }
+            },
+            "found": {
+              "description": "The `ValueKind` that was found.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ValueKind"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Instruction": {
+      "description": "The Instruction model defines the structure that transaction manifest instructions follow during communication with the Radix Engine Toolkit",
+      "oneOf": [
+        {
+          "description": "An instruction to call a function with the given list of arguments on the given package address and blueprint name.",
+          "type": "object",
+          "required": [
+            "blueprint_name",
+            "function_name",
+            "instruction",
+            "package_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CALL_FUNCTION"
+              ]
+            },
+            "package_address": {
+              "description": "The address of the package containing the blueprint that contains the desired function. This package address is serialized as the `PackageAddress` variant of the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "blueprint_name": {
+              "description": "A string of the name of the blueprint containing the desired function. This field is serialized as a `String` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "function_name": {
+              "description": "A string of the name of the function to call. This field is serialized as a `String` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "arguments": {
+              "description": "An optional array of `Value` arguments to call the function with. If this array is empty or is not provided, then the function is called with no arguments.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/Value"
+              }
+            }
+          }
+        },
+        {
+          "description": "An instruction to call a method with a given name on a given component address with the given list of arguments.",
+          "type": "object",
+          "required": [
+            "component_address",
+            "instruction",
+            "method_name"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CALL_METHOD"
+              ]
+            },
+            "component_address": {
+              "description": "The address of the component which contains the method to be invoked. This field is serialized as a `ComponentAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "method_name": {
+              "description": "A string of the name of the method to call. his field is serialized as a `String` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "arguments": {
+              "description": "An optional array of `Value` arguments to call the method with. If this array is empty or is not provided, then the method is called with no arguments.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/Value"
+              }
+            }
+          }
+        },
+        {
+          "description": "An instruction to take the entire amount of a given resource address from the worktop and put it in a bucket.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "into_bucket",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "TAKE_FROM_WORKTOP"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to take from the worktop. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_bucket": {
+              "description": "A bucket to put the taken resources into. This field is serialized as a `Bucket` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to take the an amount of a given resource address from the worktop and put it in a bucket.",
+          "type": "object",
+          "required": [
+            "amount",
+            "instruction",
+            "into_bucket",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "TAKE_FROM_WORKTOP_BY_AMOUNT"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to take from the worktop. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of the resource to take from the worktop. This field is serialized as a `Decimal` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_bucket": {
+              "description": "A bucket to put the taken resources into. This field is serialized as a `Bucket` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to take the a set of non-fungible ids of a given resource address from the worktop and put it in a bucket.",
+          "type": "object",
+          "required": [
+            "ids",
+            "instruction",
+            "into_bucket",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "TAKE_FROM_WORKTOP_BY_IDS"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to take from the worktop. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "ids": {
+              "description": "The non-fungible ids to take from the worktop. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Value"
+              },
+              "uniqueItems": true
+            },
+            "into_bucket": {
+              "description": "A bucket to put the taken resources into. This field is serialized as a `Bucket` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "Returns a bucket of tokens to the worktop.",
+          "type": "object",
+          "required": [
+            "bucket",
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "RETURN_TO_WORKTOP"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket to return to the worktop.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to assert that a given resource exists in the worktop.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "ASSERT_WORKTOP_CONTAINS"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to perform the assertion on. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to assert that a specific amount of a specific resource address exists in the worktop.",
+          "type": "object",
+          "required": [
+            "amount",
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to perform the assertion on. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of the resource to assert their existence in the worktop. This field is serialized as a `Decimal` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to assert that a set ids of a specific resource address exists in the worktop.",
+          "type": "object",
+          "required": [
+            "ids",
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "ASSERT_WORKTOP_CONTAINS_BY_IDS"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to perform the assertion on. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "ids": {
+              "description": "The non-fungible ids of the resource to assert their existence in the worktop. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Value"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        {
+          "description": "An instruction which pops a proof from the AuthZone stack and into an identifiable proof",
+          "type": "object",
+          "required": [
+            "instruction",
+            "into_proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "POP_FROM_AUTH_ZONE"
+              ]
+            },
+            "into_proof": {
+              "description": "The proof to put the popped proof into. This is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction that pushes a proof to the auth zone stack.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "PUSH_TO_AUTH_ZONE"
+              ]
+            },
+            "proof": {
+              "description": "The proof to push to the auth zone stack. This is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction which clears the auth zone stack by dropping all of the proofs in that stack.",
+          "type": "object",
+          "required": [
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CLEAR_AUTH_ZONE"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the entire amount of a given resource address from the auth zone.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "into_proof",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_AUTH_ZONE"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to create a proof of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the an amount of a given resource address from the auth zone.",
+          "type": "object",
+          "required": [
+            "amount",
+            "instruction",
+            "into_proof",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to create a proof of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of the resource to create a proof of. This field is serialized as a `Decimal` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the a set of non-fungible ids of a given resource address from the auth zone.",
+          "type": "object",
+          "required": [
+            "ids",
+            "instruction",
+            "into_proof",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to create a proof of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "ids": {
+              "description": "The non-fungible ids to create a proof of. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Value"
+              },
+              "uniqueItems": true
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof given a bucket of some resources",
+          "type": "object",
+          "required": [
+            "bucket",
+            "instruction",
+            "into_proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_BUCKET"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket of resources to create a proof from. This field is serialized as a `Bucket` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "The proof variable that the proof should go to. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to clone a proof creating a second proof identical to the original",
+          "type": "object",
+          "required": [
+            "instruction",
+            "into_proof",
+            "proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CLONE_PROOF"
+              ]
+            },
+            "proof": {
+              "description": "The original proof, or the proof to be cloned. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "The proof variable that the proof should go to. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to drop a proof.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "DROP_PROOF"
+              ]
+            },
+            "proof": {
+              "description": "The proof to drop. This field is serialized as a `Proof` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to drop all proofs currently present in the transaction context.",
+          "type": "object",
+          "required": [
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "DROP_ALL_PROOFS"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
+          "type": "object",
+          "required": [
+            "abi",
+            "access_rules",
+            "code",
+            "instruction",
+            "metadata",
+            "royalty_config"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "PUBLISH_PACKAGE"
+              ]
+            },
+            "code": {
+              "description": "The blob of the package code. This field is serialized as a `Blob` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "abi": {
+              "description": "The blob of the package ABI. This field is serialized as a `Blob` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "royalty_config": {
+              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to use for the package. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "access_rules": {
+              "description": "The access rules to use for the package. This is serialized as a `Tuple` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to publish a package with an associated \"owner\" badge where all of the authority on the package is in the hands of said owner.",
+          "type": "object",
+          "required": [
+            "abi",
+            "code",
+            "instruction",
+            "owner_badge"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "PUBLISH_PACKAGE_WITH_OWNER"
+              ]
+            },
+            "code": {
+              "description": "The blob of the package code. This field is serialized as a `Blob` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "abi": {
+              "description": "The blob of the package ABI. This field is serialized as a `Blob` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "owner_badge": {
+              "description": "The non-fungible address of the owner badge of this package. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to burn a bucket of tokens.",
+          "type": "object",
+          "required": [
+            "bucket",
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "BURN_RESOURCE"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket of tokens to burn.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction ot recall resources from a known vault.",
+          "type": "object",
+          "required": [
+            "amount",
+            "instruction",
+            "vault_id"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "RECALL_RESOURCE"
+              ]
+            },
+            "vault_id": {
+              "description": "The id of the vault of the tokens to recall. This field is serialized as an `Own` from the value model and is expected to be an `Own::Vault`.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of tokens to recall from the vault. This field is serialized as a `Decimal` field from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to set the metadata on an entity.",
+          "type": "object",
+          "required": [
+            "entity_address",
+            "instruction",
+            "key",
+            "value"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "SET_METADATA"
+              ]
+            },
+            "entity_address": {
+              "description": "The address of the entity to set metadata on. This is a discriminated union of types where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or a `SystemAddress`.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/EntityAddress"
+                }
+              ]
+            },
+            "key": {
+              "description": "A string of the key to set the metadata for. This field is serialized as a `String` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "value": {
+              "description": "A string of the value to set the metadata for. This field is serialized as a `String` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to modify the royalties of a package.",
+          "type": "object",
+          "required": [
+            "instruction",
+            "package_address",
+            "royalty_config"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "SET_PACKAGE_ROYALTY_CONFIG"
+              ]
+            },
+            "package_address": {
+              "description": "The address of the package to set the royalty on. This is serialized as a `PackageAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "royalty_config": {
+              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to modify the royalties on a component",
+          "type": "object",
+          "required": [
+            "component_address",
+            "instruction",
+            "royalty_config"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "SET_COMPONENT_ROYALTY_CONFIG"
+              ]
+            },
+            "component_address": {
+              "description": "The component address of the component to modify royalties for. This field is serialized as a `ComponentAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "royalty_config": {
+              "description": "The royalty config to set on the component. This is an `Enum` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to claim royalties of a package",
+          "type": "object",
+          "required": [
+            "instruction",
+            "package_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CLAIM_PACKAGE_ROYALTY"
+              ]
+            },
+            "package_address": {
+              "description": "The package address of the package to claim royalties for. This field is serialized as a `PackageAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to claim royalties of a component",
+          "type": "object",
+          "required": [
+            "component_address",
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CLAIM_COMPONENT_ROYALTY"
+              ]
+            },
+            "component_address": {
+              "description": "The component address of the component to claim royalties for. This field is serialized as a `ComponentAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to modify the access rules of a method that an entity has.",
+          "type": "object",
+          "required": [
+            "entity_address",
+            "index",
+            "instruction",
+            "key",
+            "rule"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "SET_METHOD_ACCESS_RULE"
+              ]
+            },
+            "entity_address": {
+              "description": "The entity address of the entity to modify the access rules for.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/EntityAddress"
+                }
+              ]
+            },
+            "index": {
+              "description": "Entity access rules is a stack of access rules, this index allows referring to a specific \"layer\" in said stack. This field is serialized as a `U32` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "key": {
+              "description": "The method key for the method to set the access rule of. This field is serialized as an `Enum` from the Value model",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "rule": {
+              "description": "The new access rule to set in-place of the old one. This field is serialized as an `Enum` from the Value model",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to mint fungible resources",
+          "type": "object",
+          "required": [
+            "amount",
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "MINT_FUNGIBLE"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to mint tokens of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of fungible tokens to mint of this resource. This field is serialized as a `Decimal` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to mind non-fungibles of a resource",
+          "type": "object",
+          "required": [
+            "entries",
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "MINT_NON_FUNGIBLE"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to mint tokens of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "entries": {
+              "description": "The non-fungible tokens to mint. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a new fungible resource.",
+          "type": "object",
+          "required": [
+            "access_rules",
+            "divisibility",
+            "instruction",
+            "metadata"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_FUNGIBLE_RESOURCE"
+              ]
+            },
+            "divisibility": {
+              "description": "The divisibility of the resource. This field is serialized as a `U8` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "access_rules": {
+              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "initial_supply": {
+              "description": "An optional decimal value of the initial supply to mint during resource creation. If present, this is serialized as a `Decimal` from the value model.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a fungible resource with an associated \"owner\" badge where all of the authority on the resource is in the hands of said owner.",
+          "type": "object",
+          "required": [
+            "divisibility",
+            "instruction",
+            "metadata",
+            "owner_badge"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_FUNGIBLE_RESOURCE_WITH_OWNER"
+              ]
+            },
+            "divisibility": {
+              "description": "The divisibility of the resource. This field is serialized as a `U8` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "owner_badge": {
+              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "initial_supply": {
+              "description": "An optional decimal value of the initial supply to mint during resource creation. If present, this is serialized as a `Decimal` from the value model.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a new non-fungible resource.",
+          "type": "object",
+          "required": [
+            "access_rules",
+            "id_type",
+            "instruction",
+            "metadata"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_NON_FUNGIBLE_RESOURCE"
+              ]
+            },
+            "id_type": {
+              "description": "The type of the non-fungible id to use for this resource. This field is serialized as an `Enum` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "access_rules": {
+              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "initial_supply": {
+              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a non-fungible resource with an associated \"owner\" badge where all of the authority on the resource is in the hands of said owner.",
+          "type": "object",
+          "required": [
+            "id_type",
+            "instruction",
+            "metadata",
+            "owner_badge"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_NON_FUNGIBLE_RESOURCE_WITH_OWNER"
+              ]
+            },
+            "id_type": {
+              "description": "The type of the non-fungible id to use for this resource. This field is serialized as an `Enum` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "owner_badge": {
+              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "initial_supply": {
+              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to registers a new validator given the public key of the validator",
+          "type": "object",
+          "required": [
+            "instruction",
+            "validator"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "REGISTER_VALIDATOR"
+              ]
+            },
+            "validator": {
+              "description": "The public key of the validator",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to unregister a validator given it's public key",
+          "type": "object",
+          "required": [
+            "instruction",
+            "validator"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "UNREGISTER_VALIDATOR"
+              ]
+            },
+            "validator": {
+              "description": "The public key of the validator to unregister",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "EntityAddress": {
+      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
+      "oneOf": [
+        {
+          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ComponentAddress"
+              ]
+            },
+            "address": {
+              "type": "object",
+              "required": [
+                "address"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ResourceAddress"
+              ]
+            },
+            "address": {
+              "type": "object",
+              "required": [
+                "address"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "SystemAddress"
+              ]
+            },
+            "address": {
+              "type": "object",
+              "required": [
+                "address"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PackageAddress"
+              ]
+            },
+            "address": {
+              "type": "object",
+              "required": [
+                "address"
+              ],
+              "properties": {
+                "address": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -1,4 +1,3 @@
-use core::Value;
 use std::io::Write;
 
 use schemars::{schema_for, JsonSchema};
@@ -22,7 +21,9 @@ pub fn generate_json_schema() -> Result<(), JsonSchemaGenerationError> {
     /// This schema has been automatically generated and therefore should hopefully always be the
     /// ground truth for the Radix Engine Toolkit models
     pub enum RadixEngineToolkit {
-        Value(Value),
+        Value(core::Value),
+        Error(core::Error),
+        Instruction(core::Instruction),
     }
 
     // Generating the Radix Engine Toolkit schema

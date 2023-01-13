@@ -37,8 +37,8 @@ pub enum Own {
     /// Represents an owned Vault
     Vault(NodeIdentifier),
 
-    /// Represents an owned Bucket identified through an unsigned 32-bit integer which is serialized
-    /// as a string
+    /// Represents an owned Bucket identified through an unsigned 32-bit integer which is
+    /// serialized as a string
     Bucket(
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]

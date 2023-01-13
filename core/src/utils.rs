@@ -20,8 +20,8 @@ use bech32;
 use scrypto::radix_engine_interface::address::AddressError;
 use scrypto::radix_engine_interface::node::NetworkDefinition;
 
-/// A deterministic function that generates a network definition given a network ID. Implemented with reference to
-/// https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
+/// A deterministic function that generates a network definition given a network ID. Implemented
+/// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
 pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
     match network_id {
         0x01 => NetworkDefinition::mainnet(),
