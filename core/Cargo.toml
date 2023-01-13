@@ -1,0 +1,31 @@
+[package]
+name = "core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Crates for Serde serialization.
+serde = { version = "1.0.152" }
+serde_with = { version = "2.2.0", features = ["hex"] }
+
+# A fork of a library that allows us to derive a JSON schema for models. This fork adds partial 
+# support for serde_with
+schemars = { git = "https://github.com/radixdlt/schemars", branch = "feature/partial-serde_with-support" }
+
+# An attribute macro to setup a model to be serializable and also to have a JSON schema. 
+serializable = { path = "../serializable" }
+
+# Scrypto dependencies required for the core-toolkit
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
+
+# Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
+# hex representation during serialization.
+hex = { version = "0.4.3", default-features = false }
+
+# Bech32 is used for the network aware addresses (some additional functionality is required which we
+# don't expose through the Scrypto Bech32 encoder and decoder)
+bech32 = { version = "0.9.0", default-features = false }
