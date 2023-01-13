@@ -26,6 +26,7 @@ pub enum NonFungibleId {
     /// A 32 bit unsigned integer non-fungible id type which is serialized as a string
     U32(
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         u32,
     ),
@@ -33,6 +34,7 @@ pub enum NonFungibleId {
     /// A 64 bit unsigned integer non-fungible id type which is serialized as a string
     U64(
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         u64,
     ),
@@ -41,6 +43,7 @@ pub enum NonFungibleId {
     /// A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string
     UUID(
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         u128,
     ),
@@ -48,6 +51,7 @@ pub enum NonFungibleId {
     /// An byte array non-fungible id type which is serialized as a hex string
     Bytes(
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::hex::Hex")]
         Vec<u8>,
     ),

@@ -39,11 +39,19 @@ pub enum Own {
 
     /// Represents an owned Bucket identified through an unsigned 32-bit integer which is serialized
     /// as a string
-    Bucket(#[serde_as(as = "serde_with::DisplayFromStr")] u32),
+    Bucket(
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        u32,
+    ),
 
     /// Represents an owned Proof identified through an unsigned 32-bit integer which is serialized
     /// as a string
-    Proof(#[serde_as(as = "serde_with::DisplayFromStr")] u32),
+    Proof(
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        u32,
+    ),
 }
 
 impl From<ScryptoOwn> for Own {

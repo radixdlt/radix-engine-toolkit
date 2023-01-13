@@ -10,10 +10,14 @@
   "definitions": {
     "Blob": {
       "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
-      "type": "string",
-      "maxLength": 64,
-      "minLength": 64,
-      "pattern": "[0-9a-fA-F]+"
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint8",
+        "minimum": 0.0
+      },
+      "maxItems": 64,
+      "minItems": 64
     },
     "BucketId": {
       "description": "Represents a BucketId which uses a transient identifier.",

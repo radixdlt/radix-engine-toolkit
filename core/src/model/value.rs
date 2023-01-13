@@ -38,6 +38,7 @@ pub enum Value {
     /// An 8-bit unsigned integer which is serialized and deserialized as a string.
     U8 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: u8,
     },
@@ -45,6 +46,7 @@ pub enum Value {
     /// A 16-bit unsigned integer which is serialized and deserialized as a string.
     U16 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: u16,
     },
@@ -52,6 +54,7 @@ pub enum Value {
     /// A 32-bit unsigned integer which is serialized and deserialized as a string.
     U32 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: u32,
     },
@@ -59,6 +62,7 @@ pub enum Value {
     /// A 64-bit unsigned integer which is serialized and deserialized as a string.
     U64 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: u64,
     },
@@ -66,6 +70,7 @@ pub enum Value {
     /// A 128-bit unsigned integer which is serialized and deserialized as a string.
     U128 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: u128,
     },
@@ -73,6 +78,7 @@ pub enum Value {
     /// An 8-bit signed integer which is serialized and deserialized as a string.
     I8 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: i8,
     },
@@ -80,6 +86,7 @@ pub enum Value {
     /// A 16-bit signed integer which is serialized and deserialized as a string.
     I16 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: i16,
     },
@@ -87,6 +94,7 @@ pub enum Value {
     /// A 32-bit signed integer which is serialized and deserialized as a string.
     I32 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: i32,
     },
@@ -94,6 +102,7 @@ pub enum Value {
     /// A 64-bit signed integer which is serialized and deserialized as a string.
     I64 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: i64,
     },
@@ -101,6 +110,7 @@ pub enum Value {
     /// A 128-bit signed integer which is serialized and deserialized as a string.
     I128 {
         #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: i128,
     },
@@ -149,6 +159,7 @@ pub enum Value {
     /// -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively
     Decimal {
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: Decimal,
     },
@@ -159,6 +170,7 @@ pub enum Value {
     /// respectively
     PreciseDecimal {
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: PreciseDecimal,
     },
@@ -167,30 +179,35 @@ pub enum Value {
     /// the transaction manifest.
     Own {
         #[serde(flatten)]
+        #[schemars(with = "crate::Own")]
         #[serde_as(as = "serde_with::FromInto<crate::Own>")]
         value: Own,
     },
 
     /// Represents a Bech32m encoded human-readable component address
     ComponentAddress {
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareComponentAddress,
     },
 
     /// Represents a Bech32m encoded human-readable resource address
     ResourceAddress {
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareResourceAddress,
     },
 
     /// Represents a Bech32m encoded human-readable system address
     SystemAddress {
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwareSystemAddress,
     },
 
     /// Represents a Bech32m encoded human-readable package address
     PackageAddress {
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwarePackageAddress,
     },
@@ -202,6 +219,7 @@ pub enum Value {
     Hash {
         #[schemars(length(equal = 64))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         value: Hash,
     },
@@ -211,6 +229,7 @@ pub enum Value {
     EcdsaSecp256k1PublicKey {
         #[schemars(length(equal = 66))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         public_key: EcdsaSecp256k1PublicKey,
     },
@@ -223,6 +242,7 @@ pub enum Value {
     EcdsaSecp256k1Signature {
         #[schemars(length(equal = 130))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         signature: EcdsaSecp256k1Signature,
     },
@@ -232,6 +252,7 @@ pub enum Value {
     EddsaEd25519PublicKey {
         #[schemars(length(equal = 64))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         public_key: EddsaEd25519PublicKey,
     },
@@ -241,6 +262,7 @@ pub enum Value {
     EddsaEd25519Signature {
         #[schemars(length(equal = 128))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+        #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         signature: EddsaEd25519Signature,
     },
@@ -257,6 +279,7 @@ pub enum Value {
     /// non-fungible ids may be.
     NonFungibleId {
         #[serde(flatten)]
+        #[schemars(with = "crate::NonFungibleId")]
         #[serde_as(as = "serde_with::FromInto<crate::NonFungibleId>")]
         value: NonFungibleId,
     },
@@ -271,6 +294,7 @@ pub enum Value {
 
     /// Represents a transaction manifest expression.
     Expression {
+        #[schemars(with = "crate::Expression")]
         #[serde_as(as = "serde_with::FromInto<crate::Expression>")]
         value: ManifestExpression,
     },
@@ -278,6 +302,7 @@ pub enum Value {
     /// Represents the hash of a blob provided as part of a transaction manifest. This is represented as
     /// a byte array of 32 bytes which is serialized as a hex string.
     Blob {
+        #[schemars(with = "crate::Blob")]
         #[serde_as(as = "serde_with::FromInto<crate::Blob>")]
         hash: ManifestBlobRef,
     },
@@ -285,6 +310,7 @@ pub enum Value {
     /// Represents a byte array of an unknown size which is serialized as a hex string
     Bytes {
         #[serde_as(as = "serde_with::hex::Hex")]
+        #[schemars(with = "String")]
         value: Vec<u8>,
     },
 }

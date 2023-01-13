@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# A fork of a library that allows us to derive a JSON schema for models. This fork adds partial 
-# support for serde_with
-schemars = { git = "https://github.com/radixdlt/schemars", branch = "feature/partial-serde_with-support" }
+# A library which allows us to generate a JSON schema from Rust models
+schemars = { version = "0.8.11" }
 
 # Used to serialize the schema to JSON
 serde_json = "1.0.91"
