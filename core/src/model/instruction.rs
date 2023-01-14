@@ -31,7 +31,7 @@ use serializable::serializable;
 // NOTE: The model below should ALWAYS be kept up to date with that present in the Scrypto repo.
 //       this model was authored for commit: e497a8b8c19fea8266337c5b3e5ada2e723153fc. When you
 //       update the toolkit, do a diff against the commit above and the latest commit and update
-//       based on that.
+//       based on that. Also, make sure to update the commit hash above.
 //       https://github.com/radixdlt/radixdlt-scrypto/compare/old_commit_hash..new_commit_hash
 
 /// The Instruction model defines the structure that transaction manifest instructions follow during
