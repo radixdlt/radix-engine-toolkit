@@ -32,10 +32,10 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DeserializeAs, SerializeAs};
 use serializable::serializable;
 
-#[serializable]
-#[serde(tag = "type")]
 /// The Value model used to describe all of the types that the Radix Engine Toolkit accepts and
 /// returns.
+#[serializable]
+#[serde(tag = "type")]
 pub enum Value {
     /// A boolean value which can either be true or false
     Bool { value: bool },
@@ -250,7 +250,7 @@ pub enum Value {
     /// representing a signature from the ECDSA Secp256k1 elliptic curve. An important note on
     /// ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s]
     /// where `v` is the recovery id and is a single byte and `r` and `s` are the signature results
-    /// and are 32 bytes each. The use of other signature format
+    /// and are 32 bytes each.
     EcdsaSecp256k1Signature {
         #[schemars(length(equal = 130))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]

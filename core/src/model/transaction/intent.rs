@@ -15,20 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod constants;
-pub mod crypto;
-pub mod engine_identifier;
-pub mod instruction;
-pub mod runtime;
-pub mod transaction;
-pub mod value;
+use serializable::serializable;
 
-pub use address::*;
-pub use constants::*;
-pub use crypto::*;
-pub use engine_identifier::*;
-pub use instruction::*;
-pub use runtime::*;
-pub use transaction::*;
-pub use value::*;
+use crate::{TransactionHeader, TransactionManifest};
+
+/// A transaction intent which is made of the header containing the transaction metadata and a
+/// manifest consisting of the instructions and blobs.
+#[serializable]
+pub struct TransactionIntent {
+    /// A transaction header of the transaction metadata.
+    pub header: TransactionHeader,
+
+    /// A transaction manifest of the transaction instructions and blobs.
+    pub manifest: TransactionManifest,
+}

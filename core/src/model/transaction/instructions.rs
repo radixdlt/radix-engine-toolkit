@@ -15,20 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod constants;
-pub mod crypto;
-pub mod engine_identifier;
-pub mod instruction;
-pub mod runtime;
-pub mod transaction;
-pub mod value;
+use crate::Instruction;
+use serializable::serializable;
 
-pub use address::*;
-pub use constants::*;
-pub use crypto::*;
-pub use engine_identifier::*;
-pub use instruction::*;
-pub use runtime::*;
-pub use transaction::*;
-pub use value::*;
+/// A discriminated union of possible representations of manifest instructions. Currently, two
+/// representations are supported: a string representation which is the same as that seen in the
+/// local simulator, resim, and pretty much everywhere, as well as a parsed format which is a vector
+/// of instructions where each instruction is represented through the `Instruction` model.
+#[serializable]
+#[serde(tag = "type", content = "value")]
+pub enum ManifestInstructions {
+    String(String),
+    Parsed(Vec<Instruction>),
+}

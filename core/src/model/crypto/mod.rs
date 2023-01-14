@@ -15,20 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod constants;
-pub mod crypto;
-pub mod engine_identifier;
-pub mod instruction;
-pub mod runtime;
-pub mod transaction;
-pub mod value;
+pub mod public_key;
+pub mod signature;
+pub mod signature_with_public_key;
 
-pub use address::*;
-pub use constants::*;
-pub use crypto::*;
-pub use engine_identifier::*;
-pub use instruction::*;
-pub use runtime::*;
-pub use transaction::*;
-pub use value::*;
+pub use public_key::*;
+pub use signature::*;
+pub use signature_with_public_key::*;

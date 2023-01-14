@@ -15,20 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod constants;
-pub mod crypto;
-pub mod engine_identifier;
-pub mod instruction;
-pub mod runtime;
-pub mod transaction;
-pub mod value;
+use scrypto::prelude::Signature;
+use serializable::serializable;
 
-pub use address::*;
-pub use constants::*;
-pub use crypto::*;
-pub use engine_identifier::*;
-pub use instruction::*;
-pub use runtime::*;
-pub use transaction::*;
-pub use value::*;
+use crate::SignedTransactionIntent;
+
+/// A notarized transaction intent which is made up of a signed transaction intent and the notary
+/// intent on said signed intent.
+#[serializable]
+pub struct NotarizedTransactionIntent {
+    /// The signed transaction intent of the transaction.
+    pub signed_intent: SignedTransactionIntent,
+
+    /// The signature of the notary on the signed transaction intent.
+    #[schemars(with = "crate::model::crypto::Signature")]
+    #[serde_as(as = "serde_with::FromInto<crate::model::crypto::Signature>")]
+    pub notary_signature: Signature,
+}

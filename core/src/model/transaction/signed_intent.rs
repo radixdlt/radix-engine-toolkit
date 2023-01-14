@@ -15,20 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod constants;
-pub mod crypto;
-pub mod engine_identifier;
-pub mod instruction;
-pub mod runtime;
-pub mod transaction;
-pub mod value;
+use scrypto::prelude::SignatureWithPublicKey;
+use serializable::serializable;
 
-pub use address::*;
-pub use constants::*;
-pub use crypto::*;
-pub use engine_identifier::*;
-pub use instruction::*;
-pub use runtime::*;
-pub use transaction::*;
-pub use value::*;
+use crate::TransactionIntent;
+
+/// A signed transaction intent which is made up of the intent as well as the intent signatures.
+#[serializable]
+pub struct SignedTransactionIntent {
+    /// The intent of the transaction.
+    pub intent: TransactionIntent,
+
+    /// A vector of transaction intent signatures.
+    #[schemars(with = "Vec<crate::model::crypto::SignatureWithPublicKey>")]
+    #[serde_as(as = "Vec<serde_with::FromInto<crate::model::crypto::SignatureWithPublicKey>>")]
+    pub intent_signatures: Vec<SignatureWithPublicKey>,
+}
