@@ -82,7 +82,7 @@ pub struct ConvertManifestResponse {
 // Implementation
 // ===============
 
-struct ConvertManifestHandler;
+pub struct ConvertManifestHandler;
 
 impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifestHandler {
     fn pre_process(request: ConvertManifestRequest) -> Result<ConvertManifestRequest> {

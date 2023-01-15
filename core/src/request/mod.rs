@@ -15,8 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod convert_manifest_request;
+pub mod convert_manifest;
+pub mod information;
+
 pub mod traits;
 
-pub use convert_manifest_request::*;
+pub use convert_manifest::*;
+pub use information::*;
+
 pub use traits::*;
