@@ -29,7 +29,7 @@ macro_rules! define_network_aware_address {
         $encoding_method_ident: ident,
         $decoding_method_ident: ident
     ) => {
-        #[derive(Debug, Clone, Hash, Eq, PartialEq, PartialOrd, Ord)]
+        #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, PartialOrd, Ord)]
         pub struct $network_aware_struct_ident {
             pub network_id: u8,
             pub address: $underlying_type,

@@ -573,7 +573,7 @@ impl Value {
             Self::NonFungibleAddress { address } => ScryptoValue::Tuple {
                 fields: vec![
                     Self::ResourceAddress {
-                        address: address.resource_address.clone(),
+                        address: address.resource_address,
                     }
                     .to_scrypto_value()?,
                     Self::NonFungibleId {
@@ -751,6 +751,81 @@ impl Value {
             } => Self::Own {
                 value: value.clone(),
             },
+        }
+    }
+
+    /// Handles the aliasing of certain [`Value`] kinds such as [`Value::Enum`] and
+    /// [`Value::NonFungibleAddress`]
+    pub fn alias(self) -> Self {
+        match self {
+            // Case: Some - An enum with a discriminator of "Some" which has a single field.
+            Self::Enum { variant, fields }
+                if variant == "Some" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
+            {
+                Self::Some {
+                    value: Box::new(
+                        fields
+                            .unwrap_or_default()
+                            .get(0)
+                            .expect("Illegal State!")
+                            .clone(),
+                    ),
+                }
+            }
+            // Case: None - An enum with a discriminator of "None" which has no fields.
+            Self::Enum { variant, fields }
+                if variant == "None" && fields.as_ref().map_or(0, |fields| fields.len()) == 0 =>
+            {
+                Self::None
+            }
+            // Case: Ok - An enum with a discriminator of "Ok" which has a single field.
+            Self::Enum { variant, fields }
+                if variant == "Ok" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
+            {
+                Self::Ok {
+                    value: Box::new(
+                        fields
+                            .unwrap_or_default()
+                            .get(0)
+                            .expect("Illegal State!")
+                            .clone(),
+                    ),
+                }
+            }
+            // Case: Err - An enum with a discriminator of "Err" which has a single field.
+            Self::Enum { variant, fields }
+                if variant == "Err" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
+            {
+                Self::Err {
+                    value: Box::new(
+                        fields
+                            .unwrap_or_default()
+                            .get(0)
+                            .expect("Illegal State!")
+                            .clone(),
+                    ),
+                }
+            }
+            Self::Tuple { ref elements } => {
+                // Case: NonFungibleAddress - A tuple of ResourceAddress and NonFungibleId
+                match (elements.get(0), elements.get(1)) {
+                    (
+                        Some(Value::ResourceAddress {
+                            address: resource_address,
+                        }),
+                        Some(Value::NonFungibleId {
+                            value: non_fungible_id,
+                        }),
+                    ) if elements.len() == 2 => Value::NonFungibleAddress {
+                        address: NonFungibleAddress {
+                            resource_address: *resource_address,
+                            non_fungible_id: non_fungible_id.clone(),
+                        },
+                    },
+                    _ => self,
+                }
+            }
+            v => v,
         }
     }
 }
