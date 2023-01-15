@@ -17,8 +17,6 @@
 
 use std::fmt::Display;
 
-use hex::FromHexError;
-use scrypto::radix_engine_interface::address::AddressError;
 use serializable::serializable;
 
 use crate::ValueKind;
@@ -56,6 +54,21 @@ pub enum Error {
         /// The `ValueKind` that was found.
         found: ValueKind,
     },
+
+    // =====
+    // SBOR
+    // =====
+    /// An error emitted when some object of some value kind can not be encoded in SBOR without
+    /// additional context. This error is typically seen in situations when trying to encode either
+    /// a `Bucket("some_string")` or a `Proof("some_string")` as buckets or proofs with String
+    /// identifiers can not be encoded in SBOR without an ID Allocator.
+    BucketOrProofSBORError { value_kind: ValueKind },
+
+    /// Represents an error when trying to encode some object in SBOR.
+    SborEncodeError { value: String },
+
+    /// Represents an error when trying to decode some object in SBOR.
+    SborDecodeError { value: String },
 }
 
 impl Display for Error {
@@ -71,7 +84,7 @@ macro_rules! to_debug_string {
 }
 
 macro_rules! generate_from_error {
-    ($error: ident as $variant: ident) => {
+    ($error: ty as $variant: ident) => {
         impl From<$error> for Error {
             fn from(value: $error) -> Self {
                 Self::$variant {
@@ -82,8 +95,10 @@ macro_rules! generate_from_error {
     };
 }
 
-generate_from_error!(FromHexError as FailedToDecodeHex);
-generate_from_error!(AddressError as AddressError);
+generate_from_error!(hex::FromHexError as FailedToDecodeHex);
+generate_from_error!(scrypto::radix_engine_interface::address::AddressError as AddressError);
+generate_from_error!(sbor::EncodeError as SborEncodeError);
+generate_from_error!(sbor::DecodeError as SborDecodeError);
 
 /// The result type used by the Radix Engine Toolkit where all errors are of a single type.
 pub type Result<T> = std::result::Result<T, Error>;

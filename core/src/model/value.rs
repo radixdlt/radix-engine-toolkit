@@ -15,27 +15,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::address::network_aware_address::*;
+use crate::address::*;
 use crate::engine_identifier::{BucketId, ProofId};
-use crate::NonFungibleAddress;
+use crate::error::{Error, Result};
+use crate::TransientIdentifier;
 
-use sbor::{Decode, Encode};
+use scrypto::prelude::ScryptoCustomValue;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature,
     EddsaEd25519PublicKey, EddsaEd25519Signature, Hash, NonFungibleId, PreciseDecimal,
-    ScryptoCustomValueKind, ScryptoDecode, ScryptoDecoder, ScryptoEncode, ScryptoEncoder,
+    ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
 };
 use scrypto::runtime::{ManifestBlobRef, ManifestExpression, Own};
-use serde::de::Error as DeserializationError;
-use serde::ser::Error as SerializationError;
-use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DeserializeAs, SerializeAs};
+use serde_with::serde_as;
 use serializable::serializable;
 
 /// The Value model used to describe all of the types that the Radix Engine Toolkit accepts and
 /// returns.
 #[serializable]
 #[serde(tag = "type")]
+#[derive(Clone)]
 pub enum Value {
     /// A boolean value which can either be true or false
     Bool { value: bool },
@@ -327,9 +326,10 @@ pub enum Value {
     },
 }
 
-#[serializable]
 /// An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is
 /// essentially the `type` tags used for the value model.
+#[serializable]
+#[derive(Clone, Copy)]
 pub enum ValueKind {
     Bool,
 
@@ -386,34 +386,502 @@ pub enum ValueKind {
 }
 
 impl Value {
+    /// SBOR Encodes a [`Value`].
+    pub fn encode(&self) -> Result<Vec<u8>> {
+        // Convert the value first to a Scrypto value
+        let scrypto_value = self.to_scrypto_value()?;
+
+        // SBOR encode the Scrypto Value and return the result
+        scrypto_encode(&scrypto_value).map_err(Error::from)
+    }
+
+    /// Decodes an SBOR payload to a [`Value`] given the network context.
+    pub fn decode<T: AsRef<[u8]>>(bytes: T, network_id: u8) -> Result<Self> {
+        scrypto_decode::<ScryptoValue>(bytes.as_ref())
+            .map(|scrypto_value| Self::from_scrypto_value(&scrypto_value, network_id))
+            .map_err(Error::from)
+    }
+
+    /// Gets the [`ValueKind`] for the given value
     pub fn kind(&self) -> ValueKind {
-        todo!()
+        match self {
+            Self::Bool { .. } => ValueKind::Bool,
+
+            Self::I8 { .. } => ValueKind::I8,
+            Self::I16 { .. } => ValueKind::I16,
+            Self::I32 { .. } => ValueKind::I32,
+            Self::I64 { .. } => ValueKind::I64,
+            Self::I128 { .. } => ValueKind::I128,
+
+            Self::U8 { .. } => ValueKind::U8,
+            Self::U16 { .. } => ValueKind::U16,
+            Self::U32 { .. } => ValueKind::U32,
+            Self::U64 { .. } => ValueKind::U64,
+            Self::U128 { .. } => ValueKind::U128,
+
+            Self::String { .. } => ValueKind::String,
+
+            Self::Enum { .. } => ValueKind::Enum,
+
+            Self::Some { .. } => ValueKind::Some,
+            Self::None => ValueKind::None,
+            Self::Ok { .. } => ValueKind::Ok,
+            Self::Err { .. } => ValueKind::Err,
+
+            Self::Array { .. } => ValueKind::Array,
+            Self::Tuple { .. } => ValueKind::Tuple,
+
+            Self::Decimal { .. } => ValueKind::Decimal,
+            Self::PreciseDecimal { .. } => ValueKind::PreciseDecimal,
+
+            Self::PackageAddress { .. } => ValueKind::PackageAddress,
+            Self::ComponentAddress { .. } => ValueKind::ComponentAddress,
+            Self::ResourceAddress { .. } => ValueKind::ResourceAddress,
+            Self::SystemAddress { .. } => ValueKind::SystemAddress,
+
+            Self::Hash { .. } => ValueKind::Hash,
+
+            Self::Bucket { .. } => ValueKind::Bucket,
+            Self::Proof { .. } => ValueKind::Proof,
+
+            Self::NonFungibleId { .. } => ValueKind::NonFungibleId,
+            Self::NonFungibleAddress { .. } => ValueKind::NonFungibleAddress,
+
+            Self::EcdsaSecp256k1PublicKey { .. } => ValueKind::EcdsaSecp256k1PublicKey,
+            Self::EcdsaSecp256k1Signature { .. } => ValueKind::EcdsaSecp256k1Signature,
+            Self::EddsaEd25519PublicKey { .. } => ValueKind::EddsaEd25519PublicKey,
+            Self::EddsaEd25519Signature { .. } => ValueKind::EddsaEd25519Signature,
+
+            Self::Blob { .. } => ValueKind::Blob,
+            Self::Expression { .. } => ValueKind::Expression,
+            Self::Bytes { .. } => ValueKind::Bytes,
+            Self::Own { .. } => ValueKind::Own,
+        }
+    }
+
+    /// Converts a [`Value`] to a [`ScryptoValue`].
+    pub fn to_scrypto_value(&self) -> Result<ScryptoValue> {
+        let value = match self {
+            Self::Bool { value } => ScryptoValue::Bool { value: *value },
+
+            Self::U8 { value } => ScryptoValue::U8 { value: *value },
+            Self::U16 { value } => ScryptoValue::U16 { value: *value },
+            Self::U32 { value } => ScryptoValue::U32 { value: *value },
+            Self::U64 { value } => ScryptoValue::U64 { value: *value },
+            Self::U128 { value } => ScryptoValue::U128 { value: *value },
+
+            Self::I8 { value } => ScryptoValue::I8 { value: *value },
+            Self::I16 { value } => ScryptoValue::I16 { value: *value },
+            Self::I32 { value } => ScryptoValue::I32 { value: *value },
+            Self::I64 { value } => ScryptoValue::I64 { value: *value },
+            Self::I128 { value } => ScryptoValue::I128 { value: *value },
+
+            Self::String { value } => ScryptoValue::String {
+                value: value.clone(),
+            },
+            Self::Enum { variant, fields } => ScryptoValue::Enum {
+                discriminator: variant.clone(),
+                fields: fields
+                    .clone()
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|value| value.to_scrypto_value())
+                    .collect::<Result<Vec<_>>>()?,
+            },
+            Self::Some { value } => ScryptoValue::Enum {
+                discriminator: "Some".into(),
+                fields: vec![value.to_scrypto_value()?],
+            },
+            Self::None => ScryptoValue::Enum {
+                discriminator: "None".into(),
+                fields: Vec::new(),
+            },
+            Self::Ok { value } => ScryptoValue::Enum {
+                discriminator: "Ok".into(),
+                fields: vec![value.to_scrypto_value()?],
+            },
+            Self::Err { value } => ScryptoValue::Enum {
+                discriminator: "Err".into(),
+                fields: vec![value.to_scrypto_value()?],
+            },
+            Self::Array {
+                element_kind,
+                elements,
+            } => ScryptoValue::Array {
+                element_value_kind: (*element_kind).into(),
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|value| value.to_scrypto_value())
+                    .collect::<Result<Vec<_>>>()?,
+            },
+            Self::Tuple { elements } => ScryptoValue::Tuple {
+                fields: elements
+                    .clone()
+                    .into_iter()
+                    .map(|value| value.to_scrypto_value())
+                    .collect::<Result<Vec<_>>>()?,
+            },
+
+            Self::Decimal { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Decimal(*value),
+            },
+            Self::PreciseDecimal { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::PreciseDecimal(*value),
+            },
+            Self::ComponentAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::ComponentAddress(address.address),
+            },
+            Self::PackageAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::PackageAddress(address.address),
+            },
+            Self::ResourceAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::ResourceAddress(address.address),
+            },
+            Self::SystemAddress { address } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::SystemAddress(address.address),
+            },
+
+            Self::Hash { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Hash(*value),
+            },
+
+            Self::EcdsaSecp256k1PublicKey { public_key } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(*public_key),
+            },
+            Self::EddsaEd25519PublicKey { public_key } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519PublicKey(*public_key),
+            },
+
+            Self::EcdsaSecp256k1Signature { signature } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1Signature(*signature),
+            },
+            Self::EddsaEd25519Signature { signature } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519Signature(*signature),
+            },
+
+            Self::Bucket { identifier } => ScryptoValue::Custom {
+                value: identifier.try_into()?,
+            },
+            Self::Proof { identifier } => ScryptoValue::Custom {
+                value: identifier.try_into()?,
+            },
+
+            Self::NonFungibleId { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::NonFungibleId(value.clone()),
+            },
+            Self::NonFungibleAddress { address } => ScryptoValue::Tuple {
+                fields: vec![
+                    Self::ResourceAddress {
+                        address: address.resource_address.clone(),
+                    }
+                    .to_scrypto_value()?,
+                    Self::NonFungibleId {
+                        value: address.non_fungible_id.clone(),
+                    }
+                    .to_scrypto_value()?,
+                ],
+            },
+
+            Self::Blob { hash } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Blob(hash.clone()),
+            },
+            Self::Expression { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Expression(value.clone()),
+            },
+            Self::Bytes { value } => ScryptoValue::Array {
+                element_value_kind: ScryptoValueKind::U8,
+                elements: value
+                    .clone()
+                    .into_iter()
+                    .map(|value| ScryptoValue::U8 { value })
+                    .collect(),
+            },
+
+            Self::Own { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Own(value.clone()),
+            },
+        };
+        Ok(value)
+    }
+
+    /// Converts a [`ScryptoValue`] to a [`Value`] given the network id as context.
+    pub fn from_scrypto_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
+        match scrypto_value {
+            ScryptoValue::Bool { value } => Self::Bool { value: *value },
+
+            ScryptoValue::U8 { value } => Self::U8 { value: *value },
+            ScryptoValue::U16 { value } => Self::U16 { value: *value },
+            ScryptoValue::U32 { value } => Self::U32 { value: *value },
+            ScryptoValue::U64 { value } => Self::U64 { value: *value },
+            ScryptoValue::U128 { value } => Self::U128 { value: *value },
+
+            ScryptoValue::I8 { value } => Self::I8 { value: *value },
+            ScryptoValue::I16 { value } => Self::I16 { value: *value },
+            ScryptoValue::I32 { value } => Self::I32 { value: *value },
+            ScryptoValue::I64 { value } => Self::I64 { value: *value },
+            ScryptoValue::I128 { value } => Self::I128 { value: *value },
+
+            ScryptoValue::String { value } => Self::String {
+                value: value.clone(),
+            },
+
+            ScryptoValue::Enum {
+                discriminator,
+                fields,
+            } => Self::Enum {
+                variant: discriminator.clone(),
+                fields: if fields.is_empty() {
+                    None
+                } else {
+                    Some(
+                        fields
+                            .clone()
+                            .into_iter()
+                            .map(|value| Self::from_scrypto_value(&value, network_id))
+                            .collect(),
+                    )
+                },
+            },
+            ScryptoValue::Array {
+                element_value_kind,
+                elements,
+            } => Self::Array {
+                element_kind: (*element_value_kind).into(),
+                elements: elements
+                    .clone()
+                    .into_iter()
+                    .map(|value| Self::from_scrypto_value(&value, network_id))
+                    .collect(),
+            },
+            ScryptoValue::Tuple { fields } => Self::Tuple {
+                elements: fields
+                    .clone()
+                    .into_iter()
+                    .map(|value| Self::from_scrypto_value(&value, network_id))
+                    .collect(),
+            },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::PackageAddress(address),
+            } => Self::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id,
+                    address: *address,
+                },
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::ResourceAddress(address),
+            } => Self::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id,
+                    address: *address,
+                },
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::ComponentAddress(address),
+            } => Self::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id,
+                    address: *address,
+                },
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::SystemAddress(address),
+            } => Self::SystemAddress {
+                address: NetworkAwareSystemAddress {
+                    network_id,
+                    address: *address,
+                },
+            },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Bucket(identifier),
+            } => Self::Bucket {
+                identifier: TransientIdentifier::U32(identifier.0).into(),
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Proof(identifier),
+            } => Self::Proof {
+                identifier: TransientIdentifier::U32(identifier.0).into(),
+            },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Expression(value),
+            } => Self::Expression {
+                value: value.clone(),
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Blob(value),
+            } => Self::Blob {
+                hash: value.clone(),
+            },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Hash(value),
+            } => Self::Hash { value: *value },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1PublicKey(value),
+            } => Self::EcdsaSecp256k1PublicKey { public_key: *value },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519PublicKey(value),
+            } => Self::EddsaEd25519PublicKey { public_key: *value },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::EcdsaSecp256k1Signature(value),
+            } => Self::EcdsaSecp256k1Signature { signature: *value },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::EddsaEd25519Signature(value),
+            } => Self::EddsaEd25519Signature { signature: *value },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Decimal(value),
+            } => Self::Decimal { value: *value },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::PreciseDecimal(value),
+            } => Self::PreciseDecimal { value: *value },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::NonFungibleId(value),
+            } => Self::NonFungibleId {
+                value: value.clone(),
+            },
+
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::Own(value),
+            } => Self::Own {
+                value: value.clone(),
+            },
+        }
     }
 }
 
-// =====
-// SBOR
-// =====
+impl From<ScryptoValueKind> for ValueKind {
+    fn from(value: ScryptoValueKind) -> Self {
+        match value {
+            ScryptoValueKind::Bool => ValueKind::Bool,
 
-impl<'a> Encode<ScryptoCustomValueKind, ScryptoEncoder<'a>> for Value {
-    fn encode_value_kind(
-        &self,
-        _encoder: &mut ScryptoEncoder<'a>,
-    ) -> Result<(), sbor::EncodeError> {
-        todo!()
-    }
+            ScryptoValueKind::U8 => ValueKind::U8,
+            ScryptoValueKind::U16 => ValueKind::U16,
+            ScryptoValueKind::U32 => ValueKind::U32,
+            ScryptoValueKind::U64 => ValueKind::U64,
+            ScryptoValueKind::U128 => ValueKind::U128,
 
-    fn encode_body(&self, _encoder: &mut ScryptoEncoder<'a>) -> Result<(), sbor::EncodeError> {
-        todo!()
+            ScryptoValueKind::I8 => ValueKind::I8,
+            ScryptoValueKind::I16 => ValueKind::I16,
+            ScryptoValueKind::I32 => ValueKind::I32,
+            ScryptoValueKind::I64 => ValueKind::I64,
+            ScryptoValueKind::I128 => ValueKind::I128,
+
+            ScryptoValueKind::String => ValueKind::String,
+
+            ScryptoValueKind::Enum => ValueKind::Enum,
+            ScryptoValueKind::Array => ValueKind::Array,
+            ScryptoValueKind::Tuple => ValueKind::Tuple,
+
+            ScryptoValueKind::Custom(custom_type_id) => match custom_type_id {
+                ScryptoCustomValueKind::PackageAddress => ValueKind::PackageAddress,
+                ScryptoCustomValueKind::ComponentAddress => ValueKind::ComponentAddress,
+                ScryptoCustomValueKind::ResourceAddress => ValueKind::ResourceAddress,
+                ScryptoCustomValueKind::SystemAddress => ValueKind::SystemAddress,
+
+                ScryptoCustomValueKind::Bucket => ValueKind::Bucket,
+                ScryptoCustomValueKind::Proof => ValueKind::Proof,
+
+                ScryptoCustomValueKind::Expression => ValueKind::Expression,
+                ScryptoCustomValueKind::Blob => ValueKind::Blob,
+
+                ScryptoCustomValueKind::Hash => ValueKind::Hash,
+                ScryptoCustomValueKind::EcdsaSecp256k1PublicKey => {
+                    ValueKind::EcdsaSecp256k1PublicKey
+                }
+                ScryptoCustomValueKind::EcdsaSecp256k1Signature => {
+                    ValueKind::EcdsaSecp256k1Signature
+                }
+                ScryptoCustomValueKind::EddsaEd25519PublicKey => ValueKind::EddsaEd25519PublicKey,
+                ScryptoCustomValueKind::EddsaEd25519Signature => ValueKind::EddsaEd25519Signature,
+
+                ScryptoCustomValueKind::Decimal => ValueKind::Decimal,
+                ScryptoCustomValueKind::PreciseDecimal => ValueKind::PreciseDecimal,
+
+                ScryptoCustomValueKind::NonFungibleId => ValueKind::NonFungibleId,
+                ScryptoCustomValueKind::Own => ValueKind::Own,
+            },
+        }
     }
 }
 
-impl<'a> Decode<ScryptoCustomValueKind, ScryptoDecoder<'a>> for Value {
-    fn decode_body_with_value_kind(
-        _decoder: &mut ScryptoDecoder<'a>,
-        _value_kind: sbor::ValueKind<ScryptoCustomValueKind>,
-    ) -> Result<Self, sbor::DecodeError> {
-        todo!()
+impl From<ValueKind> for ScryptoValueKind {
+    fn from(value: ValueKind) -> Self {
+        match value {
+            ValueKind::Bool => ScryptoValueKind::Bool,
+
+            ValueKind::U8 => ScryptoValueKind::U8,
+            ValueKind::U16 => ScryptoValueKind::U16,
+            ValueKind::U32 => ScryptoValueKind::U32,
+            ValueKind::U64 => ScryptoValueKind::U64,
+            ValueKind::U128 => ScryptoValueKind::U128,
+
+            ValueKind::I8 => ScryptoValueKind::I8,
+            ValueKind::I16 => ScryptoValueKind::I16,
+            ValueKind::I32 => ScryptoValueKind::I32,
+            ValueKind::I64 => ScryptoValueKind::I64,
+            ValueKind::I128 => ScryptoValueKind::I128,
+
+            ValueKind::String => ScryptoValueKind::String,
+
+            ValueKind::Enum => ScryptoValueKind::Enum,
+
+            ValueKind::Some => ScryptoValueKind::Enum,
+            ValueKind::None => ScryptoValueKind::Enum,
+            ValueKind::Ok => ScryptoValueKind::Enum,
+            ValueKind::Err => ScryptoValueKind::Enum,
+
+            ValueKind::Array => ScryptoValueKind::Array,
+            ValueKind::Bytes => ScryptoValueKind::Array,
+            ValueKind::Tuple => ScryptoValueKind::Tuple,
+
+            ValueKind::SystemAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::SystemAddress)
+            }
+            ValueKind::PackageAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::PackageAddress)
+            }
+            ValueKind::ResourceAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::ResourceAddress)
+            }
+            ValueKind::ComponentAddress => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::ComponentAddress)
+            }
+
+            ValueKind::Proof => ScryptoValueKind::Custom(ScryptoCustomValueKind::Proof),
+            ValueKind::Bucket => ScryptoValueKind::Custom(ScryptoCustomValueKind::Bucket),
+
+            ValueKind::Expression => ScryptoValueKind::Custom(ScryptoCustomValueKind::Expression),
+            ValueKind::Blob => ScryptoValueKind::Custom(ScryptoCustomValueKind::Blob),
+            ValueKind::NonFungibleAddress => ScryptoValueKind::Tuple,
+
+            ValueKind::Hash => ScryptoValueKind::Custom(ScryptoCustomValueKind::Hash),
+            ValueKind::EcdsaSecp256k1PublicKey => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EcdsaSecp256k1PublicKey)
+            }
+            ValueKind::EcdsaSecp256k1Signature => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EcdsaSecp256k1Signature)
+            }
+            ValueKind::EddsaEd25519PublicKey => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EddsaEd25519PublicKey)
+            }
+            ValueKind::EddsaEd25519Signature => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::EddsaEd25519Signature)
+            }
+            ValueKind::Decimal => ScryptoValueKind::Custom(ScryptoCustomValueKind::Decimal),
+            ValueKind::PreciseDecimal => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::PreciseDecimal)
+            }
+            ValueKind::NonFungibleId => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::NonFungibleId)
+            }
+            ValueKind::Own => ScryptoValueKind::Custom(ScryptoCustomValueKind::Own),
+        }
     }
 }
 
@@ -462,54 +930,3 @@ value_invertible! {PackageAddress, NetworkAwarePackageAddress, address}
 value_invertible! {ResourceAddress, NetworkAwareResourceAddress, address}
 value_invertible! {ComponentAddress, NetworkAwareComponentAddress, address}
 value_invertible! {EcdsaSecp256k1PublicKey, EcdsaSecp256k1PublicKey, public_key}
-
-/// A value proxy allowing any SBOR encodable and decodable type to be represented and serialized as
-/// a [`Value`].
-///
-/// # Known Side Effects
-///
-/// * Say we have an instruction that accepts a `NonFungibleIdType` and somebody provided a value of
-/// `Enum("HashMap")` instead of the supported types. This will result in an SBOR decode error which
-/// doesn't quite tell the caller what went wrong, it just tells them that something went wrong. Is
-/// this a reasonable price to pay for strong validation?
-pub struct SborValueProxy;
-
-impl<T> SerializeAs<T> for SborValueProxy
-where
-    T: ScryptoEncode,
-{
-    fn serialize_as<S>(source: &T, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        // Encode the passed value to a byte array
-        let sbor_bytes =
-            scrypto_encode(source).map_err(|err| S::Error::custom(format!("{:?}", err)))?;
-
-        // Decode the SBOR bytes as a Value
-        let value = scrypto_decode::<Value>(&sbor_bytes)
-            .map_err(|err| S::Error::custom(format!("{:?}", err)))?;
-
-        value.serialize(serializer)
-    }
-}
-
-impl<'de, T> DeserializeAs<'de, T> for SborValueProxy
-where
-    T: ScryptoDecode,
-{
-    fn deserialize_as<D>(deserializer: D) -> Result<T, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        // Deserialize it as a value
-        let value = Value::deserialize(deserializer)?;
-
-        // SBOR encode the deserialized value
-        let sbor_bytes =
-            scrypto_encode(&value).map_err(|err| D::Error::custom(format!("{:?}", err)))?;
-
-        // Attempt to decode the SBOR bytes as the type
-        scrypto_decode::<T>(&sbor_bytes).map_err(|err| D::Error::custom(format!("{:?}", err)))
-    }
-}

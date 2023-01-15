@@ -15,16 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::collections::{BTreeMap, HashSet};
+use std::collections::HashSet;
 
 use crate::engine_identifier::{BucketId, ProofId};
 use crate::model::address::entity_address::*;
 use crate::model::address::network_aware_address::*;
 use crate::NonFungibleAddress;
-use scrypto::prelude::{
-    AccessRule, AccessRuleKey, AccessRules, Decimal, EcdsaSecp256k1PublicKey, NonFungibleId,
-    NonFungibleIdType, ResourceMethodAuthKey, RoyaltyConfig,
-};
+use scrypto::prelude::{Decimal, EcdsaSecp256k1PublicKey, NonFungibleId};
 use scrypto::runtime::{ManifestBlobRef, Own};
 use serializable::serializable;
 
@@ -338,20 +335,17 @@ pub enum Instruction {
         /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
         /// This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        royalty_config: BTreeMap<String, RoyaltyConfig>,
+        royalty_config: crate::Value,
 
         /// The metadata to use for the package. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        metadata: BTreeMap<String, String>,
+        metadata: crate::Value,
 
         /// The access rules to use for the package. This is serialized as a `Tuple` from the Value
         /// model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        access_rules: AccessRules,
+        access_rules: crate::Value,
     },
 
     /// An instruction to publish a package with an associated "owner" badge where all of the
@@ -430,8 +424,7 @@ pub enum Instruction {
         /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
         /// This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        royalty_config: BTreeMap<String, RoyaltyConfig>,
+        royalty_config: crate::Value,
     },
 
     /// An instruction to modify the royalties on a component
@@ -444,8 +437,7 @@ pub enum Instruction {
 
         /// The royalty config to set on the component. This is an `Enum` from the `Value` model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        royalty_config: RoyaltyConfig,
+        royalty_config: crate::Value,
     },
 
     /// An instruction to claim royalties of a package
@@ -481,14 +473,12 @@ pub enum Instruction {
         /// The method key for the method to set the access rule of. This field is serialized as an
         /// `Enum` from the Value model
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        key: AccessRuleKey,
+        key: crate::Value,
 
         /// The new access rule to set in-place of the old one. This field is serialized as an
         /// `Enum` from the Value model
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        rule: AccessRule,
+        rule: crate::Value,
     },
 
     /// An instruction to mint fungible resources
@@ -518,8 +508,7 @@ pub enum Instruction {
         /// `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of
         /// the immutable and mutable parts of the non-fungible data.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        entries: BTreeMap<NonFungibleId, (crate::Value, crate::Value)>,
+        entries: crate::Value,
     },
 
     /// An instruction to create a new fungible resource.
@@ -533,16 +522,14 @@ pub enum Instruction {
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        metadata: BTreeMap<String, String>,
+        metadata: crate::Value,
 
         /// The access rules to use for the resource. The underlying type of this is a map which
         /// maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the
         /// current behavior and the mutability. This is serialized as an `Array` from the
         /// Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        access_rules: BTreeMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
+        access_rules: crate::Value,
 
         /// An optional decimal value of the initial supply to mint during resource creation. If
         /// present, this is serialized as a `Decimal` from the value model.
@@ -563,8 +550,7 @@ pub enum Instruction {
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        metadata: BTreeMap<String, String>,
+        metadata: crate::Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
         /// as a `NonFungibleAddress` from the Value model.
@@ -584,30 +570,26 @@ pub enum Instruction {
         /// The type of the non-fungible id to use for this resource. This field is serialized as
         /// an `Enum` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        id_type: NonFungibleIdType,
+        id_type: crate::Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        metadata: BTreeMap<String, String>,
+        metadata: crate::Value,
 
         /// The access rules to use for the resource. The underlying type of this is a map which
         /// maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the
         /// current behavior and the mutability. This is serialized as an `Array` from the
         /// Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        access_rules: BTreeMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
+        access_rules: crate::Value,
 
         /// An optional initial supply for the non-fungible resource being created. The underlying
         /// type of this is a map which maps a `NonFungibleId` to a tuple of two `Value`
         /// elements where each element is a struct of the immutable and mutable parts of
         /// the non-fungible data.
         #[schemars(with = "Option<crate::Value>")]
-        #[serde_as(as = "Option<crate::SborValueProxy>")]
-        initial_supply: Option<BTreeMap<NonFungibleId, (crate::Value, crate::Value)>>,
+        initial_supply: crate::Value,
     },
 
     /// An instruction to create a non-fungible resource with an associated "owner" badge where all
@@ -616,14 +598,12 @@ pub enum Instruction {
         /// The type of the non-fungible id to use for this resource. This field is serialized as
         /// an `Enum` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        id_type: NonFungibleIdType,
+        id_type: crate::Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Array` from the Value model.
         #[schemars(with = "crate::Value")]
-        #[serde_as(as = "crate::SborValueProxy")]
-        metadata: BTreeMap<String, String>,
+        metadata: crate::Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
         /// as a `NonFungibleAddress` from the Value model.
@@ -636,8 +616,7 @@ pub enum Instruction {
         /// elements where each element is a struct of the immutable and mutable parts of
         /// the non-fungible data.
         #[schemars(with = "Option<crate::Value>")]
-        #[serde_as(as = "Option<crate::SborValueProxy>")]
-        initial_supply: Option<BTreeMap<NonFungibleId, (crate::Value, crate::Value)>>,
+        initial_supply: crate::Value,
     },
 
     /// An instruction to registers a new validator given the public key of the validator
