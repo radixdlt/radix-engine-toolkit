@@ -22,9 +22,9 @@
 
 use crate::error::Result;
 use crate::model::address::Bech32Coder;
-use crate::model::instructions::InstructionKind;
+use crate::model::instruction_list::InstructionKind;
 use crate::model::TransactionManifest;
-use crate::{Handler, InstructionsList};
+use crate::{Handler, ValueRef};
 use serializable::serializable;
 
 // =================
@@ -86,9 +86,14 @@ struct ConvertManifestHandler;
 
 impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifestHandler {
     fn pre_process(request: ConvertManifestRequest) -> Result<ConvertManifestRequest> {
-        // TODO: Validate the value collections
-        // TODO: Validate the value network id
-        // TODO: Validate the instruction values
+        // Validate all `Value`s in the request. Ensure that:
+        //     1. All addresses are of the network provided in the request.
+        //     2. All single-type collections are of a single kind.
+        request
+            .borrow_values()
+            .iter()
+            .map(|value| value.validate(Some(request.network_id)))
+            .collect::<Result<Vec<_>>>()?;
         Ok(request)
     }
 
@@ -110,10 +115,32 @@ impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifes
     }
 
     fn post_process(
-        request: &ConvertManifestRequest,
+        _: &ConvertManifestRequest,
         mut response: ConvertManifestResponse,
     ) -> ConvertManifestResponse {
-        // TODO: Get all values and alias them.
+        for value in response.borrow_values_mut().iter_mut() {
+            value.alias();
+        }
         response
+    }
+}
+
+impl ValueRef for ConvertManifestRequest {
+    fn borrow_values(&self) -> Vec<&crate::Value> {
+        self.manifest.borrow_values()
+    }
+
+    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
+        self.manifest.borrow_values_mut()
+    }
+}
+
+impl ValueRef for ConvertManifestResponse {
+    fn borrow_values(&self) -> Vec<&crate::Value> {
+        self.manifest.borrow_values()
+    }
+
+    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
+        self.manifest.borrow_values_mut()
     }
 }

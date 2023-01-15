@@ -21,10 +21,11 @@ use serializable::serializable;
 
 use crate::ValueKind;
 
-#[serializable]
-#[serde(tag = "error")]
 /// The error model used by the Radix Engine Toolkit - Represents the set of all errors which the
 /// Radix Engine Toolkit may return for a request.
+#[serializable]
+#[serde(tag = "error")]
+#[derive(Clone)]
 pub enum Error {
     /// An error emitted when the toolkit attempts to decode some string as a hex string and fails
     FailedToDecodeHex {

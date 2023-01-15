@@ -27,7 +27,7 @@ use std::str::FromStr;
 
 #[serializable]
 #[serde(untagged)]
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents an untagged transient identifier typically used as an identifiers for Scrypto buckets
 /// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
 /// number and not a string)
@@ -37,12 +37,12 @@ pub enum TransientIdentifier {
 }
 
 #[serializable]
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a BucketId which uses a transient identifier.
 pub struct BucketId(pub TransientIdentifier);
 
 #[serializable]
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 /// Represents a ProofId which uses a transient identifier.
 pub struct ProofId(pub TransientIdentifier);
 

@@ -15,18 +15,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::InstructionsList;
+use crate::{InstructionList, ValueRef};
 use serializable::serializable;
+
+// =================
+// Model Definition
+// =================
 
 /// A transaction intent consisting of instructions as well as blobs
 #[serializable]
 pub struct TransactionManifest {
     /// The transaction manifest instructions to be executed in the transaction.
-    pub instructions: InstructionsList,
+    pub instructions: InstructionList,
 
     /// An array of byte arrays which is serialized as an array of hex strings which represents the
     /// blobs included in the transaction.
     #[schemars(with = "Vec<String>")]
     #[serde_as(as = "Vec<serde_with::hex::Hex>")]
     pub blobs: Vec<Vec<u8>>,
+}
+
+// ===============
+// Implementation
+// ===============
+
+impl ValueRef for TransactionManifest {
+    fn borrow_values(&self) -> Vec<&crate::Value> {
+        self.instructions.borrow_values()
+    }
+
+    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
+        self.instructions.borrow_values_mut()
+    }
 }

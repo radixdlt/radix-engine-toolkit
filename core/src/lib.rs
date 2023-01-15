@@ -18,9 +18,11 @@
 pub mod error;
 pub mod model;
 pub mod request;
+pub mod traits;
 pub mod utils;
 
 pub use error::*;
 pub use model::*;
 pub use request::*;
+pub use traits::*;
 pub use utils::*;

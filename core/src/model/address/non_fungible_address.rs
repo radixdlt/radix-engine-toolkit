@@ -22,11 +22,11 @@ use serializable::serializable;
 
 use crate::model::NetworkAwareResourceAddress;
 
-#[serializable]
-#[derive(Clone)]
 /// Represents a non-fungible address which may be considered as the "global" address of a
 /// non-fungible unit as it contains both the resource address and the non-fungible id for that
 /// unit.
+#[serializable]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NonFungibleAddress {
     #[schemars(with = "crate::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]

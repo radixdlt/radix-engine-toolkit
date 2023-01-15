@@ -16,14 +16,14 @@
 // under the License.
 
 pub mod header;
-pub mod instructions;
+pub mod instruction_list;
 pub mod intent;
 pub mod manifest;
 pub mod notarized_intent;
 pub mod signed_intent;
 
 pub use header::*;
-pub use instructions::*;
+pub use instruction_list::*;
 pub use intent::*;
 pub use manifest::*;
 pub use notarized_intent::*;

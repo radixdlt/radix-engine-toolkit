@@ -18,6 +18,7 @@
 use crate::address::Bech32Coder;
 use crate::error::Result;
 use crate::model::Instruction;
+use crate::ValueRef;
 use native_transaction::manifest::{ast, decompile};
 use native_transaction::model as transaction;
 use scrypto::prelude::hash;
@@ -34,7 +35,7 @@ use serializable::serializable;
 #[serializable]
 #[serde(tag = "type", content = "value")]
 #[derive(Clone)]
-pub enum InstructionsList {
+pub enum InstructionList {
     String(String),
     Parsed(Vec<Instruction>),
 }
@@ -51,7 +52,7 @@ pub enum InstructionKind {
 // Implementation
 // ===============
 
-impl InstructionsList {
+impl InstructionList {
     pub fn kind(&self) -> InstructionKind {
         match self {
             Self::String(..) => InstructionKind::String,
@@ -156,7 +157,11 @@ impl InstructionsList {
         }
     }
 
-    pub fn convert_to_parsed(&self, bech32_coder: &Bech32Coder) -> Result<Self> {
+    pub fn convert_to_parsed(
+        &self,
+        bech32_coder: &Bech32Coder,
+        blobs: Vec<Vec<u8>>,
+    ) -> Result<Self> {
         match self {
             Self::Parsed(_) => Ok(self.clone()),
             Self::String(_) => {
@@ -176,8 +181,19 @@ impl InstructionsList {
                 let instructions = ast_instruction
                     .iter()
                     .map(|instruction| Instruction::from_ast_instruction(instruction, bech32_coder))
-                    .collect::<Result<Vec<_>>>()?;
-                Ok(Self::Parsed(instructions))
+                    .collect::<Result<Vec<_>>>()
+                    .map(Self::Parsed);
+
+                // TODO: Remove this validation step in favor of something better.
+                // This step validates that the instruction format is correct by attempting to
+                // compile the instructions
+                match instructions
+                    .clone()
+                    .map(|instructions| instructions.convert_to_string(bech32_coder, blobs))
+                {
+                    Ok(..) => instructions,
+                    Err(error) => Err(error),
+                }
             }
         }
     }
@@ -192,7 +208,29 @@ impl InstructionsList {
     ) -> Result<Self> {
         match manifest_instructions_kind {
             InstructionKind::String => self.convert_to_string(bech32_coder, blobs),
-            InstructionKind::Parsed => self.convert_to_parsed(bech32_coder),
+            InstructionKind::Parsed => self.convert_to_parsed(bech32_coder, blobs),
+        }
+    }
+}
+
+impl ValueRef for InstructionList {
+    fn borrow_values(&self) -> Vec<&crate::Value> {
+        match self {
+            Self::Parsed(parsed_instructions) => parsed_instructions
+                .iter()
+                .flat_map(|instruction| instruction.borrow_values())
+                .collect(),
+            Self::String(..) => Vec::new(),
+        }
+    }
+
+    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
+        match self {
+            Self::Parsed(parsed_instructions) => parsed_instructions
+                .iter_mut()
+                .flat_map(|instruction| instruction.borrow_values_mut())
+                .collect(),
+            Self::String(..) => Vec::new(),
         }
     }
 }
