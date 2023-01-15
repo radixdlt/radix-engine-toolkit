@@ -901,7 +901,8 @@ impl Value {
                     .map(|value| Self::Bytes { value })
             })?,
 
-            ast::Value::Own(..) => todo!(), // TODO: Implement this once we've agreed on the format that own is represented in manifests
+            ast::Value::Own(..) => todo!(), /* TODO: Implement this once we've agreed on the
+                                             * format that own is represented in manifests */
         };
         Ok(value)
     }

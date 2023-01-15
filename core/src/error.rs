@@ -27,7 +27,9 @@ use crate::ValueKind;
 /// Radix Engine Toolkit may return for a request.
 pub enum Error {
     /// An error emitted when the toolkit attempts to decode some string as a hex string and fails
-    FailedToDecodeHex { value: String },
+    FailedToDecodeHex {
+        message: String,
+    },
 
     /// A generic error where an operation expected something to be of one length but it was found
     /// to be of a different length
@@ -42,7 +44,9 @@ pub enum Error {
     },
 
     /// Represents an address error encountered during the Bech32 encoding or decoding phase
-    AddressError { value: String },
+    AddressError {
+        message: String,
+    },
 
     /// An error emitted when the passed `Value` is not one of the accepted value types for a given
     /// request or operation.
@@ -62,13 +66,19 @@ pub enum Error {
     /// additional context. This error is typically seen in situations when trying to encode either
     /// a `Bucket("some_string")` or a `Proof("some_string")` as buckets or proofs with String
     /// identifiers can not be encoded in SBOR without an ID Allocator.
-    BucketOrProofSBORError { value_kind: ValueKind },
+    BucketOrProofSBORError {
+        value_kind: ValueKind,
+    },
 
     /// Represents an error when trying to encode some object in SBOR.
-    SborEncodeError { value: String },
+    SborEncodeError {
+        message: String,
+    },
 
     /// Represents an error when trying to decode some object in SBOR.
-    SborDecodeError { value: String },
+    SborDecodeError {
+        message: String,
+    },
 
     // ====
     // AST
@@ -84,12 +94,32 @@ pub enum Error {
     },
 
     /// An error emitted when the parsing of a value from string fails.
-    ParseError { kind: ValueKind, message: String },
+    ParseError {
+        kind: ValueKind,
+        message: String,
+    },
 
     /// An error emitted when an invalid expression string is encountered.
     InvalidExpressionString {
         found: String,
         excepted: Vec<String>,
+    },
+
+    // ============
+    // Manifest
+    // ============
+    /// An error emitted when the transaction compilation fails
+    ManifestCompileError {
+        message: String,
+    },
+
+    /// An error emitted when the transaction decompilation fails
+    ManifestDecompileError {
+        message: String,
+    },
+
+    ManifestGenerationError {
+        message: String,
     },
 }
 
@@ -108,9 +138,9 @@ macro_rules! to_debug_string {
 macro_rules! generate_from_error {
     ($error: ty as $variant: ident) => {
         impl From<$error> for Error {
-            fn from(value: $error) -> Self {
+            fn from(message: $error) -> Self {
                 Self::$variant {
-                    value: to_debug_string!(value),
+                    message: to_debug_string!(message),
                 }
             }
         }
@@ -121,6 +151,11 @@ generate_from_error!(hex::FromHexError as FailedToDecodeHex);
 generate_from_error!(scrypto::radix_engine_interface::address::AddressError as AddressError);
 generate_from_error!(sbor::EncodeError as SborEncodeError);
 generate_from_error!(sbor::DecodeError as SborDecodeError);
+generate_from_error!(native_transaction::manifest::CompileError as ManifestCompileError);
+generate_from_error!(native_transaction::manifest::DecompileError as ManifestDecompileError);
+generate_from_error!(
+    native_transaction::manifest::generator::GeneratorError as ManifestGenerationError
+);
 
 macro_rules! impl_from_parse_error {
     ($($error_type: ty => $kind: ident,)*) => {

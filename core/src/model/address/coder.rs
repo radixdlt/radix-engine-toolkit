@@ -28,27 +28,39 @@ use scrypto::radix_engine_interface::node::NetworkDefinition;
 /// A Bech32m encoder and decoder used in the Radix Engine Toolkit for all of it's address encoding
 /// and decoding needs
 pub struct Bech32Coder {
-    network_id: u8,
+    network_definition: NetworkDefinition,
     encoder: Bech32Encoder,
     decoder: Bech32Decoder,
 }
 
 impl Bech32Coder {
     pub fn new(network_id: u8) -> Self {
-        let network_definition = &network_definition_from_network_id(network_id);
+        let network_definition = network_definition_from_network_id(network_id);
         Self::new_with_network_definition(network_definition)
     }
 
-    pub fn new_with_network_definition(network_definition: &NetworkDefinition) -> Self {
+    pub fn new_with_network_definition(network_definition: NetworkDefinition) -> Self {
         Self {
-            network_id: network_definition.id,
-            encoder: Bech32Encoder::new(network_definition),
-            decoder: Bech32Decoder::new(network_definition),
+            encoder: Bech32Encoder::new(&network_definition),
+            decoder: Bech32Decoder::new(&network_definition),
+            network_definition,
         }
     }
 
+    pub fn encoder(&self) -> &Bech32Encoder {
+        &self.encoder
+    }
+
+    pub fn decoder(&self) -> &Bech32Decoder {
+        &self.decoder
+    }
+
+    pub fn network_definition(&self) -> &NetworkDefinition {
+        &self.network_definition
+    }
+
     pub fn network_id(&self) -> u8 {
-        self.network_id
+        self.network_definition.id
     }
 
     pub fn new_from_hrp<S: AsRef<str>>(hrp: S) -> Result<Self> {
@@ -117,7 +129,7 @@ impl Bech32Coder {
     ) -> Result<NetworkAwareComponentAddress> {
         self.decode_component_address(component_address)
             .map(|component_address| NetworkAwareComponentAddress {
-                network_id: self.network_id,
+                network_id: self.network_id(),
                 address: component_address,
             })
     }
@@ -128,7 +140,7 @@ impl Bech32Coder {
     ) -> Result<NetworkAwareResourceAddress> {
         self.decode_resource_address(resource_address)
             .map(|resource_address| NetworkAwareResourceAddress {
-                network_id: self.network_id,
+                network_id: self.network_id(),
                 address: resource_address,
             })
     }
@@ -139,7 +151,7 @@ impl Bech32Coder {
     ) -> Result<NetworkAwareSystemAddress> {
         self.decode_system_address(system_address)
             .map(|system_address| NetworkAwareSystemAddress {
-                network_id: self.network_id,
+                network_id: self.network_id(),
                 address: system_address,
             })
     }
@@ -150,7 +162,7 @@ impl Bech32Coder {
     ) -> Result<NetworkAwarePackageAddress> {
         self.decode_package_address(package_address)
             .map(|package_address| NetworkAwarePackageAddress {
-                network_id: self.network_id,
+                network_id: self.network_id(),
                 address: package_address,
             })
     }
