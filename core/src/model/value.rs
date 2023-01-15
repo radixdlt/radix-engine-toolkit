@@ -19,6 +19,7 @@ use crate::address::*;
 use crate::engine_identifier::{BucketId, ProofId};
 use crate::error::{Error, Result};
 use crate::TransientIdentifier;
+use native_transaction::manifest::ast;
 
 use scrypto::prelude::ScryptoCustomValue;
 use scrypto::prelude::{
@@ -459,6 +460,452 @@ impl Value {
         }
     }
 
+    /// Converts a [`Value`] to Scrypto's tx compiler's [`ast::Value`] given a bech32 coder as
+    /// context.
+    pub fn to_ast_value(&self, bech32_coder: &Bech32Coder) -> Result<ast::Value> {
+        let value = match self {
+            Value::Bool { value } => ast::Value::Bool(*value),
+
+            Value::I8 { value } => ast::Value::I8(*value),
+            Value::I16 { value } => ast::Value::I16(*value),
+            Value::I32 { value } => ast::Value::I32(*value),
+            Value::I64 { value } => ast::Value::I64(*value),
+            Value::I128 { value } => ast::Value::I128(*value),
+
+            Value::U8 { value } => ast::Value::U8(*value),
+            Value::U16 { value } => ast::Value::U16(*value),
+            Value::U32 { value } => ast::Value::U32(*value),
+            Value::U64 { value } => ast::Value::U64(*value),
+            Value::U128 { value } => ast::Value::U128(*value),
+
+            Value::String { value } => ast::Value::String(value.clone()),
+
+            Value::Enum { variant, fields } => ast::Value::Enum(
+                variant.clone(),
+                fields
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|value| value.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<ast::Value>>>()?,
+            ),
+            Value::Some { value } => ast::Value::Some(Box::new(value.to_ast_value(bech32_coder)?)),
+            Value::None => ast::Value::None,
+            Value::Ok { value } => ast::Value::Ok(Box::new(value.to_ast_value(bech32_coder)?)),
+            Value::Err { value } => ast::Value::Err(Box::new(value.to_ast_value(bech32_coder)?)),
+
+            Value::Array {
+                element_kind,
+                elements,
+            } => ast::Value::Array(
+                (*element_kind).into(),
+                elements
+                    .iter()
+                    .map(|id| id.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<ast::Value>>>()?,
+            ),
+            Value::Tuple { elements } => ast::Value::Tuple(
+                elements
+                    .iter()
+                    .map(|v| v.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<ast::Value>>>()?,
+            ),
+
+            Value::Decimal { value } => {
+                ast::Value::Decimal(Box::new(ast::Value::String(value.to_string())))
+            }
+            Value::PreciseDecimal { value } => {
+                ast::Value::PreciseDecimal(Box::new(ast::Value::String(value.to_string())))
+            }
+
+            Value::PackageAddress { address: value } => ast::Value::PackageAddress(Box::new(
+                ast::Value::String(bech32_coder.encode_package_address(&value.address)),
+            )),
+            Value::ComponentAddress { address: value } => ast::Value::ComponentAddress(Box::new(
+                ast::Value::String(bech32_coder.encode_component_address(&value.address)),
+            )),
+            Value::ResourceAddress { address: value } => ast::Value::ResourceAddress(Box::new(
+                ast::Value::String(bech32_coder.encode_resource_address(&value.address)),
+            )),
+            Value::SystemAddress { address: value } => ast::Value::SystemAddress(Box::new(
+                ast::Value::String(bech32_coder.encode_system_address(&value.address)),
+            )),
+
+            Value::Hash { value } => {
+                ast::Value::Hash(Box::new(ast::Value::String(value.to_string())))
+            }
+            Value::Bucket { identifier } => ast::Value::Bucket(Box::new(match identifier.0 {
+                TransientIdentifier::String(ref string) => ast::Value::String(string.clone()),
+                TransientIdentifier::U32(number) => ast::Value::U32(number),
+            })),
+            Value::Proof { identifier } => ast::Value::Proof(Box::new(match identifier.0 {
+                TransientIdentifier::String(ref string) => ast::Value::String(string.clone()),
+                TransientIdentifier::U32(number) => ast::Value::U32(number),
+            })),
+
+            Value::NonFungibleId { value } => ast::Value::NonFungibleId(Box::new(match value {
+                NonFungibleId::U32(value) => ast::Value::U32(*value),
+                NonFungibleId::U64(value) => ast::Value::U64(*value),
+                NonFungibleId::UUID(value) => ast::Value::U128(*value),
+                NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
+                NonFungibleId::Bytes(ref value) => {
+                    ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
+                }
+            })),
+            Value::NonFungibleAddress { address } => {
+                let resource_address_string = address.resource_address.to_string();
+                let resource_address = ast::Value::String(resource_address_string);
+
+                let non_fungible_id = match address.non_fungible_id {
+                    NonFungibleId::U32(value) => ast::Value::U32(value),
+                    NonFungibleId::U64(value) => ast::Value::U64(value),
+                    NonFungibleId::UUID(value) => ast::Value::U128(value),
+                    NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
+                    NonFungibleId::Bytes(ref value) => {
+                        ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
+                    }
+                };
+
+                ast::Value::NonFungibleAddress(
+                    Box::new(resource_address),
+                    Box::new(non_fungible_id),
+                )
+            }
+
+            Value::Blob { hash } => {
+                ast::Value::Blob(Box::new(ast::Value::String(hash.0.to_string())))
+            }
+            Value::Expression { value } => {
+                ast::Value::Expression(Box::new(ast::Value::String(match value {
+                    ManifestExpression::EntireWorktop => "ENTIRE_WORKTOP".into(),
+                    ManifestExpression::EntireAuthZone => "ENTIRE_AUTH_ZONE".into(),
+                })))
+            }
+
+            Value::EcdsaSecp256k1PublicKey { public_key } => ast::Value::EcdsaSecp256k1PublicKey(
+                Box::new(ast::Value::String(public_key.to_string())),
+            ),
+            Value::EcdsaSecp256k1Signature { signature } => ast::Value::EcdsaSecp256k1Signature(
+                Box::new(ast::Value::String(signature.to_string())),
+            ),
+
+            Value::EddsaEd25519PublicKey { public_key } => ast::Value::EddsaEd25519PublicKey(
+                Box::new(ast::Value::String(public_key.to_string())),
+            ),
+            Value::EddsaEd25519Signature { signature } => ast::Value::EddsaEd25519Signature(
+                Box::new(ast::Value::String(signature.to_string())),
+            ),
+            Value::Bytes { value } => {
+                ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
+            }
+
+            Value::Own { value } => {
+                // TODO: Once the Scrypto codebase is updated for a better "own" representation we
+                // should also update this
+                ast::Value::Own(Box::new(ast::Value::String(format!("{:?}", value))))
+            }
+        };
+        Ok(value)
+    }
+
+    /// Converts Scrypto's tx compiler's [`ast::Value`] to a [`Value`] given a bech32 coder as
+    /// context.
+    pub fn from_ast_value(value: &ast::Value, bech32_coder: &Bech32Coder) -> Result<Self> {
+        let parsing = ValueKind::from(value.type_id());
+        let value = match value {
+            ast::Value::Bool(value) => Self::Bool { value: *value },
+
+            ast::Value::I8(value) => Self::I8 { value: *value },
+            ast::Value::I16(value) => Self::I16 { value: *value },
+            ast::Value::I32(value) => Self::I32 { value: *value },
+            ast::Value::I64(value) => Self::I64 { value: *value },
+            ast::Value::I128(value) => Self::I128 { value: *value },
+
+            ast::Value::U8(value) => Self::U8 { value: *value },
+            ast::Value::U16(value) => Self::U16 { value: *value },
+            ast::Value::U32(value) => Self::U32 { value: *value },
+            ast::Value::U64(value) => Self::U64 { value: *value },
+            ast::Value::U128(value) => Self::U128 { value: *value },
+
+            ast::Value::String(value) => Self::String {
+                value: value.clone(),
+            },
+
+            ast::Value::Enum(variant, fields) => Self::Enum {
+                variant: variant.clone(),
+                fields: {
+                    if fields.len() == 0 {
+                        None
+                    } else {
+                        Some(
+                            fields
+                                .iter()
+                                .map(|value| Self::from_ast_value(value, bech32_coder))
+                                .collect::<Result<Vec<Value>>>()?,
+                        )
+                    }
+                },
+            },
+
+            ast::Value::Some(value) => Self::Some {
+                value: Box::new(Self::from_ast_value(value, bech32_coder)?),
+            },
+            ast::Value::None => Self::None,
+            ast::Value::Ok(value) => Self::Ok {
+                value: Box::new(Self::from_ast_value(value, bech32_coder)?),
+            },
+            ast::Value::Err(value) => Self::Err {
+                value: Box::new(Self::from_ast_value(value, bech32_coder)?),
+            },
+
+            ast::Value::Array(ast_type, elements) => Self::Array {
+                element_kind: (*ast_type).into(),
+                elements: elements
+                    .iter()
+                    .map(|value| Self::from_ast_value(value, bech32_coder))
+                    .collect::<Result<Vec<Value>>>()?,
+            },
+            ast::Value::Tuple(elements) => Self::Tuple {
+                elements: elements
+                    .iter()
+                    .map(|value| Self::from_ast_value(value, bech32_coder))
+                    .collect::<Result<Vec<Value>>>()?,
+            },
+            ast::Value::Decimal(value) => map_if_value_string(parsing, value, |string| {
+                string
+                    .parse()
+                    .map(|value| Self::Decimal { value })
+                    .map_err(Error::from)
+            })?,
+            ast::Value::PreciseDecimal(value) => map_if_value_string(parsing, value, |string| {
+                string
+                    .parse()
+                    .map(|value| Self::PreciseDecimal { value })
+                    .map_err(Error::from)
+            })?,
+            ast::Value::PackageAddress(address) => {
+                map_if_value_string(parsing, address, |address_string| {
+                    bech32_coder
+                        .decode_to_network_aware_package_address(address_string)
+                        .map(|address| Value::PackageAddress { address })
+                })?
+            }
+            ast::Value::ResourceAddress(address) => {
+                map_if_value_string(parsing, address, |address_string| {
+                    bech32_coder
+                        .decode_to_network_aware_resource_address(address_string)
+                        .map(|address| Value::ResourceAddress { address })
+                })?
+            }
+            ast::Value::ComponentAddress(address) => {
+                map_if_value_string(parsing, address, |address_string| {
+                    bech32_coder
+                        .decode_to_network_aware_component_address(address_string)
+                        .map(|address| Value::ComponentAddress { address })
+                })?
+            }
+            ast::Value::SystemAddress(address) => {
+                map_if_value_string(parsing, address, |address_string| {
+                    bech32_coder
+                        .decode_to_network_aware_system_address(address_string)
+                        .map(|address| Value::SystemAddress { address })
+                })?
+            }
+            ast::Value::Hash(value) => map_if_value_string(parsing, value, |string| {
+                string
+                    .parse()
+                    .map(|value| Self::Hash { value })
+                    .map_err(Error::from)
+            })?,
+
+            ast::Value::Bucket(value) => {
+                if let ast::Value::U32(value) = &**value {
+                    Self::Bucket {
+                        identifier: TransientIdentifier::U32(*value).into(),
+                    }
+                } else if let ast::Value::String(value) = &**value {
+                    Self::Bucket {
+                        identifier: TransientIdentifier::String(value.clone()).into(),
+                    }
+                } else {
+                    Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::Bucket,
+                        expected: vec![ValueKind::U32, ValueKind::String],
+                        found: value.type_id().into(),
+                    })?
+                }
+            }
+            ast::Value::Proof(value) => {
+                if let ast::Value::U32(value) = &**value {
+                    Self::Proof {
+                        identifier: TransientIdentifier::U32(*value).into(),
+                    }
+                } else if let ast::Value::String(value) = &**value {
+                    Self::Proof {
+                        identifier: TransientIdentifier::String(value.clone()).into(),
+                    }
+                } else {
+                    Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::Proof,
+                        expected: vec![ValueKind::U32, ValueKind::String],
+                        found: value.type_id().into(),
+                    })?
+                }
+            }
+
+            ast::Value::NonFungibleId(value) => Self::NonFungibleId {
+                value: match &**value {
+                    ast::Value::U32(value) => NonFungibleId::U32(*value),
+                    ast::Value::U64(value) => NonFungibleId::U64(*value),
+                    ast::Value::U128(value) => NonFungibleId::UUID(*value),
+                    ast::Value::String(value) => NonFungibleId::String(value.clone()),
+                    ast::Value::Bytes(value) => {
+                        if let ast::Value::String(value) = &**value {
+                            NonFungibleId::Bytes(hex::decode(value)?)
+                        } else {
+                            Err(Error::UnexpectedAstContents {
+                                parsing: ValueKind::NonFungibleId,
+                                expected: vec![ValueKind::String],
+                                found: value.type_id().into(),
+                            })?
+                        }
+                    }
+                    _ => Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::NonFungibleId,
+                        expected: vec![
+                            ValueKind::U32,
+                            ValueKind::U64,
+                            ValueKind::U128,
+                            ValueKind::String,
+                            ValueKind::Bytes,
+                        ],
+                        found: value.type_id().into(),
+                    })?,
+                },
+            },
+            ast::Value::NonFungibleAddress(resource_address, non_fungible_id) => {
+                let resource_address =
+                    if let ast::Value::String(address_string) = &**resource_address {
+                        bech32_coder.decode_to_network_aware_resource_address(address_string)?
+                    } else {
+                        Err(Error::UnexpectedAstContents {
+                            parsing: ValueKind::NonFungibleAddress,
+                            expected: vec![ValueKind::String],
+                            found: resource_address.type_id().into(),
+                        })?
+                    };
+
+                // TODO: de-duplicate. Refactor out
+                let non_fungible_id = match &**non_fungible_id {
+                    ast::Value::U32(value) => NonFungibleId::U32(*value),
+                    ast::Value::U64(value) => NonFungibleId::U64(*value),
+                    ast::Value::U128(value) => NonFungibleId::UUID(*value),
+                    ast::Value::String(value) => NonFungibleId::String(value.clone()),
+                    ast::Value::Bytes(value) => {
+                        if let ast::Value::String(value) = &**value {
+                            NonFungibleId::Bytes(hex::decode(value)?)
+                        } else {
+                            Err(Error::UnexpectedAstContents {
+                                parsing: ValueKind::NonFungibleAddress,
+                                expected: vec![ValueKind::String],
+                                found: value.type_id().into(),
+                            })?
+                        }
+                    }
+                    value => Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::NonFungibleAddress,
+                        expected: vec![
+                            ValueKind::U32,
+                            ValueKind::U64,
+                            ValueKind::U128,
+                            ValueKind::String,
+                            ValueKind::Bytes,
+                        ],
+                        found: value.type_id().into(),
+                    })?,
+                };
+
+                let non_fungible_address = NonFungibleAddress {
+                    resource_address,
+                    non_fungible_id,
+                };
+                Value::NonFungibleAddress {
+                    address: non_fungible_address,
+                }
+            }
+
+            ast::Value::Blob(value) => map_if_value_string(parsing, value, |blob_string| {
+                let bytes = hex::decode(blob_string)?;
+                ManifestBlobRef::try_from(bytes.as_slice())
+                    .map(|manifest_blob| Self::Blob {
+                        hash: manifest_blob,
+                    })
+                    .map_err(Error::from)
+            })?,
+            ast::Value::Expression(value) => map_if_value_string(
+                parsing,
+                value,
+                |expression_string| match expression_string {
+                    "ENTIRE_WORKTOP" => Ok(Self::Expression {
+                        value: ManifestExpression::EntireWorktop,
+                    }),
+                    "ENTIRE_AUTH_ZONE" => Ok(Self::Expression {
+                        value: ManifestExpression::EntireAuthZone,
+                    }),
+                    string => Err(Error::InvalidExpressionString {
+                        found: string.to_owned(),
+                        excepted: vec![
+                            String::from("ENTIRE_WORKTOP"),
+                            String::from("ENTIRE_AUTH_ZONE"),
+                        ],
+                    }),
+                },
+            )?,
+
+            ast::Value::EcdsaSecp256k1PublicKey(value) => {
+                map_if_value_string(parsing, value, |string| {
+                    string
+                        .parse()
+                        .map(|public_key| Self::EcdsaSecp256k1PublicKey { public_key })
+                        .map_err(Error::from)
+                })?
+            }
+            ast::Value::EcdsaSecp256k1Signature(value) => {
+                map_if_value_string(parsing, value, |string| {
+                    string
+                        .parse()
+                        .map(|signature| Self::EcdsaSecp256k1Signature { signature })
+                        .map_err(Error::from)
+                })?
+            }
+            ast::Value::EddsaEd25519PublicKey(value) => {
+                map_if_value_string(parsing, value, |string| {
+                    string
+                        .parse()
+                        .map(|public_key| Self::EddsaEd25519PublicKey { public_key })
+                        .map_err(Error::from)
+                })?
+            }
+            ast::Value::EddsaEd25519Signature(value) => {
+                map_if_value_string(parsing, value, |string| {
+                    string
+                        .parse()
+                        .map(|signature| Self::EddsaEd25519Signature { signature })
+                        .map_err(Error::from)
+                })?
+            }
+
+            ast::Value::Bytes(value) => map_if_value_string(parsing, value, |string| {
+                hex::decode(string)
+                    .map_err(Error::from)
+                    .map(|value| Self::Bytes { value })
+            })?,
+
+            ast::Value::Own(..) => todo!(), // TODO: Implement this once we've agreed on the format that own is represented in manifests
+        };
+        Ok(value)
+    }
+
     /// Converts a [`Value`] to a [`ScryptoValue`].
     pub fn to_scrypto_value(&self) -> Result<ScryptoValue> {
         let value = match self {
@@ -755,7 +1202,8 @@ impl Value {
     }
 
     /// Handles the aliasing of certain [`Value`] kinds such as [`Value::Enum`] and
-    /// [`Value::NonFungibleAddress`]
+    /// [`Value::NonFungibleAddress`]. This is typically used during request post processing to
+    /// ensure that all responses include aliased values
     pub fn alias(self) -> Self {
         match self {
             // Case: Some - An enum with a discriminator of "Some" which has a single field.
@@ -826,6 +1274,113 @@ impl Value {
                 }
             }
             v => v,
+        }
+    }
+}
+
+impl From<ValueKind> for ast::Type {
+    fn from(value: ValueKind) -> ast::Type {
+        match value {
+            ValueKind::Bool => ast::Type::Bool,
+            ValueKind::I8 => ast::Type::I8,
+            ValueKind::I16 => ast::Type::I16,
+            ValueKind::I32 => ast::Type::I32,
+            ValueKind::I64 => ast::Type::I64,
+            ValueKind::I128 => ast::Type::I128,
+
+            ValueKind::U8 => ast::Type::U8,
+            ValueKind::U16 => ast::Type::U16,
+            ValueKind::U32 => ast::Type::U32,
+            ValueKind::U64 => ast::Type::U64,
+            ValueKind::U128 => ast::Type::U128,
+
+            ValueKind::String => ast::Type::String,
+
+            ValueKind::Enum => ast::Type::Enum,
+            ValueKind::Some => ast::Type::Enum,
+            ValueKind::None => ast::Type::Enum,
+            ValueKind::Ok => ast::Type::Enum,
+            ValueKind::Err => ast::Type::Enum,
+
+            ValueKind::Array => ast::Type::Array,
+            ValueKind::Tuple => ast::Type::Tuple,
+
+            ValueKind::Decimal => ast::Type::Decimal,
+            ValueKind::PreciseDecimal => ast::Type::PreciseDecimal,
+
+            ValueKind::PackageAddress => ast::Type::PackageAddress,
+            ValueKind::ComponentAddress => ast::Type::ComponentAddress,
+            ValueKind::ResourceAddress => ast::Type::ResourceAddress,
+            ValueKind::SystemAddress => ast::Type::SystemAddress,
+
+            ValueKind::Hash => ast::Type::Hash,
+
+            ValueKind::Bucket => ast::Type::Bucket,
+            ValueKind::Proof => ast::Type::Proof,
+
+            ValueKind::NonFungibleId => ast::Type::NonFungibleId,
+            ValueKind::NonFungibleAddress => ast::Type::NonFungibleAddress,
+
+            ValueKind::Blob => ast::Type::Blob,
+            ValueKind::Bytes => ast::Type::Bytes,
+            ValueKind::Expression => ast::Type::Expression,
+
+            ValueKind::EcdsaSecp256k1PublicKey => ast::Type::EcdsaSecp256k1PublicKey,
+            ValueKind::EcdsaSecp256k1Signature => ast::Type::EcdsaSecp256k1Signature,
+            ValueKind::EddsaEd25519PublicKey => ast::Type::EddsaEd25519PublicKey,
+            ValueKind::EddsaEd25519Signature => ast::Type::EddsaEd25519Signature,
+            ValueKind::Own => ast::Type::Own,
+        }
+    }
+}
+
+impl From<ast::Type> for ValueKind {
+    fn from(value: ast::Type) -> ValueKind {
+        match value {
+            ast::Type::Bool => Self::Bool,
+
+            ast::Type::I8 => Self::I8,
+            ast::Type::I16 => Self::I16,
+            ast::Type::I32 => Self::I32,
+            ast::Type::I64 => Self::I64,
+            ast::Type::I128 => Self::I128,
+            ast::Type::U8 => Self::U8,
+            ast::Type::U16 => Self::U16,
+            ast::Type::U32 => Self::U32,
+            ast::Type::U64 => Self::U64,
+            ast::Type::U128 => Self::U128,
+
+            ast::Type::String => Self::String,
+
+            ast::Type::Enum => Self::Enum,
+
+            ast::Type::Array => Self::Array,
+            ast::Type::Tuple => Self::Tuple,
+
+            ast::Type::Decimal => Self::Decimal,
+            ast::Type::PreciseDecimal => Self::PreciseDecimal,
+
+            ast::Type::PackageAddress => Self::PackageAddress,
+            ast::Type::ComponentAddress => Self::ComponentAddress,
+            ast::Type::ResourceAddress => Self::ResourceAddress,
+            ast::Type::SystemAddress => Self::SystemAddress,
+
+            ast::Type::Hash => Self::Hash,
+            ast::Type::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
+            ast::Type::EcdsaSecp256k1Signature => Self::EcdsaSecp256k1Signature,
+            ast::Type::EddsaEd25519PublicKey => Self::EddsaEd25519PublicKey,
+            ast::Type::EddsaEd25519Signature => Self::EddsaEd25519Signature,
+
+            ast::Type::Bucket => Self::Bucket,
+            ast::Type::Proof => Self::Proof,
+
+            ast::Type::NonFungibleId => Self::NonFungibleId,
+            ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
+
+            ast::Type::Blob => Self::Blob,
+            ast::Type::Expression => Self::Expression,
+            ast::Type::Bytes => Self::Bytes,
+            ast::Type::Own => Self::Own,
         }
     }
 }
@@ -1005,3 +1560,22 @@ value_invertible! {PackageAddress, NetworkAwarePackageAddress, address}
 value_invertible! {ResourceAddress, NetworkAwareResourceAddress, address}
 value_invertible! {ComponentAddress, NetworkAwareComponentAddress, address}
 value_invertible! {EcdsaSecp256k1PublicKey, EcdsaSecp256k1PublicKey, public_key}
+
+// ========
+// Helpers
+// ========
+
+fn map_if_value_string<F>(parsing: ValueKind, value: &ast::Value, map: F) -> Result<Value>
+where
+    F: FnOnce(&str) -> Result<Value>,
+{
+    if let ast::Value::String(value) = value {
+        map(value)
+    } else {
+        Err(Error::UnexpectedAstContents {
+            parsing,
+            expected: vec![ValueKind::String],
+            found: value.type_id().into(),
+        })
+    }
+}

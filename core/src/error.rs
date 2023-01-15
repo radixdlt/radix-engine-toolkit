@@ -69,6 +69,28 @@ pub enum Error {
 
     /// Represents an error when trying to decode some object in SBOR.
     SborDecodeError { value: String },
+
+    // ====
+    // AST
+    // ====
+    /// An error emitted when a value of an unexpected kind is encountered while parsing the AST.
+    /// As an example, a `Decimal` value is represented as a `Decimal("some number string")`. If
+    /// we attempt to parse a `Decimal` and instead of the internals being a string we find some
+    /// other type (e.g. `Decimal(Bucket(12)))`, then this error is emitted.
+    UnexpectedAstContents {
+        parsing: ValueKind,
+        expected: Vec<ValueKind>,
+        found: ValueKind,
+    },
+
+    /// An error emitted when the parsing of a value from string fails.
+    ParseError { kind: ValueKind, message: String },
+
+    /// An error emitted when an invalid expression string is encountered.
+    InvalidExpressionString {
+        found: String,
+        excepted: Vec<String>,
+    },
 }
 
 impl Display for Error {
@@ -99,6 +121,34 @@ generate_from_error!(hex::FromHexError as FailedToDecodeHex);
 generate_from_error!(scrypto::radix_engine_interface::address::AddressError as AddressError);
 generate_from_error!(sbor::EncodeError as SborEncodeError);
 generate_from_error!(sbor::DecodeError as SborDecodeError);
+
+macro_rules! impl_from_parse_error {
+    ($($error_type: ty => $kind: ident,)*) => {
+        $(
+            impl From<$error_type> for Error {
+                fn from(error: $error_type) -> Self {
+                    Self::ParseError {
+                        kind: ValueKind::$kind,
+                        message: format!("{:?}", error)
+                    }
+                }
+            }
+        )*
+    };
+}
+
+impl_from_parse_error! {
+    scrypto::prelude::ParseDecimalError => Decimal,
+    scrypto::prelude::ParsePreciseDecimalError => PreciseDecimal,
+    scrypto::prelude::ParseHashError => Hash,
+    scrypto::prelude::ParseNonFungibleIdError => NonFungibleId,
+    scrypto::prelude::ParseNonFungibleAddressError => NonFungibleAddress,
+    scrypto::prelude::ParseManifestBlobRefError => Blob,
+    scrypto::prelude::ParseEcdsaSecp256k1PublicKeyError => EcdsaSecp256k1PublicKey,
+    scrypto::prelude::ParseEcdsaSecp256k1SignatureError => EcdsaSecp256k1Signature,
+    scrypto::prelude::ParseEddsaEd25519PublicKeyError => EddsaEd25519PublicKey,
+    scrypto::prelude::ParseEddsaEd25519SignatureError => EddsaEd25519Signature,
+}
 
 /// The result type used by the Radix Engine Toolkit where all errors are of a single type.
 pub type Result<T> = std::result::Result<T, Error>;
