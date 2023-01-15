@@ -634,7 +634,7 @@ impl Value {
             ast::Value::Enum(variant, fields) => Self::Enum {
                 variant: variant.clone(),
                 fields: {
-                    if fields.len() == 0 {
+                    if fields.is_empty() {
                         None
                     } else {
                         Some(
