@@ -1521,6 +1521,8 @@ impl From<ValueKind> for ScryptoValueKind {
 
 macro_rules! value_invertible {
     ($variant_name: ident, $underlying_type: ident, $field: ident) => {
+        // Doesn't actually need to be a TryFrom, could be a From. It's only TryFrom to work with
+        // serde_with
         impl TryFrom<$underlying_type> for Value {
             type Error = $crate::error::Error;
 
@@ -1560,6 +1562,41 @@ value_invertible! {PackageAddress, NetworkAwarePackageAddress, address}
 value_invertible! {ResourceAddress, NetworkAwareResourceAddress, address}
 value_invertible! {ComponentAddress, NetworkAwareComponentAddress, address}
 value_invertible! {EcdsaSecp256k1PublicKey, EcdsaSecp256k1PublicKey, public_key}
+
+impl TryFrom<EntityAddress> for Value {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        match value {
+            EntityAddress::ComponentAddress { address } => Ok(Value::ComponentAddress { address }),
+            EntityAddress::ResourceAddress { address } => Ok(Value::ResourceAddress { address }),
+            EntityAddress::PackageAddress { address } => Ok(Value::PackageAddress { address }),
+            EntityAddress::SystemAddress { address } => Ok(Value::SystemAddress { address }),
+        }
+    }
+}
+
+impl TryFrom<Value> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(value: Value) -> Result<Self> {
+        match value {
+            Value::ComponentAddress { address } => Ok(EntityAddress::ComponentAddress { address }),
+            Value::ResourceAddress { address } => Ok(EntityAddress::ResourceAddress { address }),
+            Value::PackageAddress { address } => Ok(EntityAddress::PackageAddress { address }),
+            Value::SystemAddress { address } => Ok(EntityAddress::SystemAddress { address }),
+            _ => Err(Error::InvalidKind {
+                expected: vec![
+                    ValueKind::ComponentAddress,
+                    ValueKind::ResourceAddress,
+                    ValueKind::PackageAddress,
+                    ValueKind::SystemAddress,
+                ],
+                found: value.kind(),
+            }),
+        }
+    }
+}
 
 // ========
 // Helpers
