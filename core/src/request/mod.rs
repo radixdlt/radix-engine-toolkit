@@ -15,18 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::InstructionsList;
-use serializable::serializable;
+pub mod convert_manifest_request;
+pub mod traits;
 
-/// A transaction intent consisting of instructions as well as blobs
-#[serializable]
-pub struct TransactionManifest {
-    /// The transaction manifest instructions to be executed in the transaction.
-    pub instructions: InstructionsList,
-
-    /// An array of byte arrays which is serialized as an array of hex strings which represents the
-    /// blobs included in the transaction.
-    #[schemars(with = "Vec<String>")]
-    #[serde_as(as = "Vec<serde_with::hex::Hex>")]
-    pub blobs: Vec<Vec<u8>>,
-}
+pub use convert_manifest_request::*;
+pub use traits::*;

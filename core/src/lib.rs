@@ -17,8 +17,10 @@
 
 pub mod error;
 pub mod model;
+pub mod request;
 pub mod utils;
 
 pub use error::*;
 pub use model::*;
+pub use request::*;
 pub use utils::*;

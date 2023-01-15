@@ -121,6 +121,15 @@ pub enum Error {
     ManifestGenerationError {
         message: String,
     },
+
+    // ===========
+    // Validation
+    // ===========
+    /// An error emitted when there is a network mismatch between addresses and the header network
+    NetworkMismatchError {
+        found: u8,
+        expected: u8,
+    },
 }
 
 impl Display for Error {

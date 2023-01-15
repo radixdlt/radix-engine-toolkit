@@ -330,7 +330,7 @@ pub enum Value {
 /// An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is
 /// essentially the `type` tags used for the value model.
 #[serializable]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ValueKind {
     Bool,
 
@@ -1205,16 +1205,17 @@ impl Value {
     /// Handles the aliasing of certain [`Value`] kinds such as [`Value::Enum`] and
     /// [`Value::NonFungibleAddress`]. This is typically used during request post processing to
     /// ensure that all responses include aliased values
-    pub fn alias(self) -> Self {
+    pub fn alias(&mut self) {
         match self {
             // Case: Some - An enum with a discriminator of "Some" which has a single field.
             Self::Enum { variant, fields }
                 if variant == "Some" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
             {
-                Self::Some {
+                *self = Self::Some {
                     value: Box::new(
                         fields
-                            .unwrap_or_default()
+                            .as_ref()
+                            .expect("Illegal State!")
                             .get(0)
                             .expect("Illegal State!")
                             .clone(),
@@ -1225,16 +1226,17 @@ impl Value {
             Self::Enum { variant, fields }
                 if variant == "None" && fields.as_ref().map_or(0, |fields| fields.len()) == 0 =>
             {
-                Self::None
+                *self = Self::None
             }
             // Case: Ok - An enum with a discriminator of "Ok" which has a single field.
             Self::Enum { variant, fields }
                 if variant == "Ok" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
             {
-                Self::Ok {
+                *self = Self::Ok {
                     value: Box::new(
                         fields
-                            .unwrap_or_default()
+                            .as_ref()
+                            .expect("Illegal State!")
                             .get(0)
                             .expect("Illegal State!")
                             .clone(),
@@ -1245,10 +1247,11 @@ impl Value {
             Self::Enum { variant, fields }
                 if variant == "Err" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
             {
-                Self::Err {
+                *self = Self::Err {
                     value: Box::new(
                         fields
-                            .unwrap_or_default()
+                            .as_ref()
+                            .expect("Illegal State!")
                             .get(0)
                             .expect("Illegal State!")
                             .clone(),
@@ -1265,16 +1268,73 @@ impl Value {
                         Some(Value::NonFungibleId {
                             value: non_fungible_id,
                         }),
-                    ) if elements.len() == 2 => Value::NonFungibleAddress {
-                        address: NonFungibleAddress {
-                            resource_address: *resource_address,
-                            non_fungible_id: non_fungible_id.clone(),
-                        },
-                    },
-                    _ => self,
+                    ) if elements.len() == 2 => {
+                        *self = Value::NonFungibleAddress {
+                            address: NonFungibleAddress {
+                                resource_address: *resource_address,
+                                non_fungible_id: non_fungible_id.clone(),
+                            },
+                        };
+                    }
+                    _ => {}
                 }
             }
-            v => v,
+            _ => {}
+        }
+    }
+
+    /// Top-level method for performing [`Value`] validation.
+    pub fn validate(&self, network_id: Option<u8>) -> Result<()> {
+        if let Some(network_id) = network_id {
+            self.validate_network(network_id)?
+        }
+        self.validate_collections()?;
+        Ok(())
+    }
+
+    /// Validates the network of all network aware types against a given network id
+    fn validate_network(&self, expected_network_id: u8) -> Result<()> {
+        let found_network_id = match self {
+            Self::ComponentAddress { address } => address.network_id,
+            Self::PackageAddress { address } => address.network_id,
+            Self::ResourceAddress { address } => address.network_id,
+            Self::SystemAddress { address } => address.network_id,
+            Self::NonFungibleAddress { address } => address.resource_address.network_id,
+            _ => return Ok(()),
+        };
+
+        if found_network_id == expected_network_id {
+            Ok(())
+        } else {
+            Err(Error::NetworkMismatchError {
+                found: found_network_id,
+                expected: expected_network_id,
+            })
+        }
+    }
+
+    /// Validates [`Value`] collections to ensure that they're of a single kind.
+    fn validate_collections(&self) -> Result<()> {
+        match self {
+            Self::Array {
+                element_kind,
+                elements,
+            } => {
+                if let Some(offending_value_kind) = elements
+                    .iter()
+                    .map(|value| value.kind())
+                    .find(|kind| *kind != *element_kind)
+                {
+                    Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::Array,
+                        expected: vec![*element_kind],
+                        found: offending_value_kind,
+                    })
+                } else {
+                    Ok(())
+                }
+            }
+            _ => Ok(()),
         }
     }
 }

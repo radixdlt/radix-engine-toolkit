@@ -34,12 +34,14 @@ use serializable::serializable;
 #[serializable]
 #[serde(tag = "type", content = "value")]
 #[derive(Clone)]
-pub enum ManifestInstructions {
+pub enum InstructionsList {
     String(String),
     Parsed(Vec<Instruction>),
 }
 
 /// An enum which describes the kind of manifest instructions.
+#[serializable]
+#[derive(Clone, Copy)]
 pub enum InstructionKind {
     String,
     Parsed,
@@ -49,7 +51,7 @@ pub enum InstructionKind {
 // Implementation
 // ===============
 
-impl ManifestInstructions {
+impl InstructionsList {
     pub fn kind(&self) -> InstructionKind {
         match self {
             Self::String(..) => InstructionKind::String,
@@ -106,18 +108,19 @@ impl ManifestInstructions {
                 // understood by the radix transaction manifest compiler is by going through a
                 // series of steps:
                 //
-                // Vec<Instruction> -> Vec<ast::Instruction> -> Vec<transaction::BasicInstruction> ->
-                // String
+                // Vec<Instruction> -> Vec<ast::Instruction> -> Vec<transaction::BasicInstruction>
+                // -> String
                 //
                 // This long conversion is because we would like to use the decompiler provided by
                 // the Scrypto repo.
                 //
-                // Q. Why not just implement a Instruction -> transaction::BasicInstruction conversion
-                // and skip the ast::Instruction phase?
+                // Q. Why not just implement a Instruction -> transaction::BasicInstruction
+                // conversion and skip the ast::Instruction phase?
                 // A. Because the IdValidator and id validation in general takes place when the
-                // instruction is being converted from ast::Instruction -> transaction::BasicInstruction.
-                // If i implement my own conversion (which is easy) then I lose out on the benefits
-                // of running the id validator on transactions and the validation that it performs.
+                // instruction is being converted from ast::Instruction ->
+                // transaction::BasicInstruction. If i implement my own conversion
+                // (which is easy) then I lose out on the benefits of running the id
+                // validator on transactions and the validation that it performs.
                 //
                 // Q. Why not re-implement the id-validator validation on this side and skip the
                 // process of converting between these different types?
