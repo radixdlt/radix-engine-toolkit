@@ -1372,6 +1372,41 @@ impl Value {
                     Ok(())
                 }
             }
+            Self::Map {
+                key_value_kind,
+                value_value_kind,
+                entries,
+            } => {
+                if let Some(offending_value_kind) = entries
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| i % 2 == 0)
+                    .map(|(_, (key, _))| key)
+                    .map(|value| value.kind())
+                    .find(|kind| *kind != *key_value_kind)
+                {
+                    Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::Array,
+                        expected: vec![*key_value_kind],
+                        found: offending_value_kind,
+                    })
+                } else if let Some(offending_value_kind) = entries
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| i % 2 == 0)
+                    .map(|(_, (_, value))| value)
+                    .map(|value| value.kind())
+                    .find(|kind| *kind != *key_value_kind)
+                {
+                    Err(Error::UnexpectedAstContents {
+                        parsing: ValueKind::Array,
+                        expected: vec![*value_value_kind],
+                        found: offending_value_kind,
+                    })
+                } else {
+                    Ok(())
+                }
+            }
             _ => Ok(()),
         }
     }
