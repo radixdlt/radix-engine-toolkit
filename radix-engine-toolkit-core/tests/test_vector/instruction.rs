@@ -135,7 +135,7 @@ lazy_static::lazy_static! {
                 },
                 method_name: "remove_user".into(),
                 arguments: Some(vec![Value::NonFungibleId {
-                    value: scrypto::prelude::NonFungibleId::U64(18)
+                    value: scrypto::prelude::NonFungibleId::Number(18)
                 }])
             },
             r#"{
@@ -151,7 +151,7 @@ lazy_static::lazy_static! {
                     "arguments": [
                         {
                             "type": "NonFungibleId",
-                            "variant": "U64",
+                            "variant": "Number",
                             "value": "18"
                         }
                     ]
@@ -249,7 +249,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::TakeFromWorktopByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -261,7 +261,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -277,7 +277,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::TakeFromWorktopByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -289,7 +289,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -399,7 +399,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::AssertWorktopContainsByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -410,7 +410,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -422,7 +422,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::AssertWorktopContainsByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -433,7 +433,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -592,7 +592,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::CreateProofFromAuthZoneByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -604,7 +604,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -620,7 +620,7 @@ lazy_static::lazy_static! {
         ),
         InstructionSerializationTestVector::new(
             Instruction::CreateProofFromAuthZoneByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -632,7 +632,7 @@ lazy_static::lazy_static! {
                 "ids": [
                     {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "18"
                     }
                 ],
@@ -709,7 +709,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: NonFungibleId::U32(1144418947)
+                    non_fungible_id: NonFungibleId::Number(1144418947)
                 }
             },
             r#"{
@@ -730,7 +730,7 @@ lazy_static::lazy_static! {
                     },
                     "non_fungible_id": {
                         "type": "NonFungibleId",
-                        "variant": "U32",
+                        "variant": "Number",
                         "value": "1144418947"
                     }
                 }
@@ -786,7 +786,7 @@ lazy_static::lazy_static! {
                 },
                 method_name: "remove_user".into(),
                 arguments: Some(vec![Value::NonFungibleId {
-                    value: scrypto::prelude::NonFungibleId::U64(18)
+                    value: scrypto::prelude::NonFungibleId::Number(18)
                 }])
             },
             r#"CALL_METHOD ComponentAddress("component_sim1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8ecz5v") "remove_user" NonFungibleId(18u64);"#
@@ -835,7 +835,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::TakeFromWorktopByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -846,7 +846,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::TakeFromWorktopByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -907,7 +907,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::AssertWorktopContainsByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -917,7 +917,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::AssertWorktopContainsByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -1000,7 +1000,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::CreateProofFromAuthZoneByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -1011,7 +1011,7 @@ lazy_static::lazy_static! {
         ),
         InstructionAstConversionsTestVector::new(
             Instruction::CreateProofFromAuthZoneByIds {
-                ids: HashSet::from([NonFungibleId::U32(18),]),
+                ids: HashSet::from([NonFungibleId::Number(18),]),
                 resource_address: NetworkAwareResourceAddress {
                     network_id: 0xf2,
                     address: ResourceAddress::Normal([0; 26]),
@@ -1055,7 +1055,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: NonFungibleId::U32(1144418947)
+                    non_fungible_id: NonFungibleId::Number(1144418947)
                 }
             },
             r#"PUBLISH_PACKAGE_WITH_OWNER Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618") Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d") NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 1144418947u32);"#

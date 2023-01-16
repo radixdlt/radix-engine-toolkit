@@ -278,6 +278,10 @@ pub enum Instruction {
         resource_address: Value,
         entries: Value,
     },
+    MintUuidNonFungible {
+        resource_address: Value,
+        entries: Value,
+    },
 
     RegisterValidator {
         #[serde_as(as = "ValueSerializationProxy")]
@@ -568,6 +572,13 @@ impl Instruction {
                 amount: amount.to_ast_value(bech32_coder)?,
             },
             Self::MintNonFungible {
+                resource_address,
+                entries,
+            } => AstInstruction::MintNonFungible {
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                entries: entries.to_ast_value(bech32_coder)?,
+            },
+            Self::MintUuidNonFungible {
                 resource_address,
                 entries,
             } => AstInstruction::MintNonFungible {
@@ -902,6 +913,13 @@ impl Instruction {
                 resource_address,
                 entries,
             } => Self::MintNonFungible {
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                entries: Value::from_ast_value(entries, bech32_coder)?,
+            },
+            AstInstruction::MintUuidNonFungible {
+                resource_address,
+                entries,
+            } => Self::MintUuidNonFungible {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
                 entries: Value::from_ast_value(entries, bech32_coder)?,
             },

@@ -88,19 +88,19 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_LINKER=""
     $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
-    export TARGET_TRIPLE="x86_64-pc-windows-gnu"
-    export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
-    export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
+    # export TARGET_TRIPLE="x86_64-pc-windows-gnu"
+    # export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
+    # export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
 
-    # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
-    export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
+    # export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
+    # $SCRIPT_DIR/build-specific.sh
     
 )
 
@@ -108,93 +108,93 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
 # Building the "radix-engine-toolkit-wasm" crate
 # =================================================
 (
-    # The name of the crate that we are building
-    export CRATE_NAME="radix-engine-toolkit-wasm"
+    # # The name of the crate that we are building
+    # export CRATE_NAME="radix-engine-toolkit-wasm"
 
-    # Building the Radix Engine Toolkit for a `wasm32-unknown-unknown` target
-    export TARGET_TRIPLE="wasm32-unknown-unknown"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `wasm32-unknown-unknown` target
+    # export TARGET_TRIPLE="wasm32-unknown-unknown"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
 )
 
 # ==============================================
 # Building the "radix-engine-toolkit-jni" crate
 # ==============================================
 (
-    # The name of the crate that we are building
-    export CRATE_NAME="radix-engine-toolkit-jni"
+    # # The name of the crate that we are building
+    # export CRATE_NAME="radix-engine-toolkit-jni"
 
-    # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
-    export TARGET_TRIPLE="aarch64-apple-darwin"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
+    # export TARGET_TRIPLE="aarch64-apple-darwin"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
-    export TARGET_TRIPLE="x86_64-apple-darwin"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
+    # export TARGET_TRIPLE="x86_64-apple-darwin"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
-    export TARGET_TRIPLE="aarch64-apple-ios-sim"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
+    # export TARGET_TRIPLE="aarch64-apple-ios-sim"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
-    export TARGET_TRIPLE="aarch64-apple-ios"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
+    # export TARGET_TRIPLE="aarch64-apple-ios"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
-    export TARGET_TRIPLE="x86_64-apple-ios"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
+    # export TARGET_TRIPLE="x86_64-apple-ios"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
-    export TARGET_TRIPLE="x86_64-pc-windows-gnu"
-    export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
-    export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
+    # export TARGET_TRIPLE="x86_64-pc-windows-gnu"
+    # export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
+    # export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
+    # export CUSTOM_LINKER=""
+    # $SCRIPT_DIR/build-specific.sh
 
-    # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
-    export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
+    # export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
+    # export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
+    # export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `aarch64-linux-android` target
-    export TARGET_TRIPLE="aarch64-linux-android"
-    export CUSTOM_COMPILER="$NDK_BIN_PATH/aarch64-linux-android21-clang"
-    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=$CUSTOM_COMPILER
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `aarch64-linux-android` target
+    # export TARGET_TRIPLE="aarch64-linux-android"
+    # export CUSTOM_COMPILER="$NDK_BIN_PATH/aarch64-linux-android21-clang"
+    # export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=$CUSTOM_COMPILER
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `armv7-linux-androideabi` target
-    export TARGET_TRIPLE="armv7-linux-androideabi"
-    export CUSTOM_COMPILER="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
-    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=$CUSTOM_COMPILER
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `armv7-linux-androideabi` target
+    # export TARGET_TRIPLE="armv7-linux-androideabi"
+    # export CUSTOM_COMPILER="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
+    # export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=$CUSTOM_COMPILER
+    # $SCRIPT_DIR/build-specific.sh
     
-    # Building the Radix Engine Toolkit for a `i686-linux-android` target
-    export TARGET_TRIPLE="i686-linux-android"
-    export CUSTOM_COMPILER="$NDK_BIN_PATH/i686-linux-android19-clang"
-    export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=$CUSTOM_COMPILER
-    $SCRIPT_DIR/build-specific.sh
+    # # Building the Radix Engine Toolkit for a `i686-linux-android` target
+    # export TARGET_TRIPLE="i686-linux-android"
+    # export CUSTOM_COMPILER="$NDK_BIN_PATH/i686-linux-android19-clang"
+    # export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
+    # export CUSTOM_LINKER=$CUSTOM_COMPILER
+    # $SCRIPT_DIR/build-specific.sh
 )
 
 # =================

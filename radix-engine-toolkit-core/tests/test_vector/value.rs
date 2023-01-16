@@ -24,7 +24,6 @@ use radix_engine_toolkit_core::model::*;
 use radix_transaction::manifest::ast::Type as AstValueKind;
 use radix_transaction::manifest::generator::{generate_value, NameResolver};
 use radix_transaction::manifest::lexer::tokenize;
-use sbor::rust::collections::IndexMap;
 use scrypto::prelude::*;
 
 pub struct ValueJsonRepresentationTestVector {

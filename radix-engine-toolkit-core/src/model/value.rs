@@ -18,6 +18,7 @@
 //! This module implements the [Value] struct as well as all of its related methods for conversion
 //! and validation.
 
+use itertools::Itertools;
 use radix_transaction::manifest::ast::Value as AstValue;
 use sbor::value_kind::*;
 use sbor::CustomValueKind;
@@ -39,6 +40,13 @@ use crate::traits::ValidateWithContext;
 // ======
 // Value
 // ======
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum StringOrU32 {
+    String(String),
+    U32(u32),
+}
 
 #[serde_as]
 #[derive(Serialize, Deserialize, Debug, Hash, PartialEq, Eq, Clone)]
@@ -95,7 +103,7 @@ pub enum Value {
     },
 
     Enum {
-        variant: String,
+        variant: u8,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         fields: Option<Vec<Value>>,
     },
@@ -112,6 +120,11 @@ pub enum Value {
 
     Array {
         element_type: ValueKind,
+        elements: Vec<Value>,
+    },
+    Map {
+        key_type: ValueKind,
+        value_type: ValueKind,
         elements: Vec<Value>,
     },
     Tuple {
@@ -221,6 +234,7 @@ impl Value {
             Self::Result { .. } => ValueKind::Result,
 
             Self::Array { .. } => ValueKind::Array,
+            Self::Map { .. } => ValueKind::Map,
             Self::Tuple { .. } => ValueKind::Tuple,
 
             Self::Decimal { .. } => ValueKind::Decimal,
@@ -332,17 +346,17 @@ impl Value {
                 value: value.clone(),
             },
 
-            AstValue::Enum(variant, fields) => match (variant.as_str(), fields.len()) {
-                ("Some", 1) => Self::Option {
+            AstValue::Enum(variant, fields) => match (variant, fields.len()) {
+                (0, 1) => Self::Option {
                     value: Box::new(Some(Self::from_ast_value(&fields[0], bech32_coder)?)),
                 },
-                ("None", 0) => Self::Option {
+                (1, 0) => Self::Option {
                     value: Box::new(None),
                 },
-                ("Ok", 1) => Self::Result {
+                (0, 1) => Self::Result {
                     value: Box::new(Ok(Self::from_ast_value(&fields[0], bech32_coder)?)),
                 },
-                ("Err", 1) => Self::Result {
+                (1, 1) => Self::Result {
                     value: Box::new(Err(Self::from_ast_value(&fields[0], bech32_coder)?)),
                 },
                 _ => Self::Enum {
@@ -374,6 +388,14 @@ impl Value {
 
             AstValue::Array(ast_type, elements) => Self::Array {
                 element_type: (*ast_type).into(),
+                elements: elements
+                    .iter()
+                    .map(|v| Self::from_ast_value(v, bech32_coder))
+                    .collect::<Result<Vec<Value>, _>>()?,
+            },
+            AstValue::Map(key_type, value_type, elements) => Self::Map {
+                key_type: (*key_type).into(),
+                value_type: (*value_type).into(),
                 elements: elements
                     .iter()
                     .map(|v| Self::from_ast_value(v, bech32_coder))
@@ -537,8 +559,7 @@ impl Value {
 
             AstValue::NonFungibleId(value) => Self::NonFungibleId {
                 value: match &**value {
-                    AstValue::U32(value) => NonFungibleId::U32(*value),
-                    AstValue::U64(value) => NonFungibleId::U64(*value),
+                    AstValue::U64(value) => NonFungibleId::Number(*value),
                     AstValue::U128(value) => NonFungibleId::UUID(*value),
                     AstValue::String(value) => NonFungibleId::String(value.clone()),
                     AstValue::Bytes(value) => {
@@ -585,8 +606,7 @@ impl Value {
 
                 // TODO: de-duplicate. Refactor out
                 let non_fungible_id = match &**non_fungible_id {
-                    AstValue::U32(value) => NonFungibleId::U32(*value),
-                    AstValue::U64(value) => NonFungibleId::U64(*value),
+                    AstValue::U64(value) => NonFungibleId::Number(*value),
                     AstValue::U128(value) => NonFungibleId::UUID(*value),
                     AstValue::String(value) => NonFungibleId::String(value.clone()),
                     AstValue::Bytes(value) => {
@@ -823,8 +843,7 @@ impl Value {
             })),
 
             Value::NonFungibleId { value } => AstValue::NonFungibleId(Box::new(match value {
-                NonFungibleId::U32(value) => AstValue::U32(*value),
-                NonFungibleId::U64(value) => AstValue::U64(*value),
+                NonFungibleId::Number(value) => AstValue::U64(*value),
                 NonFungibleId::UUID(value) => AstValue::U128(*value),
                 NonFungibleId::String(ref value) => AstValue::String(value.clone()),
                 NonFungibleId::Bytes(ref value) => {
@@ -836,8 +855,7 @@ impl Value {
                 let resource_address = AstValue::String(resource_address_string);
 
                 let non_fungible_id = match address.non_fungible_id {
-                    NonFungibleId::U32(value) => AstValue::U32(value),
-                    NonFungibleId::U64(value) => AstValue::U64(value),
+                    NonFungibleId::Number(value) => AstValue::U64(value),
                     NonFungibleId::UUID(value) => AstValue::U128(value),
                     NonFungibleId::String(ref value) => AstValue::String(value.clone()),
                     NonFungibleId::Bytes(ref value) => {
@@ -872,7 +890,19 @@ impl Value {
             Value::Bytes { value } => {
                 AstValue::Bytes(Box::new(AstValue::String(hex::encode(value))))
             }
-            Value::Own { value } => {
+            Value::Map {
+                key_type,
+                value_type,
+                elements,
+            } => AstValue::Map(
+                (*key_type).into(),
+                (*value_type).into(),
+                elements
+                    .iter()
+                    .map(|id| id.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<AstValue>, Error>>()?,
+            ),
+            Value::Own { .. } => {
                 todo!() // TODO: TODO
             }
         };
@@ -881,8 +911,6 @@ impl Value {
 
     pub fn to_scrypto_value(&self) -> Result<ScryptoValue, Error> {
         let scrypto_value = match self {
-            Value::Own { value } => todo!(), // TODO: TODO
-
             Value::Bool { value } => ScryptoValue::Bool { value: *value },
 
             Value::U8 { value } => ScryptoValue::U8 { value: *value },
@@ -911,21 +939,21 @@ impl Value {
             },
             Value::Option { value } => match &**value {
                 Some(value) => ScryptoValue::Enum {
-                    discriminator: "Some".into(),
+                    discriminator: 0,
                     fields: vec![value.to_scrypto_value()?],
                 },
                 None => ScryptoValue::Enum {
-                    discriminator: "None".into(),
+                    discriminator: 1,
                     fields: Vec::new(),
                 },
             },
             Value::Result { value } => match &**value {
                 Ok(value) => ScryptoValue::Enum {
-                    discriminator: "Ok".into(),
+                    discriminator: 0,
                     fields: vec![value.to_scrypto_value()?],
                 },
                 Err(value) => ScryptoValue::Enum {
-                    discriminator: "Err".into(),
+                    discriminator: 1,
                     fields: vec![value.to_scrypto_value()?],
                 },
             },
@@ -940,6 +968,30 @@ impl Value {
                     .map(|x| x.to_scrypto_value())
                     .collect::<Result<Vec<_>, _>>()?,
             },
+            Value::Map {
+                key_type,
+                value_type,
+                elements,
+            } => {
+                let keys = elements
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| i % 2 == 0)
+                    .map(|(_, v)| v.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?;
+                let values = elements
+                    .iter()
+                    .enumerate()
+                    .filter(|(i, _)| i % 2 != 0)
+                    .map(|(_, v)| v.to_scrypto_value())
+                    .collect::<Result<Vec<_>, _>>()?;
+
+                ScryptoValue::Map {
+                    key_value_kind: (*key_type).into(),
+                    value_value_kind: (*value_type).into(),
+                    entries: keys.into_iter().zip(values).collect(),
+                }
+            }
             Value::Tuple { elements } => ScryptoValue::Tuple {
                 fields: elements
                     .clone()
@@ -1040,6 +1092,10 @@ impl Value {
                     .map(|value| ScryptoValue::U8 { value })
                     .collect(),
             },
+
+            Value::Own { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::Own(value.clone()),
+            },
         };
         Ok(scrypto_value)
     }
@@ -1067,17 +1123,17 @@ impl Value {
             ScryptoValue::Enum {
                 discriminator,
                 fields,
-            } => match (discriminator.as_str(), fields.len()) {
-                ("Some", 1) => Value::Option {
+            } => match (discriminator, fields.len()) {
+                (0, 1) => Value::Option {
                     value: Box::new(Some(Self::from_scrypto_value(&fields[0], network_id))),
                 },
-                ("None", 0) => Value::Option {
+                (1, 0) => Value::Option {
                     value: Box::new(None),
                 },
-                ("Ok", 1) => Value::Result {
+                (0, 1) => Value::Result {
                     value: Box::new(Ok(Self::from_scrypto_value(&fields[0], network_id))),
                 },
-                ("Err", 1) => Value::Result {
+                (1, 1) => Value::Result {
                     value: Box::new(Err(Self::from_scrypto_value(&fields[0], network_id))),
                 },
                 _ => Value::Enum {
@@ -1103,6 +1159,20 @@ impl Value {
                 elements: elements
                     .clone()
                     .into_iter()
+                    .map(|x| Self::from_scrypto_value(&x, network_id))
+                    .collect(),
+            },
+            ScryptoValue::Map {
+                key_value_kind,
+                value_value_kind,
+                entries,
+            } => Value::Map {
+                key_type: (*key_value_kind).into(),
+                value_type: (*value_value_kind).into(),
+                elements: entries
+                    .clone()
+                    .into_iter()
+                    .flat_map(|(x, y)| [x, y])
                     .map(|x| Self::from_scrypto_value(&x, network_id))
                     .collect(),
             },
@@ -1176,7 +1246,9 @@ impl Value {
                 ScryptoCustomValue::NonFungibleId(value) => Value::NonFungibleId {
                     value: value.clone(),
                 },
-                ScryptoCustomValue::Own(value) => todo!(), // TODO: TODO
+                ScryptoCustomValue::Own(value) => Value::Own {
+                    value: value.clone(),
+                },
             },
         }
     }
@@ -1239,6 +1311,7 @@ pub enum ValueKind {
     Result,
 
     Array,
+    Map,
     Tuple,
 
     Decimal,
@@ -1292,6 +1365,7 @@ impl ValueKind {
             Self::Result => ScryptoValueKind::Enum.as_u8(),
 
             Self::Array => ScryptoValueKind::Array.as_u8(),
+            Self::Map => ScryptoValueKind::Map.as_u8(),
             Self::Bytes => ScryptoValueKind::Array.as_u8(),
             Self::Tuple => ScryptoValueKind::Tuple.as_u8(),
 
@@ -1403,6 +1477,7 @@ impl From<ValueKind> for radix_transaction::manifest::ast::Type {
             ValueKind::Result => radix_transaction::manifest::ast::Type::Enum,
 
             ValueKind::Array => radix_transaction::manifest::ast::Type::Array,
+            ValueKind::Map => radix_transaction::manifest::ast::Type::Array,
             ValueKind::Tuple => radix_transaction::manifest::ast::Type::Tuple,
 
             ValueKind::Decimal => radix_transaction::manifest::ast::Type::Decimal,
@@ -1526,6 +1601,7 @@ impl From<ValueKind> for ScryptoValueKind {
             ValueKind::Option => ScryptoValueKind::Enum,
             ValueKind::Result => ScryptoValueKind::Enum,
 
+            ValueKind::Map => ScryptoValueKind::Map,
             ValueKind::Array => ScryptoValueKind::Array,
             ValueKind::Bytes => ScryptoValueKind::Array,
             ValueKind::Tuple => ScryptoValueKind::Tuple,
@@ -1595,6 +1671,7 @@ impl From<ScryptoValueKind> for ValueKind {
             ScryptoValueKind::String => ValueKind::String,
 
             ScryptoValueKind::Enum => ValueKind::Enum,
+            ScryptoValueKind::Map => ValueKind::Map,
             ScryptoValueKind::Array => ValueKind::Array,
             ScryptoValueKind::Tuple => ValueKind::Tuple,
 
