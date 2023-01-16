@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "core",
+    "radix-engine-toolkit",
     "schema",
-    "serializable"
+    "serializable",
 ]

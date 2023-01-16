@@ -141,6 +141,14 @@ pub enum Error {
     /// An error emitted when an address of a unknown format is passed to the Radix Engine Toolkit
     /// for processing.
     UnrecognizedAddressFormat,
+
+    // =========
+    // Requests
+    // =========
+    /// An error emitted when the contents of the request string pointer could not be loaded.
+    InvalidRequestString {
+        message: String,
+    },
 }
 
 impl Display for Error {
@@ -173,6 +181,7 @@ generate_from_error!(sbor::EncodeError as SborEncodeError);
 generate_from_error!(sbor::DecodeError as SborDecodeError);
 generate_from_error!(native_transaction::manifest::CompileError as ManifestCompileError);
 generate_from_error!(native_transaction::manifest::DecompileError as ManifestDecompileError);
+generate_from_error!(std::str::Utf8Error as InvalidRequestString);
 generate_from_error!(
     native_transaction::manifest::generator::GeneratorError as ManifestGenerationError
 );
