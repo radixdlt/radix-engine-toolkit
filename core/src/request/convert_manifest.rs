@@ -45,15 +45,9 @@ use serializable::serializable;
 /// types: string and parsed.
 #[serializable]
 pub struct ConvertManifestRequest {
-    /// The version of the passed transaction manifest. Used to determine how the manifest is
-    /// interpreted by the library.
-    #[schemars(with = "String")]
-    #[schemars(regex(pattern = "[0-9]+"))]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub transaction_version: u8,
-
-    /// The network id of the network that this transaction manifest is meant for. This is used for
-    /// the Bech32 address encoding and decoding.
+    /// An unsigned 8 bit integer serialized as a string which represents the ID of the network
+    /// that the manifest will be used on. The primary use of this is for any Bech32m encoding
+    /// or decoding of addresses
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -70,7 +64,7 @@ pub struct ConvertManifestRequest {
 /// The response of the [`ConvertManifestRequest`]
 #[serializable]
 pub struct ConvertManifestResponse {
-    /// The converted manifest
+    /// The manifest after it has been converted to the instruction kind specified in the request
     #[serde(flatten)]
     pub manifest: TransactionManifest,
 }

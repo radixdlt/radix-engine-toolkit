@@ -35,6 +35,10 @@ pub struct DecompileNotarizedTransactionRequest {
     /// performed.
     pub instructions_output_kind: InstructionKind,
 
+    /// A byte array serialized as a hex string which represents the compiled notarized transaction
+    /// intent to decompile.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_notarized_intent: Vec<u8>,
 }
@@ -42,6 +46,8 @@ pub struct DecompileNotarizedTransactionRequest {
 /// The response from [`DecompileNotarizedTransactionRequest`].
 #[serializable]
 pub struct DecompileNotarizedTransactionResponse {
+    /// The decompiled notarized transaction intent where the instructions are in the format
+    /// specified in the request.
     #[serde(flatten)]
     pub notarized_intent: NotarizedTransaction,
 }

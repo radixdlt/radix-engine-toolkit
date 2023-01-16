@@ -25,20 +25,28 @@ use crate::{Handler, NetworkAwareComponentAddress};
 // Model Definition
 // =================
 
+/// Derives the virtual account component address given a public key and a network id.
 #[serializable]
 pub struct DeriveVirtualAccountAddressRequest {
+    /// An unsigned 8 bit integer serialized as a string which represents the ID of the network
+    /// that the address will be used on. The primary use of this is for any Bech32m encoding
+    /// or decoding of addresses
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
+    /// The public key to derive the virtual account address for
     #[schemars(with = "crate::model::crypto::PublicKey")]
     #[serde_as(as = "serde_with::FromInto<crate::model::crypto::PublicKey>")]
     pub public_key: PublicKey,
 }
 
+/// The response form [`DeriveVirtualAccountAddressRequest`] requests
 #[serializable]
 pub struct DeriveVirtualAccountAddressResponse {
+    /// The virtual account component address serialized as a `ComponentAddress` from the `Value`
+    /// model.
     #[schemars(with = "crate::model::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::Value>")]
     pub virtual_account_address: NetworkAwareComponentAddress,

@@ -40,12 +40,22 @@ use serializable::serializable;
 /// intent of an unknown type.
 #[serializable]
 pub struct DecompileUnknownTransactionIntentRequest {
+    /// Defines the output format that we would like the manifest to be in after this request is
+    /// performed.
     pub instructions_output_kind: InstructionKind,
+
+    /// A byte array serialized as a hex string which represents what is suspected to be a compiled
+    /// intent of an unknown kind.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_unknown_intent: Vec<u8>,
 }
 
-/// The response from [`DecompileUnknownTransactionIntentRequest`].
+/// The response from [`DecompileUnknownTransactionIntentRequest`]. This is an untagged union which
+/// can either be a [`DecompileTransactionIntentResponse`],
+/// [`DecompileSignedTransactionIntentResponse`], or [`DecompileNotarizedTransactionResponse`]
+/// depending on the passed intent.
 #[serializable]
 #[serde(untagged)]
 pub enum DecompileUnknownTransactionIntentResponse {
@@ -107,7 +117,7 @@ impl From<DecompileNotarizedTransactionResponse> for DecompileUnknownTransaction
 // Implementation
 // ===============
 
-struct DecompileUnknownTransactionIntentHandler;
+pub struct DecompileUnknownTransactionIntentHandler;
 
 impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse>
     for DecompileUnknownTransactionIntentHandler

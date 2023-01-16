@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InformationResponse",
+  "description": "The response from [`InformationRequest`]s",
+  "type": "object",
+  "required": [
+    "package_version"
+  ],
+  "properties": {
+    "package_version": {
+      "description": "A SemVer string of the version of the Radix Engine Toolkit. Ideally, if the toolkit is version X then that means that it is compatible with version X of Scrypto.",
+      "type": "string"
+    }
+  }
+}

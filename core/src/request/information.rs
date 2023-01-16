@@ -33,6 +33,8 @@ pub struct InformationRequest;
 /// The response from [`InformationRequest`]s
 #[serializable]
 pub struct InformationResponse {
+    /// A SemVer string of the version of the Radix Engine Toolkit. Ideally, if the toolkit is
+    /// version X then that means that it is compatible with version X of Scrypto.
     pub package_version: String,
 }
 

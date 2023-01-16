@@ -32,32 +32,39 @@ use serializable::serializable;
 /// as the network id and name that it is used for, and the entity type of the address.
 #[serializable]
 pub struct DecodeAddressRequest {
+    /// A string of the Bech32m encoded address to decode. Decoding this address will expose its
+    /// entity type, network id, network name, underlying data, as well as it's Bech32m HRP.
     pub address: String,
 }
 
 #[serializable]
 pub struct DecodeAddressResponse {
-    /// The network id of the network that the address is meant for - derived from the HRP.
+    /// An 8 bit unsigned integer serialized as a string which represents the id of the network
+    /// that this address exists on. This is derived from the HRP of the Bech32m encoded
+    /// address.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
-    /// The network name of the network that the address is meant for - derived from the HRP.
+    /// A string which represents the name of the network that this address exists on. This is
+    /// derived from the HRP of the Bech32m encoded address.
     pub network_name: String,
 
-    /// The type of entity that the address is addressing - derived from the entity byte in the
-    /// address
+    /// An [`EntityType`] enum representing the type of entity addressed with the passed address.
+    /// This is derived from the entity byte on the address data.
     pub entity_type: EntityType,
 
-    /// The data section of the address.
+    /// A byte array of 27 bytes (54 hex characters) serialized as a hex string which represents
+    /// the data encoded in the address.
     #[schemars(with = "String")]
     #[schemars(length(equal = 54))]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub data: Vec<u8>,
 
-    /// The HRP used by the address.
+    /// A string which represents the Bech32m Human Readable Part (HRP) of the passed address
+    /// string
     pub hrp: String,
 }
 

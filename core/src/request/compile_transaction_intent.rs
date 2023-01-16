@@ -29,6 +29,7 @@ use serializable::serializable;
 /// caller. This is mainly useful when creating a transaction.
 #[serializable]
 pub struct CompileTransactionIntentRequest {
+    /// The transaction intent to compile.
     #[serde(flatten)]
     pub transaction_intent: TransactionIntent,
 }
@@ -36,6 +37,9 @@ pub struct CompileTransactionIntentRequest {
 /// The response from [`CompileTransactionIntentRequest`].
 #[serializable]
 pub struct CompileTransactionIntentResponse {
+    /// A byte array serialized as a hex string which represents the compiled transaction intent.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_intent: Vec<u8>,
 }
@@ -44,7 +48,7 @@ pub struct CompileTransactionIntentResponse {
 // Implementation
 // ===============
 
-struct CompileTransactionIntentHandler;
+pub struct CompileTransactionIntentHandler;
 
 impl Handler<CompileTransactionIntentRequest, CompileTransactionIntentResponse>
     for CompileTransactionIntentHandler

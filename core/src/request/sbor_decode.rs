@@ -25,19 +25,31 @@ use serializable::serializable;
 // Model Definition
 // =================
 
+/// Takes in a byte array of SBOR byte and attempts to decode it to a [`Value`]. Since some of the
+/// types in the [`Value`] model are network aware, this request also takes in a network id which
+/// is primarily used for the Bech32m encoding of addresses.
 #[serializable]
 pub struct SborDecodeRequest {
+    /// A byte array serialized as a hex string of the SBOR buffer to attempt to decode as a
+    /// [`Value`]
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub encoded_value: Vec<u8>,
 
+    /// An 8 bit unsigned integer serialized as a string which represents the id of the network
+    /// that the decoded data will be used on. This is primarily used for the Bech32m encoding of
+    /// addresses.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 }
 
+/// The response from the [`SborDecodeRequest`].
 #[serializable]
 pub struct SborDecodeResponse {
+    /// A value representing the SBOR decoded form of the passed SBOR buffer.
     #[serde(flatten)]
     pub value: Value,
 }

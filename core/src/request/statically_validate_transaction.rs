@@ -28,16 +28,26 @@ use crate::{CompilableIntent, Handler};
 // Model Definition
 // =================
 
+/// Performs static validation on the given notarized transaction. This request checks that: the
+/// header is valid by ensuring that all elements of the header are valid, that the signatures are
+/// valid, and that the manifest is valid.
 #[serializable]
 pub struct StaticallyValidateTransactionRequest {
+    /// A byte array serialized as a hex string which represents the compiled notarized intent
+    /// to perform static validation on.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_notarized_intent: Vec<u8>,
 
+    /// The validation configuration which is the parameters and limits to use for the static
+    /// validation
     #[schemars(with = "crate::model::transaction::ValidationConfig")]
     #[serde_as(as = "serde_with::FromInto<crate::model::transaction::ValidationConfig>")]
     pub validation_config: ValidationConfig,
 }
 
+/// The response from [`StaticallyValidateTransactionRequest`].
 #[serializable]
 #[serde(tag = "validity")]
 pub enum StaticallyValidateTransactionResponse {
@@ -49,7 +59,7 @@ pub enum StaticallyValidateTransactionResponse {
 // Implementation
 // ===============
 
-struct StaticallyValidateTransactionHandler;
+pub struct StaticallyValidateTransactionHandler;
 
 impl Handler<StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>
     for StaticallyValidateTransactionHandler

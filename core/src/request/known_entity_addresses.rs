@@ -31,48 +31,74 @@ use serializable::serializable;
 // Model Definition
 // =================
 
+/// Given a network id, this function derives the Bech32m-encoded addresses of the set of known
+/// addresses.     
+/// As an example, this function allows users to derive the XRD resource address, faucet component
+/// address, or account package address on any network (given that they know its network id).
 #[serializable]
 pub struct KnownEntityAddressesRequest {
+    /// An unsigned 8 bit integer serialized as a string which represents the ID of the network
+    /// that the addresses will be used on. The primary use of this is for any Bech32m encoding
+    /// or decoding of addresses
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 }
 
+/// The response from [`KnownEntityAddressesRequest`] requests
 #[serializable]
 pub struct KnownEntityAddressesResponse {
+    /// A component address serialized as a `ComponentAddress` from the `Value` model which
+    /// represents the address of the faucet component on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     faucet_component_address: NetworkAwareComponentAddress,
 
+    /// A package address serialized as a `PackageAddress` from the `Value` model which represents
+    /// the address of the faucet package on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     faucet_package_address: NetworkAwarePackageAddress,
 
+    /// A package address serialized as a `PackageAddress` from the `Value` model which represents
+    /// the address of the account package on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     account_package_address: NetworkAwarePackageAddress,
 
+    /// A resource address serialized as a `ResourceAddress` from the `Value` model which
+    /// represents the address of the XRD resource on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     xrd_resource_address: NetworkAwareResourceAddress,
 
+    /// A resource address serialized as a `ResourceAddress` from the `Value` model which
+    /// represents the address of the system resource on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     system_token_resource_address: NetworkAwareResourceAddress,
 
+    /// A resource address serialized as a `ResourceAddress` from the `Value` model which
+    /// represents the address of the Ecdsa Secp256k1 resource on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     ecdsa_secp256k1_token_resource_address: NetworkAwareResourceAddress,
 
+    /// A resource address serialized as a `ResourceAddress` from the `Value` model which
+    /// represents the address of the EdDSA Ed25519 resource on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress,
 
+    /// A system address serialized as a `SystemAddress` from the `Value` model which represents
+    /// the address of the epoch manager on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     epoch_manager_system_address: NetworkAwareSystemAddress,
 
+    /// A system address serialized as a `SystemAddress` from the `Value` model which represents
+    /// the address of the clock on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     clock_system_address: NetworkAwareSystemAddress,

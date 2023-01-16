@@ -25,14 +25,19 @@ use serializable::serializable;
 // Model Definition
 // =================
 
+/// This request takes in a [`Value`] and attempts to SBOR encode it and return back an SBOR byte
+/// array.
 #[serializable]
 pub struct SborEncodeRequest {
+    /// The value to SBOR encode.
     #[serde(flatten)]
     pub value: Value,
 }
 
+/// The response from the [`SborEncodeRequest`].
 #[serializable]
 pub struct SborEncodeResponse {
+    /// A byte array serialized as a hex string of the SBOR encoded value.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]

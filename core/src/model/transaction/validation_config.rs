@@ -22,31 +22,43 @@ use serializable::serializable;
 /// Represents a set of settings to use when statically validating a notarized transaction intent.
 #[serializable]
 pub struct ValidationConfig {
+    /// An unsigned 8 bit integer serialized as a string which represents the network id to
+    /// validate the transaction against.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]
     pub network_id: u8,
 
+    /// An unsigned 32 bit integer serialized as a string which represents the minimum cost unit
+    /// limit that a transaction is allowed to have.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]
     pub min_cost_unit_limit: u32,
 
+    /// An unsigned 32 bit integer serialized as a string which represents the maximum cost unit
+    /// limit that a transaction is allowed to have.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]
     pub max_cost_unit_limit: u32,
 
+    /// An unsigned 16 bit integer serialized as a string which represents the minimum tip
+    /// percentage that a transaction is allowed to have.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]
     pub min_tip_percentage: u16,
 
+    /// An unsigned 16 bit integer serialized as a string which represents the maximum tip
+    /// percentage that a transaction is allowed to have.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]
     pub max_tip_percentage: u16,
 
+    /// An unsigned 64 bit integer serialized as a string which represents the maximum difference
+    /// that can exist between the start and end epoch of transactions.
     #[schemars(with = "String")]
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "DisplayFromStr")]

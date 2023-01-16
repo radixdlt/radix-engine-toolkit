@@ -30,6 +30,7 @@ use serializable::serializable;
 /// signatures.
 #[serializable]
 pub struct CompileNotarizedTransactionRequest {
+    /// The notarized transaction intent to compile
     #[serde(flatten)]
     pub notarized_intent: NotarizedTransaction,
 }
@@ -37,6 +38,10 @@ pub struct CompileNotarizedTransactionRequest {
 /// The response from [`CompileNotarizedTransactionRequest`].
 #[serializable]
 pub struct CompileNotarizedTransactionResponse {
+    /// A byte array serialized as a hex string which represents the compiled notarized transaction
+    /// intent.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_intent: Vec<u8>,
 }
@@ -45,7 +50,7 @@ pub struct CompileNotarizedTransactionResponse {
 // Implementation
 // ===============
 
-struct CompileNotarizedTransactionHandler;
+pub struct CompileNotarizedTransactionHandler;
 
 impl Handler<CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse>
     for CompileNotarizedTransactionHandler

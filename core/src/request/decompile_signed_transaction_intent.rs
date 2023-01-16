@@ -35,6 +35,10 @@ pub struct DecompileSignedTransactionIntentRequest {
     /// performed.
     pub instructions_output_kind: InstructionKind,
 
+    /// A byte array serialized as a hex string which represents the compiled signed transaction
+    /// intent to decompile.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
     pub compiled_signed_intent: Vec<u8>,
 }
@@ -42,6 +46,8 @@ pub struct DecompileSignedTransactionIntentRequest {
 /// The response from [`DecompileSignedTransactionIntentRequest`].
 #[serializable]
 pub struct DecompileSignedTransactionIntentResponse {
+    /// The decompiled signed transaction intent where the instructions are in the format specified
+    /// in the request.
     #[serde(flatten)]
     pub signed_intent: SignedTransactionIntent,
 }

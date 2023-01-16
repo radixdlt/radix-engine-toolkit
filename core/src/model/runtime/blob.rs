@@ -25,6 +25,7 @@ use crate::RADIX_ENGINE_HASH_LENGTH;
 /// Represents the hash of a blob provided as part of a transaction manifest. This is represented as
 /// a byte array of 32 bytes which is serialized as a hex string.
 pub struct Blob(
+    #[schemars(with = "String")]
     #[schemars(length(equal = 64))]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
