@@ -698,7 +698,7 @@ impl Value {
                         Err(Error::from(GeneratorError::OddNumberOfElements))
                     } else {
                         let mut entries_vec = Vec::new();
-                        while let Some(chunk) = entries.chunks(2).next() {
+                        for chunk in entries.chunks(2) {
                             let key = Self::from_ast_value(&chunk[0], bech32_coder)?;
                             let value = Self::from_ast_value(&chunk[1], bech32_coder)?;
 
@@ -1017,7 +1017,7 @@ impl Value {
                 value_value_kind: (*value_value_kind).into(),
                 entries: {
                     let mut scrypto_entries = Vec::new();
-                    while let Some((key, value)) = entries.iter().next() {
+                    for (key, value) in entries {
                         scrypto_entries.push((key.to_scrypto_value()?, value.to_scrypto_value()?))
                     }
                     scrypto_entries
@@ -1171,7 +1171,7 @@ impl Value {
                 value_value_kind: (*value_value_kind).into(),
                 entries: {
                     let mut scrypto_entries = Vec::new();
-                    while let Some((key, value)) = entries.iter().next() {
+                    for (key, value) in entries {
                         scrypto_entries.push((
                             Self::from_scrypto_value(key, network_id),
                             Self::from_scrypto_value(value, network_id),
@@ -1316,6 +1316,20 @@ impl Value {
                     }
                     _ => {}
                 }
+            }
+            // Case: Bytes - An array of bytes
+            Self::Array {
+                element_kind: ValueKind::U8,
+                elements,
+            } => {
+                let mut bytes = Vec::new();
+                for element in elements.iter() {
+                    match element {
+                        Value::U8 { value } => bytes.push(*value),
+                        _ => break,
+                    }
+                }
+                *self = Value::Bytes { value: bytes }
             }
             _ => {}
         }

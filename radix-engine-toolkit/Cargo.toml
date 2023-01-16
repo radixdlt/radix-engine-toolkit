@@ -28,3 +28,7 @@ hex = { version = "0.4.3", default-features = false }
 # Bech32 is used for the network aware addresses (some additional functionality is required which we
 # don't expose through the Scrypto Bech32 encoder and decoder)
 bech32 = { version = "0.9.0", default-features = false }
+
+[dev-dependencies]
+lazy_static = { version = "1.4.0" }
+serde_json = { version = "1.0.91" }
