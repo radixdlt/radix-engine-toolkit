@@ -15,12 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod buffer;
 pub mod error;
 pub mod model;
 pub mod request;
 pub mod traits;
 pub mod utils;
 
+pub use buffer::*;
 pub use error::*;
 pub use model::*;
 pub use request::*;
