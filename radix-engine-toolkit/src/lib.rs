@@ -16,6 +16,7 @@
 // under the License.
 
 pub mod buffer;
+pub mod enum_discriminator;
 pub mod error;
 pub mod model;
 pub mod request;
@@ -23,6 +24,7 @@ pub mod traits;
 pub mod utils;
 
 pub use buffer::*;
+pub use enum_discriminator::*;
 pub use error::*;
 pub use model::*;
 pub use request::*;

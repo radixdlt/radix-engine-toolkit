@@ -23,16 +23,8 @@ use serializable::serializable;
 /// Represents non-fungible ids which is a discriminated union of the different types that
 /// non-fungible ids may be.
 pub enum NonFungibleId {
-    /// A 32 bit unsigned integer non-fungible id type which is serialized as a string
-    U32(
-        #[schemars(regex(pattern = "[0-9]+"))]
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        u32,
-    ),
-
     /// A 64 bit unsigned integer non-fungible id type which is serialized as a string
-    U64(
+    Number(
         #[schemars(regex(pattern = "[0-9]+"))]
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -63,8 +55,7 @@ pub enum NonFungibleId {
 impl From<ScryptoNonFungibleId> for NonFungibleId {
     fn from(value: ScryptoNonFungibleId) -> Self {
         match value {
-            ScryptoNonFungibleId::U32(value) => Self::U32(value),
-            ScryptoNonFungibleId::U64(value) => Self::U64(value),
+            ScryptoNonFungibleId::Number(value) => Self::Number(value),
             ScryptoNonFungibleId::UUID(value) => Self::UUID(value),
             ScryptoNonFungibleId::String(value) => Self::String(value),
             ScryptoNonFungibleId::Bytes(value) => Self::Bytes(value),
@@ -75,8 +66,7 @@ impl From<ScryptoNonFungibleId> for NonFungibleId {
 impl From<NonFungibleId> for ScryptoNonFungibleId {
     fn from(value: NonFungibleId) -> Self {
         match value {
-            NonFungibleId::U32(value) => Self::U32(value),
-            NonFungibleId::U64(value) => Self::U64(value),
+            NonFungibleId::Number(value) => Self::Number(value),
             NonFungibleId::UUID(value) => Self::UUID(value),
             NonFungibleId::String(value) => Self::String(value),
             NonFungibleId::Bytes(value) => Self::Bytes(value),

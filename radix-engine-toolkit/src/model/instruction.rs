@@ -266,11 +266,11 @@ pub enum Instruction {
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map
         /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
-        /// This is serialized as an `Array` from the Value model.
+        /// This is serialized as an `Map` from the Value model.
         royalty_config: Value,
 
         /// The metadata to use for the package. The underlying type of this is a string-string Map
-        /// of the metadata. This is serialized as an `Array` from the Value model.
+        /// of the metadata. This is serialized as an `Map` from the Value model.
         metadata: Value,
 
         /// The access rules to use for the package. This is serialized as a `Tuple` from the Value
@@ -334,7 +334,7 @@ pub enum Instruction {
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map
         /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
-        /// This is serialized as an `Array` from the Value model.
+        /// This is serialized as an `Map` from the Value model.
         royalty_config: Value,
     },
 
@@ -392,7 +392,7 @@ pub enum Instruction {
         amount: Value,
     },
 
-    /// An instruction to mind non-fungibles of a resource
+    /// An instruction to mint non-fungibles of a resource
     MintNonFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
         /// `ResourceAddress` from the Value model.
@@ -404,6 +404,19 @@ pub enum Instruction {
         entries: Value,
     },
 
+    /// An instruction to mint non-fungibles of a non-fungible resource that uses UUID as the type
+    /// id and perform auto incrimination of ID.
+    MintUuidNonFungible {
+        /// The address of the resource to mint tokens of. This field is serialized as a
+        /// `ResourceAddress` from the Value model.
+        resource_address: Value,
+
+        /// The non-fungible tokens to mint. The underlying type is a vector of tuples of two
+        /// `Value` elements where each element is a struct of the immutable and mutable
+        /// parts of the non-fungible data.
+        entries: Value,
+    },
+
     /// An instruction to create a new fungible resource.
     CreateFungibleResource {
         /// The divisibility of the resource. This field is serialized as a `U8` from the Value
@@ -411,12 +424,12 @@ pub enum Instruction {
         divisibility: Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
-        /// of the metadata. This is serialized as an `Array` from the Value model.
+        /// of the metadata. This is serialized as an `Map` from the Value model.
         metadata: Value,
 
         /// The access rules to use for the resource. The underlying type of this is a map which
         /// maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the
-        /// current behavior and the mutability. This is serialized as an `Array` from the
+        /// current behavior and the mutability. This is serialized as an `Map` from the
         /// Value model.
         access_rules: Value,
 
@@ -433,7 +446,7 @@ pub enum Instruction {
         divisibility: Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
-        /// of the metadata. This is serialized as an `Array` from the Value model.
+        /// of the metadata. This is serialized as an `Map` from the Value model.
         metadata: Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
@@ -452,12 +465,12 @@ pub enum Instruction {
         id_type: Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
-        /// of the metadata. This is serialized as an `Array` from the Value model.
+        /// of the metadata. This is serialized as an `Map` from the Value model.
         metadata: Value,
 
         /// The access rules to use for the resource. The underlying type of this is a map which
         /// maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the
-        /// current behavior and the mutability. This is serialized as an `Array` from the
+        /// current behavior and the mutability. This is serialized as an `Map` from the
         /// Value model.
         access_rules: Value,
 
@@ -476,7 +489,7 @@ pub enum Instruction {
         id_type: Value,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
-        /// of the metadata. This is serialized as an `Array` from the Value model.
+        /// of the metadata. This is serialized as an `Map` from the Value model.
         metadata: Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
@@ -786,6 +799,13 @@ impl Instruction {
                 resource_address,
                 entries,
             } => ast::Instruction::MintNonFungible {
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                entries: entries.to_ast_value(bech32_coder)?,
+            },
+            Self::MintUuidNonFungible {
+                resource_address,
+                entries,
+            } => ast::Instruction::MintUuidNonFungible {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 entries: entries.to_ast_value(bech32_coder)?,
             },
@@ -1102,6 +1122,13 @@ impl Instruction {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
                 entries: Value::from_ast_value(entries, bech32_coder)?,
             },
+            ast::Instruction::MintUuidNonFungible {
+                resource_address,
+                entries,
+            } => Self::MintUuidNonFungible {
+                resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
+                entries: Value::from_ast_value(entries, bech32_coder)?,
+            },
             ast::Instruction::RegisterValidator { validator } => Self::RegisterValidator {
                 validator: Value::from_ast_value(validator, bech32_coder)?,
             },
@@ -1305,6 +1332,13 @@ impl ValueRef for Instruction {
                 values.push(amount);
             }
             Self::MintNonFungible {
+                resource_address,
+                entries,
+            } => {
+                values.push(resource_address);
+                values.push(entries);
+            }
+            Self::MintUuidNonFungible {
                 resource_address,
                 entries,
             } => {
@@ -1558,6 +1592,13 @@ impl ValueRef for Instruction {
                 values.push(amount);
             }
             Self::MintNonFungible {
+                resource_address,
+                entries,
+            } => {
+                values.push(resource_address);
+                values.push(entries);
+            }
+            Self::MintUuidNonFungible {
                 resource_address,
                 entries,
             } => {

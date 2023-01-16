@@ -17,10 +17,12 @@
 
 use crate::address::*;
 use crate::engine_identifier::{BucketId, ProofId};
+use crate::enum_discriminator::EnumDiscriminator;
 use crate::error::{Error, Result};
 use crate::TransientIdentifier;
-use native_transaction::manifest::ast;
+use native_transaction::manifest::{ast, KNOWN_ENUM_DISCRIMINATORS};
 
+use native_transaction::manifest::generator::GeneratorError;
 use scrypto::prelude::ScryptoCustomValue;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature,
@@ -127,7 +129,7 @@ pub enum Value {
     /// in a way similar to discriminated algebraic sum types)
     Enum {
         /// The name of the variant of the enum
-        variant: String,
+        variant: EnumDiscriminator,
 
         /// Optional fields that the enum may have
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -154,6 +156,22 @@ pub enum Value {
 
         /// The elements of the array which may contain 0 or more elements.
         elements: Vec<Value>,
+    },
+
+    /// A key-value map of values where all keys are of a single kind and all values are of a
+    /// single kind
+    Map {
+        /// The kind of the keys used for the map. A map will be validated to ensure that its keys
+        /// are all of a single kind.
+        key_value_kind: ValueKind,
+
+        /// The kind of the values used for the map. A map will be validated to ensure that its
+        /// values are all of a single kind.
+        value_value_kind: ValueKind,
+
+        /// A vector of tuples representing the entires in the map where each tuple is made up of
+        /// two elements: a key and a value.
+        entries: Vec<(Value, Value)>,
     },
 
     /// An array of elements where elements could be of different kinds.
@@ -355,6 +373,7 @@ pub enum ValueKind {
     Ok,
     Err,
 
+    Map,
     Array,
     Tuple,
 
@@ -429,6 +448,7 @@ impl Value {
             Self::Ok { .. } => ValueKind::Ok,
             Self::Err { .. } => ValueKind::Err,
 
+            Self::Map { .. } => ValueKind::Map,
             Self::Array { .. } => ValueKind::Array,
             Self::Tuple { .. } => ValueKind::Tuple,
 
@@ -481,7 +501,7 @@ impl Value {
             Value::String { value } => ast::Value::String(value.clone()),
 
             Value::Enum { variant, fields } => ast::Value::Enum(
-                variant.clone(),
+                variant.resolve_discriminator()?,
                 fields
                     .clone()
                     .unwrap_or_default()
@@ -502,6 +522,19 @@ impl Value {
                 elements
                     .iter()
                     .map(|id| id.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<ast::Value>>>()?,
+            ),
+            Value::Map {
+                key_value_kind,
+                value_value_kind,
+                entries,
+            } => ast::Value::Map(
+                (*key_value_kind).into(),
+                (*value_value_kind).into(),
+                entries
+                    .iter()
+                    .flat_map(|(x, y)| [x, y])
+                    .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<ast::Value>>>()?,
             ),
             Value::Tuple { elements } => ast::Value::Tuple(
@@ -544,8 +577,7 @@ impl Value {
             })),
 
             Value::NonFungibleId { value } => ast::Value::NonFungibleId(Box::new(match value {
-                NonFungibleId::U32(value) => ast::Value::U32(*value),
-                NonFungibleId::U64(value) => ast::Value::U64(*value),
+                NonFungibleId::Number(value) => ast::Value::U64(*value),
                 NonFungibleId::UUID(value) => ast::Value::U128(*value),
                 NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
                 NonFungibleId::Bytes(ref value) => {
@@ -557,8 +589,7 @@ impl Value {
                 let resource_address = ast::Value::String(resource_address_string);
 
                 let non_fungible_id = match address.non_fungible_id {
-                    NonFungibleId::U32(value) => ast::Value::U32(value),
-                    NonFungibleId::U64(value) => ast::Value::U64(value),
+                    NonFungibleId::Number(value) => ast::Value::U64(value),
                     NonFungibleId::UUID(value) => ast::Value::U128(value),
                     NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
                     NonFungibleId::Bytes(ref value) => {
@@ -632,7 +663,7 @@ impl Value {
             },
 
             ast::Value::Enum(variant, fields) => Self::Enum {
-                variant: variant.clone(),
+                variant: EnumDiscriminator::U8(*variant),
                 fields: {
                     if fields.is_empty() {
                         None
@@ -658,6 +689,25 @@ impl Value {
                 value: Box::new(Self::from_ast_value(value, bech32_coder)?),
             },
 
+            ast::Value::Map(key_value_kind, value_value_kind, entries) => Self::Map {
+                key_value_kind: (*key_value_kind).into(),
+                value_value_kind: (*value_value_kind).into(),
+                entries: {
+                    // Ensure that we have enough elements for the window operation
+                    if entries.len() % 2 != 0 {
+                        Err(Error::from(GeneratorError::OddNumberOfElements))
+                    } else {
+                        let mut entries_vec = Vec::new();
+                        while let Some(chunk) = entries.chunks(2).next() {
+                            let key = Self::from_ast_value(&chunk[0], bech32_coder)?;
+                            let value = Self::from_ast_value(&chunk[1], bech32_coder)?;
+
+                            entries_vec.push((key, value));
+                        }
+                        Ok(entries_vec)
+                    }
+                }?,
+            },
             ast::Value::Array(ast_type, elements) => Self::Array {
                 element_kind: (*ast_type).into(),
                 elements: elements
@@ -755,8 +805,7 @@ impl Value {
 
             ast::Value::NonFungibleId(value) => Self::NonFungibleId {
                 value: match &**value {
-                    ast::Value::U32(value) => NonFungibleId::U32(*value),
-                    ast::Value::U64(value) => NonFungibleId::U64(*value),
+                    ast::Value::U64(value) => NonFungibleId::Number(*value),
                     ast::Value::U128(value) => NonFungibleId::UUID(*value),
                     ast::Value::String(value) => NonFungibleId::String(value.clone()),
                     ast::Value::Bytes(value) => {
@@ -797,8 +846,7 @@ impl Value {
 
                 // TODO: de-duplicate. Refactor out
                 let non_fungible_id = match &**non_fungible_id {
-                    ast::Value::U32(value) => NonFungibleId::U32(*value),
-                    ast::Value::U64(value) => NonFungibleId::U64(*value),
+                    ast::Value::U64(value) => NonFungibleId::Number(*value),
                     ast::Value::U128(value) => NonFungibleId::UUID(*value),
                     ast::Value::String(value) => NonFungibleId::String(value.clone()),
                     ast::Value::Bytes(value) => {
@@ -928,7 +976,7 @@ impl Value {
                 value: value.clone(),
             },
             Self::Enum { variant, fields } => ScryptoValue::Enum {
-                discriminator: variant.clone(),
+                discriminator: variant.resolve_discriminator()?,
                 fields: fields
                     .clone()
                     .unwrap_or_default()
@@ -937,20 +985,43 @@ impl Value {
                     .collect::<Result<Vec<_>>>()?,
             },
             Self::Some { value } => ScryptoValue::Enum {
-                discriminator: "Some".into(),
+                discriminator: *KNOWN_ENUM_DISCRIMINATORS
+                    .get("Option::Some")
+                    .expect("Should never fail!"),
                 fields: vec![value.to_scrypto_value()?],
             },
             Self::None => ScryptoValue::Enum {
-                discriminator: "None".into(),
+                discriminator: *KNOWN_ENUM_DISCRIMINATORS
+                    .get("Option::None")
+                    .expect("Should never fail!"),
                 fields: Vec::new(),
             },
             Self::Ok { value } => ScryptoValue::Enum {
-                discriminator: "Ok".into(),
+                discriminator: *KNOWN_ENUM_DISCRIMINATORS
+                    .get("Result::Ok")
+                    .expect("Should never fail!"),
                 fields: vec![value.to_scrypto_value()?],
             },
             Self::Err { value } => ScryptoValue::Enum {
-                discriminator: "Err".into(),
+                discriminator: *KNOWN_ENUM_DISCRIMINATORS
+                    .get("Result::Err")
+                    .expect("Should never fail!"),
                 fields: vec![value.to_scrypto_value()?],
+            },
+            Self::Map {
+                key_value_kind,
+                value_value_kind,
+                entries,
+            } => ScryptoValue::Map {
+                key_value_kind: (*key_value_kind).into(),
+                value_value_kind: (*value_value_kind).into(),
+                entries: {
+                    let mut scrypto_entries = Vec::new();
+                    while let Some((key, value)) = entries.iter().next() {
+                        scrypto_entries.push((key.to_scrypto_value()?, value.to_scrypto_value()?))
+                    }
+                    scrypto_entries
+                },
             },
             Self::Array {
                 element_kind,
@@ -1078,7 +1149,7 @@ impl Value {
                 discriminator,
                 fields,
             } => Self::Enum {
-                variant: discriminator.clone(),
+                variant: EnumDiscriminator::U8(*discriminator),
                 fields: if fields.is_empty() {
                     None
                 } else {
@@ -1089,6 +1160,24 @@ impl Value {
                             .map(|value| Self::from_scrypto_value(&value, network_id))
                             .collect(),
                     )
+                },
+            },
+            ScryptoValue::Map {
+                key_value_kind,
+                value_value_kind,
+                entries,
+            } => Self::Map {
+                key_value_kind: (*key_value_kind).into(),
+                value_value_kind: (*value_value_kind).into(),
+                entries: {
+                    let mut scrypto_entries = Vec::new();
+                    while let Some((key, value)) = entries.iter().next() {
+                        scrypto_entries.push((
+                            Self::from_scrypto_value(key, network_id),
+                            Self::from_scrypto_value(value, network_id),
+                        ))
+                    }
+                    scrypto_entries
                 },
             },
             ScryptoValue::Array {
@@ -1202,62 +1291,11 @@ impl Value {
         }
     }
 
-    /// Handles the aliasing of certain [`Value`] kinds such as [`Value::Enum`] and
-    /// [`Value::NonFungibleAddress`]. This is typically used during request post processing to
-    /// ensure that all responses include aliased values
+    /// Handles the aliasing of certain [`Value`] kinds such as [`Value::NonFungibleAddress`]. This
+    /// is typically used during request post processing to ensure that all responses include
+    /// aliased values
     pub fn alias(&mut self) {
         match self {
-            // Case: Some - An enum with a discriminator of "Some" which has a single field.
-            Self::Enum { variant, fields }
-                if variant == "Some" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
-            {
-                *self = Self::Some {
-                    value: Box::new(
-                        fields
-                            .as_ref()
-                            .expect("Illegal State!")
-                            .get(0)
-                            .expect("Illegal State!")
-                            .clone(),
-                    ),
-                }
-            }
-            // Case: None - An enum with a discriminator of "None" which has no fields.
-            Self::Enum { variant, fields }
-                if variant == "None" && fields.as_ref().map_or(0, |fields| fields.len()) == 0 =>
-            {
-                *self = Self::None
-            }
-            // Case: Ok - An enum with a discriminator of "Ok" which has a single field.
-            Self::Enum { variant, fields }
-                if variant == "Ok" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
-            {
-                *self = Self::Ok {
-                    value: Box::new(
-                        fields
-                            .as_ref()
-                            .expect("Illegal State!")
-                            .get(0)
-                            .expect("Illegal State!")
-                            .clone(),
-                    ),
-                }
-            }
-            // Case: Err - An enum with a discriminator of "Err" which has a single field.
-            Self::Enum { variant, fields }
-                if variant == "Err" && fields.as_ref().map_or(0, |fields| fields.len()) == 1 =>
-            {
-                *self = Self::Err {
-                    value: Box::new(
-                        fields
-                            .as_ref()
-                            .expect("Illegal State!")
-                            .get(0)
-                            .expect("Illegal State!")
-                            .clone(),
-                    ),
-                }
-            }
             Self::Tuple { ref elements } => {
                 // Case: NonFungibleAddress - A tuple of ResourceAddress and NonFungibleId
                 match (elements.get(0), elements.get(1)) {
@@ -1363,6 +1401,7 @@ impl From<ValueKind> for ast::Type {
             ValueKind::Ok => ast::Type::Enum,
             ValueKind::Err => ast::Type::Enum,
 
+            ValueKind::Map => ast::Type::Array,
             ValueKind::Array => ast::Type::Array,
             ValueKind::Tuple => ast::Type::Tuple,
 
@@ -1466,6 +1505,7 @@ impl From<ScryptoValueKind> for ValueKind {
             ScryptoValueKind::String => ValueKind::String,
 
             ScryptoValueKind::Enum => ValueKind::Enum,
+            ScryptoValueKind::Map => ValueKind::Map,
             ScryptoValueKind::Array => ValueKind::Array,
             ScryptoValueKind::Tuple => ValueKind::Tuple,
 
@@ -1527,6 +1567,7 @@ impl From<ValueKind> for ScryptoValueKind {
             ValueKind::Ok => ScryptoValueKind::Enum,
             ValueKind::Err => ScryptoValueKind::Enum,
 
+            ValueKind::Map => ScryptoValueKind::Map,
             ValueKind::Array => ScryptoValueKind::Array,
             ValueKind::Bytes => ScryptoValueKind::Array,
             ValueKind::Tuple => ScryptoValueKind::Tuple,

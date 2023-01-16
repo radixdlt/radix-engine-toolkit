@@ -62,6 +62,13 @@ pub enum Error {
         found: ValueKind,
     },
 
+    /// An error emitted when an invalid enum discriminator is encountered. This typically means
+    /// that an enum discriminator was given as a string but there was no known mapping from the
+    /// string to a `u8`.
+    InvalidEnumDiscriminator {
+        discriminator: String,
+    },
+
     // =====
     // SBOR
     // =====

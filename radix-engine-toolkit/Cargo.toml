@@ -15,11 +15,11 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 serializable = { path = "../serializable" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-e497a8" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
