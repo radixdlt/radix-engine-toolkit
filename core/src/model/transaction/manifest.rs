@@ -15,7 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::{InstructionList, ValueRef};
+use crate::error::Result;
+use crate::{Bech32Coder, Error, InstructionKind, InstructionList, ValueRef};
+use native_transaction::manifest::decompile;
+use native_transaction::model as native;
 use serializable::serializable;
 
 // =================
@@ -46,5 +49,47 @@ impl ValueRef for TransactionManifest {
 
     fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
         self.instructions.borrow_values_mut()
+    }
+}
+
+// ============
+// Conversions
+// ============
+
+impl TransactionManifest {
+    pub fn from_native_manifest(
+        native_manifest: &native::TransactionManifest,
+        instructions_kind: InstructionKind,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<Self> {
+        decompile(
+            &native_manifest.instructions,
+            bech32_coder.network_definition(),
+        )
+        .map(InstructionList::String)
+        .map_err(Error::from)
+        .and_then(|instructions| {
+            instructions.convert_to_manifest_instructions_kind(
+                instructions_kind,
+                bech32_coder,
+                native_manifest.blobs.clone(),
+            )
+        })
+        .map(|instructions| TransactionManifest {
+            instructions,
+            blobs: native_manifest.blobs.clone(),
+        })
+    }
+
+    pub fn to_native_manifest(
+        &self,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<native::TransactionManifest> {
+        self.instructions
+            .basic_instructions(bech32_coder, self.blobs.clone())
+            .map(|basic_instructions| native::TransactionManifest {
+                instructions: basic_instructions,
+                blobs: self.blobs.clone(),
+            })
     }
 }

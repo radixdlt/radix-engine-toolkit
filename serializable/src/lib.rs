@@ -19,7 +19,8 @@ pub fn serializable(_: TokenStream, input: TokenStream) -> TokenStream {
     let serde_as_attribute = token_stream!("#[serde_with::serde_as]");
     let default_derive_attributes =
         token_stream!("#[derive(serde::Serialize, serde::Deserialize)]");
-    let debug_attribute = token_stream!("#[derive(Debug)]");
+    let derive_debug_attribute = token_stream!("#[derive(Debug)]");
+    let derive_clone_attribute = token_stream!("#[derive(Clone)]");
 
     TokenStream::from(quote! {
         #json_schema_attribute
@@ -28,7 +29,9 @@ pub fn serializable(_: TokenStream, input: TokenStream) -> TokenStream {
 
         #default_derive_attributes
 
-        #debug_attribute
+        #derive_debug_attribute
+
+        #derive_clone_attribute
 
         #input
     })

@@ -34,7 +34,6 @@ use serializable::serializable;
 /// of instructions where each instruction is represented through the `Instruction` model.
 #[serializable]
 #[serde(tag = "type", content = "value")]
-#[derive(Clone)]
 pub enum InstructionList {
     String(String),
     Parsed(Vec<Instruction>),
@@ -42,7 +41,7 @@ pub enum InstructionList {
 
 /// An enum which describes the kind of manifest instructions.
 #[serializable]
-#[derive(Clone, Copy)]
+#[derive(Copy)]
 pub enum InstructionKind {
     String,
     Parsed,

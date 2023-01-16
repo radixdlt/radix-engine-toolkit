@@ -26,7 +26,7 @@ use crate::model::NetworkAwareResourceAddress;
 /// non-fungible unit as it contains both the resource address and the non-fungible id for that
 /// unit.
 #[serializable]
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NonFungibleAddress {
     #[schemars(with = "crate::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]

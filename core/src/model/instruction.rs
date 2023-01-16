@@ -39,7 +39,6 @@ use serializable::serializable;
 /// communication with the Radix Engine Toolkit
 #[serializable]
 #[serde(tag = "instruction", rename_all = "SCREAMING_SNAKE_CASE")]
-#[derive(Clone)]
 pub enum Instruction {
     /// An instruction to call a function with the given list of arguments on the given package
     /// address and blueprint name.

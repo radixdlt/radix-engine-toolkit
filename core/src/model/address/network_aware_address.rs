@@ -40,6 +40,19 @@ macro_rules! define_network_aware_address {
             }
         }
 
+        impl $network_aware_struct_ident {
+            pub fn from_u8_array(data: &[u8], network_id: u8) -> Result<Self> {
+                if let Ok(address) = <$underlying_type>::try_from(data) {
+                    Ok($network_aware_struct_ident {
+                        network_id,
+                        address,
+                    })
+                } else {
+                    Err(Error::UnrecognizedAddressFormat)
+                }
+            }
+        }
+
         impl Display for $network_aware_struct_ident {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 let bech32_coder = Bech32Coder::new(self.network_id);

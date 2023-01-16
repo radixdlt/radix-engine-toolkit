@@ -21,6 +21,7 @@ pub mod intent;
 pub mod manifest;
 pub mod notarized_intent;
 pub mod signed_intent;
+pub mod validation_config;
 
 pub use header::*;
 pub use instruction_list::*;
@@ -28,3 +29,4 @@ pub use intent::*;
 pub use manifest::*;
 pub use notarized_intent::*;
 pub use signed_intent::*;
+pub use validation_config::*;

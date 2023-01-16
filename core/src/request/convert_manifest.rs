@@ -15,11 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//! Defines the request and response models for the convert manifest request. This request is made
-//! when the client has a manifest in one format (JSON as an example) and they wish to convert
-//! the manifest to another format (String as an example). The conversion between the supported
-//! formats is dependent on two main factors: the transaction version, and the network id.
-
 use crate::error::Result;
 use crate::model::address::Bech32Coder;
 use crate::model::instruction_list::InstructionKind;
@@ -53,20 +48,22 @@ pub struct ConvertManifestRequest {
     /// The version of the passed transaction manifest. Used to determine how the manifest is
     /// interpreted by the library.
     #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub transaction_version: u8,
 
     /// The network id of the network that this transaction manifest is meant for. This is used for
     /// the Bech32 address encoding and decoding.
     #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
     /// Defines the output format that we would like the manifest to be in after this request is
     /// performed.
-    pub instructions_output_format: InstructionKind,
+    pub instructions_output_kind: InstructionKind,
 
-    /// The manifest to convert to the format described by `instructions_output_format`
+    /// The manifest to convert to the format described by `instructions_output_kind`
     pub manifest: TransactionManifest,
 }
 
@@ -102,7 +99,7 @@ impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifes
             .manifest
             .instructions
             .convert_to_manifest_instructions_kind(
-                request.instructions_output_format,
+                request.instructions_output_kind,
                 &Bech32Coder::new(request.network_id),
                 request.manifest.blobs.clone(),
             )

@@ -35,7 +35,7 @@ use serializable::serializable;
 /// returns.
 #[serializable]
 #[serde(tag = "type")]
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash)]
 pub enum Value {
     /// A boolean value which can either be true or false
     Bool { value: bool },
@@ -330,7 +330,7 @@ pub enum Value {
 /// An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is
 /// essentially the `type` tags used for the value model.
 #[serializable]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ValueKind {
     Bool,
 

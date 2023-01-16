@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use native_transaction::model as native;
 use serializable::serializable;
 
 /// A transaction header containing metadata and other transaction information.
@@ -71,4 +72,40 @@ pub struct TransactionHeader {
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub tip_percentage: u16,
+}
+
+// ============
+// Conversions
+// ============
+
+impl From<native::TransactionHeader> for TransactionHeader {
+    fn from(value: native::TransactionHeader) -> Self {
+        Self {
+            version: value.version,
+            network_id: value.network_id,
+            start_epoch_inclusive: value.start_epoch_inclusive,
+            end_epoch_exclusive: value.end_epoch_exclusive,
+            nonce: value.nonce,
+            notary_public_key: value.notary_public_key,
+            notary_as_signatory: value.notary_as_signatory,
+            cost_unit_limit: value.cost_unit_limit,
+            tip_percentage: value.tip_percentage,
+        }
+    }
+}
+
+impl From<TransactionHeader> for native::TransactionHeader {
+    fn from(value: TransactionHeader) -> Self {
+        Self {
+            version: value.version,
+            network_id: value.network_id,
+            start_epoch_inclusive: value.start_epoch_inclusive,
+            end_epoch_exclusive: value.end_epoch_exclusive,
+            nonce: value.nonce,
+            notary_public_key: value.notary_public_key,
+            notary_as_signatory: value.notary_as_signatory,
+            cost_unit_limit: value.cost_unit_limit,
+            tip_percentage: value.tip_percentage,
+        }
+    }
 }

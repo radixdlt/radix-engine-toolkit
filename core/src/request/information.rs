@@ -16,9 +16,8 @@
 // under the License.
 
 use crate::error::Result;
+use crate::request::Handler;
 use serializable::serializable;
-
-use crate::Handler;
 
 // =================
 // Model Definition

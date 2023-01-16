@@ -25,8 +25,10 @@ use crate::ValueKind;
 /// Radix Engine Toolkit may return for a request.
 #[serializable]
 #[serde(tag = "error")]
-#[derive(Clone)]
 pub enum Error {
+    // ======
+    // Value
+    // ======
     /// An error emitted when the toolkit attempts to decode some string as a hex string and fails
     FailedToDecodeHex {
         message: String,
@@ -131,6 +133,14 @@ pub enum Error {
         found: u8,
         expected: u8,
     },
+
+    /// An error emitted when a byte array could not be interpreted through any of the intent
+    /// formats
+    UnrecognizedCompiledIntentFormat,
+
+    /// An error emitted when an address of a unknown format is passed to the Radix Engine Toolkit
+    /// for processing.
+    UnrecognizedAddressFormat,
 }
 
 impl Display for Error {
