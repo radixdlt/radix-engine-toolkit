@@ -9,6 +9,13 @@ radix_engine_toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 serde_json = "1.0.91"
 
+[dev-dependencies]
+serde = { version = "1.0.144", default-features = false, features = ["serde_derive"] }
+serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
+
+wasmtime = { version = "2.0.0" }
+anyhow = { version = "1.0.65" }
+
 [profile.release]
 panic = 'abort'
 codegen-units = 1
