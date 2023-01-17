@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>RadixDlt.RadixEngineToolkit.Native</id>
+    <version>0.0.0</version>
+    <authors>Radix Publishing</authors>
+    <owners>Radix Publishing</owners>
+    <license type="expression">Apache-2.0</license>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <repository type="git" url="https://github.com/radixdlt/radix-engine-toolkit" commit="34cb99c742cdf028ff05ec25f1132aeac2b5338f" /> <!-- TODO make it dynamic! -->
+    <description>Multiplatform native library that exposes a set of functions to help clients written in languages other than Rust compile and decompile transactions, perform SBOR encoding and decoding, derive virtual account and virtual badge addresses, and other functionalities.</description>
+    <tags>radix sbor</tags>
+  </metadata>
+  <files>
+    <file src="../../artifacts/native/x86_64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x64/native/libradix_engine_toolkit.so" />
+    <file src="../../artifacts/native/i686-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-x32/native/libradix_engine_toolkit.so" />
+    <file src="../../artifacts/native/aarch64-unknown-linux-gnu/libradix_engine_toolkit.so" target="runtimes/linux-arm64/native/libradix_engine_toolkit.so" />
+    
+    <file src="../../artifacts/native/x86_64-apple-darwin/libradix_engine_toolkit.dylib" target="runtimes/osx-x64/native/libradix_engine_toolkit.dylib" />
+    <file src="../../artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib" target="runtimes/osx-arm64/native/libradix_engine_toolkit.dylib" />
+    
+    <file src="../../artifacts/native/x86_64-pc-windows-gnu/radix_engine_toolkit.dll" target="runtimes/win-x64/native/radix_engine_toolkit.dll" />
+    
+    <file src="RadixDlt.RadixEngineToolkit.Native.targets" target="build/netstandard1.0" />
+  </files>
+</package>

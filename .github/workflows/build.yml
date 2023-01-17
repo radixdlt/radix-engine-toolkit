@@ -1,0 +1,176 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        build-target:
+          # native-json-interface Crate
+          - crate: native-json-interface
+            target-triple: aarch64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: aarch64-apple-ios
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: aarch64-apple-ios-sim
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: x86_64-pc-windows-gnu
+            custom-linker: ""
+            custom-compiler: x86_64-w64-mingw32-gcc
+            custom-archiver: x86_64-w64-mingw32-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: i686-unknown-linux-gnu
+            custom-linker: i686-unknown-linux-gnu-gcc
+            custom-compiler: i686-unknown-linux-gnu-gcc
+            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: wasm32-unknown-unknown
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: aarch64-linux-android
+            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: armv7-linux-androideabi
+            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar
+            features: "jni"
+          - crate: native-json-interface
+            target-triple: i686-linux-android
+            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android-ar
+            features: "jni"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Build Dependencies
+        run: |
+          brew tap SergioBenitez/osxct
+          brew install llvm
+          brew install x86_64-unknown-linux-gnu
+          brew install mingw-w64
+
+          brew tap messense/macos-cross-toolchains
+          brew install aarch64-unknown-linux-gnu
+          brew install i686-unknown-linux-gnu
+          
+          wget https://dl.google.com/android/repository/android-ndk-r22b-darwin-x86_64.zip
+          unzip -q android-ndk-r22b-darwin-x86_64.zip -d $HOME/android-ndk
+
+      - name: Install Rust Toolchain
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+          chmod +x rustup.sh
+          ./rustup.sh -y
+          rustup update
+          rustup toolchain install nightly
+
+      - name: Install Rust Targets
+        run: |
+          rustup target install ${{ matrix.build-target.target-triple }}
+          rustup +nightly target install ${{ matrix.build-target.target-triple }}
+          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
+
+      - name: Building Toolkit
+        run: |
+          (
+            export CURRENT_DIRECTORY=$(pwd)
+            export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
+            cd $CRATE_PATH
+
+            export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+            if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
+            then
+              export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+            fi
+            
+            export CC=${{ matrix.build-target.custom-compiler }}
+            export AR=${{ matrix.build-target.custom-archiver }}
+            export features=$${{ matrix.build-target.features }}
+            export features=${features:="default"}
+
+            cargo build \
+              --target ${{ matrix.build-target.target-triple }} \
+              --release
+
+            unset $LINKER_ENVIRONMENT_VARIABLE
+            export CC="/usr/local/opt/llvm/bin/clang"
+            export AR="/usr/local/opt/llvm/bin/llvm-ar"
+
+            INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
+            mkdir $INCLUDE_DIRECTORY_PATH
+
+            rustup default nightly
+            cbindgen \
+              --lang c \
+              --config cbindgen.toml \
+              --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
+            rustup default stable
+
+            echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+
+            (
+              BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
+              cd $BUILD_PATH
+
+              BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+              tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+            )
+          )
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
+          path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"

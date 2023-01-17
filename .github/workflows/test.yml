@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - betanet
+      - develop
+      - main
+  push:
+    branches:
+      - betanet
+      - develop
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        crate: [ native-json-interface, radix-engine-toolkit ]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Targets
+      run: rustup target install wasm32-unknown-unknown
+    - name: Run tests
+      run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
+
+  generated-request-examples-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Checking Generated Requests
+        run: |
+          cd docs-examples-generator
+          mv request-examples.md old-request-examples.md
+          cargo run
+          cmp --quiet request-examples.md old-request-examples.md && exit 0 || exit 1

@@ -151,7 +151,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
 # Creating an XCFramework from the Apple builds
 (
     # The name of the crate that we are building
-    CRATE_NAME="radix-engine-toolkit-native"
+    CRATE_NAME="native-json-interface"
 
     # The path of the crate
     CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
@@ -199,7 +199,7 @@ BUILDS_DIRECTORY="$SCRIPT_DIR/build"
 [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
 mkdir $BUILDS_DIRECTORY
 
-for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
+for crate_name in "radix-engine-toolkit-jni" "native-json-interface" "radix-engine-toolkit-wasm"; 
 do
     CRATE_PATH="$SCRIPT_DIR/$crate_name"
     TARGET_PATH="$CRATE_PATH/target"
