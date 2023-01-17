@@ -866,7 +866,7 @@
               ]
             },
             "royalty_config": {
-              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Array` from the Value model.",
+              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -874,7 +874,7 @@
               ]
             },
             "metadata": {
-              "description": "The metadata to use for the package. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "description": "The metadata to use for the package. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1056,7 +1056,7 @@
               ]
             },
             "royalty_config": {
-              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Array` from the Value model.",
+              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1231,7 +1231,7 @@
           }
         },
         {
-          "description": "An instruction to mind non-fungibles of a resource",
+          "description": "An instruction to mint non-fungibles of a resource",
           "type": "object",
           "required": [
             "entries",
@@ -1255,6 +1255,39 @@
             },
             "entries": {
               "description": "The non-fungible tokens to mint. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to mint non-fungibles of a non-fungible resource that uses UUID as the type id and perform auto incrimination of ID.",
+          "type": "object",
+          "required": [
+            "entries",
+            "instruction",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "MINT_UUID_NON_FUNGIBLE"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to mint tokens of. This field is serialized as a `ResourceAddress` from the Value model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "entries": {
+              "description": "The non-fungible tokens to mint. The underlying type is a vector of tuples of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1289,7 +1322,7 @@
               ]
             },
             "metadata": {
-              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1297,7 +1330,7 @@
               ]
             },
             "access_rules": {
-              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Array` from the Value model.",
+              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1340,7 +1373,7 @@
               ]
             },
             "metadata": {
-              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1391,7 +1424,7 @@
               ]
             },
             "metadata": {
-              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1399,7 +1432,7 @@
               ]
             },
             "access_rules": {
-              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Array` from the Value model.",
+              "description": "The access rules to use for the resource. The underlying type of this is a map which maps a `ResourceMethodAuthKey` enum to a tuple of two `AccessRule`s denoting the current behavior and the mutability. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1442,7 +1475,7 @@
               ]
             },
             "metadata": {
-              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Array` from the Value model.",
+              "description": "The metadata to set on the resource. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1774,7 +1807,11 @@
             },
             "variant": {
               "description": "The name of the variant of the enum",
-              "type": "string"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/EnumDiscriminator"
+                }
+              ]
             },
             "fields": {
               "description": "Optional fields that the enum may have",
@@ -1888,6 +1925,57 @@
               "type": "array",
               "items": {
                 "$ref": "#/definitions/Value"
+              }
+            }
+          }
+        },
+        {
+          "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "type": "object",
+          "required": [
+            "entries",
+            "key_value_kind",
+            "type",
+            "value_value_kind"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Map"
+              ]
+            },
+            "key_value_kind": {
+              "description": "The kind of the keys used for the map. A map will be validated to ensure that its keys are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ValueKind"
+                }
+              ]
+            },
+            "value_value_kind": {
+              "description": "The kind of the values used for the map. A map will be validated to ensure that its values are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ValueKind"
+                }
+              ]
+            },
+            "entries": {
+              "description": "A vector of tuples representing the entires in the map where each tuple is made up of two elements: a key and a value.",
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Value"
+                  },
+                  {
+                    "$ref": "#/definitions/Value"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
               }
             }
           }
@@ -2295,26 +2383,6 @@
           "type": "object",
           "oneOf": [
             {
-              "description": "A 32 bit unsigned integer non-fungible id type which is serialized as a string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "U32"
-                  ]
-                },
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                }
-              }
-            },
-            {
               "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
               "type": "object",
               "required": [
@@ -2325,7 +2393,7 @@
                 "variant": {
                   "type": "string",
                   "enum": [
-                    "U64"
+                    "Number"
                   ]
                 },
                 "value": {
@@ -2488,6 +2556,19 @@
         }
       ]
     },
+    "EnumDiscriminator": {
+      "description": "A union of the types of discriminators that enums may have. This may either be a string or an 8-bit unsigned number. This type does not itself require a discriminator.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer",
+          "format": "uint8",
+          "minimum": 0.0
+        }
+      ]
+    },
     "ValueKind": {
       "description": "An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is essentially the `type` tags used for the value model.",
       "type": "string",
@@ -2509,6 +2590,7 @@
         "None",
         "Ok",
         "Err",
+        "Map",
         "Array",
         "Tuple",
         "Decimal",
@@ -2587,26 +2669,6 @@
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
       "oneOf": [
         {
-          "description": "A 32 bit unsigned integer non-fungible id type which is serialized as a string",
-          "type": "object",
-          "required": [
-            "value",
-            "variant"
-          ],
-          "properties": {
-            "variant": {
-              "type": "string",
-              "enum": [
-                "U32"
-              ]
-            },
-            "value": {
-              "type": "string",
-              "pattern": "[0-9]+"
-            }
-          }
-        },
-        {
           "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
           "type": "object",
           "required": [
@@ -2617,7 +2679,7 @@
             "variant": {
               "type": "string",
               "enum": [
-                "U64"
+                "Number"
               ]
             },
             "value": {

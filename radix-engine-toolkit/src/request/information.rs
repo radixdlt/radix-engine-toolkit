@@ -28,7 +28,7 @@ use serializable::serializable;
 /// as the version of the radix engine toolkit. In most cases, this is the first function written
 /// when integrating new clients; so, this function is often times seen as the "Hello World" example
 /// of the radix engine toolkit.
-pub struct InformationRequest;
+pub struct InformationRequest {}
 
 /// The response from [`InformationRequest`]s
 #[serializable]

@@ -105,8 +105,8 @@ fn value_scrypto_value_conversion_match_that_produced_by_transaction_compiler() 
         }
         println!("{:?}", test_vector.value.kind());
 
-        // This test will fail (as expected) for buckets and proofs with string TransientIdentifiers. So,
-        // we skip those tests
+        // This test will fail (as expected) for buckets and proofs with string
+        // TransientIdentifiers. So, we skip those tests
         if let Value::Bucket { ref identifier } = test_vector.value {
             if let TransientIdentifier::String(..) = identifier.0 {
                 continue;
@@ -200,8 +200,8 @@ fn sbor_encoding_value_yields_expected_result() {
 
     // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
     for test_vector in VALUE_CONVERSION_TEST_VECTORS.iter() {
-        // This test will fail (as expected) for buckets and proofs with string TransientIdentifiers. So,
-        // we skip those tests
+        // This test will fail (as expected) for buckets and proofs with string
+        // TransientIdentifiers. So, we skip those tests
         match test_vector.value {
             Value::Bucket {
                 identifier: BucketId(TransientIdentifier::String(..)),
@@ -235,8 +235,8 @@ fn sbor_decoding_value_yields_expected_result() {
 
     // Testing that the Value -> AstValue conversion matches that obtained from parsing the manifest
     for test_vector in VALUE_CONVERSION_TEST_VECTORS.iter() {
-        // This test will fail (as expected) for buckets and proofs with string TransientIdentifiers. So,
-        // we skip those tests
+        // This test will fail (as expected) for buckets and proofs with string
+        // TransientIdentifiers. So, we skip those tests
         match test_vector.value {
             Value::Bucket {
                 identifier: BucketId(TransientIdentifier::String(..)),

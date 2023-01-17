@@ -15,10 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod examples;
+mod examples_builder;
+
 use std::collections::HashMap;
 use std::path::PathBuf;
 
 use convert_case::Casing;
+use examples_builder::InMemoryExamplesBuilder;
+use radix_engine_toolkit::request::*;
 
 /// Generates a Schema HashMap where the key is the class name and the value is the schema
 macro_rules! generate_schema_hashmap {
@@ -44,10 +49,11 @@ macro_rules! generate_schema_hashmap {
 }
 
 fn main() {
-    generate_json_schema().expect("Failed to generate schema")
+    generate_json_schema().expect("Failed to generate schema");
+    generate_request_examples().expect("Failed to generate request examples");
 }
 
-pub fn generate_json_schema() -> Result<(), JsonSchemaGenerationError> {
+pub fn generate_json_schema() -> Result<(), GenerationError> {
     // Creating the schema for all of the request and response types through the generate schema
     // macro
     let schema_map = generate_schema_hashmap!(
@@ -107,9 +113,9 @@ pub fn generate_json_schema() -> Result<(), JsonSchemaGenerationError> {
             };
 
             serde_json::to_string_pretty(schema)
-                .map_err(JsonSchemaGenerationError::SerializationError)
+                .map_err(GenerationError::SerializationError)
                 .and_then(|schema_string| {
-                    std::fs::write(path, schema_string).map_err(JsonSchemaGenerationError::IOError)
+                    std::fs::write(path, schema_string).map_err(GenerationError::IOError)
                 })
         })
         .collect::<Result<Vec<_>, _>>()?;
@@ -117,8 +123,38 @@ pub fn generate_json_schema() -> Result<(), JsonSchemaGenerationError> {
     Ok(())
 }
 
+fn generate_request_examples() -> Result<(), GenerationError> {
+    let examples = InMemoryExamplesBuilder::new()
+        .add_example::<InformationHandler, InformationRequest, InformationResponse>()
+        .add_example::<ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse>()
+        .add_example::<CompileTransactionIntentHandler, CompileTransactionIntentRequest, CompileTransactionIntentResponse>()
+        .add_example::<DecompileTransactionIntentHandler, DecompileTransactionIntentRequest, DecompileTransactionIntentResponse>()
+        .add_example::<CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse>()
+        .add_example::<DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse>()
+        .add_example::<CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse>()
+        .add_example::<DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse>()
+        .add_example::<EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse>()
+        .add_example::<DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse>()
+        .add_example::<SborEncodeHandler, SborEncodeRequest, SborEncodeResponse>()
+        .add_example::<SborDecodeHandler, SborDecodeRequest, SborDecodeResponse>()
+        .add_example::<DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
+        .add_example::<StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>()
+        .add_example::<KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
+        .build();
+
+    let path = {
+        let mut path = PathBuf::from(".");
+        path.push("out");
+        path.push("examples");
+        path.push("examples.md");
+        path
+    };
+
+    std::fs::write(path, examples).map_err(GenerationError::IOError)
+}
+
 #[derive(Debug)]
-pub enum JsonSchemaGenerationError {
+pub enum GenerationError {
     IOError(std::io::Error),
     SerializationError(serde_json::Error),
 }
