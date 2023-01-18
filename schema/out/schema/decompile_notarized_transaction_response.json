@@ -152,18 +152,10 @@
               ]
             },
             "public_key": {
-              "type": "object",
-              "required": [
-                "public_key"
-              ],
-              "properties": {
-                "public_key": {
-                  "type": "string",
-                  "maxLength": 66,
-                  "minLength": 66,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -182,18 +174,10 @@
               ]
             },
             "public_key": {
-              "type": "object",
-              "required": [
-                "public_key"
-              ],
-              "properties": {
-                "public_key": {
-                  "type": "string",
-                  "maxLength": 66,
-                  "minLength": 66,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         }
@@ -2881,18 +2865,10 @@
               ]
             },
             "signature": {
-              "type": "object",
-              "required": [
-                "signature"
-              ],
-              "properties": {
-                "signature": {
-                  "type": "string",
-                  "maxLength": 130,
-                  "minLength": 130,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+              "type": "string",
+              "maxLength": 130,
+              "minLength": 130,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         },
@@ -2911,18 +2887,10 @@
               ]
             },
             "signature": {
-              "type": "object",
-              "required": [
-                "signature"
-              ],
-              "properties": {
-                "signature": {
-                  "type": "string",
-                  "maxLength": 128,
-                  "minLength": 128,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 128,
+              "pattern": "[0-9a-fA-F]+"
             }
           }
         }

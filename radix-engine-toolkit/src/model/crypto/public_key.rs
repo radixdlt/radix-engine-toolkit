@@ -24,7 +24,7 @@ use serializable::serializable;
 
 /// A discriminated union of the possible public keys used by Scrypto and the Radix Engine.
 #[serializable]
-#[serde(tag = "curve", content = "public_key")]
+#[serde(tag = "curve")]
 pub enum PublicKey {
     /// A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string
     /// representing a public key from the ECDSA Secp256k1 elliptic curve.

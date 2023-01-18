@@ -491,9 +491,7 @@ This document contains examples and descriptions of the different requests and r
     "nonce": "34",
     "notary_public_key": {
       "curve": "EcdsaSecp256k1",
-      "public_key": {
-        "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-      }
+      "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
     },
     "notary_as_signatory": true,
     "cost_unit_limit": "100000000",
@@ -752,9 +750,7 @@ This document contains examples and descriptions of the different requests and r
     "nonce": "34",
     "notary_public_key": {
       "curve": "EcdsaSecp256k1",
-      "public_key": {
-        "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-      }
+      "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
     },
     "notary_as_signatory": true,
     "cost_unit_limit": "100000000",
@@ -993,9 +989,7 @@ This document contains examples and descriptions of the different requests and r
       "nonce": "34",
       "notary_public_key": {
         "curve": "EcdsaSecp256k1",
-        "public_key": {
-          "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-        }
+        "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
       },
       "notary_as_signatory": true,
       "cost_unit_limit": "100000000",
@@ -1291,9 +1285,7 @@ This document contains examples and descriptions of the different requests and r
       "nonce": "34",
       "notary_public_key": {
         "curve": "EcdsaSecp256k1",
-        "public_key": {
-          "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-        }
+        "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
       },
       "notary_as_signatory": true,
       "cost_unit_limit": "100000000",
@@ -1569,9 +1561,7 @@ This document contains examples and descriptions of the different requests and r
         "nonce": "34",
         "notary_public_key": {
           "curve": "EcdsaSecp256k1",
-          "public_key": {
-            "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-          }
+          "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
         },
         "notary_as_signatory": true,
         "cost_unit_limit": "100000000",
@@ -1822,9 +1812,7 @@ This document contains examples and descriptions of the different requests and r
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": {
-      "signature": "00c2daa118a8541ef384a38f431a3dde3bf023463e49c124dca7631e2083495dbc1a50968d3bd21033c2bdf0b22c64d56c84a3f1c8e61b847e0208c694627835ef"
-    }
+    "signature": "00c2daa118a8541ef384a38f431a3dde3bf023463e49c124dca7631e2083495dbc1a50968d3bd21033c2bdf0b22c64d56c84a3f1c8e61b847e0208c694627835ef"
   }
 }
 ```
@@ -1875,9 +1863,7 @@ This document contains examples and descriptions of the different requests and r
         "nonce": "34",
         "notary_public_key": {
           "curve": "EcdsaSecp256k1",
-          "public_key": {
-            "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-          }
+          "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
         },
         "notary_as_signatory": true,
         "cost_unit_limit": "100000000",
@@ -2128,9 +2114,7 @@ This document contains examples and descriptions of the different requests and r
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": {
-      "signature": "00c2daa118a8541ef384a38f431a3dde3bf023463e49c124dca7631e2083495dbc1a50968d3bd21033c2bdf0b22c64d56c84a3f1c8e61b847e0208c694627835ef"
-    }
+    "signature": "00c2daa118a8541ef384a38f431a3dde3bf023463e49c124dca7631e2083495dbc1a50968d3bd21033c2bdf0b22c64d56c84a3f1c8e61b847e0208c694627835ef"
   }
 }
 ```
@@ -2444,9 +2428,7 @@ This document contains examples and descriptions of the different requests and r
   "network_id": "242",
   "public_key": {
     "curve": "EcdsaSecp256k1",
-    "public_key": {
-      "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
-    }
+    "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
   }
 }
 ```

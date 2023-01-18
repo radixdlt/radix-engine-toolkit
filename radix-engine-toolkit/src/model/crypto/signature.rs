@@ -25,7 +25,7 @@ use serializable::serializable;
 /// A discriminated union of the possible cryptographic signatures used by Scrypto and the Radix
 /// Engine.
 #[serializable]
-#[serde(tag = "curve", content = "signature")]
+#[serde(tag = "curve")]
 pub enum Signature {
     /// A byte array of 65 bytes which are serialized as a 130 character long hex-encoded string
     /// representing a signature from the ECDSA Secp256k1 elliptic curve. An important note on
