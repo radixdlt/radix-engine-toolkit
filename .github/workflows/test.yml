@@ -37,6 +37,8 @@ jobs:
         run: |
           cd schema
           mv out old-out
+          mkdir -p out/examples
+          mkdir -p out/schema
           cargo run
       - name: Comparing old examples to newly generated
         run: |
