@@ -25,6 +25,7 @@ use serializable::serializable;
 /// A discriminated union of the possible pairs of signatures and public keys used by Scrypto and
 /// the Radix Engine.
 #[serializable]
+#[serde(tag = "curve")]
 pub enum SignatureWithPublicKey {
     /// Cryptographic signature and public key for Ecdsa Secp256k1
     EcdsaSecp256k1 {

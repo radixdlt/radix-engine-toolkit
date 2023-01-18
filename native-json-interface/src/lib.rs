@@ -98,7 +98,7 @@ pub mod jni {
     use radix_engine_toolkit::request::*;
     use serde::Serialize;
 
-    pub fn serialize_to_jstring<T: Serialize>(
+    pub unsafe extern "system" serialize_to_jstring<T: Serialize>(
         env: jni::JNIEnv,
         object: &T,
     ) -> Result<jni::sys::jstring> {
@@ -220,4 +220,9 @@ pub mod jni {
         StaticallyValidateTransactionHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction
     );
+}
+
+#[no_mangle]
+pub unsafe extern "C" this_function_should_be_in_name_dump() {
+    
 }
