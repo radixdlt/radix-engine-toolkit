@@ -42,4 +42,10 @@ jobs:
           cargo run
       - name: Comparing old examples to newly generated
         run: |
-          cmp --quiet out/examples/request-examples.md out-old/examples/request-examples.md && exit 0 || exit 1
+          cmp --quiet ./out/examples/request-examples.md ./old-out/examples/request-examples.md && exit 0 || exit 1
+      - name: Comparing old schema to newly generated
+        run: |
+          for filename in $(find ./out/schema -type f -name "*.json" -exec basename {} \;);
+          do
+            cmp --quiet out/schema/$filename ./old-out/examples/$filename && exit 0 || exit 1
+          done
