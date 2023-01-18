@@ -29,13 +29,15 @@ jobs:
     - name: Run tests
       run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
 
-  generated-request-examples-test:
+  schema-and-example-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Checking Generated Requests
+      - name: Generating new schema and examples
         run: |
-          cd docs-examples-generator
-          mv request-examples.md old-request-examples.md
+          cd schema
+          mv out old-out
           cargo run
-          cmp --quiet request-examples.md old-request-examples.md && exit 0 || exit 1
+      - name: Comparing old examples to newly generated
+        run: |
+          cmp --quiet out/examples/request-examples.md out-old/examples/request-examples.md && exit 0 || exit 1

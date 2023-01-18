@@ -146,7 +146,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         let mut path = PathBuf::from(".");
         path.push("out");
         path.push("examples");
-        path.push("examples.md");
+        path.push("request-examples.md");
         path
     };
 
