@@ -1204,37 +1204,31 @@ This document contains examples and descriptions of the different requests and r
   },
   "intent_signatures": [
     {
-      "EcdsaSecp256k1": {
-        "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
     },
     {
-      "EcdsaSecp256k1": {
-        "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
     },
     {
-      "EcdsaSecp256k1": {
-        "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
+      "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
+      "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
+      "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
     }
   ]
 }
@@ -1500,37 +1494,31 @@ This document contains examples and descriptions of the different requests and r
   },
   "intent_signatures": [
     {
-      "EcdsaSecp256k1": {
-        "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
     },
     {
-      "EcdsaSecp256k1": {
-        "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
     },
     {
-      "EcdsaSecp256k1": {
-        "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
-      }
+      "curve": "EcdsaSecp256k1",
+      "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
+      "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
+      "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
     },
     {
-      "EddsaEd25519": {
-        "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
-      }
+      "curve": "EddsaEd25519",
+      "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
+      "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
     }
   ]
 }
@@ -1776,37 +1764,31 @@ This document contains examples and descriptions of the different requests and r
     },
     "intent_signatures": [
       {
-        "EcdsaSecp256k1": {
-          "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
       },
       {
-        "EcdsaSecp256k1": {
-          "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
       },
       {
-        "EcdsaSecp256k1": {
-          "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-          "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
+        "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-          "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
+        "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-          "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
+        "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
       }
     ]
   },
@@ -2078,37 +2060,31 @@ This document contains examples and descriptions of the different requests and r
     },
     "intent_signatures": [
       {
-        "EcdsaSecp256k1": {
-          "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "00d97c6ee042ea5e522a609bd2b7ea30e32f081e89d9ca4c857a405a50fe16779b3198b51ed7b2ef033e9866643a8125524bd96438bb960ec1c3c02ac86eeabaf1"
       },
       {
-        "EcdsaSecp256k1": {
-          "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "0004671578e1f5eac6b80754041380680c4a2aade0173dbac78452e2681b0fdb2b4856070494ee3e1857a3c6ab840a214f2e3b88bbb140b258a5eac5fdfa60001c"
       },
       {
-        "EcdsaSecp256k1": {
-          "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
-        }
+        "curve": "EcdsaSecp256k1",
+        "signature": "01607f3ec615db0e08d0b9b8aebe07eaa1f8694c83c1c0d7015c5b1a0ad0371b9c57967a57c302e9145df831b0f083116ae700bb9f50da0111d5ed9630f08b9729"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-          "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
+        "signature": "30fccf0b2fff1e261e24fd7d5de8e4b31ce7d01a5ef609acca19e4f75cab58a2ec42f7c80b70ff0f866e4f37ff27108da11f779e97da5f1ad3b239a6f3c49208"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-          "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
+        "signature": "638000d190edda9c5a724cd3cc53a3b3093ebb2a00966830224bbfd29c80f351b416005e7883e5d70e35b5cbab5893c27585f7302cccbb72997be0c7bfe5e507"
       },
       {
-        "EddsaEd25519": {
-          "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-          "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
-        }
+        "curve": "EddsaEd25519",
+        "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
+        "signature": "9df6945807370c409e0890efff264637c04acc9289b2ad050910add5dcedab305ec84b73ef1b50c763d9fbe97c85806b16542b465d9d34879922ae06cd91f409"
       }
     ]
   },

@@ -2805,59 +2805,55 @@
           "description": "Cryptographic signature and public key for Ecdsa Secp256k1",
           "type": "object",
           "required": [
-            "EcdsaSecp256k1"
+            "curve",
+            "signature"
           ],
           "properties": {
-            "EcdsaSecp256k1": {
-              "type": "object",
-              "required": [
-                "signature"
-              ],
-              "properties": {
-                "signature": {
-                  "description": "A byte array of 65 bytes which are serialized as a 130 character long hex-encoded string representing a signature from the ECDSA Secp256k1 elliptic curve. An important note on ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s] where `v` is the recovery id and is a single byte and `r` and `s` are the signature results and are 32 bytes each. In this case, only a signature is needed since the public key can be derived from the signature if the message is available.",
-                  "type": "string",
-                  "maxLength": 130,
-                  "minLength": 130,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EcdsaSecp256k1"
+              ]
+            },
+            "signature": {
+              "description": "A byte array of 65 bytes which are serialized as a 130 character long hex-encoded string representing a signature from the ECDSA Secp256k1 elliptic curve. An important note on ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s] where `v` is the recovery id and is a single byte and `r` and `s` are the signature results and are 32 bytes each. In this case, only a signature is needed since the public key can be derived from the signature if the message is available.",
+              "type": "string",
+              "maxLength": 130,
+              "minLength": 130,
+              "pattern": "[0-9a-fA-F]+"
             }
-          },
-          "additionalProperties": false
+          }
         },
         {
           "description": "Cryptographic signature and public key for EdDSA Ed25519",
           "type": "object",
           "required": [
-            "EddsaEd25519"
+            "curve",
+            "public_key",
+            "signature"
           ],
           "properties": {
-            "EddsaEd25519": {
-              "type": "object",
-              "required": [
-                "public_key",
-                "signature"
-              ],
-              "properties": {
-                "public_key": {
-                  "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
-                  "type": "string",
-                  "maxLength": 66,
-                  "minLength": 66,
-                  "pattern": "[0-9a-fA-F]+"
-                },
-                "signature": {
-                  "description": "A byte array of 64 bytes which are serialized as a 128 character long hex-encoded string representing a signature from the EDDSA Ed25519 edwards curve.",
-                  "type": "string",
-                  "maxLength": 128,
-                  "minLength": 128,
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EddsaEd25519"
+              ]
+            },
+            "public_key": {
+              "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
+            },
+            "signature": {
+              "description": "A byte array of 64 bytes which are serialized as a 128 character long hex-encoded string representing a signature from the EDDSA Ed25519 edwards curve.",
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 128,
+              "pattern": "[0-9a-fA-F]+"
             }
-          },
-          "additionalProperties": false
+          }
         }
       ]
     },
