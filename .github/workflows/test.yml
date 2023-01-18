@@ -49,5 +49,5 @@ jobs:
           cd schema
           for filename in $(find ./out/schema -type f -name "*.json" -exec basename {} \;);
           do
-            cmp --quiet out/schema/$filename ./old-out/examples/$filename && exit 0 || exit 1
+            cmp --quiet out/schema/$filename ./old-out/schema/$filename && exit 0 || exit 1
           done
