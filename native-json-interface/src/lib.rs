@@ -98,7 +98,7 @@ pub mod jni {
     use radix_engine_toolkit::request::*;
     use serde::Serialize;
 
-    pub unsafe extern "system" serialize_to_jstring<T: Serialize>(
+    fn serialize_to_jstring<T: Serialize>(
         env: jni::JNIEnv,
         object: &T,
     ) -> Result<jni::sys::jstring> {
@@ -121,7 +121,7 @@ pub mod jni {
     macro_rules! export_handler {
         ($handler: ident as $handler_ident: ident) => {
             #[no_mangle]
-            pub extern "system" fn $handler_ident(
+            pub unsafe extern "system" fn $handler_ident(
                 env: jni::JNIEnv,
                 _: jni::objects::JClass,
                 input: jni::objects::JString,
@@ -223,6 +223,4 @@ pub mod jni {
 }
 
 #[no_mangle]
-pub unsafe extern "C" this_function_should_be_in_name_dump() {
-    
-}
+pub unsafe extern "C" fn this_function_should_be_in_name_dump() {}
