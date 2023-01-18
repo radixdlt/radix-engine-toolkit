@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        crate: [ radix-engine-toolkit-core, radix-engine-toolkit-native, radix-engine-toolkit-jni, radix-engine-toolkit-wasm]
+        crate: [ native-json-interface, radix-engine-toolkit ]
 
     steps:
     - uses: actions/checkout@v3
@@ -29,13 +29,25 @@ jobs:
     - name: Run tests
       run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
 
-  generated-request-examples-test:
+  schema-and-example-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Checking Generated Requests
+      - name: Generating new schema and examples
         run: |
-          cd docs-examples-generator
-          mv request-examples.md old-request-examples.md
+          cd schema
+          mv out old-out
+          mkdir -p out/examples
+          mkdir -p out/schema
           cargo run
-          cmp --quiet request-examples.md old-request-examples.md && exit 0 || exit 1
+      - name: Comparing old examples to newly generated
+        run: |
+          cd schema
+          cmp --quiet ./out/examples/request-examples.md ./old-out/examples/request-examples.md && exit 0 || exit 1
+      - name: Comparing old schema to newly generated
+        run: |
+          cd schema
+          for filename in $(find ./out/schema -type f -name "*.json" -exec basename {} \;);
+          do
+            cmp --quiet out/schema/$filename ./old-out/schema/$filename && exit 0 || exit 1
+          done

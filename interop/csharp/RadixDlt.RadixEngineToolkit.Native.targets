@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-x86\native\libradix_engine_toolkit.so">
+    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\radix_engine_toolkit.dll">
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>native\linux-x86\libradix_engine_toolkit.so</Link>
+      <Link>native\win-x64\radix_engine_toolkit.dll</Link>
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
+    
     <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-x64\native\libradix_engine_toolkit.so">
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>native\linux-x64\libradix_engine_toolkit.so</Link>
+      <Visible>true</Visible>
+      <Pack>false</Pack>
+    </Content>
+    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\linux-x32\native\libradix_engine_toolkit.so">
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>native\linux-x32\libradix_engine_toolkit.so</Link>
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>
@@ -34,14 +42,6 @@
       <PackageCopyToOutput>true</PackageCopyToOutput>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>native\osx-arm64\libradix_engine_toolkit.dylib</Link>
-      <Visible>true</Visible>
-      <Pack>false</Pack>
-    </Content>
-
-    <Content Include="$(MSBuildThisFileDirectory)..\..\runtimes\win-x64\native\radix_engine_toolkit.dll">
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>native\win-x64\radix_engine_toolkit.dll</Link>
       <Visible>true</Visible>
       <Pack>false</Pack>
     </Content>

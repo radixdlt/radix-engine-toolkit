@@ -23,7 +23,7 @@ jobs:
         run: |
           mkdir native
           
-          for d in radix-engine-toolkit-native-*.tar.gz; do
+          for d in native-json-interface-*.tar.gz; do
             mv ./$d/* ./native/
           done
           

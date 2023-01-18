@@ -1,0 +1,22 @@
+[package]
+name = "schema"
+version = "0.7.0"
+edition = "2021"
+
+[dependencies]
+# A library which allows us to generate a JSON schema from Rust models
+schemars = { version = "0.8.11", features = ["preserve_order"] }
+
+# Used to serialize the schema to JSON
+serde_json = "1.0.91"
+
+# Importing core to get the models to generate it
+radix_engine_toolkit = { path = "../radix-engine-toolkit" }
+serde = "1.0.152"
+convert_case = "0.6.0"
+
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-9055c6" }
