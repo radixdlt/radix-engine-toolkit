@@ -36,6 +36,11 @@ pub struct InformationResponse {
     /// A SemVer string of the version of the Radix Engine Toolkit. Ideally, if the toolkit is
     /// version X then that means that it is compatible with version X of Scrypto.
     pub package_version: String,
+
+    /// The hash of the commit that this build of the Radix Engine Toolkit was built against. This
+    /// is useful when doing any form of debugging and trying to determine the version of the
+    /// library
+    pub git_hash: String,
 }
 
 // ===============
@@ -52,6 +57,7 @@ impl Handler<InformationRequest, InformationResponse> for InformationHandler {
     fn handle(_: &InformationRequest) -> Result<InformationResponse> {
         let response = InformationResponse {
             package_version: env!("CARGO_PKG_VERSION").into(),
+            git_hash: env!("GIT_HASH").into(),
         };
         Ok(response)
     }

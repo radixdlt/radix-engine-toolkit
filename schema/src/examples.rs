@@ -130,6 +130,10 @@ where
 
     fn example_request() -> I;
 
+    fn example_response() -> O {
+        Self::fulfill(Self::example_request()).unwrap()
+    }
+
     fn request_type_name() -> String {
         std::any::type_name::<I>()
             .split("::")
@@ -147,7 +151,7 @@ where
 
     fn to_example() -> Example {
         let request = Self::example_request();
-        let response = Self::fulfill(request.clone()).unwrap();
+        let response = Self::example_response();
         Example {
             request_type_name: Self::request_type_name(),
             response_type_name: Self::response_type_name(),
@@ -165,6 +169,12 @@ impl ExampleData<InformationRequest, InformationResponse> for InformationHandler
 
     fn example_request() -> InformationRequest {
         InformationRequest {}
+    }
+
+    fn example_response() -> InformationResponse {
+        let mut response = Self::fulfill(Self::example_request()).unwrap();
+        response.git_hash = "This is just an example. We don't have a commit hash here :)".into();
+        response
     }
 }
 
