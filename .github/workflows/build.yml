@@ -183,6 +183,9 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
+      - name: Sanity Check
+        run: |
+          echo ${{ github.sha }}
       - name: Checkout
         uses: actions/checkout@v3
       - name: Download Artifacts
@@ -191,7 +194,7 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
           path: artifacts
-          run_number: ${{github.run_number}}
+          commit: ${{github.sha}}
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
