@@ -191,7 +191,7 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build.yml
           path: artifacts
-          run_id: ${{github.run_id}}
+          run_number: ${{github.run_number}}
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
