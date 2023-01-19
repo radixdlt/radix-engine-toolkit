@@ -39,7 +39,6 @@ jobs:
           for f in *.tar.gz; do 
             fn=`echo "$f" | cut -d'.' -f 1`
             mkdir "$fn"
-            md5 "$fn"
             tar -xvzf "$f" --directory="$fn";
           done
       - name: Setup .NET SDK
