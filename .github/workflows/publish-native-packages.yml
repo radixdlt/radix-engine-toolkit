@@ -5,6 +5,9 @@ on:
     workflows: ["Build"]
     types:
       - completed
+    branches:
+      - main
+      - develop
 
 jobs:
   publish-csharp-nuget:
