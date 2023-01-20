@@ -186,13 +186,7 @@ jobs:
           echo ${{ github.sha }}
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Download Artifacts
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: build.yml
-          path: artifacts
-          commit: ${{github.sha}}
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
