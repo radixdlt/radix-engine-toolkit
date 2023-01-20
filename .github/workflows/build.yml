@@ -60,12 +60,12 @@ jobs:
             custom-compiler: aarch64-unknown-linux-gnu-gcc
             custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
             features: "jni"
-          - crate: native-json-interface
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-            features: "jni"
+#          - crate: native-json-interface
+#            target-triple: i686-unknown-linux-gnu
+#            custom-linker: i686-unknown-linux-gnu-gcc
+#            custom-compiler: i686-unknown-linux-gnu-gcc
+#            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+#            features: "jni"
           - crate: native-json-interface
             target-triple: wasm32-unknown-unknown
             custom-linker: ""
