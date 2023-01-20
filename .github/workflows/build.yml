@@ -2,9 +2,7 @@ name: Build
 
 on:
   push:
-    branches:
-      - main
-      - develop
+
   pull_request:
     branches:
       - develop
@@ -60,12 +58,12 @@ jobs:
             custom-compiler: aarch64-unknown-linux-gnu-gcc
             custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
             features: "jni"
-#          - crate: native-json-interface
-#            target-triple: i686-unknown-linux-gnu
-#            custom-linker: i686-unknown-linux-gnu-gcc
-#            custom-compiler: i686-unknown-linux-gnu-gcc
-#            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-#            features: "jni"
+          - crate: native-json-interface
+            target-triple: i686-unknown-linux-gnu
+            custom-linker: i686-unknown-linux-gnu-gcc
+            custom-compiler: i686-unknown-linux-gnu-gcc
+            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+            features: "jni"
           - crate: native-json-interface
             target-triple: wasm32-unknown-unknown
             custom-linker: ""
@@ -135,7 +133,7 @@ jobs:
             then
               export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
             fi
-            
+          
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
             export features=$${{ matrix.build-target.features }}
@@ -183,18 +181,17 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Sanity Check
+      - name: Sanity Check no. 1
         run: |
           echo ${{ github.sha }}
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Download Artifacts
-        uses: dawidd6/action-download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: build.yml
           path: artifacts
-          commit: ${{github.sha}}
+      - name: Sanity Check no. 2
+        run: |
+          ls -laR ./artifacts/
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
@@ -211,6 +208,9 @@ jobs:
             mkdir "$fn"
             tar -xvzf "$f" --directory="$fn";
           done
+      - name: Sanity Check no. 3
+        run: |
+          ls -laR ./artifacts/
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
         with:
@@ -229,6 +229,10 @@ jobs:
       - name: NuGet Pack
         working-directory: interop/csharp
         run: nuget pack
+      - name: Sanity Check no. 4
+        run: |
+          md5sum ./artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib
+          md5sum ./interop/csharp/RadixDlt.RadixEngineToolkit.Native.nuspec
       - name: Publish Packages
         working-directory: interop/csharp
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.Native.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
