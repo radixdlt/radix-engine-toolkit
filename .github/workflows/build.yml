@@ -231,8 +231,8 @@ jobs:
         run: nuget pack
       - name: Sanity Check no. 4
         run: |
-          md5 ./artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib
-          md5 ./interop/csharp/RadixDlt.RadixEngineToolkit.Native.nuspec
+          md5sum ./artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib
+          md5sum ./interop/csharp/RadixDlt.RadixEngineToolkit.Native.nuspec
       - name: Publish Packages
         working-directory: interop/csharp
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.Native.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
