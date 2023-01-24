@@ -189,6 +189,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
+      - name: Sanity Check no. 2
+        run: |
+          ls -laR ./artifacts/
       - name: Extract Artifacts
         working-directory: artifacts
         run: |
@@ -205,7 +208,7 @@ jobs:
             mkdir "$fn"
             tar -xvzf "$f" --directory="$fn";
           done
-      - name: Sanity Check no. 2
+      - name: Sanity Check no. 3
         run: |
           ls -laR ./artifacts/
       - name: Setup .NET SDK
@@ -226,7 +229,7 @@ jobs:
       - name: NuGet Pack
         working-directory: interop/csharp
         run: nuget pack
-      - name: Sanity Check no. 2
+      - name: Sanity Check no. 4
         run: |
           md5 ./artifacts/native/aarch64-apple-darwin/libradix_engine_toolkit.dylib
           md5 ./interop/csharp/RadixDlt.RadixEngineToolkit.Native.nuspec
