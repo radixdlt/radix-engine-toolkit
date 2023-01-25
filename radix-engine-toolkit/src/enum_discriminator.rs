@@ -24,13 +24,22 @@ use serializable::serializable;
 // =================
 
 /// A union of the types of discriminators that enums may have. This may either be a string or an
-/// 8-bit unsigned number. This type does not itself require a discriminator.
+/// 8-bit unsigned number.
 #[serializable]
-#[serde(untagged)]
+#[serde(tag = "type")]
 #[derive(PartialEq, Eq, Hash)]
 pub enum EnumDiscriminator {
-    String(String),
-    U8(u8),
+    String {
+        /// A string discriminator of the fully qualified well-known enum name
+        discriminator: String,
+    },
+    U8 {
+        /// An 8-bit unsigned integer serialized as a string.
+        #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        discriminator: u8,
+    },
 }
 
 // ============
@@ -41,8 +50,8 @@ impl EnumDiscriminator {
     /// Resolves the enum discriminator to a [`u8`] discriminator.
     pub fn resolve_discriminator(&self) -> Result<u8> {
         match self {
-            Self::U8(discriminator) => Ok(*discriminator),
-            Self::String(discriminator) => KNOWN_ENUM_DISCRIMINATORS
+            Self::U8 { discriminator } => Ok(*discriminator),
+            Self::String { discriminator } => KNOWN_ENUM_DISCRIMINATORS
                 .get(discriminator.as_str())
                 .copied()
                 .ok_or(Error::InvalidEnumDiscriminator {

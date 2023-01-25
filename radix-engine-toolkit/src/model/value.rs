@@ -299,11 +299,17 @@ pub enum Value {
 
     /// Represents a Scrypto bucket which is identified through a transient identifier which is
     /// either a string or an unsigned 32-bit integer which is serialized as a number.
-    Bucket { identifier: BucketId },
+    Bucket {
+        #[serde(flatten)]
+        identifier: BucketId,
+    },
 
     /// Represents a Scrypto proof which is identified through a transient identifier which is
     /// either a string or an unsigned 32-bit integer which is serialized as a number.
-    Proof { identifier: ProofId },
+    Proof {
+        #[serde(flatten)]
+        identifier: ProofId,
+    },
 
     /// Represents non-fungible ids which is a discriminated union of the different types that
     /// non-fungible ids may be.
@@ -568,12 +574,16 @@ impl Value {
                 ast::Value::Hash(Box::new(ast::Value::String(value.to_string())))
             }
             Value::Bucket { identifier } => ast::Value::Bucket(Box::new(match identifier.0 {
-                TransientIdentifier::String(ref string) => ast::Value::String(string.clone()),
-                TransientIdentifier::U32(number) => ast::Value::U32(number),
+                TransientIdentifier::String { ref identifier } => {
+                    ast::Value::String(identifier.clone())
+                }
+                TransientIdentifier::U32 { identifier } => ast::Value::U32(identifier),
             })),
             Value::Proof { identifier } => ast::Value::Proof(Box::new(match identifier.0 {
-                TransientIdentifier::String(ref string) => ast::Value::String(string.clone()),
-                TransientIdentifier::U32(number) => ast::Value::U32(number),
+                TransientIdentifier::String { ref identifier } => {
+                    ast::Value::String(identifier.clone())
+                }
+                TransientIdentifier::U32 { identifier } => ast::Value::U32(identifier),
             })),
 
             Value::NonFungibleId { value } => ast::Value::NonFungibleId(Box::new(match value {
@@ -663,7 +673,9 @@ impl Value {
             },
 
             ast::Value::Enum(variant, fields) => Self::Enum {
-                variant: EnumDiscriminator::U8(*variant),
+                variant: EnumDiscriminator::U8 {
+                    discriminator: *variant,
+                },
                 fields: {
                     if fields.is_empty() {
                         None
@@ -769,13 +781,19 @@ impl Value {
             })?,
 
             ast::Value::Bucket(value) => {
-                if let ast::Value::U32(value) = &**value {
+                if let ast::Value::U32(identifier) = &**value {
                     Self::Bucket {
-                        identifier: TransientIdentifier::U32(*value).into(),
+                        identifier: TransientIdentifier::U32 {
+                            identifier: *identifier,
+                        }
+                        .into(),
                     }
-                } else if let ast::Value::String(value) = &**value {
+                } else if let ast::Value::String(identifier) = &**value {
                     Self::Bucket {
-                        identifier: TransientIdentifier::String(value.clone()).into(),
+                        identifier: TransientIdentifier::String {
+                            identifier: identifier.to_owned(),
+                        }
+                        .into(),
                     }
                 } else {
                     Err(Error::UnexpectedAstContents {
@@ -786,13 +804,19 @@ impl Value {
                 }
             }
             ast::Value::Proof(value) => {
-                if let ast::Value::U32(value) = &**value {
+                if let ast::Value::U32(identifier) = &**value {
                     Self::Proof {
-                        identifier: TransientIdentifier::U32(*value).into(),
+                        identifier: TransientIdentifier::U32 {
+                            identifier: *identifier,
+                        }
+                        .into(),
                     }
-                } else if let ast::Value::String(value) = &**value {
+                } else if let ast::Value::String(identifier) = &**value {
                     Self::Proof {
-                        identifier: TransientIdentifier::String(value.clone()).into(),
+                        identifier: TransientIdentifier::String {
+                            identifier: identifier.clone(),
+                        }
+                        .into(),
                     }
                 } else {
                     Err(Error::UnexpectedAstContents {
@@ -1149,7 +1173,9 @@ impl Value {
                 discriminator,
                 fields,
             } => Self::Enum {
-                variant: EnumDiscriminator::U8(*discriminator),
+                variant: EnumDiscriminator::U8 {
+                    discriminator: *discriminator,
+                },
                 fields: if fields.is_empty() {
                     None
                 } else {
@@ -1235,12 +1261,18 @@ impl Value {
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Bucket(identifier),
             } => Self::Bucket {
-                identifier: TransientIdentifier::U32(identifier.0).into(),
+                identifier: TransientIdentifier::U32 {
+                    identifier: identifier.0,
+                }
+                .into(),
             },
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Proof(identifier),
             } => Self::Proof {
-                identifier: TransientIdentifier::U32(identifier.0).into(),
+                identifier: TransientIdentifier::U32 {
+                    identifier: identifier.0,
+                }
+                .into(),
             },
 
             ScryptoValue::Custom {

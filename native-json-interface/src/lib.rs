@@ -221,11 +221,3 @@ pub mod jni {
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction
     );
 }
-
-#[no_mangle]
-pub unsafe extern "C" fn this_function_should_be_in_name_dump() {}
-
-#[no_mangle]
-pub unsafe extern "C" fn this_other_function_should_be_in_name_dump(m: i32, n: i32) -> i32 {
-    m + n
-}

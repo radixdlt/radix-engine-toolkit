@@ -156,12 +156,12 @@ lazy_static::lazy_static! {
         // Enums and Enum Aliases (Option & Result)
         ValueRepresentationTestVector::new(
             Value::Enum {
-                variant: radix_engine_toolkit::EnumDiscriminator::U8(1),
+                variant: radix_engine_toolkit::EnumDiscriminator::U8{discriminator: 1},
                 fields: Some(vec![Value::String {
                     value: "Component".into(),
                 }]),
             },
-            r#"{"type": "Enum", "variant": 1, "fields": [{"type": "String", "value": "Component"}]}"#,
+            r#"{"type": "Enum", "variant": {"type": "U8", "discriminator": "1"}, "fields": [{"type": "String", "value": "Component"}]}"#,
             r#"Enum("Option::Some", "Component")"#,
         ),
         ValueRepresentationTestVector::new(
@@ -331,23 +331,23 @@ lazy_static::lazy_static! {
         // Buckets and Proofs
         // ===================
         ValueRepresentationTestVector::new(
-            Value::Bucket { identifier: BucketId(TransientIdentifier::String("xrd_bucket".into())) },
-            r#"{"type": "Bucket", "identifier": "xrd_bucket"}"#,
+            Value::Bucket { identifier: BucketId(TransientIdentifier::String{ identifier: "xrd_bucket".into()}) },
+            r#"{"type": "Bucket", "variant": "String", "identifier": "xrd_bucket"}"#,
             r#"Bucket("xrd_bucket")"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Bucket { identifier: BucketId(TransientIdentifier::U32(28)) },
-            r#"{"type": "Bucket", "identifier": 28}"#,
+            Value::Bucket { identifier: BucketId(TransientIdentifier::U32{ identifier: 28}) },
+            r#"{"type": "Bucket", "variant": "U32", "identifier": "28"}"#,
             r#"Bucket(28u32)"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Proof { identifier: ProofId(TransientIdentifier::String("xrd_proof".into())) },
-            r#"{"type": "Proof", "identifier": "xrd_proof"}"#,
+            Value::Proof { identifier: ProofId(TransientIdentifier::String{ identifier: "xrd_proof".into()}) },
+            r#"{"type": "Proof", "variant": "String", "identifier": "xrd_proof"}"#,
             r#"Proof("xrd_proof")"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Proof { identifier: ProofId(TransientIdentifier::U32(28)) },
-            r#"{"type": "Proof", "identifier": 28}"#,
+            Value::Proof { identifier: ProofId(TransientIdentifier::U32{ identifier: 28}) },
+            r#"{"type": "Proof", "variant": "U32", "identifier": "28"}"#,
             r#"Proof(28u32)"#
         ),
 

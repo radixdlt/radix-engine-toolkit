@@ -97,22 +97,14 @@ fn value_scrypto_value_conversion_match_that_produced_by_transaction_compiler() 
     let bech32_coder = Bech32Coder::new(0xf2);
 
     for test_vector in VALUE_CONVERSION_TEST_VECTORS.iter() {
-        match test_vector.value {
-            Value::Map { .. } => {
-                println!("")
-            }
-            _ => {}
-        }
-        println!("{:?}", test_vector.value.kind());
-
         // This test will fail (as expected) for buckets and proofs with string
         // TransientIdentifiers. So, we skip those tests
         if let Value::Bucket { ref identifier } = test_vector.value {
-            if let TransientIdentifier::String(..) = identifier.0 {
+            if let TransientIdentifier::String { .. } = identifier.0 {
                 continue;
             }
         } else if let Value::Proof { ref identifier } = test_vector.value {
-            if let TransientIdentifier::String(..) = identifier.0 {
+            if let TransientIdentifier::String { .. } = identifier.0 {
                 continue;
             }
         }
@@ -164,10 +156,10 @@ fn no_information_is_lost_when_converting_value_to_scrypto_value_and_back() {
     for test_vector in VALUE_CONVERSION_TEST_VECTORS.iter() {
         match test_vector.value {
             Value::Bucket {
-                identifier: BucketId(TransientIdentifier::String(..)),
+                identifier: BucketId(TransientIdentifier::String { .. }),
             }
             | Value::Proof {
-                identifier: ProofId(TransientIdentifier::String(..)),
+                identifier: ProofId(TransientIdentifier::String { .. }),
             }
             | Value::Some { .. }
             | Value::None
@@ -204,10 +196,10 @@ fn sbor_encoding_value_yields_expected_result() {
         // TransientIdentifiers. So, we skip those tests
         match test_vector.value {
             Value::Bucket {
-                identifier: BucketId(TransientIdentifier::String(..)),
+                identifier: BucketId(TransientIdentifier::String { .. }),
             }
             | Value::Proof {
-                identifier: ProofId(TransientIdentifier::String(..)),
+                identifier: ProofId(TransientIdentifier::String { .. }),
             }
             | Value::Some { .. }
             | Value::None
@@ -239,10 +231,10 @@ fn sbor_decoding_value_yields_expected_result() {
         // TransientIdentifiers. So, we skip those tests
         match test_vector.value {
             Value::Bucket {
-                identifier: BucketId(TransientIdentifier::String(..)),
+                identifier: BucketId(TransientIdentifier::String { .. }),
             }
             | Value::Proof {
-                identifier: ProofId(TransientIdentifier::String(..)),
+                identifier: ProofId(TransientIdentifier::String { .. }),
             }
             | Value::Some { .. }
             | Value::None
@@ -258,7 +250,7 @@ fn sbor_decoding_value_yields_expected_result() {
 
         // Act
         let mut value =
-            Value::decode(&encoded_value, 0xf2).expect("Failed to SBOR decode trusted value");
+            Value::decode(encoded_value, 0xf2).expect("Failed to SBOR decode trusted value");
         value.alias();
 
         // Assert
