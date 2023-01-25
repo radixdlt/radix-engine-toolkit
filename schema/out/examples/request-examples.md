@@ -84,6 +84,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket1"
           }
         },
@@ -100,6 +101,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket1"
             }
           ]
@@ -130,6 +132,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -137,10 +140,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -148,10 +153,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -159,6 +166,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -166,6 +174,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -194,6 +203,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -201,6 +211,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -208,6 +219,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -226,6 +238,7 @@ This document contains examples and descriptions of the different requests and r
           ],
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket3"
           }
         },
@@ -298,6 +311,7 @@ This document contains examples and descriptions of the different requests and r
         },
         "into_bucket": {
           "type": "Bucket",
+          "variant": "String",
           "identifier": "bucket1"
         }
       },
@@ -314,6 +328,7 @@ This document contains examples and descriptions of the different requests and r
         "arguments": [
           {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket1"
           }
         ]
@@ -344,6 +359,7 @@ This document contains examples and descriptions of the different requests and r
         },
         "into_bucket": {
           "type": "Bucket",
+          "variant": "String",
           "identifier": "bucket2"
         }
       },
@@ -351,10 +367,12 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "CREATE_PROOF_FROM_BUCKET",
         "bucket": {
           "type": "Bucket",
+          "variant": "String",
           "identifier": "bucket2"
         },
         "into_proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof1"
         }
       },
@@ -362,10 +380,12 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "CLONE_PROOF",
         "proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof1"
         },
         "into_proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof2"
         }
       },
@@ -373,6 +393,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof1"
         }
       },
@@ -380,6 +401,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof2"
         }
       },
@@ -408,6 +430,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "POP_FROM_AUTH_ZONE",
         "into_proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof3"
         }
       },
@@ -415,6 +438,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
+          "variant": "String",
           "identifier": "proof3"
         }
       },
@@ -422,6 +446,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "RETURN_TO_WORKTOP",
         "bucket": {
           "type": "Bucket",
+          "variant": "String",
           "identifier": "bucket2"
         }
       },
@@ -440,6 +465,7 @@ This document contains examples and descriptions of the different requests and r
         ],
         "into_bucket": {
           "type": "Bucket",
+          "variant": "String",
           "identifier": "bucket3"
         }
       },
@@ -535,6 +561,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket1"
           }
         },
@@ -551,6 +578,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket1"
             }
           ]
@@ -581,6 +609,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -588,10 +617,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -599,10 +630,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -610,6 +643,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -617,6 +651,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -645,6 +680,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -652,6 +688,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -659,6 +696,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -677,6 +715,7 @@ This document contains examples and descriptions of the different requests and r
           ],
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket3"
           }
         },
@@ -794,6 +833,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket1"
           }
         },
@@ -810,6 +850,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket1"
             }
           ]
@@ -840,6 +881,7 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -847,10 +889,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -858,10 +902,12 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           },
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -869,6 +915,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof1"
           }
         },
@@ -876,6 +923,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof2"
           }
         },
@@ -904,6 +952,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -911,6 +960,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
+            "variant": "String",
             "identifier": "proof3"
           }
         },
@@ -918,6 +968,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket2"
           }
         },
@@ -936,6 +987,7 @@ This document contains examples and descriptions of the different requests and r
           ],
           "into_bucket": {
             "type": "Bucket",
+            "variant": "String",
             "identifier": "bucket3"
           }
         },
@@ -1033,6 +1085,7 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket1"
             }
           },
@@ -1049,6 +1102,7 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket1"
               }
             ]
@@ -1079,6 +1133,7 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             }
           },
@@ -1086,10 +1141,12 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CREATE_PROOF_FROM_BUCKET",
             "bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             },
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             }
           },
@@ -1097,10 +1154,12 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CLONE_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             },
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof2"
             }
           },
@@ -1108,6 +1167,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             }
           },
@@ -1115,6 +1175,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof2"
             }
           },
@@ -1143,6 +1204,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "POP_FROM_AUTH_ZONE",
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof3"
             }
           },
@@ -1150,6 +1212,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof3"
             }
           },
@@ -1157,6 +1220,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "RETURN_TO_WORKTOP",
             "bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             }
           },
@@ -1175,6 +1239,7 @@ This document contains examples and descriptions of the different requests and r
             ],
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket3"
             }
           },
@@ -1323,6 +1388,7 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket1"
             }
           },
@@ -1339,6 +1405,7 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket1"
               }
             ]
@@ -1369,6 +1436,7 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             }
           },
@@ -1376,10 +1444,12 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CREATE_PROOF_FROM_BUCKET",
             "bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             },
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             }
           },
@@ -1387,10 +1457,12 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CLONE_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             },
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof2"
             }
           },
@@ -1398,6 +1470,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof1"
             }
           },
@@ -1405,6 +1478,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof2"
             }
           },
@@ -1433,6 +1507,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "POP_FROM_AUTH_ZONE",
             "into_proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof3"
             }
           },
@@ -1440,6 +1515,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
+              "variant": "String",
               "identifier": "proof3"
             }
           },
@@ -1447,6 +1523,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "RETURN_TO_WORKTOP",
             "bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket2"
             }
           },
@@ -1465,6 +1542,7 @@ This document contains examples and descriptions of the different requests and r
             ],
             "into_bucket": {
               "type": "Bucket",
+              "variant": "String",
               "identifier": "bucket3"
             }
           },
@@ -1593,6 +1671,7 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket1"
               }
             },
@@ -1609,6 +1688,7 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Bucket",
+                  "variant": "String",
                   "identifier": "bucket1"
                 }
               ]
@@ -1639,6 +1719,7 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               }
             },
@@ -1646,10 +1727,12 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               },
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               }
             },
@@ -1657,10 +1740,12 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CLONE_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               },
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof2"
               }
             },
@@ -1668,6 +1753,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               }
             },
@@ -1675,6 +1761,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof2"
               }
             },
@@ -1703,6 +1790,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "POP_FROM_AUTH_ZONE",
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof3"
               }
             },
@@ -1710,6 +1798,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof3"
               }
             },
@@ -1717,6 +1806,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "RETURN_TO_WORKTOP",
               "bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               }
             },
@@ -1735,6 +1825,7 @@ This document contains examples and descriptions of the different requests and r
               ],
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket3"
               }
             },
@@ -1889,6 +1980,7 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket1"
               }
             },
@@ -1905,6 +1997,7 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Bucket",
+                  "variant": "String",
                   "identifier": "bucket1"
                 }
               ]
@@ -1935,6 +2028,7 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               }
             },
@@ -1942,10 +2036,12 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               },
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               }
             },
@@ -1953,10 +2049,12 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CLONE_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               },
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof2"
               }
             },
@@ -1964,6 +2062,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof1"
               }
             },
@@ -1971,6 +2070,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof2"
               }
             },
@@ -1999,6 +2099,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "POP_FROM_AUTH_ZONE",
               "into_proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof3"
               }
             },
@@ -2006,6 +2107,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
+                "variant": "String",
                 "identifier": "proof3"
               }
             },
@@ -2013,6 +2115,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "RETURN_TO_WORKTOP",
               "bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket2"
               }
             },
@@ -2031,6 +2134,7 @@ This document contains examples and descriptions of the different requests and r
               ],
               "into_bucket": {
                 "type": "Bucket",
+                "variant": "String",
                 "identifier": "bucket3"
               }
             },
