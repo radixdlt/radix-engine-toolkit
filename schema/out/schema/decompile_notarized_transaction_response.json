@@ -2080,105 +2080,9 @@
         {
           "description": "Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of the transaction manifest.",
           "type": "object",
-          "oneOf": [
-            {
-              "description": "Represents an owned KeyValueStore",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "KeyValueStore"
-                  ]
-                },
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                }
-              }
-            },
-            {
-              "description": "Represents an owned Component",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Component"
-                  ]
-                },
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                }
-              }
-            },
-            {
-              "description": "Represents an owned Vault",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Vault"
-                  ]
-                },
-                "value": {
-                  "$ref": "#/definitions/NodeIdentifier"
-                }
-              }
-            },
-            {
-              "description": "Represents an owned Bucket identified through an unsigned 32-bit integer which is serialized as a string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Bucket"
-                  ]
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            },
-            {
-              "description": "Represents an owned Proof identified through an unsigned 32-bit integer which is serialized as a string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Proof"
-                  ]
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            }
-          ],
           "required": [
-            "type"
+            "type",
+            "value"
           ],
           "properties": {
             "type": {
@@ -2186,6 +2090,9 @@
               "enum": [
                 "Own"
               ]
+            },
+            "value": {
+              "$ref": "#/definitions/Own"
             }
           }
         },
@@ -2378,12 +2285,8 @@
         {
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
           "type": "object",
-          "allOf": [
-            {
-              "$ref": "#/definitions/TransientIdentifier"
-            }
-          ],
           "required": [
+            "identifier",
             "type"
           ],
           "properties": {
@@ -2392,18 +2295,17 @@
               "enum": [
                 "Bucket"
               ]
+            },
+            "identifier": {
+              "$ref": "#/definitions/BucketId"
             }
           }
         },
         {
           "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
           "type": "object",
-          "allOf": [
-            {
-              "$ref": "#/definitions/TransientIdentifier"
-            }
-          ],
           "required": [
+            "identifier",
             "type"
           ],
           "properties": {
@@ -2412,95 +2314,18 @@
               "enum": [
                 "Proof"
               ]
+            },
+            "identifier": {
+              "$ref": "#/definitions/ProofId"
             }
           }
         },
         {
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
           "type": "object",
-          "oneOf": [
-            {
-              "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Number"
-                  ]
-                },
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                }
-              }
-            },
-            {
-              "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "UUID"
-                  ]
-                },
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9]+"
-                }
-              }
-            },
-            {
-              "description": "An byte array non-fungible id type which is serialized as a hex string",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "Bytes"
-                  ]
-                },
-                "value": {
-                  "type": "string",
-                  "pattern": "[0-9a-fA-F]+"
-                }
-              }
-            },
-            {
-              "description": "A string non-fungible id",
-              "type": "object",
-              "required": [
-                "value",
-                "variant"
-              ],
-              "properties": {
-                "variant": {
-                  "type": "string",
-                  "enum": [
-                    "String"
-                  ]
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            }
-          ],
           "required": [
-            "type"
+            "type",
+            "value"
           ],
           "properties": {
             "type": {
@@ -2508,6 +2333,9 @@
               "enum": [
                 "NonFungibleId"
               ]
+            },
+            "value": {
+              "$ref": "#/definitions/NonFungibleId"
             }
           }
         },
@@ -2682,6 +2510,106 @@
         "Bytes"
       ]
     },
+    "Own": {
+      "description": "Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of the transaction manifest.",
+      "oneOf": [
+        {
+          "description": "Represents an owned KeyValueStore",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "KeyValueStore"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NodeIdentifier"
+            }
+          }
+        },
+        {
+          "description": "Represents an owned Component",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Component"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NodeIdentifier"
+            }
+          }
+        },
+        {
+          "description": "Represents an owned Vault",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Vault"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NodeIdentifier"
+            }
+          }
+        },
+        {
+          "description": "Represents an owned Bucket identified through an unsigned 32-bit integer which is serialized as a string",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bucket"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents an owned Proof identified through an unsigned 32-bit integer which is serialized as a string",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Proof"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
     "NodeIdentifier": {
       "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
       "type": "string",
@@ -2689,23 +2617,31 @@
       "minLength": 72,
       "pattern": "[0-9a-fA-F]+"
     },
+    "BucketId": {
+      "description": "Represents a BucketId which uses a transient identifier.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TransientIdentifier"
+        }
+      ]
+    },
     "TransientIdentifier": {
       "description": "Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
       "oneOf": [
         {
           "type": "object",
           "required": [
-            "identifier",
-            "variant"
+            "type",
+            "value"
           ],
           "properties": {
-            "variant": {
+            "type": {
               "type": "string",
               "enum": [
                 "String"
               ]
             },
-            "identifier": {
+            "value": {
               "description": "A string identifier",
               "type": "string"
             }
@@ -2714,20 +2650,112 @@
         {
           "type": "object",
           "required": [
-            "identifier",
-            "variant"
+            "type",
+            "value"
           ],
           "properties": {
-            "variant": {
+            "type": {
               "type": "string",
               "enum": [
                 "U32"
               ]
             },
-            "identifier": {
+            "value": {
               "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
               "type": "string",
               "pattern": "[0-9]+"
+            }
+          }
+        }
+      ]
+    },
+    "ProofId": {
+      "description": "Represents a ProofId which uses a transient identifier.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/TransientIdentifier"
+        }
+      ]
+    },
+    "NonFungibleId": {
+      "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+      "oneOf": [
+        {
+          "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Number"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "UUID"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "An byte array non-fungible id type which is serialized as a hex string",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bytes"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        },
+        {
+          "description": "A string non-fungible id",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "String"
+              ]
+            },
+            "value": {
+              "type": "string"
             }
           }
         }
@@ -2747,90 +2775,6 @@
       "maxLength": 64,
       "minLength": 64,
       "pattern": "[0-9a-fA-F]+"
-    },
-    "NonFungibleId": {
-      "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
-      "oneOf": [
-        {
-          "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
-          "type": "object",
-          "required": [
-            "value",
-            "variant"
-          ],
-          "properties": {
-            "variant": {
-              "type": "string",
-              "enum": [
-                "Number"
-              ]
-            },
-            "value": {
-              "type": "string",
-              "pattern": "[0-9]+"
-            }
-          }
-        },
-        {
-          "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
-          "type": "object",
-          "required": [
-            "value",
-            "variant"
-          ],
-          "properties": {
-            "variant": {
-              "type": "string",
-              "enum": [
-                "UUID"
-              ]
-            },
-            "value": {
-              "type": "string",
-              "pattern": "[0-9]+"
-            }
-          }
-        },
-        {
-          "description": "An byte array non-fungible id type which is serialized as a hex string",
-          "type": "object",
-          "required": [
-            "value",
-            "variant"
-          ],
-          "properties": {
-            "variant": {
-              "type": "string",
-              "enum": [
-                "Bytes"
-              ]
-            },
-            "value": {
-              "type": "string",
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A string non-fungible id",
-          "type": "object",
-          "required": [
-            "value",
-            "variant"
-          ],
-          "properties": {
-            "variant": {
-              "type": "string",
-              "enum": [
-                "String"
-              ]
-            },
-            "value": {
-              "type": "string"
-            }
-          }
-        }
-      ]
     },
     "SignatureWithPublicKey": {
       "description": "A discriminated union of the possible pairs of signatures and public keys used by Scrypto and the Radix Engine.",

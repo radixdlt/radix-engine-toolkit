@@ -27,21 +27,21 @@ use std::str::FromStr;
 
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[serde(tag = "variant")]
+#[serde(tag = "type")]
 /// Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets
 /// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
 /// number and not a string)
 pub enum TransientIdentifier {
     String {
         /// A string identifier
-        identifier: String,
+        value: String,
     },
     U32 {
         /// A 32-bit unsigned integer which is serialized and deserialized as a string.
         #[schemars(regex(pattern = "[0-9]+"))]
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
-        identifier: u32,
+        value: u32,
     },
 }
 
@@ -64,20 +64,20 @@ impl FromStr for TransientIdentifier {
 
     fn from_str(s: &str) -> Result<Self> {
         Ok(Self::String {
-            identifier: s.to_owned(),
+            value: s.to_owned(),
         })
     }
 }
 
 impl From<String> for TransientIdentifier {
     fn from(identifier: String) -> Self {
-        Self::String { identifier }
+        Self::String { value: identifier }
     }
 }
 
 impl From<u32> for TransientIdentifier {
     fn from(identifier: u32) -> Self {
-        Self::U32 { identifier }
+        Self::U32 { value: identifier }
     }
 }
 
@@ -110,7 +110,7 @@ impl TryFrom<BucketId> for ScryptoCustomValue {
 
     fn try_from(value: BucketId) -> std::result::Result<Self, Self::Error> {
         match value.0 {
-            TransientIdentifier::U32 { identifier } => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Bucket(ManifestBucket(identifier)))
             }
             TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
@@ -125,7 +125,7 @@ impl TryFrom<&BucketId> for ScryptoCustomValue {
 
     fn try_from(value: &BucketId) -> std::result::Result<Self, Self::Error> {
         match &value.0 {
-            TransientIdentifier::U32 { identifier } => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Bucket(ManifestBucket(*identifier)))
             }
             TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
@@ -140,7 +140,7 @@ impl TryFrom<ProofId> for ScryptoCustomValue {
 
     fn try_from(value: ProofId) -> std::result::Result<Self, Self::Error> {
         match value.0 {
-            TransientIdentifier::U32 { identifier } => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Proof(ManifestProof(identifier)))
             }
             TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
@@ -155,7 +155,7 @@ impl TryFrom<&ProofId> for ScryptoCustomValue {
 
     fn try_from(value: &ProofId) -> std::result::Result<Self, Self::Error> {
         match &value.0 {
-            TransientIdentifier::U32 { identifier } => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Proof(ManifestProof(*identifier)))
             }
             TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {

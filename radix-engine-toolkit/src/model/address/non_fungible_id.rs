@@ -19,7 +19,7 @@ use scrypto::prelude::NonFungibleId as ScryptoNonFungibleId;
 use serializable::serializable;
 
 #[serializable]
-#[serde(tag = "variant", content = "value")]
+#[serde(tag = "type", content = "value")]
 /// Represents non-fungible ids which is a discriminated union of the different types that
 /// non-fungible ids may be.
 pub enum NonFungibleId {

@@ -204,7 +204,6 @@ pub enum Value {
     /// Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of
     /// the transaction manifest.
     Own {
-        #[serde(flatten)]
         #[schemars(with = "crate::Own")]
         #[serde_as(as = "serde_with::FromInto<crate::Own>")]
         value: Own,
@@ -299,22 +298,15 @@ pub enum Value {
 
     /// Represents a Scrypto bucket which is identified through a transient identifier which is
     /// either a string or an unsigned 32-bit integer which is serialized as a number.
-    Bucket {
-        #[serde(flatten)]
-        identifier: BucketId,
-    },
+    Bucket { identifier: BucketId },
 
     /// Represents a Scrypto proof which is identified through a transient identifier which is
     /// either a string or an unsigned 32-bit integer which is serialized as a number.
-    Proof {
-        #[serde(flatten)]
-        identifier: ProofId,
-    },
+    Proof { identifier: ProofId },
 
     /// Represents non-fungible ids which is a discriminated union of the different types that
     /// non-fungible ids may be.
     NonFungibleId {
-        #[serde(flatten)]
         #[schemars(with = "crate::NonFungibleId")]
         #[serde_as(as = "serde_with::FromInto<crate::NonFungibleId>")]
         value: NonFungibleId,
@@ -574,16 +566,16 @@ impl Value {
                 ast::Value::Hash(Box::new(ast::Value::String(value.to_string())))
             }
             Value::Bucket { identifier } => ast::Value::Bucket(Box::new(match identifier.0 {
-                TransientIdentifier::String { ref identifier } => {
-                    ast::Value::String(identifier.clone())
-                }
-                TransientIdentifier::U32 { identifier } => ast::Value::U32(identifier),
+                TransientIdentifier::String {
+                    value: ref identifier,
+                } => ast::Value::String(identifier.clone()),
+                TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
             })),
             Value::Proof { identifier } => ast::Value::Proof(Box::new(match identifier.0 {
-                TransientIdentifier::String { ref identifier } => {
-                    ast::Value::String(identifier.clone())
-                }
-                TransientIdentifier::U32 { identifier } => ast::Value::U32(identifier),
+                TransientIdentifier::String {
+                    value: ref identifier,
+                } => ast::Value::String(identifier.clone()),
+                TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
             })),
 
             Value::NonFungibleId { value } => ast::Value::NonFungibleId(Box::new(match value {
@@ -783,15 +775,12 @@ impl Value {
             ast::Value::Bucket(value) => {
                 if let ast::Value::U32(identifier) = &**value {
                     Self::Bucket {
-                        identifier: TransientIdentifier::U32 {
-                            identifier: *identifier,
-                        }
-                        .into(),
+                        identifier: TransientIdentifier::U32 { value: *identifier }.into(),
                     }
                 } else if let ast::Value::String(identifier) = &**value {
                     Self::Bucket {
                         identifier: TransientIdentifier::String {
-                            identifier: identifier.to_owned(),
+                            value: identifier.to_owned(),
                         }
                         .into(),
                     }
@@ -806,15 +795,12 @@ impl Value {
             ast::Value::Proof(value) => {
                 if let ast::Value::U32(identifier) = &**value {
                     Self::Proof {
-                        identifier: TransientIdentifier::U32 {
-                            identifier: *identifier,
-                        }
-                        .into(),
+                        identifier: TransientIdentifier::U32 { value: *identifier }.into(),
                     }
                 } else if let ast::Value::String(identifier) = &**value {
                     Self::Proof {
                         identifier: TransientIdentifier::String {
-                            identifier: identifier.clone(),
+                            value: identifier.clone(),
                         }
                         .into(),
                     }
@@ -1262,7 +1248,7 @@ impl Value {
                 value: ScryptoCustomValue::Bucket(identifier),
             } => Self::Bucket {
                 identifier: TransientIdentifier::U32 {
-                    identifier: identifier.0,
+                    value: identifier.0,
                 }
                 .into(),
             },
@@ -1270,7 +1256,7 @@ impl Value {
                 value: ScryptoCustomValue::Proof(identifier),
             } => Self::Proof {
                 identifier: TransientIdentifier::U32 {
-                    identifier: identifier.0,
+                    value: identifier.0,
                 }
                 .into(),
             },
