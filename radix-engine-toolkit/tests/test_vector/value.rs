@@ -69,7 +69,7 @@ impl ValueRepresentationTestVector {
             &ast_value,
             None,
             &mut NameResolver::new(),
-            &bech32_coder.decoder(),
+            bech32_coder.decoder(),
             &blobs,
         )
         .expect("Failed to generate scrypto value from ast_value")
@@ -156,12 +156,12 @@ lazy_static::lazy_static! {
         // Enums and Enum Aliases (Option & Result)
         ValueRepresentationTestVector::new(
             Value::Enum {
-                variant: radix_engine_toolkit::EnumDiscriminator::U8(1),
+                variant: radix_engine_toolkit::EnumDiscriminator::U8{discriminator: 1},
                 fields: Some(vec![Value::String {
                     value: "Component".into(),
                 }]),
             },
-            r#"{"type": "Enum", "variant": 1, "fields": [{"type": "String", "value": "Component"}]}"#,
+            r#"{"type": "Enum", "variant": {"type": "U8", "discriminator": "1"}, "fields": [{"type": "String", "value": "Component"}]}"#,
             r#"Enum("Option::Some", "Component")"#,
         ),
         ValueRepresentationTestVector::new(
@@ -331,23 +331,23 @@ lazy_static::lazy_static! {
         // Buckets and Proofs
         // ===================
         ValueRepresentationTestVector::new(
-            Value::Bucket { identifier: BucketId(TransientIdentifier::String("xrd_bucket".into())) },
-            r#"{"type": "Bucket", "identifier": "xrd_bucket"}"#,
+            Value::Bucket { identifier: BucketId(TransientIdentifier::String{ value: "xrd_bucket".into()}) },
+            r#"{"type": "Bucket", "identifier": {"type": "String", "value": "xrd_bucket"}}"#,
             r#"Bucket("xrd_bucket")"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Bucket { identifier: BucketId(TransientIdentifier::U32(28)) },
-            r#"{"type": "Bucket", "identifier": 28}"#,
+            Value::Bucket { identifier: BucketId(TransientIdentifier::U32{ value: 28}) },
+            r#"{"type": "Bucket", "identifier": {"type": "U32", "value": "28"}}"#,
             r#"Bucket(28u32)"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Proof { identifier: ProofId(TransientIdentifier::String("xrd_proof".into())) },
-            r#"{"type": "Proof", "identifier": "xrd_proof"}"#,
+            Value::Proof { identifier: ProofId(TransientIdentifier::String{ value: "xrd_proof".into()}) },
+            r#"{"type": "Proof", "identifier": {"type": "String", "value": "xrd_proof"}}"#,
             r#"Proof("xrd_proof")"#
         ),
         ValueRepresentationTestVector::new(
-            Value::Proof { identifier: ProofId(TransientIdentifier::U32(28)) },
-            r#"{"type": "Proof", "identifier": 28}"#,
+            Value::Proof { identifier: ProofId(TransientIdentifier::U32{ value: 28}) },
+            r#"{"type": "Proof", "identifier": {"type": "U32", "value": "28"}}"#,
             r#"Proof(28u32)"#
         ),
 
@@ -357,22 +357,22 @@ lazy_static::lazy_static! {
 
         ValueRepresentationTestVector::new(
             Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::Number(114441894733333) },
-            r#"{"type": "NonFungibleId", "variant": "Number", "value": "114441894733333"}"#,
+            r#"{"type": "NonFungibleId", "value": {"type": "Number", "value": "114441894733333"}}"#,
             r#"NonFungibleId(114441894733333u64)"#,
         ),
         ValueRepresentationTestVector::new(
             Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::UUID(11444189334733333) },
-            r#"{"type": "NonFungibleId", "variant": "UUID", "value": "11444189334733333"}"#,
+            r#"{"type": "NonFungibleId", "value": {"type": "UUID", "value": "11444189334733333"}}"#,
             r#"NonFungibleId(11444189334733333u128)"#,
         ),
         ValueRepresentationTestVector::new(
             Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::String("hello_world".into()) },
-            r#"{"type": "NonFungibleId", "variant": "String", "value": "hello_world"}"#,
+            r#"{"type": "NonFungibleId", "value": {"type": "String", "value": "hello_world"}}"#,
             r#"NonFungibleId("hello_world")"#,
         ),
         ValueRepresentationTestVector::new(
             Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) },
-            r#"{"type": "NonFungibleId", "variant": "Bytes", "value": "10a23101"}"#,
+            r#"{"type": "NonFungibleId", "value": {"type": "Bytes", "value": "10a23101"}}"#,
             r#"NonFungibleId(Bytes("10a23101"))"#,
         ),
 
@@ -386,7 +386,7 @@ lazy_static::lazy_static! {
                     non_fungible_id: scrypto::prelude::NonFungibleId::Number(114441894733333)
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "variant": "Number", "value": "114441894733333"}}"#,
+            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "Number", "value": "114441894733333"}}}"#,
             r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 114441894733333u64)"#,
         ),
         ValueRepresentationTestVector::new(
@@ -399,7 +399,7 @@ lazy_static::lazy_static! {
                     non_fungible_id: scrypto::prelude::NonFungibleId::UUID(11444189334733333)
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "variant": "UUID", "value": "11444189334733333"}}"#,
+            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "UUID", "value": "11444189334733333"}}}"#,
             r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 11444189334733333u128)"#,
         ),
         ValueRepresentationTestVector::new(
@@ -412,7 +412,7 @@ lazy_static::lazy_static! {
                     non_fungible_id: scrypto::prelude::NonFungibleId::String("hello_world".into())
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "variant": "String", "value": "hello_world"}}"#,
+            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "String", "value": "hello_world"}}}"#,
             r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", "hello_world")"#,
         ),
         ValueRepresentationTestVector::new(
@@ -425,7 +425,7 @@ lazy_static::lazy_static! {
                     non_fungible_id: scrypto::prelude::NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01])
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "variant": "Bytes", "value": "10a23101"}}"#,
+            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "Bytes", "value": "10a23101"}}}"#,
             r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", Bytes("10a23101"))"#,
         ),
 

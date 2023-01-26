@@ -24,7 +24,7 @@ use serializable::serializable;
 // =================
 
 #[serializable]
-#[serde(tag = "variant", content = "value")]
+#[serde(tag = "type", content = "value")]
 /// Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of the
 /// transaction manifest.
 pub enum Own {

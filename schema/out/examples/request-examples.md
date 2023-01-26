@@ -84,7 +84,10 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket1"
+            "identifier": {
+              "type": "String",
+              "value": "bucket1"
+            }
           }
         },
         {
@@ -100,7 +103,10 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
-              "identifier": "bucket1"
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
             }
           ]
         },
@@ -130,43 +136,64 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
@@ -194,21 +221,30 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
@@ -220,13 +256,18 @@ This document contains examples and descriptions of the different requests and r
           "ids": [
             {
               "type": "NonFungibleId",
-              "variant": "Number",
-              "value": "1"
+              "value": {
+                "type": "Number",
+                "value": "1"
+              }
             }
           ],
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket3"
+            "identifier": {
+              "type": "String",
+              "value": "bucket3"
+            }
           }
         },
         {
@@ -298,7 +339,10 @@ This document contains examples and descriptions of the different requests and r
         },
         "into_bucket": {
           "type": "Bucket",
-          "identifier": "bucket1"
+          "identifier": {
+            "type": "String",
+            "value": "bucket1"
+          }
         }
       },
       {
@@ -314,7 +358,10 @@ This document contains examples and descriptions of the different requests and r
         "arguments": [
           {
             "type": "Bucket",
-            "identifier": "bucket1"
+            "identifier": {
+              "type": "String",
+              "value": "bucket1"
+            }
           }
         ]
       },
@@ -344,43 +391,64 @@ This document contains examples and descriptions of the different requests and r
         },
         "into_bucket": {
           "type": "Bucket",
-          "identifier": "bucket2"
+          "identifier": {
+            "type": "String",
+            "value": "bucket2"
+          }
         }
       },
       {
         "instruction": "CREATE_PROOF_FROM_BUCKET",
         "bucket": {
           "type": "Bucket",
-          "identifier": "bucket2"
+          "identifier": {
+            "type": "String",
+            "value": "bucket2"
+          }
         },
         "into_proof": {
           "type": "Proof",
-          "identifier": "proof1"
+          "identifier": {
+            "type": "String",
+            "value": "proof1"
+          }
         }
       },
       {
         "instruction": "CLONE_PROOF",
         "proof": {
           "type": "Proof",
-          "identifier": "proof1"
+          "identifier": {
+            "type": "String",
+            "value": "proof1"
+          }
         },
         "into_proof": {
           "type": "Proof",
-          "identifier": "proof2"
+          "identifier": {
+            "type": "String",
+            "value": "proof2"
+          }
         }
       },
       {
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
-          "identifier": "proof1"
+          "identifier": {
+            "type": "String",
+            "value": "proof1"
+          }
         }
       },
       {
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
-          "identifier": "proof2"
+          "identifier": {
+            "type": "String",
+            "value": "proof2"
+          }
         }
       },
       {
@@ -408,21 +476,30 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "POP_FROM_AUTH_ZONE",
         "into_proof": {
           "type": "Proof",
-          "identifier": "proof3"
+          "identifier": {
+            "type": "String",
+            "value": "proof3"
+          }
         }
       },
       {
         "instruction": "DROP_PROOF",
         "proof": {
           "type": "Proof",
-          "identifier": "proof3"
+          "identifier": {
+            "type": "String",
+            "value": "proof3"
+          }
         }
       },
       {
         "instruction": "RETURN_TO_WORKTOP",
         "bucket": {
           "type": "Bucket",
-          "identifier": "bucket2"
+          "identifier": {
+            "type": "String",
+            "value": "bucket2"
+          }
         }
       },
       {
@@ -434,13 +511,18 @@ This document contains examples and descriptions of the different requests and r
         "ids": [
           {
             "type": "NonFungibleId",
-            "variant": "Number",
-            "value": "1"
+            "value": {
+              "type": "Number",
+              "value": "1"
+            }
           }
         ],
         "into_bucket": {
           "type": "Bucket",
-          "identifier": "bucket3"
+          "identifier": {
+            "type": "String",
+            "value": "bucket3"
+          }
         }
       },
       {
@@ -535,7 +617,10 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket1"
+            "identifier": {
+              "type": "String",
+              "value": "bucket1"
+            }
           }
         },
         {
@@ -551,7 +636,10 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
-              "identifier": "bucket1"
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
             }
           ]
         },
@@ -581,43 +669,64 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
@@ -645,21 +754,30 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
@@ -671,13 +789,18 @@ This document contains examples and descriptions of the different requests and r
           "ids": [
             {
               "type": "NonFungibleId",
-              "variant": "Number",
-              "value": "1"
+              "value": {
+                "type": "Number",
+                "value": "1"
+              }
             }
           ],
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket3"
+            "identifier": {
+              "type": "String",
+              "value": "bucket3"
+            }
           }
         },
         {
@@ -794,7 +917,10 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket1"
+            "identifier": {
+              "type": "String",
+              "value": "bucket1"
+            }
           }
         },
         {
@@ -810,7 +936,10 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Bucket",
-              "identifier": "bucket1"
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
             }
           ]
         },
@@ -840,43 +969,64 @@ This document contains examples and descriptions of the different requests and r
           },
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
           "instruction": "CREATE_PROOF_FROM_BUCKET",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "CLONE_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           },
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof1"
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof2"
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
           }
         },
         {
@@ -904,21 +1054,30 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "POP_FROM_AUTH_ZONE",
           "into_proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "DROP_PROOF",
           "proof": {
             "type": "Proof",
-            "identifier": "proof3"
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
           }
         },
         {
           "instruction": "RETURN_TO_WORKTOP",
           "bucket": {
             "type": "Bucket",
-            "identifier": "bucket2"
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
           }
         },
         {
@@ -930,13 +1089,18 @@ This document contains examples and descriptions of the different requests and r
           "ids": [
             {
               "type": "NonFungibleId",
-              "variant": "Number",
-              "value": "1"
+              "value": {
+                "type": "Number",
+                "value": "1"
+              }
             }
           ],
           "into_bucket": {
             "type": "Bucket",
-            "identifier": "bucket3"
+            "identifier": {
+              "type": "String",
+              "value": "bucket3"
+            }
           }
         },
         {
@@ -1033,7 +1197,10 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket1"
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
             }
           },
           {
@@ -1049,7 +1216,10 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Bucket",
-                "identifier": "bucket1"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket1"
+                }
               }
             ]
           },
@@ -1079,43 +1249,64 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             }
           },
           {
             "instruction": "CREATE_PROOF_FROM_BUCKET",
             "bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             },
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             }
           },
           {
             "instruction": "CLONE_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             },
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof2"
+              "identifier": {
+                "type": "String",
+                "value": "proof2"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof2"
+              "identifier": {
+                "type": "String",
+                "value": "proof2"
+              }
             }
           },
           {
@@ -1143,21 +1334,30 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "POP_FROM_AUTH_ZONE",
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof3"
+              "identifier": {
+                "type": "String",
+                "value": "proof3"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof3"
+              "identifier": {
+                "type": "String",
+                "value": "proof3"
+              }
             }
           },
           {
             "instruction": "RETURN_TO_WORKTOP",
             "bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             }
           },
           {
@@ -1169,13 +1369,18 @@ This document contains examples and descriptions of the different requests and r
             "ids": [
               {
                 "type": "NonFungibleId",
-                "variant": "Number",
-                "value": "1"
+                "value": {
+                  "type": "Number",
+                  "value": "1"
+                }
               }
             ],
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket3"
+              "identifier": {
+                "type": "String",
+                "value": "bucket3"
+              }
             }
           },
           {
@@ -1323,7 +1528,10 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket1"
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
             }
           },
           {
@@ -1339,7 +1547,10 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Bucket",
-                "identifier": "bucket1"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket1"
+                }
               }
             ]
           },
@@ -1369,43 +1580,64 @@ This document contains examples and descriptions of the different requests and r
             },
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             }
           },
           {
             "instruction": "CREATE_PROOF_FROM_BUCKET",
             "bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             },
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             }
           },
           {
             "instruction": "CLONE_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             },
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof2"
+              "identifier": {
+                "type": "String",
+                "value": "proof2"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof1"
+              "identifier": {
+                "type": "String",
+                "value": "proof1"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof2"
+              "identifier": {
+                "type": "String",
+                "value": "proof2"
+              }
             }
           },
           {
@@ -1433,21 +1665,30 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "POP_FROM_AUTH_ZONE",
             "into_proof": {
               "type": "Proof",
-              "identifier": "proof3"
+              "identifier": {
+                "type": "String",
+                "value": "proof3"
+              }
             }
           },
           {
             "instruction": "DROP_PROOF",
             "proof": {
               "type": "Proof",
-              "identifier": "proof3"
+              "identifier": {
+                "type": "String",
+                "value": "proof3"
+              }
             }
           },
           {
             "instruction": "RETURN_TO_WORKTOP",
             "bucket": {
               "type": "Bucket",
-              "identifier": "bucket2"
+              "identifier": {
+                "type": "String",
+                "value": "bucket2"
+              }
             }
           },
           {
@@ -1459,13 +1700,18 @@ This document contains examples and descriptions of the different requests and r
             "ids": [
               {
                 "type": "NonFungibleId",
-                "variant": "Number",
-                "value": "1"
+                "value": {
+                  "type": "Number",
+                  "value": "1"
+                }
               }
             ],
             "into_bucket": {
               "type": "Bucket",
-              "identifier": "bucket3"
+              "identifier": {
+                "type": "String",
+                "value": "bucket3"
+              }
             }
           },
           {
@@ -1593,7 +1839,10 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket1"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket1"
+                }
               }
             },
             {
@@ -1609,7 +1858,10 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Bucket",
-                  "identifier": "bucket1"
+                  "identifier": {
+                    "type": "String",
+                    "value": "bucket1"
+                  }
                 }
               ]
             },
@@ -1639,43 +1891,64 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               }
             },
             {
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               },
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               }
             },
             {
               "instruction": "CLONE_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               },
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof2"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof2"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof2"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof2"
+                }
               }
             },
             {
@@ -1703,21 +1976,30 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "POP_FROM_AUTH_ZONE",
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof3"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof3"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof3"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof3"
+                }
               }
             },
             {
               "instruction": "RETURN_TO_WORKTOP",
               "bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               }
             },
             {
@@ -1729,13 +2011,18 @@ This document contains examples and descriptions of the different requests and r
               "ids": [
                 {
                   "type": "NonFungibleId",
-                  "variant": "Number",
-                  "value": "1"
+                  "value": {
+                    "type": "Number",
+                    "value": "1"
+                  }
                 }
               ],
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket3"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket3"
+                }
               }
             },
             {
@@ -1889,7 +2176,10 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket1"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket1"
+                }
               }
             },
             {
@@ -1905,7 +2195,10 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Bucket",
-                  "identifier": "bucket1"
+                  "identifier": {
+                    "type": "String",
+                    "value": "bucket1"
+                  }
                 }
               ]
             },
@@ -1935,43 +2228,64 @@ This document contains examples and descriptions of the different requests and r
               },
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               }
             },
             {
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               },
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               }
             },
             {
               "instruction": "CLONE_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               },
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof2"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof2"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof1"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof1"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof2"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof2"
+                }
               }
             },
             {
@@ -1999,21 +2313,30 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "POP_FROM_AUTH_ZONE",
               "into_proof": {
                 "type": "Proof",
-                "identifier": "proof3"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof3"
+                }
               }
             },
             {
               "instruction": "DROP_PROOF",
               "proof": {
                 "type": "Proof",
-                "identifier": "proof3"
+                "identifier": {
+                  "type": "String",
+                  "value": "proof3"
+                }
               }
             },
             {
               "instruction": "RETURN_TO_WORKTOP",
               "bucket": {
                 "type": "Bucket",
-                "identifier": "bucket2"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket2"
+                }
               }
             },
             {
@@ -2025,13 +2348,18 @@ This document contains examples and descriptions of the different requests and r
               "ids": [
                 {
                   "type": "NonFungibleId",
-                  "variant": "Number",
-                  "value": "1"
+                  "value": {
+                    "type": "Number",
+                    "value": "1"
+                  }
                 }
               ],
               "into_bucket": {
                 "type": "Bucket",
-                "identifier": "bucket3"
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket3"
+                }
               }
             },
             {

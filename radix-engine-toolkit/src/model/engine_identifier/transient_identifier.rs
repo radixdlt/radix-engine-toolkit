@@ -26,14 +26,23 @@ use std::str::FromStr;
 // =================
 
 #[serializable]
-#[serde(untagged)]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-/// Represents an untagged transient identifier typically used as an identifiers for Scrypto buckets
+#[serde(tag = "type")]
+/// Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets
 /// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
 /// number and not a string)
 pub enum TransientIdentifier {
-    String(String),
-    U32(u32),
+    String {
+        /// A string identifier
+        value: String,
+    },
+    U32 {
+        /// A 32-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        value: u32,
+    },
 }
 
 #[serializable]
@@ -54,19 +63,21 @@ impl FromStr for TransientIdentifier {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        Ok(Self::String(s.to_owned()))
+        Ok(Self::String {
+            value: s.to_owned(),
+        })
     }
 }
 
 impl From<String> for TransientIdentifier {
-    fn from(value: String) -> Self {
-        Self::String(value)
+    fn from(identifier: String) -> Self {
+        Self::String { value: identifier }
     }
 }
 
 impl From<u32> for TransientIdentifier {
-    fn from(value: u32) -> Self {
-        Self::U32(value)
+    fn from(identifier: u32) -> Self {
+        Self::U32 { value: identifier }
     }
 }
 
@@ -99,10 +110,10 @@ impl TryFrom<BucketId> for ScryptoCustomValue {
 
     fn try_from(value: BucketId) -> std::result::Result<Self, Self::Error> {
         match value.0 {
-            TransientIdentifier::U32(identifier) => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Bucket(ManifestBucket(identifier)))
             }
-            TransientIdentifier::String(..) => Err(Error::BucketOrProofSBORError {
+            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
                 value_kind: crate::ValueKind::Bucket,
             }),
         }
@@ -114,10 +125,10 @@ impl TryFrom<&BucketId> for ScryptoCustomValue {
 
     fn try_from(value: &BucketId) -> std::result::Result<Self, Self::Error> {
         match &value.0 {
-            TransientIdentifier::U32(identifier) => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Bucket(ManifestBucket(*identifier)))
             }
-            TransientIdentifier::String(..) => Err(Error::BucketOrProofSBORError {
+            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
                 value_kind: crate::ValueKind::Bucket,
             }),
         }
@@ -129,10 +140,10 @@ impl TryFrom<ProofId> for ScryptoCustomValue {
 
     fn try_from(value: ProofId) -> std::result::Result<Self, Self::Error> {
         match value.0 {
-            TransientIdentifier::U32(identifier) => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Proof(ManifestProof(identifier)))
             }
-            TransientIdentifier::String(..) => Err(Error::BucketOrProofSBORError {
+            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
                 value_kind: crate::ValueKind::Proof,
             }),
         }
@@ -144,10 +155,10 @@ impl TryFrom<&ProofId> for ScryptoCustomValue {
 
     fn try_from(value: &ProofId) -> std::result::Result<Self, Self::Error> {
         match &value.0 {
-            TransientIdentifier::U32(identifier) => {
+            TransientIdentifier::U32 { value: identifier } => {
                 Ok(ScryptoCustomValue::Proof(ManifestProof(*identifier)))
             }
-            TransientIdentifier::String(..) => Err(Error::BucketOrProofSBORError {
+            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
                 value_kind: crate::ValueKind::Proof,
             }),
         }
