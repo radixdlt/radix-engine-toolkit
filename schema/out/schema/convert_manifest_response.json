@@ -1353,7 +1353,30 @@
           }
         },
         {
-          "description": "An instruction to registers a new validator given the public key of the validator",
+          "type": "object",
+          "required": [
+            "instruction",
+            "key"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_VALIDATOR"
+              ]
+            },
+            "key": {
+              "description": "The public key of the validator",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to registers a new validator given the system component address of the validator",
           "type": "object",
           "required": [
             "instruction",
@@ -1367,7 +1390,7 @@
               ]
             },
             "validator": {
-              "description": "The public key of the validator",
+              "description": "the system component address of the validator",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1377,7 +1400,7 @@
           }
         },
         {
-          "description": "An instruction to unregister a validator given it's public key",
+          "description": "An instruction to unregister a validator given the system component address of the validator",
           "type": "object",
           "required": [
             "instruction",
@@ -1391,7 +1414,7 @@
               ]
             },
             "validator": {
-              "description": "The public key of the validator to unregister",
+              "description": "the system component address of the validator to unregister",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
