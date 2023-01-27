@@ -90,6 +90,7 @@ impl EntityAddress {
             Self::SystemAddress { address } => match address.address {
                 scrypto::prelude::SystemAddress::EpochManager(_) => EntityType::EpochManager,
                 scrypto::prelude::SystemAddress::Clock(_) => EntityType::Clock,
+                scrypto::prelude::SystemAddress::Validator(_) => EntityType::Validator,
             },
         }
     }

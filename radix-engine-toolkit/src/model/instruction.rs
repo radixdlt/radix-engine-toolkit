@@ -503,15 +503,21 @@ pub enum Instruction {
         initial_supply: Value,
     },
 
-    /// An instruction to registers a new validator given the public key of the validator
-    RegisterValidator {
+    CreateValidator {
         /// The public key of the validator
+        key: Value,
+    },
+
+    /// An instruction to registers a new validator given the system component address of the
+    /// validator
+    RegisterValidator {
+        /// the system component address of the validator
         validator: Value,
     },
 
-    /// An instruction to unregister a validator given it's public key
+    /// An instruction to unregister a validator given the system component address of the validator
     UnregisterValidator {
-        /// The public key of the validator to unregister
+        /// the system component address of the validator to unregister
         validator: Value,
     },
 }
@@ -808,6 +814,9 @@ impl Instruction {
             } => ast::Instruction::MintUuidNonFungible {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 entries: entries.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateValidator { key } => ast::Instruction::CreateValidator {
+                key: key.to_ast_value(bech32_coder)?,
             },
             Self::RegisterValidator { validator } => ast::Instruction::RegisterValidator {
                 validator: validator.to_ast_value(bech32_coder)?,
@@ -1129,6 +1138,9 @@ impl Instruction {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
                 entries: Value::from_ast_value(entries, bech32_coder)?,
             },
+            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
+                key: Value::from_ast_value(key, bech32_coder)?,
+            },
             ast::Instruction::RegisterValidator { validator } => Self::RegisterValidator {
                 validator: Value::from_ast_value(validator, bech32_coder)?,
             },
@@ -1391,6 +1403,7 @@ impl ValueRef for Instruction {
                 values.push(initial_supply);
             }
 
+            Self::CreateValidator { key } => values.push(key),
             Self::RegisterValidator { validator } => values.push(validator),
             Self::UnregisterValidator { validator } => values.push(validator),
 
@@ -1651,6 +1664,7 @@ impl ValueRef for Instruction {
                 values.push(initial_supply);
             }
 
+            Self::CreateValidator { key } => values.push(key),
             Self::RegisterValidator { validator } => values.push(validator),
             Self::UnregisterValidator { validator } => values.push(validator),
 

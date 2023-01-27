@@ -33,6 +33,7 @@ pub enum EntityType {
     EddsaEd25519VirtualAccountComponent,
     EpochManager,
     Clock,
+    Validator,
 }
 
 // ============
@@ -54,6 +55,7 @@ impl From<EntityType> for NativeEntityType {
             }
             EntityType::EpochManager => Self::EpochManager,
             EntityType::Clock => Self::Clock,
+            EntityType::Validator => Self::Validator,
         }
     }
 }
@@ -73,6 +75,7 @@ impl From<NativeEntityType> for EntityType {
             }
             NativeEntityType::EpochManager => Self::EpochManager,
             NativeEntityType::Clock => Self::Clock,
+            NativeEntityType::Validator => Self::Validator,
         }
     }
 }
