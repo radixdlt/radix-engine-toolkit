@@ -21,7 +21,7 @@ use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
 use crate::Error;
-use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress, SystemAddress};
+use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress};
 use scrypto::radix_engine_interface::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::radix_engine_interface::node::NetworkDefinition;
 
@@ -81,10 +81,6 @@ impl Bech32Coder {
             .encode_resource_address_to_string(resource_address)
     }
 
-    pub fn encode_system_address(&self, system_address: &SystemAddress) -> String {
-        self.encoder.encode_system_address_to_string(system_address)
-    }
-
     pub fn encode_package_address(&self, package_address: &PackageAddress) -> String {
         self.encoder
             .encode_package_address_to_string(package_address)
@@ -105,12 +101,6 @@ impl Bech32Coder {
     ) -> Result<ResourceAddress> {
         self.decoder
             .validate_and_decode_resource_address(resource_address.as_ref())
-            .map_err(Error::from)
-    }
-
-    pub fn decode_system_address<S: AsRef<str>>(&self, system_address: S) -> Result<SystemAddress> {
-        self.decoder
-            .validate_and_decode_system_address(system_address.as_ref())
             .map_err(Error::from)
     }
 
@@ -142,17 +132,6 @@ impl Bech32Coder {
             .map(|resource_address| NetworkAwareResourceAddress {
                 network_id: self.network_id(),
                 address: resource_address,
-            })
-    }
-
-    pub fn decode_to_network_aware_system_address<S: AsRef<str>>(
-        &self,
-        system_address: S,
-    ) -> Result<NetworkAwareSystemAddress> {
-        self.decode_system_address(system_address)
-            .map(|system_address| NetworkAwareSystemAddress {
-                network_id: self.network_id(),
-                address: system_address,
             })
     }
 

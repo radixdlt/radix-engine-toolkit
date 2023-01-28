@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::prelude::{
-    FromPublicKey, NonFungibleAddress as NativeNonFungibleAddress, NonFungibleId, PublicKey,
+    FromPublicKey, NonFungibleGlobalId as NativeNonFungibleGlobalId, NonFungibleLocalId, PublicKey,
 };
 use serializable::serializable;
 
@@ -27,44 +27,44 @@ use crate::model::NetworkAwareResourceAddress;
 /// unit.
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NonFungibleAddress {
+pub struct NonFungibleGlobalId {
     #[schemars(with = "crate::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
     pub resource_address: NetworkAwareResourceAddress,
 
     #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
     #[schemars(with = "crate::Value")]
-    pub non_fungible_id: NonFungibleId,
+    pub non_fungible_local_id: NonFungibleLocalId,
 }
 
-impl NonFungibleAddress {
+impl NonFungibleGlobalId {
     pub fn new(
         resource_address: NetworkAwareResourceAddress,
-        non_fungible_id: NonFungibleId,
+        non_fungible_local_id: NonFungibleLocalId,
     ) -> Self {
         Self {
             resource_address,
-            non_fungible_id,
+            non_fungible_local_id,
         }
     }
 
     pub fn from_public_key<P: Into<PublicKey> + Clone>(public_key: &P, network_id: u8) -> Self {
-        let native_non_fungible_address = NativeNonFungibleAddress::from_public_key(public_key);
+        let native_non_fungible_global_id = NativeNonFungibleGlobalId::from_public_key(public_key);
         Self {
             resource_address: NetworkAwareResourceAddress {
                 network_id,
-                address: native_non_fungible_address.resource_address(),
+                address: native_non_fungible_global_id.resource_address(),
             },
-            non_fungible_id: native_non_fungible_address.non_fungible_id().clone(),
+            non_fungible_local_id: native_non_fungible_global_id.local_id().clone(),
         }
     }
 }
 
-impl From<NonFungibleAddress> for scrypto::prelude::NonFungibleAddress {
-    fn from(value: NonFungibleAddress) -> Self {
-        scrypto::prelude::NonFungibleAddress::new(
+impl From<NonFungibleGlobalId> for scrypto::prelude::NonFungibleGlobalId {
+    fn from(value: NonFungibleGlobalId) -> Self {
+        scrypto::prelude::NonFungibleGlobalId::new(
             value.resource_address.address,
-            value.non_fungible_id,
+            value.non_fungible_local_id,
         )
     }
 }

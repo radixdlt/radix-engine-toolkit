@@ -34,6 +34,10 @@ pub enum EntityType {
     EpochManager,
     Clock,
     Validator,
+    IdentityComponent,
+    EcdsaSecp256k1VirtualIdentityComponent,
+    EddsaEd25519VirtualIdentityComponent,
+    AccessControllerComponent,
 }
 
 // ============
@@ -56,6 +60,14 @@ impl From<EntityType> for NativeEntityType {
             EntityType::EpochManager => Self::EpochManager,
             EntityType::Clock => Self::Clock,
             EntityType::Validator => Self::Validator,
+            EntityType::IdentityComponent => Self::IdentityComponent,
+            EntityType::EcdsaSecp256k1VirtualIdentityComponent => {
+                Self::EcdsaSecp256k1VirtualIdentityComponent
+            }
+            EntityType::EddsaEd25519VirtualIdentityComponent => {
+                Self::EddsaEd25519VirtualIdentityComponent
+            }
+            EntityType::AccessControllerComponent => Self::AccessControllerComponent,
         }
     }
 }
@@ -76,6 +88,14 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::EpochManager => Self::EpochManager,
             NativeEntityType::Clock => Self::Clock,
             NativeEntityType::Validator => Self::Validator,
+            NativeEntityType::IdentityComponent => Self::IdentityComponent,
+            NativeEntityType::EcdsaSecp256k1VirtualIdentityComponent => {
+                Self::EcdsaSecp256k1VirtualIdentityComponent
+            }
+            NativeEntityType::EddsaEd25519VirtualIdentityComponent => {
+                Self::EddsaEd25519VirtualIdentityComponent
+            }
+            NativeEntityType::AccessControllerComponent => Self::AccessControllerComponent,
         }
     }
 }

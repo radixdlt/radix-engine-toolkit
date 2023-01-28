@@ -47,14 +47,6 @@ pub enum EntityAddress {
         address: NetworkAwareResourceAddress,
     },
 
-    /// Represents a Bech32m encoded human-readable system address. This address is serialized
-    /// as a human-readable bech32m encoded string.
-    SystemAddress {
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        address: NetworkAwareSystemAddress,
-    },
-
     /// Represents a Bech32m encoded human-readable package address. This address is serialized
     /// as a human-readable bech32m encoded string.
     PackageAddress {
@@ -72,7 +64,10 @@ impl EntityAddress {
     pub fn kind(&self) -> EntityType {
         match self {
             Self::ComponentAddress { address } => match address.address {
-                scrypto::prelude::ComponentAddress::Normal(_) => EntityType::NormalComponent,
+                scrypto::prelude::ComponentAddress::Normal(_)
+                | scrypto::prelude::ComponentAddress::AccessController(_) => {
+                    EntityType::NormalComponent
+                }
                 scrypto::prelude::ComponentAddress::Account(_) => EntityType::AccountComponent,
                 scrypto::prelude::ComponentAddress::EcdsaSecp256k1VirtualAccount(_) => {
                     EntityType::EcdsaSecp256k1VirtualAccountComponent
@@ -80,17 +75,22 @@ impl EntityAddress {
                 scrypto::prelude::ComponentAddress::EddsaEd25519VirtualAccount(_) => {
                     EntityType::EddsaEd25519VirtualAccountComponent
                 }
+                scrypto::prelude::ComponentAddress::Identity(_) => EntityType::IdentityComponent,
+                scrypto::prelude::ComponentAddress::EcdsaSecp256k1VirtualIdentity(_) => {
+                    EntityType::EcdsaSecp256k1VirtualIdentityComponent
+                }
+                scrypto::prelude::ComponentAddress::EddsaEd25519VirtualIdentity(_) => {
+                    EntityType::EddsaEd25519VirtualIdentityComponent
+                }
+                scrypto::prelude::ComponentAddress::Clock(_) => EntityType::Clock,
+                scrypto::prelude::ComponentAddress::EpochManager(_) => EntityType::EpochManager,
+                scrypto::prelude::ComponentAddress::Validator(_) => EntityType::Validator,
             },
             Self::ResourceAddress { address } => match address.address {
                 scrypto::prelude::ResourceAddress::Normal(_) => EntityType::Resource,
             },
             Self::PackageAddress { address } => match address.address {
                 scrypto::prelude::PackageAddress::Normal(_) => EntityType::Package,
-            },
-            Self::SystemAddress { address } => match address.address {
-                scrypto::prelude::SystemAddress::EpochManager(_) => EntityType::EpochManager,
-                scrypto::prelude::SystemAddress::Clock(_) => EntityType::Clock,
-                scrypto::prelude::SystemAddress::Validator(_) => EntityType::Validator,
             },
         }
     }
@@ -100,7 +100,6 @@ impl EntityAddress {
             Self::ComponentAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
-            Self::SystemAddress { address } => address.network_id,
         }
     }
 
@@ -111,8 +110,6 @@ impl EntityAddress {
             Ok(Self::ResourceAddress { address })
         } else if let Ok(address) = NetworkAwarePackageAddress::from_u8_array(array, network_id) {
             Ok(Self::PackageAddress { address })
-        } else if let Ok(address) = NetworkAwareSystemAddress::from_u8_array(array, network_id) {
-            Ok(Self::SystemAddress { address })
         } else {
             Err(Error::UnrecognizedAddressFormat)
         }
@@ -129,7 +126,6 @@ impl Display for EntityAddress {
             EntityAddress::ComponentAddress { address } => write!(f, "{}", address),
             EntityAddress::ResourceAddress { address } => write!(f, "{}", address),
             EntityAddress::PackageAddress { address } => write!(f, "{}", address),
-            EntityAddress::SystemAddress { address } => write!(f, "{}", address),
         }
     }
 }

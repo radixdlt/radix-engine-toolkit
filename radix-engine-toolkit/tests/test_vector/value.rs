@@ -288,16 +288,6 @@ lazy_static::lazy_static! {
             r#"{"type": "PackageAddress", "address": "package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxrmwtq"}"#,
             r#"PackageAddress("package_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxrmwtq")"#,
         ),
-        ValueRepresentationTestVector::new(
-            Value::SystemAddress {
-                address: NetworkAwareSystemAddress {
-                    network_id: 0xf2,
-                    address: scrypto::prelude::SystemAddress::EpochManager([0; 26]),
-                },
-            },
-            r#"{"type": "SystemAddress", "address": "system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsglvqq"}"#,
-            r#"SystemAddress("system_sim1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsglvqq")"#,
-        ),
         // ==============
         // Cryptographic
         // ==============
@@ -356,77 +346,77 @@ lazy_static::lazy_static! {
         // ==========================
 
         ValueRepresentationTestVector::new(
-            Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::Number(114441894733333) },
-            r#"{"type": "NonFungibleId", "value": {"type": "Number", "value": "114441894733333"}}"#,
-            r#"NonFungibleId(114441894733333u64)"#,
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(114441894733333) },
+            r#"{"type": "NonFungibleLocalId", "value": {"type": "Integer", "value": "114441894733333"}}"#,
+            "NonFungibleLocalId(\"#114441894733333#\")"
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::UUID(11444189334733333) },
-            r#"{"type": "NonFungibleId", "value": {"type": "UUID", "value": "11444189334733333"}}"#,
-            r#"NonFungibleId(11444189334733333u128)"#,
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::UUID(238510006928098330588051703199685491739) },
+            r#"{"type": "NonFungibleLocalId", "value": {"type": "UUID", "value": "238510006928098330588051703199685491739"}}"#,
+            r#"NonFungibleLocalId("{b36f5b3f-835b-406c-980f-7788d8f13c1b}")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::String("hello_world".into()) },
-            r#"{"type": "NonFungibleId", "value": {"type": "String", "value": "hello_world"}}"#,
-            r#"NonFungibleId("hello_world")"#,
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::String("hello_world".into()) },
+            r#"{"type": "NonFungibleLocalId", "value": {"type": "String", "value": "hello_world"}}"#,
+            r#"NonFungibleLocalId("<hello_world>")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleId { value: scrypto::prelude::NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) },
-            r#"{"type": "NonFungibleId", "value": {"type": "Bytes", "value": "10a23101"}}"#,
-            r#"NonFungibleId(Bytes("10a23101"))"#,
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) },
+            r#"{"type": "NonFungibleLocalId", "value": {"type": "Bytes", "value": "10a23101"}}"#,
+            r#"NonFungibleLocalId("[10a23101]")"#,
         ),
 
         ValueRepresentationTestVector::new(
-            Value::NonFungibleAddress {
-                address: radix_engine_toolkit::model::NonFungibleAddress {
+            Value::NonFungibleGlobalId {
+                address: radix_engine_toolkit::model::NonFungibleGlobalId {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: scrypto::prelude::NonFungibleId::Number(114441894733333)
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(114441894733333)
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "Number", "value": "114441894733333"}}}"#,
-            r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 114441894733333u64)"#,
+            r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "Integer", "value": "114441894733333"}}}"#,
+            r#"NonFungibleGlobalId("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety:#114441894733333#")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleAddress {
-                address: radix_engine_toolkit::model::NonFungibleAddress {
+            Value::NonFungibleGlobalId {
+                address: radix_engine_toolkit::model::NonFungibleGlobalId {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: scrypto::prelude::NonFungibleId::UUID(11444189334733333)
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::UUID(238510006928098330588051703199685491739)
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "UUID", "value": "11444189334733333"}}}"#,
-            r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", 11444189334733333u128)"#,
+            r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "UUID", "value": "238510006928098330588051703199685491739"}}}"#,
+            r#"NonFungibleGlobalId("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety:{b36f5b3f-835b-406c-980f-7788d8f13c1b}")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleAddress {
-                address: radix_engine_toolkit::model::NonFungibleAddress {
+            Value::NonFungibleGlobalId {
+                address: radix_engine_toolkit::model::NonFungibleGlobalId {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: scrypto::prelude::NonFungibleId::String("hello_world".into())
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::String("hello_world".into())
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "String", "value": "hello_world"}}}"#,
-            r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", "hello_world")"#,
+            r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "String", "value": "hello_world"}}}"#,
+            r#"NonFungibleGlobalId("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety:<hello_world>")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleAddress {
-                address: radix_engine_toolkit::model::NonFungibleAddress {
+            Value::NonFungibleGlobalId {
+                address: radix_engine_toolkit::model::NonFungibleGlobalId {
                     resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_id: scrypto::prelude::NonFungibleId::Bytes(vec![0x10, 0xa2, 0x31, 0x01])
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Bytes(vec![0x10, 0xa2, 0x31, 0x01])
                 }
             },
-            r#"{"type": "NonFungibleAddress", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_id": {"type": "NonFungibleId", "value": {"type": "Bytes", "value": "10a23101"}}}"#,
-            r#"NonFungibleAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety", Bytes("10a23101"))"#,
+            r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "Bytes", "value": "10a23101"}}}"#,
+            r#"NonFungibleGlobalId("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety:[10a23101]"))"#,
         ),
 
         // =================

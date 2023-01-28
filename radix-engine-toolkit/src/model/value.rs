@@ -26,7 +26,7 @@ use native_transaction::manifest::generator::GeneratorError;
 use scrypto::prelude::ScryptoCustomValue;
 use scrypto::prelude::{
     scrypto_decode, scrypto_encode, Decimal, EcdsaSecp256k1PublicKey, EcdsaSecp256k1Signature,
-    EddsaEd25519PublicKey, EddsaEd25519Signature, Hash, NonFungibleId, PreciseDecimal,
+    EddsaEd25519PublicKey, EddsaEd25519Signature, Hash, NonFungibleLocalId, PreciseDecimal,
     ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
 };
 use scrypto::runtime::{ManifestBlobRef, ManifestExpression, Own};
@@ -225,14 +225,6 @@ pub enum Value {
         address: NetworkAwareResourceAddress,
     },
 
-    /// Represents a Bech32m encoded human-readable system address. This address is serialized
-    /// as a human-readable bech32m encoded string.
-    SystemAddress {
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        address: NetworkAwareSystemAddress,
-    },
-
     /// Represents a Bech32m encoded human-readable package address. This address is serialized
     /// as a human-readable bech32m encoded string.
     PackageAddress {
@@ -243,7 +235,7 @@ pub enum Value {
 
     /// Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The
     /// hashing function that they use is SHA256 which produces 32 byte long hashes which are
-    /// serialized as a 64 character long hex string (since hex encoding doubles the number of
+    /// serialized as a 64 character long hex string (since hex encoding doubles the Integer of
     /// bytes needed)
     Hash {
         #[schemars(length(equal = 64))]
@@ -297,27 +289,27 @@ pub enum Value {
     },
 
     /// Represents a Scrypto bucket which is identified through a transient identifier which is
-    /// either a string or an unsigned 32-bit integer which is serialized as a number.
+    /// either a string or an unsigned 32-bit integer which is serialized as a Integer.
     Bucket { identifier: BucketId },
 
     /// Represents a Scrypto proof which is identified through a transient identifier which is
-    /// either a string or an unsigned 32-bit integer which is serialized as a number.
+    /// either a string or an unsigned 32-bit integer which is serialized as a Integer.
     Proof { identifier: ProofId },
 
     /// Represents non-fungible ids which is a discriminated union of the different types that
     /// non-fungible ids may be.
-    NonFungibleId {
-        #[schemars(with = "crate::NonFungibleId")]
-        #[serde_as(as = "serde_with::FromInto<crate::NonFungibleId>")]
-        value: NonFungibleId,
+    NonFungibleLocalId {
+        #[schemars(with = "crate::NonFungibleLocalId")]
+        #[serde_as(as = "serde_with::FromInto<crate::NonFungibleLocalId>")]
+        value: NonFungibleLocalId,
     },
 
     /// Represents a non-fungible address which may be considered as the "global" address of a
     /// non-fungible unit as it contains both the resource address and the non-fungible id for that
     /// unit.
-    NonFungibleAddress {
+    NonFungibleGlobalId {
         #[serde(flatten)]
-        address: NonFungibleAddress,
+        address: NonFungibleGlobalId,
     },
 
     /// Represents a transaction manifest expression.
@@ -382,7 +374,6 @@ pub enum ValueKind {
 
     ComponentAddress,
     ResourceAddress,
-    SystemAddress,
     PackageAddress,
 
     Hash,
@@ -395,8 +386,8 @@ pub enum ValueKind {
     Bucket,
     Proof,
 
-    NonFungibleId,
-    NonFungibleAddress,
+    NonFungibleLocalId,
+    NonFungibleGlobalId,
 
     Expression,
     Blob,
@@ -456,15 +447,14 @@ impl Value {
             Self::PackageAddress { .. } => ValueKind::PackageAddress,
             Self::ComponentAddress { .. } => ValueKind::ComponentAddress,
             Self::ResourceAddress { .. } => ValueKind::ResourceAddress,
-            Self::SystemAddress { .. } => ValueKind::SystemAddress,
 
             Self::Hash { .. } => ValueKind::Hash,
 
             Self::Bucket { .. } => ValueKind::Bucket,
             Self::Proof { .. } => ValueKind::Proof,
 
-            Self::NonFungibleId { .. } => ValueKind::NonFungibleId,
-            Self::NonFungibleAddress { .. } => ValueKind::NonFungibleAddress,
+            Self::NonFungibleLocalId { .. } => ValueKind::NonFungibleLocalId,
+            Self::NonFungibleGlobalId { .. } => ValueKind::NonFungibleGlobalId,
 
             Self::EcdsaSecp256k1PublicKey { .. } => ValueKind::EcdsaSecp256k1PublicKey,
             Self::EcdsaSecp256k1Signature { .. } => ValueKind::EcdsaSecp256k1Signature,
@@ -558,9 +548,6 @@ impl Value {
             Value::ResourceAddress { address: value } => ast::Value::ResourceAddress(Box::new(
                 ast::Value::String(bech32_coder.encode_resource_address(&value.address)),
             )),
-            Value::SystemAddress { address: value } => ast::Value::SystemAddress(Box::new(
-                ast::Value::String(bech32_coder.encode_system_address(&value.address)),
-            )),
 
             Value::Hash { value } => {
                 ast::Value::Hash(Box::new(ast::Value::String(value.to_string())))
@@ -578,31 +565,16 @@ impl Value {
                 TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
             })),
 
-            Value::NonFungibleId { value } => ast::Value::NonFungibleId(Box::new(match value {
-                NonFungibleId::Number(value) => ast::Value::U64(*value),
-                NonFungibleId::UUID(value) => ast::Value::U128(*value),
-                NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
-                NonFungibleId::Bytes(ref value) => {
-                    ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
-                }
-            })),
-            Value::NonFungibleAddress { address } => {
-                let resource_address_string = address.resource_address.to_string();
-                let resource_address = ast::Value::String(resource_address_string);
-
-                let non_fungible_id = match address.non_fungible_id {
-                    NonFungibleId::Number(value) => ast::Value::U64(value),
-                    NonFungibleId::UUID(value) => ast::Value::U128(value),
-                    NonFungibleId::String(ref value) => ast::Value::String(value.clone()),
-                    NonFungibleId::Bytes(ref value) => {
-                        ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
-                    }
-                };
-
-                ast::Value::NonFungibleAddress(
-                    Box::new(resource_address),
-                    Box::new(non_fungible_id),
-                )
+            Value::NonFungibleLocalId { value } => {
+                ast::Value::NonFungibleLocalId(Box::new(ast::Value::String(value.to_string())))
+            }
+            Value::NonFungibleGlobalId { address } => {
+                let nf_global_id_string = format!(
+                    "{}:{}",
+                    bech32_coder.encode_resource_address(&address.resource_address.address),
+                    address.non_fungible_local_id
+                );
+                ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
             }
 
             Value::Blob { hash } => {
@@ -644,7 +616,7 @@ impl Value {
     /// Converts Scrypto's tx compiler's [`ast::Value`] to a [`Value`] given a bech32 coder as
     /// context.
     pub fn from_ast_value(value: &ast::Value, bech32_coder: &Bech32Coder) -> Result<Self> {
-        let parsing = ValueKind::from(value.type_id());
+        let parsing = ValueKind::from(value.value_kind());
         let value = match value {
             ast::Value::Bool(value) => Self::Bool { value: *value },
 
@@ -758,13 +730,6 @@ impl Value {
                         .map(|address| Value::ComponentAddress { address })
                 })?
             }
-            ast::Value::SystemAddress(address) => {
-                map_if_value_string(parsing, address, |address_string| {
-                    bech32_coder
-                        .decode_to_network_aware_system_address(address_string)
-                        .map(|address| Value::SystemAddress { address })
-                })?
-            }
             ast::Value::Hash(value) => map_if_value_string(parsing, value, |string| {
                 string
                     .parse()
@@ -788,7 +753,7 @@ impl Value {
                     Err(Error::UnexpectedAstContents {
                         parsing: ValueKind::Bucket,
                         expected: vec![ValueKind::U32, ValueKind::String],
-                        found: value.type_id().into(),
+                        found: value.value_kind().into(),
                     })?
                 }
             }
@@ -808,89 +773,44 @@ impl Value {
                     Err(Error::UnexpectedAstContents {
                         parsing: ValueKind::Proof,
                         expected: vec![ValueKind::U32, ValueKind::String],
-                        found: value.type_id().into(),
+                        found: value.value_kind().into(),
                     })?
                 }
             }
 
-            ast::Value::NonFungibleId(value) => Self::NonFungibleId {
+            ast::Value::NonFungibleLocalId(value) => Self::NonFungibleLocalId {
                 value: match &**value {
-                    ast::Value::U64(value) => NonFungibleId::Number(*value),
-                    ast::Value::U128(value) => NonFungibleId::UUID(*value),
-                    ast::Value::String(value) => NonFungibleId::String(value.clone()),
-                    ast::Value::Bytes(value) => {
-                        if let ast::Value::String(value) = &**value {
-                            NonFungibleId::Bytes(hex::decode(value)?)
-                        } else {
-                            Err(Error::UnexpectedAstContents {
-                                parsing: ValueKind::NonFungibleId,
-                                expected: vec![ValueKind::String],
-                                found: value.type_id().into(),
-                            })?
-                        }
-                    }
+                    ast::Value::String(value) => value.parse()?,
                     _ => Err(Error::UnexpectedAstContents {
-                        parsing: ValueKind::NonFungibleId,
-                        expected: vec![
-                            ValueKind::U32,
-                            ValueKind::U64,
-                            ValueKind::U128,
-                            ValueKind::String,
-                            ValueKind::Bytes,
-                        ],
-                        found: value.type_id().into(),
+                        parsing: ValueKind::NonFungibleLocalId,
+                        expected: vec![ValueKind::String],
+                        found: value.value_kind().into(),
                     })?,
                 },
             },
-            ast::Value::NonFungibleAddress(resource_address, non_fungible_id) => {
-                let resource_address =
-                    if let ast::Value::String(address_string) = &**resource_address {
-                        bech32_coder.decode_to_network_aware_resource_address(address_string)?
-                    } else {
-                        Err(Error::UnexpectedAstContents {
-                            parsing: ValueKind::NonFungibleAddress,
-                            expected: vec![ValueKind::String],
-                            found: resource_address.type_id().into(),
-                        })?
-                    };
-
-                // TODO: de-duplicate. Refactor out
-                let non_fungible_id = match &**non_fungible_id {
-                    ast::Value::U64(value) => NonFungibleId::Number(*value),
-                    ast::Value::U128(value) => NonFungibleId::UUID(*value),
-                    ast::Value::String(value) => NonFungibleId::String(value.clone()),
-                    ast::Value::Bytes(value) => {
-                        if let ast::Value::String(value) = &**value {
-                            NonFungibleId::Bytes(hex::decode(value)?)
-                        } else {
-                            Err(Error::UnexpectedAstContents {
-                                parsing: ValueKind::NonFungibleAddress,
-                                expected: vec![ValueKind::String],
-                                found: value.type_id().into(),
-                            })?
-                        }
+            ast::Value::NonFungibleGlobalId(value) => match &**value {
+                ast::Value::String(string) => {
+                    let native_global_id =
+                        scrypto::prelude::NonFungibleGlobalId::try_from_canonical_string(
+                            bech32_coder.decoder(),
+                            string,
+                        )?;
+                    Self::NonFungibleGlobalId {
+                        address: NonFungibleGlobalId {
+                            resource_address: NetworkAwareResourceAddress {
+                                network_id: bech32_coder.network_id(),
+                                address: native_global_id.resource_address(),
+                            },
+                            non_fungible_local_id: native_global_id.local_id().clone(),
+                        },
                     }
-                    value => Err(Error::UnexpectedAstContents {
-                        parsing: ValueKind::NonFungibleAddress,
-                        expected: vec![
-                            ValueKind::U32,
-                            ValueKind::U64,
-                            ValueKind::U128,
-                            ValueKind::String,
-                            ValueKind::Bytes,
-                        ],
-                        found: value.type_id().into(),
-                    })?,
-                };
-
-                let non_fungible_address = NonFungibleAddress {
-                    resource_address,
-                    non_fungible_id,
-                };
-                Value::NonFungibleAddress {
-                    address: non_fungible_address,
                 }
-            }
+                _ => Err(Error::UnexpectedAstContents {
+                    parsing: ValueKind::NonFungibleGlobalId,
+                    expected: vec![ValueKind::String],
+                    found: value.value_kind().into(),
+                })?,
+            },
 
             ast::Value::Blob(value) => map_if_value_string(parsing, value, |blob_string| {
                 let bytes = hex::decode(blob_string)?;
@@ -1067,9 +987,6 @@ impl Value {
             Self::ResourceAddress { address } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::ResourceAddress(address.address),
             },
-            Self::SystemAddress { address } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::SystemAddress(address.address),
-            },
 
             Self::Hash { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::Hash(*value),
@@ -1096,17 +1013,17 @@ impl Value {
                 value: identifier.try_into()?,
             },
 
-            Self::NonFungibleId { value } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::NonFungibleId(value.clone()),
+            Self::NonFungibleLocalId { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::NonFungibleLocalId(value.clone()),
             },
-            Self::NonFungibleAddress { address } => ScryptoValue::Tuple {
+            Self::NonFungibleGlobalId { address } => ScryptoValue::Tuple {
                 fields: vec![
                     Self::ResourceAddress {
                         address: address.resource_address,
                     }
                     .to_scrypto_value()?,
-                    Self::NonFungibleId {
-                        value: address.non_fungible_id.clone(),
+                    Self::NonFungibleLocalId {
+                        value: address.non_fungible_local_id.clone(),
                     }
                     .to_scrypto_value()?,
                 ],
@@ -1235,14 +1152,6 @@ impl Value {
                     address: *address,
                 },
             },
-            ScryptoValue::Custom {
-                value: ScryptoCustomValue::SystemAddress(address),
-            } => Self::SystemAddress {
-                address: NetworkAwareSystemAddress {
-                    network_id,
-                    address: *address,
-                },
-            },
 
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Bucket(identifier),
@@ -1296,8 +1205,8 @@ impl Value {
             } => Self::PreciseDecimal { value: *value },
 
             ScryptoValue::Custom {
-                value: ScryptoCustomValue::NonFungibleId(value),
-            } => Self::NonFungibleId {
+                value: ScryptoCustomValue::NonFungibleLocalId(value),
+            } => Self::NonFungibleLocalId {
                 value: value.clone(),
             },
 
@@ -1309,26 +1218,26 @@ impl Value {
         }
     }
 
-    /// Handles the aliasing of certain [`Value`] kinds such as [`Value::NonFungibleAddress`]. This
+    /// Handles the aliasing of certain [`Value`] kinds such as [`Value::NonFungibleGlobalId`]. This
     /// is typically used during request post processing to ensure that all responses include
     /// aliased values
     pub fn alias(&mut self) {
         match self {
             Self::Tuple { ref elements } => {
-                // Case: NonFungibleAddress - A tuple of ResourceAddress and NonFungibleId
+                // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
                 match (elements.get(0), elements.get(1)) {
                     (
                         Some(Value::ResourceAddress {
                             address: resource_address,
                         }),
-                        Some(Value::NonFungibleId {
-                            value: non_fungible_id,
+                        Some(Value::NonFungibleLocalId {
+                            value: non_fungible_local_id,
                         }),
                     ) if elements.len() == 2 => {
-                        *self = Value::NonFungibleAddress {
-                            address: NonFungibleAddress {
+                        *self = Value::NonFungibleGlobalId {
+                            address: NonFungibleGlobalId {
                                 resource_address: *resource_address,
-                                non_fungible_id: non_fungible_id.clone(),
+                                non_fungible_local_id: non_fungible_local_id.clone(),
                             },
                         };
                     }
@@ -1368,8 +1277,7 @@ impl Value {
             Self::ComponentAddress { address } => address.network_id,
             Self::PackageAddress { address } => address.network_id,
             Self::ResourceAddress { address } => address.network_id,
-            Self::SystemAddress { address } => address.network_id,
-            Self::NonFungibleAddress { address } => address.resource_address.network_id,
+            Self::NonFungibleGlobalId { address } => address.resource_address.network_id,
             _ => return Ok(()),
         };
 
@@ -1478,15 +1386,14 @@ impl From<ValueKind> for ast::Type {
             ValueKind::PackageAddress => ast::Type::PackageAddress,
             ValueKind::ComponentAddress => ast::Type::ComponentAddress,
             ValueKind::ResourceAddress => ast::Type::ResourceAddress,
-            ValueKind::SystemAddress => ast::Type::SystemAddress,
 
             ValueKind::Hash => ast::Type::Hash,
 
             ValueKind::Bucket => ast::Type::Bucket,
             ValueKind::Proof => ast::Type::Proof,
 
-            ValueKind::NonFungibleId => ast::Type::NonFungibleId,
-            ValueKind::NonFungibleAddress => ast::Type::NonFungibleAddress,
+            ValueKind::NonFungibleLocalId => ast::Type::NonFungibleLocalId,
+            ValueKind::NonFungibleGlobalId => ast::Type::NonFungibleGlobalId,
 
             ValueKind::Blob => ast::Type::Blob,
             ValueKind::Bytes => ast::Type::Bytes,
@@ -1530,7 +1437,6 @@ impl From<ast::Type> for ValueKind {
             ast::Type::PackageAddress => Self::PackageAddress,
             ast::Type::ComponentAddress => Self::ComponentAddress,
             ast::Type::ResourceAddress => Self::ResourceAddress,
-            ast::Type::SystemAddress => Self::SystemAddress,
 
             ast::Type::Hash => Self::Hash,
             ast::Type::EcdsaSecp256k1PublicKey => Self::EcdsaSecp256k1PublicKey,
@@ -1541,8 +1447,8 @@ impl From<ast::Type> for ValueKind {
             ast::Type::Bucket => Self::Bucket,
             ast::Type::Proof => Self::Proof,
 
-            ast::Type::NonFungibleId => Self::NonFungibleId,
-            ast::Type::NonFungibleAddress => Self::NonFungibleAddress,
+            ast::Type::NonFungibleLocalId => Self::NonFungibleLocalId,
+            ast::Type::NonFungibleGlobalId => Self::NonFungibleGlobalId,
 
             ast::Type::Blob => Self::Blob,
             ast::Type::Expression => Self::Expression,
@@ -1576,11 +1482,10 @@ impl From<ScryptoValueKind> for ValueKind {
             ScryptoValueKind::Array => ValueKind::Array,
             ScryptoValueKind::Tuple => ValueKind::Tuple,
 
-            ScryptoValueKind::Custom(custom_type_id) => match custom_type_id {
+            ScryptoValueKind::Custom(custom_value_kind) => match custom_value_kind {
                 ScryptoCustomValueKind::PackageAddress => ValueKind::PackageAddress,
                 ScryptoCustomValueKind::ComponentAddress => ValueKind::ComponentAddress,
                 ScryptoCustomValueKind::ResourceAddress => ValueKind::ResourceAddress,
-                ScryptoCustomValueKind::SystemAddress => ValueKind::SystemAddress,
 
                 ScryptoCustomValueKind::Bucket => ValueKind::Bucket,
                 ScryptoCustomValueKind::Proof => ValueKind::Proof,
@@ -1601,7 +1506,7 @@ impl From<ScryptoValueKind> for ValueKind {
                 ScryptoCustomValueKind::Decimal => ValueKind::Decimal,
                 ScryptoCustomValueKind::PreciseDecimal => ValueKind::PreciseDecimal,
 
-                ScryptoCustomValueKind::NonFungibleId => ValueKind::NonFungibleId,
+                ScryptoCustomValueKind::NonFungibleLocalId => ValueKind::NonFungibleLocalId,
                 ScryptoCustomValueKind::Own => ValueKind::Own,
             },
         }
@@ -1639,9 +1544,6 @@ impl From<ValueKind> for ScryptoValueKind {
             ValueKind::Bytes => ScryptoValueKind::Array,
             ValueKind::Tuple => ScryptoValueKind::Tuple,
 
-            ValueKind::SystemAddress => {
-                ScryptoValueKind::Custom(ScryptoCustomValueKind::SystemAddress)
-            }
             ValueKind::PackageAddress => {
                 ScryptoValueKind::Custom(ScryptoCustomValueKind::PackageAddress)
             }
@@ -1657,7 +1559,7 @@ impl From<ValueKind> for ScryptoValueKind {
 
             ValueKind::Expression => ScryptoValueKind::Custom(ScryptoCustomValueKind::Expression),
             ValueKind::Blob => ScryptoValueKind::Custom(ScryptoCustomValueKind::Blob),
-            ValueKind::NonFungibleAddress => ScryptoValueKind::Tuple,
+            ValueKind::NonFungibleGlobalId => ScryptoValueKind::Tuple,
 
             ValueKind::Hash => ScryptoValueKind::Custom(ScryptoCustomValueKind::Hash),
             ValueKind::EcdsaSecp256k1PublicKey => {
@@ -1676,8 +1578,8 @@ impl From<ValueKind> for ScryptoValueKind {
             ValueKind::PreciseDecimal => {
                 ScryptoValueKind::Custom(ScryptoCustomValueKind::PreciseDecimal)
             }
-            ValueKind::NonFungibleId => {
-                ScryptoValueKind::Custom(ScryptoCustomValueKind::NonFungibleId)
+            ValueKind::NonFungibleLocalId => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::NonFungibleLocalId)
             }
             ValueKind::Own => ScryptoValueKind::Custom(ScryptoCustomValueKind::Own),
         }
@@ -1724,9 +1626,8 @@ value_invertible! {Decimal, Decimal, value}
 value_invertible! {Proof, ProofId, identifier}
 value_invertible! {Blob, ManifestBlobRef, hash}
 value_invertible! {Bucket, BucketId, identifier}
-value_invertible! {NonFungibleId, NonFungibleId, value}
-value_invertible! {NonFungibleAddress, NonFungibleAddress, address}
-value_invertible! {SystemAddress, NetworkAwareSystemAddress, address}
+value_invertible! {NonFungibleLocalId, NonFungibleLocalId, value}
+value_invertible! {NonFungibleGlobalId, NonFungibleGlobalId, address}
 value_invertible! {PackageAddress, NetworkAwarePackageAddress, address}
 value_invertible! {ResourceAddress, NetworkAwareResourceAddress, address}
 value_invertible! {ComponentAddress, NetworkAwareComponentAddress, address}
@@ -1740,7 +1641,6 @@ impl TryFrom<EntityAddress> for Value {
             EntityAddress::ComponentAddress { address } => Ok(Value::ComponentAddress { address }),
             EntityAddress::ResourceAddress { address } => Ok(Value::ResourceAddress { address }),
             EntityAddress::PackageAddress { address } => Ok(Value::PackageAddress { address }),
-            EntityAddress::SystemAddress { address } => Ok(Value::SystemAddress { address }),
         }
     }
 }
@@ -1753,13 +1653,11 @@ impl TryFrom<Value> for EntityAddress {
             Value::ComponentAddress { address } => Ok(EntityAddress::ComponentAddress { address }),
             Value::ResourceAddress { address } => Ok(EntityAddress::ResourceAddress { address }),
             Value::PackageAddress { address } => Ok(EntityAddress::PackageAddress { address }),
-            Value::SystemAddress { address } => Ok(EntityAddress::SystemAddress { address }),
             _ => Err(Error::InvalidKind {
                 expected: vec![
                     ValueKind::ComponentAddress,
                     ValueKind::ResourceAddress,
                     ValueKind::PackageAddress,
-                    ValueKind::SystemAddress,
                 ],
                 found: value.kind(),
             }),
@@ -1781,7 +1679,7 @@ where
         Err(Error::UnexpectedAstContents {
             parsing,
             expected: vec![ValueKind::String],
-            found: value.type_id().into(),
+            found: value.value_kind().into(),
         })
     }
 }

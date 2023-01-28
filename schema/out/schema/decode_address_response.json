@@ -52,7 +52,11 @@
         "EddsaEd25519VirtualAccountComponent",
         "EpochManager",
         "Clock",
-        "Validator"
+        "Validator",
+        "IdentityComponent",
+        "EcdsaSecp256k1VirtualIdentityComponent",
+        "EddsaEd25519VirtualIdentityComponent",
+        "AccessControllerComponent"
       ]
     }
   }

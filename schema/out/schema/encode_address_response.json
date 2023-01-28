@@ -59,33 +59,6 @@
       }
     },
     {
-      "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
-      "type": "object",
-      "required": [
-        "address",
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "SystemAddress"
-          ]
-        },
-        "address": {
-          "type": "object",
-          "required": [
-            "address"
-          ],
-          "properties": {
-            "address": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    },
-    {
       "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
       "type": "object",
       "required": [

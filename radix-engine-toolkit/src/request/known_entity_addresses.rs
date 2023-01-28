@@ -19,7 +19,6 @@ use crate::error::Result;
 use crate::request::Handler;
 use crate::{
     NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-    NetworkAwareSystemAddress,
 };
 use scrypto::prelude::{
     ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_TOKEN, EDDSA_ED25519_TOKEN, EPOCH_MANAGER,
@@ -91,17 +90,17 @@ pub struct KnownEntityAddressesResponse {
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress,
 
-    /// A system address serialized as a `SystemAddress` from the `Value` model which represents
+    /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the epoch manager on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
-    epoch_manager_system_address: NetworkAwareSystemAddress,
+    epoch_manager_system_address: NetworkAwareComponentAddress,
 
-    /// A system address serialized as a `SystemAddress` from the `Value` model which represents
+    /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the clock on the requested network.
     #[schemars(with = "crate::model::value::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
-    clock_system_address: NetworkAwareSystemAddress,
+    clock_system_address: NetworkAwareComponentAddress,
 }
 
 // ===============
@@ -148,11 +147,11 @@ impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
                 address: EDDSA_ED25519_TOKEN,
                 network_id,
             },
-            epoch_manager_system_address: NetworkAwareSystemAddress {
+            epoch_manager_system_address: NetworkAwareComponentAddress {
                 address: EPOCH_MANAGER,
                 network_id,
             },
-            clock_system_address: NetworkAwareSystemAddress {
+            clock_system_address: NetworkAwareComponentAddress {
                 address: CLOCK,
                 network_id,
             },

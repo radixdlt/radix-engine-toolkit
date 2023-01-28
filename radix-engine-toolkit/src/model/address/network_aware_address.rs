@@ -89,8 +89,3 @@ define_network_aware_address!(
     encode_resource_address,
     decode_resource_address
 );
-define_network_aware_address!(
-    scrypto::prelude::SystemAddress => NetworkAwareSystemAddress,
-    encode_system_address,
-    decode_system_address
-);

@@ -113,8 +113,8 @@ pub enum Instruction {
         resource_address: Value,
 
         /// The non-fungible ids to take from the worktop. This is a set (serialized as a JSON
-        /// array) of `NonFungibleId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleId>")]
+        /// array) of `NonFungibleLocalId`s from the Value model.
+        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
 
         /// A bucket to put the taken resources into. This field is serialized as a `Bucket` from
@@ -155,8 +155,8 @@ pub enum Instruction {
         resource_address: Value,
 
         /// The non-fungible ids of the resource to assert their existence in the worktop. This is
-        /// a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleId>")]
+        /// a set (serialized as a JSON array) of `NonFungibleLocalId`s from the Value model.
+        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
     },
 
@@ -214,8 +214,8 @@ pub enum Instruction {
         resource_address: Value,
 
         /// The non-fungible ids to create a proof of. This is a set (serialized as a JSON array)
-        /// of `NonFungibleId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleId>")]
+        /// of `NonFungibleLocalId`s from the Value model.
+        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
 
         /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
@@ -289,7 +289,7 @@ pub enum Instruction {
         abi: Value,
 
         /// The non-fungible address of the owner badge of this package. This field is serialized
-        /// as a `NonFungibleAddress` from the Value model.
+        /// as a `NonFungibleGlobalId` from the Value model.
         owner_badge: Value,
     },
 
@@ -314,7 +314,7 @@ pub enum Instruction {
     SetMetadata {
         /// The address of the entity to set metadata on. This is a discriminated union of types
         /// where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or
-        /// a `SystemAddress`.
+        /// a `ComponentAddress`.
         entity_address: Value,
 
         /// A string of the key to set the metadata for. This field is serialized as a `String`
@@ -399,8 +399,8 @@ pub enum Instruction {
         resource_address: Value,
 
         /// The non-fungible tokens to mint. The underlying type of this is a map which maps a
-        /// `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of
-        /// the immutable and mutable parts of the non-fungible data.
+        /// `NonFungibleLocalId` to a tuple of two `Value` elements where each element is a struct
+        /// of the immutable and mutable parts of the non-fungible data.
         entries: Value,
     },
 
@@ -450,7 +450,7 @@ pub enum Instruction {
         metadata: Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
-        /// as a `NonFungibleAddress` from the Value model.
+        /// as a `NonFungibleGlobalId` from the Value model.
         owner_badge: Value,
 
         /// An optional decimal value of the initial supply to mint during resource creation. If
@@ -475,7 +475,7 @@ pub enum Instruction {
         access_rules: Value,
 
         /// An optional initial supply for the non-fungible resource being created. The underlying
-        /// type of this is a map which maps a `NonFungibleId` to a tuple of two `Value`
+        /// type of this is a map which maps a `NonFungibleLocalId` to a tuple of two `Value`
         /// elements where each element is a struct of the immutable and mutable parts of
         /// the non-fungible data.
         initial_supply: Value,
@@ -493,32 +493,54 @@ pub enum Instruction {
         metadata: Value,
 
         /// The non-fungible address of the owner badge of this resource. This field is serialized
-        /// as a `NonFungibleAddress` from the Value model.
+        /// as a `NonFungibleGlobalId` from the Value model.
         owner_badge: Value,
 
         /// An optional initial supply for the non-fungible resource being created. The underlying
-        /// type of this is a map which maps a `NonFungibleId` to a tuple of two `Value`
+        /// type of this is a map which maps a `NonFungibleLocalId` to a tuple of two `Value`
         /// elements where each element is a struct of the immutable and mutable parts of
         /// the non-fungible data.
         initial_supply: Value,
     },
 
-    CreateValidator {
-        /// The public key of the validator
-        key: Value,
+    /// Creates a new access controller native component with the passed set of rules as the
+    /// current active rule set and the specified timed recovery delay in minutes.
+    CreateAccessController {
+        /// A bucket of the asset that will be controlled by the access controller. The underlying
+        /// type of this is a `Bucket` from the `Value` model.
+        controlled_asset: Value,
+
+        /// The access rule to use for the primary role of the access controller. The underlying
+        /// type of this is an `Enum` from the `Value` model.
+        primary_role: Value,
+
+        /// The access rule to use for the recovery role of the access controller. The underlying
+        /// type of this is an `Enum` from the `Value` model.
+        recovery_role: Value,
+
+        /// The access rule to use for the confirmation role of the access controller. The
+        /// underlying type of this is an `Enum` from the `Value` model.
+        confirmation_role: Value,
+
+        /// The recovery delay in minutes to use for the access controller. The underlying type of
+        /// this is an `Enum` or an `Option` from the `Value` model of an unsigned 32-bit integer
+        /// of the time in minutes.
+        timed_recovery_delay_in_minutes: Value,
     },
 
-    /// An instruction to registers a new validator given the system component address of the
-    /// validator
-    RegisterValidator {
-        /// the system component address of the validator
-        validator: Value,
+    /// Creates a new identity native component with the passed access rule.
+    CreateIdentity {
+        /// The access rule to protect the identity with. The underlying type of this is an `Enum`
+        /// from the `Value` model.
+        access_rule: Value,
     },
 
-    /// An instruction to unregister a validator given the system component address of the validator
-    UnregisterValidator {
-        /// the system component address of the validator to unregister
-        validator: Value,
+    /// Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of
+    /// the transaction
+    AssertAccessRule {
+        /// The access rule to assert. The underlying type of this is an `Enum` from the `Value`
+        /// model which represents the access rule to assert.
+        access_rule: Value,
     },
 }
 
@@ -579,7 +601,7 @@ impl Instruction {
                 into_bucket,
             } => ast::Instruction::TakeFromWorktopByIds {
                 ids: Value::Array {
-                    element_kind: crate::model::value::ValueKind::NonFungibleId,
+                    element_kind: crate::model::value::ValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -609,7 +631,7 @@ impl Instruction {
                 ids: Value::Array {
                     // TODO: This was `ValueKind::Bucket` by mistake. What kind of test can we
                     // introduce to catch this?
-                    element_kind: crate::model::value::ValueKind::NonFungibleId,
+                    element_kind: crate::model::value::ValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -646,7 +668,7 @@ impl Instruction {
                 into_proof,
             } => ast::Instruction::CreateProofFromAuthZoneByIds {
                 ids: Value::Array {
-                    element_kind: crate::model::value::ValueKind::NonFungibleId,
+                    element_kind: crate::model::value::ValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -815,14 +837,25 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 entries: entries.to_ast_value(bech32_coder)?,
             },
-            Self::CreateValidator { key } => ast::Instruction::CreateValidator {
-                key: key.to_ast_value(bech32_coder)?,
+            Self::AssertAccessRule { access_rule } => ast::Instruction::AssertAccessRule {
+                access_rule: access_rule.to_ast_value(bech32_coder)?,
             },
-            Self::RegisterValidator { validator } => ast::Instruction::RegisterValidator {
-                validator: validator.to_ast_value(bech32_coder)?,
+            Self::CreateAccessController {
+                controlled_asset,
+                primary_role,
+                recovery_role,
+                confirmation_role,
+                timed_recovery_delay_in_minutes,
+            } => ast::Instruction::CreateAccessController {
+                controlled_asset: controlled_asset.to_ast_value(bech32_coder)?,
+                primary_role: primary_role.to_ast_value(bech32_coder)?,
+                recovery_role: recovery_role.to_ast_value(bech32_coder)?,
+                confirmation_role: confirmation_role.to_ast_value(bech32_coder)?,
+                timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes
+                    .to_ast_value(bech32_coder)?,
             },
-            Self::UnregisterValidator { validator } => ast::Instruction::RegisterValidator {
-                validator: validator.to_ast_value(bech32_coder)?,
+            Self::CreateIdentity { access_rule } => ast::Instruction::CreateIdentity {
+                access_rule: access_rule.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -1138,14 +1171,28 @@ impl Instruction {
                 resource_address: Value::from_ast_value(resource_address, bech32_coder)?,
                 entries: Value::from_ast_value(entries, bech32_coder)?,
             },
-            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
-                key: Value::from_ast_value(key, bech32_coder)?,
+
+            ast::Instruction::CreateIdentity { access_rule } => Self::CreateIdentity {
+                access_rule: Value::from_ast_value(access_rule, bech32_coder)?,
             },
-            ast::Instruction::RegisterValidator { validator } => Self::RegisterValidator {
-                validator: Value::from_ast_value(validator, bech32_coder)?,
+            ast::Instruction::AssertAccessRule { access_rule } => Self::AssertAccessRule {
+                access_rule: Value::from_ast_value(access_rule, bech32_coder)?,
             },
-            ast::Instruction::UnregisterValidator { validator } => Self::UnregisterValidator {
-                validator: Value::from_ast_value(validator, bech32_coder)?,
+            ast::Instruction::CreateAccessController {
+                controlled_asset,
+                primary_role,
+                recovery_role,
+                confirmation_role,
+                timed_recovery_delay_in_minutes,
+            } => Self::CreateAccessController {
+                controlled_asset: Value::from_ast_value(controlled_asset, bech32_coder)?,
+                primary_role: Value::from_ast_value(primary_role, bech32_coder)?,
+                recovery_role: Value::from_ast_value(recovery_role, bech32_coder)?,
+                confirmation_role: Value::from_ast_value(confirmation_role, bech32_coder)?,
+                timed_recovery_delay_in_minutes: Value::from_ast_value(
+                    timed_recovery_delay_in_minutes,
+                    bech32_coder,
+                )?,
             },
         };
         Ok(instruction)
@@ -1403,9 +1450,21 @@ impl ValueRef for Instruction {
                 values.push(initial_supply);
             }
 
-            Self::CreateValidator { key } => values.push(key),
-            Self::RegisterValidator { validator } => values.push(validator),
-            Self::UnregisterValidator { validator } => values.push(validator),
+            Self::AssertAccessRule { access_rule } => values.push(access_rule),
+            Self::CreateIdentity { access_rule } => values.push(access_rule),
+            Self::CreateAccessController {
+                controlled_asset,
+                primary_role,
+                recovery_role,
+                confirmation_role,
+                timed_recovery_delay_in_minutes,
+            } => {
+                values.push(controlled_asset);
+                values.push(primary_role);
+                values.push(recovery_role);
+                values.push(confirmation_role);
+                values.push(timed_recovery_delay_in_minutes);
+            }
 
             Self::DropProof { proof } => values.push(proof),
 
@@ -1664,9 +1723,21 @@ impl ValueRef for Instruction {
                 values.push(initial_supply);
             }
 
-            Self::CreateValidator { key } => values.push(key),
-            Self::RegisterValidator { validator } => values.push(validator),
-            Self::UnregisterValidator { validator } => values.push(validator),
+            Self::AssertAccessRule { access_rule } => values.push(access_rule),
+            Self::CreateIdentity { access_rule } => values.push(access_rule),
+            Self::CreateAccessController {
+                controlled_asset,
+                primary_role,
+                recovery_role,
+                confirmation_role,
+                timed_recovery_delay_in_minutes,
+            } => {
+                values.push(controlled_asset);
+                values.push(primary_role);
+                values.push(recovery_role);
+                values.push(confirmation_role);
+                values.push(timed_recovery_delay_in_minutes);
+            }
 
             Self::DropProof { proof } => values.push(proof),
 

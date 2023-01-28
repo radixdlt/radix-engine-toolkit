@@ -307,10 +307,10 @@
               ]
             },
             "ids": {
-              "description": "The non-fungible ids to take from the worktop. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "description": "The non-fungible ids to take from the worktop. This is a set (serialized as a JSON array) of `NonFungibleLocalId`s from the Value model.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/NonFungibleId"
+                "$ref": "#/definitions/NonFungibleLocalId"
               },
               "uniqueItems": true
             },
@@ -429,10 +429,10 @@
               ]
             },
             "ids": {
-              "description": "The non-fungible ids of the resource to assert their existence in the worktop. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "description": "The non-fungible ids of the resource to assert their existence in the worktop. This is a set (serialized as a JSON array) of `NonFungibleLocalId`s from the Value model.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/NonFungibleId"
+                "$ref": "#/definitions/NonFungibleLocalId"
               },
               "uniqueItems": true
             }
@@ -601,10 +601,10 @@
               ]
             },
             "ids": {
-              "description": "The non-fungible ids to create a proof of. This is a set (serialized as a JSON array) of `NonFungibleId`s from the Value model.",
+              "description": "The non-fungible ids to create a proof of. This is a set (serialized as a JSON array) of `NonFungibleLocalId`s from the Value model.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/NonFungibleId"
+                "$ref": "#/definitions/NonFungibleLocalId"
               },
               "uniqueItems": true
             },
@@ -816,7 +816,7 @@
               ]
             },
             "owner_badge": {
-              "description": "The non-fungible address of the owner badge of this package. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "description": "The non-fungible address of the owner badge of this package. This field is serialized as a `NonFungibleGlobalId` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -899,7 +899,7 @@
               ]
             },
             "entity_address": {
-              "description": "The address of the entity to set metadata on. This is a discriminated union of types where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or a `SystemAddress`.",
+              "description": "The address of the entity to set metadata on. This is a discriminated union of types where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or a `ComponentAddress`.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1146,7 +1146,7 @@
               ]
             },
             "entries": {
-              "description": "The non-fungible tokens to mint. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "description": "The non-fungible tokens to mint. The underlying type of this is a map which maps a `NonFungibleLocalId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1273,7 +1273,7 @@
               ]
             },
             "owner_badge": {
-              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleGlobalId` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1332,7 +1332,7 @@
               ]
             },
             "initial_supply": {
-              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleLocalId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1375,7 +1375,7 @@
               ]
             },
             "owner_badge": {
-              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleAddress` from the Value model.",
+              "description": "The non-fungible address of the owner badge of this resource. This field is serialized as a `NonFungibleGlobalId` from the Value model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1383,7 +1383,7 @@
               ]
             },
             "initial_supply": {
-              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
+              "description": "An optional initial supply for the non-fungible resource being created. The underlying type of this is a map which maps a `NonFungibleLocalId` to a tuple of two `Value` elements where each element is a struct of the immutable and mutable parts of the non-fungible data.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1393,20 +1393,57 @@
           }
         },
         {
+          "description": "Creates a new access controller native component with the passed set of rules as the current active rule set and the specified timed recovery delay in minutes.",
           "type": "object",
           "required": [
+            "confirmation_role",
+            "controlled_asset",
             "instruction",
-            "key"
+            "primary_role",
+            "recovery_role",
+            "timed_recovery_delay_in_minutes"
           ],
           "properties": {
             "instruction": {
               "type": "string",
               "enum": [
-                "CREATE_VALIDATOR"
+                "CREATE_ACCESS_CONTROLLER"
               ]
             },
-            "key": {
-              "description": "The public key of the validator",
+            "controlled_asset": {
+              "description": "A bucket of the asset that will be controlled by the access controller. The underlying type of this is a `Bucket` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "primary_role": {
+              "description": "The access rule to use for the primary role of the access controller. The underlying type of this is an `Enum` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "recovery_role": {
+              "description": "The access rule to use for the recovery role of the access controller. The underlying type of this is an `Enum` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "confirmation_role": {
+              "description": "The access rule to use for the confirmation role of the access controller. The underlying type of this is an `Enum` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "timed_recovery_delay_in_minutes": {
+              "description": "The recovery delay in minutes to use for the access controller. The underlying type of this is an `Enum` or an `Option` from the `Value` model of an unsigned 32-bit integer of the time in minutes.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1416,21 +1453,21 @@
           }
         },
         {
-          "description": "An instruction to registers a new validator given the system component address of the validator",
+          "description": "Creates a new identity native component with the passed access rule.",
           "type": "object",
           "required": [
-            "instruction",
-            "validator"
+            "access_rule",
+            "instruction"
           ],
           "properties": {
             "instruction": {
               "type": "string",
               "enum": [
-                "REGISTER_VALIDATOR"
+                "CREATE_IDENTITY"
               ]
             },
-            "validator": {
-              "description": "the system component address of the validator",
+            "access_rule": {
+              "description": "The access rule to protect the identity with. The underlying type of this is an `Enum` from the `Value` model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -1440,21 +1477,21 @@
           }
         },
         {
-          "description": "An instruction to unregister a validator given the system component address of the validator",
+          "description": "Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of the transaction",
           "type": "object",
           "required": [
-            "instruction",
-            "validator"
+            "access_rule",
+            "instruction"
           ],
           "properties": {
             "instruction": {
               "type": "string",
               "enum": [
-                "UNREGISTER_VALIDATOR"
+                "ASSERT_ACCESS_RULE"
               ]
             },
-            "validator": {
-              "description": "the system component address of the validator to unregister",
+            "access_rule": {
+              "description": "The access rule to assert. The underlying type of this is an `Enum` from the `Value` model which represents the access rule to assert.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
@@ -2015,25 +2052,6 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "SystemAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
           "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
@@ -2053,7 +2071,7 @@
           }
         },
         {
-          "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the number of bytes needed)",
+          "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the Integer of bytes needed)",
           "type": "object",
           "required": [
             "type",
@@ -2163,7 +2181,7 @@
           }
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "type": "object",
           "required": [
             "identifier",
@@ -2182,7 +2200,7 @@
           }
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "type": "object",
           "required": [
             "identifier",
@@ -2211,11 +2229,11 @@
             "type": {
               "type": "string",
               "enum": [
-                "NonFungibleId"
+                "NonFungibleLocalId"
               ]
             },
             "value": {
-              "$ref": "#/definitions/NonFungibleId"
+              "$ref": "#/definitions/NonFungibleLocalId"
             }
           }
         },
@@ -2223,7 +2241,7 @@
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
           "type": "object",
           "required": [
-            "non_fungible_id",
+            "non_fungible_local_id",
             "resource_address",
             "type"
           ],
@@ -2231,13 +2249,13 @@
             "type": {
               "type": "string",
               "enum": [
-                "NonFungibleAddress"
+                "NonFungibleGlobalId"
               ]
             },
             "resource_address": {
               "$ref": "#/definitions/Value"
             },
-            "non_fungible_id": {
+            "non_fungible_local_id": {
               "$ref": "#/definitions/Value"
             }
           }
@@ -2374,7 +2392,6 @@
         "Own",
         "ComponentAddress",
         "ResourceAddress",
-        "SystemAddress",
         "PackageAddress",
         "Hash",
         "EcdsaSecp256k1PublicKey",
@@ -2383,8 +2400,8 @@
         "EddsaEd25519Signature",
         "Bucket",
         "Proof",
-        "NonFungibleId",
-        "NonFungibleAddress",
+        "NonFungibleLocalId",
+        "NonFungibleGlobalId",
         "Expression",
         "Blob",
         "Bytes"
@@ -2557,7 +2574,7 @@
         }
       ]
     },
-    "NonFungibleId": {
+    "NonFungibleLocalId": {
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
       "oneOf": [
         {
@@ -2571,7 +2588,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Number"
+                "Integer"
               ]
             },
             "value": {
@@ -2601,7 +2618,7 @@
           }
         },
         {
-          "description": "An byte array non-fungible id type which is serialized as a hex string",
+          "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
           "type": "object",
           "required": [
             "type",
@@ -2616,12 +2633,14 @@
             },
             "value": {
               "type": "string",
+              "maxLength": 128,
+              "minLength": 2,
               "pattern": "[0-9a-fA-F]+"
             }
           }
         },
         {
-          "description": "A string non-fungible id",
+          "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
           "type": "object",
           "required": [
             "type",
@@ -2635,7 +2654,9 @@
               ]
             },
             "value": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
             }
           }
         }

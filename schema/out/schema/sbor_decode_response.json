@@ -551,25 +551,6 @@
       }
     },
     {
-      "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
-      "type": "object",
-      "required": [
-        "address",
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "SystemAddress"
-          ]
-        },
-        "address": {
-          "type": "string"
-        }
-      }
-    },
-    {
       "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
       "type": "object",
       "required": [
@@ -589,7 +570,7 @@
       }
     },
     {
-      "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the number of bytes needed)",
+      "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the Integer of bytes needed)",
       "type": "object",
       "required": [
         "type",
@@ -699,7 +680,7 @@
       }
     },
     {
-      "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+      "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
       "type": "object",
       "required": [
         "identifier",
@@ -718,7 +699,7 @@
       }
     },
     {
-      "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+      "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
       "type": "object",
       "required": [
         "identifier",
@@ -747,11 +728,11 @@
         "type": {
           "type": "string",
           "enum": [
-            "NonFungibleId"
+            "NonFungibleLocalId"
           ]
         },
         "value": {
-          "$ref": "#/definitions/NonFungibleId"
+          "$ref": "#/definitions/NonFungibleLocalId"
         }
       }
     },
@@ -759,7 +740,7 @@
       "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
       "type": "object",
       "required": [
-        "non_fungible_id",
+        "non_fungible_local_id",
         "resource_address",
         "type"
       ],
@@ -767,13 +748,13 @@
         "type": {
           "type": "string",
           "enum": [
-            "NonFungibleAddress"
+            "NonFungibleGlobalId"
           ]
         },
         "resource_address": {
           "$ref": "#/definitions/Value"
         },
-        "non_fungible_id": {
+        "non_fungible_local_id": {
           "$ref": "#/definitions/Value"
         }
       }
@@ -1431,25 +1412,6 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable system address. This address is serialized as a human-readable bech32m encoded string.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "SystemAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
           "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
           "type": "object",
           "required": [
@@ -1469,7 +1431,7 @@
           }
         },
         {
-          "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the number of bytes needed)",
+          "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the Integer of bytes needed)",
           "type": "object",
           "required": [
             "type",
@@ -1579,7 +1541,7 @@
           }
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "type": "object",
           "required": [
             "identifier",
@@ -1598,7 +1560,7 @@
           }
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a number.",
+          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "type": "object",
           "required": [
             "identifier",
@@ -1627,11 +1589,11 @@
             "type": {
               "type": "string",
               "enum": [
-                "NonFungibleId"
+                "NonFungibleLocalId"
               ]
             },
             "value": {
-              "$ref": "#/definitions/NonFungibleId"
+              "$ref": "#/definitions/NonFungibleLocalId"
             }
           }
         },
@@ -1639,7 +1601,7 @@
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
           "type": "object",
           "required": [
-            "non_fungible_id",
+            "non_fungible_local_id",
             "resource_address",
             "type"
           ],
@@ -1647,13 +1609,13 @@
             "type": {
               "type": "string",
               "enum": [
-                "NonFungibleAddress"
+                "NonFungibleGlobalId"
               ]
             },
             "resource_address": {
               "$ref": "#/definitions/Value"
             },
-            "non_fungible_id": {
+            "non_fungible_local_id": {
               "$ref": "#/definitions/Value"
             }
           }
@@ -1746,7 +1708,6 @@
         "Own",
         "ComponentAddress",
         "ResourceAddress",
-        "SystemAddress",
         "PackageAddress",
         "Hash",
         "EcdsaSecp256k1PublicKey",
@@ -1755,8 +1716,8 @@
         "EddsaEd25519Signature",
         "Bucket",
         "Proof",
-        "NonFungibleId",
-        "NonFungibleAddress",
+        "NonFungibleLocalId",
+        "NonFungibleGlobalId",
         "Expression",
         "Blob",
         "Bytes"
@@ -1929,7 +1890,7 @@
         }
       ]
     },
-    "NonFungibleId": {
+    "NonFungibleLocalId": {
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
       "oneOf": [
         {
@@ -1943,7 +1904,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Number"
+                "Integer"
               ]
             },
             "value": {
@@ -1973,7 +1934,7 @@
           }
         },
         {
-          "description": "An byte array non-fungible id type which is serialized as a hex string",
+          "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
           "type": "object",
           "required": [
             "type",
@@ -1988,12 +1949,14 @@
             },
             "value": {
               "type": "string",
+              "maxLength": 128,
+              "minLength": 2,
               "pattern": "[0-9a-fA-F]+"
             }
           }
         },
         {
-          "description": "A string non-fungible id",
+          "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
           "type": "object",
           "required": [
             "type",
@@ -2007,7 +1970,9 @@
               ]
             },
             "value": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
             }
           }
         }

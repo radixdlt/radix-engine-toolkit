@@ -15,16 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::NonFungibleId as ScryptoNonFungibleId;
+use scrypto::prelude::NonFungibleLocalId as ScryptoNonFungibleLocalId;
 use serializable::serializable;
 
 #[serializable]
 #[serde(tag = "type", content = "value")]
 /// Represents non-fungible ids which is a discriminated union of the different types that
 /// non-fungible ids may be.
-pub enum NonFungibleId {
+pub enum NonFungibleLocalId {
     /// A 64 bit unsigned integer non-fungible id type which is serialized as a string
-    Number(
+    Integer(
         #[schemars(regex(pattern = "[0-9]+"))]
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -40,36 +40,38 @@ pub enum NonFungibleId {
         u128,
     ),
 
-    /// An byte array non-fungible id type which is serialized as a hex string
+    /// An byte array non-fungible id type which is serialized as a hex string. This can be between
+    /// 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.
     Bytes(
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::hex::Hex")]
+        #[schemars(length(min = 2, max = 128))]
         Vec<u8>,
     ),
 
-    /// A string non-fungible id
-    String(String),
+    /// A string non-fungible id. This can be between 1 and 64 characters long.
+    String(#[schemars(length(min = 1, max = 64))] String),
 }
 
-impl From<ScryptoNonFungibleId> for NonFungibleId {
-    fn from(value: ScryptoNonFungibleId) -> Self {
+impl From<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
+    fn from(value: ScryptoNonFungibleLocalId) -> Self {
         match value {
-            ScryptoNonFungibleId::Number(value) => Self::Number(value),
-            ScryptoNonFungibleId::UUID(value) => Self::UUID(value),
-            ScryptoNonFungibleId::String(value) => Self::String(value),
-            ScryptoNonFungibleId::Bytes(value) => Self::Bytes(value),
+            ScryptoNonFungibleLocalId::Integer(value) => Self::Integer(value),
+            ScryptoNonFungibleLocalId::UUID(value) => Self::UUID(value),
+            ScryptoNonFungibleLocalId::String(value) => Self::String(value),
+            ScryptoNonFungibleLocalId::Bytes(value) => Self::Bytes(value),
         }
     }
 }
 
-impl From<NonFungibleId> for ScryptoNonFungibleId {
-    fn from(value: NonFungibleId) -> Self {
+impl From<NonFungibleLocalId> for ScryptoNonFungibleLocalId {
+    fn from(value: NonFungibleLocalId) -> Self {
         match value {
-            NonFungibleId::Number(value) => Self::Number(value),
-            NonFungibleId::UUID(value) => Self::UUID(value),
-            NonFungibleId::String(value) => Self::String(value),
-            NonFungibleId::Bytes(value) => Self::Bytes(value),
+            NonFungibleLocalId::Integer(value) => Self::Integer(value),
+            NonFungibleLocalId::UUID(value) => Self::UUID(value),
+            NonFungibleLocalId::String(value) => Self::String(value),
+            NonFungibleLocalId::Bytes(value) => Self::Bytes(value),
         }
     }
 }
