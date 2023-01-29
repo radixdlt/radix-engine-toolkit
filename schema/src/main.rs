@@ -29,7 +29,6 @@ use radix_engine_toolkit::request::*;
 macro_rules! generate_schema_hashmap {
     ($($type: ty),*) => {{
         let mut map = HashMap::new();
-
         $(
             {
                 // Converting type path to a type name by splitting it at the double colon and
