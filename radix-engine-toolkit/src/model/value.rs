@@ -37,7 +37,7 @@ use serializable::serializable;
 /// returns.
 #[serializable]
 #[serde(tag = "type")]
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Hash, Eq, PartialEq)]
 pub enum Value {
     /// A boolean value which can either be true or false
     Bool { value: bool },

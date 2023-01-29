@@ -27,7 +27,7 @@ use serializable::serializable;
 /// 8-bit unsigned number.
 #[serializable]
 #[serde(tag = "type")]
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Hash, Eq, PartialEq, PartialOrd, Ord)]
 pub enum EnumDiscriminator {
     String {
         /// A string discriminator of the fully qualified well-known enum name
