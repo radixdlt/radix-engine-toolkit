@@ -11,7 +11,7 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 serde_json = "1.0.91"
 
 # Importing core to get the models to generate it
-radix_engine_toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 convert_case = "0.6.0"
 
