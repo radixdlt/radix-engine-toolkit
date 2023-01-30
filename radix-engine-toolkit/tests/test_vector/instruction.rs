@@ -1369,63 +1369,63 @@ lazy_static::lazy_static! {
                 None;
             "##,
         ),
-        // InstructionRepresentationTestVector::new(
-        //     Instruction::CreateAccessController {
-        //         controlled_asset: Value::Bucket { identifier: BucketId(TransientIdentifier::U32 { value: 1 }) },
-        //         primary_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-        //         recovery_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-        //         confirmation_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-        //         timed_recovery_delay_in_minutes: Value::Some { value: Box::new(Value::U32 { value: 1 }) }
-        //     },
-        //     r#"
-        //     {
-        //         "instruction": "CREATE_ACCESS_CONTROLLER",
-        //         "controlled_asset": {
-        //             "type": "Bucket",
-        //             "identifier": {
-        //                 "type": "U32",
-        //                 "value": "1"
-        //             }
-        //         },
-        //         "primary_role": {
-        //             "type": "Enum",
-        //             "variant": {
-        //                 "type": "U8",
-        //                 "discriminator": "0"
-        //             }
-        //         },
-        //         "recovery_role": {
-        //             "type": "Enum",
-        //             "variant": {
-        //                 "type": "U8",
-        //                 "discriminator": "0"
-        //             }
-        //         },
-        //         "confirmation_role": {
-        //             "type": "Enum",
-        //             "variant": {
-        //                 "type": "U8",
-        //                 "discriminator": "0"
-        //             }
-        //         },
-        //         "timed_recovery_delay_in_minutes": {
-        //             "type": "Some",
-        //             "value": {
-        //                 "type": "U32",
-        //                 "value": "1"
-        //             }
-        //         }
-        //     }
-        //     "#,
-        //     r##"
-        //     CREATE_ACCESS_CONTROLLER
-        //         Bucket(1u32)
-        //         Enum(0u32)
-        //         Enum(0u32)
-        //         Enum(0u32)
-        //         Some(1u32);
-        //     "##,
-        // ),
+        InstructionRepresentationTestVector::new(
+            Instruction::CreateAccessController {
+                controlled_asset: Value::Bucket { identifier: BucketId(TransientIdentifier::U32 { value: 1 }) },
+                primary_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
+                recovery_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
+                confirmation_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
+                timed_recovery_delay_in_minutes: Value::Some { value: Box::new(Value::U8 { value: 1 }) }
+            },
+            r#"
+            {
+                "instruction": "CREATE_ACCESS_CONTROLLER",
+                "controlled_asset": {
+                    "type": "Bucket",
+                    "identifier": {
+                        "type": "U32",
+                        "value": "1"
+                    }
+                },
+                "primary_role": {
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    }
+                },
+                "recovery_role": {
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    }
+                },
+                "confirmation_role": {
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    }
+                },
+                "timed_recovery_delay_in_minutes": {
+                    "type": "Some",
+                    "value": {
+                        "type": "U8",
+                        "value": "1"
+                    }
+                }
+            }
+            "#,
+            r##"
+            CREATE_ACCESS_CONTROLLER
+                Bucket(1u32)
+                Enum(0u8)
+                Enum(0u8)
+                Enum(0u8)
+                Some(1u8);
+            "##,
+        ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateIdentity {
                 access_rule: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None }

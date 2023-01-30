@@ -55,7 +55,8 @@ fn instruction_ast_conversions_match_that_produced_by_transaction_compiler() {
     // Arrange
     let bech32_coder = Bech32Coder::new(0xf2);
 
-    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing the manifest
+    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing
+    // the manifest
     for test_vector in INSTRUCTION_CONVERSION_TEST_VECTORS.iter() {
         let expected_ast_instruction = test_vector.manifest_representation_as_ast_instruction();
 
@@ -75,7 +76,8 @@ fn no_information_is_lost_when_converting_instruction_to_ast_instruction_and_bac
     // Arrange
     let bech32_coder = Bech32Coder::new(0xf2);
 
-    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing the manifest
+    // Testing that the Instruction -> AstInstruction conversion matches that obtained from parsing
+    // the manifest
     for test_vector in INSTRUCTION_CONVERSION_TEST_VECTORS.iter() {
         let expected_instruction = &test_vector.instruction;
 
