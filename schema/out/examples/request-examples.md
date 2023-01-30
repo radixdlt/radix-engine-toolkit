@@ -25,7 +25,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "package_version": "0.7.0",
+  "package_version": "0.8.0",
   "git_hash": "This is just an example. We don't have a commit hash here :)"
 }
 ```
