@@ -2790,6 +2790,50 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
+## Derive Non Fungible Global Id From Public Key
+
+| Function Name     | `derive_non_fungible_global_id_from_public_key` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveNonFungibleGlobalIdFromPublicKey` |
+| Functionality     | Derives the non-fungible global id of the virtual badge associated with a given public key |
+| Request Type      | `DeriveNonFungibleGlobalIdFromPublicKeyRequest` |
+| Response Type     | `DeriveNonFungibleGlobalIdFromPublicKeyResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "242",
+  "public_key": {
+    "curve": "EcdsaSecp256k1",
+    "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "type": "NonFungibleGlobalId",
+  "resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
+  },
+  "non_fungible_local_id": {
+    "type": "NonFungibleLocalId",
+    "value": {
+      "type": "Bytes",
+      "value": "02cc806dddfd673d994986293a997a50e8c10d95443beb52b06e"
+    }
+  }
+}
+```
+</details>
+
 ## Statically Validate Transaction
 
 | Function Name     | `statically_validate_transaction` |
@@ -2879,6 +2923,10 @@ This document contains examples and descriptions of the different requests and r
   "eddsa_ed25519_token_resource_address": {
     "type": "ResourceAddress",
     "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqtc26ta"
+  },
+  "package_token_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzq6kmakh"
   },
   "epoch_manager_system_address": {
     "type": "ComponentAddress",

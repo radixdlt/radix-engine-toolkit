@@ -1,95 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "KnownEntityAddressesResponse",
-  "description": "The response from [`KnownEntityAddressesRequest`] requests",
+  "title": "DeriveVirtualIdentityAddressResponse",
+  "description": "The response form [`DeriveVirtualIdentityAddressRequest`] requests",
   "type": "object",
   "required": [
-    "account_package_address",
-    "clock_system_address",
-    "ecdsa_secp256k1_token_resource_address",
-    "eddsa_ed25519_token_resource_address",
-    "epoch_manager_system_address",
-    "faucet_component_address",
-    "faucet_package_address",
-    "package_token_resource_address",
-    "system_token_resource_address",
-    "xrd_resource_address"
+    "virtual_identity_address"
   ],
   "properties": {
-    "faucet_component_address": {
-      "description": "A component address serialized as a `ComponentAddress` from the `Value` model which represents the address of the faucet component on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "faucet_package_address": {
-      "description": "A package address serialized as a `PackageAddress` from the `Value` model which represents the address of the faucet package on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "account_package_address": {
-      "description": "A package address serialized as a `PackageAddress` from the `Value` model which represents the address of the account package on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "xrd_resource_address": {
-      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the XRD resource on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "system_token_resource_address": {
-      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the system resource on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "ecdsa_secp256k1_token_resource_address": {
-      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the Ecdsa Secp256k1 resource on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "eddsa_ed25519_token_resource_address": {
-      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the EdDSA Ed25519 resource on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "package_token_resource_address": {
-      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the package token resource on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "epoch_manager_system_address": {
-      "description": "A system address serialized as a `ComponentAddress` from the `Value` model which represents the address of the epoch manager on the requested network.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
-        }
-      ]
-    },
-    "clock_system_address": {
-      "description": "A system address serialized as a `ComponentAddress` from the `Value` model which represents the address of the clock on the requested network.",
+    "virtual_identity_address": {
+      "description": "The virtual identity component address serialized as a `ComponentAddress` from the `Value` model.",
       "allOf": [
         {
           "$ref": "#/definitions/Value"

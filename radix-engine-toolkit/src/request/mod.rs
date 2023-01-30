@@ -36,8 +36,10 @@ pub mod encode_address;
 pub mod sbor_decode;
 pub mod sbor_encode;
 
+pub mod derive_non_fungible_global_id_from_public_key;
 pub mod derive_virtual_account_address;
 pub mod derive_virtual_identity_address;
+
 pub mod known_entity_addresses;
 pub mod statically_validate_transaction;
 
@@ -52,6 +54,7 @@ pub use decompile_notarized_transaction::*;
 pub use decompile_signed_transaction_intent::*;
 pub use decompile_transaction_intent::*;
 pub use decompile_unknown_intent::*;
+pub use derive_non_fungible_global_id_from_public_key::*;
 pub use derive_virtual_account_address::*;
 pub use derive_virtual_identity_address::*;
 pub use encode_address::*;
