@@ -1,16 +1,61 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DecompileUnknownTransactionIntentResponse",
-  "description": "The response from [`DecompileUnknownTransactionIntentRequest`]. This is an untagged union which can either be a [`DecompileTransactionIntentResponse`], [`DecompileSignedTransactionIntentResponse`], or [`DecompileNotarizedTransactionResponse`] depending on the passed intent.",
-  "anyOf": [
+  "description": "The response from [`DecompileUnknownTransactionIntentRequest`]. This is an tagged union which can either be a [`DecompileTransactionIntentResponse`], [`DecompileSignedTransactionIntentResponse`], or [`DecompileNotarizedTransactionResponse`] depending on the passed intent.",
+  "oneOf": [
     {
-      "$ref": "#/definitions/DecompileTransactionIntentResponse"
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "TransactionIntent"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/DecompileTransactionIntentResponse"
+        }
+      }
     },
     {
-      "$ref": "#/definitions/DecompileSignedTransactionIntentResponse"
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "SignedTransactionIntent"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/DecompileSignedTransactionIntentResponse"
+        }
+      }
     },
     {
-      "$ref": "#/definitions/DecompileNotarizedTransactionResponse"
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "NotarizedTransactionIntent"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/DecompileNotarizedTransactionResponse"
+        }
+      }
     }
   ],
   "definitions": {
