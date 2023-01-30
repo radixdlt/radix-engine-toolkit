@@ -22,7 +22,7 @@ use crate::{
 };
 use scrypto::prelude::{
     ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_TOKEN, EDDSA_ED25519_TOKEN, EPOCH_MANAGER,
-    FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN, SYSTEM_TOKEN,
+    FAUCET_COMPONENT, FAUCET_PACKAGE, PACKAGE_TOKEN, RADIX_TOKEN, SYSTEM_TOKEN,
 };
 use serializable::serializable;
 
@@ -90,6 +90,12 @@ pub struct KnownEntityAddressesResponse {
     #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
     eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress,
 
+    /// A resource address serialized as a `ResourceAddress` from the `Value` model which
+    /// represents the address of the package token resource on the requested network.
+    #[schemars(with = "crate::model::value::Value")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::Value>")]
+    package_token_resource_address: NetworkAwareResourceAddress,
+
     /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the epoch manager on the requested network.
     #[schemars(with = "crate::model::value::Value")]
@@ -145,6 +151,10 @@ impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
             },
             eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress {
                 address: EDDSA_ED25519_TOKEN,
+                network_id,
+            },
+            package_token_resource_address: NetworkAwareResourceAddress {
+                address: PACKAGE_TOKEN,
                 network_id,
             },
             epoch_manager_system_address: NetworkAwareComponentAddress {
