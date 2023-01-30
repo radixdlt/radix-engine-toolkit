@@ -11,6 +11,7 @@
     "epoch_manager_system_address",
     "faucet_component_address",
     "faucet_package_address",
+    "package_token_resource_address",
     "system_token_resource_address",
     "xrd_resource_address"
   ],
@@ -65,6 +66,14 @@
     },
     "eddsa_ed25519_token_resource_address": {
       "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the EdDSA Ed25519 resource on the requested network.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Value"
+        }
+      ]
+    },
+    "package_token_resource_address": {
+      "description": "A resource address serialized as a `ResourceAddress` from the `Value` model which represents the address of the package token resource on the requested network.",
       "allOf": [
         {
           "$ref": "#/definitions/Value"

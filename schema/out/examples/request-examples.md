@@ -2924,6 +2924,10 @@ This document contains examples and descriptions of the different requests and r
     "type": "ResourceAddress",
     "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqtc26ta"
   },
+  "package_token_resource_address": {
+    "type": "ResourceAddress",
+    "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzq6kmakh"
+  },
   "epoch_manager_system_address": {
     "type": "ComponentAddress",
     "address": "system_rdx1qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqk264tl"
