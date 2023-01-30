@@ -86,6 +86,10 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
         radix_engine_toolkit::request::SborDecodeResponse,
         radix_engine_toolkit::request::DeriveVirtualAccountAddressRequest,
         radix_engine_toolkit::request::DeriveVirtualAccountAddressResponse,
+        radix_engine_toolkit::request::DeriveVirtualIdentityAddressRequest,
+        radix_engine_toolkit::request::DeriveVirtualIdentityAddressResponse,
+        radix_engine_toolkit::request::DeriveNonFungibleGlobalIdFromPublicKeyRequest,
+        radix_engine_toolkit::request::DeriveNonFungibleGlobalIdFromPublicKeyResponse,
         radix_engine_toolkit::request::KnownEntityAddressesRequest,
         radix_engine_toolkit::request::KnownEntityAddressesResponse,
         radix_engine_toolkit::request::StaticallyValidateTransactionRequest,
@@ -138,6 +142,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         .add_example::<SborDecodeHandler, SborDecodeRequest, SborDecodeResponse>()
         .add_example::<DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
         .add_example::<DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse>()
+        .add_example::<DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest, DeriveNonFungibleGlobalIdFromPublicKeyResponse>()
         .add_example::<StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>()
         .add_example::<KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
         .build();
