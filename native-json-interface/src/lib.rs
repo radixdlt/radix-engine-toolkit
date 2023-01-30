@@ -6,8 +6,11 @@ pub mod native {
     use radix_engine_toolkit::request::*;
     use serde::{Deserialize, Serialize};
 
+    // Redefinition since CBindgen has trouble with this
+    pub type Pointer = *mut std::ffi::c_char;
+
     pub unsafe fn deserialize_from_memory<'a, T: Deserialize<'a>>(
-        string_pointer: radix_engine_toolkit::buffer::Pointer,
+        string_pointer: Pointer,
     ) -> Result<T> {
         std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char)
             .to_str()
@@ -21,9 +24,7 @@ pub mod native {
             })
     }
 
-    pub unsafe fn write_serializable_to_memory<T: Serialize>(
-        object: &T,
-    ) -> Result<radix_engine_toolkit::buffer::Pointer> {
+    pub unsafe fn write_serializable_to_memory<T: Serialize>(object: &T) -> Result<Pointer> {
         serde_json::to_string(object)
             .map_err(
                 |error| radix_engine_toolkit::error::Error::InvalidRequestString {
@@ -36,7 +37,7 @@ pub mod native {
 
                 let pointer = radix_engine_toolkit::buffer::toolkit_alloc(byte_count);
                 pointer.copy_from(
-                    [object_bytes, &[0]].concat().as_ptr() as radix_engine_toolkit::buffer::Pointer,
+                    [object_bytes, &[0]].concat().as_ptr() as Pointer,
                     byte_count,
                 );
 
@@ -47,9 +48,7 @@ pub mod native {
     macro_rules! export_handler {
         ($handler: ident as $handler_ident: ident) => {
             #[no_mangle]
-            pub unsafe extern "C" fn $handler_ident(
-                string_pointer: radix_engine_toolkit::buffer::Pointer,
-            ) -> radix_engine_toolkit::buffer::Pointer {
+            pub unsafe extern "C" fn $handler_ident(string_pointer: Pointer) -> Pointer {
                 let result_pointers = deserialize_from_memory(string_pointer)
                     .and_then($handler::fulfill)
                     .and_then(|response| write_serializable_to_memory(&response))

@@ -7,4 +7,4 @@ include = ["radix-engine-toolkit"]
 extra_bindings = ["radix-engine-toolkit"]
 
 [parse.expand]
-crates = ["native-json-interface"]
+crates = ["native-json-interface", "radix-engine-toolkit"]
