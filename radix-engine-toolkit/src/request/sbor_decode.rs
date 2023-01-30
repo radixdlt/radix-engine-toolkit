@@ -50,7 +50,6 @@ pub struct SborDecodeRequest {
 #[serializable]
 pub struct SborDecodeResponse {
     /// A value representing the SBOR decoded form of the passed SBOR buffer.
-    #[serde(flatten)]
     pub value: Value,
 }
 

@@ -2628,90 +2628,92 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "type": "Tuple",
-  "elements": [
-    {
-      "type": "Decimal",
-      "value": "10"
-    },
-    {
-      "type": "PreciseDecimal",
-      "value": "10"
-    },
-    {
-      "type": "String",
-      "value": "Hello World!"
-    },
-    {
-      "type": "Tuple",
-      "elements": [
-        {
-          "type": "Decimal",
-          "value": "10"
-        },
-        {
-          "type": "PreciseDecimal",
-          "value": "10"
-        },
-        {
-          "type": "String",
-          "value": "Hello World!"
-        },
-        {
-          "type": "Tuple",
-          "elements": [
-            {
-              "type": "Decimal",
-              "value": "10"
-            },
-            {
-              "type": "PreciseDecimal",
-              "value": "10"
-            },
-            {
-              "type": "String",
-              "value": "Hello World!"
-            },
-            {
-              "type": "Tuple",
-              "elements": [
-                {
-                  "type": "Decimal",
-                  "value": "10"
-                },
-                {
-                  "type": "PreciseDecimal",
-                  "value": "10"
-                },
-                {
-                  "type": "String",
-                  "value": "Hello World!"
-                },
-                {
-                  "type": "Array",
-                  "element_kind": "Decimal",
-                  "elements": [
-                    {
-                      "type": "Decimal",
-                      "value": "20"
-                    },
-                    {
-                      "type": "Decimal",
-                      "value": "100"
-                    },
-                    {
-                      "type": "Decimal",
-                      "value": "192.31"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "value": {
+    "type": "Tuple",
+    "elements": [
+      {
+        "type": "Decimal",
+        "value": "10"
+      },
+      {
+        "type": "PreciseDecimal",
+        "value": "10"
+      },
+      {
+        "type": "String",
+        "value": "Hello World!"
+      },
+      {
+        "type": "Tuple",
+        "elements": [
+          {
+            "type": "Decimal",
+            "value": "10"
+          },
+          {
+            "type": "PreciseDecimal",
+            "value": "10"
+          },
+          {
+            "type": "String",
+            "value": "Hello World!"
+          },
+          {
+            "type": "Tuple",
+            "elements": [
+              {
+                "type": "Decimal",
+                "value": "10"
+              },
+              {
+                "type": "PreciseDecimal",
+                "value": "10"
+              },
+              {
+                "type": "String",
+                "value": "Hello World!"
+              },
+              {
+                "type": "Tuple",
+                "elements": [
+                  {
+                    "type": "Decimal",
+                    "value": "10"
+                  },
+                  {
+                    "type": "PreciseDecimal",
+                    "value": "10"
+                  },
+                  {
+                    "type": "String",
+                    "value": "Hello World!"
+                  },
+                  {
+                    "type": "Array",
+                    "element_kind": "Decimal",
+                    "elements": [
+                      {
+                        "type": "Decimal",
+                        "value": "20"
+                      },
+                      {
+                        "type": "Decimal",
+                        "value": "100"
+                      },
+                      {
+                        "type": "Decimal",
+                        "value": "192.31"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 </details>
