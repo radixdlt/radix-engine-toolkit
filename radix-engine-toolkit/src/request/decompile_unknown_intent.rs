@@ -52,12 +52,12 @@ pub struct DecompileUnknownTransactionIntentRequest {
     pub compiled_unknown_intent: Vec<u8>,
 }
 
-/// The response from [`DecompileUnknownTransactionIntentRequest`]. This is an untagged union which
+/// The response from [`DecompileUnknownTransactionIntentRequest`]. This is an tagged union which
 /// can either be a [`DecompileTransactionIntentResponse`],
 /// [`DecompileSignedTransactionIntentResponse`], or [`DecompileNotarizedTransactionResponse`]
 /// depending on the passed intent.
 #[serializable]
-#[serde(untagged)]
+#[serde(tag = "type", content = "value")]
 pub enum DecompileUnknownTransactionIntentResponse {
     TransactionIntent(DecompileTransactionIntentResponse),
     SignedTransactionIntent(DecompileSignedTransactionIntentResponse),

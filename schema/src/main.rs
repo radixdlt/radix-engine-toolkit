@@ -137,6 +137,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         .add_example::<SborEncodeHandler, SborEncodeRequest, SborEncodeResponse>()
         .add_example::<SborDecodeHandler, SborDecodeRequest, SborDecodeResponse>()
         .add_example::<DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>()
+        .add_example::<DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse>()
         .add_example::<StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>()
         .add_example::<KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
         .build();

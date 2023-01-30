@@ -1,11 +1,11 @@
 [package]
 name = "native-json-interface"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 
 [dependencies]
 jni = { version = "0.20.0", default-features = false, optional = true }
-radix_engine_toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 serde_json = "1.0.91"
 

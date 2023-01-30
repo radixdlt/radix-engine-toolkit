@@ -25,7 +25,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "package_version": "0.7.0",
+  "package_version": "0.8.0",
   "git_hash": "This is just an example. We don't have a commit hash here :)"
 }
 ```
@@ -2628,90 +2628,92 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "type": "Tuple",
-  "elements": [
-    {
-      "type": "Decimal",
-      "value": "10"
-    },
-    {
-      "type": "PreciseDecimal",
-      "value": "10"
-    },
-    {
-      "type": "String",
-      "value": "Hello World!"
-    },
-    {
-      "type": "Tuple",
-      "elements": [
-        {
-          "type": "Decimal",
-          "value": "10"
-        },
-        {
-          "type": "PreciseDecimal",
-          "value": "10"
-        },
-        {
-          "type": "String",
-          "value": "Hello World!"
-        },
-        {
-          "type": "Tuple",
-          "elements": [
-            {
-              "type": "Decimal",
-              "value": "10"
-            },
-            {
-              "type": "PreciseDecimal",
-              "value": "10"
-            },
-            {
-              "type": "String",
-              "value": "Hello World!"
-            },
-            {
-              "type": "Tuple",
-              "elements": [
-                {
-                  "type": "Decimal",
-                  "value": "10"
-                },
-                {
-                  "type": "PreciseDecimal",
-                  "value": "10"
-                },
-                {
-                  "type": "String",
-                  "value": "Hello World!"
-                },
-                {
-                  "type": "Array",
-                  "element_kind": "Decimal",
-                  "elements": [
-                    {
-                      "type": "Decimal",
-                      "value": "20"
-                    },
-                    {
-                      "type": "Decimal",
-                      "value": "100"
-                    },
-                    {
-                      "type": "Decimal",
-                      "value": "192.31"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "value": {
+    "type": "Tuple",
+    "elements": [
+      {
+        "type": "Decimal",
+        "value": "10"
+      },
+      {
+        "type": "PreciseDecimal",
+        "value": "10"
+      },
+      {
+        "type": "String",
+        "value": "Hello World!"
+      },
+      {
+        "type": "Tuple",
+        "elements": [
+          {
+            "type": "Decimal",
+            "value": "10"
+          },
+          {
+            "type": "PreciseDecimal",
+            "value": "10"
+          },
+          {
+            "type": "String",
+            "value": "Hello World!"
+          },
+          {
+            "type": "Tuple",
+            "elements": [
+              {
+                "type": "Decimal",
+                "value": "10"
+              },
+              {
+                "type": "PreciseDecimal",
+                "value": "10"
+              },
+              {
+                "type": "String",
+                "value": "Hello World!"
+              },
+              {
+                "type": "Tuple",
+                "elements": [
+                  {
+                    "type": "Decimal",
+                    "value": "10"
+                  },
+                  {
+                    "type": "PreciseDecimal",
+                    "value": "10"
+                  },
+                  {
+                    "type": "String",
+                    "value": "Hello World!"
+                  },
+                  {
+                    "type": "Array",
+                    "element_kind": "Decimal",
+                    "elements": [
+                      {
+                        "type": "Decimal",
+                        "value": "20"
+                      },
+                      {
+                        "type": "Decimal",
+                        "value": "100"
+                      },
+                      {
+                        "type": "Decimal",
+                        "value": "192.31"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 </details>
@@ -2747,6 +2749,42 @@ This document contains examples and descriptions of the different requests and r
   "virtual_account_address": {
     "type": "ComponentAddress",
     "address": "account_sim1qupveqrdmh7kw0vefxrzjw5e0fgw3sgdj4zrh66jkphqj9h5gl"
+  }
+}
+```
+</details>
+
+## Derive Virtual Identity Address
+
+| Function Name     | `derive_virtual_identity_address` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveVirtualIdentityAddress` |
+| Functionality     | Derives the virtual identity component address given a public key and a network id. |
+| Request Type      | `DeriveVirtualIdentityAddressRequest` |
+| Response Type     | `DeriveVirtualIdentityAddressResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "242",
+  "public_key": {
+    "curve": "EcdsaSecp256k1",
+    "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "virtual_identity_address": {
+    "type": "ComponentAddress",
+    "address": "identity_sim1pgpveqrdmh7kw0vefxrzjw5e0fgw3sgdj4zrh66jkphq06jcsf"
   }
 }
 ```

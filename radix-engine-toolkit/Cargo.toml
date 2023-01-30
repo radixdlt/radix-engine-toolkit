@@ -1,6 +1,6 @@
 [package]
-name = "radix_engine_toolkit"
-version = "0.7.0"
+name = "radix-engine-toolkit"
+version = "0.8.0"
 edition = "2021"
 build = "build.rs"
 
@@ -16,11 +16,11 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 serializable = { path = "../serializable" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-b393d4df2" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-b393d4df2" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-b393d4df2", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-b393d4df2", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-b393d4df2" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
