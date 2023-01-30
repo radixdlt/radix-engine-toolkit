@@ -389,6 +389,22 @@ impl ExampleData<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddress
     }
 }
 
+impl ExampleData<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse>
+    for DeriveVirtualIdentityAddressHandler
+{
+    fn description() -> String {
+        r#"Derives the virtual identity component address given a public key and a network id."#
+            .to_owned()
+    }
+
+    fn example_request() -> DeriveVirtualIdentityAddressRequest {
+        DeriveVirtualIdentityAddressRequest {
+            network_id: 0xf2,
+            public_key: notary_private_key().public_key().into(),
+        }
+    }
+}
+
 impl ExampleData<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     for KnownEntityAddressesHandler
 {

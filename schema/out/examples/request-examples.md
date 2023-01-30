@@ -2754,6 +2754,42 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
+## Derive Virtual Identity Address
+
+| Function Name     | `derive_virtual_identity_address` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveVirtualIdentityAddress` |
+| Functionality     | Derives the virtual identity component address given a public key and a network id. |
+| Request Type      | `DeriveVirtualIdentityAddressRequest` |
+| Response Type     | `DeriveVirtualIdentityAddressResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "242",
+  "public_key": {
+    "curve": "EcdsaSecp256k1",
+    "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "virtual_identity_address": {
+    "type": "ComponentAddress",
+    "address": "identity_sim1pgpveqrdmh7kw0vefxrzjw5e0fgw3sgdj4zrh66jkphq06jcsf"
+  }
+}
+```
+</details>
+
 ## Statically Validate Transaction
 
 | Function Name     | `statically_validate_transaction` |

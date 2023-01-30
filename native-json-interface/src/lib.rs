@@ -80,6 +80,7 @@ pub mod native {
     );
 
     export_handler!(DeriveVirtualAccountAddressHandler as derive_virtual_account_address);
+    export_handler!(DeriveVirtualIdentityAddressHandler as derive_virtual_identity_address);
 
     export_handler!(EncodeAddressHandler as encode_address);
     export_handler!(DecodeAddressHandler as decode_address);
@@ -195,6 +196,10 @@ pub mod jni {
     export_handler!(
         DeriveVirtualAccountAddressHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualAccountAddress
+    );
+    export_handler!(
+        DeriveVirtualIdentityAddressHandler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualIdentityAddress
     );
 
     export_handler!(
