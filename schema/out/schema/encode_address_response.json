@@ -19,15 +19,7 @@
           ]
         },
         "address": {
-          "type": "object",
-          "required": [
-            "address"
-          ],
-          "properties": {
-            "address": {
-              "type": "string"
-            }
-          }
+          "type": "string"
         }
       }
     },
@@ -46,15 +38,7 @@
           ]
         },
         "address": {
-          "type": "object",
-          "required": [
-            "address"
-          ],
-          "properties": {
-            "address": {
-              "type": "string"
-            }
-          }
+          "type": "string"
         }
       }
     },
@@ -73,15 +57,7 @@
           ]
         },
         "address": {
-          "type": "object",
-          "required": [
-            "address"
-          ],
-          "properties": {
-            "address": {
-              "type": "string"
-            }
-          }
+          "type": "string"
         }
       }
     }

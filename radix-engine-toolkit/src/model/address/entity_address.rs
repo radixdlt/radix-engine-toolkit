@@ -29,7 +29,7 @@ use std::str::FromStr;
 /// A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded
 /// string.
 #[serializable]
-#[serde(tag = "type", content = "address")]
+#[serde(tag = "type")]
 pub enum EntityAddress {
     /// Represents a Bech32m encoded human-readable component address. This address is serialized
     /// as a human-readable bech32m encoded string.

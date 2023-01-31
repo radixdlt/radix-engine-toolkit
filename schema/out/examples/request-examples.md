@@ -2451,9 +2451,7 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "type": "ResourceAddress",
-  "address": {
-    "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqd60rqz"
-  }
+  "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqd60rqz"
 }
 ```
 </details>
