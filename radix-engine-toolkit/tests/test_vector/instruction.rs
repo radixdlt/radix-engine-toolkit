@@ -1468,5 +1468,25 @@ lazy_static::lazy_static! {
                 Enum(0u8);
             "##,
         ),
+        InstructionRepresentationTestVector::new(
+            Instruction::CreateValidator {
+                key: Value::EcdsaSecp256k1PublicKey {
+                    public_key: "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798".parse().unwrap()
+                },
+            },
+            r#"
+            {
+                "instruction": "CREATE_VALIDATOR",
+                "key": {
+                    "type": "EcdsaSecp256k1PublicKey",
+                    "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+                }
+            }
+            "#,
+            r##"
+            CREATE_VALIDATOR
+                EcdsaSecp256k1PublicKey("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798");
+            "##,
+        ),
     ];
 }

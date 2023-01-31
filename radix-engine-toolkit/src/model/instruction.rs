@@ -543,6 +543,13 @@ pub enum Instruction {
         /// model which represents the access rule to assert.
         access_rule: Value,
     },
+
+    /// Creates a validator given the public key of the owner who controls it
+    CreateValidator {
+        /// The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of
+        /// this is an `EcdsaSecp256k1PublicKey` from the `Value` model.
+        key: Value,
+    },
 }
 
 // ============
@@ -857,6 +864,9 @@ impl Instruction {
             },
             Self::CreateIdentity { access_rule } => ast::Instruction::CreateIdentity {
                 access_rule: access_rule.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateValidator { key } => ast::Instruction::CreateValidator {
+                key: key.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -1195,6 +1205,9 @@ impl Instruction {
                     bech32_coder,
                 )?,
             },
+            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
+                key: Value::from_ast_value(key, bech32_coder)?,
+            },
         };
         Ok(instruction)
     }
@@ -1468,6 +1481,7 @@ impl ValueRef for Instruction {
             }
 
             Self::DropProof { proof } => values.push(proof),
+            Self::CreateValidator { key } => values.push(key),
 
             Self::DropAllProofs | Self::ClearAuthZone => {}
         }
@@ -1741,6 +1755,7 @@ impl ValueRef for Instruction {
             }
 
             Self::DropProof { proof } => values.push(proof),
+            Self::CreateValidator { key } => values.push(key),
 
             Self::DropAllProofs | Self::ClearAuthZone => {}
         }
