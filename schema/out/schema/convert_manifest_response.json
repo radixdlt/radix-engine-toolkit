@@ -1459,6 +1459,30 @@
               ]
             }
           }
+        },
+        {
+          "description": "Creates a validator given the public key of the owner who controls it",
+          "type": "object",
+          "required": [
+            "instruction",
+            "key"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_VALIDATOR"
+              ]
+            },
+            "key": {
+              "description": "The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of this is an `EcdsaSecp256k1PublicKey` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            }
+          }
         }
       ]
     },
