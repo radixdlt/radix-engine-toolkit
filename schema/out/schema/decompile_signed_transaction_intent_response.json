@@ -1622,7 +1622,8 @@
           "type": "object",
           "required": [
             "instruction",
-            "key"
+            "key",
+            "owner_access_rule"
           ],
           "properties": {
             "instruction": {
@@ -1633,6 +1634,14 @@
             },
             "key": {
               "description": "The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of this is an `EcdsaSecp256k1PublicKey` from the `Value` model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Value"
+                }
+              ]
+            },
+            "owner_access_rule": {
+              "description": "The access rule to protect the validator with. The underlying type of this is an `Enum` from the `Value` model which represents the access rule to assert.",
               "allOf": [
                 {
                   "$ref": "#/definitions/Value"
