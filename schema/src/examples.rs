@@ -32,7 +32,9 @@ pub fn notarized_intent() -> NotarizedTransaction {
     TransactionBuilder::new()
         .manifest(
             compile(
-                include_str!("../../radix-engine-toolkit/tests/test_vector/manifest/worktop.rtm"),
+                include_str!(
+                    "../../radix-engine-toolkit/tests/test_vector/manifest/resources/worktop.rtm"
+                ),
                 &network_definition(),
                 vec![],
             )

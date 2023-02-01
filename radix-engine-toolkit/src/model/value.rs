@@ -1267,7 +1267,6 @@ impl Value {
         if let Some(network_id) = network_id {
             self.validate_network(network_id)?
         }
-        self.validate_collections()?;
         Ok(())
     }
 
@@ -1288,66 +1287,6 @@ impl Value {
                 found: found_network_id,
                 expected: expected_network_id,
             })
-        }
-    }
-
-    /// Validates [`Value`] collections to ensure that they're of a single kind.
-    fn validate_collections(&self) -> Result<()> {
-        match self {
-            Self::Array {
-                element_kind,
-                elements,
-            } => {
-                if let Some(offending_value_kind) = elements
-                    .iter()
-                    .map(|value| value.kind())
-                    .find(|kind| *kind != *element_kind)
-                {
-                    Err(Error::UnexpectedAstContents {
-                        parsing: ValueKind::Array,
-                        expected: vec![*element_kind],
-                        found: offending_value_kind,
-                    })
-                } else {
-                    Ok(())
-                }
-            }
-            Self::Map {
-                key_value_kind,
-                value_value_kind,
-                entries,
-            } => {
-                if let Some(offending_value_kind) = entries
-                    .iter()
-                    .enumerate()
-                    .filter(|(i, _)| i % 2 == 0)
-                    .map(|(_, (key, _))| key)
-                    .map(|value| value.kind())
-                    .find(|kind| *kind != *key_value_kind)
-                {
-                    Err(Error::UnexpectedAstContents {
-                        parsing: ValueKind::Array,
-                        expected: vec![*key_value_kind],
-                        found: offending_value_kind,
-                    })
-                } else if let Some(offending_value_kind) = entries
-                    .iter()
-                    .enumerate()
-                    .filter(|(i, _)| i % 2 == 0)
-                    .map(|(_, (_, value))| value)
-                    .map(|value| value.kind())
-                    .find(|kind| *kind != *key_value_kind)
-                {
-                    Err(Error::UnexpectedAstContents {
-                        parsing: ValueKind::Array,
-                        expected: vec![*value_value_kind],
-                        found: offending_value_kind,
-                    })
-                } else {
-                    Ok(())
-                }
-            }
-            _ => Ok(()),
         }
     }
 }
