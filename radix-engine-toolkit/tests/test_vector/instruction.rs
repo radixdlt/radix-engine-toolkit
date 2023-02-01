@@ -19,7 +19,14 @@
 #![macro_use]
 extern crate lazy_static;
 
-use native_transaction::manifest::lexer::tokenize;
+use native_transaction::{
+    manifest::{
+        ast,
+        generator::{generate_instruction, NameResolver},
+        lexer::tokenize,
+    },
+    validation::{ManifestIdValidator, ProofKind},
+};
 use radix_engine_toolkit::{model::*, EnumDiscriminator};
 use scrypto::prelude::{NonFungibleLocalId, *};
 
@@ -42,14 +49,69 @@ impl InstructionRepresentationTestVector {
         }
     }
 
-    pub fn manifest_representation_as_ast_instruction(
-        &self,
-    ) -> native_transaction::manifest::ast::Instruction {
-        native_transaction::manifest::parser::Parser::new(
+    pub fn manifest_representation_as_ast_instruction(&self) -> ast::Instruction {
+        let ast_instruction = native_transaction::manifest::parser::Parser::new(
             tokenize(&self.manifest_representation).expect("Failed to tokenize trusted value"),
         )
         .parse_instruction()
-        .expect("Failed to parse trusted value to ast value")
+        .expect("Failed to parse trusted value to ast value");
+
+        // Compiling the AST instruction - this is done to ensure that the manifest representation
+        // in the test vector actually compiles since the AST is unstructured.
+        {
+            let bech32_coder = Bech32Coder::new(0xf2);
+            let mut id_validator = ManifestIdValidator::new();
+            let mut name_resolver = NameResolver::new();
+            let blobs = [(
+                "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+                    .parse()
+                    .unwrap(),
+                [10].into(),
+            )]
+            .into();
+
+            match ast_instruction {
+                ast::Instruction::ReturnToWorktop { ref bucket }
+                | ast::Instruction::BurnResource { ref bucket }
+                | ast::Instruction::CreateAccessController {
+                    controlled_asset: ref bucket,
+                    ..
+                } => {
+                    if let ast::Value::Bucket(bucket_name) = bucket {
+                        if let ast::Value::String(bucket_name) = &**bucket_name {
+                            let bucket_id = id_validator.new_bucket().unwrap();
+                            name_resolver
+                                .insert_bucket(bucket_name.to_owned(), bucket_id)
+                                .unwrap();
+                        }
+                    }
+                }
+                ast::Instruction::PushToAuthZone { ref proof }
+                | ast::Instruction::CloneProof { ref proof, .. }
+                | ast::Instruction::DropProof { ref proof, .. } => {
+                    if let ast::Value::Proof(proof_name) = proof {
+                        if let ast::Value::String(proof_name) = &**proof_name {
+                            let proof_id = id_validator.new_proof(ProofKind::VirtualProof).unwrap();
+                            name_resolver
+                                .insert_proof(proof_name.to_owned(), proof_id)
+                                .unwrap();
+                        }
+                    }
+                }
+                _ => {}
+            }
+
+            generate_instruction(
+                &ast_instruction,
+                &mut id_validator,
+                &mut name_resolver,
+                bech32_coder.decoder(),
+                &blobs,
+            )
+            .expect(format!("failed to compile instruction: {:?}", ast_instruction).as_str());
+        }
+
+        ast_instruction
     }
 }
 
@@ -148,7 +210,7 @@ lazy_static::lazy_static! {
                     },
                 },
                 into_bucket: Value::Bucket {
-                    identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -161,8 +223,8 @@ lazy_static::lazy_static! {
                 "into_bucket": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -170,7 +232,7 @@ lazy_static::lazy_static! {
             r#"
             TAKE_FROM_WORKTOP
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Bucket(1u32);
+                Bucket("ident");
             "#,
         ),
         InstructionRepresentationTestVector::new(
@@ -185,7 +247,7 @@ lazy_static::lazy_static! {
                     value: "1".parse().unwrap(),
                 },
                 into_bucket: Value::Bucket {
-                    identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -202,8 +264,8 @@ lazy_static::lazy_static! {
                 "into_bucket": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -212,7 +274,7 @@ lazy_static::lazy_static! {
             TAKE_FROM_WORKTOP_BY_AMOUNT
                 Decimal("1")
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Bucket(1u32);
+                Bucket("ident");
             "#,
         ),
         InstructionRepresentationTestVector::new(
@@ -227,7 +289,7 @@ lazy_static::lazy_static! {
                     value: scrypto::prelude::NonFungibleLocalId::Integer(1),
                 }],
                 into_bucket: Value::Bucket {
-                    identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -249,8 +311,8 @@ lazy_static::lazy_static! {
                 "into_bucket": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -259,13 +321,13 @@ lazy_static::lazy_static! {
             TAKE_FROM_WORKTOP_BY_IDS
                 Array<NonFungibleLocalId>(NonFungibleLocalId("#1#"))
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Bucket(1u32);
+                Bucket("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::ReturnToWorktop {
                 bucket: Value::Bucket {
-                    identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -274,15 +336,15 @@ lazy_static::lazy_static! {
                 "bucket": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
             "#,
             r##"
             RETURN_TO_WORKTOP
-                Bucket(1u32);
+                Bucket("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
@@ -378,7 +440,7 @@ lazy_static::lazy_static! {
         InstructionRepresentationTestVector::new(
             Instruction::PopFromAuthZone {
                 into_proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -387,21 +449,21 @@ lazy_static::lazy_static! {
                 "into_proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
             "#,
             r##"
             POP_FROM_AUTH_ZONE 
-                Proof(1u32);
+                Proof("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PushToAuthZone {
                 proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -410,15 +472,15 @@ lazy_static::lazy_static! {
                 "proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
             "#,
             r##"
             PUSH_TO_AUTH_ZONE 
-                Proof(1u32);
+                Proof("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
@@ -441,7 +503,7 @@ lazy_static::lazy_static! {
                     },
                 },
                 into_proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -454,8 +516,8 @@ lazy_static::lazy_static! {
                 "into_proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -463,7 +525,7 @@ lazy_static::lazy_static! {
             r#"
             CREATE_PROOF_FROM_AUTH_ZONE
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Proof(1u32);
+                Proof("ident");
             "#,
         ),
         InstructionRepresentationTestVector::new(
@@ -478,7 +540,7 @@ lazy_static::lazy_static! {
                     value: "1".parse().unwrap(),
                 },
                 into_proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -495,8 +557,8 @@ lazy_static::lazy_static! {
                 "into_proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -505,7 +567,7 @@ lazy_static::lazy_static! {
             CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT
                 Decimal("1")
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Proof(1u32);
+                Proof("ident");
             "#,
         ),
         InstructionRepresentationTestVector::new(
@@ -520,7 +582,7 @@ lazy_static::lazy_static! {
                     value: scrypto::prelude::NonFungibleLocalId::Integer(1),
                 }],
                 into_proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -542,8 +604,8 @@ lazy_static::lazy_static! {
                 "into_proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
@@ -552,16 +614,16 @@ lazy_static::lazy_static! {
             CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS
                 Array<NonFungibleLocalId>(NonFungibleLocalId("#1#"))
                 ResourceAddress("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety")
-                Proof(1u32);
+                Proof("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CloneProof {
                 proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
                 into_proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 2 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident2".into() }),
                 },
             },
             r#"
@@ -570,29 +632,29 @@ lazy_static::lazy_static! {
                 "proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 },
                 "into_proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "2"
+                        "type": "String",
+                        "value": "ident2"
                     }
                 }
             }
             "#,
             r##"
             CLONE_PROOF
-                Proof(1u32)
-                Proof(2u32);
+                Proof("ident")
+                Proof("ident2");
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::DropProof {
                 proof: Value::Proof {
-                    identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -601,15 +663,15 @@ lazy_static::lazy_static! {
                 "proof": {
                     "type": "Proof",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
             "#,
             r##"
             DROP_PROOF
-                Proof(1u32);
+                Proof("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
@@ -627,14 +689,14 @@ lazy_static::lazy_static! {
             Instruction::PublishPackage {
                 code: Value::Blob {
                     hash: Hash::from_str(
-                        "36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618",
+                        "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
                 abi: Value::Blob {
                     hash: Hash::from_str(
-                        "15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d",
+                        "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
@@ -649,21 +711,18 @@ lazy_static::lazy_static! {
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                access_rules: Value::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
-                },
+                access_rules: Value::decode(scrypto_encode(&AccessRules::new()).unwrap(), 0xf2).unwrap(),
             },
             r#"
             {
                 "instruction": "PUBLISH_PACKAGE",
                 "code": {
                     "type": "Blob",
-                    "hash": "36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618"
+                    "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
                 },
                 "abi": {
                     "type": "Blob",
-                    "hash": "15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d"
+                    "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
                 },
                 "royalty_config": {
                     "type": "Map",
@@ -678,35 +737,78 @@ lazy_static::lazy_static! {
                     "entries": []
                 },
                 "access_rules": {
-                    "type": "Enum",
-                    "variant": {
-                        "type": "U8",
-                        "discriminator": "0"
-                    }
+                    "type": "Tuple",
+                    "elements": [
+                        {
+                            "type": "Map",
+                            "key_value_kind": "Enum",
+                            "value_value_kind": "Enum",
+                            "entries": []
+                        },
+                        {
+                            "type": "Map",
+                            "key_value_kind": "String",
+                            "value_value_kind": "Enum",
+                            "entries": []
+                        },
+                        {
+                            "type": "Enum",
+                            "variant": {
+                                "type": "U8",
+                                "discriminator": "1"
+                            }
+                        },
+                        {
+                            "type": "Map",
+                            "key_value_kind": "Enum",
+                            "value_value_kind": "Enum",
+                            "entries": []
+                        },
+                        {
+                            "type": "Map",
+                            "key_value_kind": "String",
+                            "value_value_kind": "Enum",
+                            "entries": []
+                        },
+                        {
+                            "type": "Enum",
+                            "variant": {
+                                "type": "U8",
+                                "discriminator": "1"
+                            }
+                        }
+                    ]
                 }
             }
             "#,
             r##"
             PUBLISH_PACKAGE
-                Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618")
-                Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d")
+                Blob("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                Blob("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
                 Map<String, Tuple>()
                 Map<String, String>()
-                Enum(0u8);
+                Tuple(
+                    Map<Enum,Enum>(),
+                    Map<String,Enum>(),
+                    Enum("AccessRule::DenyAll"),
+                    Map<Enum,Enum>(),
+                    Map<String,Enum>(),
+                    Enum("AccessRule::DenyAll")
+                );
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PublishPackageWithOwner {
                 code: Value::Blob {
                     hash: Hash::from_str(
-                        "36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618",
+                        "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
                 abi: Value::Blob {
                     hash: Hash::from_str(
-                        "15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d",
+                        "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
@@ -726,11 +828,11 @@ lazy_static::lazy_static! {
                 "instruction": "PUBLISH_PACKAGE_WITH_OWNER",
                 "code": {
                     "type": "Blob",
-                    "hash": "36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618"
+                    "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
                 },
                 "abi": {
                     "type": "Blob",
-                    "hash": "15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d"
+                    "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
                 },
                 "owner_badge": {
                     "type": "NonFungibleGlobalId",
@@ -750,15 +852,15 @@ lazy_static::lazy_static! {
             "#,
             r##"
             PUBLISH_PACKAGE_WITH_OWNER
-                Blob("36dae540b7889956f1f1d8d46ba23e5e44bf5723aef2a8e6b698686c02583618")
-                Blob("15e8699a6d63a96f66f6feeb609549be2688b96b02119f260ae6dfd012d16a5d")
+                Blob("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                Blob("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
                 NonFungibleGlobalId("resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety:#1#");
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::BurnResource {
                 bucket: Value::Bucket {
-                    identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
             r#"
@@ -767,15 +869,15 @@ lazy_static::lazy_static! {
                 "bucket": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 }
             }
             "#,
             r##"
             BURN_RESOURCE
-                Bucket(1u32);
+                Bucket("ident");
             "##,
         ),
         InstructionRepresentationTestVector::new(
@@ -969,10 +1071,15 @@ lazy_static::lazy_static! {
                         address: FAUCET_COMPONENT,
                     },
                 },
-                royalty_config: Value::Map {
-                    key_value_kind: ValueKind::String,
-                    value_value_kind: ValueKind::Tuple,
-                    entries: Vec::new(),
+                royalty_config: Value::Tuple {
+                    elements: vec![
+                        Value::Map {
+                            key_value_kind: ValueKind::String,
+                            value_value_kind: ValueKind::U32,
+                            entries: vec![]
+                        },
+                        Value::U32 { value: 1 }
+                    ]
                 },
             },
             r#"
@@ -983,17 +1090,29 @@ lazy_static::lazy_static! {
                     "address": "component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr"
                 },
                 "royalty_config": {
-                    "type": "Map",
-                    "key_value_kind": "String",
-                    "value_value_kind": "Tuple",
-                    "entries": []
+                    "type": "Tuple",
+                    "elements": [
+                        {
+                            "type": "Map",
+                            "key_value_kind": "String",
+                            "value_value_kind": "U32",
+                            "entries": []
+                        },
+                        {
+                            "type": "U32",
+                            "value": "1"
+                        }
+                    ]
                 }
             }
             "#,
             r##"
             SET_COMPONENT_ROYALTY_CONFIG
                 ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
-                Map<String, Tuple>();
+                Tuple(
+                    Map<String, U32>(),
+                    1u32
+                );
             "##,
         ),
         InstructionRepresentationTestVector::new(
@@ -1050,9 +1169,16 @@ lazy_static::lazy_static! {
                         address: FAUCET_COMPONENT,
                     },
                 },
-                index: Value::U8 { value: 0 },
-                key: Value::String {
-                    value: "get_token".into(),
+                index: Value::U32 { value: 0 },
+                key: Value::Enum {
+                    variant: EnumDiscriminator::U8 {
+                        discriminator: 0
+                    },
+                    fields: Some(vec![
+                        Value::String {
+                            value: "get_token".into()
+                        }
+                    ])
                 },
                 rule: Value::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
@@ -1067,12 +1193,21 @@ lazy_static::lazy_static! {
                     "address": "component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr"
                 },
                 "index": {
-                    "type": "U8",
+                    "type": "U32",
                     "value": "0"
                 },
                 "key": {
-                    "type": "String",
-                    "value": "get_token"
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    },
+                    "fields": [
+                        {
+                            "type": "String",
+                            "value": "get_token"
+                        }
+                    ]
                 },
                 "rule": {
                     "type": "Enum",
@@ -1086,18 +1221,22 @@ lazy_static::lazy_static! {
             r##"
             SET_METHOD_ACCESS_RULE
                 ComponentAddress("component_sim1qgehpqdhhr62xh76wh6gppnyn88a0uau68epljprvj3sxknsqr")
-                0u8
-                "get_token"
+                0u32
+                Enum(0u8, "get_token")
                 Enum(0u8);
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::MintFungible {
-                resource_address: Value::ResourceAddress { address: NetworkAwareResourceAddress {
-                    network_id: 0xf2,
-                    address: RADIX_TOKEN,
-                } },
-                amount: Value::Decimal { value: "1".parse().unwrap() }
+                resource_address: Value::ResourceAddress {
+                    address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                },
+                amount: Value::Decimal {
+                    value: "1".parse().unwrap(),
+                },
             },
             r#"
             {
@@ -1120,15 +1259,17 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::MintNonFungible {
-                resource_address: Value::ResourceAddress { address: NetworkAwareResourceAddress {
-                    network_id: 0xf2,
-                    address: RADIX_TOKEN,
-                } },
+                resource_address: Value::ResourceAddress {
+                    address: NetworkAwareResourceAddress {
+                        network_id: 0xf2,
+                        address: RADIX_TOKEN,
+                    },
+                },
                 entries: Value::Map {
                     key_value_kind: ValueKind::NonFungibleLocalId,
                     value_value_kind: ValueKind::Tuple,
-                    entries: Vec::new()
-                }
+                    entries: Vec::new(),
+                },
             },
             r#"
             {
@@ -1157,14 +1298,14 @@ lazy_static::lazy_static! {
                 metadata: Value::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
-                    entries: Vec::new()
+                    entries: Vec::new(),
                 },
                 access_rules: Value::Map {
-                    key_value_kind: ValueKind::String,
-                    value_value_kind: ValueKind::Enum,
-                    entries: Vec::new()
+                    key_value_kind: ValueKind::Enum,
+                    value_value_kind: ValueKind::Tuple,
+                    entries: Vec::new(),
                 },
-                initial_supply: Value::None
+                initial_supply: Value::None,
             },
             r#"
             {
@@ -1181,8 +1322,8 @@ lazy_static::lazy_static! {
                 },
                 "access_rules": {
                     "type": "Map",
-                    "key_value_kind": "String",
-                    "value_value_kind": "Enum",
+                    "key_value_kind": "Enum",
+                    "value_value_kind": "Tuple",
                     "entries": []
                 },
                 "initial_supply": {
@@ -1194,7 +1335,7 @@ lazy_static::lazy_static! {
             CREATE_FUNGIBLE_RESOURCE
                 18u8
                 Map<String, String>()
-                Map<String, Enum>()
+                Map<Enum, Tuple>()
                 None;
             "##,
         ),
@@ -1204,7 +1345,7 @@ lazy_static::lazy_static! {
                 metadata: Value::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
-                    entries: Vec::new()
+                    entries: Vec::new(),
                 },
                 owner_badge: Value::NonFungibleGlobalId {
                     address: radix_engine_toolkit::NonFungibleGlobalId {
@@ -1215,7 +1356,7 @@ lazy_static::lazy_static! {
                         non_fungible_local_id: NonFungibleLocalId::Integer(1),
                     },
                 },
-                initial_supply: Value::None
+                initial_supply: Value::None,
             },
             r#"
             {
@@ -1259,18 +1400,21 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateNonFungibleResource {
-                id_type: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
+                id_type: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
                 metadata: Value::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
-                    entries: Vec::new()
+                    entries: Vec::new(),
                 },
                 access_rules: Value::Map {
-                    key_value_kind: ValueKind::String,
-                    value_value_kind: ValueKind::Enum,
-                    entries: Vec::new()
+                    key_value_kind: ValueKind::Enum,
+                    value_value_kind: ValueKind::Tuple,
+                    entries: Vec::new(),
                 },
-                initial_supply: Value::None
+                initial_supply: Value::None,
             },
             r#"
             {
@@ -1290,8 +1434,8 @@ lazy_static::lazy_static! {
                 },
                 "access_rules": {
                     "type": "Map",
-                    "key_value_kind": "String",
-                    "value_value_kind": "Enum",
+                    "key_value_kind": "Enum",
+                    "value_value_kind": "Tuple",
                     "entries": []
                 },
                 "initial_supply": {
@@ -1303,17 +1447,20 @@ lazy_static::lazy_static! {
             CREATE_NON_FUNGIBLE_RESOURCE
                 Enum(0u8)
                 Map<String, String>()
-                Map<String, Enum>()
+                Map<Enum, Tuple>()
                 None;
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateNonFungibleResourceWithOwner {
-                id_type: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
+                id_type: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
                 metadata: Value::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
-                    entries: Vec::new()
+                    entries: Vec::new(),
                 },
                 owner_badge: Value::NonFungibleGlobalId {
                     address: radix_engine_toolkit::NonFungibleGlobalId {
@@ -1324,7 +1471,7 @@ lazy_static::lazy_static! {
                         non_fungible_local_id: NonFungibleLocalId::Integer(1),
                     },
                 },
-                initial_supply: Value::None
+                initial_supply: Value::None,
             },
             r#"
             {
@@ -1371,11 +1518,24 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateAccessController {
-                controlled_asset: Value::Bucket { identifier: BucketId(TransientIdentifier::U32 { value: 1 }) },
-                primary_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-                recovery_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-                confirmation_role: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None },
-                timed_recovery_delay_in_minutes: Value::Some { value: Box::new(Value::U8 { value: 1 }) }
+                controlled_asset: Value::Bucket {
+                    identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
+                },
+                primary_role: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+                recovery_role: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+                confirmation_role: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+                timed_recovery_delay_in_minutes: Value::Some {
+                    value: Box::new(Value::U32 { value: 1 }),
+                },
             },
             r#"
             {
@@ -1383,8 +1543,8 @@ lazy_static::lazy_static! {
                 "controlled_asset": {
                     "type": "Bucket",
                     "identifier": {
-                        "type": "U32",
-                        "value": "1"
+                        "type": "String",
+                        "value": "ident"
                     }
                 },
                 "primary_role": {
@@ -1411,7 +1571,7 @@ lazy_static::lazy_static! {
                 "timed_recovery_delay_in_minutes": {
                     "type": "Some",
                     "value": {
-                        "type": "U8",
+                        "type": "U32",
                         "value": "1"
                     }
                 }
@@ -1419,16 +1579,19 @@ lazy_static::lazy_static! {
             "#,
             r##"
             CREATE_ACCESS_CONTROLLER
-                Bucket(1u32)
+                Bucket("ident")
                 Enum(0u8)
                 Enum(0u8)
                 Enum(0u8)
-                Some(1u8);
+                Some(1u32);
             "##,
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateIdentity {
-                access_rule: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None }
+                access_rule: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
             },
             r#"
             {
@@ -1449,7 +1612,10 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::AssertAccessRule {
-                access_rule: Value::Enum { variant: EnumDiscriminator::U8 { discriminator: 0 }, fields: None }
+                access_rule: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
             },
             r#"
             {
@@ -1471,8 +1637,15 @@ lazy_static::lazy_static! {
         InstructionRepresentationTestVector::new(
             Instruction::CreateValidator {
                 key: Value::EcdsaSecp256k1PublicKey {
-                    public_key: "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798".parse().unwrap()
+                    public_key:
+                        "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+                            .parse()
+                            .unwrap(),
                 },
+                owner_access_rule: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None
+                }
             },
             r#"
             {
@@ -1480,12 +1653,20 @@ lazy_static::lazy_static! {
                 "key": {
                     "type": "EcdsaSecp256k1PublicKey",
                     "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+                },
+                "owner_access_rule": {
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    }
                 }
             }
             "#,
             r##"
             CREATE_VALIDATOR
-                EcdsaSecp256k1PublicKey("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798");
+                EcdsaSecp256k1PublicKey("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")
+                Enum(0u8);
             "##,
         ),
     ];
