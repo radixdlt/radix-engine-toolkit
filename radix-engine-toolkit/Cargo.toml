@@ -16,11 +16,11 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 serializable = { path = "../serializable" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-5d33b620" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-5d33b620" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-5d33b620", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-5d33b620", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-5d33b620" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "validator-owner-rule-639822" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "validator-owner-rule-639822" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "validator-owner-rule-639822", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "validator-owner-rule-639822", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "validator-owner-rule-639822" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.

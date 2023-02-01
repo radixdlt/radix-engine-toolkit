@@ -549,6 +549,10 @@ pub enum Instruction {
         /// The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of
         /// this is an `EcdsaSecp256k1PublicKey` from the `Value` model.
         key: Value,
+
+        /// The access rule to protect the validator with. The underlying type of this is an `Enum`
+        /// from the `Value` model which represents the access rule to assert.
+        owner_access_rule: Value,
     },
 }
 
@@ -865,8 +869,12 @@ impl Instruction {
             Self::CreateIdentity { access_rule } => ast::Instruction::CreateIdentity {
                 access_rule: access_rule.to_ast_value(bech32_coder)?,
             },
-            Self::CreateValidator { key } => ast::Instruction::CreateValidator {
+            Self::CreateValidator {
+                key,
+                owner_access_rule,
+            } => ast::Instruction::CreateValidator {
                 key: key.to_ast_value(bech32_coder)?,
+                owner_access_rule: owner_access_rule.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -1205,8 +1213,12 @@ impl Instruction {
                     bech32_coder,
                 )?,
             },
-            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
+            ast::Instruction::CreateValidator {
+                key,
+                owner_access_rule,
+            } => Self::CreateValidator {
                 key: Value::from_ast_value(key, bech32_coder)?,
+                owner_access_rule: Value::from_ast_value(owner_access_rule, bech32_coder)?,
             },
         };
         Ok(instruction)
@@ -1481,7 +1493,13 @@ impl ValueRef for Instruction {
             }
 
             Self::DropProof { proof } => values.push(proof),
-            Self::CreateValidator { key } => values.push(key),
+            Self::CreateValidator {
+                key,
+                owner_access_rule,
+            } => {
+                values.push(key);
+                values.push(owner_access_rule);
+            }
 
             Self::DropAllProofs | Self::ClearAuthZone => {}
         }
@@ -1755,7 +1773,13 @@ impl ValueRef for Instruction {
             }
 
             Self::DropProof { proof } => values.push(proof),
-            Self::CreateValidator { key } => values.push(key),
+            Self::CreateValidator {
+                key,
+                owner_access_rule,
+            } => {
+                values.push(key);
+                values.push(owner_access_rule);
+            }
 
             Self::DropAllProofs | Self::ClearAuthZone => {}
         }

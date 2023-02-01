@@ -1642,6 +1642,10 @@ lazy_static::lazy_static! {
                             .parse()
                             .unwrap(),
                 },
+                owner_access_rule: Value::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None
+                }
             },
             r#"
             {
@@ -1649,12 +1653,20 @@ lazy_static::lazy_static! {
                 "key": {
                     "type": "EcdsaSecp256k1PublicKey",
                     "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+                },
+                "owner_access_rule": {
+                    "type": "Enum",
+                    "variant": {
+                        "type": "U8",
+                        "discriminator": "0"
+                    }
                 }
             }
             "#,
             r##"
             CREATE_VALIDATOR
-                EcdsaSecp256k1PublicKey("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798");
+                EcdsaSecp256k1PublicKey("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")
+                Enum(0u8);
             "##,
         ),
     ];
