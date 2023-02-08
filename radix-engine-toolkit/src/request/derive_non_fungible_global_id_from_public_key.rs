@@ -45,6 +45,7 @@ pub struct DeriveNonFungibleGlobalIdFromPublicKeyRequest {
 pub struct DeriveNonFungibleGlobalIdFromPublicKeyResponse {
     /// The non-fungible global id of the virtual badge associated with the given public key. The
     /// underlying type of this is a `NonFungibleGlobalId` from the `Value` model.
+    #[serde(flatten)] // TODO: Remove after betanet v2
     #[schemars(with = "crate::model::Value")]
     #[serde_as(as = "serde_with::TryFromInto<crate::model::Value>")]
     pub non_fungible_global_id: NonFungibleGlobalId,
