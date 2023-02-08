@@ -569,248 +569,8 @@ This document contains examples and descriptions of the different requests and r
   "network_id": "242",
   "manifest": {
     "instructions": {
-      "type": "Parsed",
-      "value": [
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "ComponentAddress",
-            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "withdraw_by_amount"
-          },
-          "arguments": [
-            {
-              "type": "Decimal",
-              "value": "5"
-            },
-            {
-              "type": "ResourceAddress",
-              "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-            }
-          ]
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-          "resource_address": {
-            "type": "ResourceAddress",
-            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "2"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket1"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "ComponentAddress",
-            "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "buy_gumball"
-          },
-          "arguments": [
-            {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          ]
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-          "resource_address": {
-            "type": "ResourceAddress",
-            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "3"
-          }
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS",
-          "resource_address": {
-            "type": "ResourceAddress",
-            "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP",
-          "resource_address": {
-            "type": "ResourceAddress",
-            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "CREATE_PROOF_FROM_BUCKET",
-          "bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          },
-          "into_proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof1"
-            }
-          }
-        },
-        {
-          "instruction": "CLONE_PROOF",
-          "proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof1"
-            }
-          },
-          "into_proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof2"
-            }
-          }
-        },
-        {
-          "instruction": "DROP_PROOF",
-          "proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof1"
-            }
-          }
-        },
-        {
-          "instruction": "DROP_PROOF",
-          "proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof2"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "ComponentAddress",
-            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "create_proof_by_amount"
-          },
-          "arguments": [
-            {
-              "type": "Decimal",
-              "value": "5"
-            },
-            {
-              "type": "ResourceAddress",
-              "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-            }
-          ]
-        },
-        {
-          "instruction": "POP_FROM_AUTH_ZONE",
-          "into_proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof3"
-            }
-          }
-        },
-        {
-          "instruction": "DROP_PROOF",
-          "proof": {
-            "type": "Proof",
-            "identifier": {
-              "type": "String",
-              "value": "proof3"
-            }
-          }
-        },
-        {
-          "instruction": "RETURN_TO_WORKTOP",
-          "bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-          "resource_address": {
-            "type": "ResourceAddress",
-            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
-          },
-          "ids": [
-            {
-              "type": "NonFungibleLocalId",
-              "value": {
-                "type": "Integer",
-                "value": "1"
-              }
-            }
-          ],
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket3"
-            }
-          }
-        },
-        {
-          "instruction": "DROP_ALL_PROOFS"
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "ComponentAddress",
-            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "deposit_batch"
-          },
-          "arguments": [
-            {
-              "type": "Expression",
-              "value": "ENTIRE_WORKTOP"
-            }
-          ]
-        }
-      ]
+      "type": "String",
+      "value": "CALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"withdraw_by_amount\"\n    Decimal(\"5\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nTAKE_FROM_WORKTOP_BY_AMOUNT\n    Decimal(\"2\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket1\");\nCALL_METHOD\n    ComponentAddress(\"component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum\")\n    \"buy_gumball\"\n    Bucket(\"bucket1\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n    Decimal(\"3\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nASSERT_WORKTOP_CONTAINS\n    ResourceAddress(\"resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6\");\nTAKE_FROM_WORKTOP\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket2\");\nCREATE_PROOF_FROM_BUCKET\n    Bucket(\"bucket2\")\n    Proof(\"proof1\");\nCLONE_PROOF\n    Proof(\"proof1\")\n    Proof(\"proof2\");\nDROP_PROOF\n    Proof(\"proof1\");\nDROP_PROOF\n    Proof(\"proof2\");\nCALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"create_proof_by_amount\"\n    Decimal(\"5\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nPOP_FROM_AUTH_ZONE\n    Proof(\"proof3\");\nDROP_PROOF\n    Proof(\"proof3\");\nRETURN_TO_WORKTOP\n    Bucket(\"bucket2\");\nTAKE_FROM_WORKTOP_BY_IDS\n    Array<NonFungibleLocalId>(NonFungibleLocalId(\"#1#\"))\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket3\");\nDROP_ALL_PROOFS;\nCALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"deposit_batch\"\n    Expression(\"ENTIRE_WORKTOP\");\n"
     },
     "blobs": []
   }
@@ -827,21 +587,21 @@ This document contains examples and descriptions of the different requests and r
   "component_addresses": [
     {
       "type": "ComponentAddress",
-      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
     },
     {
       "type": "ComponentAddress",
-      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
     }
   ],
   "resource_addresses": [
     {
       "type": "ResourceAddress",
-      "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
+      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
     },
     {
       "type": "ResourceAddress",
-      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+      "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
     }
   ],
   "account_addresses": [

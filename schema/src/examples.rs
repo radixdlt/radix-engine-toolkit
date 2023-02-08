@@ -214,7 +214,7 @@ impl ExampleData<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeMan
         AnalyzeManifestRequest {
             manifest: radix_engine_toolkit::TransactionManifest::from_native_manifest(
                 &notarized_intent().signed_intent.intent.manifest,
-                InstructionKind::Parsed,
+                InstructionKind::String,
                 &bec32_coder,
             )
             .unwrap(),
