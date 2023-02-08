@@ -18,8 +18,10 @@
 use crate::error::Result;
 use crate::model::transaction::NotarizedTransaction;
 use crate::request::Handler;
-use crate::traits::{CompilableIntent, ValueRef};
-use crate::InstructionKind;
+use crate::traits::CompilableIntent;
+use crate::{
+    traverse_instruction, Instruction, InstructionKind, InstructionList, ValueAliasingVisitor,
+};
 use serializable::serializable;
 
 // =================
@@ -80,20 +82,33 @@ impl Handler<DecompileNotarizedTransactionRequest, DecompileNotarizedTransaction
     fn post_process(
         _: &DecompileNotarizedTransactionRequest,
         mut response: DecompileNotarizedTransactionResponse,
-    ) -> DecompileNotarizedTransactionResponse {
-        for value in response.borrow_values_mut().iter_mut() {
-            value.alias();
-        }
-        response
-    }
-}
+    ) -> Result<DecompileNotarizedTransactionResponse> {
+        // Visitors
+        let mut aliasing_visitor = ValueAliasingVisitor::default();
 
-impl ValueRef for DecompileNotarizedTransactionResponse {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.notarized_intent.borrow_values()
-    }
+        // Instructions
+        let instructions: &mut [Instruction] = match response
+            .notarized_intent
+            .signed_intent
+            .intent
+            .manifest
+            .instructions
+        {
+            InstructionList::Parsed(ref mut instructions) => instructions,
+            InstructionList::String(..) => &mut [],
+        };
 
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.notarized_intent.borrow_values_mut()
+        // Traverse instructions with visitors
+        instructions
+            .iter_mut()
+            .map(|instruction| {
+                traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
+        // else needs to be done here.
+
+        Ok(response)
     }
 }

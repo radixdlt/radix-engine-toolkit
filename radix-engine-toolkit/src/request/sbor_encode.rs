@@ -17,7 +17,6 @@
 
 use crate::error::Result;
 use crate::request::Handler;
-use crate::traits::ValueRef;
 use crate::value::Value;
 use serializable::serializable;
 
@@ -52,14 +51,6 @@ pub struct SborEncodeHandler;
 
 impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
     fn pre_process(request: SborEncodeRequest) -> Result<SborEncodeRequest> {
-        // Validate all `Value`s in the request. Ensure that:
-        //     1. All addresses are of the network provided in the request.
-        //     2. All single-type collections are of a single kind.
-        request
-            .borrow_values()
-            .iter()
-            .map(|value| value.validate(None))
-            .collect::<Result<Vec<_>>>()?;
         Ok(request)
     }
 
@@ -70,17 +61,10 @@ impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
             .map(|encoded_value| SborEncodeResponse { encoded_value })
     }
 
-    fn post_process(_: &SborEncodeRequest, response: SborEncodeResponse) -> SborEncodeResponse {
-        response
-    }
-}
-
-impl ValueRef for SborEncodeRequest {
-    fn borrow_values(&self) -> Vec<&Value> {
-        vec![&self.value]
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut Value> {
-        vec![&mut self.value]
+    fn post_process(
+        _: &SborEncodeRequest,
+        response: SborEncodeResponse,
+    ) -> Result<SborEncodeResponse> {
+        Ok(response)
     }
 }

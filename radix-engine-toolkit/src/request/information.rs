@@ -62,7 +62,10 @@ impl Handler<InformationRequest, InformationResponse> for InformationHandler {
         Ok(response)
     }
 
-    fn post_process(_: &InformationRequest, response: InformationResponse) -> InformationResponse {
-        response
+    fn post_process(
+        _: &InformationRequest,
+        response: InformationResponse,
+    ) -> Result<InformationResponse> {
+        Ok(response)
     }
 }

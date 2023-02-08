@@ -171,7 +171,7 @@ impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     fn post_process(
         _: &KnownEntityAddressesRequest,
         response: KnownEntityAddressesResponse,
-    ) -> KnownEntityAddressesResponse {
-        response
+    ) -> Result<KnownEntityAddressesResponse> {
+        Ok(response)
     }
 }

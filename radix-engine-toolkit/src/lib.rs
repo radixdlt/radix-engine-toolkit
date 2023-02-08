@@ -22,6 +22,7 @@ pub mod model;
 pub mod request;
 pub mod traits;
 pub mod utils;
+pub mod visitor;
 
 pub use buffer::*;
 pub use enum_discriminator::*;
@@ -30,3 +31,4 @@ pub use model::*;
 pub use request::*;
 pub use traits::*;
 pub use utils::*;
+pub use visitor::*;

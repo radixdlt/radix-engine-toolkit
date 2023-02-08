@@ -81,7 +81,7 @@ impl Handler<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressRe
     fn post_process(
         _: &DeriveVirtualIdentityAddressRequest,
         response: DeriveVirtualIdentityAddressResponse,
-    ) -> DeriveVirtualIdentityAddressResponse {
-        response
+    ) -> Result<DeriveVirtualIdentityAddressResponse> {
+        Ok(response)
     }
 }
