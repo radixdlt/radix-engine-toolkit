@@ -1,6 +1,7 @@
 use super::ValueVisitor;
 use crate::error::Error;
 use crate::model::{NonFungibleGlobalId, Value};
+use crate::ValueKind;
 
 /// A value visitor whose main responsibility is to perform aliasing on all encountered values. As
 /// an example, this is the main visitor responsible for turing a Tuple(ResourceAddress, NFLocalId)
@@ -39,16 +40,24 @@ impl ValueVisitor for ValueAliasingVisitor {
     }
 
     fn visit_array(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::Array { ref elements, .. } = value {
+        if let Value::Array {
+            ref elements,
+            element_kind: ValueKind::U8,
+        } = value
+        {
             // Case: Bytes - An array of u8
             let mut bytes = Vec::new();
             for element in elements.iter() {
                 match element {
                     Value::U8 { value } => bytes.push(*value),
+                    // If we encounter anything that is not a U8, then we stop the aliasing op and
+                    // don't continue.
                     _ => return Ok(()),
                 }
             }
             *value = Value::Bytes { value: bytes };
+            Ok(())
+        } else if let Value::Array { .. } = value {
             Ok(())
         } else {
             Err(Error::Infallible {
