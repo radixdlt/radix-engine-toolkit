@@ -48,7 +48,7 @@ pub fn notarized_intent() -> NotarizedTransaction {
             end_epoch_exclusive: 0x210,
             nonce: 0x22,
             notary_as_signatory: true,
-            notary_public_key: notary_private_key().public_key().clone().into(),
+            notary_public_key: notary_private_key().public_key().into(),
             tip_percentage: 0x00,
         })
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(1).unwrap())
@@ -193,12 +193,31 @@ This function allows the client the convert their manifest between the two suppo
         let bec32_coder = Bech32Coder::new(network_definition().id);
         ConvertManifestRequest {
             manifest: radix_engine_toolkit::TransactionManifest::from_native_manifest(
-                &notarized_intent().signed_intent.intent.manifest.clone(),
+                &notarized_intent().signed_intent.intent.manifest,
                 InstructionKind::Parsed,
                 &bec32_coder,
             )
             .unwrap(),
             instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            network_id: network_definition().id,
+        }
+    }
+}
+
+impl ExampleData<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifestHandler {
+    fn description() -> String {
+        r#"Analyzes the manifest returning back all of the addresses involved in the manifest alongside some useful information on whether the accounts were withdrawn from, deposited into, or just used in the manifest in general."#.to_owned()
+    }
+
+    fn example_request() -> AnalyzeManifestRequest {
+        let bec32_coder = Bech32Coder::new(network_definition().id);
+        AnalyzeManifestRequest {
+            manifest: radix_engine_toolkit::TransactionManifest::from_native_manifest(
+                &notarized_intent().signed_intent.intent.manifest,
+                InstructionKind::Parsed,
+                &bec32_coder,
+            )
+            .unwrap(),
             network_id: network_definition().id,
         }
     }

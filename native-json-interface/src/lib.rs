@@ -68,6 +68,7 @@ pub mod native {
     export_handler!(InformationHandler as information);
 
     export_handler!(ConvertManifestHandler as convert_manifest);
+    export_handler!(AnalyzeManifestHandler as analyze_manifest);
 
     export_handler!(CompileTransactionIntentHandler as compile_transaction_intent);
     export_handler!(CompileSignedTransactionIntentHandler as compile_signed_transaction_intent);
@@ -166,6 +167,9 @@ pub mod jni {
 
     export_handler!(
         ConvertManifestHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_convertManifest
+    );
+    export_handler!(
+        AnalyzeManifestHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifest
     );
 
     export_handler!(

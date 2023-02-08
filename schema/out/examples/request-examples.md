@@ -552,6 +552,326 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
+## Analyze Manifest
+
+| Function Name     | `analyze_manifest` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_analyzeManifest` |
+| Functionality     | Analyzes the manifest returning back all of the addresses involved in the manifest alongside some useful information on whether the accounts were withdrawn from, deposited into, or just used in the manifest in general. |
+| Request Type      | `AnalyzeManifestRequest` |
+| Response Type     | `AnalyzeManifestResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "242",
+  "manifest": {
+    "instructions": {
+      "type": "Parsed",
+      "value": [
+        {
+          "instruction": "CALL_METHOD",
+          "component_address": {
+            "type": "ComponentAddress",
+            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+          },
+          "method_name": {
+            "type": "String",
+            "value": "withdraw_by_amount"
+          },
+          "arguments": [
+            {
+              "type": "Decimal",
+              "value": "5"
+            },
+            {
+              "type": "ResourceAddress",
+              "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+            }
+          ]
+        },
+        {
+          "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
+          "resource_address": {
+            "type": "ResourceAddress",
+            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+          },
+          "amount": {
+            "type": "Decimal",
+            "value": "2"
+          },
+          "into_bucket": {
+            "type": "Bucket",
+            "identifier": {
+              "type": "String",
+              "value": "bucket1"
+            }
+          }
+        },
+        {
+          "instruction": "CALL_METHOD",
+          "component_address": {
+            "type": "ComponentAddress",
+            "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
+          },
+          "method_name": {
+            "type": "String",
+            "value": "buy_gumball"
+          },
+          "arguments": [
+            {
+              "type": "Bucket",
+              "identifier": {
+                "type": "String",
+                "value": "bucket1"
+              }
+            }
+          ]
+        },
+        {
+          "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
+          "resource_address": {
+            "type": "ResourceAddress",
+            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+          },
+          "amount": {
+            "type": "Decimal",
+            "value": "3"
+          }
+        },
+        {
+          "instruction": "ASSERT_WORKTOP_CONTAINS",
+          "resource_address": {
+            "type": "ResourceAddress",
+            "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
+          }
+        },
+        {
+          "instruction": "TAKE_FROM_WORKTOP",
+          "resource_address": {
+            "type": "ResourceAddress",
+            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+          },
+          "into_bucket": {
+            "type": "Bucket",
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
+          }
+        },
+        {
+          "instruction": "CREATE_PROOF_FROM_BUCKET",
+          "bucket": {
+            "type": "Bucket",
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
+          },
+          "into_proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
+          }
+        },
+        {
+          "instruction": "CLONE_PROOF",
+          "proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
+          },
+          "into_proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
+          }
+        },
+        {
+          "instruction": "DROP_PROOF",
+          "proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof1"
+            }
+          }
+        },
+        {
+          "instruction": "DROP_PROOF",
+          "proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof2"
+            }
+          }
+        },
+        {
+          "instruction": "CALL_METHOD",
+          "component_address": {
+            "type": "ComponentAddress",
+            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+          },
+          "method_name": {
+            "type": "String",
+            "value": "create_proof_by_amount"
+          },
+          "arguments": [
+            {
+              "type": "Decimal",
+              "value": "5"
+            },
+            {
+              "type": "ResourceAddress",
+              "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+            }
+          ]
+        },
+        {
+          "instruction": "POP_FROM_AUTH_ZONE",
+          "into_proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
+          }
+        },
+        {
+          "instruction": "DROP_PROOF",
+          "proof": {
+            "type": "Proof",
+            "identifier": {
+              "type": "String",
+              "value": "proof3"
+            }
+          }
+        },
+        {
+          "instruction": "RETURN_TO_WORKTOP",
+          "bucket": {
+            "type": "Bucket",
+            "identifier": {
+              "type": "String",
+              "value": "bucket2"
+            }
+          }
+        },
+        {
+          "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
+          "resource_address": {
+            "type": "ResourceAddress",
+            "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+          },
+          "ids": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            }
+          ],
+          "into_bucket": {
+            "type": "Bucket",
+            "identifier": {
+              "type": "String",
+              "value": "bucket3"
+            }
+          }
+        },
+        {
+          "instruction": "DROP_ALL_PROOFS"
+        },
+        {
+          "instruction": "CALL_METHOD",
+          "component_address": {
+            "type": "ComponentAddress",
+            "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+          },
+          "method_name": {
+            "type": "String",
+            "value": "deposit_batch"
+          },
+          "arguments": [
+            {
+              "type": "Expression",
+              "value": "ENTIRE_WORKTOP"
+            }
+          ]
+        }
+      ]
+    },
+    "blobs": []
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "package_addresses": [],
+  "component_addresses": [
+    {
+      "type": "ComponentAddress",
+      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
+    },
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "resource_addresses": [
+    {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
+    },
+    {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+    }
+  ],
+  "account_addresses": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_requiring_auth": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_withdrawn_from": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_deposited_into": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ]
+}
+```
+</details>
+
 ## Compile Transaction Intent
 
 | Function Name     | `compile_transaction_intent` |
