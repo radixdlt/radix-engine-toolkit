@@ -17,8 +17,8 @@
 
 use crate::error::Result;
 use crate::request::Handler;
-use crate::traits::ValueRef;
 use crate::value::Value;
+use crate::{traverse_value, ValueAliasingVisitor};
 use serializable::serializable;
 
 // =================
@@ -69,20 +69,19 @@ impl Handler<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
             .map(|value| SborDecodeResponse { value })
     }
 
-    fn post_process(_: &SborDecodeRequest, mut response: SborDecodeResponse) -> SborDecodeResponse {
-        for value in response.borrow_values_mut().iter_mut() {
-            value.alias();
-        }
-        response
-    }
-}
+    fn post_process(
+        _: &SborDecodeRequest,
+        mut response: SborDecodeResponse,
+    ) -> Result<SborDecodeResponse> {
+        // Visitors
+        let mut aliasing_visitor = ValueAliasingVisitor::default();
 
-impl ValueRef for SborDecodeResponse {
-    fn borrow_values(&self) -> Vec<&Value> {
-        vec![&self.value]
-    }
+        // Traverse value with visitors
+        traverse_value(&mut response.value, &mut [&mut aliasing_visitor])?;
 
-    fn borrow_values_mut(&mut self) -> Vec<&mut Value> {
-        vec![&mut self.value]
+        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
+        // else needs to be done here.
+
+        Ok(response)
     }
 }

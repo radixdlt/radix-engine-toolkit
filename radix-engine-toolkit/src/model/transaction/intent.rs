@@ -21,7 +21,6 @@ use serializable::serializable;
 use crate::address::Bech32Coder;
 use crate::error::Result;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
-use crate::traits::ValueRef;
 use crate::{CompilableIntent, Error, InstructionKind};
 use native_transaction::model as native;
 
@@ -43,16 +42,6 @@ pub struct TransactionIntent {
 // ===============
 // Implementation
 // ===============
-
-impl ValueRef for TransactionIntent {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.manifest.borrow_values()
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.manifest.borrow_values_mut()
-    }
-}
 
 impl CompilableIntent for TransactionIntent {
     fn compile(&self) -> Result<Vec<u8>> {

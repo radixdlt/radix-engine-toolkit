@@ -19,7 +19,10 @@ use crate::error::Result;
 use crate::model::address::Bech32Coder;
 use crate::model::instruction_list::InstructionKind;
 use crate::model::TransactionManifest;
-use crate::{Handler, ValueRef};
+use crate::{
+    traverse_instruction, Handler, Instruction, InstructionList, ValueAliasingVisitor,
+    ValueNetworkAggregatorVisitor,
+};
 use serializable::serializable;
 
 // =================
@@ -76,15 +79,35 @@ pub struct ConvertManifestResponse {
 pub struct ConvertManifestHandler;
 
 impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifestHandler {
-    fn pre_process(request: ConvertManifestRequest) -> Result<ConvertManifestRequest> {
-        // Validate all `Value`s in the request. Ensure that:
-        //     1. All addresses are of the network provided in the request.
-        //     2. All single-type collections are of a single kind.
-        request
-            .borrow_values()
-            .iter()
-            .map(|value| value.validate(Some(request.network_id)))
+    fn pre_process(mut request: ConvertManifestRequest) -> Result<ConvertManifestRequest> {
+        // Visitors
+        let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
+
+        // Instructions
+        let instructions: &mut [Instruction] = match request.manifest.instructions {
+            InstructionList::Parsed(ref mut instructions) => instructions,
+            InstructionList::String(..) => &mut [],
+        };
+
+        // Traverse instructions with visitors
+        instructions
+            .iter_mut()
+            .map(|instruction| {
+                traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
+            })
             .collect::<Result<Vec<_>>>()?;
+
+        // Check for network mismatches
+        if let Some(network_id) = network_aggregator_visitor
+            .0
+            .iter()
+            .find(|network_id| **network_id != request.network_id)
+        {
+            return Err(crate::Error::NetworkMismatchError {
+                found: *network_id,
+                expected: request.network_id,
+            });
+        }
         Ok(request)
     }
 
@@ -108,30 +131,27 @@ impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifes
     fn post_process(
         _: &ConvertManifestRequest,
         mut response: ConvertManifestResponse,
-    ) -> ConvertManifestResponse {
-        for value in response.borrow_values_mut().iter_mut() {
-            value.alias();
-        }
-        response
-    }
-}
+    ) -> Result<ConvertManifestResponse> {
+        // Visitors
+        let mut aliasing_visitor = ValueAliasingVisitor::default();
 
-impl ValueRef for ConvertManifestRequest {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.manifest.borrow_values()
-    }
+        // Instructions
+        let instructions: &mut [Instruction] = match response.manifest.instructions {
+            InstructionList::Parsed(ref mut instructions) => instructions,
+            InstructionList::String(..) => &mut [],
+        };
 
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.manifest.borrow_values_mut()
-    }
-}
+        // Traverse instructions with visitors
+        instructions
+            .iter_mut()
+            .map(|instruction| {
+                traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
+            })
+            .collect::<Result<Vec<_>>>()?;
 
-impl ValueRef for ConvertManifestResponse {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.manifest.borrow_values()
-    }
+        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
+        // else needs to be done here.
 
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.manifest.borrow_values_mut()
+        Ok(response)
     }
 }

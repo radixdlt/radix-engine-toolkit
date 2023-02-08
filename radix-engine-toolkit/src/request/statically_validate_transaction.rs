@@ -98,7 +98,7 @@ impl Handler<StaticallyValidateTransactionRequest, StaticallyValidateTransaction
     fn post_process(
         _: &StaticallyValidateTransactionRequest,
         response: StaticallyValidateTransactionResponse,
-    ) -> StaticallyValidateTransactionResponse {
-        response
+    ) -> Result<StaticallyValidateTransactionResponse> {
+        Ok(response)
     }
 }

@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::error::Result;
-use crate::{Bech32Coder, Error, InstructionKind, InstructionList, ValueRef};
+use crate::{Bech32Coder, Error, InstructionKind, InstructionList};
 use native_transaction::manifest::decompile;
 use native_transaction::model as native;
 use serializable::serializable;
@@ -36,20 +36,6 @@ pub struct TransactionManifest {
     #[schemars(with = "Vec<String>")]
     #[serde_as(as = "Vec<serde_with::hex::Hex>")]
     pub blobs: Vec<Vec<u8>>,
-}
-
-// ===============
-// Implementation
-// ===============
-
-impl ValueRef for TransactionManifest {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.instructions.borrow_values()
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.instructions.borrow_values_mut()
-    }
 }
 
 // ============

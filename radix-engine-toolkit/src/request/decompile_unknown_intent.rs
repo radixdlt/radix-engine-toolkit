@@ -22,10 +22,11 @@ use crate::request::{
     DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse,
     DecompileTransactionIntentRequest, DecompileTransactionIntentResponse,
 };
-use crate::traits::ValueRef;
 use crate::{
-    DecompileNotarizedTransactionHandler, DecompileSignedTransactionIntentHandler,
-    DecompileTransactionIntentHandler, Error, InstructionKind,
+    traverse_instruction, DecompileNotarizedTransactionHandler,
+    DecompileSignedTransactionIntentHandler, DecompileTransactionIntentHandler, Error, Instruction,
+    InstructionKind, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
+    TransactionManifest, ValueAliasingVisitor,
 };
 use serializable::serializable;
 
@@ -149,30 +150,82 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
     fn post_process(
         _: &DecompileUnknownTransactionIntentRequest,
         mut response: DecompileUnknownTransactionIntentResponse,
-    ) -> DecompileUnknownTransactionIntentResponse {
-        for value in response.borrow_values_mut().iter_mut() {
-            value.alias();
-        }
-        response
-    }
-}
+    ) -> Result<DecompileUnknownTransactionIntentResponse> {
+        // Visitors
+        let mut aliasing_visitor = ValueAliasingVisitor::default();
 
-impl ValueRef for DecompileUnknownTransactionIntentResponse {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        match self {
-            Self::TransactionIntent(intent) => intent.borrow_values(),
-            Self::SignedTransactionIntent(signed_intent) => signed_intent.borrow_values(),
-            Self::NotarizedTransactionIntent(notarized_intent) => notarized_intent.borrow_values(),
-        }
-    }
+        // Instructions
+        let instructions: &mut [Instruction] = match response {
+            DecompileUnknownTransactionIntentResponse::NotarizedTransactionIntent(
+                DecompileNotarizedTransactionResponse {
+                    notarized_intent:
+                        NotarizedTransaction {
+                            signed_intent:
+                                SignedTransactionIntent {
+                                    intent:
+                                        TransactionIntent {
+                                            manifest:
+                                                TransactionManifest {
+                                                    instructions:
+                                                        crate::InstructionList::Parsed(
+                                                            ref mut instructions,
+                                                        ),
+                                                    ..
+                                                },
+                                            ..
+                                        },
+                                    ..
+                                },
+                            ..
+                        },
+                },
+            )
+            | DecompileUnknownTransactionIntentResponse::SignedTransactionIntent(
+                DecompileSignedTransactionIntentResponse {
+                    signed_intent:
+                        SignedTransactionIntent {
+                            intent:
+                                TransactionIntent {
+                                    manifest:
+                                        TransactionManifest {
+                                            instructions:
+                                                crate::InstructionList::Parsed(ref mut instructions),
+                                            ..
+                                        },
+                                    ..
+                                },
+                            ..
+                        },
+                },
+            )
+            | DecompileUnknownTransactionIntentResponse::TransactionIntent(
+                DecompileTransactionIntentResponse {
+                    transaction_intent:
+                        TransactionIntent {
+                            manifest:
+                                TransactionManifest {
+                                    instructions:
+                                        crate::InstructionList::Parsed(ref mut instructions),
+                                    ..
+                                },
+                            ..
+                        },
+                },
+            ) => instructions,
+            _ => &mut [],
+        };
 
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        match self {
-            Self::TransactionIntent(intent) => intent.borrow_values_mut(),
-            Self::SignedTransactionIntent(signed_intent) => signed_intent.borrow_values_mut(),
-            Self::NotarizedTransactionIntent(notarized_intent) => {
-                notarized_intent.borrow_values_mut()
-            }
-        }
+        // Traverse instructions with visitors
+        instructions
+            .iter_mut()
+            .map(|instruction| {
+                traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
+        // else needs to be done here.
+
+        Ok(response)
     }
 }

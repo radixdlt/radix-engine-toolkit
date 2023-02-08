@@ -81,7 +81,7 @@ impl Handler<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResp
     fn post_process(
         _: &DeriveVirtualAccountAddressRequest,
         response: DeriveVirtualAccountAddressResponse,
-    ) -> DeriveVirtualAccountAddressResponse {
-        response
+    ) -> Result<DeriveVirtualAccountAddressResponse> {
+        Ok(response)
     }
 }

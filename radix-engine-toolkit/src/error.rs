@@ -156,6 +156,13 @@ pub enum Error {
     InvalidRequestString {
         message: String,
     },
+
+    /// An error emitted when an operation was meant to be infallible but has failed. This is used
+    /// as a replacement to panics to bubble whatever error to the caller. If you see this error,
+    /// please report it as you should never get to see it.
+    Infallible {
+        message: String,
+    },
 }
 
 impl Display for Error {

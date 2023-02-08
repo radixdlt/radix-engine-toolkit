@@ -15,10 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::request::Handler;
-use crate::traits::ValueRef;
-use crate::{NonFungibleGlobalId, Value};
+use crate::{error::Result, NonFungibleGlobalId};
 use scrypto::prelude::{FromPublicKey, PublicKey};
 use serializable::serializable;
 
@@ -47,8 +45,9 @@ pub struct DeriveNonFungibleGlobalIdFromPublicKeyRequest {
 pub struct DeriveNonFungibleGlobalIdFromPublicKeyResponse {
     /// The non-fungible global id of the virtual badge associated with the given public key. The
     /// underlying type of this is a `NonFungibleGlobalId` from the `Value` model.
-    #[serde(flatten)]
-    pub non_fungible_global_id: Value,
+    #[schemars(with = "crate::model::Value")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::Value>")]
+    pub non_fungible_global_id: NonFungibleGlobalId,
 }
 
 // ===============
@@ -82,29 +81,14 @@ impl
             non_fungible_local_id: non_fungible_global_id.local_id().clone(),
         };
         Ok(DeriveNonFungibleGlobalIdFromPublicKeyResponse {
-            non_fungible_global_id: Value::NonFungibleGlobalId {
-                address: non_fungible_global_id,
-            },
+            non_fungible_global_id,
         })
     }
 
     fn post_process(
         _: &DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-        mut response: DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-    ) -> DeriveNonFungibleGlobalIdFromPublicKeyResponse {
-        for value in response.borrow_values_mut().iter_mut() {
-            value.alias();
-        }
-        response
-    }
-}
-
-impl ValueRef for DeriveNonFungibleGlobalIdFromPublicKeyResponse {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        vec![&self.non_fungible_global_id]
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        vec![&mut self.non_fungible_global_id]
+        response: DeriveNonFungibleGlobalIdFromPublicKeyResponse,
+    ) -> Result<DeriveNonFungibleGlobalIdFromPublicKeyResponse> {
+        Ok(response)
     }
 }

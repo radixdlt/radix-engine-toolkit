@@ -28,7 +28,7 @@ pub trait Handler<I, O> {
     fn handle(request: &I) -> Result<O>;
 
     /// Performs all post processing of requests - example, aliasing values.
-    fn post_process(request: &I, response: O) -> O;
+    fn post_process(request: &I, response: O) -> Result<O>;
 
     /// Fulfills the request by performing preprocessing, handling, and post processing
     fn fulfill(request: I) -> Result<O> {
@@ -36,6 +36,6 @@ pub trait Handler<I, O> {
         let request = Self::pre_process(request)?;
 
         // handle request and perform post-processing
-        Self::handle(&request).map(|response| Self::post_process(&request, response))
+        Self::handle(&request).and_then(|response| Self::post_process(&request, response))
     }
 }

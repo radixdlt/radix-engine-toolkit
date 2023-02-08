@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::error::Result;
 use crate::{model::address::EntityAddress, Handler};
 use serializable::serializable;
 
@@ -71,7 +72,7 @@ impl Handler<EncodeAddressRequest, EncodeAddressResponse> for EncodeAddressHandl
     fn post_process(
         _: &EncodeAddressRequest,
         response: EncodeAddressResponse,
-    ) -> EncodeAddressResponse {
-        response
+    ) -> Result<EncodeAddressResponse> {
+        Ok(response)
     }
 }

@@ -106,7 +106,7 @@ impl Handler<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressHandl
     fn post_process(
         _: &DecodeAddressRequest,
         response: DecodeAddressResponse,
-    ) -> DecodeAddressResponse {
-        response
+    ) -> Result<DecodeAddressResponse> {
+        Ok(response)
     }
 }

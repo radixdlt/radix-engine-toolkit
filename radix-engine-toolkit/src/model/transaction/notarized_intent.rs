@@ -20,7 +20,7 @@ use native_transaction::model as native;
 use scrypto::prelude::{scrypto_decode, scrypto_encode, Signature};
 use serializable::serializable;
 
-use crate::{SignedTransactionIntent, ValueRef};
+use crate::SignedTransactionIntent;
 
 // =================
 // Model Definition
@@ -42,16 +42,6 @@ pub struct NotarizedTransaction {
 // ===============
 // Implementation
 // ===============
-
-impl ValueRef for NotarizedTransaction {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.signed_intent.borrow_values()
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.signed_intent.borrow_values_mut()
-    }
-}
 
 impl CompilableIntent for NotarizedTransaction {
     fn compile(&self) -> Result<Vec<u8>> {

@@ -18,7 +18,6 @@
 use crate::address::Bech32Coder;
 use crate::error::Result;
 use crate::model::Instruction;
-use crate::ValueRef;
 use native_transaction::manifest::{ast, decompile};
 use native_transaction::model as transaction;
 use scrypto::prelude::hash;
@@ -208,28 +207,6 @@ impl InstructionList {
         match manifest_instructions_kind {
             InstructionKind::String => self.convert_to_string(bech32_coder, blobs),
             InstructionKind::Parsed => self.convert_to_parsed(bech32_coder, blobs),
-        }
-    }
-}
-
-impl ValueRef for InstructionList {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        match self {
-            Self::Parsed(parsed_instructions) => parsed_instructions
-                .iter()
-                .flat_map(|instruction| instruction.borrow_values())
-                .collect(),
-            Self::String(..) => Vec::new(),
-        }
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        match self {
-            Self::Parsed(parsed_instructions) => parsed_instructions
-                .iter_mut()
-                .flat_map(|instruction| instruction.borrow_values_mut())
-                .collect(),
-            Self::String(..) => Vec::new(),
         }
     }
 }

@@ -2687,22 +2687,8 @@ This document contains examples and descriptions of the different requests and r
                     "value": "Hello World!"
                   },
                   {
-                    "type": "Array",
-                    "element_kind": "Decimal",
-                    "elements": [
-                      {
-                        "type": "Decimal",
-                        "value": "20"
-                      },
-                      {
-                        "type": "Decimal",
-                        "value": "100"
-                      },
-                      {
-                        "type": "Decimal",
-                        "value": "192.31"
-                      }
-                    ]
+                    "type": "Bytes",
+                    "value": ""
                   }
                 ]
               }
@@ -2816,16 +2802,18 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "type": "NonFungibleGlobalId",
-  "resource_address": {
-    "type": "ResourceAddress",
-    "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
-  },
-  "non_fungible_local_id": {
-    "type": "NonFungibleLocalId",
-    "value": {
-      "type": "Bytes",
-      "value": "02cc806dddfd673d994986293a997a50e8c10d95443beb52b06e"
+  "non_fungible_global_id": {
+    "type": "NonFungibleGlobalId",
+    "resource_address": {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
+    },
+    "non_fungible_local_id": {
+      "type": "NonFungibleLocalId",
+      "value": {
+        "type": "Bytes",
+        "value": "02cc806dddfd673d994986293a997a50e8c10d95443beb52b06e"
+      }
     }
   }
 }

@@ -18,7 +18,8 @@
 use crate::error::Result;
 use crate::model::transaction::SignedTransactionIntent;
 use crate::request::Handler;
-use crate::traits::{CompilableIntent, ValueRef};
+use crate::traits::CompilableIntent;
+use crate::{traverse_instruction, Instruction, InstructionList, ValueNetworkAggregatorVisitor};
 use serializable::serializable;
 
 // =================
@@ -55,16 +56,38 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
     for CompileSignedTransactionIntentHandler
 {
     fn pre_process(
-        request: CompileSignedTransactionIntentRequest,
+        mut request: CompileSignedTransactionIntentRequest,
     ) -> Result<CompileSignedTransactionIntentRequest> {
-        // Validate all `Value`s in the request. Ensure that:
-        //     1. All addresses are of the network provided in the request.
-        //     2. All single-type collections are of a single kind.
-        request
-            .borrow_values()
-            .iter()
-            .map(|value| value.validate(Some(request.signed_intent.intent.header.network_id)))
+        // Visitors
+        let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
+
+        // Instructions
+        let instructions: &mut [Instruction] =
+            match request.signed_intent.intent.manifest.instructions {
+                InstructionList::Parsed(ref mut instructions) => instructions,
+                InstructionList::String(..) => &mut [],
+            };
+
+        // Traverse instructions with visitors
+        instructions
+            .iter_mut()
+            .map(|instruction| {
+                traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
+            })
             .collect::<Result<Vec<_>>>()?;
+
+        // Check for network mismatches
+        let expected_network_id = request.signed_intent.intent.header.network_id;
+        if let Some(network_id) = network_aggregator_visitor
+            .0
+            .iter()
+            .find(|network_id| **network_id != expected_network_id)
+        {
+            return Err(crate::Error::NetworkMismatchError {
+                found: *network_id,
+                expected: expected_network_id,
+            });
+        }
         Ok(request)
     }
 
@@ -80,17 +103,7 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
     fn post_process(
         _: &CompileSignedTransactionIntentRequest,
         response: CompileSignedTransactionIntentResponse,
-    ) -> CompileSignedTransactionIntentResponse {
-        response
-    }
-}
-
-impl ValueRef for CompileSignedTransactionIntentRequest {
-    fn borrow_values(&self) -> Vec<&crate::Value> {
-        self.signed_intent.borrow_values()
-    }
-
-    fn borrow_values_mut(&mut self) -> Vec<&mut crate::Value> {
-        self.signed_intent.borrow_values_mut()
+    ) -> Result<CompileSignedTransactionIntentResponse> {
+        Ok(response)
     }
 }
