@@ -19,7 +19,7 @@ mod test_vector;
 
 use radix_engine_toolkit::{
     model::{Bech32Coder, TransientIdentifier, Value},
-    BucketId, ProofId,
+    traverse_value, BucketId, ProofId, ValueAliasingVisitor,
 };
 use scrypto::prelude::*;
 pub use test_vector::*;
@@ -178,7 +178,7 @@ fn no_information_is_lost_when_converting_value_to_scrypto_value_and_back() {
                 .expect("Value -> AstValue conversion of trusted value failed"),
             bech32_coder.network_id(),
         );
-        ast_value.alias();
+        alias(&mut ast_value).unwrap();
 
         // Assert
         assert_eq!(*expected_value, ast_value)
@@ -251,9 +251,14 @@ fn sbor_decoding_value_yields_expected_result() {
         // Act
         let mut value =
             Value::decode(encoded_value, 0xf2).expect("Failed to SBOR decode trusted value");
-        value.alias();
+        alias(&mut value).unwrap();
 
         // Assert
         assert_eq!(*expected_value, value)
     }
+}
+
+fn alias(value: &mut Value) -> radix_engine_toolkit::Result<()> {
+    let mut visitor = ValueAliasingVisitor::default();
+    traverse_value(value, &mut [&mut visitor])
 }
