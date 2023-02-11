@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::address::Bech32Coder;
 use crate::error::Result;
@@ -115,7 +115,7 @@ pub enum Instruction {
 
         /// The non-fungible ids to take from the worktop. This is a set (serialized as a JSON
         /// array) of `NonFungibleLocalId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
+        #[schemars(with = "BTreeSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
 
         /// A bucket to put the taken resources into. This field is serialized as a `Bucket` from
@@ -157,7 +157,7 @@ pub enum Instruction {
 
         /// The non-fungible ids of the resource to assert their existence in the worktop. This is
         /// a set (serialized as a JSON array) of `NonFungibleLocalId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
+        #[schemars(with = "BTreeSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
     },
 
@@ -216,7 +216,7 @@ pub enum Instruction {
 
         /// The non-fungible ids to create a proof of. This is a set (serialized as a JSON array)
         /// of `NonFungibleLocalId`s from the Value model.
-        #[schemars(with = "HashSet<crate::model::address::NonFungibleLocalId>")]
+        #[schemars(with = "BTreeSet<crate::model::address::NonFungibleLocalId>")]
         ids: Vec<Value>,
 
         /// A proof to put the resource proof into. This field is serialized as a `Proof` from the

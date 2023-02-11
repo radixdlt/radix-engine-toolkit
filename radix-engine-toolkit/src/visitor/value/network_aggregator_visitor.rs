@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::{Value, ValueVisitor};
 
@@ -6,7 +6,7 @@ use crate::{Value, ValueVisitor};
 /// addresses use. This is typically used in operations where we wish to check for network id
 /// mismatches.
 #[derive(Debug, Default)]
-pub struct ValueNetworkAggregatorVisitor(pub HashSet<u8>);
+pub struct ValueNetworkAggregatorVisitor(pub BTreeSet<u8>);
 
 impl ValueVisitor for ValueNetworkAggregatorVisitor {
     fn visit_component_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {

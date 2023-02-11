@@ -1,14 +1,15 @@
+use std::collections::BTreeSet;
+
 use crate::{InstructionVisitor, NetworkAwareComponentAddress, Value};
 use scrypto::prelude::ComponentAddress;
-use std::collections::HashSet;
 
 /// A visitor whose main responsibility is determining the kind of interactions involved with
 /// accounts
 #[derive(Debug, Default)]
 pub struct AccountInteractionsInstructionVisitor {
-    pub auth_required: HashSet<NetworkAwareComponentAddress>,
-    pub accounts_withdrawn_from: HashSet<NetworkAwareComponentAddress>,
-    pub accounts_deposited_into: HashSet<NetworkAwareComponentAddress>,
+    pub auth_required: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts_withdrawn_from: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts_deposited_into: BTreeSet<NetworkAwareComponentAddress>,
 }
 
 impl AccountInteractionsInstructionVisitor {

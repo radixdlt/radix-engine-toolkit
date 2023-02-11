@@ -587,11 +587,11 @@ This document contains examples and descriptions of the different requests and r
   "component_addresses": [
     {
       "type": "ComponentAddress",
-      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
     },
     {
       "type": "ComponentAddress",
-      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
     }
   ],
   "resource_addresses": [

@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::{
     NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress, Value,
@@ -9,9 +9,9 @@ use crate::{
 /// stored them in its state.
 #[derive(Debug, Default)]
 pub struct AddressValueAggregator {
-    pub component_addresses: HashSet<NetworkAwareComponentAddress>,
-    pub resource_addresses: HashSet<NetworkAwareResourceAddress>,
-    pub package_addresses: HashSet<NetworkAwarePackageAddress>,
+    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
 }
 
 impl ValueVisitor for AddressValueAggregator {
