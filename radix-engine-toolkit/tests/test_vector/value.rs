@@ -24,7 +24,10 @@ use native_transaction::manifest::generator::{generate_value, NameResolver};
 use native_transaction::manifest::lexer::tokenize;
 use radix_engine_toolkit::{address::*, BucketId, ProofId, TransientIdentifier};
 use radix_engine_toolkit::{Value, ValueKind};
-use scrypto::prelude::{Hash, ScryptoValue};
+use scrypto::prelude::{
+    BytesNonFungibleLocalId, Hash, IntegerNonFungibleLocalId, ScryptoValue,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId,
+};
 use scrypto::runtime::ManifestBlobRef;
 extern crate lazy_static;
 
@@ -346,22 +349,22 @@ lazy_static::lazy_static! {
         // ==========================
 
         ValueRepresentationTestVector::new(
-            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(114441894733333) },
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(114441894733333)) },
             r#"{"type": "NonFungibleLocalId", "value": {"type": "Integer", "value": "114441894733333"}}"#,
             "NonFungibleLocalId(\"#114441894733333#\")"
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::UUID(238510006928098330588051703199685491739) },
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::UUID(UUIDNonFungibleLocalId::new(238510006928098330588051703199685491739).unwrap()) },
             r#"{"type": "NonFungibleLocalId", "value": {"type": "UUID", "value": "238510006928098330588051703199685491739"}}"#,
             r#"NonFungibleLocalId("{b36f5b3f-835b-406c-980f-7788d8f13c1b}")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::String("hello_world".into()) },
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::String(StringNonFungibleLocalId::new("hello_world".into()).unwrap()) },
             r#"{"type": "NonFungibleLocalId", "value": {"type": "String", "value": "hello_world"}}"#,
             r#"NonFungibleLocalId("<hello_world>")"#,
         ),
         ValueRepresentationTestVector::new(
-            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Bytes(vec![0x10, 0xa2, 0x31, 0x01]) },
+            Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Bytes(BytesNonFungibleLocalId::new(vec![0x10, 0xa2, 0x31, 0x01]).unwrap()) },
             r#"{"type": "NonFungibleLocalId", "value": {"type": "Bytes", "value": "10a23101"}}"#,
             r#"NonFungibleLocalId("[10a23101]")"#,
         ),
@@ -373,7 +376,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(114441894733333)
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(114441894733333))
                 }
             },
             r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "Integer", "value": "114441894733333"}}}"#,
@@ -386,7 +389,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::UUID(238510006928098330588051703199685491739)
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::UUID(UUIDNonFungibleLocalId::new(238510006928098330588051703199685491739).unwrap())
                 }
             },
             r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "UUID", "value": "238510006928098330588051703199685491739"}}}"#,
@@ -399,7 +402,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::String("hello_world".into())
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::String(StringNonFungibleLocalId::new("hello_world".into()).unwrap())
                 }
             },
             r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "String", "value": "hello_world"}}}"#,
@@ -412,7 +415,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: scrypto::prelude::ResourceAddress::Normal([0; 26]),
                         },
-                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Bytes(vec![0x10, 0xa2, 0x31, 0x01])
+                    non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Bytes(BytesNonFungibleLocalId::new(vec![0x10, 0xa2, 0x31, 0x01]).unwrap())
                 }
             },
             r#"{"type": "NonFungibleGlobalId", "resource_address": {"type": "ResourceAddress", "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety"}, "non_fungible_local_id": {"type": "NonFungibleLocalId", "value": {"type": "Bytes", "value": "10a23101"}}}"#,
