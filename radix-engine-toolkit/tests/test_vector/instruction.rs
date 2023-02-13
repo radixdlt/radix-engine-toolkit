@@ -286,7 +286,7 @@ lazy_static::lazy_static! {
                     },
                 },
                 ids: vec![Value::NonFungibleLocalId {
-                    value: scrypto::prelude::NonFungibleLocalId::Integer(1),
+                    value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                 }],
                 into_bucket: Value::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
@@ -410,7 +410,7 @@ lazy_static::lazy_static! {
                     },
                 },
                 ids: vec![Value::NonFungibleLocalId {
-                    value: scrypto::prelude::NonFungibleLocalId::Integer(1),
+                    value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                 }],
             },
             r#"
@@ -579,7 +579,7 @@ lazy_static::lazy_static! {
                     },
                 },
                 ids: vec![Value::NonFungibleLocalId {
-                    value: scrypto::prelude::NonFungibleLocalId::Integer(1),
+                    value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                 }],
                 into_proof: Value::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
@@ -819,7 +819,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: RADIX_TOKEN,
                         },
-                        non_fungible_local_id: NonFungibleLocalId::Integer(1),
+                        non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                     },
                 },
             },
@@ -1353,7 +1353,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: RADIX_TOKEN,
                         },
-                        non_fungible_local_id: NonFungibleLocalId::Integer(1),
+                        non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                     },
                 },
                 initial_supply: Value::None,
@@ -1468,7 +1468,7 @@ lazy_static::lazy_static! {
                             network_id: 0xf2,
                             address: RADIX_TOKEN,
                         },
-                        non_fungible_local_id: NonFungibleLocalId::Integer(1),
+                        non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                     },
                 },
                 initial_supply: Value::None,

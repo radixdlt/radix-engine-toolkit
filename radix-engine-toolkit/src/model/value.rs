@@ -300,7 +300,7 @@ pub enum Value {
     /// non-fungible ids may be.
     NonFungibleLocalId {
         #[schemars(with = "crate::NonFungibleLocalId")]
-        #[serde_as(as = "serde_with::FromInto<crate::NonFungibleLocalId>")]
+        #[serde_as(as = "serde_with::TryFromInto<crate::NonFungibleLocalId>")]
         value: NonFungibleLocalId,
     },
 

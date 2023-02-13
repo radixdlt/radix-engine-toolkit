@@ -1,6 +1,7 @@
 use radix_engine_toolkit::{
     model::Value, traverse_value, NonFungibleGlobalId, ValueAliasingVisitor, ValueKind,
 };
+use scrypto::prelude::IntegerNonFungibleLocalId;
 
 #[test]
 fn aliasing_of_deeply_nested_structures_works() {
@@ -37,7 +38,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                     element_kind: ValueKind::Tuple,
                                     elements: vec![Value::Tuple { elements: vec![
                                         Value::ResourceAddress { address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap() },
-                                        Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(1) } ,
+                                        Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
                                     ] }],
                                 }],
                             }],
@@ -80,7 +81,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                     element_kind: ValueKind::Tuple,
                                     elements: vec![Value::NonFungibleGlobalId { address: NonFungibleGlobalId {
                                         resource_address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap(),
-                                        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(1)
+                                        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1))
                                     } }],
                                 }],
                             }],

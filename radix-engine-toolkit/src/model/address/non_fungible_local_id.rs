@@ -15,8 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::NonFungibleLocalId as ScryptoNonFungibleLocalId;
+use scrypto::prelude::{
+    BytesNonFungibleLocalId, IntegerNonFungibleLocalId,
+    NonFungibleLocalId as ScryptoNonFungibleLocalId, StringNonFungibleLocalId,
+    UUIDNonFungibleLocalId,
+};
 use serializable::serializable;
+
+use crate::{Error, Result};
 
 #[serializable]
 #[serde(tag = "type", content = "value")]
@@ -54,24 +60,36 @@ pub enum NonFungibleLocalId {
     String(#[schemars(length(min = 1, max = 64))] String),
 }
 
-impl From<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
-    fn from(value: ScryptoNonFungibleLocalId) -> Self {
+impl TryFrom<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
+    type Error = Error;
+
+    fn try_from(value: ScryptoNonFungibleLocalId) -> Result<Self> {
         match value {
-            ScryptoNonFungibleLocalId::Integer(value) => Self::Integer(value),
-            ScryptoNonFungibleLocalId::UUID(value) => Self::UUID(value),
-            ScryptoNonFungibleLocalId::String(value) => Self::String(value),
-            ScryptoNonFungibleLocalId::Bytes(value) => Self::Bytes(value),
+            ScryptoNonFungibleLocalId::Integer(value) => Ok(Self::Integer(value.value())),
+            ScryptoNonFungibleLocalId::UUID(value) => Ok(Self::UUID(value.value())),
+            ScryptoNonFungibleLocalId::String(value) => Ok(Self::String(value.value().to_owned())),
+            ScryptoNonFungibleLocalId::Bytes(value) => Ok(Self::Bytes(value.value().to_owned())),
         }
     }
 }
 
-impl From<NonFungibleLocalId> for ScryptoNonFungibleLocalId {
-    fn from(value: NonFungibleLocalId) -> Self {
+impl TryFrom<NonFungibleLocalId> for ScryptoNonFungibleLocalId {
+    type Error = Error;
+
+    fn try_from(value: NonFungibleLocalId) -> Result<Self> {
         match value {
-            NonFungibleLocalId::Integer(value) => Self::Integer(value),
-            NonFungibleLocalId::UUID(value) => Self::UUID(value),
-            NonFungibleLocalId::String(value) => Self::String(value),
-            NonFungibleLocalId::Bytes(value) => Self::Bytes(value),
+            NonFungibleLocalId::Integer(value) => {
+                Ok(Self::Integer(IntegerNonFungibleLocalId::new(value)))
+            }
+            NonFungibleLocalId::UUID(value) => UUIDNonFungibleLocalId::new(value)
+                .map(Self::UUID)
+                .map_err(Error::from),
+            NonFungibleLocalId::String(value) => StringNonFungibleLocalId::new(value)
+                .map(Self::String)
+                .map_err(Error::from),
+            NonFungibleLocalId::Bytes(value) => BytesNonFungibleLocalId::new(value)
+                .map(Self::Bytes)
+                .map_err(Error::from),
         }
     }
 }

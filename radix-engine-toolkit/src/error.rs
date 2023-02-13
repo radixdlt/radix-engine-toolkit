@@ -149,6 +149,12 @@ pub enum Error {
     /// for processing.
     UnrecognizedAddressFormat,
 
+    /// An error emitted when the validation of the content of a Scrypto type fails. Currently,
+    /// this is emitted if the validation of non-fungible local ids fails.
+    ContentValidationError {
+        message: String,
+    },
+
     // =========
     // Requests
     // =========
@@ -198,6 +204,9 @@ generate_from_error!(native_transaction::manifest::DecompileError as ManifestDec
 generate_from_error!(std::str::Utf8Error as InvalidRequestString);
 generate_from_error!(
     native_transaction::manifest::generator::GeneratorError as ManifestGenerationError
+);
+generate_from_error!(
+    scrypto::radix_engine_interface::model::ContentValidationError as ContentValidationError
 );
 
 macro_rules! impl_from_parse_error {
