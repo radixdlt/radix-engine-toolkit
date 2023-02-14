@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SborEncodeResponse",
+  "description": "The response from the [`SborEncodeRequest`].",
+  "type": "object",
+  "required": [
+    "encoded_value"
+  ],
+  "properties": {
+    "encoded_value": {
+      "description": "A byte array serialized as a hex string of the SBOR encoded value.",
+      "type": "string",
+      "pattern": "[0-9a-fA-F]+"
+    }
+  }
+}

@@ -97,8 +97,8 @@ The Radix Engine Toolkit comes with a [bash script](./build-specific.sh) to make
 
 1. `CRATE_NAME`: This is the name of the crate to build (e.g. `radix-engine-toolkit-native`)
 2. `TARGET_TRIPLE`: The target to build the radix engine toolkit for (e.g. `aarch64-apple-darwin`)
-3. `CUSTOM_COMPILER`: The custom compiler to use to use for this build. When unsure, set this to the path of your current clang binary and try running this script (e.g. `/usr/bin/clang`)
-4. `CUSTOM_ARCHIVER`: The custom archiver to use to use for this build. When unsure, set this to the path of your current llvm-ar binary and try running this script (e.g. `/usr/bin/llvm-ar`)
+3. `CUSTOM_COMPILER`: The custom compiler to use to use for this build. When unsure, set this to the path of your current clang binary and try running this script (e.g. `/usr/bin/clang`).
+4. `CUSTOM_ARCHIVER`: The custom archiver to use to use for this build. When unsure, set this to the path of your current llvm-ar binary and try running this script (e.g. `/usr/bin/llvm-ar`).
 5. `CUSTOM_LINKER`: The custom linker to use to use for this build. When unsure, do not set this variable to anything and try running this script. This variable should not be needed for all targets.
 
 Once you set these environment variables, building the toolkit is as easy as:

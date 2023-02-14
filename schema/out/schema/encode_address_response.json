@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EncodeAddressResponse",
+  "description": "The response from [`EncodeAddressRequest`].",
+  "type": "object",
+  "oneOf": [
+    {
+      "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+      "type": "object",
+      "required": [
+        "address",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ComponentAddress"
+          ]
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+      "type": "object",
+      "required": [
+        "address",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ResourceAddress"
+          ]
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+      "type": "object",
+      "required": [
+        "address",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "PackageAddress"
+          ]
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

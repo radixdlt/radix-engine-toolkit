@@ -1,6 +1,5 @@
 target
 node_modules
-out
 examples/dotnet/bin
 examples/dotnet/obj
 .mypy_cache
