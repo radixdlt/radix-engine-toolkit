@@ -1,0 +1,32 @@
+[package]
+name = "native-json-interface"
+version = "0.8.0"
+edition = "2021"
+
+[dependencies]
+jni = { version = "0.20.0", default-features = false, optional = true }
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+serde = "1.0.152"
+serde_json = "1.0.91"
+
+[dev-dependencies]
+serde = { version = "1.0.144", default-features = false, features = ["serde_derive"] }
+serde_json = { version = "1.0.85", default-features = false, features = ["std"] }
+
+wasmtime = { version = "2.0.0" }
+anyhow = { version = "1.0.65" }
+
+[profile.release]
+panic = 'abort'
+codegen-units = 1
+
+[lib]
+name = "radix_engine_toolkit"
+crate-type = ["staticlib", "cdylib"]
+
+[features]
+default = []
+jni = ["jni/default"]
+
+[workspace]
+members = []

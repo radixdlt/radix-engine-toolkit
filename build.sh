@@ -7,9 +7,9 @@
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
 # with the License.  You may obtain a copy of the License at
-
+# 
 #   http://www.apache.org/licenses/LICENSE-2.0
-
+# 
 # Unless required by applicable law or agreed to in writing,
 # software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -46,91 +46,29 @@ CLEANED_PACKAGE_NAME=$(echo "$PACKAGE_NAME" | tr "-" "_")
 # The library name. By convention, this is `lib` concatenated with the package name
 LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
 
-# =================================================
-# Building the "radix-engine-toolkit-native" crate
-# =================================================
+# ===========================================
+# Building the "native-json-interface" crate
+# ===========================================
 (
     # The name of the crate that we are building
-    export CRATE_NAME="radix-engine-toolkit-native"
-
-    # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
-    export TARGET_TRIPLE="aarch64-apple-darwin"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-    
-    # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
-    export TARGET_TRIPLE="x86_64-apple-darwin"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-    
-    # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
-    export TARGET_TRIPLE="aarch64-apple-ios-sim"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-    
-    # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
-    export TARGET_TRIPLE="aarch64-apple-ios"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-    
-    # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
-    export TARGET_TRIPLE="x86_64-apple-ios"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-    
-    # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
-    export TARGET_TRIPLE="x86_64-pc-windows-gnu"
-    export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
-    export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
-    export CUSTOM_LINKER=""
-    $SCRIPT_DIR/build-specific.sh
-
-    # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
-    export TARGET_TRIPLE="x86_64-unknown-linux-gnu"
-    export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
-    export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
-    export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
-    $SCRIPT_DIR/build-specific.sh
-    
-)
-
-# =================================================
-# Building the "radix-engine-toolkit-wasm" crate
-# =================================================
-(
-    # The name of the crate that we are building
-    export CRATE_NAME="radix-engine-toolkit-wasm"
+    export CRATE_NAME="native-json-interface"
 
     # Building the Radix Engine Toolkit for a `wasm32-unknown-unknown` target
+    echo "WASM"
     export TARGET_TRIPLE="wasm32-unknown-unknown"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
-)
-
-# ==============================================
-# Building the "radix-engine-toolkit-jni" crate
-# ==============================================
-(
-    # The name of the crate that we are building
-    export CRATE_NAME="radix-engine-toolkit-jni"
-
+    
     # Building the Radix Engine Toolkit for a `aarch64-apple-darwin` target
+    echo "APPLE"
     export TARGET_TRIPLE="aarch64-apple-darwin"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-darwin` target
@@ -138,6 +76,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios-sim` target
@@ -145,6 +84,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-apple-ios` target
@@ -152,6 +92,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-apple-ios` target
@@ -159,6 +100,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `x86_64-pc-windows-gnu` target
@@ -166,6 +108,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$MINGW_BIN_PATH/x86_64-w64-mingw32-gcc"
     export CUSTOM_ARCHIVER="$MINGW_BIN_PATH/x86_64-w64-mingw32-ar"
     export CUSTOM_LINKER=""
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
 
     # Building the Radix Engine Toolkit for a `x86_64-unknown-linux-gnu` target
@@ -173,6 +116,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$LLVM_BIN_PATH/clang"
     export CUSTOM_ARCHIVER="$LLVM_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER="$LINUX_CROSS_BIN_PATH/x86_64-unknown-linux-gnu-gcc"
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `aarch64-linux-android` target
@@ -180,6 +124,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$NDK_BIN_PATH/aarch64-linux-android21-clang"
     export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=$CUSTOM_COMPILER
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `armv7-linux-androideabi` target
@@ -187,6 +132,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$NDK_BIN_PATH/armv7a-linux-androideabi19-clang"
     export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=$CUSTOM_COMPILER
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
     
     # Building the Radix Engine Toolkit for a `i686-linux-android` target
@@ -194,6 +140,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
     export CUSTOM_COMPILER="$NDK_BIN_PATH/i686-linux-android19-clang"
     export CUSTOM_ARCHIVER="$NDK_BIN_PATH/llvm-ar"
     export CUSTOM_LINKER=$CUSTOM_COMPILER
+    export FEATURES="jni"
     $SCRIPT_DIR/build-specific.sh
 )
 
@@ -204,7 +151,7 @@ LIBRARY_NAME="lib$CLEANED_PACKAGE_NAME"
 # Creating an XCFramework from the Apple builds
 (
     # The name of the crate that we are building
-    CRATE_NAME="radix-engine-toolkit-native"
+    CRATE_NAME="native-json-interface"
 
     # The path of the crate
     CRATE_PATH="$SCRIPT_DIR/$CRATE_NAME"
@@ -252,7 +199,7 @@ BUILDS_DIRECTORY="$SCRIPT_DIR/build"
 [[ -d $BUILDS_DIRECTORY ]] && rm -r $BUILDS_DIRECTORY
 mkdir $BUILDS_DIRECTORY
 
-for crate_name in "radix-engine-toolkit-jni" "radix-engine-toolkit-native" "radix-engine-toolkit-wasm"; 
+for crate_name in "radix-engine-toolkit-jni" "native-json-interface" "radix-engine-toolkit-wasm"; 
 do
     CRATE_PATH="$SCRIPT_DIR/$crate_name"
     TARGET_PATH="$CRATE_PATH/target"
