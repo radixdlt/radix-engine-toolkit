@@ -50,7 +50,7 @@ pub struct EncodeAddressResponse {
     /// A discriminated union of entity addresses where addresses are serialized as a Bech32m
     /// encoded string.
     #[serde(flatten)]
-    address: EntityAddress,
+    pub address: EntityAddress,
 }
 
 // ===============
