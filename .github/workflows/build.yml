@@ -214,7 +214,7 @@ jobs:
           VERSION_SUFFIX=${GIT_BRANCH}-${GIT_COMMIT}
           VERSION=${CORE_VERSION}-${VERSION_SUFFIX}
           
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             VERSION=${CORE_VERSION}
           fi
 
