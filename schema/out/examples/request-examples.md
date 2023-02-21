@@ -552,6 +552,86 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
+## Analyze Manifest
+
+| Function Name     | `analyze_manifest` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_analyzeManifest` |
+| Functionality     | Analyzes the manifest returning back all of the addresses involved in the manifest alongside some useful information on whether the accounts were withdrawn from, deposited into, or just used in the manifest in general. |
+| Request Type      | `AnalyzeManifestRequest` |
+| Response Type     | `AnalyzeManifestResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "242",
+  "manifest": {
+    "instructions": {
+      "type": "String",
+      "value": "CALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"withdraw_by_amount\"\n    Decimal(\"5\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nTAKE_FROM_WORKTOP_BY_AMOUNT\n    Decimal(\"2\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket1\");\nCALL_METHOD\n    ComponentAddress(\"component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum\")\n    \"buy_gumball\"\n    Bucket(\"bucket1\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n    Decimal(\"3\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nASSERT_WORKTOP_CONTAINS\n    ResourceAddress(\"resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6\");\nTAKE_FROM_WORKTOP\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket2\");\nCREATE_PROOF_FROM_BUCKET\n    Bucket(\"bucket2\")\n    Proof(\"proof1\");\nCLONE_PROOF\n    Proof(\"proof1\")\n    Proof(\"proof2\");\nDROP_PROOF\n    Proof(\"proof1\");\nDROP_PROOF\n    Proof(\"proof2\");\nCALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"create_proof_by_amount\"\n    Decimal(\"5\")\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\");\nPOP_FROM_AUTH_ZONE\n    Proof(\"proof3\");\nDROP_PROOF\n    Proof(\"proof3\");\nRETURN_TO_WORKTOP\n    Bucket(\"bucket2\");\nTAKE_FROM_WORKTOP_BY_IDS\n    Array<NonFungibleLocalId>(NonFungibleLocalId(\"#1#\"))\n    ResourceAddress(\"resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag\")\n    Bucket(\"bucket3\");\nDROP_ALL_PROOFS;\nCALL_METHOD\n    ComponentAddress(\"account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064\")\n    \"deposit_batch\"\n    Expression(\"ENTIRE_WORKTOP\");\n"
+    },
+    "blobs": []
+  }
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "package_addresses": [],
+  "component_addresses": [
+    {
+      "type": "ComponentAddress",
+      "address": "component_sim1q2f9vmyrmeladvz0ejfttcztqv3genlsgpu9vue83mcs835hum"
+    },
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "resource_addresses": [
+    {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzqu57yag"
+    },
+    {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qzhdk7tq68u8msj38r6v6yqa5myc64ejx3ud20zlh9gseqtux6"
+    }
+  ],
+  "account_addresses": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_requiring_auth": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_withdrawn_from": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ],
+  "accounts_deposited_into": [
+    {
+      "type": "ComponentAddress",
+      "address": "account_sim1q02r73u7nv47h80e30pc3q6ylsj7mgvparm3pnsm780qgsy064"
+    }
+  ]
+}
+```
+</details>
+
 ## Compile Transaction Intent
 
 | Function Name     | `compile_transaction_intent` |

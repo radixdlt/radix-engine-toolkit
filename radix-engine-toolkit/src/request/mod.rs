@@ -40,11 +40,13 @@ pub mod derive_non_fungible_global_id_from_public_key;
 pub mod derive_virtual_account_address;
 pub mod derive_virtual_identity_address;
 
+pub mod analyze_manifest;
 pub mod known_entity_addresses;
 pub mod statically_validate_transaction;
 
 pub mod traits;
 
+pub use analyze_manifest::*;
 pub use compile_notarized_transaction::*;
 pub use compile_signed_transaction_intent::*;
 pub use compile_transaction_intent::*;

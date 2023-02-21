@@ -1,17 +1,23 @@
 use std::collections::BTreeSet;
 
-use crate::{Value, ValueVisitor};
+use crate::{
+    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress, Value,
+    ValueVisitor,
+};
 
-/// A value visitor whose main job is to find all of the different network IDs that the different
-/// addresses use. This is typically used in operations where we wish to check for network id
-/// mismatches.
+/// An address aggregator visitor which collects all of the encountered global entity addresses and
+/// stored them in its state.
 #[derive(Debug, Default)]
-pub struct ValueNetworkAggregatorVisitor(pub BTreeSet<u8>);
+pub struct AddressValueAggregator {
+    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+}
 
-impl ValueVisitor for ValueNetworkAggregatorVisitor {
+impl ValueVisitor for AddressValueAggregator {
     fn visit_component_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
         if let Value::ComponentAddress { address } = value {
-            self.0.insert(address.network_id);
+            self.component_addresses.insert(*address);
             Ok(())
         } else {
             Err(crate::Error::Infallible {
@@ -22,7 +28,7 @@ impl ValueVisitor for ValueNetworkAggregatorVisitor {
 
     fn visit_resource_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
         if let Value::ResourceAddress { address } = value {
-            self.0.insert(address.network_id);
+            self.resource_addresses.insert(*address);
             Ok(())
         } else {
             Err(crate::Error::Infallible {
@@ -33,7 +39,7 @@ impl ValueVisitor for ValueNetworkAggregatorVisitor {
 
     fn visit_package_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
         if let Value::PackageAddress { address } = value {
-            self.0.insert(address.network_id);
+            self.package_addresses.insert(*address);
             Ok(())
         } else {
             Err(crate::Error::Infallible {
@@ -44,7 +50,7 @@ impl ValueVisitor for ValueNetworkAggregatorVisitor {
 
     fn visit_non_fungible_global_id(&mut self, value: &mut crate::Value) -> crate::Result<()> {
         if let Value::NonFungibleGlobalId { address } = value {
-            self.0.insert(address.resource_address.network_id);
+            self.resource_addresses.insert(address.resource_address);
             Ok(())
         } else {
             Err(crate::Error::Infallible {

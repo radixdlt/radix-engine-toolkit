@@ -60,6 +60,8 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
         radix_engine_toolkit::request::InformationResponse,
         radix_engine_toolkit::request::ConvertManifestRequest,
         radix_engine_toolkit::request::ConvertManifestResponse,
+        radix_engine_toolkit::request::AnalyzeManifestRequest,
+        radix_engine_toolkit::request::AnalyzeManifestResponse,
         radix_engine_toolkit::request::CompileTransactionIntentRequest,
         radix_engine_toolkit::request::CompileTransactionIntentResponse,
         radix_engine_toolkit::request::DecompileTransactionIntentRequest,
@@ -130,6 +132,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
     let examples = InMemoryExamplesBuilder::new()
         .add_example::<InformationHandler, InformationRequest, InformationResponse>()
         .add_example::<ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse>()
+        .add_example::<AnalyzeManifestHandler, AnalyzeManifestRequest, AnalyzeManifestResponse>()
         .add_example::<CompileTransactionIntentHandler, CompileTransactionIntentRequest, CompileTransactionIntentResponse>()
         .add_example::<DecompileTransactionIntentHandler, DecompileTransactionIntentRequest, DecompileTransactionIntentResponse>()
         .add_example::<CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse>()
