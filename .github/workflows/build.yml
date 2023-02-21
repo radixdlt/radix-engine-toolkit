@@ -211,7 +211,7 @@ jobs:
           GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/g')
           GIT_COMMIT=$(git log -1 --format=%h )
           CORE_VERSION=$(cat radix-engine-toolkit/Cargo.toml | grep -e '^version' | cut -d'"' -f 2)
-          VERSION_SUFFIX=${GIT_BRANCH}-${GIT_COMMIT}
+          VERSION_SUFFIX=build.${CI_RUN_NUMBER}
           VERSION=${CORE_VERSION}-${VERSION_SUFFIX}
           
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
