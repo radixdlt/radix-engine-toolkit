@@ -17,8 +17,8 @@
 
 use crate::{error::Result, CompilableIntent, Error};
 use native_transaction::model as native;
-use scrypto::prelude::{scrypto_decode, scrypto_encode, SignatureWithPublicKey};
-use serializable::serializable;
+use native_transaction_data::{manifest_decode, manifest_encode};
+use toolkit_derive::serializable;
 
 use crate::{InstructionKind, TransactionIntent};
 
@@ -35,7 +35,7 @@ pub struct SignedTransactionIntent {
     /// A vector of transaction intent signatures.
     #[schemars(with = "Vec<crate::model::crypto::SignatureWithPublicKey>")]
     #[serde_as(as = "Vec<serde_with::FromInto<crate::model::crypto::SignatureWithPublicKey>>")]
-    pub intent_signatures: Vec<SignatureWithPublicKey>,
+    pub intent_signatures: Vec<native::SignatureWithPublicKey>,
 }
 
 // ===============
@@ -45,7 +45,7 @@ pub struct SignedTransactionIntent {
 impl CompilableIntent for SignedTransactionIntent {
     fn compile(&self) -> Result<Vec<u8>> {
         self.to_native_signed_transaction_intent()
-            .and_then(|intent| scrypto_encode(&intent).map_err(Error::from))
+            .and_then(|intent| manifest_encode(&intent).map_err(Error::from))
     }
 
     fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
@@ -53,7 +53,7 @@ impl CompilableIntent for SignedTransactionIntent {
         Self: Sized,
         T: AsRef<[u8]>,
     {
-        scrypto_decode(data.as_ref())
+        manifest_decode(data.as_ref())
             .map_err(Error::from)
             .and_then(|decoded| {
                 Self::from_native_signed_transaction_intent(&decoded, instructions_kind)

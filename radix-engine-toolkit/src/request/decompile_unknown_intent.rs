@@ -28,7 +28,7 @@ use crate::{
     InstructionKind, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
     TransactionManifest, ValueAliasingVisitor,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

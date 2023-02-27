@@ -16,7 +16,7 @@
 // under the License.
 
 use native_transaction::model as native;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 /// A transaction header containing metadata and other transaction information.
 #[serializable]

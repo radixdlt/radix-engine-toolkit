@@ -17,8 +17,7 @@
 
 use crate::error::Result;
 use crate::request::Handler;
-use crate::value::Value;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -28,9 +27,9 @@ use serializable::serializable;
 /// array.
 #[serializable]
 pub struct SborEncodeRequest {
-    /// The value to SBOR encode.
-    #[serde(flatten)]
-    pub value: Value,
+    // /// The value to SBOR encode.
+    // #[serde(flatten)]
+    // pub value: Value,
 }
 
 /// The response from the [`SborEncodeRequest`].
@@ -54,11 +53,8 @@ impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
         Ok(request)
     }
 
-    fn handle(request: &SborEncodeRequest) -> Result<SborEncodeResponse> {
-        request
-            .value
-            .encode()
-            .map(|encoded_value| SborEncodeResponse { encoded_value })
+    fn handle(_request: &SborEncodeRequest) -> Result<SborEncodeResponse> {
+        todo!()
     }
 
     fn post_process(

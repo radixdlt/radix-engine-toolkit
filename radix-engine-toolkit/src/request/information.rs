@@ -17,7 +17,7 @@
 
 use crate::error::Result;
 use crate::request::Handler;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

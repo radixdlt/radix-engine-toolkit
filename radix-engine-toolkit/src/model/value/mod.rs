@@ -15,30 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::data::ManifestBlobRef;
-use toolkit_derive::serializable;
+pub mod macros;
+pub mod manifest_ast_value;
 
-use crate::RADIX_ENGINE_HASH_LENGTH;
-
-#[serializable]
-/// Represents the hash of a blob provided as part of a transaction manifest. This is represented as
-/// a byte array of 32 bytes which is serialized as a hex string.
-pub struct Blob(
-    #[schemars(with = "String")]
-    #[schemars(length(equal = 64))]
-    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
-    #[serde_as(as = "serde_with::hex::Hex")]
-    [u8; RADIX_ENGINE_HASH_LENGTH],
-);
-
-impl From<ManifestBlobRef> for Blob {
-    fn from(value: ManifestBlobRef) -> Self {
-        Self(value.0)
-    }
-}
-
-impl From<Blob> for ManifestBlobRef {
-    fn from(value: Blob) -> Self {
-        Self(value.0)
-    }
-}
+pub use manifest_ast_value::{ManifestAstValue, ManifestAstValueKind};

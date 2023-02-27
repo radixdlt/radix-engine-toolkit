@@ -20,7 +20,7 @@ use scrypto::prelude::{
     NonFungibleLocalId as ScryptoNonFungibleLocalId, StringNonFungibleLocalId,
     UUIDNonFungibleLocalId,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 use crate::{Error, Result};
 

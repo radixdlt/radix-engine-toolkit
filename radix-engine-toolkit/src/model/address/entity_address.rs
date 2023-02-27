@@ -19,9 +19,9 @@ use crate::error::{Error, Result};
 use crate::model::address::network_aware_address::*;
 use crate::Bech32Coder;
 use scrypto::radix_engine_interface::address::EntityType;
-use serializable::serializable;
 use std::fmt::Display;
 use std::str::FromStr;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -149,18 +149,19 @@ impl FromStr for EntityAddress {
 }
 
 impl EntityAddress {
-    pub fn to_string_with_encoder(&self, coder: &Bech32Coder) -> String {
+    pub fn to_string_with_encoder(&self, bech32_coder: &Bech32Coder) -> String {
         match self {
-            Self::ComponentAddress { address } => coder.encode_component_address(address),
-            Self::ResourceAddress { address } => coder.encode_resource_address(*address),
-            Self::PackageAddress { address } => coder.encode_package_address(*address),
+            Self::ComponentAddress { address } => bech32_coder.encode_component_address(address),
+            Self::ResourceAddress { address } => bech32_coder.encode_resource_address(*address),
+            Self::PackageAddress { address } => bech32_coder.encode_package_address(*address),
         }
     }
 
     pub fn from_str_with_coder<S: AsRef<str>>(s: S, bech32_coder: &Bech32Coder) -> Result<Self> {
-        if let Ok(address) = bech32_coder.decode_to_network_aware_component_address(s) {
+        if let Ok(address) = bech32_coder.decode_to_network_aware_component_address(s.as_ref()) {
             Ok(Self::ComponentAddress { address })
-        } else if let Ok(address) = bech32_coder.decode_to_network_aware_package_address(s) {
+        } else if let Ok(address) = bech32_coder.decode_to_network_aware_package_address(s.as_ref())
+        {
             Ok(Self::PackageAddress { address })
         } else if let Ok(address) = bech32_coder.decode_to_network_aware_resource_address(s) {
             Ok(Self::ResourceAddress { address })

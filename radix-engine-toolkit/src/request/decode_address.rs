@@ -21,7 +21,7 @@ use crate::request::Handler;
 use crate::utils::network_definition_from_network_id;
 use bech32::{self, FromBase32, Variant};
 use scrypto::radix_engine_interface::address::AddressError;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

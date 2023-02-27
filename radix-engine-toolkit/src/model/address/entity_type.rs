@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::radix_engine_interface::address::EntityType as NativeEntityType;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

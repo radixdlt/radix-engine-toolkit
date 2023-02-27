@@ -16,10 +16,8 @@
 // under the License.
 
 use crate::{Error, Result};
-use scrypto::prelude::ScryptoCustomValue;
-use scrypto::runtime::{ManifestBucket, ManifestProof};
-use serializable::serializable;
 use std::str::FromStr;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -102,65 +100,5 @@ impl From<TransientIdentifier> for ProofId {
 impl From<ProofId> for TransientIdentifier {
     fn from(proof_id: ProofId) -> Self {
         proof_id.0
-    }
-}
-
-impl TryFrom<BucketId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: BucketId) -> std::result::Result<Self, Self::Error> {
-        match value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Bucket(ManifestBucket(identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Bucket,
-            }),
-        }
-    }
-}
-
-impl TryFrom<&BucketId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: &BucketId) -> std::result::Result<Self, Self::Error> {
-        match &value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Bucket(ManifestBucket(*identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Bucket,
-            }),
-        }
-    }
-}
-
-impl TryFrom<ProofId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: ProofId) -> std::result::Result<Self, Self::Error> {
-        match value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Proof(ManifestProof(identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Proof,
-            }),
-        }
-    }
-}
-
-impl TryFrom<&ProofId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: &ProofId) -> std::result::Result<Self, Self::Error> {
-        match &value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Proof(ManifestProof(*identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Proof,
-            }),
-        }
     }
 }

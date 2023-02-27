@@ -18,7 +18,7 @@
 use crate::error::Result;
 use bech32;
 use scrypto::radix_engine_interface::address::AddressError;
-use scrypto::radix_engine_interface::node::NetworkDefinition;
+use scrypto::radix_engine_interface::network::NetworkDefinition;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented
 /// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99

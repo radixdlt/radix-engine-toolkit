@@ -20,7 +20,7 @@ use crate::transaction::NotarizedTransaction;
 use native_transaction::validation::{
     NotarizedTransactionValidator, TestIntentHashManager, TransactionValidator, ValidationConfig,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 use crate::{CompilableIntent, Handler};
 

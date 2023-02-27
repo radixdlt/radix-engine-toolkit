@@ -17,7 +17,7 @@
 
 use crate::error::Result;
 use crate::{model::address::EntityAddress, Handler};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

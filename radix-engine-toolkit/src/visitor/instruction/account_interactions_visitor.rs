@@ -1,7 +1,16 @@
 use std::collections::BTreeSet;
 
-use crate::{InstructionVisitor, NetworkAwareComponentAddress, Value};
+use crate::value::ManifestAstValue;
+use crate::{EntityAddress, InstructionVisitor, NetworkAwareComponentAddress};
 use scrypto::prelude::ComponentAddress;
+use scrypto::radix_engine_interface::blueprints::account::{
+    ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT, ACCOUNT_CREATE_PROOF_BY_IDS_IDENT,
+    ACCOUNT_CREATE_PROOF_IDENT, ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT,
+    ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, ACCOUNT_LOCK_FEE_AND_WITHDRAW_ALL_IDENT,
+    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT, ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+    ACCOUNT_LOCK_FEE_IDENT, ACCOUNT_WITHDRAW_ALL_IDENT, ACCOUNT_WITHDRAW_IDENT,
+    ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+};
 
 /// A visitor whose main responsibility is determining the kind of interactions involved with
 /// accounts
@@ -14,32 +23,37 @@ pub struct AccountInteractionsInstructionVisitor {
 
 impl AccountInteractionsInstructionVisitor {
     const AUTH_REQUIRING_METHODS: &'static [&'static str] = &[
-        "lock_fee",
-        "lock_contingent_fee",
-        "withdraw",
-        "withdraw_by_amount",
-        "withdraw_by_ids",
-        "lock_fee_and_withdraw",
-        "lock_fee_and_withdraw_by_amount",
-        "lock_fee_and_withdraw_by_ids",
-        "create_proof",
-        "create_proof_by_amount",
-        "create_proof_by_ids",
+        ACCOUNT_LOCK_FEE_IDENT,
+        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+        ACCOUNT_WITHDRAW_IDENT,
+        ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+        ACCOUNT_WITHDRAW_ALL_IDENT,
+        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCK_FEE_AND_WITHDRAW_ALL_IDENT,
+        ACCOUNT_CREATE_PROOF_IDENT,
+        ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT,
+        ACCOUNT_CREATE_PROOF_BY_IDS_IDENT,
     ];
-    const WITHDRAW_METHODS: &'static [&'static str] =
-        &["withdraw", "withdraw_by_amount", "withdraw_by_ids"];
-    const DEPOSIT_METHODS: &'static [&'static str] = &["deposit", "deposit_batch"];
+    const WITHDRAW_METHODS: &'static [&'static str] = &[
+        ACCOUNT_WITHDRAW_IDENT,
+        ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+        ACCOUNT_WITHDRAW_ALL_IDENT,
+    ];
+    const DEPOSIT_METHODS: &'static [&'static str] =
+        &[ACCOUNT_DEPOSIT_IDENT, ACCOUNT_DEPOSIT_BATCH_IDENT];
 }
 
 impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     fn visit_call_method(
         &mut self,
-        component_address: &mut Value,
-        method_name: &mut Value,
-        _: &mut Option<Vec<Value>>,
+        component_address: &mut ManifestAstValue,
+        method_name: &mut ManifestAstValue,
+        _: &mut Option<Vec<ManifestAstValue>>,
     ) -> crate::Result<()> {
+        // TODO: Refactor to match if
         if let (
-            Value::ComponentAddress {
+            ManifestAstValue::ComponentAddress {
                 address:
                     component_address @ NetworkAwareComponentAddress {
                         address:
@@ -48,8 +62,21 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
                             | ComponentAddress::EddsaEd25519VirtualAccount(..),
                         ..
                     },
+            }
+            | ManifestAstValue::Address {
+                address:
+                    EntityAddress::ComponentAddress {
+                        address:
+                            component_address @ NetworkAwareComponentAddress {
+                                address:
+                                    ComponentAddress::Account(..)
+                                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+                                ..
+                            },
+                    },
             },
-            Value::String { value: method_name },
+            ManifestAstValue::String { value: method_name },
         ) = (component_address, method_name)
         {
             if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
@@ -67,11 +94,11 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_set_metadata(
         &mut self,
-        entity_address: &mut Value,
-        _: &mut Value,
-        _: &mut Value,
+        entity_address: &mut ManifestAstValue,
+        _: &mut ManifestAstValue,
+        _: &mut ManifestAstValue,
     ) -> crate::Result<()> {
-        if let Value::ComponentAddress {
+        if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
                     address:
@@ -89,10 +116,10 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_set_component_royalty_config(
         &mut self,
-        component_address: &mut crate::Value,
-        _: &mut crate::Value,
+        component_address: &mut crate::model::value::ManifestAstValue,
+        _: &mut crate::model::value::ManifestAstValue,
     ) -> crate::Result<()> {
-        if let Value::ComponentAddress {
+        if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
                     address:
@@ -110,9 +137,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_claim_component_royalty(
         &mut self,
-        component_address: &mut crate::Value,
+        component_address: &mut crate::model::value::ManifestAstValue,
     ) -> crate::Result<()> {
-        if let Value::ComponentAddress {
+        if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
                     address:
@@ -130,12 +157,12 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_set_method_access_rule(
         &mut self,
-        entity_address: &mut crate::Value,
-        _: &mut crate::Value,
-        _: &mut crate::Value,
-        _: &mut crate::Value,
+        entity_address: &mut crate::model::value::ManifestAstValue,
+        _: &mut crate::model::value::ManifestAstValue,
+        _: &mut crate::model::value::ManifestAstValue,
+        _: &mut crate::model::value::ManifestAstValue,
     ) -> crate::Result<()> {
-        if let Value::ComponentAddress {
+        if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
                     address:

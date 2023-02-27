@@ -19,7 +19,7 @@ use crate::error::Result;
 use crate::{Bech32Coder, Error, InstructionKind, InstructionList};
 use native_transaction::manifest::decompile;
 use native_transaction::model as native;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

@@ -22,7 +22,7 @@ use crate::traits::CompilableIntent;
 use crate::{
     traverse_instruction, Instruction, InstructionKind, InstructionList, ValueAliasingVisitor,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

@@ -18,7 +18,7 @@
 use scrypto::prelude::{
     FromPublicKey, NonFungibleGlobalId as NativeNonFungibleGlobalId, NonFungibleLocalId, PublicKey,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 use crate::model::NetworkAwareResourceAddress;
 
@@ -28,12 +28,12 @@ use crate::model::NetworkAwareResourceAddress;
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NonFungibleGlobalId {
-    #[schemars(with = "crate::Value")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
+    #[schemars(with = "crate::model::value::ManifestAstValue")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ManifestAstValue>")]
     pub resource_address: NetworkAwareResourceAddress,
 
-    #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
-    #[schemars(with = "crate::Value")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ManifestAstValue>")]
+    #[schemars(with = "crate::model::value::ManifestAstValue")]
     pub non_fungible_local_id: NonFungibleLocalId,
 }
 

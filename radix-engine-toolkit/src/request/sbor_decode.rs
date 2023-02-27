@@ -17,9 +17,7 @@
 
 use crate::error::Result;
 use crate::request::Handler;
-use crate::value::Value;
-use crate::{traverse_value, ValueAliasingVisitor};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -49,8 +47,8 @@ pub struct SborDecodeRequest {
 /// The response from the [`SborDecodeRequest`].
 #[serializable]
 pub struct SborDecodeResponse {
-    /// A value representing the SBOR decoded form of the passed SBOR buffer.
-    pub value: Value,
+    // /// A value representing the SBOR decoded form of the passed SBOR buffer.
+    // pub value: Value,
 }
 
 // ===============
@@ -64,24 +62,14 @@ impl Handler<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
         Ok(request)
     }
 
-    fn handle(request: &SborDecodeRequest) -> Result<SborDecodeResponse> {
-        Value::decode(&request.encoded_value, request.network_id)
-            .map(|value| SborDecodeResponse { value })
+    fn handle(_request: &SborDecodeRequest) -> Result<SborDecodeResponse> {
+        todo!()
     }
 
     fn post_process(
         _: &SborDecodeRequest,
-        mut response: SborDecodeResponse,
+        _response: SborDecodeResponse,
     ) -> Result<SborDecodeResponse> {
-        // Visitors
-        let mut aliasing_visitor = ValueAliasingVisitor::default();
-
-        // Traverse value with visitors
-        traverse_value(&mut response.value, &mut [&mut aliasing_visitor])?;
-
-        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
-        // else needs to be done here.
-
-        Ok(response)
+        todo!()
     }
 }

@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::prelude::{EcdsaSecp256k1PublicKey, EddsaEd25519PublicKey};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

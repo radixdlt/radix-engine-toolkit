@@ -19,7 +19,7 @@ use std::fmt::Display;
 use std::str::FromStr;
 
 use scrypto_utils::copy_u8_array;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 use crate::constants::RADIX_ENGINE_NODE_IDENTIFIER_LENGTH;
 use crate::error::{Error, Result};

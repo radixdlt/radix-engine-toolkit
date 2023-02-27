@@ -18,7 +18,7 @@
 use crate::request::Handler;
 use crate::{error::Result, NonFungibleGlobalId};
 use scrypto::prelude::{FromPublicKey, PublicKey};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -46,8 +46,8 @@ pub struct DeriveNonFungibleGlobalIdFromPublicKeyResponse {
     /// The non-fungible global id of the virtual badge associated with the given public key. The
     /// underlying type of this is a `NonFungibleGlobalId` from the `Value` model.
     #[serde(flatten)] // TODO: Remove after betanet v2
-    #[schemars(with = "crate::model::Value")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::Value>")]
+    #[schemars(with = "crate::model::value::ManifestAstValue")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ManifestAstValue>")]
     pub non_fungible_global_id: NonFungibleGlobalId,
 }
 

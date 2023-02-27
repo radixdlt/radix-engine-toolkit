@@ -20,7 +20,7 @@ use crate::model::transaction::NotarizedTransaction;
 use crate::request::Handler;
 use crate::traits::CompilableIntent;
 use crate::{traverse_instruction, Instruction, InstructionList, ValueNetworkAggregatorVisitor};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

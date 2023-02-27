@@ -23,7 +23,7 @@ use crate::{
     traverse_instruction, Handler, Instruction, InstructionList, ValueAliasingVisitor,
     ValueNetworkAggregatorVisitor,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

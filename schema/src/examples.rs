@@ -21,6 +21,7 @@ use native_transaction::model::{NotarizedTransaction, TransactionHeader};
 use native_transaction::signing::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
 use radix_engine_toolkit::*;
 
+use radix_engine_toolkit::value::ManifestAstValue;
 use scrypto::{prelude::*, radix_engine_interface::node::NetworkDefinition};
 use serde::Serialize;
 
@@ -65,41 +66,41 @@ pub fn notary_private_key() -> EcdsaSecp256k1PrivateKey {
     EcdsaSecp256k1PrivateKey::from_u64(1923112).unwrap()
 }
 
-pub fn value() -> Value {
-    Value::Tuple {
+pub fn value() -> ManifestAstValue {
+    ManifestAstValue::Tuple {
         elements: vec![
-            Value::Decimal { value: dec!("10") },
-            Value::PreciseDecimal { value: pdec!("10") },
-            Value::String {
+            ManifestAstValue::Decimal { value: dec!("10") },
+            ManifestAstValue::PreciseDecimal { value: pdec!("10") },
+            ManifestAstValue::String {
                 value: "Hello World!".into(),
             },
-            Value::Tuple {
+            ManifestAstValue::Tuple {
                 elements: vec![
-                    Value::Decimal { value: dec!("10") },
-                    Value::PreciseDecimal { value: pdec!("10") },
-                    Value::String {
+                    ManifestAstValue::Decimal { value: dec!("10") },
+                    ManifestAstValue::PreciseDecimal { value: pdec!("10") },
+                    ManifestAstValue::String {
                         value: "Hello World!".into(),
                     },
-                    Value::Tuple {
+                    ManifestAstValue::Tuple {
                         elements: vec![
-                            Value::Decimal { value: dec!("10") },
-                            Value::PreciseDecimal { value: pdec!("10") },
-                            Value::String {
+                            ManifestAstValue::Decimal { value: dec!("10") },
+                            ManifestAstValue::PreciseDecimal { value: pdec!("10") },
+                            ManifestAstValue::String {
                                 value: "Hello World!".into(),
                             },
-                            Value::Tuple {
+                            ManifestAstValue::Tuple {
                                 elements: vec![
-                                    Value::Decimal { value: dec!("10") },
-                                    Value::PreciseDecimal { value: pdec!("10") },
-                                    Value::String {
+                                    ManifestAstValue::Decimal { value: dec!("10") },
+                                    ManifestAstValue::PreciseDecimal { value: pdec!("10") },
+                                    ManifestAstValue::String {
                                         value: "Hello World!".into(),
                                     },
-                                    Value::Array {
+                                    ManifestAstValue::Array {
                                         element_kind: ValueKind::Decimal,
                                         elements: vec![
-                                            Value::Decimal { value: dec!("20") },
-                                            Value::Decimal { value: dec!("100") },
-                                            Value::Decimal {
+                                            ManifestAstValue::Decimal { value: dec!("20") },
+                                            ManifestAstValue::Decimal { value: dec!("100") },
+                                            ManifestAstValue::Decimal {
                                                 value: dec!("192.31"),
                                             },
                                         ],
@@ -371,7 +372,7 @@ impl ExampleData<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressH
 
 impl ExampleData<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
     fn description() -> String {
-        r#"This function takes in a Value and encodes it in SBOR."#.to_owned()
+        r#"This function takes in a ManifestAstValue and encodes it in SBOR."#.to_owned()
     }
 
     fn example_request() -> SborEncodeRequest {
@@ -383,7 +384,8 @@ impl ExampleData<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
 
 impl ExampleData<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
     fn description() -> String {
-        r#"This function takes in a hex string and attemps to decode it into a Value."#.to_owned()
+        r#"This function takes in a hex string and attempts to decode it into a ManifestAstValue."#
+            .to_owned()
     }
 
     fn example_request() -> SborDecodeRequest {

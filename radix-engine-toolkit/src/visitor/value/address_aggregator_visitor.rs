@@ -1,22 +1,44 @@
 use std::collections::BTreeSet;
 
+use crate::value::ManifestAstValue;
 use crate::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress, Value,
-    ValueVisitor,
+    EntityAddress, ManifestAstValueVisitor, NetworkAwareComponentAddress,
+    NetworkAwarePackageAddress, NetworkAwareResourceAddress,
 };
 
 /// An address aggregator visitor which collects all of the encountered global entity addresses and
 /// stored them in its state.
 #[derive(Debug, Default)]
-pub struct AddressValueAggregator {
+pub struct AddressAggregatorVisitor {
     pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
     pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
 }
 
-impl ValueVisitor for AddressValueAggregator {
-    fn visit_component_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::ComponentAddress { address } = value {
+impl ManifestAstValueVisitor for AddressAggregatorVisitor {
+    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+        if let ManifestAstValue::Address { address } = value {
+            match address {
+                EntityAddress::ComponentAddress { address } => {
+                    self.component_addresses.insert(*address);
+                }
+                EntityAddress::ResourceAddress { address } => {
+                    self.resource_addresses.insert(*address);
+                }
+                EntityAddress::PackageAddress { address } => {
+                    self.package_addresses.insert(*address);
+                }
+            }
+            Ok(())
+        } else {
+            Err(crate::Error::Infallible {
+                message: "Expected component address!".into(),
+            })
+        }
+    }
+
+    fn visit_component_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+        if let ManifestAstValue::ComponentAddress { address } = value {
             self.component_addresses.insert(*address);
             Ok(())
         } else {
@@ -26,8 +48,8 @@ impl ValueVisitor for AddressValueAggregator {
         }
     }
 
-    fn visit_resource_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::ResourceAddress { address } = value {
+    fn visit_resource_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+        if let ManifestAstValue::ResourceAddress { address } = value {
             self.resource_addresses.insert(*address);
             Ok(())
         } else {
@@ -37,8 +59,8 @@ impl ValueVisitor for AddressValueAggregator {
         }
     }
 
-    fn visit_package_address(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::PackageAddress { address } = value {
+    fn visit_package_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+        if let ManifestAstValue::PackageAddress { address } = value {
             self.package_addresses.insert(*address);
             Ok(())
         } else {
@@ -48,8 +70,8 @@ impl ValueVisitor for AddressValueAggregator {
         }
     }
 
-    fn visit_non_fungible_global_id(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::NonFungibleGlobalId { address } = value {
+    fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+        if let ManifestAstValue::NonFungibleGlobalId { address } = value {
             self.resource_addresses.insert(address.resource_address);
             Ok(())
         } else {
