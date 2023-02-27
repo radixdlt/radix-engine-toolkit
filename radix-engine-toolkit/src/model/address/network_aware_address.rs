@@ -71,6 +71,14 @@ macro_rules! define_network_aware_address {
                 })
             }
         }
+
+        /// An implementation of borrow which allows the network aware types to be borrowed as non-network
+        /// aware types. Useful for Bech32 encoding.
+        impl std::borrow::Borrow<$underlying_type> for $network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
+            }
+        }
     };
 }
 

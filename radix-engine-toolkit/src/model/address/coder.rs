@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::borrow::Borrow;
+
 use crate::address::network_aware_address::*;
 use crate::error::Result;
 use crate::utils::{
@@ -23,7 +25,7 @@ use crate::utils::{
 use crate::Error;
 use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress};
 use scrypto::radix_engine_interface::address::{Bech32Decoder, Bech32Encoder};
-use scrypto::radix_engine_interface::node::NetworkDefinition;
+use scrypto::radix_engine_interface::network::NetworkDefinition;
 
 /// A Bech32m encoder and decoder used in the Radix Engine Toolkit for all of it's address encoding
 /// and decoding needs
@@ -71,19 +73,25 @@ impl Bech32Coder {
         network_id_from_address_string(address).map(Self::new)
     }
 
-    pub fn encode_component_address(&self, component_address: &ComponentAddress) -> String {
+    pub fn encode_component_address<A: Borrow<ComponentAddress>>(
+        &self,
+        component_address: &A,
+    ) -> String {
         self.encoder
-            .encode_component_address_to_string(component_address)
+            .encode_component_address_to_string(component_address.borrow())
     }
 
-    pub fn encode_resource_address(&self, resource_address: &ResourceAddress) -> String {
+    pub fn encode_resource_address<A: Borrow<ResourceAddress>>(
+        &self,
+        resource_address: A,
+    ) -> String {
         self.encoder
-            .encode_resource_address_to_string(resource_address)
+            .encode_resource_address_to_string(resource_address.borrow())
     }
 
-    pub fn encode_package_address(&self, package_address: &PackageAddress) -> String {
+    pub fn encode_package_address<A: Borrow<PackageAddress>>(&self, package_address: A) -> String {
         self.encoder
-            .encode_package_address_to_string(package_address)
+            .encode_package_address_to_string(package_address.borrow())
     }
 
     pub fn decode_component_address<S: AsRef<str>>(
