@@ -16,14 +16,88 @@
 // under the License.
 
 use native_transaction::builder::TransactionBuilder;
+use native_transaction::data::manifest_encode;
+use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
+use native_transaction::eddsa_ed25519::EddsaEd25519PrivateKey;
 use native_transaction::manifest::compile;
 use native_transaction::model::{NotarizedTransaction, TransactionHeader};
-use native_transaction::signing::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
-use radix_engine_toolkit::*;
 
-use radix_engine_toolkit::value::ast::ManifestAstValue;
-use scrypto::{prelude::*, radix_engine_interface::node::NetworkDefinition};
+use radix_engine_toolkit::model::address::Bech32Coder;
+use radix_engine_toolkit::model::transaction::InstructionKind;
+use radix_engine_toolkit::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
+
+use radix_engine_toolkit::request::traits::Handler;
+use scrypto::{prelude::*, radix_engine_interface::network::NetworkDefinition};
 use serde::Serialize;
+
+use radix_engine_toolkit::request::analyze_manifest::{
+    AnalyzeManifestHandler, AnalyzeManifestRequest, AnalyzeManifestResponse,
+};
+use radix_engine_toolkit::request::compile_notarized_transaction::{
+    CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest,
+    CompileNotarizedTransactionResponse,
+};
+use radix_engine_toolkit::request::compile_signed_transaction_intent::{
+    CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest,
+    CompileSignedTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::compile_transaction_intent::{
+    CompileTransactionIntentHandler, CompileTransactionIntentRequest,
+    CompileTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::convert_manifest::{
+    ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse,
+};
+use radix_engine_toolkit::request::decode_address::{
+    DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse,
+};
+use radix_engine_toolkit::request::decompile_notarized_transaction::{
+    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest,
+    DecompileNotarizedTransactionResponse,
+};
+use radix_engine_toolkit::request::decompile_signed_transaction_intent::{
+    DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest,
+    DecompileSignedTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::decompile_transaction_intent::{
+    DecompileTransactionIntentHandler, DecompileTransactionIntentRequest,
+    DecompileTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::decompile_unknown_intent::{
+    DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest,
+    DecompileUnknownTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::derive_non_fungible_global_id_from_public_key::{
+    DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest,
+    DeriveNonFungibleGlobalIdFromPublicKeyResponse,
+};
+use radix_engine_toolkit::request::derive_virtual_account_address::{
+    DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest,
+    DeriveVirtualAccountAddressResponse,
+};
+use radix_engine_toolkit::request::derive_virtual_identity_address::{
+    DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest,
+    DeriveVirtualIdentityAddressResponse,
+};
+use radix_engine_toolkit::request::encode_address::{
+    EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse,
+};
+use radix_engine_toolkit::request::information::{
+    InformationHandler, InformationRequest, InformationResponse,
+};
+use radix_engine_toolkit::request::known_entity_addresses::{
+    KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse,
+};
+use radix_engine_toolkit::request::sbor_decode::{
+    SborDecodeHandler, SborDecodeRequest, SborDecodeResponse,
+};
+use radix_engine_toolkit::request::sbor_encode::{
+    SborEncodeHandler, SborEncodeRequest, SborEncodeResponse,
+};
+use radix_engine_toolkit::request::statically_validate_transaction::{
+    StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest,
+    StaticallyValidateTransactionResponse,
+};
 
 pub fn network_definition() -> NetworkDefinition {
     NetworkDefinition::simulator()
@@ -66,41 +140,41 @@ pub fn notary_private_key() -> EcdsaSecp256k1PrivateKey {
     EcdsaSecp256k1PrivateKey::from_u64(1923112).unwrap()
 }
 
-pub fn value() -> ManifestAstValue {
-    ManifestAstValue::Tuple {
+pub fn value() -> ScryptoSborValue {
+    ScryptoSborValue::Tuple {
         elements: vec![
-            ManifestAstValue::Decimal { value: dec!("10") },
-            ManifestAstValue::PreciseDecimal { value: pdec!("10") },
-            ManifestAstValue::String {
+            ScryptoSborValue::Decimal { value: dec!("10") },
+            ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
+            ScryptoSborValue::String {
                 value: "Hello World!".into(),
             },
-            ManifestAstValue::Tuple {
+            ScryptoSborValue::Tuple {
                 elements: vec![
-                    ManifestAstValue::Decimal { value: dec!("10") },
-                    ManifestAstValue::PreciseDecimal { value: pdec!("10") },
-                    ManifestAstValue::String {
+                    ScryptoSborValue::Decimal { value: dec!("10") },
+                    ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
+                    ScryptoSborValue::String {
                         value: "Hello World!".into(),
                     },
-                    ManifestAstValue::Tuple {
+                    ScryptoSborValue::Tuple {
                         elements: vec![
-                            ManifestAstValue::Decimal { value: dec!("10") },
-                            ManifestAstValue::PreciseDecimal { value: pdec!("10") },
-                            ManifestAstValue::String {
+                            ScryptoSborValue::Decimal { value: dec!("10") },
+                            ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
+                            ScryptoSborValue::String {
                                 value: "Hello World!".into(),
                             },
-                            ManifestAstValue::Tuple {
+                            ScryptoSborValue::Tuple {
                                 elements: vec![
-                                    ManifestAstValue::Decimal { value: dec!("10") },
-                                    ManifestAstValue::PreciseDecimal { value: pdec!("10") },
-                                    ManifestAstValue::String {
+                                    ScryptoSborValue::Decimal { value: dec!("10") },
+                                    ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
+                                    ScryptoSborValue::String {
                                         value: "Hello World!".into(),
                                     },
-                                    ManifestAstValue::Array {
-                                        element_kind: ValueKind::Decimal,
+                                    ScryptoSborValue::Array {
+                                        element_kind: ScryptoSborValueKind::Decimal,
                                         elements: vec![
-                                            ManifestAstValue::Decimal { value: dec!("20") },
-                                            ManifestAstValue::Decimal { value: dec!("100") },
-                                            ManifestAstValue::Decimal {
+                                            ScryptoSborValue::Decimal { value: dec!("20") },
+                                            ScryptoSborValue::Decimal { value: dec!("100") },
+                                            ScryptoSborValue::Decimal {
                                                 value: dec!("192.31"),
                                             },
                                         ],
@@ -194,13 +268,15 @@ This function allows the client the convert their manifest between the two suppo
     fn example_request() -> ConvertManifestRequest {
         let bec32_coder = Bech32Coder::new(network_definition().id);
         ConvertManifestRequest {
-            manifest: radix_engine_toolkit::TransactionManifest::from_native_manifest(
-                &notarized_intent().signed_intent.intent.manifest,
-                InstructionKind::Parsed,
-                &bec32_coder,
-            )
-            .unwrap(),
-            instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            manifest:
+                radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
+                    &notarized_intent().signed_intent.intent.manifest,
+                    InstructionKind::Parsed,
+                    &bec32_coder,
+                )
+                .unwrap(),
+            instructions_output_kind:
+                radix_engine_toolkit::model::transaction::InstructionKind::Parsed,
             network_id: network_definition().id,
         }
     }
@@ -214,12 +290,13 @@ impl ExampleData<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeMan
     fn example_request() -> AnalyzeManifestRequest {
         let bec32_coder = Bech32Coder::new(network_definition().id);
         AnalyzeManifestRequest {
-            manifest: radix_engine_toolkit::TransactionManifest::from_native_manifest(
-                &notarized_intent().signed_intent.intent.manifest,
-                InstructionKind::String,
-                &bec32_coder,
-            )
-            .unwrap(),
+            manifest:
+                radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
+                    &notarized_intent().signed_intent.intent.manifest,
+                    InstructionKind::String,
+                    &bec32_coder,
+                )
+                .unwrap(),
             network_id: network_definition().id,
         }
     }
@@ -235,8 +312,8 @@ impl ExampleData<CompileTransactionIntentRequest, CompileTransactionIntentRespon
     fn example_request() -> CompileTransactionIntentRequest {
         CompileTransactionIntentRequest {
             transaction_intent:
-                radix_engine_toolkit::TransactionIntent::from_native_transaction_intent(
-                    &notarized_intent().signed_intent.intent.clone(),
+                radix_engine_toolkit::model::transaction::TransactionIntent::from_native_transaction_intent(
+                    &notarized_intent().signed_intent.intent,
                     InstructionKind::Parsed,
                 )
                 .unwrap(),
@@ -253,10 +330,11 @@ impl ExampleData<DecompileTransactionIntentRequest, DecompileTransactionIntentRe
 
     fn example_request() -> DecompileTransactionIntentRequest {
         let compiled_transaction_intent =
-            scrypto_encode(&notarized_intent().signed_intent.intent).unwrap();
+            manifest_encode(&notarized_intent().signed_intent.intent).unwrap();
         DecompileTransactionIntentRequest {
             compiled_intent: compiled_transaction_intent,
-            instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            instructions_output_kind:
+                radix_engine_toolkit::model::transaction::InstructionKind::Parsed,
         }
     }
 }
@@ -270,9 +348,9 @@ impl ExampleData<CompileSignedTransactionIntentRequest, CompileSignedTransaction
 
     fn example_request() -> CompileSignedTransactionIntentRequest {
         CompileSignedTransactionIntentRequest {
-            signed_intent: radix_engine_toolkit::SignedTransactionIntent::from_native_signed_transaction_intent(&notarized_intent()
+            signed_intent: radix_engine_toolkit::model::transaction::SignedTransactionIntent::from_native_signed_transaction_intent(&notarized_intent()
             .signed_intent
-            .clone(), InstructionKind::Parsed)
+            , InstructionKind::Parsed)
                 .unwrap(),
         }
     }
@@ -287,10 +365,11 @@ impl ExampleData<DecompileSignedTransactionIntentRequest, DecompileSignedTransac
 
     fn example_request() -> DecompileSignedTransactionIntentRequest {
         let compiled_transaction_intent =
-            scrypto_encode(&notarized_intent().signed_intent).unwrap();
+            manifest_encode(&notarized_intent().signed_intent).unwrap();
         DecompileSignedTransactionIntentRequest {
             compiled_signed_intent: compiled_transaction_intent,
-            instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            instructions_output_kind:
+                radix_engine_toolkit::model::transaction::InstructionKind::Parsed,
         }
     }
 }
@@ -304,8 +383,8 @@ impl ExampleData<CompileNotarizedTransactionRequest, CompileNotarizedTransaction
 
     fn example_request() -> CompileNotarizedTransactionRequest {
         CompileNotarizedTransactionRequest {
-            notarized_intent: radix_engine_toolkit::NotarizedTransaction::from_native_notarized_transaction_intent(&notarized_intent()
-            .clone(), InstructionKind::Parsed)
+            notarized_intent: radix_engine_toolkit::model::transaction::NotarizedTransaction::from_native_notarized_transaction_intent(&notarized_intent()
+            , InstructionKind::Parsed)
                 .unwrap(),
         }
     }
@@ -319,10 +398,11 @@ impl ExampleData<DecompileNotarizedTransactionRequest, DecompileNotarizedTransac
     }
 
     fn example_request() -> DecompileNotarizedTransactionRequest {
-        let compiled_transaction_intent = scrypto_encode(&notarized_intent()).unwrap();
+        let compiled_transaction_intent = manifest_encode(&notarized_intent()).unwrap();
         DecompileNotarizedTransactionRequest {
             compiled_notarized_intent: compiled_transaction_intent,
-            instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            instructions_output_kind:
+                radix_engine_toolkit::model::transaction::InstructionKind::Parsed,
         }
     }
 }
@@ -336,10 +416,11 @@ impl
     }
 
     fn example_request() -> DecompileUnknownTransactionIntentRequest {
-        let compiled_transaction_intent = scrypto_encode(&notarized_intent()).unwrap();
+        let compiled_transaction_intent = manifest_encode(&notarized_intent()).unwrap();
         DecompileUnknownTransactionIntentRequest {
             compiled_unknown_intent: compiled_transaction_intent,
-            instructions_output_kind: radix_engine_toolkit::model::InstructionKind::Parsed,
+            instructions_output_kind:
+                radix_engine_toolkit::model::transaction::InstructionKind::Parsed,
         }
     }
 }
@@ -373,25 +454,44 @@ impl ExampleData<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressH
 
 impl ExampleData<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
     fn description() -> String {
-        r#"This function takes in a ManifestAstValue and encodes it in SBOR."#.to_owned()
+        r#"This function takes in a ScryptoSborValue and encodes it in SBOR."#.to_owned()
     }
 
     fn example_request() -> SborEncodeRequest {
-        SborEncodeRequest {
-            value: value().clone(),
-        }
+        SborEncodeRequest::ScryptoSbor(value())
     }
 }
 
 impl ExampleData<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
     fn description() -> String {
-        r#"This function takes in a hex string and attempts to decode it into a ManifestAstValue."#
+        r#"This function takes in a hex string and attempts to decode it into a ScryptoSborValue."#
             .to_owned()
     }
 
     fn example_request() -> SborDecodeRequest {
         SborDecodeRequest {
-            encoded_value: (value()).encode().unwrap(),
+            encoded_value: vec![
+                77, // prefix
+                33, // struct
+                10, // field length
+                128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, // address
+                128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, // address
+                128, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                2, // address
+                129, 4, 0, 0, 0, // bucket
+                130, 5, 0, 0, 0, // proof
+                131, 1, // expression
+                132, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+                6, 6, 6, 6, 6, 6, // blob
+                133, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                7, 7, 7, 7, 7, 7, // decimal
+                134, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, // precise decimal
+                135, 0, 3, 97, 98, 99, // non-fungible local id
+            ],
             network_id: 0xf2,
         }
     }
@@ -473,13 +573,13 @@ impl ExampleData<StaticallyValidateTransactionRequest, StaticallyValidateTransac
     fn example_request() -> StaticallyValidateTransactionRequest {
         // Making the notarized transaction invalid
         let notarized_transaction = {
-            let mut transaction = notarized_intent().clone();
+            let mut transaction = notarized_intent();
             transaction.notary_signature =
                 transaction.signed_intent.intent_signatures[0].signature();
             transaction
         };
 
-        let compiled_transaction_intent = scrypto_encode(&notarized_transaction).unwrap();
+        let compiled_transaction_intent = manifest_encode(&notarized_transaction).unwrap();
         let validation_config = native_transaction::validation::ValidationConfig::default(0xf2);
         StaticallyValidateTransactionRequest {
             compiled_notarized_intent: compiled_transaction_intent,

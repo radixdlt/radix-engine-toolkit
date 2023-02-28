@@ -23,7 +23,75 @@ use std::path::PathBuf;
 
 use convert_case::Casing;
 use examples_builder::InMemoryExamplesBuilder;
-use radix_engine_toolkit::request::*;
+
+use radix_engine_toolkit::request::analyze_manifest::{
+    AnalyzeManifestHandler, AnalyzeManifestRequest, AnalyzeManifestResponse,
+};
+use radix_engine_toolkit::request::compile_notarized_transaction::{
+    CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest,
+    CompileNotarizedTransactionResponse,
+};
+use radix_engine_toolkit::request::compile_signed_transaction_intent::{
+    CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest,
+    CompileSignedTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::compile_transaction_intent::{
+    CompileTransactionIntentHandler, CompileTransactionIntentRequest,
+    CompileTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::convert_manifest::{
+    ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse,
+};
+use radix_engine_toolkit::request::decode_address::{
+    DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse,
+};
+use radix_engine_toolkit::request::decompile_notarized_transaction::{
+    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest,
+    DecompileNotarizedTransactionResponse,
+};
+use radix_engine_toolkit::request::decompile_signed_transaction_intent::{
+    DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest,
+    DecompileSignedTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::decompile_transaction_intent::{
+    DecompileTransactionIntentHandler, DecompileTransactionIntentRequest,
+    DecompileTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::decompile_unknown_intent::{
+    DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest,
+    DecompileUnknownTransactionIntentResponse,
+};
+use radix_engine_toolkit::request::derive_non_fungible_global_id_from_public_key::{
+    DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest,
+    DeriveNonFungibleGlobalIdFromPublicKeyResponse,
+};
+use radix_engine_toolkit::request::derive_virtual_account_address::{
+    DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest,
+    DeriveVirtualAccountAddressResponse,
+};
+use radix_engine_toolkit::request::derive_virtual_identity_address::{
+    DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest,
+    DeriveVirtualIdentityAddressResponse,
+};
+use radix_engine_toolkit::request::encode_address::{
+    EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse,
+};
+use radix_engine_toolkit::request::information::{
+    InformationHandler, InformationRequest, InformationResponse,
+};
+use radix_engine_toolkit::request::known_entity_addresses::{
+    KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse,
+};
+use radix_engine_toolkit::request::sbor_decode::{
+    SborDecodeHandler, SborDecodeRequest, SborDecodeResponse,
+};
+use radix_engine_toolkit::request::sbor_encode::{
+    SborEncodeHandler, SborEncodeRequest, SborEncodeResponse,
+};
+use radix_engine_toolkit::request::statically_validate_transaction::{
+    StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest,
+    StaticallyValidateTransactionResponse,
+};
 
 /// Generates a Schema HashMap where the key is the class name and the value is the schema
 macro_rules! generate_schema_hashmap {
@@ -56,46 +124,46 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
     // Creating the schema for all of the request and response types through the generate schema
     // macro
     let schema_map = generate_schema_hashmap!(
-        radix_engine_toolkit::request::InformationRequest,
-        radix_engine_toolkit::request::InformationResponse,
-        radix_engine_toolkit::request::ConvertManifestRequest,
-        radix_engine_toolkit::request::ConvertManifestResponse,
-        radix_engine_toolkit::request::AnalyzeManifestRequest,
-        radix_engine_toolkit::request::AnalyzeManifestResponse,
-        radix_engine_toolkit::request::CompileTransactionIntentRequest,
-        radix_engine_toolkit::request::CompileTransactionIntentResponse,
-        radix_engine_toolkit::request::DecompileTransactionIntentRequest,
-        radix_engine_toolkit::request::DecompileTransactionIntentResponse,
-        radix_engine_toolkit::request::CompileSignedTransactionIntentRequest,
-        radix_engine_toolkit::request::CompileSignedTransactionIntentResponse,
-        radix_engine_toolkit::request::DecompileSignedTransactionIntentRequest,
-        radix_engine_toolkit::request::DecompileSignedTransactionIntentResponse,
-        radix_engine_toolkit::request::CompileNotarizedTransactionRequest,
-        radix_engine_toolkit::request::CompileNotarizedTransactionResponse,
-        radix_engine_toolkit::request::DecompileNotarizedTransactionRequest,
-        radix_engine_toolkit::request::DecompileNotarizedTransactionResponse,
-        radix_engine_toolkit::request::DecompileUnknownTransactionIntentRequest,
-        radix_engine_toolkit::request::DecompileUnknownTransactionIntentResponse,
-        radix_engine_toolkit::request::DecodeAddressRequest,
-        radix_engine_toolkit::request::DecodeAddressResponse,
-        radix_engine_toolkit::request::EncodeAddressRequest,
-        radix_engine_toolkit::request::EncodeAddressResponse,
-        radix_engine_toolkit::request::DecodeAddressRequest,
-        radix_engine_toolkit::request::DecodeAddressResponse,
-        radix_engine_toolkit::request::SborEncodeRequest,
-        radix_engine_toolkit::request::SborEncodeResponse,
-        radix_engine_toolkit::request::SborDecodeRequest,
-        radix_engine_toolkit::request::SborDecodeResponse,
-        radix_engine_toolkit::request::DeriveVirtualAccountAddressRequest,
-        radix_engine_toolkit::request::DeriveVirtualAccountAddressResponse,
-        radix_engine_toolkit::request::DeriveVirtualIdentityAddressRequest,
-        radix_engine_toolkit::request::DeriveVirtualIdentityAddressResponse,
-        radix_engine_toolkit::request::DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-        radix_engine_toolkit::request::DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-        radix_engine_toolkit::request::KnownEntityAddressesRequest,
-        radix_engine_toolkit::request::KnownEntityAddressesResponse,
-        radix_engine_toolkit::request::StaticallyValidateTransactionRequest,
-        radix_engine_toolkit::request::StaticallyValidateTransactionResponse
+        InformationRequest,
+        InformationResponse,
+        ConvertManifestRequest,
+        ConvertManifestResponse,
+        AnalyzeManifestRequest,
+        AnalyzeManifestResponse,
+        CompileTransactionIntentRequest,
+        CompileTransactionIntentResponse,
+        DecompileTransactionIntentRequest,
+        DecompileTransactionIntentResponse,
+        CompileSignedTransactionIntentRequest,
+        CompileSignedTransactionIntentResponse,
+        DecompileSignedTransactionIntentRequest,
+        DecompileSignedTransactionIntentResponse,
+        CompileNotarizedTransactionRequest,
+        CompileNotarizedTransactionResponse,
+        DecompileNotarizedTransactionRequest,
+        DecompileNotarizedTransactionResponse,
+        DecompileUnknownTransactionIntentRequest,
+        DecompileUnknownTransactionIntentResponse,
+        DecodeAddressRequest,
+        DecodeAddressResponse,
+        EncodeAddressRequest,
+        EncodeAddressResponse,
+        DecodeAddressRequest,
+        DecodeAddressResponse,
+        SborEncodeRequest,
+        SborEncodeResponse,
+        SborDecodeRequest,
+        SborDecodeResponse,
+        DeriveVirtualAccountAddressRequest,
+        DeriveVirtualAccountAddressResponse,
+        DeriveVirtualIdentityAddressRequest,
+        DeriveVirtualIdentityAddressResponse,
+        DeriveNonFungibleGlobalIdFromPublicKeyRequest,
+        DeriveNonFungibleGlobalIdFromPublicKeyResponse,
+        KnownEntityAddressesRequest,
+        KnownEntityAddressesResponse,
+        StaticallyValidateTransactionRequest,
+        StaticallyValidateTransactionResponse
     );
 
     // Iterating over the HashMap, modifying the class name to be in snake case and writing the
@@ -139,6 +207,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         .add_example::<DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse>()
         .add_example::<CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse>()
         .add_example::<DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse>()
+        .add_example::<DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse>()
         .add_example::<EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse>()
         .add_example::<DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse>()
         .add_example::<SborEncodeHandler, SborEncodeRequest, SborEncodeResponse>()

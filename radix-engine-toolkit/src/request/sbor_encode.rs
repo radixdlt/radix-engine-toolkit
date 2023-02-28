@@ -30,6 +30,7 @@ use toolkit_derive::serializable;
 /// This request takes in a [`Value`] and attempts to SBOR encode it and return back an SBOR byte
 /// array.
 #[serializable]
+#[serde(tag = "type", content = "value")]
 pub enum SborEncodeRequest {
     ScryptoSbor(ScryptoSborValue),
     ManifestSbor(ManifestSborValue),

@@ -50,6 +50,7 @@ pub struct SborDecodeRequest {
 
 /// The response from the [`SborDecodeRequest`].
 #[serializable]
+#[serde(tag = "type", content = "value")]
 pub enum SborDecodeResponse {
     ScryptoSbor(ScryptoSborValue),
     ManifestSbor(ManifestSborValue),
