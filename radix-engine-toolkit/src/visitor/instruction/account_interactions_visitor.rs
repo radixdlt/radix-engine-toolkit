@@ -47,44 +47,37 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         method_name: &mut ManifestAstValue,
         _: &mut Option<Vec<ManifestAstValue>>,
     ) -> Result<()> {
-        // TODO: Refactor to match if
-        if let (
-            ManifestAstValue::ComponentAddress {
-                address:
-                    component_address @ NetworkAwareComponentAddress {
-                        address:
-                            ComponentAddress::Account(..)
-                            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                            | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                        ..
-                    },
+        match (component_address, method_name) {
+            (
+                ManifestAstValue::ComponentAddress {
+                    address: component_address,
+                }
+                | ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ComponentAddress {
+                            address: component_address,
+                        },
+                },
+                ManifestAstValue::String { value: method_name },
+            ) if matches!(
+                component_address.address,
+                ComponentAddress::Account(..)
+                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+            ) =>
+            {
+                if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
+                    self.auth_required.insert(*component_address);
+                }
+                if Self::WITHDRAW_METHODS.contains(&method_name.as_str()) {
+                    self.accounts_withdrawn_from.insert(*component_address);
+                }
+                if Self::DEPOSIT_METHODS.contains(&method_name.as_str()) {
+                    self.accounts_deposited_into.insert(*component_address);
+                }
             }
-            | ManifestAstValue::Address {
-                address:
-                    EntityAddress::ComponentAddress {
-                        address:
-                            component_address @ NetworkAwareComponentAddress {
-                                address:
-                                    ComponentAddress::Account(..)
-                                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                                ..
-                            },
-                    },
-            },
-            ManifestAstValue::String { value: method_name },
-        ) = (component_address, method_name)
-        {
-            if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
-                self.auth_required.insert(*component_address);
-            }
-            if Self::WITHDRAW_METHODS.contains(&method_name.as_str()) {
-                self.accounts_withdrawn_from.insert(*component_address);
-            }
-            if Self::DEPOSIT_METHODS.contains(&method_name.as_str()) {
-                self.accounts_deposited_into.insert(*component_address);
-            }
-        };
+            _ => {}
+        }
         Ok(())
     }
 
@@ -94,19 +87,27 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
     ) -> Result<()> {
-        if let ManifestAstValue::ComponentAddress {
-            address:
-                component_address @ NetworkAwareComponentAddress {
-                    address:
-                        ComponentAddress::Account(..)
-                        | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                        | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                    ..
-                },
-        } = entity_address
-        {
-            self.auth_required.insert(*component_address);
-        };
+        match entity_address {
+            ManifestAstValue::ComponentAddress {
+                address: component_address,
+            }
+            | ManifestAstValue::Address {
+                address:
+                    EntityAddress::ComponentAddress {
+                        address: component_address,
+                    },
+            } if matches!(
+                component_address.address,
+                ComponentAddress::Account(..)
+                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+            ) =>
+            {
+                self.auth_required.insert(*component_address);
+            }
+            _ => {}
+        }
+
         Ok(())
     }
 
@@ -115,19 +116,26 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         component_address: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
-        if let ManifestAstValue::ComponentAddress {
-            address:
-                component_address @ NetworkAwareComponentAddress {
-                    address:
-                        ComponentAddress::Account(..)
-                        | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                        | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                    ..
-                },
-        } = component_address
-        {
-            self.auth_required.insert(*component_address);
-        };
+        match component_address {
+            ManifestAstValue::ComponentAddress {
+                address: component_address,
+            }
+            | ManifestAstValue::Address {
+                address:
+                    EntityAddress::ComponentAddress {
+                        address: component_address,
+                    },
+            } if matches!(
+                component_address.address,
+                ComponentAddress::Account(..)
+                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+            ) =>
+            {
+                self.auth_required.insert(*component_address);
+            }
+            _ => {}
+        }
         Ok(())
     }
 
@@ -135,19 +143,26 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         &mut self,
         component_address: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
-        if let ManifestAstValue::ComponentAddress {
-            address:
-                component_address @ NetworkAwareComponentAddress {
-                    address:
-                        ComponentAddress::Account(..)
-                        | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                        | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                    ..
-                },
-        } = component_address
-        {
-            self.auth_required.insert(*component_address);
-        };
+        match component_address {
+            ManifestAstValue::ComponentAddress {
+                address: component_address,
+            }
+            | ManifestAstValue::Address {
+                address:
+                    EntityAddress::ComponentAddress {
+                        address: component_address,
+                    },
+            } if matches!(
+                component_address.address,
+                ComponentAddress::Account(..)
+                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+            ) =>
+            {
+                self.auth_required.insert(*component_address);
+            }
+            _ => {}
+        }
         Ok(())
     }
 
@@ -158,19 +173,26 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
-        if let ManifestAstValue::ComponentAddress {
-            address:
-                component_address @ NetworkAwareComponentAddress {
-                    address:
-                        ComponentAddress::Account(..)
-                        | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                        | ComponentAddress::EddsaEd25519VirtualAccount(..),
-                    ..
-                },
-        } = entity_address
-        {
-            self.auth_required.insert(*component_address);
-        };
+        match entity_address {
+            ManifestAstValue::ComponentAddress {
+                address: component_address,
+            }
+            | ManifestAstValue::Address {
+                address:
+                    EntityAddress::ComponentAddress {
+                        address: component_address,
+                    },
+            } if matches!(
+                component_address.address,
+                ComponentAddress::Account(..)
+                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
+            ) =>
+            {
+                self.auth_required.insert(*component_address);
+            }
+            _ => {}
+        }
         Ok(())
     }
 }
