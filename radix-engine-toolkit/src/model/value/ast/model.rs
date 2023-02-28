@@ -122,10 +122,10 @@ define_kind_enum! {
         /// A type representing a string
         String { value: String },
 
-        /// A Rust-style Enum which has a variant and can optionally also have a list of values (acting
-        /// in a way similar to discriminated algebraic sum types)
+        /// A Rust-style Enum which has a variant and can optionally also have a list of values
+        /// (acting in a way similar to discriminated algebraic sum types)
         Enum {
-            /// The name of the variant of the enum
+            /// The enum discriminator which is either a string or an unsigned 8-bit integer.
             variant: EnumDiscriminator,
 
             /// Optional fields that the enum may have
@@ -147,8 +147,8 @@ define_kind_enum! {
 
         /// An array values of a single value kind
         Array {
-            /// The kind of elements that the array contains. An array will be validated to ensure that
-            /// it contains a single element kind.
+            /// The kind of elements that the array contains. An array will be validated to ensure
+            /// that it contains a single element kind.
             element_kind: ManifestAstValueKind,
 
             /// The elements of the array which may contain 0 or more elements.

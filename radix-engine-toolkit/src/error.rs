@@ -82,6 +82,17 @@ pub enum Error {
         message: String,
     },
 
+    /// Represents an error when attempting to decode some SBOR payload. This error means that
+    /// the prefix byte (the first byte of the payload) was found to be incompatible or incorrect
+    /// with what the toolkit supports.
+    InvalidSborPrefix {
+        expected: Vec<u8>,
+        found: u8,
+    },
+
+    /// Emitted when trying to decode an empty payload
+    EmptyPayloadError,
+
     // ====
     // AST
     // ====

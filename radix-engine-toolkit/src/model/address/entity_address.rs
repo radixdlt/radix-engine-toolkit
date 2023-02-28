@@ -19,6 +19,7 @@ use crate::error::{Error, Result};
 use crate::model::address::network_aware_address::*;
 use crate::model::address::Bech32Coder;
 use scrypto::radix_engine_interface::address::EntityType;
+use scrypto::runtime::Address;
 use std::fmt::Display;
 use std::str::FromStr;
 use toolkit_derive::serializable;
@@ -56,6 +57,20 @@ pub enum EntityAddress {
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwarePackageAddress,
     },
+}
+
+// ===========
+// Conversion
+// ===========
+
+impl From<EntityAddress> for Address {
+    fn from(value: EntityAddress) -> Self {
+        match value {
+            EntityAddress::ComponentAddress { address } => Self::Component(address.address),
+            EntityAddress::ResourceAddress { address } => Self::Resource(address.address),
+            EntityAddress::PackageAddress { address } => Self::Package(address.address),
+        }
+    }
 }
 
 // ===============
