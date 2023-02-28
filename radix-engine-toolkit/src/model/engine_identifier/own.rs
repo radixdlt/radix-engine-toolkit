@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::NodeIdentifier;
+use crate::model::engine_identifier::NodeIdentifier;
 use scrypto::runtime::Own as ScryptoOwn;
 use toolkit_derive::serializable;
 

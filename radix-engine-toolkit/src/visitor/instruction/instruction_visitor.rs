@@ -1,5 +1,6 @@
 use crate::error::Result;
-use crate::{traverse_value, Instruction, ManifestAstValueVisitor};
+use crate::model::instruction::Instruction;
+use crate::visitor::{traverse_value, ManifestAstValueVisitor};
 
 macro_rules! define_instruction_visitor {
     (
@@ -11,7 +12,7 @@ macro_rules! define_instruction_visitor {
         $(#[$meta])*
         $vis trait $trait_ident {
             $(
-                fn $method_ident(&mut self, $($arg_ident: $arg_type,)*) -> $crate::Result<()> {
+                fn $method_ident(&mut self, $($arg_ident: $arg_type,)*) -> $crate::error::Result<()> {
                     Ok(())
                 }
             )*
@@ -24,7 +25,7 @@ macro_rules! visit {
         $visitors
             .iter_mut()
             .map(|visitor| visitor.$method($($value,)*))
-            .collect::<$crate::Result<Vec<_>>>()
+            .collect::<$crate::error::Result<Vec<_>>>()
     };
 }
 
@@ -32,202 +33,202 @@ define_instruction_visitor! {
     /// An visitor which operates on [`crate::Instruction`]s.
     pub trait InstructionVisitor {
         visit_call_function(
-            _package_address: &mut crate::value::ManifestAstValue,
-            _blueprint_name: &mut crate::value::ManifestAstValue,
-            _function_name: &mut crate::value::ManifestAstValue,
-            _arguments: &mut Option<Vec<crate::value::ManifestAstValue>>
+            _package_address: &mut crate::model::value::ast::ManifestAstValue,
+            _blueprint_name: &mut crate::model::value::ast::ManifestAstValue,
+            _function_name: &mut crate::model::value::ast::ManifestAstValue,
+            _arguments: &mut Option<Vec<crate::model::value::ast::ManifestAstValue>>
         ),
 
         visit_call_method(
-            _component_address: &mut crate::value::ManifestAstValue,
-            _method_name: &mut crate::value::ManifestAstValue,
-            _arguments: &mut Option<Vec<crate::value::ManifestAstValue>>
+            _component_address: &mut crate::model::value::ast::ManifestAstValue,
+            _method_name: &mut crate::model::value::ast::ManifestAstValue,
+            _arguments: &mut Option<Vec<crate::model::value::ast::ManifestAstValue>>
         ),
 
         visit_take_from_worktop(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _into_bucket: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _into_bucket: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_take_from_worktop_by_amount(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _amount: &mut crate::value::ManifestAstValue,
-            _into_bucket: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _amount: &mut crate::model::value::ast::ManifestAstValue,
+            _into_bucket: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_take_from_worktop_by_ids(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _ids: &mut Vec<crate::value::ManifestAstValue>,
-            _into_bucket: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _ids: &mut Vec<crate::model::value::ast::ManifestAstValue>,
+            _into_bucket: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_return_to_worktop(
-            _bucket: &mut crate::value::ManifestAstValue
+            _bucket: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_assert_worktop_contains(
-            _resource_address: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_assert_worktop_contains_by_amount(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _amount: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _amount: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_assert_worktop_contains_by_ids(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _ids: &mut Vec<crate::value::ManifestAstValue>
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _ids: &mut Vec<crate::model::value::ast::ManifestAstValue>
         ),
 
         visit_pop_from_auth_zone(
-            _into_proof: &mut crate::value::ManifestAstValue
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_push_to_auth_zone(
-            _proof: &mut crate::value::ManifestAstValue
+            _proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_proof_from_auth_zone(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _into_proof: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_proof_from_auth_zone_by_amount(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _amount: &mut crate::value::ManifestAstValue,
-            _into_proof: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _amount: &mut crate::model::value::ast::ManifestAstValue,
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_proof_from_auth_zone_by_ids(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _ids: &mut Vec<crate::value::ManifestAstValue>,
-            _into_proof: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _ids: &mut Vec<crate::model::value::ast::ManifestAstValue>,
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_proof_from_bucket(
-            _bucket: &mut crate::value::ManifestAstValue,
-            _into_proof: &mut crate::value::ManifestAstValue
+            _bucket: &mut crate::model::value::ast::ManifestAstValue,
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_clone_proof(
-            _proof: &mut crate::value::ManifestAstValue,
-            _into_proof: &mut crate::value::ManifestAstValue
+            _proof: &mut crate::model::value::ast::ManifestAstValue,
+            _into_proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_drop_proof(
-            _proof: &mut crate::value::ManifestAstValue
+            _proof: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_publish_package(
-            _code: &mut crate::value::ManifestAstValue,
-            _abi: &mut crate::value::ManifestAstValue,
-            _royalty_config: &mut crate::value::ManifestAstValue,
-            _metadata: &mut crate::value::ManifestAstValue,
-            _access_rules: &mut crate::value::ManifestAstValue
+            _code: &mut crate::model::value::ast::ManifestAstValue,
+            _abi: &mut crate::model::value::ast::ManifestAstValue,
+            _royalty_config: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue,
+            _access_rules: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_burn_resource(
-            _bucket: &mut crate::value::ManifestAstValue
+            _bucket: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_recall_resource(
-            _vault_id: &mut crate::value::ManifestAstValue,
-            _amount: &mut crate::value::ManifestAstValue
+            _vault_id: &mut crate::model::value::ast::ManifestAstValue,
+            _amount: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_set_metadata(
-            _entity_address: &mut crate::value::ManifestAstValue,
-            _key: &mut crate::value::ManifestAstValue,
-            _value: &mut crate::value::ManifestAstValue
+            _entity_address: &mut crate::model::value::ast::ManifestAstValue,
+            _key: &mut crate::model::value::ast::ManifestAstValue,
+            _value: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_set_package_royalty_config(
-            _package_address: &mut crate::value::ManifestAstValue,
-            _royalty_config: &mut crate::value::ManifestAstValue
+            _package_address: &mut crate::model::value::ast::ManifestAstValue,
+            _royalty_config: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_set_component_royalty_config(
-            _component_address: &mut crate::value::ManifestAstValue,
-            _royalty_config: &mut crate::value::ManifestAstValue
+            _component_address: &mut crate::model::value::ast::ManifestAstValue,
+            _royalty_config: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_claim_package_royalty(
-            _package_address: &mut crate::value::ManifestAstValue
+            _package_address: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_claim_component_royalty(
-            _component_address: &mut crate::value::ManifestAstValue
+            _component_address: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_set_method_access_rule(
-            _entity_address: &mut crate::value::ManifestAstValue,
-            _index: &mut crate::value::ManifestAstValue,
-            _key: &mut crate::value::ManifestAstValue,
-            _rule: &mut crate::value::ManifestAstValue
+            _entity_address: &mut crate::model::value::ast::ManifestAstValue,
+            _index: &mut crate::model::value::ast::ManifestAstValue,
+            _key: &mut crate::model::value::ast::ManifestAstValue,
+            _rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_mint_fungible(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _amount: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _amount: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_mint_non_fungible(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _entries: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _entries: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_mint_uuid_non_fungible(
-            _resource_address: &mut crate::value::ManifestAstValue,
-            _entries: &mut crate::value::ManifestAstValue
+            _resource_address: &mut crate::model::value::ast::ManifestAstValue,
+            _entries: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_fungible_resource(
-            _divisibility: &mut crate::value::ManifestAstValue,
-            _metadata: &mut crate::value::ManifestAstValue,
-            _access_rules: &mut crate::value::ManifestAstValue
+            _divisibility: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue,
+            _access_rules: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_fungible_resource_with_owner(
-            _divisibility: &mut crate::value::ManifestAstValue,
-            _metadata: &mut crate::value::ManifestAstValue,
-            _access_rules: &mut crate::value::ManifestAstValue,
-            _initial_supply: &mut crate::value::ManifestAstValue
+            _divisibility: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue,
+            _access_rules: &mut crate::model::value::ast::ManifestAstValue,
+            _initial_supply: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_non_fungible_resource(
-            _id_type: &mut crate::value::ManifestAstValue,
-            _metadata: &mut crate::value::ManifestAstValue,
-            _access_rules: &mut crate::value::ManifestAstValue
+            _id_type: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue,
+            _access_rules: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_non_fungible_resource_with_owner(
-            _id_type: &mut crate::value::ManifestAstValue,
-            _metadata: &mut crate::value::ManifestAstValue,
-            _access_rules: &mut crate::value::ManifestAstValue,
-            _initial_supply: &mut crate::value::ManifestAstValue
+            _id_type: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue,
+            _access_rules: &mut crate::model::value::ast::ManifestAstValue,
+            _initial_supply: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_access_controller(
-            _controlled_asset: &mut crate::value::ManifestAstValue,
-            _rule_set: &mut crate::value::ManifestAstValue,
-            _timed_recovery_delay_in_minutes: &mut crate::value::ManifestAstValue
+            _controlled_asset: &mut crate::model::value::ast::ManifestAstValue,
+            _rule_set: &mut crate::model::value::ast::ManifestAstValue,
+            _timed_recovery_delay_in_minutes: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_identity(
-            _access_rule: &mut crate::value::ManifestAstValue
+            _access_rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_assert_access_rule(
-            _access_rule: &mut crate::value::ManifestAstValue
+            _access_rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_validator(
-            _key: &mut crate::value::ManifestAstValue,
-            _owner_access_rule: &mut crate::value::ManifestAstValue
+            _key: &mut crate::model::value::ast::ManifestAstValue,
+            _owner_access_rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_account(
-            _withdraw_rule: &mut crate::value::ManifestAstValue
+            _withdraw_rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_clear_auth_zone(),

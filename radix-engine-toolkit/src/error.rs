@@ -19,7 +19,7 @@ use std::fmt::Display;
 
 use toolkit_derive::serializable;
 
-use crate::value::manifest_ast_value::ManifestAstValueKind;
+use crate::model::value::ast::ManifestAstValueKind;
 
 /// The error model used by the Radix Engine Toolkit - Represents the set of all errors which the
 /// Radix Engine Toolkit may return for a request.

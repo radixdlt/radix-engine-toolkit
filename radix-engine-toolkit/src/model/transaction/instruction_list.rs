@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::address::Bech32Coder;
 use crate::error::Result;
-use crate::model::Instruction;
+use crate::model::address::Bech32Coder;
+use crate::model::instruction::Instruction;
 use native_transaction::manifest::{ast, decompile};
 use native_transaction::model as transaction;
 use scrypto::prelude::hash;

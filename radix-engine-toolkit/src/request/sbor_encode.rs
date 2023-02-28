@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::error::Result;
-use crate::request::Handler;
+use crate::request::traits::Handler;
 use toolkit_derive::serializable;
 
 // =================

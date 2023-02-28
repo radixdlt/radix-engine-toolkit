@@ -17,7 +17,7 @@
 
 use crate::error::{Error, Result};
 use crate::model::address::network_aware_address::*;
-use crate::Bech32Coder;
+use crate::model::address::Bech32Coder;
 use scrypto::radix_engine_interface::address::EntityType;
 use std::fmt::Display;
 use std::str::FromStr;

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::{Error, Result};
+use crate::error::{Error, Result};
 use std::str::FromStr;
 use toolkit_derive::serializable;
 

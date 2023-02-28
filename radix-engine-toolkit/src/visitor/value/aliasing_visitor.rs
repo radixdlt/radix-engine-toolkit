@@ -1,8 +1,7 @@
 use crate::error::Error;
-use crate::model::value::{ManifestAstValue, ManifestAstValueKind};
-use crate::model::NonFungibleGlobalId;
-use crate::{EntityAddress, ManifestAstValueVisitor};
-
+use crate::model::address::{EntityAddress, NonFungibleGlobalId};
+use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
+use crate::visitor::ManifestAstValueVisitor;
 /// A value visitor whose main responsibility is to perform aliasing on all encountered values. As
 /// an example, this is the main visitor responsible for turing a Tuple(ResourceAddress, NFLocalId)
 /// to a NonFungibleGlobalAddress
@@ -10,7 +9,7 @@ use crate::{EntityAddress, ManifestAstValueVisitor};
 pub struct ValueAliasingVisitor;
 
 impl ManifestAstValueVisitor for ValueAliasingVisitor {
-    fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
         if let ManifestAstValue::Tuple { ref elements } = value {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
@@ -39,7 +38,7 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
         }
     }
 
-    fn visit_array(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_array(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
         if let ManifestAstValue::Array {
             ref elements,
             element_kind: ManifestAstValueKind::U8,
@@ -66,7 +65,7 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
         }
     }
 
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
         match value {
             ManifestAstValue::Address { address } => {
                 match address {

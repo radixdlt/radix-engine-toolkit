@@ -1,10 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::value::ManifestAstValue;
-use crate::{
-    EntityAddress, ManifestAstValueVisitor, NetworkAwareComponentAddress,
-    NetworkAwarePackageAddress, NetworkAwareResourceAddress,
+use crate::error::{Error, Result};
+use crate::model::address::{
+    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress,
 };
+use crate::model::value::ast::ManifestAstValue;
+use crate::visitor::ManifestAstValueVisitor;
 
 /// An address aggregator visitor which collects all of the encountered global entity addresses and
 /// stored them in its state.
@@ -16,7 +18,7 @@ pub struct AddressAggregatorVisitor {
 }
 
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::Address { address } = value {
             match address {
                 EntityAddress::ComponentAddress { address } => {
@@ -31,51 +33,51 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
             }
             Ok(())
         } else {
-            Err(crate::Error::Infallible {
+            Err(Error::Infallible {
                 message: "Expected component address!".into(),
             })
         }
     }
 
-    fn visit_component_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_component_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::ComponentAddress { address } = value {
             self.component_addresses.insert(*address);
             Ok(())
         } else {
-            Err(crate::Error::Infallible {
+            Err(Error::Infallible {
                 message: "Expected component address!".into(),
             })
         }
     }
 
-    fn visit_resource_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_resource_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::ResourceAddress { address } = value {
             self.resource_addresses.insert(*address);
             Ok(())
         } else {
-            Err(crate::Error::Infallible {
+            Err(Error::Infallible {
                 message: "Expected resource address!".into(),
             })
         }
     }
 
-    fn visit_package_address(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_package_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::PackageAddress { address } = value {
             self.package_addresses.insert(*address);
             Ok(())
         } else {
-            Err(crate::Error::Infallible {
+            Err(Error::Infallible {
                 message: "Expected package address!".into(),
             })
         }
     }
 
-    fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> crate::Result<()> {
+    fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::NonFungibleGlobalId { address } = value {
             self.resource_addresses.insert(address.resource_address);
             Ok(())
         } else {
-            Err(crate::Error::Infallible {
+            Err(Error::Infallible {
                 message: "Expected non-fungible global id!".into(),
             })
         }

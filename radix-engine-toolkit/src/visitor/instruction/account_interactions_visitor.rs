@@ -1,16 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::value::ManifestAstValue;
-use crate::{EntityAddress, InstructionVisitor, NetworkAwareComponentAddress};
 use scrypto::prelude::ComponentAddress;
-use scrypto::radix_engine_interface::blueprints::account::{
-    ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT, ACCOUNT_CREATE_PROOF_BY_IDS_IDENT,
-    ACCOUNT_CREATE_PROOF_IDENT, ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT,
-    ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, ACCOUNT_LOCK_FEE_AND_WITHDRAW_ALL_IDENT,
-    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT, ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
-    ACCOUNT_LOCK_FEE_IDENT, ACCOUNT_WITHDRAW_ALL_IDENT, ACCOUNT_WITHDRAW_IDENT,
-    ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
-};
+use scrypto::radix_engine_interface::blueprints::account::*;
+
+use crate::error::Result;
+use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
+use crate::model::value::ast::ManifestAstValue;
+use crate::visitor::InstructionVisitor;
 
 /// A visitor whose main responsibility is determining the kind of interactions involved with
 /// accounts
@@ -50,7 +46,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
         _: &mut Option<Vec<ManifestAstValue>>,
-    ) -> crate::Result<()> {
+    ) -> Result<()> {
         // TODO: Refactor to match if
         if let (
             ManifestAstValue::ComponentAddress {
@@ -97,7 +93,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         entity_address: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
-    ) -> crate::Result<()> {
+    ) -> Result<()> {
         if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
@@ -116,9 +112,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_set_component_royalty_config(
         &mut self,
-        component_address: &mut crate::model::value::ManifestAstValue,
-        _: &mut crate::model::value::ManifestAstValue,
-    ) -> crate::Result<()> {
+        component_address: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<()> {
         if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
@@ -137,8 +133,8 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_claim_component_royalty(
         &mut self,
-        component_address: &mut crate::model::value::ManifestAstValue,
-    ) -> crate::Result<()> {
+        component_address: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<()> {
         if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {
@@ -157,11 +153,11 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
 
     fn visit_set_method_access_rule(
         &mut self,
-        entity_address: &mut crate::model::value::ManifestAstValue,
-        _: &mut crate::model::value::ManifestAstValue,
-        _: &mut crate::model::value::ManifestAstValue,
-        _: &mut crate::model::value::ManifestAstValue,
-    ) -> crate::Result<()> {
+        entity_address: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<()> {
         if let ManifestAstValue::ComponentAddress {
             address:
                 component_address @ NetworkAwareComponentAddress {

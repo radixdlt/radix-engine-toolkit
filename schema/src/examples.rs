@@ -21,7 +21,7 @@ use native_transaction::model::{NotarizedTransaction, TransactionHeader};
 use native_transaction::signing::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
 use radix_engine_toolkit::*;
 
-use radix_engine_toolkit::value::ManifestAstValue;
+use radix_engine_toolkit::value::ast::ManifestAstValue;
 use scrypto::{prelude::*, radix_engine_interface::node::NetworkDefinition};
 use serde::Serialize;
 
@@ -176,7 +176,8 @@ impl ExampleData<InformationRequest, InformationResponse> for InformationHandler
 
     fn example_response() -> InformationResponse {
         let mut response = Self::fulfill(Self::example_request()).unwrap();
-        response.git_hash = "This is just an example. We don't have a commit hash here :)".into();
+        response.last_commit_hash =
+            "This is just an example. We don't have a commit hash here :)".into();
         response
     }
 }

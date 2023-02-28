@@ -15,7 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod ast;
 pub mod macros;
-pub mod manifest_ast_value;
-
-pub use manifest_ast_value::{ManifestAstValue, ManifestAstValueKind};

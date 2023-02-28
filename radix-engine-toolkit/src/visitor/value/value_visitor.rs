@@ -1,4 +1,4 @@
-use crate::value::{ManifestAstValue, ManifestAstValueKind};
+use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 
 macro_rules! define_value_visitor {
     (
@@ -10,7 +10,7 @@ macro_rules! define_value_visitor {
         $(#[$meta])*
         $vis trait $trait_ident {
             $(
-                fn $method_ident(&mut self, _value: &mut $crate::model::value::ManifestAstValue) -> $crate::Result<()> {
+                fn $method_ident(&mut self, _value: &mut $crate::model::value::ast::ManifestAstValue) -> $crate::error::Result<()> {
                     Ok(())
                 }
             )*
@@ -23,12 +23,12 @@ macro_rules! visit {
         $visitors
             .iter_mut()
             .map(|visitor| visitor.$method($value))
-            .collect::<$crate::Result<Vec<_>>>()
+            .collect::<$crate::error::Result<Vec<_>>>()
     };
 }
 
 define_value_visitor! {
-    /// A trait which defines a [`crate::model::value::ManifestAstValue`] visitor which operates on unstructured values, this
+    /// A trait which defines a [`crate::model::value::ast::ManifestAstValue`] visitor which operates on unstructured values, this
     /// choice is made to allow the visitor to work with aliasing an dealiasing operations which
     /// involves the visitor changing the value variant.
     pub trait ManifestAstValueVisitor {
@@ -79,9 +79,9 @@ define_value_visitor! {
 }
 
 pub fn traverse_value(
-    value: &mut crate::model::value::ManifestAstValue,
+    value: &mut crate::model::value::ast::ManifestAstValue,
     visitors: &mut [&mut dyn ManifestAstValueVisitor],
-) -> crate::Result<()> {
+) -> crate::error::Result<()> {
     // Visit the top level value parts
     match value.kind() {
         ManifestAstValueKind::Bool => visit!(visitors, visit_bool, value)?,
@@ -144,7 +144,7 @@ pub fn traverse_value(
                 .iter_mut()
                 .flat_map(|(x, y)| [x, y])
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::Result<Vec<_>>>()?;
+                .collect::<crate::error::Result<Vec<_>>>()?;
         }
         ManifestAstValue::Enum {
             fields: Some(values),
@@ -159,7 +159,7 @@ pub fn traverse_value(
             values
                 .iter_mut()
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::Result<Vec<_>>>()?;
+                .collect::<crate::error::Result<Vec<_>>>()?;
         }
         ManifestAstValue::Some { value }
         | ManifestAstValue::Ok { value }

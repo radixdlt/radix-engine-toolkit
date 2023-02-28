@@ -18,10 +18,12 @@
 use native_transaction_data::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
-use crate::address::Bech32Coder;
+use crate::error::Error;
 use crate::error::Result;
+use crate::model::address::Bech32Coder;
+use crate::model::transaction::InstructionKind;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
-use crate::{CompilableIntent, Error, InstructionKind};
+use crate::traits::CompilableIntent;
 use native_transaction::model as native;
 
 // =================

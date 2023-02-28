@@ -16,9 +16,9 @@
 // under the License.
 
 use super::model::*;
-use crate::address::*;
 use crate::error::{Error, Result};
-use crate::TransientIdentifier;
+use crate::model::address::*;
+use crate::model::engine_identifier::TransientIdentifier;
 
 use native_transaction::data::{ManifestBlobRef, ManifestExpression};
 use native_transaction::manifest::ast;

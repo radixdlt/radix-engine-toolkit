@@ -17,9 +17,9 @@
 
 use std::collections::BTreeSet;
 
-use crate::address::Bech32Coder;
 use crate::error::Result;
-use crate::value::ManifestAstValue;
+use crate::model::address::Bech32Coder;
+use crate::model::value::ast::ManifestAstValue;
 
 use native_transaction::manifest::ast;
 
@@ -593,7 +593,8 @@ impl Instruction {
                 into_bucket,
             } => ast::Instruction::TakeFromWorktopByIds {
                 ids: ManifestAstValue::Array {
-                    element_kind: crate::model::value::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind:
+                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -623,7 +624,8 @@ impl Instruction {
                 ids: ManifestAstValue::Array {
                     // TODO: This was `ManifestAstValueKind::Bucket` by mistake. What kind of test
                     // can we introduce to catch this?
-                    element_kind: crate::model::value::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind:
+                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -660,7 +662,8 @@ impl Instruction {
                 into_proof,
             } => ast::Instruction::CreateProofFromAuthZoneByIds {
                 ids: ManifestAstValue::Array {
-                    element_kind: crate::model::value::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind:
+                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,

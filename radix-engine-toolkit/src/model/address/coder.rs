@@ -17,12 +17,12 @@
 
 use std::borrow::Borrow;
 
-use crate::address::network_aware_address::*;
+use crate::error::Error;
 use crate::error::Result;
+use crate::model::address::network_aware_address::*;
 use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
-use crate::Error;
 use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress};
 use scrypto::radix_engine_interface::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::radix_engine_interface::network::NetworkDefinition;

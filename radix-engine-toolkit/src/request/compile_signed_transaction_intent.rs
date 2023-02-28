@@ -15,11 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::traits::Handler;
 use crate::error::Result;
-use crate::model::transaction::SignedTransactionIntent;
-use crate::request::Handler;
+use crate::model::instruction::Instruction;
+use crate::model::transaction::{InstructionList, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
-use crate::{traverse_instruction, Instruction, InstructionList, ValueNetworkAggregatorVisitor};
+use crate::visitor::{traverse_instruction, ValueNetworkAggregatorVisitor};
 use toolkit_derive::serializable;
 
 // =================
@@ -83,7 +84,7 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
             .iter()
             .find(|network_id| **network_id != expected_network_id)
         {
-            return Err(crate::Error::NetworkMismatchError {
+            return Err(crate::error::Error::NetworkMismatchError {
                 found: *network_id,
                 expected: expected_network_id,
             });

@@ -18,7 +18,7 @@
 use native_transaction::data::ManifestBlobRef;
 use toolkit_derive::serializable;
 
-use crate::RADIX_ENGINE_HASH_LENGTH;
+use crate::model::constants::RADIX_ENGINE_HASH_LENGTH;
 
 #[serializable]
 /// Represents the hash of a blob provided as part of a transaction manifest. This is represented as

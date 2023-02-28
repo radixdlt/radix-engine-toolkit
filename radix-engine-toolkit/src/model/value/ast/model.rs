@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::address::{
+use crate::define_kind_enum;
+use crate::error::{Error, Result};
+use crate::model::address::{
     EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
     NetworkAwareResourceAddress, NonFungibleGlobalId,
 };
-use crate::define_kind_enum;
-use crate::error::{Error, Result};
-use crate::transient_identifier::{BucketId, ProofId};
+use crate::model::engine_identifier::{BucketId, ProofId};
 
 use native_transaction::data::{ManifestBlobRef, ManifestExpression};
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
@@ -242,8 +242,8 @@ define_kind_enum! {
         /// Represents non-fungible ids which is a discriminated union of the different types that
         /// non-fungible ids may be.
         NonFungibleLocalId {
-            #[schemars(with = "crate::NonFungibleLocalId")]
-            #[serde_as(as = "serde_with::TryFromInto<crate::NonFungibleLocalId>")]
+            #[schemars(with = "crate::model::address::NonFungibleLocalId")]
+            #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
             value: NonFungibleLocalId,
         },
 
@@ -257,16 +257,16 @@ define_kind_enum! {
 
         /// Represents a transaction manifest expression.
         Expression {
-            #[schemars(with = "crate::Expression")]
-            #[serde_as(as = "serde_with::FromInto<crate::Expression>")]
+            #[schemars(with = "crate::model::runtime::Expression")]
+            #[serde_as(as = "serde_with::FromInto<crate::model::runtime::Expression>")]
             value: ManifestExpression,
         },
 
         /// Represents the hash of a blob provided as part of a transaction manifest. This is
         /// represented as a byte array of 32 bytes which is serialized as a hex string.
         Blob {
-            #[schemars(with = "crate::Blob")]
-            #[serde_as(as = "serde_with::FromInto<crate::Blob>")]
+            #[schemars(with = "crate::model::runtime::Blob")]
+            #[serde_as(as = "serde_with::FromInto<crate::model::runtime::Blob>")]
             hash: ManifestBlobRef,
         },
 

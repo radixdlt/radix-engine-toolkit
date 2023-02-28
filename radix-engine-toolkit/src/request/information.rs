@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::error::Result;
-use crate::request::Handler;
+use crate::request::traits::Handler;
 use toolkit_derive::serializable;
 
 // =================
@@ -40,7 +40,7 @@ pub struct InformationResponse {
     /// The hash of the commit that this build of the Radix Engine Toolkit was built against. This
     /// is useful when doing any form of debugging and trying to determine the version of the
     /// library
-    pub git_hash: String,
+    pub last_commit_hash: String,
 }
 
 // ===============
@@ -57,7 +57,7 @@ impl Handler<InformationRequest, InformationResponse> for InformationHandler {
     fn handle(_: &InformationRequest) -> Result<InformationResponse> {
         let response = InformationResponse {
             package_version: env!("CARGO_PKG_VERSION").into(),
-            git_hash: env!("GIT_HASH").into(),
+            last_commit_hash: env!("GIT_HASH").into(),
         };
         Ok(response)
     }

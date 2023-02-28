@@ -1,4 +1,5 @@
-use crate::{error::Result, InstructionKind};
+use crate::error::Result;
+use crate::model::transaction::InstructionKind;
 use scrypto::prelude::{hash, Hash};
 
 /// A trait that defines the common interface of all compile-able intents

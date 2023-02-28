@@ -22,7 +22,7 @@ use scrypto::prelude::{
 };
 use toolkit_derive::serializable;
 
-use crate::{Error, Result};
+use crate::error::{Error, Result};
 
 #[serializable]
 #[serde(tag = "type", content = "value")]

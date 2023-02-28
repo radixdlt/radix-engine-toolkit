@@ -15,8 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::request::Handler;
-use crate::{error::Result, NonFungibleGlobalId};
+use crate::error::Result;
+use crate::model::address::NonFungibleGlobalId;
+use crate::request::traits::Handler;
 use scrypto::prelude::{FromPublicKey, PublicKey};
 use toolkit_derive::serializable;
 
@@ -46,8 +47,8 @@ pub struct DeriveNonFungibleGlobalIdFromPublicKeyResponse {
     /// The non-fungible global id of the virtual badge associated with the given public key. The
     /// underlying type of this is a `NonFungibleGlobalId` from the `Value` model.
     #[serde(flatten)] // TODO: Remove after betanet v2
-    #[schemars(with = "crate::model::value::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ManifestAstValue>")]
+    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
     pub non_fungible_global_id: NonFungibleGlobalId,
 }
 
@@ -75,7 +76,7 @@ impl
         let non_fungible_global_id =
             scrypto::prelude::NonFungibleGlobalId::from_public_key(&request.public_key);
         let non_fungible_global_id = NonFungibleGlobalId {
-            resource_address: crate::NetworkAwareResourceAddress {
+            resource_address: crate::model::address::NetworkAwareResourceAddress {
                 network_id: request.network_id,
                 address: non_fungible_global_id.resource_address(),
             },

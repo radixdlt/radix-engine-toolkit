@@ -1,5 +1,5 @@
 use radix_engine_toolkit::{
-    model::value::ManifestAstValue, traverse_value, NonFungibleGlobalId, ValueAliasingVisitor,
+    model::value::ast::ManifestAstValue, traverse_value, NonFungibleGlobalId, ValueAliasingVisitor,
     ValueKind,
 };
 use scrypto::prelude::IntegerNonFungibleLocalId;

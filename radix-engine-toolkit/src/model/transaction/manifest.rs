@@ -15,8 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::{Bech32Coder, Error, InstructionKind, InstructionList};
+use crate::error::{Error, Result};
+use crate::model::address::Bech32Coder;
+use crate::model::transaction::{InstructionKind, InstructionList};
 use native_transaction::manifest::decompile;
 use native_transaction::model as native;
 use toolkit_derive::serializable;

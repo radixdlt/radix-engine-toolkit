@@ -18,8 +18,9 @@
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
-use crate::error::Result;
-use crate::{Handler, NetworkAwareComponentAddress};
+use crate::{error::Result, model::address::NetworkAwareComponentAddress};
+
+use super::traits::Handler;
 
 // =================
 // Model Definition
@@ -47,8 +48,8 @@ pub struct DeriveVirtualAccountAddressRequest {
 pub struct DeriveVirtualAccountAddressResponse {
     /// The virtual account component address serialized as a `ComponentAddress` from the `Value`
     /// model.
-    #[schemars(with = "crate::model::value::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ManifestAstValue>")]
+    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
     pub virtual_account_address: NetworkAwareComponentAddress,
 }
 

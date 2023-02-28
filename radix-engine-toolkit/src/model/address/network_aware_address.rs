@@ -18,8 +18,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use crate::address::Bech32Coder;
 use crate::error::{Error, Result};
+use crate::model::address::Bech32Coder;
 
 // Defines a network aware address. This is needed for the serialization and deserialization using
 // serde.
