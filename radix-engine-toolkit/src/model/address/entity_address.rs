@@ -73,6 +73,66 @@ impl From<EntityAddress> for Address {
     }
 }
 
+impl TryFrom<NetworkAwareComponentAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwareComponentAddress) -> Result<Self> {
+        Ok(Self::ComponentAddress { address })
+    }
+}
+
+impl TryFrom<NetworkAwarePackageAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwarePackageAddress) -> Result<Self> {
+        Ok(Self::PackageAddress { address })
+    }
+}
+
+impl TryFrom<NetworkAwareResourceAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwareResourceAddress) -> Result<Self> {
+        Ok(Self::ResourceAddress { address })
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwareComponentAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::ComponentAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwareResourceAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::ResourceAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwarePackageAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::PackageAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
+}
+
 // ===============
 // Implementation
 // ===============

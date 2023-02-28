@@ -19,7 +19,8 @@ use std::collections::BTreeSet;
 
 use crate::error::Result;
 use crate::model::address::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
+    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress,
 };
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
@@ -58,62 +59,48 @@ pub struct AnalyzeManifestRequest {
 pub struct AnalyzeManifestResponse {
     /// A set of all of the package addresses seen in the manifest. The underlying type of this is
     /// an array of `PackageAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
 
     /// A set of all of the component addresses seen in the manifest. The underlying type of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the resource addresses seen in the manifest. The underlying type of this is
     /// an array of `ResourceAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
 
     /// A set of all of the account component addresses seen in the manifest. The underlying type
     /// of this is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub account_addresses: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which had methods invoked
     /// on them that would typically require auth (or a signature) to be called successfully.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type of
     /// this  is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_requiring_auth: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which were withdrawn from.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type  of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_withdrawn_from: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which were deposited into.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type  of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::value::ast::ManifestAstValue>")]
-    #[serde_as(
-        as = "BTreeSet<serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>>"
-    )]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_deposited_into: BTreeSet<NetworkAwareComponentAddress>,
 }
 

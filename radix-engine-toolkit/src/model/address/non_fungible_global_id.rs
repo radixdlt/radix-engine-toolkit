@@ -28,12 +28,12 @@ use crate::model::address::NetworkAwareResourceAddress;
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NonFungibleGlobalId {
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub resource_address: NetworkAwareResourceAddress,
 
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
+    #[schemars(with = "crate::model::address::NonFungibleLocalId")]
     pub non_fungible_local_id: NonFungibleLocalId,
 }
 

@@ -2214,10 +2214,10 @@
               ]
             },
             "resource_address": {
-              "$ref": "#/definitions/ManifestAstValue"
+              "type": "string"
             },
             "non_fungible_local_id": {
-              "$ref": "#/definitions/ManifestAstValue"
+              "$ref": "#/definitions/NonFungibleLocalId"
             }
           }
         },

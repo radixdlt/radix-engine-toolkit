@@ -3115,10 +3115,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "virtual_account_address": {
-    "type": "ComponentAddress",
-    "address": "account_sim1qakfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqe6yywy"
-  }
+  "virtual_account_address": "account_sim1qakfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqe6yywy"
 }
 ```
 </details>
@@ -3151,10 +3148,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "virtual_identity_address": {
-    "type": "ComponentAddress",
-    "address": "identity_sim1pfkfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqy9pgkj"
-  }
+  "virtual_identity_address": "identity_sim1pfkfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqy9pgkj"
 }
 ```
 </details>
@@ -3187,14 +3181,9 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "type": "NonFungibleGlobalId",
-  "resource_address": {
-    "type": "ResourceAddress",
-    "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
-  },
-  "non_fungible_local_id": {
-    "type": "NonFungibleLocalId",
-    "value": {
+  "non_fungible_global_id": {
+    "resource_address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h",
+    "non_fungible_local_id": {
       "type": "Bytes",
       "value": "6c96ed8f02b0e1171235a8b3f1e23682d235a50aa4c52a7c736e"
     }

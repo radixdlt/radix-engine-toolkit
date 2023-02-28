@@ -172,6 +172,9 @@ pub enum Error {
     Infallible {
         message: String,
     },
+
+    /// A conversion which is invalid and can not be made.
+    InvalidConversion,
 }
 
 impl Display for Error {

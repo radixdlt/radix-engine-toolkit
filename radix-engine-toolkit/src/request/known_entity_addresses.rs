@@ -17,7 +17,8 @@
 
 use crate::error::Result;
 use crate::model::address::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
+    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress,
 };
 use crate::request::traits::Handler;
 use scrypto::prelude::{
@@ -50,62 +51,62 @@ pub struct KnownEntityAddressesRequest {
 pub struct KnownEntityAddressesResponse {
     /// A component address serialized as a `ComponentAddress` from the `Value` model which
     /// represents the address of the faucet component on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub faucet_component_address: NetworkAwareComponentAddress,
 
     /// A package address serialized as a `PackageAddress` from the `Value` model which represents
     /// the address of the faucet package on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub faucet_package_address: NetworkAwarePackageAddress,
 
     /// A package address serialized as a `PackageAddress` from the `Value` model which represents
     /// the address of the account package on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub account_package_address: NetworkAwarePackageAddress,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the XRD resource on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub xrd_resource_address: NetworkAwareResourceAddress,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the system resource on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub system_token_resource_address: NetworkAwareResourceAddress,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the Ecdsa Secp256k1 resource on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub ecdsa_secp256k1_token_resource_address: NetworkAwareResourceAddress,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the EdDSA Ed25519 resource on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the package token resource on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub package_token_resource_address: NetworkAwareResourceAddress,
 
     /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the epoch manager on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub epoch_manager_system_address: NetworkAwareComponentAddress,
 
     /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the clock on the requested network.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub clock_system_address: NetworkAwareComponentAddress,
 }
 

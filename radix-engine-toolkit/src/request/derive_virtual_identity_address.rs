@@ -48,8 +48,8 @@ pub struct DeriveVirtualIdentityAddressRequest {
 pub struct DeriveVirtualIdentityAddressResponse {
     /// The virtual identity component address serialized as a `ComponentAddress` from the `Value`
     /// model.
-    #[schemars(with = "crate::model::value::ast::ManifestAstValue")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::value::ast::ManifestAstValue>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub virtual_identity_address: NetworkAwareComponentAddress,
 }
 
