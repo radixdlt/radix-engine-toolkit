@@ -24,74 +24,7 @@ use std::path::PathBuf;
 use convert_case::Casing;
 use examples_builder::InMemoryExamplesBuilder;
 
-use radix_engine_toolkit::request::analyze_manifest::{
-    AnalyzeManifestHandler, AnalyzeManifestRequest, AnalyzeManifestResponse,
-};
-use radix_engine_toolkit::request::compile_notarized_transaction::{
-    CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest,
-    CompileNotarizedTransactionResponse,
-};
-use radix_engine_toolkit::request::compile_signed_transaction_intent::{
-    CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest,
-    CompileSignedTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::compile_transaction_intent::{
-    CompileTransactionIntentHandler, CompileTransactionIntentRequest,
-    CompileTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::convert_manifest::{
-    ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse,
-};
-use radix_engine_toolkit::request::decode_address::{
-    DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse,
-};
-use radix_engine_toolkit::request::decompile_notarized_transaction::{
-    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest,
-    DecompileNotarizedTransactionResponse,
-};
-use radix_engine_toolkit::request::decompile_signed_transaction_intent::{
-    DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest,
-    DecompileSignedTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::decompile_transaction_intent::{
-    DecompileTransactionIntentHandler, DecompileTransactionIntentRequest,
-    DecompileTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::decompile_unknown_intent::{
-    DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest,
-    DecompileUnknownTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::derive_non_fungible_global_id_from_public_key::{
-    DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-    DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-};
-use radix_engine_toolkit::request::derive_virtual_account_address::{
-    DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest,
-    DeriveVirtualAccountAddressResponse,
-};
-use radix_engine_toolkit::request::derive_virtual_identity_address::{
-    DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest,
-    DeriveVirtualIdentityAddressResponse,
-};
-use radix_engine_toolkit::request::encode_address::{
-    EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse,
-};
-use radix_engine_toolkit::request::information::{
-    InformationHandler, InformationRequest, InformationResponse,
-};
-use radix_engine_toolkit::request::known_entity_addresses::{
-    KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse,
-};
-use radix_engine_toolkit::request::sbor_decode::{
-    SborDecodeHandler, SborDecodeRequest, SborDecodeResponse,
-};
-use radix_engine_toolkit::request::sbor_encode::{
-    SborEncodeHandler, SborEncodeRequest, SborEncodeResponse,
-};
-use radix_engine_toolkit::request::statically_validate_transaction::{
-    StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest,
-    StaticallyValidateTransactionResponse,
-};
+use radix_engine_toolkit::request::*;
 
 /// Generates a Schema HashMap where the key is the class name and the value is the schema
 macro_rules! generate_schema_hashmap {
@@ -163,7 +96,9 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
         KnownEntityAddressesRequest,
         KnownEntityAddressesResponse,
         StaticallyValidateTransactionRequest,
-        StaticallyValidateTransactionResponse
+        StaticallyValidateTransactionResponse,
+        HashRequest,
+        HashResponse
     );
 
     // Iterating over the HashMap, modifying the class name to be in snake case and writing the
@@ -217,6 +152,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         .add_example::<DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest, DeriveNonFungibleGlobalIdFromPublicKeyResponse>()
         .add_example::<StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>()
         .add_example::<KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse>()
+        .add_example::<HashHandler, HashRequest, HashResponse>()
         .build();
 
     let path = {

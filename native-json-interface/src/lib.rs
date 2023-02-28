@@ -96,6 +96,8 @@ pub mod native {
 
     export_handler!(KnownEntityAddressesHandler as known_entity_addresses);
     export_handler!(StaticallyValidateTransactionHandler as statically_validate_transaction);
+
+    export_handler!(HashHandler as hash);
 }
 
 #[cfg(feature = "jni")]
@@ -234,4 +236,6 @@ pub mod jni {
         StaticallyValidateTransactionHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction
     );
+
+    export_handler!(HashHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hash);
 }

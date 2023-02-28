@@ -30,74 +30,7 @@ use radix_engine_toolkit::request::traits::Handler;
 use scrypto::{prelude::*, radix_engine_interface::network::NetworkDefinition};
 use serde::Serialize;
 
-use radix_engine_toolkit::request::analyze_manifest::{
-    AnalyzeManifestHandler, AnalyzeManifestRequest, AnalyzeManifestResponse,
-};
-use radix_engine_toolkit::request::compile_notarized_transaction::{
-    CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest,
-    CompileNotarizedTransactionResponse,
-};
-use radix_engine_toolkit::request::compile_signed_transaction_intent::{
-    CompileSignedTransactionIntentHandler, CompileSignedTransactionIntentRequest,
-    CompileSignedTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::compile_transaction_intent::{
-    CompileTransactionIntentHandler, CompileTransactionIntentRequest,
-    CompileTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::convert_manifest::{
-    ConvertManifestHandler, ConvertManifestRequest, ConvertManifestResponse,
-};
-use radix_engine_toolkit::request::decode_address::{
-    DecodeAddressHandler, DecodeAddressRequest, DecodeAddressResponse,
-};
-use radix_engine_toolkit::request::decompile_notarized_transaction::{
-    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest,
-    DecompileNotarizedTransactionResponse,
-};
-use radix_engine_toolkit::request::decompile_signed_transaction_intent::{
-    DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest,
-    DecompileSignedTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::decompile_transaction_intent::{
-    DecompileTransactionIntentHandler, DecompileTransactionIntentRequest,
-    DecompileTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::decompile_unknown_intent::{
-    DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest,
-    DecompileUnknownTransactionIntentResponse,
-};
-use radix_engine_toolkit::request::derive_non_fungible_global_id_from_public_key::{
-    DeriveNonFungibleGlobalIdFromPublicKeyHandler, DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-    DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-};
-use radix_engine_toolkit::request::derive_virtual_account_address::{
-    DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest,
-    DeriveVirtualAccountAddressResponse,
-};
-use radix_engine_toolkit::request::derive_virtual_identity_address::{
-    DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest,
-    DeriveVirtualIdentityAddressResponse,
-};
-use radix_engine_toolkit::request::encode_address::{
-    EncodeAddressHandler, EncodeAddressRequest, EncodeAddressResponse,
-};
-use radix_engine_toolkit::request::information::{
-    InformationHandler, InformationRequest, InformationResponse,
-};
-use radix_engine_toolkit::request::known_entity_addresses::{
-    KnownEntityAddressesHandler, KnownEntityAddressesRequest, KnownEntityAddressesResponse,
-};
-use radix_engine_toolkit::request::sbor_decode::{
-    SborDecodeHandler, SborDecodeRequest, SborDecodeResponse,
-};
-use radix_engine_toolkit::request::sbor_encode::{
-    SborEncodeHandler, SborEncodeRequest, SborEncodeResponse,
-};
-use radix_engine_toolkit::request::statically_validate_transaction::{
-    StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest,
-    StaticallyValidateTransactionResponse,
-};
+use radix_engine_toolkit::request::*;
 
 pub fn network_definition() -> NetworkDefinition {
     NetworkDefinition::simulator()
@@ -584,6 +517,28 @@ impl ExampleData<StaticallyValidateTransactionRequest, StaticallyValidateTransac
         StaticallyValidateTransactionRequest {
             compiled_notarized_intent: compiled_transaction_intent,
             validation_config,
+        }
+    }
+}
+
+impl ExampleData<HashRequest, HashResponse> for HashHandler {
+    fn description() -> String {
+        r#"Hashes some payload through the hashing algorithm used in Scrypto and the Radix Engine."#
+            .to_owned()
+    }
+
+    fn example_request() -> HashRequest {
+        // Making the notarized transaction invalid
+        let notarized_transaction = {
+            let mut transaction = notarized_intent();
+            transaction.notary_signature =
+                transaction.signed_intent.intent_signatures[0].signature();
+            transaction
+        };
+
+        let compiled_transaction_intent = manifest_encode(&notarized_transaction).unwrap();
+        HashRequest {
+            payload: compiled_transaction_intent,
         }
     }
 }
