@@ -1,11 +1,28 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 use std::collections::BTreeSet;
 
-use scrypto::prelude::ComponentAddress;
 use scrypto::radix_engine_interface::blueprints::account::*;
 
 use crate::error::Result;
 use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
 use crate::model::value::ast::ManifestAstValue;
+use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
 
 /// A visitor whose main responsibility is determining the kind of interactions involved with
@@ -44,27 +61,22 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         &mut self,
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
-        _: &mut Option<Vec<ManifestAstValue>>,
+        _args: &mut Option<Vec<ManifestAstValue>>,
     ) -> Result<()> {
+        // Checking for methods that require auth
         match (component_address, method_name) {
             (
                 ManifestAstValue::ComponentAddress {
-                    address: component_address,
+                    address: ref component_address,
                 }
                 | ManifestAstValue::Address {
                     address:
                         EntityAddress::ComponentAddress {
-                            address: component_address,
+                            address: ref component_address,
                         },
                 },
                 ManifestAstValue::String { value: method_name },
-            ) if matches!(
-                component_address.address,
-                ComponentAddress::Account(..)
-                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-            ) =>
-            {
+            ) if is_account(component_address) => {
                 if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
                     self.auth_required.insert(*component_address);
                 }
@@ -77,6 +89,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
             }
             _ => {}
         }
+
         Ok(())
     }
 
@@ -88,20 +101,14 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match entity_address {
             ManifestAstValue::ComponentAddress {
-                address: component_address,
+                address: ref component_address,
             }
             | ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
-                        address: component_address,
+                        address: ref component_address,
                     },
-            } if matches!(
-                component_address.address,
-                ComponentAddress::Account(..)
-                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-            ) =>
-            {
+            } if is_account(component_address) => {
                 self.auth_required.insert(*component_address);
             }
             _ => {}
@@ -117,20 +124,14 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match component_address {
             ManifestAstValue::ComponentAddress {
-                address: component_address,
+                address: ref component_address,
             }
             | ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
-                        address: component_address,
+                        address: ref component_address,
                     },
-            } if matches!(
-                component_address.address,
-                ComponentAddress::Account(..)
-                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-            ) =>
-            {
+            } if is_account(component_address) => {
                 self.auth_required.insert(*component_address);
             }
             _ => {}
@@ -144,20 +145,14 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match component_address {
             ManifestAstValue::ComponentAddress {
-                address: component_address,
+                address: ref component_address,
             }
             | ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
-                        address: component_address,
+                        address: ref component_address,
                     },
-            } if matches!(
-                component_address.address,
-                ComponentAddress::Account(..)
-                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-            ) =>
-            {
+            } if is_account(component_address) => {
                 self.auth_required.insert(*component_address);
             }
             _ => {}
@@ -174,20 +169,14 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match entity_address {
             ManifestAstValue::ComponentAddress {
-                address: component_address,
+                address: ref component_address,
             }
             | ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
-                        address: component_address,
+                        address: ref component_address,
                     },
-            } if matches!(
-                component_address.address,
-                ComponentAddress::Account(..)
-                    | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                    | ComponentAddress::EddsaEd25519VirtualAccount(..),
-            ) =>
-            {
+            } if is_account(component_address) => {
                 self.auth_required.insert(*component_address);
             }
             _ => {}

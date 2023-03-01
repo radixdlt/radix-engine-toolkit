@@ -25,11 +25,11 @@ use crate::model::address::{
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::request::convert_manifest::ConvertManifestRequest;
+use crate::utils::is_account;
 use crate::visitor::{
     traverse_instruction, AccountInteractionsInstructionVisitor, AddressAggregatorVisitor,
     ValueNetworkAggregatorVisitor,
 };
-use scrypto::prelude::ComponentAddress;
 use toolkit_derive::serializable;
 
 use super::convert_manifest::ConvertManifestHandler;
@@ -50,7 +50,7 @@ pub struct AnalyzeManifestRequest {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
-    /// The manifest to convert to the format described by `instructions_output_kind`
+    /// The manifest to analyze.
     pub manifest: TransactionManifest,
 }
 
@@ -183,14 +183,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             account_addresses: address_aggregator_visitor
                 .component_addresses
                 .into_iter()
-                .filter(|address| {
-                    matches!(
-                        address.address,
-                        ComponentAddress::Account(..)
-                            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                            | ComponentAddress::EddsaEd25519VirtualAccount(..)
-                    )
-                })
+                .filter(|address| is_account(address))
                 .collect(),
             accounts_requiring_auth: account_interactions_visitor.auth_required,
             accounts_withdrawn_from: account_interactions_visitor.accounts_withdrawn_from,

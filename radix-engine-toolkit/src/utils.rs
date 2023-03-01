@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::borrow::Borrow;
+
 use crate::error::Result;
 use bech32;
+use scrypto::prelude::ComponentAddress;
 use scrypto::radix_engine_interface::address::AddressError;
 use scrypto::radix_engine_interface::network::NetworkDefinition;
 
@@ -126,4 +129,13 @@ pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8> {
     let (hrp, _, _) =
         bech32::decode(address.as_ref()).map_err(AddressError::Bech32mDecodingError)?;
     network_id_from_hrp(hrp)
+}
+
+pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
+    matches!(
+        address.borrow(),
+        ComponentAddress::Account(..)
+            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+            | ComponentAddress::EddsaEd25519VirtualAccount(..)
+    )
 }

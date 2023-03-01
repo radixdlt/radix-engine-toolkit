@@ -79,6 +79,18 @@ macro_rules! define_network_aware_address {
                 &self.address
             }
         }
+
+        impl std::borrow::Borrow<$underlying_type> for &$network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
+            }
+        }
+
+        impl std::borrow::Borrow<$underlying_type> for &mut $network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
+            }
+        }
     };
 }
 
