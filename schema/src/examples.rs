@@ -184,7 +184,7 @@ impl ExampleData<InformationRequest, InformationResponse> for InformationHandler
     fn example_response() -> InformationResponse {
         let mut response = Self::fulfill(Self::example_request()).unwrap();
         response.last_commit_hash =
-            "This is just an example. We don't have a commit hash here :)".into();
+            "This is just an example. We don't have a commit hash here".into();
         response
     }
 }
