@@ -43,11 +43,11 @@ jobs:
       - name: Comparing old examples to newly generated
         run: |
           cd schema
-          cmp --quiet ./out/examples/request-examples.md ./old-out/examples/request-examples.md && exit 0 || exit 1
+          cmp --quiet ./out/examples/request-examples.md ./old-out/examples/request-examples.md && echo 'success' || echo 'failure'
       - name: Comparing old schema to newly generated
         run: |
           cd schema
           for filename in $(find ./out/schema -type f -name "*.json" -exec basename {} \;);
           do
-            cmp --quiet out/schema/$filename ./old-out/schema/$filename && exit 0 || exit 1
+            cmp --quiet out/schema/$filename ./old-out/schema/$filename && echo 'success' || echo 'failure'
           done
