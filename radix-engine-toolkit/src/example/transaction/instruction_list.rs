@@ -15,11 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod buffer;
-pub mod error;
-pub mod example;
-pub mod model;
-pub mod request;
-pub mod traits;
-pub mod utils;
-pub mod visitor;
+use crate::model::{instruction::Instruction, transaction::InstructionList};
+
+pub fn string() -> InstructionList {
+    InstructionList::String("DROP_ALL_PROOFS;".to_owned())
+}
+
+pub fn parsed() -> InstructionList {
+    InstructionList::Parsed(vec![Instruction::DropAllProofs])
+}

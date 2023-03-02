@@ -20,6 +20,10 @@ use toolkit_derive::serializable;
 
 /// A transaction header containing metadata and other transaction information.
 #[serializable]
+#[schemars(
+    example = "crate::example::transaction::header::header1",
+    example = "crate::example::transaction::header::header2"
+)]
 pub struct TransactionHeader {
     /// An 8 bit unsigned integer serialized as a string which represents the transaction version.
     /// Currently, this value is always 1.

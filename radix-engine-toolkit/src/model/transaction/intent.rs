@@ -33,6 +33,7 @@ use native_transaction::model as native;
 /// A transaction intent which is made of the header containing the transaction metadata and a
 /// manifest consisting of the instructions and blobs.
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::intent")]
 pub struct TransactionIntent {
     /// A transaction header of the transaction metadata.
     pub header: TransactionHeader,

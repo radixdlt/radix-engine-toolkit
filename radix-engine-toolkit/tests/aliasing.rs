@@ -1,45 +1,44 @@
-use radix_engine_toolkit::{
-    model::value::ast::ManifestAstValue, traverse_value, NonFungibleGlobalId, ValueAliasingVisitor,
-    ValueKind,
-};
+use radix_engine_toolkit::model::address::NonFungibleGlobalId;
+use radix_engine_toolkit::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
+use radix_engine_toolkit::visitor::{traverse_value, ValueAliasingVisitor};
 use scrypto::prelude::IntegerNonFungibleLocalId;
 
 #[test]
 fn aliasing_of_deeply_nested_structures_works() {
     // Arrange
-    let mut value = Value::Map {
-        key_value_kind: ValueKind::String,
-        value_value_kind: ValueKind::Tuple,
+    let mut value = ManifestAstValue::Map {
+        key_value_kind: ManifestAstValueKind::String,
+        value_value_kind: ManifestAstValueKind::Tuple,
         entries: vec![
             (
-                Value::String {
+                ManifestAstValue::String {
                     value: "HelloWorld".into(),
                 },
-                Value::Tuple {
+                ManifestAstValue::Tuple {
                     elements: vec![
-                        Value::Decimal {
+                        ManifestAstValue::Decimal {
                             value: "12".parse().unwrap(),
                         },
-                        Value::PreciseDecimal {
+                        ManifestAstValue::PreciseDecimal {
                             value: "12".parse().unwrap(),
                         },
                     ],
                 },
             ),
             (
-                Value::String {
+                ManifestAstValue::String {
                     value: "WorldHello".into(),
                 },
-                Value::Tuple {
-                    elements: vec![Value::Tuple {
-                        elements: vec![Value::Tuple {
-                            elements: vec![Value::Array {
-                                element_kind: ValueKind::Array,
-                                elements: vec![Value::Array {
-                                    element_kind: ValueKind::Tuple,
-                                    elements: vec![Value::Tuple { elements: vec![
-                                        Value::ResourceAddress { address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap() },
-                                        Value::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
+                ManifestAstValue::Tuple {
+                    elements: vec![ManifestAstValue::Tuple {
+                        elements: vec![ManifestAstValue::Tuple {
+                            elements: vec![ManifestAstValue::Array {
+                                element_kind: ManifestAstValueKind::Array,
+                                elements: vec![ManifestAstValue::Array {
+                                    element_kind: ManifestAstValueKind::Tuple,
+                                    elements: vec![ManifestAstValue::Tuple { elements: vec![
+                                        ManifestAstValue::ResourceAddress { address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap() },
+                                        ManifestAstValue::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
                                     ] }],
                                 }],
                             }],
@@ -50,37 +49,37 @@ fn aliasing_of_deeply_nested_structures_works() {
         ],
     };
 
-    let expected = Value::Map {
-        key_value_kind: ValueKind::String,
-        value_value_kind: ValueKind::Tuple,
+    let expected = ManifestAstValue::Map {
+        key_value_kind: ManifestAstValueKind::String,
+        value_value_kind: ManifestAstValueKind::Tuple,
         entries: vec![
             (
-                Value::String {
+                ManifestAstValue::String {
                     value: "HelloWorld".into(),
                 },
-                Value::Tuple {
+                ManifestAstValue::Tuple {
                     elements: vec![
-                        Value::Decimal {
+                        ManifestAstValue::Decimal {
                             value: "12".parse().unwrap(),
                         },
-                        Value::PreciseDecimal {
+                        ManifestAstValue::PreciseDecimal {
                             value: "12".parse().unwrap(),
                         },
                     ],
                 },
             ),
             (
-                Value::String {
+                ManifestAstValue::String {
                     value: "WorldHello".into(),
                 },
-                Value::Tuple {
-                    elements: vec![Value::Tuple {
-                        elements: vec![Value::Tuple {
-                            elements: vec![Value::Array {
-                                element_kind: ValueKind::Array,
-                                elements: vec![Value::Array {
-                                    element_kind: ValueKind::Tuple,
-                                    elements: vec![Value::NonFungibleGlobalId { address: NonFungibleGlobalId {
+                ManifestAstValue::Tuple {
+                    elements: vec![ManifestAstValue::Tuple {
+                        elements: vec![ManifestAstValue::Tuple {
+                            elements: vec![ManifestAstValue::Array {
+                                element_kind: ManifestAstValueKind::Array,
+                                elements: vec![ManifestAstValue::Array {
+                                    element_kind: ManifestAstValueKind::Tuple,
+                                    elements: vec![ManifestAstValue::NonFungibleGlobalId { address: NonFungibleGlobalId {
                                         resource_address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap(),
                                         non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1))
                                     } }],

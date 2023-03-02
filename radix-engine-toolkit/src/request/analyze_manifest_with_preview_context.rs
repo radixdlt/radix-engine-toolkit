@@ -74,8 +74,8 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     ///
     /// This field is populated by statically analyzing the transaction manifest and parsing the
     /// `CALL_METHOD` instructions to determine which ones create proofs from accounts, what the
-    /// account addresses are, what the resource addresses are, as well as the quantity of resources
-    /// created in that proof.
+    /// account addresses are, what the resource addresses are, as well as the quantity of
+    /// resources created in that proof.
     ///
     /// With the above in mind, it means that this field will not show proofs which are not created
     /// from accounts or those created from interactions with other components. This is strictly
@@ -86,9 +86,9 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
 
     /// The account actions which took place during the transaction such as withdraws and deposits.
     ///
-    /// This field is populated by aggregating, filtering, and parsing the data data in the preview.
-    /// Thus, this information is not as trustworthy as information obtained by statically analyzing
-    /// the manifest.
+    /// This field is populated by aggregating, filtering, and parsing the data data in the
+    /// preview. Thus, this information is not as trustworthy as information obtained by
+    /// statically analyzing the manifest.
     account_actions: AccountActions,
 }
 
@@ -152,7 +152,8 @@ pub struct AccountAction {
     pub component_address: NetworkAwareComponentAddress,
 
     /// The resource address of the resource that the action was performed against (e.g. if we're
-    /// describing a withdraw action, then this is a the address of the resource that was withdrawn).
+    /// describing a withdraw action, then this is a the address of the resource that was
+    /// withdrawn).
     #[schemars(with = "EntityAddress")]
     #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub resource_address: NetworkAwareResourceAddress,

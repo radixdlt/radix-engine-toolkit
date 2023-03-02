@@ -28,6 +28,7 @@ use toolkit_derive::serializable;
 
 /// A signed transaction intent which is made up of the intent as well as the intent signatures.
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::signed_intent")]
 pub struct SignedTransactionIntent {
     /// The intent of the transaction.
     pub intent: TransactionIntent,

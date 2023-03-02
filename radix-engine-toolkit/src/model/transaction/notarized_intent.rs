@@ -29,6 +29,7 @@ use toolkit_derive::serializable;
 /// A notarized transaction intent which is made up of a signed transaction intent and the notary
 /// intent on said signed intent.
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::notarized_intent")]
 pub struct NotarizedTransaction {
     /// The signed transaction intent of the transaction.
     pub signed_intent: SignedTransactionIntent,

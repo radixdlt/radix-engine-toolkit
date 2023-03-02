@@ -34,6 +34,7 @@ pub enum Signature {
     /// ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s]
     /// where `v` is the recovery id and is a single byte and `r` and `s` are the signature results
     /// and are 32 bytes each.
+    #[schemars(example = "crate::example::crypto::signature1")]
     EcdsaSecp256k1 {
         #[schemars(length(equal = 130))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
@@ -44,6 +45,7 @@ pub enum Signature {
 
     /// A byte array of 64 bytes which are serialized as a 128 character long hex-encoded string
     /// representing a signature from the EDDSA Ed25519 edwards curve.
+    #[schemars(example = "crate::example::crypto::signature2")]
     EddsaEd25519 {
         #[schemars(length(equal = 128))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]

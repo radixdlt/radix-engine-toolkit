@@ -43,6 +43,12 @@ use toolkit_derive::serializable;
 pub enum Instruction {
     /// An instruction to call a function with the given list of arguments on the given package
     /// address and blueprint name.
+    #[schemars(
+        example = "crate::example::instruction::call_function1",
+        example = "crate::example::instruction::call_function2",
+        example = "crate::example::instruction::call_function3",
+        example = "crate::example::instruction::call_function4"
+    )]
     CallFunction {
         /// The address of the package containing the blueprint that contains the desired function.
         /// This package address is serialized as the `PackageAddress` variant of the
@@ -65,6 +71,12 @@ pub enum Instruction {
 
     /// An instruction to call a method with a given name on a given component address with the
     /// given list of arguments.
+    #[schemars(
+        example = "crate::example::instruction::call_method1",
+        example = "crate::example::instruction::call_method2",
+        example = "crate::example::instruction::call_method3",
+        example = "crate::example::instruction::call_method4"
+    )]
     CallMethod {
         /// The address of the component which contains the method to be invoked. This field is
         /// serialized as a `ComponentAddress` from the ManifestAstValue model.
@@ -81,6 +93,10 @@ pub enum Instruction {
 
     /// An instruction to take the entire amount of a given resource address from the worktop and
     /// put it in a bucket.
+    #[schemars(
+        example = "crate::example::instruction::take_from_worktop1",
+        example = "crate::example::instruction::take_from_worktop2"
+    )]
     TakeFromWorktop {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -93,6 +109,10 @@ pub enum Instruction {
 
     /// An instruction to take the an amount of a given resource address from the worktop and put
     /// it in a bucket.
+    #[schemars(
+        example = "crate::example::instruction::take_from_worktop_by_amount1",
+        example = "crate::example::instruction::take_from_worktop_by_amount2"
+    )]
     TakeFromWorktopByAmount {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -109,6 +129,10 @@ pub enum Instruction {
 
     /// An instruction to take the a set of non-fungible ids of a given resource address from the
     /// worktop and put it in a bucket.
+    #[schemars(
+        example = "crate::example::instruction::take_from_worktop_by_ids1",
+        example = "crate::example::instruction::take_from_worktop_by_ids2"
+    )]
     TakeFromWorktopByIds {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -125,12 +149,17 @@ pub enum Instruction {
     },
 
     /// Returns a bucket of tokens to the worktop.
+    #[schemars(example = "crate::example::instruction::return_to_worktop")]
     ReturnToWorktop {
         /// The bucket to return to the worktop.
         bucket: ManifestAstValue,
     },
 
     /// An instruction to assert that a given resource exists in the worktop.
+    #[schemars(
+        example = "crate::example::instruction::assert_worktop_contains1",
+        example = "crate::example::instruction::assert_worktop_contains2"
+    )]
     AssertWorktopContains {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -139,6 +168,10 @@ pub enum Instruction {
 
     /// An instruction to assert that a specific amount of a specific resource address exists in
     /// the worktop.
+    #[schemars(
+        example = "crate::example::instruction::assert_worktop_contains_by_amount1",
+        example = "crate::example::instruction::assert_worktop_contains_by_amount2"
+    )]
     AssertWorktopContainsByAmount {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -151,6 +184,10 @@ pub enum Instruction {
 
     /// An instruction to assert that a set ids of a specific resource address exists in the
     /// worktop.
+    #[schemars(
+        example = "crate::example::instruction::assert_worktop_contains_by_ids1",
+        example = "crate::example::instruction::assert_worktop_contains_by_ids2"
+    )]
     AssertWorktopContainsByIds {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -164,6 +201,7 @@ pub enum Instruction {
     },
 
     /// An instruction which pops a proof from the AuthZone stack and into an identifiable proof
+    #[schemars(example = "crate::example::instruction::pop_from_auth_zone")]
     PopFromAuthZone {
         /// The proof to put the popped proof into. This is serialized as a `Proof` from the
         /// ManifestAstValue model.
@@ -171,6 +209,7 @@ pub enum Instruction {
     },
 
     /// An instruction that pushes a proof to the auth zone stack.
+    #[schemars(example = "crate::example::instruction::push_to_auth_zone")]
     PushToAuthZone {
         /// The proof to push to the auth zone stack. This is serialized as a `Proof` from the
         /// ManifestAstValue model.
@@ -179,10 +218,15 @@ pub enum Instruction {
 
     /// An instruction which clears the auth zone stack by dropping all of the proofs in that
     /// stack.
+    #[schemars(example = "crate::example::instruction::clear_auth_zone")]
     ClearAuthZone,
 
     /// An instruction to create a proof of the entire amount of a given resource address from the
     /// auth zone.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_auth_zone1",
+        example = "crate::example::instruction::create_proof_from_auth_zone2"
+    )]
     CreateProofFromAuthZone {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -195,6 +239,10 @@ pub enum Instruction {
 
     /// An instruction to create a proof of the an amount of a given resource address from the auth
     /// zone.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_auth_zone_by_amount1",
+        example = "crate::example::instruction::create_proof_from_auth_zone_by_amount2"
+    )]
     CreateProofFromAuthZoneByAmount {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -211,6 +259,10 @@ pub enum Instruction {
 
     /// An instruction to create a proof of the a set of non-fungible ids of a given resource
     /// address from the auth zone.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_auth_zone_by_ids1",
+        example = "crate::example::instruction::create_proof_from_auth_zone_by_ids2"
+    )]
     CreateProofFromAuthZoneByIds {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -227,6 +279,7 @@ pub enum Instruction {
     },
 
     /// An instruction to create a proof given a bucket of some resources
+    #[schemars(example = "crate::example::instruction::create_proof_from_bucket")]
     CreateProofFromBucket {
         /// The bucket of resources to create a proof from. This field is serialized as a `Bucket`
         /// from the ManifestAstValue model.
@@ -238,6 +291,7 @@ pub enum Instruction {
     },
 
     /// An instruction to clone a proof creating a second proof identical to the original
+    #[schemars(example = "crate::example::instruction::clone_proof")]
     CloneProof {
         /// The original proof, or the proof to be cloned. This field is serialized as a `Proof`
         /// from the ManifestAstValue model.
@@ -249,6 +303,7 @@ pub enum Instruction {
     },
 
     /// An instruction to drop a proof.
+    #[schemars(example = "crate::example::instruction::drop_proof")]
     DropProof {
         /// The proof to drop. This field is serialized as a `Proof` from the ManifestAstValue
         /// model.
@@ -256,10 +311,12 @@ pub enum Instruction {
     },
 
     /// An instruction to drop all proofs currently present in the transaction context.
+    #[schemars(example = "crate::example::instruction::drop_all_proofs")]
     DropAllProofs,
 
     /// An instruction to publish a package and set it's associated royalty configs, metadata,
     /// and access rules.
+    #[schemars(example = "crate::example::instruction::publish_package")]
     PublishPackage {
         /// The blob of the package code. This field is serialized as a `Blob` from the
         /// ManifestAstValue model.
@@ -284,12 +341,14 @@ pub enum Instruction {
     },
 
     /// An instruction to burn a bucket of tokens.
+    #[schemars(example = "crate::example::instruction::burn_resource")]
     BurnResource {
         /// The bucket of tokens to burn.
         bucket: ManifestAstValue,
     },
 
     /// An instruction ot recall resources from a known vault.
+    #[schemars(example = "crate::example::instruction::recall_resource")]
     RecallResource {
         /// The id of the vault of the tokens to recall. This field is serialized as an `Own` from
         /// the value model and is expected to be an `Own::Vault`.
@@ -301,6 +360,7 @@ pub enum Instruction {
     },
 
     /// An instruction to set the metadata on an entity.
+    #[schemars(example = "crate::example::instruction::set_metadata")]
     SetMetadata {
         /// The address of the entity to set metadata on. This is a discriminated union of types
         /// where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or
@@ -317,6 +377,7 @@ pub enum Instruction {
     },
 
     /// An instruction to modify the royalties of a package.
+    #[schemars(example = "crate::example::instruction::set_package_royalty_config")]
     SetPackageRoyaltyConfig {
         /// The address of the package to set the royalty on. This is serialized as a
         /// `PackageAddress` from the ManifestAstValue model.
@@ -329,6 +390,7 @@ pub enum Instruction {
     },
 
     /// An instruction to modify the royalties on a component
+    #[schemars(example = "crate::example::instruction::set_component_royalty_config")]
     SetComponentRoyaltyConfig {
         /// The component address of the component to modify royalties for. This field is
         /// serialized as a `ComponentAddress` from the ManifestAstValue model.
@@ -340,6 +402,7 @@ pub enum Instruction {
     },
 
     /// An instruction to claim royalties of a package
+    #[schemars(example = "crate::example::instruction::claim_package_royalty")]
     ClaimPackageRoyalty {
         /// The package address of the package to claim royalties for. This field is serialized as
         /// a `PackageAddress` from the ManifestAstValue model.
@@ -347,6 +410,7 @@ pub enum Instruction {
     },
 
     /// An instruction to claim royalties of a component
+    #[schemars(example = "crate::example::instruction::claim_component_royalty")]
     ClaimComponentRoyalty {
         /// The component address of the component to claim royalties for. This field is serialized
         /// as a `ComponentAddress` from the ManifestAstValue model.
@@ -354,6 +418,7 @@ pub enum Instruction {
     },
 
     /// An instruction to modify the access rules of a method that an entity has.
+    #[schemars(example = "crate::example::instruction::set_method_access_rule")]
     SetMethodAccessRule {
         /// The entity address of the entity to modify the access rules for.
         entity_address: ManifestAstValue,
@@ -373,6 +438,7 @@ pub enum Instruction {
     },
 
     /// An instruction to mint fungible resources
+    #[schemars(example = "crate::example::instruction::mint_fungible")]
     MintFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -384,6 +450,7 @@ pub enum Instruction {
     },
 
     /// An instruction to mint non-fungibles of a resource
+    #[schemars(example = "crate::example::instruction::mint_non_fungible")]
     MintNonFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -397,6 +464,7 @@ pub enum Instruction {
 
     /// An instruction to mint non-fungibles of a non-fungible resource that uses UUID as the type
     /// id and perform auto incrimination of ID.
+    #[schemars(example = "crate::example::instruction::mint_uuid_non_fungible")]
     MintUuidNonFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
         /// `ResourceAddress` from the ManifestAstValue model.
@@ -409,6 +477,7 @@ pub enum Instruction {
     },
 
     /// An instruction to create a new fungible resource.
+    #[schemars(example = "crate::example::instruction::create_fungible_resource")]
     CreateFungibleResource {
         /// The divisibility of the resource. This field is serialized as a `U8` from the
         /// ManifestAstValue model.
@@ -426,6 +495,9 @@ pub enum Instruction {
     },
 
     /// An instruction to create a fungible resource with initial supply
+    #[schemars(
+        example = "crate::example::instruction::create_fungible_resource_with_initial_supply"
+    )]
     CreateFungibleResourceWithInitialSupply {
         /// The divisibility of the resource. This field is serialized as a `U8` from the
         /// ManifestAstValue model.
@@ -447,6 +519,7 @@ pub enum Instruction {
     },
 
     /// An instruction to create a new non-fungible resource.
+    #[schemars(example = "crate::example::instruction::create_non_fungible_resource")]
     CreateNonFungibleResource {
         /// The type of the non-fungible id to use for this resource. This field is serialized as
         /// an `Enum` from the ManifestAstValue model.
@@ -464,6 +537,9 @@ pub enum Instruction {
     },
 
     /// An instruction to create a non-fungible resource with an initial supply
+    // #[schemars(
+    //     example =
+    // "crate::example::instruction::create_non_fungible_resource_with_initial_supply" )]
     CreateNonFungibleResourceWithInitialSupply {
         /// The type of the non-fungible id to use for this resource. This field is serialized as
         /// an `Enum` from the ManifestAstValue model.
@@ -488,6 +564,7 @@ pub enum Instruction {
 
     /// Creates a new access controller native component with the passed set of rules as the
     /// current active rule set and the specified timed recovery delay in minutes.
+    #[schemars(example = "crate::example::instruction::create_access_controller")]
     CreateAccessController {
         /// A bucket of the asset that will be controlled by the access controller. The underlying
         /// type of this is a `Bucket` from the `ManifestAstValue` model.
@@ -504,6 +581,7 @@ pub enum Instruction {
     },
 
     /// Creates a new identity native component with the passed access rule.
+    #[schemars(example = "crate::example::instruction::create_identity")]
     CreateIdentity {
         /// The access rule to protect the identity with. The underlying type of this is an `Enum`
         /// from the `ManifestAstValue` model.
@@ -512,6 +590,7 @@ pub enum Instruction {
 
     /// Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of
     /// the transaction
+    #[schemars(example = "crate::example::instruction::assert_access_rule")]
     AssertAccessRule {
         /// The access rule to assert. The underlying type of this is an `Enum` from the
         /// `ManifestAstValue` model which represents the access rule to assert.
@@ -519,6 +598,7 @@ pub enum Instruction {
     },
 
     /// Creates a validator given the public key of the owner who controls it
+    #[schemars(example = "crate::example::instruction::create_validator")]
     CreateValidator {
         /// The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of
         /// this is an `EcdsaSecp256k1PublicKey` from the `ManifestAstValue` model.
@@ -530,6 +610,7 @@ pub enum Instruction {
     },
 
     /// Creates a new global account component which has the withdraw rule seen in the rule.
+    #[schemars(example = "crate::example::instruction::create_account")]
     CreateAccount {
         /// The withdraw rule to associate with the account.
         withdraw_rule: ManifestAstValue,

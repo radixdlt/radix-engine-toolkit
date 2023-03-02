@@ -34,7 +34,9 @@ use toolkit_derive::serializable;
 #[serializable]
 #[serde(tag = "type", content = "value")]
 pub enum InstructionList {
+    #[schemars(example = "crate::example::transaction::instruction_list::string")]
     String(String),
+    #[schemars(example = "crate::example::transaction::instruction_list::parsed")]
     Parsed(Vec<Instruction>),
 }
 

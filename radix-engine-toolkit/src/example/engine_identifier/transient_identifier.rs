@@ -15,11 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod buffer;
-pub mod error;
-pub mod example;
-pub mod model;
-pub mod request;
-pub mod traits;
-pub mod utils;
-pub mod visitor;
+use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
+
+pub fn string() -> TransientIdentifier {
+    TransientIdentifier::String {
+        value: "Scrypto".into(),
+    }
+}
+
+pub fn u32() -> TransientIdentifier {
+    TransientIdentifier::U32 { value: 1 }
+}
+
+pub fn bucket_id1() -> BucketId {
+    BucketId(string())
+}
+
+pub fn bucket_id2() -> BucketId {
+    BucketId(u32())
+}
+
+pub fn proof_id1() -> ProofId {
+    ProofId(string())
+}
+
+pub fn proof_id2() -> ProofId {
+    ProofId(u32())
+}

@@ -30,10 +30,13 @@ use toolkit_derive::serializable;
 /// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
 /// number and not a string)
 pub enum TransientIdentifier {
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::string")]
     String {
         /// A string identifier
         value: String,
     },
+
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::u32")]
     U32 {
         /// A 32-bit unsigned integer which is serialized and deserialized as a string.
         #[schemars(regex(pattern = "[0-9]+"))]
@@ -45,11 +48,19 @@ pub enum TransientIdentifier {
 
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id1",
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id2"
+)]
 /// Represents a BucketId which uses a transient identifier.
 pub struct BucketId(pub TransientIdentifier);
 
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::proof_id1",
+    example = "crate::example::engine_identifier::transient_identifier::proof_id2"
+)]
 /// Represents a ProofId which uses a transient identifier.
 pub struct ProofId(pub TransientIdentifier);
 

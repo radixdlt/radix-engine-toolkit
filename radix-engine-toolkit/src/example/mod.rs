@@ -15,11 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod buffer;
-pub mod error;
-pub mod example;
-pub mod model;
-pub mod request;
-pub mod traits;
-pub mod utils;
-pub mod visitor;
+//! A module for model examples which provides them to the Schemars crate for inclusion in the JSON
+//! Schema generated.
+
+pub mod address;
+pub mod crypto;
+pub mod engine_identifier;
+pub mod instruction;
+pub mod transaction;
+pub mod value;

@@ -30,6 +30,7 @@ use crate::error::{Error, Result};
 /// non-fungible ids may be.
 pub enum NonFungibleLocalId {
     /// A 64 bit unsigned integer non-fungible id type which is serialized as a string
+    #[schemars(example = "crate::example::address::non_fungible::non_fungible_local_integer")]
     Integer(
         #[schemars(regex(pattern = "[0-9]+"))]
         #[schemars(with = "String")]
@@ -39,6 +40,7 @@ pub enum NonFungibleLocalId {
 
     // TODO: Should this be serialized as a GUID?
     /// A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string
+    #[schemars(example = "crate::example::address::non_fungible::non_fungible_local_uuid")]
     UUID(
         #[schemars(regex(pattern = "[0-9]+"))]
         #[schemars(with = "String")]
@@ -48,6 +50,7 @@ pub enum NonFungibleLocalId {
 
     /// An byte array non-fungible id type which is serialized as a hex string. This can be between
     /// 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.
+    #[schemars(example = "crate::example::address::non_fungible::non_fungible_local_uuid")]
     Bytes(
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
         #[schemars(with = "String")]
@@ -57,6 +60,7 @@ pub enum NonFungibleLocalId {
     ),
 
     /// A string non-fungible id. This can be between 1 and 64 characters long.
+    #[schemars(example = "crate::example::address::non_fungible::non_fungible_local_string")]
     String(#[schemars(length(min = 1, max = 64))] String),
 }
 

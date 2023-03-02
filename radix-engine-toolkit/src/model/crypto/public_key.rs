@@ -28,6 +28,7 @@ use toolkit_derive::serializable;
 pub enum PublicKey {
     /// A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string
     /// representing a public key from the ECDSA Secp256k1 elliptic curve.
+    #[schemars(example = "crate::example::crypto::public_key1")]
     EcdsaSecp256k1 {
         #[schemars(length(equal = 66))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
@@ -38,6 +39,7 @@ pub enum PublicKey {
 
     /// A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string
     /// representing a public key from the EDDSA Ed25519 edwards curve.
+    #[schemars(example = "crate::example::crypto::public_key2")]
     EddsaEd25519 {
         #[schemars(length(equal = 66))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]

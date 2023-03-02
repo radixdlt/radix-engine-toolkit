@@ -27,6 +27,12 @@ use crate::model::address::NetworkAwareResourceAddress;
 /// unit.
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::address::non_fungible::non_fungible_global_integer",
+    example = "crate::example::address::non_fungible::non_fungible_global_string",
+    example = "crate::example::address::non_fungible::non_fungible_global_bytes",
+    example = "crate::example::address::non_fungible::non_fungible_global_uuid"
+)]
 pub struct NonFungibleGlobalId {
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]

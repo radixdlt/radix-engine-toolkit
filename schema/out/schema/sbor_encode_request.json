@@ -800,6 +800,12 @@
       "oneOf": [
         {
           "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "Integer",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -820,6 +826,12 @@
         },
         {
           "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -840,6 +852,12 @@
         },
         {
           "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -862,6 +880,12 @@
         },
         {
           "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",

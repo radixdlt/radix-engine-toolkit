@@ -30,6 +30,7 @@ use toolkit_derive::serializable;
 #[serde(tag = "curve")]
 pub enum SignatureWithPublicKey {
     /// Cryptographic signature and public key for Ecdsa Secp256k1
+    #[schemars(example = "crate::example::crypto::signature_with_public_key1")]
     EcdsaSecp256k1 {
         /// A byte array of 65 bytes which are serialized as a 130 character long hex-encoded
         /// string representing a signature from the ECDSA Secp256k1 elliptic curve. An
@@ -46,6 +47,7 @@ pub enum SignatureWithPublicKey {
     },
 
     /// Cryptographic signature and public key for EdDSA Ed25519
+    #[schemars(example = "crate::example::crypto::signature_with_public_key2")]
     EddsaEd25519 {
         /// A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string
         /// representing a public key from the EDDSA Ed25519 edwards curve.

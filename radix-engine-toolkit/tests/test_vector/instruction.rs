@@ -119,16 +119,16 @@ lazy_static::lazy_static! {
     pub static ref INSTRUCTION_CONVERSION_TEST_VECTORS: Vec<InstructionRepresentationTestVector> = vec![
         InstructionRepresentationTestVector::new(
             Instruction::CallFunction {
-                package_address: Value::PackageAddress {
+                package_address: ManifestAstValue::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id: 0xf2,
                         address: PackageAddress::Normal([0; 26]),
                     },
                 },
-                blueprint_name: Value::String {
+                blueprint_name: ManifestAstValue::String {
                     value: "HelloWorld".into(),
                 },
-                function_name: Value::String {
+                function_name: ManifestAstValue::String {
                     value: "world_hello".into(),
                 },
                 arguments: Some(vec![Value::Decimal {
@@ -162,13 +162,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CallMethod {
-                component_address: Value::ComponentAddress {
+                component_address: ManifestAstValue::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id: 0xf2,
                         address: scrypto::prelude::ComponentAddress::Normal([0; 26]),
                     },
                 },
-                method_name: Value::String {
+                method_name: ManifestAstValue::String {
                     value: "remove_user".into(),
                 },
                 arguments: Some(vec![Value::Decimal {
@@ -203,13 +203,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::TakeFromWorktop {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                into_bucket: Value::Bucket {
+                into_bucket: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -237,16 +237,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::TakeFromWorktopByAmount {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                amount: Value::Decimal {
+                amount: ManifestAstValue::Decimal {
                     value: "1".parse().unwrap(),
                 },
-                into_bucket: Value::Bucket {
+                into_bucket: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -279,7 +279,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::TakeFromWorktopByIds {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
@@ -288,7 +288,7 @@ lazy_static::lazy_static! {
                 ids: vec![Value::NonFungibleLocalId {
                     value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                 }],
-                into_bucket: Value::Bucket {
+                into_bucket: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -326,7 +326,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::ReturnToWorktop {
-                bucket: Value::Bucket {
+                bucket: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -349,7 +349,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::AssertWorktopContains {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
@@ -372,13 +372,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::AssertWorktopContainsByAmount {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                amount: Value::Decimal {
+                amount: ManifestAstValue::Decimal {
                     value: "1".parse().unwrap(),
                 },
             },
@@ -403,7 +403,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::AssertWorktopContainsByIds {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
@@ -439,7 +439,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PopFromAuthZone {
-                into_proof: Value::Proof {
+                into_proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -462,7 +462,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PushToAuthZone {
-                proof: Value::Proof {
+                proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -496,13 +496,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateProofFromAuthZone {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                into_proof: Value::Proof {
+                into_proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -530,16 +530,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateProofFromAuthZoneByAmount {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                amount: Value::Decimal {
+                amount: ManifestAstValue::Decimal {
                     value: "1".parse().unwrap(),
                 },
-                into_proof: Value::Proof {
+                into_proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -572,7 +572,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateProofFromAuthZoneByIds {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
@@ -581,7 +581,7 @@ lazy_static::lazy_static! {
                 ids: vec![Value::NonFungibleLocalId {
                     value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                 }],
-                into_proof: Value::Proof {
+                into_proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -619,10 +619,10 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CloneProof {
-                proof: Value::Proof {
+                proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
-                into_proof: Value::Proof {
+                into_proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident2".into() }),
                 },
             },
@@ -653,7 +653,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::DropProof {
-                proof: Value::Proof {
+                proof: ManifestAstValue::Proof {
                     identifier: ProofId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -687,31 +687,31 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PublishPackage {
-                code: Value::Blob {
+                code: ManifestAstValue::Blob {
                     hash: Hash::from_str(
                         "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
-                abi: Value::Blob {
+                abi: ManifestAstValue::Blob {
                     hash: Hash::from_str(
                         "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
-                royalty_config: Value::Map {
+                royalty_config: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::Tuple,
                     entries: Vec::new(),
                 },
-                metadata: Value::Map {
+                metadata: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                access_rules: Value::decode(scrypto_encode(&AccessRules::new()).unwrap(), 0xf2).unwrap(),
+                access_rules: ManifestAstValue::decode(scrypto_encode(&AccessRules::new()).unwrap(), 0xf2).unwrap(),
             },
             r#"
             {
@@ -799,21 +799,21 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::PublishPackageWithOwner {
-                code: Value::Blob {
+                code: ManifestAstValue::Blob {
                     hash: Hash::from_str(
                         "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
-                abi: Value::Blob {
+                abi: ManifestAstValue::Blob {
                     hash: Hash::from_str(
                         "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                     )
                     .map(ManifestBlobRef)
                     .unwrap(),
                 },
-                owner_badge: Value::NonFungibleGlobalId {
+                owner_badge: ManifestAstValue::NonFungibleGlobalId {
                     address: radix_engine_toolkit::NonFungibleGlobalId {
                         resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -859,7 +859,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::BurnResource {
-                bucket: Value::Bucket {
+                bucket: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
             },
@@ -882,13 +882,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::RecallResource {
-                vault_id: Value::Bytes {
+                vault_id: ManifestAstValue::Bytes {
                     value: hex::decode(
                         "776e134adba9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492",
                     )
                     .unwrap(),
                 },
-                amount: Value::Decimal {
+                amount: ManifestAstValue::Decimal {
                     value: "1".parse().unwrap(),
                 },
             },
@@ -913,16 +913,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetMetadata {
-                entity_address: Value::ComponentAddress {
+                entity_address: ManifestAstValue::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id: 0xf2,
                         address: FAUCET_COMPONENT,
                     },
                 },
-                key: Value::String {
+                key: ManifestAstValue::String {
                     value: "name".into(),
                 },
-                value: Value::String {
+                value: ManifestAstValue::String {
                     value: "deadbeef".into(),
                 },
             },
@@ -952,16 +952,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetMetadata {
-                entity_address: Value::PackageAddress {
+                entity_address: ManifestAstValue::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id: 0xf2,
                         address: FAUCET_PACKAGE,
                     },
                 },
-                key: Value::String {
+                key: ManifestAstValue::String {
                     value: "name".into(),
                 },
-                value: Value::String {
+                value: ManifestAstValue::String {
                     value: "deadbeef".into(),
                 },
             },
@@ -991,16 +991,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetMetadata {
-                entity_address: Value::ResourceAddress {
+                entity_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                key: Value::String {
+                key: ManifestAstValue::String {
                     value: "name".into(),
                 },
-                value: Value::String {
+                value: ManifestAstValue::String {
                     value: "deadbeef".into(),
                 },
             },
@@ -1030,13 +1030,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetPackageRoyaltyConfig {
-                package_address: Value::PackageAddress {
+                package_address: ManifestAstValue::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id: 0xf2,
                         address: FAUCET_PACKAGE,
                     },
                 },
-                royalty_config: Value::Map {
+                royalty_config: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::Tuple,
                     entries: Vec::new(),
@@ -1065,20 +1065,20 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetComponentRoyaltyConfig {
-                component_address: Value::ComponentAddress {
+                component_address: ManifestAstValue::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id: 0xf2,
                         address: FAUCET_COMPONENT,
                     },
                 },
-                royalty_config: Value::Tuple {
+                royalty_config: ManifestAstValue::Tuple {
                     elements: vec![
-                        Value::Map {
+                        ManifestAstValue::Map {
                             key_value_kind: ValueKind::String,
                             value_value_kind: ValueKind::U32,
                             entries: vec![]
                         },
-                        Value::U32 { value: 1 }
+                        ManifestAstValue::U32 { value: 1 }
                     ]
                 },
             },
@@ -1117,7 +1117,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::ClaimPackageRoyalty {
-                package_address: Value::PackageAddress {
+                package_address: ManifestAstValue::PackageAddress {
                     address: NetworkAwarePackageAddress {
                         network_id: 0xf2,
                         address: FAUCET_PACKAGE,
@@ -1140,7 +1140,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::ClaimComponentRoyalty {
-                component_address: Value::ComponentAddress {
+                component_address: ManifestAstValue::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id: 0xf2,
                         address: FAUCET_COMPONENT,
@@ -1163,24 +1163,24 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::SetMethodAccessRule {
-                entity_address: Value::ComponentAddress {
+                entity_address: ManifestAstValue::ComponentAddress {
                     address: NetworkAwareComponentAddress {
                         network_id: 0xf2,
                         address: FAUCET_COMPONENT,
                     },
                 },
-                index: Value::U32 { value: 0 },
-                key: Value::Enum {
+                index: ManifestAstValue::U32 { value: 0 },
+                key: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 {
                         discriminator: 0
                     },
                     fields: Some(vec![
-                        Value::String {
+                        ManifestAstValue::String {
                             value: "get_token".into()
                         }
                     ])
                 },
-                rule: Value::Enum {
+                rule: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
@@ -1228,13 +1228,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::MintFungible {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                amount: Value::Decimal {
+                amount: ManifestAstValue::Decimal {
                     value: "1".parse().unwrap(),
                 },
             },
@@ -1259,13 +1259,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::MintNonFungible {
-                resource_address: Value::ResourceAddress {
+                resource_address: ManifestAstValue::ResourceAddress {
                     address: NetworkAwareResourceAddress {
                         network_id: 0xf2,
                         address: RADIX_TOKEN,
                     },
                 },
-                entries: Value::Map {
+                entries: ManifestAstValue::Map {
                     key_value_kind: ValueKind::NonFungibleLocalId,
                     value_value_kind: ValueKind::Tuple,
                     entries: Vec::new(),
@@ -1294,18 +1294,18 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateFungibleResource {
-                divisibility: Value::U8 { value: 18 },
-                metadata: Value::Map {
+                divisibility: ManifestAstValue::U8 { value: 18 },
+                metadata: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                access_rules: Value::Map {
+                access_rules: ManifestAstValue::Map {
                     key_value_kind: ValueKind::Enum,
                     value_value_kind: ValueKind::Tuple,
                     entries: Vec::new(),
                 },
-                initial_supply: Value::None,
+                initial_supply: ManifestAstValue::None,
             },
             r#"
             {
@@ -1341,13 +1341,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateFungibleResourceWithOwner {
-                divisibility: Value::U8 { value: 18 },
-                metadata: Value::Map {
+                divisibility: ManifestAstValue::U8 { value: 18 },
+                metadata: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                owner_badge: Value::NonFungibleGlobalId {
+                owner_badge: ManifestAstValue::NonFungibleGlobalId {
                     address: radix_engine_toolkit::NonFungibleGlobalId {
                         resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -1356,7 +1356,7 @@ lazy_static::lazy_static! {
                         non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                     },
                 },
-                initial_supply: Value::None,
+                initial_supply: ManifestAstValue::None,
             },
             r#"
             {
@@ -1400,21 +1400,21 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateNonFungibleResource {
-                id_type: Value::Enum {
+                id_type: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
-                metadata: Value::Map {
+                metadata: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                access_rules: Value::Map {
+                access_rules: ManifestAstValue::Map {
                     key_value_kind: ValueKind::Enum,
                     value_value_kind: ValueKind::Tuple,
                     entries: Vec::new(),
                 },
-                initial_supply: Value::None,
+                initial_supply: ManifestAstValue::None,
             },
             r#"
             {
@@ -1453,16 +1453,16 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateNonFungibleResourceWithOwner {
-                id_type: Value::Enum {
+                id_type: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
-                metadata: Value::Map {
+                metadata: ManifestAstValue::Map {
                     key_value_kind: ValueKind::String,
                     value_value_kind: ValueKind::String,
                     entries: Vec::new(),
                 },
-                owner_badge: Value::NonFungibleGlobalId {
+                owner_badge: ManifestAstValue::NonFungibleGlobalId {
                     address: radix_engine_toolkit::NonFungibleGlobalId {
                         resource_address: NetworkAwareResourceAddress {
                             network_id: 0xf2,
@@ -1471,7 +1471,7 @@ lazy_static::lazy_static! {
                         non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
                     },
                 },
-                initial_supply: Value::None,
+                initial_supply: ManifestAstValue::None,
             },
             r#"
             {
@@ -1518,22 +1518,22 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateAccessController {
-                controlled_asset: Value::Bucket {
+                controlled_asset: ManifestAstValue::Bucket {
                     identifier: BucketId(TransientIdentifier::String { value: "ident".into() }),
                 },
-                primary_role: Value::Enum {
+                primary_role: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
-                recovery_role: Value::Enum {
+                recovery_role: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
-                confirmation_role: Value::Enum {
+                confirmation_role: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
-                timed_recovery_delay_in_minutes: Value::Some {
+                timed_recovery_delay_in_minutes: ManifestAstValue::Some {
                     value: Box::new(Value::U32 { value: 1 }),
                 },
             },
@@ -1588,7 +1588,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateIdentity {
-                access_rule: Value::Enum {
+                access_rule: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
@@ -1612,7 +1612,7 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::AssertAccessRule {
-                access_rule: Value::Enum {
+                access_rule: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None,
                 },
@@ -1636,13 +1636,13 @@ lazy_static::lazy_static! {
         ),
         InstructionRepresentationTestVector::new(
             Instruction::CreateValidator {
-                key: Value::EcdsaSecp256k1PublicKey {
+                key: ManifestAstValue::EcdsaSecp256k1PublicKey {
                     public_key:
                         "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
                             .parse()
                             .unwrap(),
                 },
-                owner_access_rule: Value::Enum {
+                owner_access_rule: ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
                     fields: None
                 }

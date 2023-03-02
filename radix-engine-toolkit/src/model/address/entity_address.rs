@@ -36,6 +36,7 @@ use toolkit_derive::serializable;
 pub enum EntityAddress {
     /// Represents a Bech32m encoded human-readable component address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_component_address")]
     ComponentAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -44,6 +45,7 @@ pub enum EntityAddress {
 
     /// Represents a Bech32m encoded human-readable resource address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_resource_address")]
     ResourceAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -52,6 +54,7 @@ pub enum EntityAddress {
 
     /// Represents a Bech32m encoded human-readable package address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_package_address")]
     PackageAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]

@@ -28,6 +28,7 @@ use toolkit_derive::serializable;
 
 /// A transaction intent consisting of instructions as well as blobs
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::manifest")]
 pub struct TransactionManifest {
     /// The transaction manifest instructions to be executed in the transaction.
     pub instructions: InstructionList,

@@ -14,7 +14,7 @@
       "pattern": "[0-9]+"
     },
     "manifest": {
-      "description": "The manifest to convert to the format described by `instructions_output_kind`",
+      "description": "The manifest to analyze.",
       "allOf": [
         {
           "$ref": "#/definitions/TransactionManifest"
@@ -25,6 +25,15 @@
   "definitions": {
     "TransactionManifest": {
       "description": "A transaction intent consisting of instructions as well as blobs",
+      "examples": [
+        {
+          "blobs": [],
+          "instructions": {
+            "type": "String",
+            "value": "DROP_ALL_PROOFS;"
+          }
+        }
+      ],
       "type": "object",
       "required": [
         "blobs",
@@ -52,6 +61,12 @@
       "description": "A discriminated union of possible representations of manifest instructions. Currently, two representations are supported: a string representation which is the same as that seen in the local simulator, resim, and pretty much everywhere, as well as a parsed format which is a vector of instructions where each instruction is represented through the `Instruction` model.",
       "oneOf": [
         {
+          "examples": [
+            {
+              "type": "String",
+              "value": "DROP_ALL_PROOFS;"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -70,6 +85,16 @@
           }
         },
         {
+          "examples": [
+            {
+              "type": "Parsed",
+              "value": [
+                {
+                  "instruction": "DROP_ALL_PROOFS"
+                }
+              ]
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -97,6 +122,92 @@
       "oneOf": [
         {
           "description": "An instruction to call a function with the given list of arguments on the given package address and blueprint name.",
+          "examples": [
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "blueprint_name": {
+                "type": "String",
+                "value": "Faucet"
+              },
+              "function_name": {
+                "type": "String",
+                "value": "new"
+              },
+              "instruction": "CALL_FUNCTION",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "PackageAddress"
+              }
+            },
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "blueprint_name": {
+                "type": "String",
+                "value": "Faucet"
+              },
+              "function_name": {
+                "type": "String",
+                "value": "new"
+              },
+              "instruction": "CALL_FUNCTION",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "Address"
+              }
+            },
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "blueprint_name": {
+                "type": "String",
+                "value": "Faucet"
+              },
+              "function_name": {
+                "type": "String",
+                "value": "new"
+              },
+              "instruction": "CALL_FUNCTION",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "PackageAddress"
+              }
+            },
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "blueprint_name": {
+                "type": "String",
+                "value": "Faucet"
+              },
+              "function_name": {
+                "type": "String",
+                "value": "new"
+              },
+              "instruction": "CALL_FUNCTION",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "Address"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "blueprint_name",
@@ -149,6 +260,66 @@
         },
         {
           "description": "An instruction to call a method with a given name on a given component address with the given list of arguments.",
+          "examples": [
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "Address"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "type": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": [
+                {
+                  "type": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "type": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": null,
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "Address"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "type": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": null,
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "type": "String",
+                "value": "free"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "component_address",
@@ -192,6 +363,36 @@
         },
         {
           "description": "An instruction to take the entire amount of a given resource address from the worktop and put it in a bucket.",
+          "examples": [
+            {
+              "instruction": "TAKE_FROM_WORKTOP",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "instruction": "TAKE_FROM_WORKTOP",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -225,6 +426,44 @@
         },
         {
           "description": "An instruction to take the an amount of a given resource address from the worktop and put it in a bucket.",
+          "examples": [
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "amount",
@@ -267,6 +506,54 @@
         },
         {
           "description": "An instruction to take the a set of non-fungible ids of a given resource address from the worktop and put it in a bucket.",
+          "examples": [
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            },
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
+              "into_bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "ids",
@@ -309,6 +596,18 @@
         },
         {
           "description": "Returns a bucket of tokens to the worktop.",
+          "examples": [
+            {
+              "bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "instruction": "RETURN_TO_WORKTOP"
+            }
+          ],
           "type": "object",
           "required": [
             "bucket",
@@ -333,6 +632,22 @@
         },
         {
           "description": "An instruction to assert that a given resource exists in the worktop.",
+          "examples": [
+            {
+              "instruction": "ASSERT_WORKTOP_CONTAINS",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "instruction": "ASSERT_WORKTOP_CONTAINS",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -357,6 +672,30 @@
         },
         {
           "description": "An instruction to assert that a specific amount of a specific resource address exists in the worktop.",
+          "examples": [
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "amount",
@@ -390,6 +729,40 @@
         },
         {
           "description": "An instruction to assert that a set ids of a specific resource address exists in the worktop.",
+          "examples": [
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            },
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "ids",
@@ -423,6 +796,18 @@
         },
         {
           "description": "An instruction which pops a proof from the AuthZone stack and into an identifiable proof",
+          "examples": [
+            {
+              "instruction": "POP_FROM_AUTH_ZONE",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -447,6 +832,18 @@
         },
         {
           "description": "An instruction that pushes a proof to the auth zone stack.",
+          "examples": [
+            {
+              "instruction": "PUSH_TO_AUTH_ZONE",
+              "proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -471,6 +868,11 @@
         },
         {
           "description": "An instruction which clears the auth zone stack by dropping all of the proofs in that stack.",
+          "examples": [
+            {
+              "instruction": "CLEAR_AUTH_ZONE"
+            }
+          ],
           "type": "object",
           "required": [
             "instruction"
@@ -486,6 +888,36 @@
         },
         {
           "description": "An instruction to create a proof of the entire amount of a given resource address from the auth zone.",
+          "examples": [
+            {
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -519,6 +951,44 @@
         },
         {
           "description": "An instruction to create a proof of the an amount of a given resource address from the auth zone.",
+          "examples": [
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            },
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "amount",
@@ -561,6 +1031,54 @@
         },
         {
           "description": "An instruction to create a proof of the a set of non-fungible ids of a given resource address from the auth zone.",
+          "examples": [
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "ResourceAddress"
+              }
+            },
+            {
+              "ids": [
+                {
+                  "type": "NonFungibleLocalId",
+                  "value": {
+                    "type": "Integer",
+                    "value": "1"
+                  }
+                }
+              ],
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              },
+              "resource_address": {
+                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "type": "Address"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "ids",
@@ -603,6 +1121,25 @@
         },
         {
           "description": "An instruction to create a proof given a bucket of some resources",
+          "examples": [
+            {
+              "bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "bucket"
+                },
+                "type": "Bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "Proof"
+                },
+                "type": "Proof"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "bucket",
@@ -636,6 +1173,25 @@
         },
         {
           "description": "An instruction to clone a proof creating a second proof identical to the original",
+          "examples": [
+            {
+              "instruction": "CLONE_PROOF",
+              "into_proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident2"
+                },
+                "type": "Proof"
+              },
+              "proof": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Proof"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -669,6 +1225,18 @@
         },
         {
           "description": "An instruction to drop a proof.",
+          "examples": [
+            {
+              "bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "instruction": "BURN_RESOURCE"
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -693,6 +1261,11 @@
         },
         {
           "description": "An instruction to drop all proofs currently present in the transaction context.",
+          "examples": [
+            {
+              "instruction": "DROP_ALL_PROOFS"
+            }
+          ],
           "type": "object",
           "required": [
             "instruction"
@@ -708,6 +1281,74 @@
         },
         {
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
+          "examples": [
+            {
+              "abi": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
+              },
+              "access_rules": {
+                "elements": [
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Tuple"
+              },
+              "code": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
+              },
+              "instruction": "PUBLISH_PACKAGE",
+              "metadata": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "String"
+              },
+              "royalty_config": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "abi",
@@ -768,6 +1409,11 @@
         },
         {
           "description": "An instruction to burn a bucket of tokens.",
+          "examples": [
+            {
+              "instruction": "DROP_ALL_PROOFS"
+            }
+          ],
           "type": "object",
           "required": [
             "bucket",
@@ -792,6 +1438,19 @@
         },
         {
           "description": "An instruction ot recall resources from a known vault.",
+          "examples": [
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "RECALL_RESOURCE",
+              "vault_id": {
+                "type": "Bytes",
+                "value": "776e134adba9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "amount",
@@ -825,6 +1484,23 @@
         },
         {
           "description": "An instruction to set the metadata on an entity.",
+          "examples": [
+            {
+              "entity_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "instruction": "SET_METADATA",
+              "key": {
+                "type": "String",
+                "value": "name"
+              },
+              "value": {
+                "type": "String",
+                "value": "deadbeef"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "entity_address",
@@ -867,6 +1543,21 @@
         },
         {
           "description": "An instruction to modify the royalties of a package.",
+          "examples": [
+            {
+              "instruction": "SET_PACKAGE_ROYALTY_CONFIG",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "PackageAddress"
+              },
+              "royalty_config": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -900,6 +1591,30 @@
         },
         {
           "description": "An instruction to modify the royalties on a component",
+          "examples": [
+            {
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
+              "royalty_config": {
+                "elements": [
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "U32"
+                  },
+                  {
+                    "type": "U32",
+                    "value": "1"
+                  }
+                ],
+                "type": "Tuple"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "component_address",
@@ -933,6 +1648,15 @@
         },
         {
           "description": "An instruction to claim royalties of a package",
+          "examples": [
+            {
+              "instruction": "CLAIM_PACKAGE_ROYALTY",
+              "package_address": {
+                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "type": "PackageAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -957,6 +1681,15 @@
         },
         {
           "description": "An instruction to claim royalties of a component",
+          "examples": [
+            {
+              "component_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "instruction": "CLAIM_COMPONENT_ROYALTY"
+            }
+          ],
           "type": "object",
           "required": [
             "component_address",
@@ -981,6 +1714,42 @@
         },
         {
           "description": "An instruction to modify the access rules of a method that an entity has.",
+          "examples": [
+            {
+              "entity_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "ComponentAddress"
+              },
+              "index": {
+                "type": "U32",
+                "value": "0"
+              },
+              "instruction": "SET_METHOD_ACCESS_RULE",
+              "key": {
+                "elements": [
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "type": "String",
+                    "value": "free"
+                  }
+                ],
+                "type": "Tuple"
+              },
+              "rule": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "entity_address",
@@ -1032,6 +1801,19 @@
         },
         {
           "description": "An instruction to mint fungible resources",
+          "examples": [
+            {
+              "amount": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "MINT_FUNGIBLE",
+              "resource_address": {
+                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "amount",
@@ -1065,6 +1847,21 @@
         },
         {
           "description": "An instruction to mint non-fungibles of a resource",
+          "examples": [
+            {
+              "entries": {
+                "entries": [],
+                "key_value_kind": "NonFungibleLocalId",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              },
+              "instruction": "MINT_NON_FUNGIBLE",
+              "resource_address": {
+                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "entries",
@@ -1098,6 +1895,47 @@
         },
         {
           "description": "An instruction to mint non-fungibles of a non-fungible resource that uses UUID as the type id and perform auto incrimination of ID.",
+          "examples": [
+            {
+              "entries": {
+                "element_kind": "Tuple",
+                "elements": [
+                  {
+                    "elements": [
+                      {
+                        "elements": [],
+                        "type": "Tuple"
+                      },
+                      {
+                        "elements": [],
+                        "type": "Tuple"
+                      }
+                    ],
+                    "type": "Tuple"
+                  },
+                  {
+                    "elements": [
+                      {
+                        "elements": [],
+                        "type": "Tuple"
+                      },
+                      {
+                        "elements": [],
+                        "type": "Tuple"
+                      }
+                    ],
+                    "type": "Tuple"
+                  }
+                ],
+                "type": "Array"
+              },
+              "instruction": "MINT_UUID_NON_FUNGIBLE",
+              "resource_address": {
+                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "type": "ResourceAddress"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "entries",
@@ -1131,6 +1969,27 @@
         },
         {
           "description": "An instruction to create a new fungible resource.",
+          "examples": [
+            {
+              "access_rules": {
+                "entries": [],
+                "key_value_kind": "Enum",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              },
+              "divisibility": {
+                "type": "U8",
+                "value": "18"
+              },
+              "instruction": "CREATE_FUNGIBLE_RESOURCE",
+              "metadata": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "String"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "access_rules",
@@ -1173,6 +2032,31 @@
         },
         {
           "description": "An instruction to create a fungible resource with initial supply",
+          "examples": [
+            {
+              "access_rules": {
+                "entries": [],
+                "key_value_kind": "Enum",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              },
+              "divisibility": {
+                "type": "U8",
+                "value": "18"
+              },
+              "initial_supply": {
+                "type": "Decimal",
+                "value": "1"
+              },
+              "instruction": "CREATE_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY",
+              "metadata": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "String"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "access_rules",
@@ -1224,6 +2108,30 @@
         },
         {
           "description": "An instruction to create a new non-fungible resource.",
+          "examples": [
+            {
+              "access_rules": {
+                "entries": [],
+                "key_value_kind": "Enum",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              },
+              "id_type": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              },
+              "instruction": "CREATE_NON_FUNGIBLE_RESOURCE",
+              "metadata": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "String"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "access_rules",
@@ -1317,6 +2225,51 @@
         },
         {
           "description": "Creates a new access controller native component with the passed set of rules as the current active rule set and the specified timed recovery delay in minutes.",
+          "examples": [
+            {
+              "controlled_asset": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "instruction": "CREATE_ACCESS_CONTROLLER",
+              "rule_set": {
+                "elements": [
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Tuple"
+              },
+              "timed_recovery_delay_in_minutes": {
+                "type": "Some",
+                "value": {
+                  "type": "U32",
+                  "value": "1"
+                }
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "controlled_asset",
@@ -1359,6 +2312,18 @@
         },
         {
           "description": "Creates a new identity native component with the passed access rule.",
+          "examples": [
+            {
+              "access_rule": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              },
+              "instruction": "CREATE_IDENTITY"
+            }
+          ],
           "type": "object",
           "required": [
             "access_rule",
@@ -1383,6 +2348,18 @@
         },
         {
           "description": "Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of the transaction",
+          "examples": [
+            {
+              "access_rule": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              },
+              "instruction": "ASSERT_ACCESS_RULE"
+            }
+          ],
           "type": "object",
           "required": [
             "access_rule",
@@ -1407,6 +2384,22 @@
         },
         {
           "description": "Creates a validator given the public key of the owner who controls it",
+          "examples": [
+            {
+              "instruction": "CREATE_VALIDATOR",
+              "key": {
+                "type": "Bytes",
+                "value": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+              },
+              "owner_access_rule": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -1440,6 +2433,18 @@
         },
         {
           "description": "Creates a new global account component which has the withdraw rule seen in the rule.",
+          "examples": [
+            {
+              "instruction": "CREATE_ACCOUNT",
+              "withdraw_rule": {
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "instruction",
@@ -1466,9 +2471,25 @@
     },
     "ManifestAstValue": {
       "description": "A value model used to describe an algebraic sum type which is used to express transaction manifests as an abstract syntax tree. This is serialized as a discriminated union of types.",
+      "examples": [
+        {
+          "type": "Bool",
+          "value": false
+        }
+      ],
       "oneOf": [
         {
           "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
+            },
+            {
+              "type": "Bool",
+              "value": true
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1488,6 +2509,12 @@
         },
         {
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1508,6 +2535,12 @@
         },
         {
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1528,6 +2561,12 @@
         },
         {
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1548,6 +2587,12 @@
         },
         {
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1568,6 +2613,12 @@
         },
         {
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1588,6 +2639,12 @@
         },
         {
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1608,6 +2665,12 @@
         },
         {
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1628,6 +2691,12 @@
         },
         {
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1648,6 +2717,12 @@
         },
         {
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I64",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1668,6 +2743,12 @@
         },
         {
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1688,6 +2769,12 @@
         },
         {
           "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1707,6 +2794,48 @@
         },
         {
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": {
+                "discriminator": "1",
+                "type": "U8"
+              }
+            },
+            {
+              "type": "Enum",
+              "variant": {
+                "discriminator": "EnumName::Variant",
+                "type": "String"
+              }
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": {
+                "discriminator": "1",
+                "type": "U8"
+              }
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": {
+                "discriminator": "EnumName::Variant",
+                "type": "String"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1741,6 +2870,15 @@
         },
         {
           "description": "The `Some` case of Rust Options where the value is some Self",
+          "examples": [
+            {
+              "type": "Some",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1760,6 +2898,11 @@
         },
         {
           "description": "The `None` case of Rust Options where there is value",
+          "examples": [
+            {
+              "type": "None"
+            }
+          ],
           "type": "object",
           "required": [
             "type"
@@ -1775,6 +2918,15 @@
         },
         {
           "description": "The `Ok` case of Rust Results where the value is some Self",
+          "examples": [
+            {
+              "type": "Ok",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1794,6 +2946,15 @@
         },
         {
           "description": "The `Err` case of Rust Results where the value is some Self",
+          "examples": [
+            {
+              "type": "Err",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1813,6 +2974,26 @@
         },
         {
           "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
           "type": "object",
           "required": [
             "element_kind",
@@ -1845,6 +3026,35 @@
         },
         {
           "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
           "type": "object",
           "required": [
             "entries",
@@ -1896,6 +3106,26 @@
         },
         {
           "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
           "type": "object",
           "required": [
             "elements",
@@ -1918,6 +3148,12 @@
         },
         {
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1938,6 +3174,12 @@
         },
         {
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1958,6 +3200,20 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "Address"
+            }
+          ],
           "type": "object",
           "required": [
             "address",
@@ -1977,6 +3233,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "ComponentAddress"
+            }
+          ],
           "type": "object",
           "required": [
             "address",
@@ -1996,6 +3258,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "ResourceAddress"
+            }
+          ],
           "type": "object",
           "required": [
             "address",
@@ -2015,6 +3283,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "PackageAddress"
+            }
+          ],
           "type": "object",
           "required": [
             "address",
@@ -2034,6 +3308,22 @@
         },
         {
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": {
+                "type": "String",
+                "value": "bucket"
+              },
+              "type": "Bucket"
+            },
+            {
+              "identifier": {
+                "type": "U32",
+                "value": "1"
+              },
+              "type": "Bucket"
+            }
+          ],
           "type": "object",
           "required": [
             "identifier",
@@ -2053,6 +3343,22 @@
         },
         {
           "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": {
+                "type": "String",
+                "value": "proof"
+              },
+              "type": "Proof"
+            },
+            {
+              "identifier": {
+                "type": "U32",
+                "value": "1"
+              },
+              "type": "Proof"
+            }
+          ],
           "type": "object",
           "required": [
             "identifier",
@@ -2072,6 +3378,36 @@
         },
         {
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2091,6 +3427,68 @@
         },
         {
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
+          "examples": [
+            {
+              "non_fungible_local_id": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Integer",
+                "value": "1"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "String",
+                "value": "Scrypto"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Bytes",
+                "value": "01020304"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Integer",
+                "value": "1"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "String",
+                "value": "Scrypto"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Bytes",
+                "value": "01020304"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+            }
+          ],
           "type": "object",
           "required": [
             "non_fungible_local_id",
@@ -2114,6 +3512,16 @@
         },
         {
           "description": "Represents a transaction manifest expression.",
+          "examples": [
+            {
+              "type": "Expression",
+              "value": "ENTIRE_AUTH_ZONE"
+            },
+            {
+              "type": "Expression",
+              "value": "ENTIRE_WORKTOP"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2133,6 +3541,12 @@
         },
         {
           "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
+          "examples": [
+            {
+              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "type": "Blob"
+            }
+          ],
           "type": "object",
           "required": [
             "hash",
@@ -2152,6 +3566,12 @@
         },
         {
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
+          "examples": [
+            {
+              "type": "Bytes",
+              "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2173,6 +3593,16 @@
     },
     "EnumDiscriminator": {
       "description": "A union of the types of discriminators that enums may have. This may either be a string or an 8-bit unsigned number.",
+      "examples": [
+        {
+          "discriminator": "EnumName::Variant",
+          "type": "String"
+        },
+        {
+          "discriminator": "1",
+          "type": "U8"
+        }
+      ],
       "oneOf": [
         {
           "type": "object",
@@ -2219,6 +3649,16 @@
       "oneOf": [
         {
           "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
+            },
+            {
+              "type": "Bool",
+              "value": true
+            }
+          ],
           "type": "string",
           "enum": [
             "Bool"
@@ -2226,6 +3666,12 @@
         },
         {
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "U8"
@@ -2233,6 +3679,12 @@
         },
         {
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "U16"
@@ -2240,6 +3692,12 @@
         },
         {
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "U32"
@@ -2247,6 +3705,12 @@
         },
         {
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "U64"
@@ -2254,6 +3718,12 @@
         },
         {
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "U128"
@@ -2261,6 +3731,12 @@
         },
         {
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "I8"
@@ -2268,6 +3744,12 @@
         },
         {
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "I16"
@@ -2275,6 +3757,12 @@
         },
         {
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "I32"
@@ -2282,6 +3770,12 @@
         },
         {
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I64",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "I64"
@@ -2289,6 +3783,12 @@
         },
         {
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "I128"
@@ -2296,6 +3796,12 @@
         },
         {
           "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "string",
           "enum": [
             "String"
@@ -2303,6 +3809,48 @@
         },
         {
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": {
+                "discriminator": "1",
+                "type": "U8"
+              }
+            },
+            {
+              "type": "Enum",
+              "variant": {
+                "discriminator": "EnumName::Variant",
+                "type": "String"
+              }
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": {
+                "discriminator": "1",
+                "type": "U8"
+              }
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": {
+                "discriminator": "EnumName::Variant",
+                "type": "String"
+              }
+            }
+          ],
           "type": "string",
           "enum": [
             "Enum"
@@ -2310,6 +3858,15 @@
         },
         {
           "description": "The `Some` case of Rust Options where the value is some Self",
+          "examples": [
+            {
+              "type": "Some",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "string",
           "enum": [
             "Some"
@@ -2317,6 +3874,11 @@
         },
         {
           "description": "The `None` case of Rust Options where there is value",
+          "examples": [
+            {
+              "type": "None"
+            }
+          ],
           "type": "string",
           "enum": [
             "None"
@@ -2324,6 +3886,15 @@
         },
         {
           "description": "The `Ok` case of Rust Results where the value is some Self",
+          "examples": [
+            {
+              "type": "Ok",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "string",
           "enum": [
             "Ok"
@@ -2331,6 +3902,15 @@
         },
         {
           "description": "The `Err` case of Rust Results where the value is some Self",
+          "examples": [
+            {
+              "type": "Err",
+              "value": {
+                "type": "U8",
+                "value": "1"
+              }
+            }
+          ],
           "type": "string",
           "enum": [
             "Err"
@@ -2338,6 +3918,26 @@
         },
         {
           "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
           "type": "string",
           "enum": [
             "Array"
@@ -2345,6 +3945,35 @@
         },
         {
           "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
           "type": "string",
           "enum": [
             "Map"
@@ -2352,6 +3981,26 @@
         },
         {
           "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
           "type": "string",
           "enum": [
             "Tuple"
@@ -2359,6 +4008,12 @@
         },
         {
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "Decimal"
@@ -2366,6 +4021,12 @@
         },
         {
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
           "type": "string",
           "enum": [
             "PreciseDecimal"
@@ -2373,6 +4034,20 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "Address"
+            }
+          ],
           "type": "string",
           "enum": [
             "Address"
@@ -2380,6 +4055,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "ComponentAddress"
+            }
+          ],
           "type": "string",
           "enum": [
             "ComponentAddress"
@@ -2387,6 +4068,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "ResourceAddress"
+            }
+          ],
           "type": "string",
           "enum": [
             "ResourceAddress"
@@ -2394,6 +4081,12 @@
         },
         {
           "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "PackageAddress"
+            }
+          ],
           "type": "string",
           "enum": [
             "PackageAddress"
@@ -2401,6 +4094,22 @@
         },
         {
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": {
+                "type": "String",
+                "value": "bucket"
+              },
+              "type": "Bucket"
+            },
+            {
+              "identifier": {
+                "type": "U32",
+                "value": "1"
+              },
+              "type": "Bucket"
+            }
+          ],
           "type": "string",
           "enum": [
             "Bucket"
@@ -2408,6 +4117,22 @@
         },
         {
           "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": {
+                "type": "String",
+                "value": "proof"
+              },
+              "type": "Proof"
+            },
+            {
+              "identifier": {
+                "type": "U32",
+                "value": "1"
+              },
+              "type": "Proof"
+            }
+          ],
           "type": "string",
           "enum": [
             "Proof"
@@ -2415,6 +4140,36 @@
         },
         {
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
           "type": "string",
           "enum": [
             "NonFungibleLocalId"
@@ -2422,6 +4177,40 @@
         },
         {
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
+          "examples": [
+            {
+              "non_fungible_local_id": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Integer",
+                "value": "1"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "String",
+                "value": "Scrypto"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            },
+            {
+              "non_fungible_local_id": {
+                "type": "Bytes",
+                "value": "01020304"
+              },
+              "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+              "type": "NonFungibleGlobalId"
+            }
+          ],
           "type": "string",
           "enum": [
             "NonFungibleGlobalId"
@@ -2429,6 +4218,16 @@
         },
         {
           "description": "Represents a transaction manifest expression.",
+          "examples": [
+            {
+              "type": "Expression",
+              "value": "ENTIRE_AUTH_ZONE"
+            },
+            {
+              "type": "Expression",
+              "value": "ENTIRE_WORKTOP"
+            }
+          ],
           "type": "string",
           "enum": [
             "Expression"
@@ -2436,6 +4235,12 @@
         },
         {
           "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
+          "examples": [
+            {
+              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "type": "Blob"
+            }
+          ],
           "type": "string",
           "enum": [
             "Blob"
@@ -2443,6 +4248,12 @@
         },
         {
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
+          "examples": [
+            {
+              "type": "Bytes",
+              "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
+            }
+          ],
           "type": "string",
           "enum": [
             "Bytes"
@@ -2452,6 +4263,16 @@
     },
     "BucketId": {
       "description": "Represents a BucketId which uses a transient identifier.",
+      "examples": [
+        {
+          "type": "String",
+          "value": "Scrypto"
+        },
+        {
+          "type": "U32",
+          "value": "1"
+        }
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/TransientIdentifier"
@@ -2462,6 +4283,12 @@
       "description": "Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
       "oneOf": [
         {
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2481,6 +4308,12 @@
           }
         },
         {
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2504,6 +4337,16 @@
     },
     "ProofId": {
       "description": "Represents a ProofId which uses a transient identifier.",
+      "examples": [
+        {
+          "type": "String",
+          "value": "Scrypto"
+        },
+        {
+          "type": "U32",
+          "value": "1"
+        }
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/TransientIdentifier"
@@ -2515,6 +4358,12 @@
       "oneOf": [
         {
           "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "Integer",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2535,6 +4384,12 @@
         },
         {
           "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2555,6 +4410,12 @@
         },
         {
           "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -2577,6 +4438,12 @@
         },
         {
           "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
