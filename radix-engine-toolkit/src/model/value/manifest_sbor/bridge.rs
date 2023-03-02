@@ -206,6 +206,7 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>>>()?,
             },
 
+            // TODO: copy_u8_array can cause a crash if the length is not checked. MUST change
             Self::Address { address } => ManifestValue::Custom {
                 value: ManifestCustomValue::Address(match address {
                     EntityAddress::ComponentAddress { address } => {
@@ -220,6 +221,7 @@ impl ManifestSborValue {
                 }),
             },
 
+            // TODO: copy_u8_array can cause a crash if the length is not checked. MUST change
             Self::Decimal { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(ManifestDecimal(copy_u8_array(
                     &value.to_vec(),
