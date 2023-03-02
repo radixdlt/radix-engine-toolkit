@@ -17,9 +17,9 @@
 
 use std::fmt::Display;
 
-use serializable::serializable;
+use toolkit_derive::serializable;
 
-use crate::ValueKind;
+use crate::model::value::ast::ManifestAstValueKind;
 
 /// The error model used by the Radix Engine Toolkit - Represents the set of all errors which the
 /// Radix Engine Toolkit may return for a request.
@@ -54,12 +54,12 @@ pub enum Error {
     /// An error emitted when the passed `Value` is not one of the accepted value types for a given
     /// request or operation.
     InvalidKind {
-        /// A set of the expected `ValueKind`s for a given request or operation (this set forms an
-        /// 'or' and not an 'and').
-        expected: Vec<ValueKind>,
+        /// A set of the expected `ManifestAstValueKind`s for a given request or operation (this
+        /// set forms an 'or' and not an 'and').
+        expected: Vec<ManifestAstValueKind>,
 
-        /// The `ValueKind` that was found.
-        found: ValueKind,
+        /// The `ManifestAstValueKind` that was found.
+        found: ManifestAstValueKind,
     },
 
     /// An error emitted when an invalid enum discriminator is encountered. This typically means
@@ -72,14 +72,6 @@ pub enum Error {
     // =====
     // SBOR
     // =====
-    /// An error emitted when some object of some value kind can not be encoded in SBOR without
-    /// additional context. This error is typically seen in situations when trying to encode either
-    /// a `Bucket("some_string")` or a `Proof("some_string")` as buckets or proofs with String
-    /// identifiers can not be encoded in SBOR without an ID Allocator.
-    BucketOrProofSBORError {
-        value_kind: ValueKind,
-    },
-
     /// Represents an error when trying to encode some object in SBOR.
     SborEncodeError {
         message: String,
@@ -90,6 +82,17 @@ pub enum Error {
         message: String,
     },
 
+    /// Represents an error when attempting to decode some SBOR payload. This error means that
+    /// the prefix byte (the first byte of the payload) was found to be incompatible or incorrect
+    /// with what the toolkit supports.
+    InvalidSborPrefix {
+        expected: Vec<u8>,
+        found: u8,
+    },
+
+    /// Emitted when trying to decode an empty payload
+    EmptyPayloadError,
+
     // ====
     // AST
     // ====
@@ -98,14 +101,14 @@ pub enum Error {
     /// we attempt to parse a `Decimal` and instead of the internals being a string we find some
     /// other type (e.g. `Decimal(Bucket(12)))`, then this error is emitted.
     UnexpectedAstContents {
-        parsing: ValueKind,
-        expected: Vec<ValueKind>,
-        found: ValueKind,
+        parsing: ManifestAstValueKind,
+        expected: Vec<ManifestAstValueKind>,
+        found: ManifestAstValueKind,
     },
 
     /// An error emitted when the parsing of a value from string fails.
     ParseError {
-        kind: ValueKind,
+        kind: ManifestAstValueKind,
         message: String,
     },
 
@@ -169,6 +172,9 @@ pub enum Error {
     Infallible {
         message: String,
     },
+
+    /// A conversion which is invalid and can not be made.
+    InvalidConversion,
 }
 
 impl Display for Error {
@@ -206,7 +212,8 @@ generate_from_error!(
     native_transaction::manifest::generator::GeneratorError as ManifestGenerationError
 );
 generate_from_error!(
-    scrypto::radix_engine_interface::model::ContentValidationError as ContentValidationError
+    scrypto::radix_engine_interface::blueprints::resource::ContentValidationError
+        as ContentValidationError
 );
 
 macro_rules! impl_from_parse_error {
@@ -215,7 +222,7 @@ macro_rules! impl_from_parse_error {
             impl From<$error_type> for Error {
                 fn from(error: $error_type) -> Self {
                     Self::ParseError {
-                        kind: ValueKind::$kind,
+                        kind: ManifestAstValueKind::$kind,
                         message: format!("{:?}", error)
                     }
                 }
@@ -227,14 +234,9 @@ macro_rules! impl_from_parse_error {
 impl_from_parse_error! {
     scrypto::prelude::ParseDecimalError => Decimal,
     scrypto::prelude::ParsePreciseDecimalError => PreciseDecimal,
-    scrypto::prelude::ParseHashError => Hash,
     scrypto::prelude::ParseNonFungibleLocalIdError => NonFungibleLocalId,
     scrypto::prelude::ParseNonFungibleGlobalIdError => NonFungibleGlobalId,
-    scrypto::prelude::ParseManifestBlobRefError => Blob,
-    scrypto::prelude::ParseEcdsaSecp256k1PublicKeyError => EcdsaSecp256k1PublicKey,
-    scrypto::prelude::ParseEcdsaSecp256k1SignatureError => EcdsaSecp256k1Signature,
-    scrypto::prelude::ParseEddsaEd25519PublicKeyError => EddsaEd25519PublicKey,
-    scrypto::prelude::ParseEddsaEd25519SignatureError => EddsaEd25519Signature,
+    native_transaction_data::model::ParseManifestBlobRefError => Blob,
 }
 
 /// The result type used by the Radix Engine Toolkit where all errors are of a single type.

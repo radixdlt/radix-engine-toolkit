@@ -15,15 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::traits::Handler;
 use crate::error::Result;
 use crate::model::address::Bech32Coder;
-use crate::model::instruction_list::InstructionKind;
-use crate::model::TransactionManifest;
-use crate::{
-    traverse_instruction, Handler, Instruction, InstructionList, ValueAliasingVisitor,
-    ValueNetworkAggregatorVisitor,
-};
-use serializable::serializable;
+use crate::model::instruction::Instruction;
+use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
+use crate::visitor::{traverse_instruction, ValueAliasingVisitor, ValueNetworkAggregatorVisitor};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -103,7 +101,7 @@ impl Handler<ConvertManifestRequest, ConvertManifestResponse> for ConvertManifes
             .iter()
             .find(|network_id| **network_id != request.network_id)
         {
-            return Err(crate::Error::NetworkMismatchError {
+            return Err(crate::error::Error::NetworkMismatchError {
                 found: *network_id,
                 expected: request.network_id,
             });

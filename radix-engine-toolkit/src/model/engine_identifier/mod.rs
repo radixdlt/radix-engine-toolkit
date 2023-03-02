@@ -17,8 +17,10 @@
 
 pub mod node_identifier;
 pub mod own;
+pub mod re_node;
 pub mod transient_identifier;
 
 pub use node_identifier::*;
 pub use own::*;
+pub use re_node::*;
 pub use transient_identifier::*;

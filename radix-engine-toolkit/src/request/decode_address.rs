@@ -15,13 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::traits::Handler;
 use crate::error::Result;
 use crate::model::address::{EntityAddress, EntityType};
-use crate::request::Handler;
 use crate::utils::network_definition_from_network_id;
+use toolkit_derive::serializable;
+
 use bech32::{self, FromBase32, Variant};
 use scrypto::radix_engine_interface::address::AddressError;
-use serializable::serializable;
 
 // =================
 // Model Definition

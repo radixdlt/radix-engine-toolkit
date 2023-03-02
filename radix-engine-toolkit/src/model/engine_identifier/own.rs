@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::NodeIdentifier;
+use crate::model::engine_identifier::NodeIdentifier;
 use scrypto::runtime::Own as ScryptoOwn;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -37,31 +37,25 @@ pub enum Own {
     /// Represents an owned Vault
     Vault(NodeIdentifier),
 
-    /// Represents an owned Bucket identified through an unsigned 32-bit integer which is
-    /// serialized as a string
-    Bucket(
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        u32,
-    ),
+    /// Represents an owned Bucket
+    Bucket(NodeIdentifier),
 
-    /// Represents an owned Proof identified through an unsigned 32-bit integer which is serialized
-    /// as a string
-    Proof(
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        u32,
-    ),
+    /// Represents an owned Proof
+    Proof(NodeIdentifier),
+
+    /// Represents an owned Account
+    Account(NodeIdentifier),
 }
 
 impl From<ScryptoOwn> for Own {
     fn from(value: ScryptoOwn) -> Self {
         match value {
-            ScryptoOwn::Bucket(v) => Self::Bucket(v),
-            ScryptoOwn::Proof(v) => Self::Proof(v),
+            ScryptoOwn::Bucket(v) => Self::Bucket(NodeIdentifier(v)),
+            ScryptoOwn::Proof(v) => Self::Proof(NodeIdentifier(v)),
             ScryptoOwn::KeyValueStore(v) => Self::KeyValueStore(NodeIdentifier(v)),
             ScryptoOwn::Component(v) => Self::Component(NodeIdentifier(v)),
             ScryptoOwn::Vault(v) => Self::Vault(NodeIdentifier(v)),
+            ScryptoOwn::Account(v) => Self::Account(NodeIdentifier(v)),
         }
     }
 }
@@ -69,11 +63,12 @@ impl From<ScryptoOwn> for Own {
 impl From<Own> for ScryptoOwn {
     fn from(value: Own) -> Self {
         match value {
-            Own::Bucket(v) => Self::Bucket(v),
-            Own::Proof(v) => Self::Proof(v),
+            Own::Bucket(v) => Self::Bucket(v.0),
+            Own::Proof(v) => Self::Proof(v.0),
             Own::KeyValueStore(v) => Self::KeyValueStore(v.0),
             Own::Component(v) => Self::Component(v.0),
             Own::Vault(v) => Self::Vault(v.0),
+            Own::Account(v) => Self::Account(v.0),
         }
     }
 }

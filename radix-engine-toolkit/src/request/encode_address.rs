@@ -16,8 +16,9 @@
 // under the License.
 
 use crate::error::Result;
-use crate::{model::address::EntityAddress, Handler};
-use serializable::serializable;
+use crate::model::address::EntityAddress;
+use crate::request::traits::Handler;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -60,11 +61,11 @@ pub struct EncodeAddressResponse {
 pub struct EncodeAddressHandler;
 
 impl Handler<EncodeAddressRequest, EncodeAddressResponse> for EncodeAddressHandler {
-    fn pre_process(request: EncodeAddressRequest) -> crate::Result<EncodeAddressRequest> {
+    fn pre_process(request: EncodeAddressRequest) -> crate::error::Result<EncodeAddressRequest> {
         Ok(request)
     }
 
-    fn handle(request: &EncodeAddressRequest) -> crate::Result<EncodeAddressResponse> {
+    fn handle(request: &EncodeAddressRequest) -> crate::error::Result<EncodeAddressResponse> {
         EntityAddress::from_u8_array(&request.address_bytes, request.network_id)
             .map(|address| EncodeAddressResponse { address })
     }

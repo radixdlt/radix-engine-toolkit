@@ -17,7 +17,7 @@
 
 use native_transaction::validation::ValidationConfig as NativeValidationConfig;
 use serde_with::{serde_as, DisplayFromStr};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 /// Represents a set of settings to use when statically validating a notarized transaction intent.
 #[serializable]

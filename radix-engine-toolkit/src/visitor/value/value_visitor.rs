@@ -1,4 +1,21 @@
-use crate::{Value, ValueKind};
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 
 macro_rules! define_value_visitor {
     (
@@ -10,7 +27,7 @@ macro_rules! define_value_visitor {
         $(#[$meta])*
         $vis trait $trait_ident {
             $(
-                fn $method_ident(&mut self, _value: &mut $crate::Value) -> $crate::Result<()> {
+                fn $method_ident(&mut self, _value: &mut $crate::model::value::ast::ManifestAstValue) -> $crate::error::Result<()> {
                     Ok(())
                 }
             )*
@@ -23,15 +40,15 @@ macro_rules! visit {
         $visitors
             .iter_mut()
             .map(|visitor| visitor.$method($value))
-            .collect::<$crate::Result<Vec<_>>>()
+            .collect::<$crate::error::Result<Vec<_>>>()
     };
 }
 
 define_value_visitor! {
-    /// A trait which defines a [`crate::Value`] visitor which operates on unstructured values, this
+    /// A trait which defines a [`crate::model::value::ast::ManifestAstValue`] visitor which operates on unstructured values, this
     /// choice is made to allow the visitor to work with aliasing an dealiasing operations which
     /// involves the visitor changing the value variant.
-    pub trait ValueVisitor {
+    pub trait ManifestAstValueVisitor {
         visit_bool,
 
         visit_u8,
@@ -61,17 +78,10 @@ define_value_visitor! {
         visit_decimal,
         visit_precise_decimal,
 
-        visit_own,
-
+        visit_address,
         visit_component_address,
         visit_resource_address,
         visit_package_address,
-
-        visit_hash,
-        visit_ecdsa_secp256k1_public_key,
-        visit_ecdsa_secp256k1_signature,
-        visit_eddsa_ed25519_public_key,
-        visit_eddsa_ed25519_signature,
 
         visit_bucket,
         visit_proof,
@@ -86,133 +96,120 @@ define_value_visitor! {
 }
 
 pub fn traverse_value(
-    value: &mut crate::Value,
-    visitors: &mut [&mut dyn ValueVisitor],
-) -> crate::Result<()> {
+    value: &mut crate::model::value::ast::ManifestAstValue,
+    visitors: &mut [&mut dyn ManifestAstValueVisitor],
+) -> crate::error::Result<()> {
     // Visit the top level value parts
     match value.kind() {
-        ValueKind::Bool => visit!(visitors, visit_bool, value)?,
+        ManifestAstValueKind::Bool => visit!(visitors, visit_bool, value)?,
 
-        ValueKind::U8 => visit!(visitors, visit_u8, value)?,
-        ValueKind::U16 => visit!(visitors, visit_u16, value)?,
-        ValueKind::U32 => visit!(visitors, visit_u32, value)?,
-        ValueKind::U64 => visit!(visitors, visit_u64, value)?,
-        ValueKind::U128 => visit!(visitors, visit_u128, value)?,
+        ManifestAstValueKind::U8 => visit!(visitors, visit_u8, value)?,
+        ManifestAstValueKind::U16 => visit!(visitors, visit_u16, value)?,
+        ManifestAstValueKind::U32 => visit!(visitors, visit_u32, value)?,
+        ManifestAstValueKind::U64 => visit!(visitors, visit_u64, value)?,
+        ManifestAstValueKind::U128 => visit!(visitors, visit_u128, value)?,
 
-        ValueKind::I8 => visit!(visitors, visit_i8, value)?,
-        ValueKind::I16 => visit!(visitors, visit_i16, value)?,
-        ValueKind::I32 => visit!(visitors, visit_i32, value)?,
-        ValueKind::I64 => visit!(visitors, visit_i64, value)?,
-        ValueKind::I128 => visit!(visitors, visit_i128, value)?,
+        ManifestAstValueKind::I8 => visit!(visitors, visit_i8, value)?,
+        ManifestAstValueKind::I16 => visit!(visitors, visit_i16, value)?,
+        ManifestAstValueKind::I32 => visit!(visitors, visit_i32, value)?,
+        ManifestAstValueKind::I64 => visit!(visitors, visit_i64, value)?,
+        ManifestAstValueKind::I128 => visit!(visitors, visit_i128, value)?,
 
-        ValueKind::String => visit!(visitors, visit_string, value)?,
+        ManifestAstValueKind::String => visit!(visitors, visit_string, value)?,
 
-        ValueKind::Enum => visit!(visitors, visit_enum, value)?,
+        ManifestAstValueKind::Enum => visit!(visitors, visit_enum, value)?,
 
-        ValueKind::Some => visit!(visitors, visit_some, value)?,
-        ValueKind::None => visit!(visitors, visit_none, value)?,
-        ValueKind::Ok => visit!(visitors, visit_ok, value)?,
-        ValueKind::Err => visit!(visitors, visit_err, value)?,
+        ManifestAstValueKind::Some => visit!(visitors, visit_some, value)?,
+        ManifestAstValueKind::None => visit!(visitors, visit_none, value)?,
+        ManifestAstValueKind::Ok => visit!(visitors, visit_ok, value)?,
+        ManifestAstValueKind::Err => visit!(visitors, visit_err, value)?,
 
-        ValueKind::Map => visit!(visitors, visit_map, value)?,
-        ValueKind::Array => visit!(visitors, visit_array, value)?,
-        ValueKind::Tuple => visit!(visitors, visit_tuple, value)?,
+        ManifestAstValueKind::Map => visit!(visitors, visit_map, value)?,
+        ManifestAstValueKind::Array => visit!(visitors, visit_array, value)?,
+        ManifestAstValueKind::Tuple => visit!(visitors, visit_tuple, value)?,
 
-        ValueKind::Decimal => visit!(visitors, visit_decimal, value)?,
-        ValueKind::PreciseDecimal => visit!(visitors, visit_precise_decimal, value)?,
+        ManifestAstValueKind::Decimal => visit!(visitors, visit_decimal, value)?,
+        ManifestAstValueKind::PreciseDecimal => visit!(visitors, visit_precise_decimal, value)?,
 
-        ValueKind::Own => visit!(visitors, visit_own, value)?,
+        ManifestAstValueKind::Address => visit!(visitors, visit_address, value)?,
+        ManifestAstValueKind::ComponentAddress => visit!(visitors, visit_component_address, value)?,
+        ManifestAstValueKind::ResourceAddress => visit!(visitors, visit_resource_address, value)?,
+        ManifestAstValueKind::PackageAddress => visit!(visitors, visit_package_address, value)?,
 
-        ValueKind::ComponentAddress => visit!(visitors, visit_component_address, value)?,
-        ValueKind::ResourceAddress => visit!(visitors, visit_resource_address, value)?,
-        ValueKind::PackageAddress => visit!(visitors, visit_package_address, value)?,
+        ManifestAstValueKind::Bucket => visit!(visitors, visit_bucket, value)?,
+        ManifestAstValueKind::Proof => visit!(visitors, visit_proof, value)?,
 
-        ValueKind::Hash => visit!(visitors, visit_hash, value)?,
-
-        ValueKind::EcdsaSecp256k1PublicKey => {
-            visit!(visitors, visit_ecdsa_secp256k1_public_key, value)?
+        ManifestAstValueKind::NonFungibleLocalId => {
+            visit!(visitors, visit_non_fungible_local_id, value)?
         }
-        ValueKind::EcdsaSecp256k1Signature => {
-            visit!(visitors, visit_ecdsa_secp256k1_signature, value)?
+        ManifestAstValueKind::NonFungibleGlobalId => {
+            visit!(visitors, visit_non_fungible_global_id, value)?
         }
-        ValueKind::EddsaEd25519PublicKey => {
-            visit!(visitors, visit_eddsa_ed25519_public_key, value)?
-        }
-        ValueKind::EddsaEd25519Signature => visit!(visitors, visit_eddsa_ed25519_signature, value)?,
 
-        ValueKind::Bucket => visit!(visitors, visit_bucket, value)?,
-        ValueKind::Proof => visit!(visitors, visit_proof, value)?,
-
-        ValueKind::NonFungibleLocalId => visit!(visitors, visit_non_fungible_local_id, value)?,
-        ValueKind::NonFungibleGlobalId => visit!(visitors, visit_non_fungible_global_id, value)?,
-
-        ValueKind::Expression => visit!(visitors, visit_expression, value)?,
-        ValueKind::Blob => visit!(visitors, visit_blob, value)?,
-        ValueKind::Bytes => visit!(visitors, visit_bytes, value)?,
+        ManifestAstValueKind::Expression => visit!(visitors, visit_expression, value)?,
+        ManifestAstValueKind::Blob => visit!(visitors, visit_blob, value)?,
+        ManifestAstValueKind::Bytes => visit!(visitors, visit_bytes, value)?,
     };
 
     // Attempt to continue traversal on the value children (contained nested values). For future
-    // reference, any variant that has a `Value` inside of it should go here.
+    // reference, any variant that has a `ManifestAstValue` inside of it should go here.
     match value {
-        Value::Map {
+        ManifestAstValue::Map {
             entries: values, ..
         } => {
             values
                 .iter_mut()
                 .flat_map(|(x, y)| [x, y])
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::Result<Vec<_>>>()?;
+                .collect::<crate::error::Result<Vec<_>>>()?;
         }
-        Value::Enum {
+        ManifestAstValue::Enum {
             fields: Some(values),
             ..
         }
-        | Value::Array {
+        | ManifestAstValue::Array {
             elements: values, ..
         }
-        | Value::Tuple {
+        | ManifestAstValue::Tuple {
             elements: values, ..
         } => {
             values
                 .iter_mut()
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::Result<Vec<_>>>()?;
+                .collect::<crate::error::Result<Vec<_>>>()?;
         }
-        Value::Some { value } | Value::Ok { value } | Value::Err { value } => {
+        ManifestAstValue::Some { value }
+        | ManifestAstValue::Ok { value }
+        | ManifestAstValue::Err { value } => {
             traverse_value(value, visitors)?;
         }
-        Value::Bool { .. }
-        | Value::U8 { .. }
-        | Value::U16 { .. }
-        | Value::U32 { .. }
-        | Value::U64 { .. }
-        | Value::U128 { .. }
-        | Value::I8 { .. }
-        | Value::I16 { .. }
-        | Value::I32 { .. }
-        | Value::I64 { .. }
-        | Value::I128 { .. }
-        | Value::String { .. }
-        | Value::Enum { fields: None, .. }
-        | Value::None { .. }
-        | Value::Decimal { .. }
-        | Value::PreciseDecimal { .. }
-        | Value::Own { .. }
-        | Value::ComponentAddress { .. }
-        | Value::ResourceAddress { .. }
-        | Value::PackageAddress { .. }
-        | Value::Hash { .. }
-        | Value::EcdsaSecp256k1PublicKey { .. }
-        | Value::EcdsaSecp256k1Signature { .. }
-        | Value::EddsaEd25519PublicKey { .. }
-        | Value::EddsaEd25519Signature { .. }
-        | Value::Bucket { .. }
-        | Value::Proof { .. }
-        | Value::NonFungibleLocalId { .. }
-        | Value::NonFungibleGlobalId { .. }
-        | Value::Expression { .. }
-        | Value::Blob { .. }
-        | Value::Bytes { .. } => { /* No OP. Doesn't contain a Value */ }
+        ManifestAstValue::Bool { .. }
+        | ManifestAstValue::U8 { .. }
+        | ManifestAstValue::U16 { .. }
+        | ManifestAstValue::U32 { .. }
+        | ManifestAstValue::U64 { .. }
+        | ManifestAstValue::U128 { .. }
+        | ManifestAstValue::I8 { .. }
+        | ManifestAstValue::I16 { .. }
+        | ManifestAstValue::I32 { .. }
+        | ManifestAstValue::I64 { .. }
+        | ManifestAstValue::I128 { .. }
+        | ManifestAstValue::String { .. }
+        | ManifestAstValue::Enum { fields: None, .. }
+        | ManifestAstValue::None { .. }
+        | ManifestAstValue::Decimal { .. }
+        | ManifestAstValue::PreciseDecimal { .. }
+        | ManifestAstValue::ComponentAddress { .. }
+        | ManifestAstValue::ResourceAddress { .. }
+        | ManifestAstValue::PackageAddress { .. }
+        | ManifestAstValue::Address { .. }
+        | ManifestAstValue::Bucket { .. }
+        | ManifestAstValue::Proof { .. }
+        | ManifestAstValue::NonFungibleLocalId { .. }
+        | ManifestAstValue::NonFungibleGlobalId { .. }
+        | ManifestAstValue::Expression { .. }
+        | ManifestAstValue::Blob { .. }
+        | ManifestAstValue::Bytes { .. } => { /* No OP. Doesn't contain a ManifestAstValue */ }
     };
 
     Ok(())

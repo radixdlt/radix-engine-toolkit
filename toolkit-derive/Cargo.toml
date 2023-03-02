@@ -1,6 +1,6 @@
 [package]
-name = "serializable"
-version = "0.8.0"
+name = "toolkit-derive"
+version = "0.9.0"
 edition = "2021"
 
 [dependencies]

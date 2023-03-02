@@ -1,9 +1,26 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 use std::path::{Path, PathBuf};
 
-use radix_engine_toolkit::{
-    ConvertManifestHandler, ConvertManifestRequest, Handler, InstructionKind, InstructionList,
-    TransactionManifest,
+use radix_engine_toolkit::model::transaction::{
+    InstructionKind, InstructionList, TransactionManifest,
 };
+use radix_engine_toolkit::request::{ConvertManifestHandler, ConvertManifestRequest, Handler};
 
 const MANIFESTS_PATH: &str = "./tests/test_vector/manifest";
 
@@ -44,7 +61,7 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
 
         let manifest = TransactionManifest {
             instructions: InstructionList::String(manifest_str),
-            blobs: vec![[10].into(), [10].into()],
+            blobs: vec![[10].into()],
         };
 
         let request = ConvertManifestRequest {
@@ -64,6 +81,7 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
         let response = ConvertManifestHandler::fulfill(request);
 
         // Assert
+        println!("{:?}", response);
         assert!(matches!(response, Ok(..)));
     }
 }
@@ -123,11 +141,11 @@ fn manifest_replace(string: String) -> String {
         .replace("{auth_badge_non_fungible_local_id}", "#1#")
         .replace(
             "{code_blob_hash}",
-            "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+            "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
         )
         .replace(
             "{abi_blob_hash}",
-            "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+            "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
         )
         .replace("{initial_supply}", "12")
         .replace("{mint_amount}", "12")

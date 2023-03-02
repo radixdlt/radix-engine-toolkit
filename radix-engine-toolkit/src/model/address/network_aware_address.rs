@@ -18,8 +18,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use crate::address::Bech32Coder;
 use crate::error::{Error, Result};
+use crate::model::address::Bech32Coder;
 
 // Defines a network aware address. This is needed for the serialization and deserialization using
 // serde.
@@ -69,6 +69,26 @@ macro_rules! define_network_aware_address {
                     address: bech32_coder.$decoding_method_ident(s)?,
                     network_id: bech32_coder.network_id(),
                 })
+            }
+        }
+
+        /// An implementation of borrow which allows the network aware types to be borrowed as
+        /// non-network aware types. Useful for Bech32 encoding.
+        impl std::borrow::Borrow<$underlying_type> for $network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
+            }
+        }
+
+        impl std::borrow::Borrow<$underlying_type> for &$network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
+            }
+        }
+
+        impl std::borrow::Borrow<$underlying_type> for &mut $network_aware_struct_ident {
+            fn borrow(&self) -> &$underlying_type {
+                &self.address
             }
         }
     };

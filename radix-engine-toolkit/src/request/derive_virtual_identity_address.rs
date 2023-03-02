@@ -16,10 +16,11 @@
 // under the License.
 
 use scrypto::prelude::{ComponentAddress, PublicKey};
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 use crate::error::Result;
-use crate::{Handler, NetworkAwareComponentAddress};
+use crate::model::address::NetworkAwareComponentAddress;
+use crate::request::traits::Handler;
 
 // =================
 // Model Definition
@@ -47,8 +48,8 @@ pub struct DeriveVirtualIdentityAddressRequest {
 pub struct DeriveVirtualIdentityAddressResponse {
     /// The virtual identity component address serialized as a `ComponentAddress` from the `Value`
     /// model.
-    #[schemars(with = "crate::model::Value")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::model::Value>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub virtual_identity_address: NetworkAwareComponentAddress,
 }
 

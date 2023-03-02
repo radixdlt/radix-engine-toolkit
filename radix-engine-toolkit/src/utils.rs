@@ -15,10 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::borrow::Borrow;
+
 use crate::error::Result;
 use bech32;
+use scrypto::prelude::ComponentAddress;
 use scrypto::radix_engine_interface::address::AddressError;
-use scrypto::radix_engine_interface::node::NetworkDefinition;
+use scrypto::radix_engine_interface::network::NetworkDefinition;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented
 /// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
@@ -126,4 +129,13 @@ pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8> {
     let (hrp, _, _) =
         bech32::decode(address.as_ref()).map_err(AddressError::Bech32mDecodingError)?;
     network_id_from_hrp(hrp)
+}
+
+pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
+    matches!(
+        address.borrow(),
+        ComponentAddress::Account(..)
+            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+            | ComponentAddress::EddsaEd25519VirtualAccount(..)
+    )
 }

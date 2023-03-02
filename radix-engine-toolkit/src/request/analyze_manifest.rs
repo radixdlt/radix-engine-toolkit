@@ -18,15 +18,22 @@
 use std::collections::BTreeSet;
 
 use crate::error::Result;
-use crate::model::instruction_list::InstructionKind;
-use crate::model::TransactionManifest;
-use crate::{
-    traverse_instruction, AccountInteractionsInstructionVisitor, AddressValueAggregator,
-    ConvertManifestHandler, Handler, Instruction, InstructionList, NetworkAwareComponentAddress,
-    NetworkAwarePackageAddress, NetworkAwareResourceAddress, ValueNetworkAggregatorVisitor,
+use crate::model::address::{
+    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
+    NetworkAwareResourceAddress,
 };
-use scrypto::prelude::ComponentAddress;
-use serializable::serializable;
+use crate::model::instruction::Instruction;
+use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
+use crate::request::convert_manifest::ConvertManifestRequest;
+use crate::utils::is_account;
+use crate::visitor::{
+    traverse_instruction, AccountInteractionsInstructionVisitor, AddressAggregatorVisitor,
+    ValueNetworkAggregatorVisitor,
+};
+use toolkit_derive::serializable;
+
+use super::convert_manifest::ConvertManifestHandler;
+use super::traits::Handler;
 
 // =================
 // Model Definition
@@ -43,7 +50,7 @@ pub struct AnalyzeManifestRequest {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
-    /// The manifest to convert to the format described by `instructions_output_kind`
+    /// The manifest to analyze.
     pub manifest: TransactionManifest,
 }
 
@@ -52,48 +59,48 @@ pub struct AnalyzeManifestRequest {
 pub struct AnalyzeManifestResponse {
     /// A set of all of the package addresses seen in the manifest. The underlying type of this is
     /// an array of `PackageAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
 
     /// A set of all of the component addresses seen in the manifest. The underlying type of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the resource addresses seen in the manifest. The underlying type of this is
     /// an array of `ResourceAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
 
     /// A set of all of the account component addresses seen in the manifest. The underlying type
     /// of this is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub account_addresses: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which had methods invoked
     /// on them that would typically require auth (or a signature) to be called successfully.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type of
     /// this  is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_requiring_auth: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which were withdrawn from.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type  of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_withdrawn_from: BTreeSet<NetworkAwareComponentAddress>,
 
     /// A set of all of the account component addresses in the manifest which were deposited into.
     /// This is a subset of the addresses seen in `account_addresses`. The underlying type  of this
     /// is an array of `ComponentAddress`es from the `Value` model.
-    #[schemars(with = "BTreeSet<crate::model::Value>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<crate::model::Value>>")]
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_deposited_into: BTreeSet<NetworkAwareComponentAddress>,
 }
 
@@ -128,7 +135,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             .iter()
             .find(|network_id| **network_id != request.network_id)
         {
-            return Err(crate::Error::NetworkMismatchError {
+            return Err(crate::error::Error::NetworkMismatchError {
                 found: *network_id,
                 expected: request.network_id,
             });
@@ -139,7 +146,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
     fn handle(request: &AnalyzeManifestRequest) -> Result<AnalyzeManifestResponse> {
         // Getting the instructions in the passed manifest as parsed instructions
         let mut instructions = {
-            let manifest = ConvertManifestHandler::fulfill(crate::ConvertManifestRequest {
+            let manifest = ConvertManifestHandler::fulfill(ConvertManifestRequest {
                 network_id: request.network_id,
                 instructions_output_kind: InstructionKind::Parsed,
                 manifest: request.manifest.clone(),
@@ -156,7 +163,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
         }?;
 
         // Setting up the visitors and traversing the instructions
-        let mut address_aggregator_visitor = AddressValueAggregator::default();
+        let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
         let mut account_interactions_visitor = AccountInteractionsInstructionVisitor::default();
         instructions
             .iter_mut()
@@ -176,14 +183,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             account_addresses: address_aggregator_visitor
                 .component_addresses
                 .into_iter()
-                .filter(|address| {
-                    matches!(
-                        address.address,
-                        ComponentAddress::Account(..)
-                            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-                            | ComponentAddress::EddsaEd25519VirtualAccount(..)
-                    )
-                })
+                .filter(|address| is_account(address))
                 .collect(),
             accounts_requiring_auth: account_interactions_visitor.auth_required,
             accounts_withdrawn_from: account_interactions_visitor.accounts_withdrawn_from,

@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::{error::Result, CompilableIntent, Error, InstructionKind};
+use crate::error::{Error, Result};
+use crate::model::transaction::{InstructionKind, SignedTransactionIntent};
+use crate::traits::CompilableIntent;
 use native_transaction::model as native;
-use scrypto::prelude::{scrypto_decode, scrypto_encode, Signature};
-use serializable::serializable;
-
-use crate::SignedTransactionIntent;
+use native_transaction_data::{manifest_decode, manifest_encode};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -29,6 +29,7 @@ use crate::SignedTransactionIntent;
 /// A notarized transaction intent which is made up of a signed transaction intent and the notary
 /// intent on said signed intent.
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::notarized_intent")]
 pub struct NotarizedTransaction {
     /// The signed transaction intent of the transaction.
     pub signed_intent: SignedTransactionIntent,
@@ -36,7 +37,7 @@ pub struct NotarizedTransaction {
     /// The signature of the notary on the signed transaction intent.
     #[schemars(with = "crate::model::crypto::Signature")]
     #[serde_as(as = "serde_with::FromInto<crate::model::crypto::Signature>")]
-    pub notary_signature: Signature,
+    pub notary_signature: native::Signature,
 }
 
 // ===============
@@ -47,7 +48,7 @@ impl CompilableIntent for NotarizedTransaction {
     fn compile(&self) -> Result<Vec<u8>> {
         self.to_native_notarized_transaction_intent()
             .and_then(|notarized_transaction| {
-                scrypto_encode(&notarized_transaction).map_err(Error::from)
+                manifest_encode(&notarized_transaction).map_err(Error::from)
             })
     }
 
@@ -56,7 +57,7 @@ impl CompilableIntent for NotarizedTransaction {
         Self: Sized,
         T: AsRef<[u8]>,
     {
-        scrypto_decode(data.as_ref())
+        manifest_decode(data.as_ref())
             .map_err(Error::from)
             .and_then(|decoded| {
                 Self::from_native_notarized_transaction_intent(&decoded, instructions_kind)

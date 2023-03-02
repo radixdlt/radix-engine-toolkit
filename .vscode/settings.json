@@ -1,0 +1,26 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "Cargo.toml",
+        "native-json-interface/Cargo.toml",
+    ],
+    "cSpell.words": [
+        "bech",
+        "Decompilation",
+        "decompile",
+        "decompiled",
+        "eddsa",
+        "instantiatable",
+        "Instrumenter",
+        "persistable",
+        "repr",
+        "Sbor",
+        "Scrypto",
+        "Secp",
+        "Substate",
+        "substates",
+        "Untimed",
+        "virtualizable",
+        "Wasmer",
+        "Wasmi"
+    ]
+}
