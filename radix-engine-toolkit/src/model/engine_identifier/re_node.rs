@@ -73,9 +73,6 @@ pub enum RENodeId {
     /// resources returned during transaction runtime.
     Worktop,
 
-    /// Represents the Radix Engine Node Identifier of a Logger which is used to emit logs.
-    Logger,
-
     /// Represents the Radix Engine Node Identifier of a Transaction Runtime.
     TransactionRuntime,
 
@@ -139,7 +136,6 @@ impl From<RENodeId> for NativeRENodeId {
             RENodeId::AccessController { identifier } => Self::AccessController(identifier.0),
             RENodeId::AuthZoneStack => Self::AuthZoneStack,
             RENodeId::Worktop => Self::Worktop,
-            RENodeId::Logger => Self::Logger,
             RENodeId::TransactionRuntime => Self::TransactionRuntime,
         }
     }
