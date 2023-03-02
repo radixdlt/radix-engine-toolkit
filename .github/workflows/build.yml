@@ -209,11 +209,12 @@ jobs:
           dotnet-version: 7.0.x
       - name: Configure Version
         run: |
+          CI_RUN_NUMBER=${{ github.run_number }}
           GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/g')
           GIT_COMMIT=$(git log -1 --format=%h )
           CORE_VERSION=$(cat radix-engine-toolkit/Cargo.toml | grep -e '^version' | cut -d'"' -f 2)
           VERSION_SUFFIX=build.${CI_RUN_NUMBER}
-          VERSION=${CORE_VERSION}-${VERSION_SUFFIX}
+          VERSION=${CORE_VERSION}.${VERSION_SUFFIX}
           
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             VERSION=${CORE_VERSION}
