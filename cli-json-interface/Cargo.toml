@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Used for creating the CLI
-clap = { version = "4.1.8", features = ["derive", "color"] }
+clap = { version = "4.1.8", features = ["derive", "string"] }
 
 # The core Radix Engine Toolkit dependency to be exposed by this interface.
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }

@@ -15,21 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cli;
-mod error;
-mod subcommands;
-mod utils;
-
+use crate::error::Result;
+use crate::utils::pretty_print;
 use clap::Parser;
+use radix_engine_toolkit::request::{DecodeAddressHandler, DecodeAddressRequest, Handler};
 
-pub fn main() -> crate::error::Result<()> {
-    let cli = cli::Cli::parse();
-    let mut out = std::io::stdout();
+/// Decodes the Bech32 address revealing some information on what exactly does it address.
+#[derive(Parser, Debug)]
+pub struct Decode {
+    /// The Bech32m encoded address to decode.
+    #[clap(short, long)]
+    address: String,
+}
 
-    match cli.command {
-        cli::Command::Address(cmd) => cmd.run(&mut out),
-        cli::Command::Transaction(cmd) => cmd.run(&mut out),
-        cli::Command::Sbor(cmd) => cmd.run(&mut out),
-        cli::Command::Utils(cmd) => cmd.run(&mut out),
+impl Decode {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
+        let request = DecodeAddressRequest {
+            address: self.address.clone(),
+        };
+        let response = DecodeAddressHandler::fulfill(request)?;
+        pretty_print(&response, out)
     }
 }

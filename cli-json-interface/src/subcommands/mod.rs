@@ -15,21 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cli;
-mod error;
-mod subcommands;
-mod utils;
-
-use clap::Parser;
-
-pub fn main() -> crate::error::Result<()> {
-    let cli = cli::Cli::parse();
-    let mut out = std::io::stdout();
-
-    match cli.command {
-        cli::Command::Address(cmd) => cmd.run(&mut out),
-        cli::Command::Transaction(cmd) => cmd.run(&mut out),
-        cli::Command::Sbor(cmd) => cmd.run(&mut out),
-        cli::Command::Utils(cmd) => cmd.run(&mut out),
-    }
-}
+pub mod address;
+pub mod sbor;
+pub mod transaction;
+pub mod utils;

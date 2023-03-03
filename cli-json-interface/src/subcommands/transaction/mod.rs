@@ -15,25 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::utils::pretty_print;
-use clap::Parser;
-use radix_engine_toolkit::request::{DecodeAddressHandler, DecodeAddressRequest, Handler};
+mod analyze_manifest;
+mod convert_manifest;
+mod decompile;
 
-#[derive(Parser, Debug)]
-/// Decodes the Bech32 address revealing some information on what exactly does it address.
-pub struct DecodeAddress {
-    /// The Bech32m encoded address to decode.
-    #[clap(short, long)]
-    address: String,
+/// A subcommand for all transaction related commands.
+#[derive(clap::Subcommand, Debug)]
+pub enum Transaction {
+    AnalyzeManifest(analyze_manifest::AnalyzeManifest),
+    ConvertManifest(convert_manifest::ConvertManifest),
+    Decompile(decompile::Decompile),
 }
 
-impl DecodeAddress {
-    pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = DecodeAddressRequest {
-            address: self.address.clone(),
-        };
-        let response = DecodeAddressHandler::fulfill(request)?;
-        pretty_print(&response, out)
+impl Transaction {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> crate::error::Result<()> {
+        match self {
+            Self::AnalyzeManifest(cmd) => cmd.run(out),
+            Self::ConvertManifest(cmd) => cmd.run(out),
+            Self::Decompile(cmd) => cmd.run(out),
+        }
     }
 }

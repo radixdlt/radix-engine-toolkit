@@ -27,13 +27,7 @@ use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 
 #[derive(Parser, Debug)]
-/// Converts transaction manifests from one format to another. Currently, this can perform two way
-/// conversion from and to the regular string based format of manifests to a JSON based format of
-/// the Abstract Syntax Tree (AST) of the manifest.
-///
-/// The conversion or output format is implicit rather than explicit. If a string manifest is the
-/// input then a JSON manifest is the output. Similarly, if a JSON manifest is the input, then a
-/// string manifest is the output.
+/// Analyzes the manifest for all of the included addresses in the manifest.
 pub struct AnalyzeManifest {
     /// The path to a manifest file. This can either be a standard `.rtm` file of the manifest in
     /// text form or could be the path to a `.json` file of the JSON based manifest abstract syntax

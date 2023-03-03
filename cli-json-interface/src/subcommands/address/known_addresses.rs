@@ -15,14 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod analyze_manifest;
-mod convert_manifest;
-mod decode_address;
-mod encode_address;
-mod information;
+use crate::error::Result;
+use crate::utils::pretty_print;
+use clap::Parser;
+use radix_engine_toolkit::request::{
+    Handler, KnownEntityAddressesHandler, KnownEntityAddressesRequest,
+};
 
-pub use analyze_manifest::*;
-pub use convert_manifest::*;
-pub use decode_address::*;
-pub use encode_address::*;
-pub use information::*;
+#[derive(Parser, Debug)]
+/// Derives the list of known entity addresses on the given network
+pub struct KnownAddresses {
+    /// The network id to derive the known addresses for.
+    #[clap(short, long)]
+    network_id: u8,
+}
+
+impl KnownAddresses {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
+        let request = KnownEntityAddressesRequest {
+            network_id: self.network_id,
+        };
+        let response = KnownEntityAddressesHandler::fulfill(request)?;
+        pretty_print(&response, out)
+    }
+}

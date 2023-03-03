@@ -18,28 +18,27 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{EncodeAddressHandler, EncodeAddressRequest, Handler};
+use radix_engine_toolkit::request::{Handler, SborDecodeHandler, SborDecodeRequest};
 
+/// Decodes a Manifest and Scrypto SBOR encoded payloads.
 #[derive(Parser, Debug)]
-/// Encodes a raw address into a Bech32 encoded address.
-pub struct EncodeAddress {
-    /// The raw address to Bech32m encode. This is 27-byte long raw address serialized as a 54
-    /// character long hexadecimal string.
+pub struct Decode {
+    /// The SBOR encoded payload to decode
     #[clap(short, long)]
-    raw_address: String,
+    payload: String,
 
-    /// The network id to use for encoding the address.
+    /// The network id to use. This is primarily used for decoding addresses
     #[clap(short, long)]
     network_id: u8,
 }
 
-impl EncodeAddress {
+impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = EncodeAddressRequest {
-            address_bytes: hex::decode(&self.raw_address)?,
+        let request = SborDecodeRequest {
+            encoded_value: hex::decode(&self.payload)?,
             network_id: self.network_id,
         };
-        let response = EncodeAddressHandler::fulfill(request)?;
+        let response = SborDecodeHandler::fulfill(request)?;
         pretty_print(&response, out)
     }
 }

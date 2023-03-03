@@ -15,21 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cli;
-mod error;
-mod subcommands;
-mod utils;
+#[derive(clap::Parser, Debug)]
+pub struct Cli {
+    #[clap(subcommand)]
+    pub command: Command,
+}
 
-use clap::Parser;
+#[derive(clap::Subcommand, Debug)]
+pub enum Command {
+    #[clap(subcommand)]
+    Address(super::subcommands::address::Address),
 
-pub fn main() -> crate::error::Result<()> {
-    let cli = cli::Cli::parse();
-    let mut out = std::io::stdout();
+    #[clap(subcommand)]
+    Sbor(super::subcommands::sbor::Sbor),
 
-    match cli.command {
-        cli::Command::Address(cmd) => cmd.run(&mut out),
-        cli::Command::Transaction(cmd) => cmd.run(&mut out),
-        cli::Command::Sbor(cmd) => cmd.run(&mut out),
-        cli::Command::Utils(cmd) => cmd.run(&mut out),
-    }
+    #[clap(subcommand)]
+    Transaction(super::subcommands::transaction::Transaction),
+
+    #[clap(subcommand)]
+    Utils(super::subcommands::utils::Utils),
 }

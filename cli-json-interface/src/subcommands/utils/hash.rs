@@ -15,12 +15,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod encode;
+use crate::error::Result;
+use crate::utils::pretty_print;
+use clap::Parser;
+use radix_engine_toolkit::request::{Handler, HashHandler, HashRequest};
 
-use clap::Subcommand;
-use encode::Encode;
+#[derive(Parser, Debug)]
+/// Hashes some data using the hashing algorithm of Scrypto and the Radix Engine. Currently, this
+/// is Blake2b with 256 bit digests.
+pub struct Hash {
+    /// A hex-encoded string of the data to hash
+    #[clap(short, long)]
+    data: String,
+}
 
-#[derive(Subcommand, Debug)]
-pub enum Address {
-    Encode(Encode),
+impl Hash {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
+        let request = HashRequest {
+            payload: hex::decode(&self.data)?,
+        };
+        let response = HashHandler::fulfill(request)?;
+        pretty_print(&response, out)
+    }
 }

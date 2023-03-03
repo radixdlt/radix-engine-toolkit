@@ -33,6 +33,8 @@ pub enum Error {
     HexDecodeError(hex::FromHexError),
     GeneratorError(GeneratorError),
     DecompileError(DecompileError),
+    InvalidPublicKey,
+    InvalidStringConversion,
 }
 
 impl From<radix_engine_toolkit::error::Error> for Error {

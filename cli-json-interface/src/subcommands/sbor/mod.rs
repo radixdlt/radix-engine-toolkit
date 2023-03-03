@@ -15,21 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cli;
-mod error;
-mod subcommands;
-mod utils;
+mod decode;
+mod encode;
 
-use clap::Parser;
+/// A subcommand for all address SBOR related commands.
+#[derive(clap::Subcommand, Debug)]
+pub enum Sbor {
+    Encode(encode::Encode),
+    Decode(decode::Decode),
+}
 
-pub fn main() -> crate::error::Result<()> {
-    let cli = cli::Cli::parse();
-    let mut out = std::io::stdout();
-
-    match cli.command {
-        cli::Command::Address(cmd) => cmd.run(&mut out),
-        cli::Command::Transaction(cmd) => cmd.run(&mut out),
-        cli::Command::Sbor(cmd) => cmd.run(&mut out),
-        cli::Command::Utils(cmd) => cmd.run(&mut out),
+impl Sbor {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> crate::error::Result<()> {
+        match self {
+            Self::Encode(cmd) => cmd.run(out),
+            Self::Decode(cmd) => cmd.run(out),
+        }
     }
 }

@@ -15,21 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cli;
-mod error;
-mod subcommands;
-mod utils;
+mod hash;
+mod information;
 
-use clap::Parser;
+/// A subcommand for a set of utility functions.
+#[derive(clap::Subcommand, Debug)]
+pub enum Utils {
+    Information(information::Information),
+    Hash(hash::Hash),
+}
 
-pub fn main() -> crate::error::Result<()> {
-    let cli = cli::Cli::parse();
-    let mut out = std::io::stdout();
-
-    match cli.command {
-        cli::Command::Address(cmd) => cmd.run(&mut out),
-        cli::Command::Transaction(cmd) => cmd.run(&mut out),
-        cli::Command::Sbor(cmd) => cmd.run(&mut out),
-        cli::Command::Utils(cmd) => cmd.run(&mut out),
+impl Utils {
+    pub fn run<O: std::io::Write>(&self, out: &mut O) -> crate::error::Result<()> {
+        match self {
+            Self::Hash(cmd) => cmd.run(out),
+            Self::Information(cmd) => cmd.run(out),
+        }
     }
 }

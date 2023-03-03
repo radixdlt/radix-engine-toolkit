@@ -23,7 +23,7 @@ use crate::utils::pretty_print;
 
 #[derive(Parser, Debug)]
 /// Returns information on the Radix Engine Toolkit currently in use by the CLI. Includes information
-/// such as the version and the commit hash
+/// such as the version and the commit hash.
 pub struct Information;
 
 impl Information {
