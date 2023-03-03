@@ -120,6 +120,9 @@ define_kind_enum! {
         /// (acting in a way similar to discriminated algebraic sum types)
         Enum {
             /// The variant of the enum.
+            #[schemars(regex(pattern = "[0-9]+"))]
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
             variant: u8,
 
             /// Optional fields that the enum may have
