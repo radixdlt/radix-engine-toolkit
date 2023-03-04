@@ -63,6 +63,8 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
         ConvertManifestResponse,
         AnalyzeManifestRequest,
         AnalyzeManifestResponse,
+        AnalyzeManifestWithPreviewContextRequest,
+        AnalyzeManifestWithPreviewContextResponse,
         CompileTransactionIntentRequest,
         CompileTransactionIntentResponse,
         DecompileTransactionIntentRequest,
