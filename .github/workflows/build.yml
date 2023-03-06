@@ -142,7 +142,7 @@ jobs:
 
             cargo build \
               --target ${{ matrix.build-target.target-triple }} \
-              --release
+              --release --features jni
 
             unset $LINKER_ENVIRONMENT_VARIABLE
             export CC="/usr/local/opt/llvm/bin/clang"
