@@ -19,7 +19,7 @@ use std::fmt::Display;
 
 use toolkit_derive::serializable;
 
-use crate::model::value::ast::ManifestAstValueKind;
+use crate::model::{engine_identifier::BucketId, value::ast::ManifestAstValueKind};
 
 /// The error model used by the Radix Engine Toolkit - Represents the set of all errors which the
 /// Radix Engine Toolkit may return for a request.
@@ -175,6 +175,24 @@ pub enum Error {
 
     /// A conversion which is invalid and can not be made.
     InvalidConversion,
+
+    // ================
+    // Analysis Errors
+    // ================
+    NoResourceChangesForInstruction {
+        instruction_index: u32,
+    },
+
+    /// An error emitted when a bucket with a given id could not be found.
+    InvalidBucketId {
+        bucket_id: BucketId,
+    },
+
+    /// An error emitted when a bucket is created with an identical identifier to one that already
+    /// exists.
+    BucketExistsError {
+        bucket_id: BucketId,
+    },
 }
 
 impl Display for Error {
