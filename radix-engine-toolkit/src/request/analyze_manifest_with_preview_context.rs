@@ -28,7 +28,7 @@ use crate::visitor::{
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
 use radix_engine::transaction::{TransactionReceipt, TransactionResult};
-use radix_engine::types::scrypto_decode;
+use radix_engine::types::{scrypto_decode, ComponentAddress};
 use toolkit_derive::serializable;
 
 use super::traits::Handler;
@@ -117,9 +117,7 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 pub struct EncounteredAddresses {
     /// The set of component addresses encountered in the manifest
-    #[schemars(with = "BTreeSet<EntityAddress>")]
-    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
-    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+    pub component_addresses: EncounteredComponents,
 
     /// The set of resource addresses encountered in the manifest
     #[schemars(with = "BTreeSet<EntityAddress>")]
@@ -130,6 +128,85 @@ pub struct EncounteredAddresses {
     #[schemars(with = "BTreeSet<EntityAddress>")]
     #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+}
+
+/// The set of addresses encountered in the manifest
+#[serializable]
+#[derive(PartialEq, PartialOrd, Eq, Ord)]
+pub struct EncounteredComponents {
+    /// The set of user application components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub user_applications: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of account components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub accounts: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of identity components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub identities: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of clock components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub clocks: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of epoch_manager components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub epoch_managers: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of validator components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub validators: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of validator components encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub access_controller: BTreeSet<NetworkAwareComponentAddress>,
+}
+
+impl From<BTreeSet<NetworkAwareComponentAddress>> for EncounteredComponents {
+    fn from(value: BTreeSet<NetworkAwareComponentAddress>) -> Self {
+        let mut user_applications = BTreeSet::new();
+        let mut accounts = BTreeSet::new();
+        let mut identities = BTreeSet::new();
+        let mut clocks = BTreeSet::new();
+        let mut epoch_managers = BTreeSet::new();
+        let mut validators = BTreeSet::new();
+        let mut access_controller = BTreeSet::new();
+
+        for address in value {
+            let underlying_address = address.address;
+            match underlying_address {
+                ComponentAddress::Normal(..) => user_applications.insert(address),
+                ComponentAddress::Account(..)
+                | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
+                | ComponentAddress::EddsaEd25519VirtualAccount(..) => accounts.insert(address),
+                ComponentAddress::Identity(..)
+                | ComponentAddress::EcdsaSecp256k1VirtualIdentity(..)
+                | ComponentAddress::EddsaEd25519VirtualIdentity(..) => identities.insert(address),
+                ComponentAddress::Clock(..) => clocks.insert(address),
+                ComponentAddress::EpochManager(..) => epoch_managers.insert(address),
+                ComponentAddress::Validator(..) => validators.insert(address),
+                ComponentAddress::AccessController(..) => access_controller.insert(address),
+            };
+        }
+
+        Self {
+            user_applications,
+            accounts,
+            identities,
+            clocks,
+            epoch_managers,
+            validators,
+            access_controller,
+        }
+    }
 }
 
 // ===============
@@ -245,7 +322,7 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             accounts_requiring_auth: account_interactions_visitor.auth_required,
             account_proof_resources: account_proofs_visitor.created_proofs,
             encountered_addresses: EncounteredAddresses {
-                component_addresses: address_aggregator_visitor.component_addresses,
+                component_addresses: address_aggregator_visitor.component_addresses.into(),
                 resource_addresses: address_aggregator_visitor.resource_addresses,
                 package_addresses: address_aggregator_visitor.package_addresses,
             },

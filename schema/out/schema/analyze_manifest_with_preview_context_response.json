@@ -62,11 +62,11 @@
       "properties": {
         "component_addresses": {
           "description": "The set of component addresses encountered in the manifest",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/EntityAddress"
-          },
-          "uniqueItems": true
+          "allOf": [
+            {
+              "$ref": "#/definitions/EncounteredComponents"
+            }
+          ]
         },
         "resource_addresses": {
           "description": "The set of resource addresses encountered in the manifest",
@@ -78,6 +78,77 @@
         },
         "package_addresses": {
           "description": "The set of package addresses encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "EncounteredComponents": {
+      "description": "The set of addresses encountered in the manifest",
+      "type": "object",
+      "required": [
+        "access_controller",
+        "accounts",
+        "clocks",
+        "epoch_managers",
+        "identities",
+        "user_applications",
+        "validators"
+      ],
+      "properties": {
+        "user_applications": {
+          "description": "The set of user application components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "accounts": {
+          "description": "The set of account components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "identities": {
+          "description": "The set of identity components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "clocks": {
+          "description": "The set of clock components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "epoch_managers": {
+          "description": "The set of epoch_manager components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "validators": {
+          "description": "The set of validator components encountered in the manifest",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "access_controller": {
+          "description": "The set of validator components encountered in the manifest",
           "type": "array",
           "items": {
             "$ref": "#/definitions/EntityAddress"
