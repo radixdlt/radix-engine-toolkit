@@ -15,11 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::data::ManifestBlobRef;
 use native_transaction::manifest::generator::{generate_instruction, NameResolver};
 use native_transaction::validation::ManifestValidator;
 use scrypto::prelude::{
-    Hash, IntegerNonFungibleLocalId, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
+    Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 use scrypto_utils::copy_u8_array;
 
