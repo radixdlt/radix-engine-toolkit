@@ -20,17 +20,16 @@ use std::collections::BTreeSet;
 use scrypto::radix_engine_interface::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::EntityAddress;
-use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
-use crate::request::analyze_manifest_with_preview_context::ManifestProof;
-use crate::request::ResourceSpecifier;
+use crate::model::address::{EntityAddress, NetworkAwareResourceAddress};
+use crate::model::value::ast::ManifestAstValue;
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
 
 /// A visitor whose main responsibility is analyzing the call-method instructions for proof creation
 #[derive(Debug, Default)]
 pub struct AccountProofsInstructionVisitor {
-    pub created_proofs: Vec<ManifestProof>,
+    /// The resource addresses of the created proofs
+    pub created_proofs: BTreeSet<NetworkAwareResourceAddress>,
 }
 
 impl InstructionVisitor for AccountProofsInstructionVisitor {
@@ -40,9 +39,14 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         method_name: &mut ManifestAstValue,
         args: &mut Option<Vec<ManifestAstValue>>,
     ) -> Result<()> {
-        // Checking for created proofs
-        let args = args.clone().unwrap_or_default();
-        match (component_address, method_name, args.get(0), args.get(1)) {
+        // Checking for instructions that create proofs from accounts. Since all that is of interest
+        // to us is the resource address then only the first argument needs to be analyzed
+        let args = args.clone();
+        match (
+            component_address,
+            method_name,
+            args.unwrap_or_default().get(0),
+        ) {
             (
                 ManifestAstValue::ComponentAddress {
                     address: ref component_address,
@@ -67,98 +71,12 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
                             },
                     },
                 ),
-                None,
-            ) if is_account(component_address) && method_name == ACCOUNT_CREATE_PROOF_IDENT => {
-                self.created_proofs.push(ManifestProof {
-                    origin: *component_address,
-                    resource_address: *resource_address,
-                    quantity: ResourceSpecifier::All,
-                });
-            }
-            (
-                ManifestAstValue::ComponentAddress {
-                    address: component_address,
-                }
-                | ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: component_address,
-                        },
-                },
-                ManifestAstValue::String { value: method_name },
-                Some(
-                    ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    }
-                    | ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    },
-                ),
-                Some(ManifestAstValue::Decimal { value: amount }),
-            ) if is_account(component_address.address)
-                && method_name == ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT =>
+            ) if is_account(component_address)
+                && (method_name == ACCOUNT_CREATE_PROOF_IDENT
+                    || method_name == ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT
+                    || method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT) =>
             {
-                self.created_proofs.push(ManifestProof {
-                    origin: *component_address,
-                    resource_address: *resource_address,
-                    quantity: ResourceSpecifier::Amount { amount: *amount },
-                });
-            }
-            (
-                ManifestAstValue::ComponentAddress {
-                    address: component_address,
-                }
-                | ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: component_address,
-                        },
-                },
-                ManifestAstValue::String { value: method_name },
-                Some(
-                    ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    }
-                    | ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    },
-                ),
-                Some(ManifestAstValue::Array {
-                    element_kind: ManifestAstValueKind::NonFungibleLocalId,
-                    elements,
-                }),
-            ) if is_account(component_address.address)
-                && method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT =>
-            {
-                // Attempt to get the non-fungible local ids. If one of them is wrong, return from
-                // the visit
-                let non_fungible_local_ids = {
-                    let mut ids = BTreeSet::new();
-
-                    for element in elements {
-                        if let ManifestAstValue::NonFungibleLocalId { value } = element {
-                            ids.insert(value.clone());
-                        } else {
-                            return Ok(());
-                        }
-                    }
-
-                    ids
-                };
-
-                self.created_proofs.push(ManifestProof {
-                    origin: *component_address,
-                    resource_address: *resource_address,
-                    quantity: ResourceSpecifier::Ids {
-                        ids: non_fungible_local_ids,
-                    },
-                });
+                self.created_proofs.insert(*resource_address);
             }
             _ => {}
         }

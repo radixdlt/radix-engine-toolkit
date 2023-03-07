@@ -1,0 +1,418 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnalyzeManifestWithPreviewContextResponse",
+  "description": "The response of the [`AnalyzeManifestWithPreviewContextRequest`]",
+  "type": "object",
+  "required": [
+    "account_actions",
+    "addresses_encountered",
+    "proofs"
+  ],
+  "properties": {
+    "addresses_encountered": {
+      "description": "The set of global addresses seen in the manifest.\n\nThis encountered addresses are obtained by the toolkit by doing static analysis on the manifest to determine what the different addresses seen there are. So, if an address is in the manifest, then it should be here as well. Anything that is not in the manifest is not included here even if there are calls that happen to it.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/AddressesEncountered"
+        }
+      ]
+    },
+    "proofs": {
+      "description": "The set of proofs which are created from accounts in this manifest.\n\nThis field is populated by statically analyzing the transaction manifest and parsing the `CALL_METHOD` instructions to determine which ones create proofs from accounts, what the account addresses are, what the resource addresses are, as well as the quantity of resources created in that proof.\n\nWith the above in mind, it means that this field will not show proofs which are not created from accounts or those created from interactions with other components. This is strictly for which proofs originated from which accounts.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ManifestProof"
+      }
+    },
+    "account_actions": {
+      "description": "The account actions which took place during the transaction such as withdraws and deposits.\n\nThis field is populated by aggregating, filtering, and parsing the data data in the preview. Thus, this information is not as trustworthy as information obtained by statically analyzing the manifest.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/AccountActions"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "AddressesEncountered": {
+      "description": "Defines a set of entities encountered when parsing the transaction manifest for global addresses",
+      "type": "object",
+      "required": [
+        "component_addresses",
+        "package_addresses",
+        "resource_addresses"
+      ],
+      "properties": {
+        "package_addresses": {
+          "description": "A set of all of the package addresses seen in the manifest. The underlying type of this is an array of `PackageAddress`es from the `Value` model.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "component_addresses": {
+          "description": "A set of all of the component addresses seen in the manifest. The underlying type of this is an array of `ComponentAddress`es from the `Value` model.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "resource_addresses": {
+          "description": "A set of all of the resource addresses seen in the manifest. The underlying type of this is an array of `ResourceAddress`es from the `Value` model.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "EntityAddress": {
+      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
+      "oneOf": [
+        {
+          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "ComponentAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ComponentAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "ResourceAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ResourceAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "PackageAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PackageAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "ManifestProof": {
+      "description": "Defines a manifest proof which originates from some component, is of some resource address, and has some amount or non-fungible id set.",
+      "type": "object",
+      "required": [
+        "origin",
+        "quantity",
+        "resource_address"
+      ],
+      "properties": {
+        "origin": {
+          "description": "The address of the component which the proof originated from.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EntityAddress"
+            }
+          ]
+        },
+        "resource_address": {
+          "description": "The address of the resource that this proof is created from.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EntityAddress"
+            }
+          ]
+        },
+        "quantity": {
+          "description": "The quantity of resources that the proof was created from.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResourceSpecifier"
+            }
+          ]
+        }
+      }
+    },
+    "ResourceSpecifier": {
+      "description": "A specifier which is used to quantify resources",
+      "oneOf": [
+        {
+          "description": "Specifies that some operation was performed with all of that resource and not a specific amount or some specific non-fungible ids.",
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "All"
+              ]
+            }
+          }
+        },
+        {
+          "description": "Specifies that some operation was performed with an amount of a resource of the given resource address.",
+          "type": "object",
+          "required": [
+            "amount",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Amount"
+              ]
+            },
+            "amount": {
+              "description": "Represents an amount of the resource. This is a decimal serialized as a string.",
+              "type": "string",
+              "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "Specifies that some operation was performed with some non-fungible ids.",
+          "type": "object",
+          "required": [
+            "ids",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Ids"
+              ]
+            },
+            "ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NonFungibleLocalId"
+              },
+              "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "NonFungibleLocalId": {
+      "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+      "oneOf": [
+        {
+          "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "Integer",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Integer"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "UUID"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bytes"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 2,
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        },
+        {
+          "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "String"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 64,
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "AccountActions": {
+      "description": "Defines the set of account actions that can be seen in the transaction preview. This mainly describes the withdraws and deposits.",
+      "type": "object",
+      "required": [
+        "deposits",
+        "withdraws"
+      ],
+      "properties": {
+        "withdraws": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccountAction"
+          }
+        },
+        "deposits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AccountAction"
+          }
+        }
+      }
+    },
+    "AccountAction": {
+      "description": "Describes some account action.",
+      "type": "object",
+      "required": [
+        "amount",
+        "component_address",
+        "resource_address"
+      ],
+      "properties": {
+        "component_address": {
+          "description": "The address of the account component that the action was performed against.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EntityAddress"
+            }
+          ]
+        },
+        "resource_address": {
+          "description": "The resource address of the resource that the action was performed against (e.g. if we're describing a withdraw action, then this is a the address of the resource that was withdrawn).",
+          "allOf": [
+            {
+              "$ref": "#/definitions/EntityAddress"
+            }
+          ]
+        },
+        "amount": {
+          "description": "The amount of the action (always a positive amount) (e.g., if we're describing a withdraw action, then this field describes the amount of funds withdrawn from the account)",
+          "type": "string",
+          "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+        }
+      }
+    }
+  }
+}

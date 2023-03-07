@@ -232,7 +232,9 @@ define_instruction_visitor! {
         ),
 
         visit_clear_auth_zone(),
-        visit_drop_all_proofs()
+        visit_drop_all_proofs(),
+
+        post_visit()
     }
 }
 
@@ -758,5 +760,6 @@ pub fn traverse_instruction(
             visit!(instructions_visitors, visit_clear_auth_zone,)?;
         }
     };
+    visit!(instructions_visitors, post_visit,)?;
     Ok(())
 }

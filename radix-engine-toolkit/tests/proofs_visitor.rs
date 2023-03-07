@@ -15,14 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::collections::BTreeSet;
+
 use native_transaction::{builder::ManifestBuilder, ecdsa_secp256k1::EcdsaSecp256k1PrivateKey};
-use radix_engine_toolkit::model::address::{
-    Bech32Coder, NetworkAwareComponentAddress, NetworkAwareResourceAddress,
-};
+use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::transaction::{
     InstructionKind, InstructionList, TransactionManifest,
 };
-use radix_engine_toolkit::request::{ManifestProof, ResourceSpecifier};
 use radix_engine_toolkit::visitor::{traverse_instruction, AccountProofsInstructionVisitor};
 use scrypto::prelude::{
     ComponentAddress, IntegerNonFungibleLocalId, NonFungibleLocalId, RADIX_TOKEN,
@@ -64,18 +63,12 @@ fn account_create_proof_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        vec![ManifestProof {
-            origin: NetworkAwareComponentAddress {
-                address: account,
-                network_id: 0x01
-            },
-            quantity: ResourceSpecifier::All,
-            resource_address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01
-            }
-        }],
-        visitor.created_proofs
+        BTreeSet::from([RADIX_TOKEN]),
+        visitor
+            .created_proofs
+            .into_iter()
+            .map(|item| item.address)
+            .collect()
     )
 }
 
@@ -115,18 +108,12 @@ fn account_create_proof_by_amount_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        vec![ManifestProof {
-            origin: NetworkAwareComponentAddress {
-                address: account,
-                network_id: 0x01
-            },
-            quantity: ResourceSpecifier::Amount { amount: 1.into() },
-            resource_address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01
-            }
-        }],
-        visitor.created_proofs
+        BTreeSet::from([RADIX_TOKEN]),
+        visitor
+            .created_proofs
+            .into_iter()
+            .map(|item| item.address)
+            .collect()
     )
 }
 
@@ -173,22 +160,11 @@ fn account_create_proof_by_ids_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        vec![ManifestProof {
-            origin: NetworkAwareComponentAddress {
-                address: account,
-                network_id: 0x01
-            },
-            quantity: ResourceSpecifier::Ids {
-                ids: [NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(
-                    1,
-                ))]
-                .into()
-            },
-            resource_address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01
-            }
-        }],
-        visitor.created_proofs
+        BTreeSet::from([RADIX_TOKEN]),
+        visitor
+            .created_proofs
+            .into_iter()
+            .map(|item| item.address)
+            .collect()
     )
 }
