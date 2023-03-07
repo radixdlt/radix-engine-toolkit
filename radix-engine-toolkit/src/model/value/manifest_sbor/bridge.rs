@@ -237,7 +237,7 @@ impl ManifestSborValue {
             },
 
             Self::Expression { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Expression(value.clone()),
+                value: ManifestCustomValue::Expression(*value),
             },
             Self::Blob { hash } => ManifestValue::Custom {
                 value: ManifestCustomValue::Blob(ManifestBlobRef(hash.0)),
@@ -382,9 +382,7 @@ impl ManifestSborValue {
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(expression),
-            } => Self::Expression {
-                value: expression.clone(),
-            },
+            } => Self::Expression { value: *expression },
 
             ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(value),
