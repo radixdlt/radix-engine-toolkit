@@ -630,7 +630,7 @@ pub fn publish_package() -> Instruction {
                     .unwrap(),
             )),
         },
-        abi: ManifestAstValue::Blob {
+        schema: ManifestAstValue::Blob {
             hash: ManifestBlobRef(copy_u8_array(
                 &hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
                     .unwrap(),
@@ -817,7 +817,6 @@ pub fn set_method_access_rule() -> Instruction {
                 address: FAUCET_COMPONENT,
             },
         },
-        index: ManifestAstValue::U32 { value: 0 },
         key: ManifestAstValue::Tuple {
             elements: vec![
                 ManifestAstValue::Enum {
@@ -1134,7 +1133,7 @@ fn check_instruction(instruction: &Instruction) {
             .unwrap(),
         Instruction::PublishPackage {
             code: ManifestAstValue::Blob { hash: code },
-            abi: ManifestAstValue::Blob { hash: abi },
+            schema: ManifestAstValue::Blob { hash: abi },
             ..
         } => {
             blobs.push(Hash(code.0));

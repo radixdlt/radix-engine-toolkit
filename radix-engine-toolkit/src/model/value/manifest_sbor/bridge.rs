@@ -22,17 +22,15 @@ use crate::model::address::{
     NetworkAwareResourceAddress,
 };
 
-use native_transaction::data::{
-    ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
-    ManifestPreciseDecimal, ManifestProof,
-};
-use native_transaction_data::{
-    ManifestCustomValue, ManifestCustomValueKind, ManifestValue, ManifestValueKind,
-};
 use scrypto::prelude::{
     BytesNonFungibleLocalId, ComponentAddress, Decimal, IntegerNonFungibleLocalId,
+    ManifestCustomValue, ManifestCustomValueKind, ManifestValue, ManifestValueKind,
     NonFungibleLocalId, PackageAddress, PreciseDecimal, ResourceAddress, StringNonFungibleLocalId,
     UUIDNonFungibleLocalId,
+};
+use scrypto::prelude::{
+    ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
+    ManifestPreciseDecimal, ManifestProof,
 };
 use scrypto_utils::copy_u8_array;
 

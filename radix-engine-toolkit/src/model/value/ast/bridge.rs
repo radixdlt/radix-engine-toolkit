@@ -20,10 +20,11 @@ use crate::error::{Error, Result};
 use crate::model::address::*;
 use crate::model::engine_identifier::TransientIdentifier;
 
-use native_transaction::data::{ManifestBlobRef, ManifestExpression};
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::GeneratorError;
-use native_transaction_data::{ManifestCustomValueKind, ManifestValueKind};
+use scrypto::prelude::{
+    ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind,
+};
 
 impl From<ast::Type> for ManifestAstValueKind {
     fn from(value: ast::Type) -> ManifestAstValueKind {

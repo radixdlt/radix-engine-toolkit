@@ -162,7 +162,6 @@ define_instruction_visitor! {
 
         visit_set_method_access_rule(
             _entity_address: &mut crate::model::value::ast::ManifestAstValue,
-            _index: &mut crate::model::value::ast::ManifestAstValue,
             _key: &mut crate::model::value::ast::ManifestAstValue,
             _rule: &mut crate::model::value::ast::ManifestAstValue
         ),
@@ -471,7 +470,7 @@ pub fn traverse_instruction(
 
         Instruction::PublishPackage {
             code,
-            abi,
+            schema: abi,
             royalty_config,
             metadata,
             access_rules,
@@ -573,19 +572,16 @@ pub fn traverse_instruction(
 
         Instruction::SetMethodAccessRule {
             entity_address,
-            index,
             key,
             rule,
         } => {
             traverse_value(entity_address, value_visitors)?;
-            traverse_value(index, value_visitors)?;
             traverse_value(key, value_visitors)?;
             traverse_value(rule, value_visitors)?;
             visit!(
                 instructions_visitors,
                 visit_set_method_access_rule,
                 entity_address,
-                index,
                 key,
                 rule
             )?;

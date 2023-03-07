@@ -59,12 +59,6 @@ pub enum RENodeId {
     // ================
     // Transient Nodes
     // ================
-    /// Represents the Radix Engine Node Identifier of a Bucket.
-    Bucket { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Proof.
-    Proof { identifier: NodeIdentifier },
-
     /// Represents the Radix Engine Node Identifier of an AuthZoneStack which stores proof during
     /// transaction runtime.
     AuthZoneStack,
@@ -76,38 +70,17 @@ pub enum RENodeId {
     /// Represents the Radix Engine Node Identifier of a Transaction Runtime.
     TransactionRuntime,
 
-    // ========================
-    // Owned Native Components
-    // ========================
-    /// Represents the Radix Engine Node Identifier of a Key Value Store
-    KeyValueStore { identifier: NodeIdentifier },
+    // =======
+    // Object
+    // =======
+    /// Represents an owned object
+    Object { identifier: NodeIdentifier },
 
-    /// Represents the Radix Engine Node Identifier of a Non Fungible Store
+    /// Represents the Radix Engine Node Identifier of a NonFungibleStore.
     NonFungibleStore { identifier: NodeIdentifier },
 
-    /// Represents the Radix Engine Node Identifier of a Component
-    Component { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Vault
-    Vault { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Epoch Manager
-    EpochManager { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Identity
-    Identity { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Clock
-    Clock { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of a Validator
-    Validator { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of an Account
-    Account { identifier: NodeIdentifier },
-
-    /// Represents the Radix Engine Node Identifier of an Access Controller
-    AccessController { identifier: NodeIdentifier },
+    /// Represents the Radix Engine Node Identifier of a KeyValueStore.
+    KeyValueStore { identifier: NodeIdentifier },
 }
 
 // ============
@@ -117,23 +90,14 @@ pub enum RENodeId {
 impl From<RENodeId> for NativeRENodeId {
     fn from(value: RENodeId) -> Self {
         match value {
-            RENodeId::Bucket { identifier } => Self::Bucket(identifier.0),
-            RENodeId::Proof { identifier } => Self::Proof(identifier.0),
-            RENodeId::GlobalComponent { address } => Self::GlobalComponent(address.address),
+            RENodeId::Object { identifier } => Self::Object(identifier.0),
             RENodeId::KeyValueStore { identifier } => Self::KeyValueStore(identifier.0),
             RENodeId::NonFungibleStore { identifier } => Self::NonFungibleStore(identifier.0),
-            RENodeId::Component { identifier } => Self::Component(identifier.0),
-            RENodeId::Vault { identifier } => Self::Vault(identifier.0),
+            RENodeId::GlobalComponent { address } => Self::GlobalComponent(address.address),
             RENodeId::GlobalResourceManager { address } => {
                 Self::GlobalResourceManager(address.address)
             }
             RENodeId::GlobalPackage { address } => Self::GlobalPackage(address.address),
-            RENodeId::EpochManager { identifier } => Self::EpochManager(identifier.0),
-            RENodeId::Identity { identifier } => Self::Identity(identifier.0),
-            RENodeId::Clock { identifier } => Self::Clock(identifier.0),
-            RENodeId::Validator { identifier } => Self::Validator(identifier.0),
-            RENodeId::Account { identifier } => Self::Account(identifier.0),
-            RENodeId::AccessController { identifier } => Self::AccessController(identifier.0),
             RENodeId::AuthZoneStack => Self::AuthZoneStack,
             RENodeId::Worktop => Self::Worktop,
             RENodeId::TransactionRuntime => Self::TransactionRuntime,

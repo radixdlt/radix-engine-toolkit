@@ -29,10 +29,8 @@ use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::request::ResourceChange;
 use crate::utils::is_account;
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
-use native_transaction::data::ManifestExpression;
-use scrypto::radix_engine_interface::blueprints::account::{
-    ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT,
-};
+use scrypto::blueprints::account::{ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT};
+use scrypto::prelude::ManifestExpression;
 use toolkit_derive::serializable;
 
 /// A visitor whose main responsibility is analyzing the call-method instructions for proof creation

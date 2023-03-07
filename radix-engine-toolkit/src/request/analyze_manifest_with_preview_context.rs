@@ -80,7 +80,8 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub accounts_requiring_auth: BTreeSet<NetworkAwareComponentAddress>,
 
-    /// A set of the resource addresses of which proofs were created from accounts in this manifest.
+    /// A set of the resource addresses of which proofs were created from accounts in this
+    /// manifest.
     ///
     /// This field is populated through static analysis of the manifest instruction. This field
     /// captures the resource addresses of all of the proofs created from accounts throughout the
@@ -100,10 +101,10 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
 
     /// A list of the account deposits which occur in the transaction.
     ///
-    /// This field is populated through both static analysis of the manifest and through the context
-    /// provided by the transaction preview. All deposits referred to as "exact" are deposits which
-    /// are guaranteed by the static analysis while the ones referred to as "estimate" are deposits
-    /// which are primarily obtained from the context of the previews
+    /// This field is populated through both static analysis of the manifest and through the
+    /// context provided by the transaction preview. All deposits referred to as "exact" are
+    /// deposits which are guaranteed by the static analysis while the ones referred to as
+    /// "estimate" are deposits which are primarily obtained from the context of the previews
     pub account_deposits: Vec<AccountDeposit>,
 }
 
