@@ -6,7 +6,7 @@
   "required": [
     "manifest",
     "network_id",
-    "resource_changes"
+    "transaction_receipt"
   ],
   "properties": {
     "network_id": {
@@ -22,12 +22,10 @@
         }
       ]
     },
-    "resource_changes": {
-      "description": "The resource changes as seen in the transaction preview.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ResourceChange"
-      }
+    "transaction_receipt": {
+      "description": "The SBOR encoded transaction receipt obtained from the performing a transaction preview with the given manifest. This byte array is serialized as a hex-encoded byte array.",
+      "type": "string",
+      "pattern": "[0-9a-fA-F]+"
     }
   },
   "definitions": {
@@ -1291,10 +1289,6 @@
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
           "examples": [
             {
-              "abi": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
-              },
               "access_rules": {
                 "elements": [
                   {
@@ -1354,17 +1348,21 @@
                 "key_value_kind": "String",
                 "type": "Map",
                 "value_value_kind": "Tuple"
+              },
+              "schema": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
               }
             }
           ],
           "type": "object",
           "required": [
-            "abi",
             "access_rules",
             "code",
             "instruction",
             "metadata",
-            "royalty_config"
+            "royalty_config",
+            "schema"
           ],
           "properties": {
             "instruction": {
@@ -1381,7 +1379,7 @@
                 }
               ]
             },
-            "abi": {
+            "schema": {
               "description": "The blob of the package ABI. This field is serialized as a `Blob` from the ManifestAstValue model.",
               "allOf": [
                 {
@@ -1728,10 +1726,6 @@
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
                 "type": "ComponentAddress"
               },
-              "index": {
-                "type": "U32",
-                "value": "0"
-              },
               "instruction": "SET_METHOD_ACCESS_RULE",
               "key": {
                 "elements": [
@@ -1761,7 +1755,6 @@
           "type": "object",
           "required": [
             "entity_address",
-            "index",
             "instruction",
             "key",
             "rule"
@@ -1775,14 +1768,6 @@
             },
             "entity_address": {
               "description": "The entity address of the entity to modify the access rules for.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
-            },
-            "index": {
-              "description": "Entity access rules is a stack of access rules, this index allows referring to a specific \"layer\" in said stack. This field is serialized as a `U32` from the `ManifestAstValue` model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"
@@ -4486,374 +4471,6 @@
       "type": "string",
       "maxLength": 64,
       "minLength": 64,
-      "pattern": "[0-9a-fA-F]+"
-    },
-    "ResourceChange": {
-      "type": "object",
-      "required": [
-        "amount",
-        "owner_id",
-        "resource_address"
-      ],
-      "properties": {
-        "owner_id": {
-          "description": "The component id of the component that owns the vault which had the resource changes.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/RENodeId"
-            }
-          ]
-        },
-        "resource_address": {
-          "description": "The resource address of the resource contained in the vault.",
-          "type": "string"
-        },
-        "amount": {
-          "description": "The amount of change.",
-          "type": "string",
-          "pattern": "[+-]?([0-9]*[.])?[0-9]+"
-        }
-      }
-    },
-    "RENodeId": {
-      "oneOf": [
-        {
-          "description": "Represents the Radix Engine Node Identifier of a global package.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "GlobalPackage"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a global component.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "GlobalComponent"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a global resource manager.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "GlobalResourceManager"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Bucket.",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Bucket"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Proof.",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Proof"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of an AuthZoneStack which stores proof during transaction runtime.",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "AuthZoneStack"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Worktop which is the root store of resources returned during transaction runtime.",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Worktop"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Transaction Runtime.",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "TransactionRuntime"
-              ]
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Key Value Store",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "KeyValueStore"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Non Fungible Store",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "NonFungibleStore"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Component",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Component"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Vault",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Vault"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Epoch Manager",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "EpochManager"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Identity",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Identity"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Clock",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Clock"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of a Validator",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Validator"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of an Account",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Account"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents the Radix Engine Node Identifier of an Access Controller",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "AccessController"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        }
-      ]
-    },
-    "NodeIdentifier": {
-      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
-      "type": "string",
-      "maxLength": 72,
-      "minLength": 72,
       "pattern": "[0-9a-fA-F]+"
     }
   }

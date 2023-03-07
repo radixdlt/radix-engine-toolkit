@@ -17,10 +17,9 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::model::address::{EntityAddress, NetworkAwarePackageAddress};
 use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
-use crate::model::engine_identifier::RENodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::visitor::{
@@ -28,7 +27,8 @@ use crate::visitor::{
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
-use scrypto::prelude::Decimal;
+use radix_engine::transaction::{TransactionReceipt, TransactionResult};
+use radix_engine::types::scrypto_decode;
 use toolkit_derive::serializable;
 
 use super::traits::Handler;
@@ -52,8 +52,12 @@ pub struct AnalyzeManifestWithPreviewContextRequest {
     /// The manifest to analyze.
     pub manifest: TransactionManifest,
 
-    /// The resource changes as seen in the transaction preview.
-    pub resource_changes: Vec<Vec<ResourceChange>>,
+    /// The SBOR encoded transaction receipt obtained from the performing a transaction preview
+    /// with the given manifest. This byte array is serialized as a hex-encoded byte array.
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::hex::Hex")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+    pub transaction_receipt: Vec<u8>,
 }
 
 /// The response of the [`AnalyzeManifestWithPreviewContextRequest`]
@@ -128,24 +132,6 @@ pub struct EncounteredAddresses {
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
 }
 
-#[serializable]
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
-pub struct ResourceChange {
-    /// The component id of the component that owns the vault which had the resource changes.
-    pub owner_id: RENodeId,
-
-    /// The resource address of the resource contained in the vault.
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub resource_address: NetworkAwareResourceAddress,
-
-    /// The amount of change.
-    #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub amount: Decimal,
-}
-
 // ===============
 // Implementation
 // ===============
@@ -215,20 +201,30 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
         let mut account_withdraws_visitor = AccountWithdrawsInstructionVisitor::default();
         let mut account_proofs_visitor = AccountProofsInstructionVisitor::default();
         let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
-        let mut account_deposits_visitor = AccountDepositsInstructionVisitor::new(
-            request
-                .resource_changes
-                .iter()
-                .enumerate()
-                .filter_map(|(index, resource_changes)| {
-                    if !resource_changes.is_empty() {
-                        Some((index as u32, resource_changes.clone()))
-                    } else {
-                        None
-                    }
-                })
-                .collect(),
-        );
+        let mut account_deposits_visitor = {
+            let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
+            match receipt.result {
+                TransactionResult::Commit(commit_result) => {
+                    let resource_changes = commit_result
+                        .resource_changes
+                        .into_iter()
+                        .map(|(k, v)| (k as u32, v))
+                        .collect();
+                    let worktop_changes = receipt
+                        .execution
+                        .worktop_changes()
+                        .into_iter()
+                        .map(|(k, v)| (k as u32, v))
+                        .collect();
+                    Ok(AccountDepositsInstructionVisitor::new(
+                        request.network_id,
+                        resource_changes,
+                        worktop_changes,
+                    ))
+                }
+                _ => Err(Error::TransactionRejectionOrCommitFailure),
+            }
+        }?;
         instructions
             .iter_mut()
             .map(|instruction| {

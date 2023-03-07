@@ -692,7 +692,7 @@
           }
         },
         {
-          "description": "Represents an owned Component",
+          "description": "Represents an owned Object",
           "type": "object",
           "required": [
             "type",
@@ -702,7 +702,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Component"
+                "Object"
               ]
             },
             "value": {
@@ -760,25 +760,6 @@
               "type": "string",
               "enum": [
                 "Proof"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NodeIdentifier"
-            }
-          }
-        },
-        {
-          "description": "Represents an owned Account",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Account"
               ]
             },
             "value": {

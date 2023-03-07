@@ -1518,10 +1518,6 @@
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
           "examples": [
             {
-              "abi": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
-              },
               "access_rules": {
                 "elements": [
                   {
@@ -1581,17 +1577,21 @@
                 "key_value_kind": "String",
                 "type": "Map",
                 "value_value_kind": "Tuple"
+              },
+              "schema": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
               }
             }
           ],
           "type": "object",
           "required": [
-            "abi",
             "access_rules",
             "code",
             "instruction",
             "metadata",
-            "royalty_config"
+            "royalty_config",
+            "schema"
           ],
           "properties": {
             "instruction": {
@@ -1608,7 +1608,7 @@
                 }
               ]
             },
-            "abi": {
+            "schema": {
               "description": "The blob of the package ABI. This field is serialized as a `Blob` from the ManifestAstValue model.",
               "allOf": [
                 {
@@ -1955,10 +1955,6 @@
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
                 "type": "ComponentAddress"
               },
-              "index": {
-                "type": "U32",
-                "value": "0"
-              },
               "instruction": "SET_METHOD_ACCESS_RULE",
               "key": {
                 "elements": [
@@ -1988,7 +1984,6 @@
           "type": "object",
           "required": [
             "entity_address",
-            "index",
             "instruction",
             "key",
             "rule"
@@ -2002,14 +1997,6 @@
             },
             "entity_address": {
               "description": "The entity address of the entity to modify the access rules for.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
-            },
-            "index": {
-              "description": "Entity access rules is a stack of access rules, this index allows referring to a specific \"layer\" in said stack. This field is serialized as a `U32` from the `ManifestAstValue` model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"

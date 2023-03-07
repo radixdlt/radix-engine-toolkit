@@ -193,6 +193,9 @@ pub enum Error {
     BucketExistsError {
         bucket_id: BucketId,
     },
+
+    /// An error emitted when a transaction failed.
+    TransactionRejectionOrCommitFailure,
 }
 
 impl Display for Error {

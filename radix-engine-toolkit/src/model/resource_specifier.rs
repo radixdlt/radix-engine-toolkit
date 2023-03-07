@@ -15,19 +15,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::model::address::EntityAddress;
 use scrypto::prelude::{Decimal, NonFungibleLocalId};
 use std::collections::BTreeSet;
 use toolkit_derive::serializable;
 
-// TODO: Refactor out of this module
+use super::address::NetworkAwareResourceAddress;
+
 /// Specifies resources either through amounts for fungible and non-fungible resources or through
 /// ids for non-fungible resources.
 #[serializable]
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 #[serde(tag = "type")]
-pub enum QuantitativeResourceSpecifier {
+pub enum ResourceSpecifier {
     // Specifies resources using a decimal quantity.
     Amount {
+        /// The resource address associated with the resource
+        #[schemars(with = "EntityAddress")]
+        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+        resource_address: NetworkAwareResourceAddress,
+
         /// The amount of resources withdrawn from the account. This is a decimal value which is
         /// serialized as a string.
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
@@ -37,6 +44,12 @@ pub enum QuantitativeResourceSpecifier {
     },
     // Specifies resources through a set of non-fungible local id.
     Ids {
+        /// The resource address associated with the resource
+        #[schemars(with = "EntityAddress")]
+        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+        resource_address: NetworkAwareResourceAddress,
+
+        /// The set of non-fungible ids
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
         #[schemars(with = "BTreeSet<crate::model::address::NonFungibleLocalId>")]
         #[serde_as(

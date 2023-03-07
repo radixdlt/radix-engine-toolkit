@@ -20,10 +20,8 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::{
-    EntityAddress, NetworkAwareComponentAddress, NetworkAwareResourceAddress,
-};
-use crate::model::resource_specifier::QuantitativeResourceSpecifier;
+use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
+use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
@@ -37,12 +35,10 @@ impl AccountWithdrawsInstructionVisitor {
     pub fn add(
         &mut self,
         component_address: NetworkAwareComponentAddress,
-        resource_address: NetworkAwareResourceAddress,
-        resource_specifier: QuantitativeResourceSpecifier,
+        resource_specifier: ResourceSpecifier,
     ) {
         self.0.push(AccountWithdraw {
             component_address,
-            resource_address,
             resource_specifier,
         });
     }
@@ -95,9 +91,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             ) if is_account(component_address) && method_name == ACCOUNT_WITHDRAW_IDENT => self
                 .add(
                     component_address.to_owned(),
-                    resource_address.to_owned(),
-                    QuantitativeResourceSpecifier::Amount {
+                    ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
+                        resource_address: resource_address.to_owned(),
                     },
                 ),
             // Withdraw from account by ids
@@ -147,8 +143,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 };
                 self.add(
                     component_address.to_owned(),
-                    resource_address.to_owned(),
-                    QuantitativeResourceSpecifier::Ids { ids },
+                    ResourceSpecifier::Ids {
+                        ids,
+                        resource_address: resource_address.to_owned(),
+                    },
                 )
             }
             // Lock fee and withdraw from account by amount
@@ -186,9 +184,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             {
                 self.add(
                     component_address.to_owned(),
-                    resource_address.to_owned(),
-                    QuantitativeResourceSpecifier::Amount {
+                    ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
+                        resource_address: resource_address.to_owned(),
                     },
                 )
             }
@@ -240,8 +238,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 };
                 self.add(
                     component_address.to_owned(),
-                    resource_address.to_owned(),
-                    QuantitativeResourceSpecifier::Ids { ids },
+                    ResourceSpecifier::Ids {
+                        ids,
+                        resource_address: resource_address.to_owned(),
+                    },
                 )
             }
             _ => { /* Ignore everything else */ }
@@ -258,15 +258,10 @@ pub struct AccountWithdraw {
     #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     component_address: NetworkAwareComponentAddress,
 
-    /// The resource address of the resources (tokens) withdrawn from the account.
-    #[schemars(with = "EntityAddress")]
-    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
-    resource_address: NetworkAwareResourceAddress,
-
     /// A specifier used to specify what was withdrawn from the account - this could either be an
     /// amount or a set of non-fungible local ids.
     ///
     /// When this vector has more than one item, it means that multiple instructions performed a
     /// withdraw from the same account of the same resource.
-    resource_specifier: QuantitativeResourceSpecifier,
+    resource_specifier: ResourceSpecifier,
 }

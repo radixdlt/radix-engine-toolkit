@@ -23,12 +23,15 @@ use crate::error::{Error, Result};
 use crate::model::address::{
     EntityAddress, NetworkAwareComponentAddress, NetworkAwareResourceAddress,
 };
-use crate::model::engine_identifier::{BucketId, RENodeId};
-use crate::model::resource_specifier::QuantitativeResourceSpecifier;
+use crate::model::engine_identifier::BucketId;
+use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
-use crate::request::ResourceChange;
 use crate::utils::is_account;
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
+use radix_engine::system::kernel_modules::execution_trace::{
+    ResourceChange, ResourceSpecifier as NativeResourceSpecifier, WorktopChange,
+};
+use radix_engine::types::RENodeId;
 use scrypto::blueprints::account::{ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT};
 use scrypto::prelude::ManifestExpression;
 use toolkit_derive::serializable;
@@ -38,17 +41,25 @@ use toolkit_derive::serializable;
 pub struct AccountDepositsInstructionVisitor {
     pub deposits: Vec<AccountDeposit>,
     pub resource_changes: HashMap<u32, Vec<ResourceChange>>,
-    buckets: BTreeMap<BucketId, ExactnessResourceSpecifier>,
+    pub worktop_changes: HashMap<u32, Vec<WorktopChange>>,
+    buckets: BTreeMap<BucketId, ExactnessSpecifier>,
     instruction_index: u32,
+    network_id: u8,
 }
 
 impl AccountDepositsInstructionVisitor {
-    pub fn new(resource_changes: HashMap<u32, Vec<ResourceChange>>) -> Self {
+    pub fn new(
+        network_id: u8,
+        resource_changes: HashMap<u32, Vec<ResourceChange>>,
+        worktop_changes: HashMap<u32, Vec<WorktopChange>>,
+    ) -> Self {
         Self {
             resource_changes,
+            worktop_changes,
             deposits: Default::default(),
             buckets: Default::default(),
             instruction_index: Default::default(),
+            network_id,
         }
     }
 }
@@ -61,21 +72,16 @@ pub struct AccountDeposit {
     pub component_address: NetworkAwareComponentAddress,
 
     #[serde(flatten)]
-    pub deposited: ExactnessResourceSpecifier,
+    pub deposited: ExactnessSpecifier,
 }
 
 #[serializable]
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 #[serde(tag = "type")]
-pub enum ExactnessResourceSpecifier {
+pub enum ExactnessSpecifier {
     Exact {
-        /// The resource address of the resources.
-        #[schemars(with = "EntityAddress")]
-        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
-        resource_address: NetworkAwareResourceAddress,
-
         /// A specifier of the amount or ids of resources.
-        resource_specifier: QuantitativeResourceSpecifier,
+        resource_specifier: ResourceSpecifier,
     },
     Estimate {
         /// The instruction index that that this amount originates from. This might either be an
@@ -86,13 +92,8 @@ pub enum ExactnessResourceSpecifier {
         #[serde_as(as = "serde_with::DisplayFromStr")]
         instruction_index: u32,
 
-        /// The resource address of the resources.
-        #[schemars(with = "EntityAddress")]
-        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
-        resource_address: NetworkAwareResourceAddress,
-
         /// A specifier of the amount or ids of resources.
-        resource_specifier: QuantitativeResourceSpecifier,
+        resource_specifier: ResourceSpecifier,
     },
 }
 
@@ -172,12 +173,14 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                             .iter()
                             .filter(
                                 |ResourceChange {
-                                     owner_id, amount, ..
+                                     node_id, amount, ..
                                  }| {
-                                    *owner_id
-                                        == RENodeId::GlobalComponent {
-                                            address: *component_address,
-                                        }
+                                    *node_id
+                                        == RENodeId::GlobalObject(
+                                            radix_engine::types::Address::Component(
+                                                component_address.address,
+                                            ),
+                                        )
                                         && amount.is_positive()
                                 },
                             )
@@ -186,10 +189,13 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                         for resource_change in resource_changes {
                             self.deposits.push(AccountDeposit {
                                 component_address: component_address.to_owned(),
-                                deposited: ExactnessResourceSpecifier::Estimate {
+                                deposited: ExactnessSpecifier::Estimate {
                                     instruction_index: self.instruction_index,
-                                    resource_address: resource_change.resource_address,
-                                    resource_specifier: QuantitativeResourceSpecifier::Amount {
+                                    resource_specifier: ResourceSpecifier::Amount {
+                                        resource_address: NetworkAwareResourceAddress {
+                                            address: resource_change.resource_address,
+                                            network_id: self.network_id,
+                                        },
                                         amount: resource_change.amount,
                                     },
                                 },
@@ -359,14 +365,30 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
             },
         ) = (resource_address, into_bucket)
         {
-            self.add_bucket(
-                bucket_id.clone(),
-                ExactnessResourceSpecifier::Estimate {
-                    instruction_index: self.instruction_index,
-                    resource_address: *resource_address,
-                    resource_specifier: todo!("Need proper preview to understand this amount"),
-                },
-            )?;
+            // TODO: Should we do a sanity check that the resource address in the instruction
+            // matches that in the worktop changes?
+            if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
+                if let Some(WorktopChange::Take(resource_specifier)) = worktop_changes.get(0) {
+                    self.add_bucket(
+                        bucket_id.clone(),
+                        ExactnessSpecifier::Estimate {
+                            instruction_index: self.instruction_index,
+                            resource_specifier: match resource_specifier {
+                                NativeResourceSpecifier::Amount(_, amount) => {
+                                    ResourceSpecifier::Amount {
+                                        resource_address: *resource_address,
+                                        amount: *amount,
+                                    }
+                                }
+                                NativeResourceSpecifier::Ids(_, ids) => ResourceSpecifier::Ids {
+                                    resource_address: *resource_address,
+                                    ids: ids.clone(),
+                                },
+                            },
+                        },
+                    )?;
+                }
+            }
         }
         Ok(())
     }
@@ -395,9 +417,14 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         {
             self.add_bucket(
                 bucket_id.clone(),
-                ExactnessResourceSpecifier::Exact {
-                    resource_address: *resource_address,
-                    resource_specifier: QuantitativeResourceSpecifier::Amount { amount: *amount },
+                ExactnessSpecifier::Exact {
+                    resource_specifier: ResourceSpecifier::Amount {
+                        resource_address: NetworkAwareResourceAddress {
+                            network_id: self.network_id,
+                            address: resource_address.address,
+                        },
+                        amount: *amount,
+                    },
                 },
             )?;
         }
@@ -438,9 +465,14 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
             };
             self.add_bucket(
                 bucket_id.clone(),
-                ExactnessResourceSpecifier::Exact {
-                    resource_address: *resource_address,
-                    resource_specifier: QuantitativeResourceSpecifier::Ids { ids },
+                ExactnessSpecifier::Exact {
+                    resource_specifier: ResourceSpecifier::Ids {
+                        ids,
+                        resource_address: NetworkAwareResourceAddress {
+                            network_id: self.network_id,
+                            address: resource_address.address,
+                        },
+                    },
                 },
             )?;
         }
@@ -458,11 +490,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
 }
 
 impl AccountDepositsInstructionVisitor {
-    pub fn add_bucket(
-        &mut self,
-        bucket_id: BucketId,
-        specifier: ExactnessResourceSpecifier,
-    ) -> Result<()> {
+    pub fn add_bucket(&mut self, bucket_id: BucketId, specifier: ExactnessSpecifier) -> Result<()> {
         if !self.buckets.contains_key(&bucket_id) {
             self.buckets.insert(bucket_id, specifier);
             Ok(())

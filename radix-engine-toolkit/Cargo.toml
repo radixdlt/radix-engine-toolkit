@@ -20,6 +20,7 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
 scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", package = "utils" }
 native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop", package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "develop" }
 
@@ -34,6 +35,7 @@ bech32 = { version = "0.9.0", default-features = false }
 # Used for more powerful declarative macros
 paste = { version = "1.0.11" }
 serde_json = "1.0.91"
+getrandom = { version = "0.2.8", features = ["js"] }
 
 [dev-dependencies]
 lazy_static = { version = "1.4.0" }
