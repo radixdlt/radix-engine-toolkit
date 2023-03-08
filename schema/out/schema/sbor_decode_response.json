@@ -640,7 +640,14 @@
             {
               "type": "Own",
               "value": {
-                "type": "Object",
+                "type": "Account",
+                "value": "000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Component",
                 "value": "000000000000000000000000000000000000000000000000000000000000000000000000"
               }
             },
@@ -1095,7 +1102,14 @@
             {
               "type": "Own",
               "value": {
-                "type": "Object",
+                "type": "Account",
+                "value": "000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Component",
                 "value": "000000000000000000000000000000000000000000000000000000000000000000000000"
               }
             },
@@ -1200,7 +1214,7 @@
           }
         },
         {
-          "description": "Represents an owned Object",
+          "description": "Represents an owned Account",
           "type": "object",
           "required": [
             "type",
@@ -1210,7 +1224,26 @@
             "type": {
               "type": "string",
               "enum": [
-                "Object"
+                "Account"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NodeIdentifier"
+            }
+          }
+        },
+        {
+          "description": "Represents an owned Component",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Component"
               ]
             },
             "value": {

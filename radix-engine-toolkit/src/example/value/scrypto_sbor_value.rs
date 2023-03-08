@@ -207,11 +207,17 @@ pub fn own3() -> ScryptoSborValue {
 
 pub fn own4() -> ScryptoSborValue {
     ScryptoSborValue::Own {
-        value: Own::Object([0; 36]),
+        value: Own::Account([0; 36]),
     }
 }
 
 pub fn own5() -> ScryptoSborValue {
+    ScryptoSborValue::Own {
+        value: Own::Component([0; 36]),
+    }
+}
+
+pub fn own6() -> ScryptoSborValue {
     ScryptoSborValue::Own {
         value: Own::KeyValueStore([0; 36]),
     }

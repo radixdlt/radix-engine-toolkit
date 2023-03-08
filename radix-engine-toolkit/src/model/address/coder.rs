@@ -23,8 +23,9 @@ use crate::model::address::network_aware_address::*;
 use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
-use scrypto::address::{Bech32Decoder, Bech32Encoder};
-use scrypto::network::NetworkDefinition;
+use radix_engine::types::Bech32Decoder;
+use radix_engine::types::Bech32Encoder;
+use radix_engine::types::NetworkDefinition;
 use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress};
 
 /// A Bech32m encoder and decoder used in the Radix Engine Toolkit for all of it's address encoding

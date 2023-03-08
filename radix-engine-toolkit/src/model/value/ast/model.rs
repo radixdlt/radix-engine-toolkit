@@ -23,10 +23,9 @@ use crate::model::address::{
 };
 use crate::model::engine_identifier::{BucketId, ProofId};
 
+use native_transaction::data::{ManifestBlobRef, ManifestExpression};
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
-use scrypto::prelude::{
-    Decimal, ManifestBlobRef, ManifestExpression, NonFungibleLocalId, PreciseDecimal,
-};
+use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
 use serde_with::serde_as;
 use toolkit_derive::serializable;
 

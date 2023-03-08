@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::ManifestExpression;
+use native_transaction::data::ManifestExpression;
 use toolkit_derive::serializable;
 
 #[serializable]

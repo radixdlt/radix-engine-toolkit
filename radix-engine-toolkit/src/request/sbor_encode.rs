@@ -19,7 +19,8 @@ use crate::error::Result;
 use crate::model::value::manifest_sbor::ManifestSborValue;
 use crate::model::value::scrypto_sbor::ScryptoSborValue;
 use crate::request::traits::Handler;
-use scrypto::prelude::{manifest_encode, scrypto_encode};
+use native_transaction::data::manifest_encode;
+use scrypto::prelude::scrypto_encode;
 use toolkit_derive::serializable;
 
 // =================

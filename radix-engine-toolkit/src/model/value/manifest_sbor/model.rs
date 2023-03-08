@@ -18,9 +18,8 @@
 use crate::define_kind_enum;
 use crate::model::address::EntityAddress;
 
-use scrypto::prelude::{
-    Decimal, ManifestBlobRef, ManifestExpression, NonFungibleLocalId, PreciseDecimal,
-};
+use native_transaction::data::{ManifestBlobRef, ManifestExpression};
+use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
 use serde_with::serde_as;
 use toolkit_derive::serializable;
 

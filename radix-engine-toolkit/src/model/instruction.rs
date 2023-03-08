@@ -324,7 +324,7 @@ pub enum Instruction {
 
         /// The blob of the package ABI. This field is serialized as a `Blob` from the
         /// ManifestAstValue model.
-        schema: ManifestAstValue,
+        abi: ManifestAstValue,
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map
         /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
@@ -422,6 +422,11 @@ pub enum Instruction {
     SetMethodAccessRule {
         /// The entity address of the entity to modify the access rules for.
         entity_address: ManifestAstValue,
+
+        /// Entity access rules is a stack of access rules, this index allows referring to a
+        /// specific "layer" in said stack. This field is serialized as a `U32` from the `Value`
+        /// model.
+        index: ManifestAstValue,
 
         /// The method key for the method to set the access rule of. This field is serialized as an
         /// `Enum` from the ManifestAstValue model
@@ -767,13 +772,13 @@ impl Instruction {
             },
             Self::PublishPackage {
                 code,
-                schema,
+                abi,
                 royalty_config,
                 metadata,
                 access_rules,
             } => ast::Instruction::PublishPackage {
                 code: code.to_ast_value(bech32_coder)?,
-                schema: schema.to_ast_value(bech32_coder)?,
+                abi: abi.to_ast_value(bech32_coder)?,
                 royalty_config: royalty_config.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
@@ -824,10 +829,12 @@ impl Instruction {
 
             Self::SetMethodAccessRule {
                 entity_address,
+                index,
                 key,
                 rule,
             } => ast::Instruction::SetMethodAccessRule {
                 entity_address: entity_address.to_ast_value(bech32_coder)?,
+                index: index.to_ast_value(bech32_coder)?,
                 key: key.to_ast_value(bech32_coder)?,
                 rule: rule.to_ast_value(bech32_coder)?,
             },
@@ -1099,13 +1106,13 @@ impl Instruction {
             },
             ast::Instruction::PublishPackage {
                 code,
-                schema,
+                abi,
                 royalty_config,
                 metadata,
                 access_rules,
             } => Self::PublishPackage {
                 code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
-                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                abi: ManifestAstValue::from_ast_value(abi, bech32_coder)?,
                 royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
                 access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
@@ -1163,10 +1170,12 @@ impl Instruction {
 
             ast::Instruction::SetMethodAccessRule {
                 entity_address,
+                index,
                 key,
                 rule,
             } => Self::SetMethodAccessRule {
                 entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
+                index: ManifestAstValue::from_ast_value(index, bech32_coder)?,
                 key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
                 rule: ManifestAstValue::from_ast_value(rule, bech32_coder)?,
             },

@@ -31,8 +31,11 @@ pub enum Own {
     /// Represents an owned KeyValueStore
     KeyValueStore(NodeIdentifier),
 
-    /// Represents an owned Object
-    Object(NodeIdentifier),
+    /// Represents an owned Account
+    Account(NodeIdentifier),
+
+    /// Represents an owned Component
+    Component(NodeIdentifier),
 
     /// Represents an owned Vault
     Vault(NodeIdentifier),
@@ -50,7 +53,8 @@ impl From<ScryptoOwn> for Own {
             ScryptoOwn::Bucket(v) => Self::Bucket(NodeIdentifier(v)),
             ScryptoOwn::Proof(v) => Self::Proof(NodeIdentifier(v)),
             ScryptoOwn::KeyValueStore(v) => Self::KeyValueStore(NodeIdentifier(v)),
-            ScryptoOwn::Object(v) => Self::Object(NodeIdentifier(v)),
+            ScryptoOwn::Account(v) => Self::Account(NodeIdentifier(v)),
+            ScryptoOwn::Component(v) => Self::Component(NodeIdentifier(v)),
             ScryptoOwn::Vault(v) => Self::Vault(NodeIdentifier(v)),
         }
     }
@@ -63,7 +67,8 @@ impl From<Own> for ScryptoOwn {
             Own::Proof(v) => Self::Proof(v.0),
             Own::KeyValueStore(v) => Self::KeyValueStore(v.0),
             Own::Vault(v) => Self::Vault(v.0),
-            Own::Object(v) => Self::Object(v.0),
+            Own::Account(v) => Self::Account(v.0),
+            Own::Component(v) => Self::Component(v.0),
         }
     }
 }

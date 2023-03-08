@@ -17,14 +17,16 @@
 
 use std::collections::BTreeSet;
 
-use scrypto::blueprints::account::*;
-
 use crate::error::Result;
 use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
+use radix_engine::types::blueprints::account::{
+    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT, ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+    ACCOUNT_WITHDRAW_IDENT, ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+};
 use toolkit_derive::serializable;
 
 /// A visitor whose main responsibility is analyzing the call-method instructions for proof creation
