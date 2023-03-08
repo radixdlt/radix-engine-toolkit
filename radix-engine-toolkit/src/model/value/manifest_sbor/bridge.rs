@@ -22,17 +22,15 @@ use crate::model::address::{
     NetworkAwareResourceAddress,
 };
 
-use native_transaction::data::{
-    ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
-    ManifestPreciseDecimal, ManifestProof,
-};
-use native_transaction_data::{
-    ManifestCustomValue, ManifestCustomValueKind, ManifestValue, ManifestValueKind,
-};
 use scrypto::prelude::{
     BytesNonFungibleLocalId, ComponentAddress, Decimal, IntegerNonFungibleLocalId,
+    ManifestCustomValue, ManifestCustomValueKind, ManifestValue, ManifestValueKind,
     NonFungibleLocalId, PackageAddress, PreciseDecimal, ResourceAddress, StringNonFungibleLocalId,
     UUIDNonFungibleLocalId,
+};
+use scrypto::prelude::{
+    ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
+    ManifestPreciseDecimal, ManifestProof,
 };
 use scrypto_utils::copy_u8_array;
 
@@ -239,7 +237,7 @@ impl ManifestSborValue {
             },
 
             Self::Expression { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Expression(value.clone()),
+                value: ManifestCustomValue::Expression(*value),
             },
             Self::Blob { hash } => ManifestValue::Custom {
                 value: ManifestCustomValue::Blob(ManifestBlobRef(hash.0)),
@@ -384,9 +382,7 @@ impl ManifestSborValue {
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(expression),
-            } => Self::Expression {
-                value: expression.clone(),
-            },
+            } => Self::Expression { value: *expression },
 
             ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(value),

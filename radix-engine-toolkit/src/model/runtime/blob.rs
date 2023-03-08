@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::data::ManifestBlobRef;
+use scrypto::prelude::ManifestBlobRef;
 use toolkit_derive::serializable;
 
 use crate::model::constants::RADIX_ENGINE_HASH_LENGTH;

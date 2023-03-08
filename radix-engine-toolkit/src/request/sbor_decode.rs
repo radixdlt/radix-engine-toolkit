@@ -19,8 +19,10 @@ use crate::error::{Error, Result};
 use crate::model::value::manifest_sbor::ManifestSborValue;
 use crate::model::value::scrypto_sbor::ScryptoSborValue;
 use crate::request::traits::Handler;
-use native_transaction_data::{manifest_decode, ManifestValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX};
-use scrypto::prelude::{scrypto_decode, ScryptoValue, SCRYPTO_SBOR_V1_PAYLOAD_PREFIX};
+use scrypto::prelude::{
+    manifest_decode, scrypto_decode, ManifestValue, ScryptoValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
+    SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
+};
 use toolkit_derive::serializable;
 
 // =================

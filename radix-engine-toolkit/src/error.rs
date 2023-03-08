@@ -19,7 +19,7 @@ use std::fmt::Display;
 
 use toolkit_derive::serializable;
 
-use crate::model::value::ast::ManifestAstValueKind;
+use crate::model::{engine_identifier::BucketId, value::ast::ManifestAstValueKind};
 
 /// The error model used by the Radix Engine Toolkit - Represents the set of all errors which the
 /// Radix Engine Toolkit may return for a request.
@@ -175,6 +175,27 @@ pub enum Error {
 
     /// A conversion which is invalid and can not be made.
     InvalidConversion,
+
+    // ================
+    // Analysis Errors
+    // ================
+    NoResourceChangesForInstruction {
+        instruction_index: u32,
+    },
+
+    /// An error emitted when a bucket with a given id could not be found.
+    InvalidBucketId {
+        bucket_id: BucketId,
+    },
+
+    /// An error emitted when a bucket is created with an identical identifier to one that already
+    /// exists.
+    BucketExistsError {
+        bucket_id: BucketId,
+    },
+
+    /// An error emitted when a transaction failed.
+    TransactionRejectionOrCommitFailure,
 }
 
 impl Display for Error {
@@ -202,7 +223,7 @@ macro_rules! generate_from_error {
 }
 
 generate_from_error!(hex::FromHexError as FailedToDecodeHex);
-generate_from_error!(scrypto::radix_engine_interface::address::AddressError as AddressError);
+generate_from_error!(scrypto::address::AddressError as AddressError);
 generate_from_error!(sbor::EncodeError as SborEncodeError);
 generate_from_error!(sbor::DecodeError as SborDecodeError);
 generate_from_error!(native_transaction::manifest::CompileError as ManifestCompileError);
@@ -211,10 +232,7 @@ generate_from_error!(std::str::Utf8Error as InvalidRequestString);
 generate_from_error!(
     native_transaction::manifest::generator::GeneratorError as ManifestGenerationError
 );
-generate_from_error!(
-    scrypto::radix_engine_interface::blueprints::resource::ContentValidationError
-        as ContentValidationError
-);
+generate_from_error!(scrypto::runtime::ContentValidationError as ContentValidationError);
 
 macro_rules! impl_from_parse_error {
     ($($error_type: ty => $kind: ident,)*) => {
@@ -236,7 +254,7 @@ impl_from_parse_error! {
     scrypto::prelude::ParsePreciseDecimalError => PreciseDecimal,
     scrypto::prelude::ParseNonFungibleLocalIdError => NonFungibleLocalId,
     scrypto::prelude::ParseNonFungibleGlobalIdError => NonFungibleGlobalId,
-    native_transaction_data::model::ParseManifestBlobRefError => Blob,
+    scrypto::prelude::ParseManifestBlobRefError => Blob,
 }
 
 /// The result type used by the Radix Engine Toolkit where all errors are of a single type.

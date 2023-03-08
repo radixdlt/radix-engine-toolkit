@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction_data::{manifest_decode, manifest_encode};
+use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
 use crate::error::Error;

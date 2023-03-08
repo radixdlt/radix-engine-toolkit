@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::data::{ManifestBlobRef, ManifestExpression};
 use scrypto::prelude::{
     BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
     StringNonFungibleLocalId, UUIDNonFungibleLocalId, ECDSA_SECP256K1_TOKEN, FAUCET_COMPONENT,
     FAUCET_PACKAGE, RADIX_TOKEN,
 };
+use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 use scrypto_utils::copy_u8_array;
 
 use crate::model::address::*;

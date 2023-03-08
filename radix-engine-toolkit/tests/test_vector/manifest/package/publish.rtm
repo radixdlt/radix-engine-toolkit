@@ -14,8 +14,8 @@ CALL_METHOD
 
 # Publishing a new package and setting some of its royalty and access rules.
 PUBLISH_PACKAGE 
-    Blob("${code_blob_hash}") 
-    Blob("${abi_blob_hash}") 
+    Blob("5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b") 
+    Blob("5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b") 
     Map<String, Tuple>()       # Royalty Configuration
     Map<String, String>()      # Metadata 
     Tuple(                     # Access Rules Struct

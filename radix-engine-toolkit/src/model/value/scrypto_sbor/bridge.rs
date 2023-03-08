@@ -187,7 +187,7 @@ impl ScryptoSborValue {
             },
 
             Self::Own { value } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::Own(value.clone()),
+                value: ScryptoCustomValue::Own(*value),
             },
         };
         Ok(value)
@@ -307,9 +307,7 @@ impl ScryptoSborValue {
 
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Own(value),
-            } => Self::Own {
-                value: value.clone(),
-            },
+            } => Self::Own { value: *value },
         }
     }
 }

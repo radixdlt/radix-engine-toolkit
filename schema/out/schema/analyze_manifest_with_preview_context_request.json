@@ -1,204 +1,34 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CompileTransactionIntentRequest",
-  "description": "Takes a transaction intent and compiles it by SBOR encoding it and returning it back to the caller. This is mainly useful when creating a transaction.",
-  "examples": [
-    {
-      "header": {
-        "cost_unit_limit": "100000000",
-        "end_epoch_exclusive": "105",
-        "network_id": "1",
-        "nonce": "5144",
-        "notary_as_signatory": false,
-        "notary_public_key": {
-          "curve": "EcdsaSecp256k1",
-          "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-        },
-        "start_epoch_inclusive": "100",
-        "tip_percentage": "12",
-        "version": "1"
-      },
-      "manifest": {
-        "blobs": [],
-        "instructions": {
-          "type": "String",
-          "value": "DROP_ALL_PROOFS;"
-        }
-      }
-    }
-  ],
+  "title": "AnalyzeManifestWithPreviewContextRequest",
+  "description": "Analyzes the passed manifest to determine the entities that this manifest interacts with.",
   "type": "object",
   "required": [
-    "header",
-    "manifest"
+    "manifest",
+    "network_id",
+    "transaction_receipt"
   ],
   "properties": {
-    "header": {
-      "description": "A transaction header of the transaction metadata.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransactionHeader"
-        }
-      ]
+    "network_id": {
+      "description": "An unsigned 8 bit integer serialized as a string which represents the ID of the network that the manifest will be used on. The primary use of this is for any Bech32m encoding or decoding of addresses",
+      "type": "string",
+      "pattern": "[0-9]+"
     },
     "manifest": {
-      "description": "A transaction manifest of the transaction instructions and blobs.",
+      "description": "The manifest to analyze.",
       "allOf": [
         {
           "$ref": "#/definitions/TransactionManifest"
         }
       ]
+    },
+    "transaction_receipt": {
+      "description": "The SBOR encoded transaction receipt obtained from the performing a transaction preview with the given manifest. This byte array is serialized as a hex-encoded byte array.",
+      "type": "string",
+      "pattern": "[0-9a-fA-F]+"
     }
   },
   "definitions": {
-    "TransactionHeader": {
-      "description": "A transaction header containing metadata and other transaction information.",
-      "examples": [
-        {
-          "cost_unit_limit": "100000000",
-          "end_epoch_exclusive": "105",
-          "network_id": "1",
-          "nonce": "5144",
-          "notary_as_signatory": false,
-          "notary_public_key": {
-            "curve": "EcdsaSecp256k1",
-            "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-          },
-          "start_epoch_inclusive": "100",
-          "tip_percentage": "12",
-          "version": "1"
-        },
-        {
-          "cost_unit_limit": "100000000",
-          "end_epoch_exclusive": "105",
-          "network_id": "1",
-          "nonce": "5144",
-          "notary_as_signatory": false,
-          "notary_public_key": {
-            "curve": "EddsaEd25519",
-            "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29"
-          },
-          "start_epoch_inclusive": "100",
-          "tip_percentage": "12",
-          "version": "1"
-        }
-      ],
-      "type": "object",
-      "required": [
-        "cost_unit_limit",
-        "end_epoch_exclusive",
-        "network_id",
-        "nonce",
-        "notary_as_signatory",
-        "notary_public_key",
-        "start_epoch_inclusive",
-        "tip_percentage",
-        "version"
-      ],
-      "properties": {
-        "version": {
-          "description": "An 8 bit unsigned integer serialized as a string which represents the transaction version. Currently, this value is always 1.",
-          "type": "string"
-        },
-        "network_id": {
-          "description": "An 8 bit unsigned integer serialized as a string which represents the id of the network that this transaction is meant for.",
-          "type": "string"
-        },
-        "start_epoch_inclusive": {
-          "description": "A 64 bit unsigned integer serialized as a string which represents the start of the epoch window in which this transaction executes. This value is inclusive.",
-          "type": "string"
-        },
-        "end_epoch_exclusive": {
-          "description": "A 64 bit unsigned integer serialized as a string which represents the end of the epoch window in which this transaction executes. This value is exclusive.",
-          "type": "string"
-        },
-        "nonce": {
-          "description": "A 64 bit unsigned integer serialized as a string which represents a random nonce used for this transaction.",
-          "type": "string"
-        },
-        "notary_public_key": {
-          "description": "The public key of the entity that will be notarizing this transaction.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/PublicKey"
-            }
-          ]
-        },
-        "notary_as_signatory": {
-          "description": "When `true` the notary's signature is also treated as an intent signature and therefore a virtual badge of the signature is added to the auth zone when the transaction auth zone at the beginning of the transaction.",
-          "type": "boolean"
-        },
-        "cost_unit_limit": {
-          "description": "A 32 bit unsigned integer serialized as a string which represents the limit or maximum amount of cost units that the transaction is allowed to use.",
-          "type": "string"
-        },
-        "tip_percentage": {
-          "description": "A 16 bit unsigned integer serialized as a string which represents the percentage of tips given to validators for this transaction.",
-          "type": "string"
-        }
-      }
-    },
-    "PublicKey": {
-      "description": "A discriminated union of the possible public keys used by Scrypto and the Radix Engine.",
-      "oneOf": [
-        {
-          "description": "A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string representing a public key from the ECDSA Secp256k1 elliptic curve.",
-          "examples": [
-            {
-              "curve": "EcdsaSecp256k1",
-              "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "curve",
-            "public_key"
-          ],
-          "properties": {
-            "curve": {
-              "type": "string",
-              "enum": [
-                "EcdsaSecp256k1"
-              ]
-            },
-            "public_key": {
-              "type": "string",
-              "maxLength": 66,
-              "minLength": 66,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
-          "examples": [
-            {
-              "curve": "EddsaEd25519",
-              "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "curve",
-            "public_key"
-          ],
-          "properties": {
-            "curve": {
-              "type": "string",
-              "enum": [
-                "EddsaEd25519"
-              ]
-            },
-            "public_key": {
-              "type": "string",
-              "maxLength": 66,
-              "minLength": 66,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        }
-      ]
-    },
     "TransactionManifest": {
       "description": "A transaction intent consisting of instructions as well as blobs",
       "examples": [
