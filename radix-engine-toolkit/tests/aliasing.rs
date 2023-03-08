@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::model::address::NonFungibleGlobalId;
 use radix_engine_toolkit::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use radix_engine_toolkit::visitor::{traverse_value, ValueAliasingVisitor};
 use scrypto::prelude::IntegerNonFungibleLocalId;
@@ -96,7 +95,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                 element_kind: ManifestAstValueKind::Array,
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,
-                                    elements: vec![ManifestAstValue::NonFungibleGlobalId { 
+                                    elements: vec![ManifestAstValue::NonFungibleGlobalId {
                                         resource_address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap(),
                                         non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1))
                                     }],
