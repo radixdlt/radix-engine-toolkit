@@ -31,9 +31,14 @@ define_kind_enum! {
     #[derive(Hash, Eq, PartialEq)]
     pub enum ScryptoSborValue {
         /// A boolean value which can either be true or false
+        #[schemars(
+            example = "crate::example::value::scrypto_sbor_value::bool1",
+            example = "crate::example::value::scrypto_sbor_value::bool2"
+        )]
         Bool { value: bool },
 
         /// An 8-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::u8")]
         U8 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -42,6 +47,7 @@ define_kind_enum! {
         },
 
         /// A 16-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::u16")]
         U16 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -50,6 +56,7 @@ define_kind_enum! {
         },
 
         /// A 32-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::u32")]
         U32 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -58,6 +65,7 @@ define_kind_enum! {
         },
 
         /// A 64-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::u64")]
         U64 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -66,6 +74,7 @@ define_kind_enum! {
         },
 
         /// A 128-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::u128")]
         U128 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -74,6 +83,7 @@ define_kind_enum! {
         },
 
         /// An 8-bit signed integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::i8")]
         I8 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -82,6 +92,7 @@ define_kind_enum! {
         },
 
         /// A 16-bit signed integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::i16")]
         I16 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -90,6 +101,7 @@ define_kind_enum! {
         },
 
         /// A 32-bit signed integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::i32")]
         I32 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -98,6 +110,7 @@ define_kind_enum! {
         },
 
         /// A 64-bit signed integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::i32")]
         I64 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -106,6 +119,7 @@ define_kind_enum! {
         },
 
         /// A 128-bit signed integer which is serialized and deserialized as a string.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::i128")]
         I128 {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
@@ -114,10 +128,15 @@ define_kind_enum! {
         },
 
         /// A type representing a string
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::string")]
         String { value: String },
 
         /// A Rust-style Enum which has a variant and can optionally also have a list of values
         /// (acting in a way similar to discriminated algebraic sum types)
+        #[schemars(
+            example = "crate::example::value::scrypto_sbor_value::enum1",
+            example = "crate::example::value::scrypto_sbor_value::enum2"
+        )]
         Enum {
             /// The variant of the enum.
             variant: u8,
@@ -128,6 +147,7 @@ define_kind_enum! {
         },
 
         /// An array values of a single value kind
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::array")]
         Array {
             /// The kind of elements that the array contains. An array will be validated to ensure
             /// that it contains a single element kind.
@@ -139,6 +159,7 @@ define_kind_enum! {
 
         /// A key-value map of values where all keys are of a single kind and all values are of a
         /// single kind
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::map")]
         Map {
             /// The kind of the keys used for the map. A map will be validated to ensure that its keys
             /// are all of a single kind.
@@ -154,11 +175,17 @@ define_kind_enum! {
         },
 
         /// An array of elements where elements could be of different kinds.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::tuple")]
         Tuple { elements: Vec<Self> },
 
         /// Represents a Bech32m encoded human-readable address which may be used to address a package,
         /// component, or resource. This address is serialized as a human-readable bech32m encoded
         /// string.
+        #[schemars(
+            example = "crate::example::value::scrypto_sbor_value::address1",
+            example = "crate::example::value::scrypto_sbor_value::address2",
+            example = "crate::example::value::scrypto_sbor_value::address3"
+        )]
         Address {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -166,6 +193,13 @@ define_kind_enum! {
         },
 
         /// Represents a tagged enum of owned Radix Engine Nodes.
+        #[schemars(
+            example = "crate::example::value::scrypto_sbor_value::own1",
+            example = "crate::example::value::scrypto_sbor_value::own2",
+            example = "crate::example::value::scrypto_sbor_value::own3",
+            example = "crate::example::value::scrypto_sbor_value::own4",
+            example = "crate::example::value::scrypto_sbor_value::own5"
+        )]
         Own {
             #[schemars(with = "crate::model::engine_identifier::Own")]
             #[serde_as(as = "serde_with::FromInto<crate::model::engine_identifier::Own>")]
@@ -176,6 +210,7 @@ define_kind_enum! {
         /// of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and
         /// -57896044618658097711785492504343953926634992332820282019728.792003956564819968
         /// respectively
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::decimal")]
         Decimal {
             #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
             #[schemars(with = "String")]
@@ -189,6 +224,7 @@ define_kind_enum! {
         /// 9083451713845015929093243025426876941405973284973216824503042047
         /// and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048
         /// respectively
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::precise_decimal")]
         PreciseDecimal {
             #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
             #[schemars(with = "String")]
@@ -198,6 +234,12 @@ define_kind_enum! {
 
         /// Represents non-fungible ids which is a discriminated union of the different types that
         /// non-fungible ids may be.
+        #[schemars(
+            example = "crate::example::value::scrypto_sbor_value::non_fungible_local_id1",
+            example = "crate::example::value::scrypto_sbor_value::non_fungible_local_id2",
+            example = "crate::example::value::scrypto_sbor_value::non_fungible_local_id3",
+            example = "crate::example::value::scrypto_sbor_value::non_fungible_local_id4",
+        )]
         NonFungibleLocalId {
             #[schemars(with = "crate::model::address::NonFungibleLocalId")]
             #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
