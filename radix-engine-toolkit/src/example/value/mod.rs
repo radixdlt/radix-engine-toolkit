@@ -16,3 +16,5 @@
 // under the License.
 
 pub mod ast_value;
+pub mod manifest_sbor_value;
+pub mod scrypto_sbor_value;
