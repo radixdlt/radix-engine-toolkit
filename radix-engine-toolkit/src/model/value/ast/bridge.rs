@@ -331,11 +331,14 @@ impl ManifestAstValue {
             ManifestAstValue::NonFungibleLocalId { value } => {
                 ast::Value::NonFungibleLocalId(Box::new(ast::Value::String(value.to_string())))
             }
-            ManifestAstValue::NonFungibleGlobalId { address } => {
+            ManifestAstValue::NonFungibleGlobalId {
+                resource_address: NetworkAwareResourceAddress { address, .. },
+                non_fungible_local_id,
+            } => {
                 let nf_global_id_string = format!(
                     "{}:{}",
-                    bech32_coder.encode_resource_address(address.resource_address.address),
-                    address.non_fungible_local_id
+                    bech32_coder.encode_resource_address(address),
+                    non_fungible_local_id
                 );
                 ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
             }
@@ -539,13 +542,11 @@ impl ManifestAstValue {
                             string,
                         )?;
                     Self::NonFungibleGlobalId {
-                        address: NonFungibleGlobalId {
-                            resource_address: NetworkAwareResourceAddress {
-                                network_id: bech32_coder.network_id(),
-                                address: native_global_id.resource_address(),
-                            },
-                            non_fungible_local_id: native_global_id.local_id().clone(),
+                        resource_address: NetworkAwareResourceAddress {
+                            network_id: bech32_coder.network_id(),
+                            address: native_global_id.resource_address(),
                         },
+                        non_fungible_local_id: native_global_id.local_id().clone(),
                     }
                 }
                 _ => Err(Error::UnexpectedAstContents {
@@ -609,5 +610,60 @@ where
             expected: vec![ManifestAstValueKind::String],
             found: value.value_kind().into(),
         })
+    }
+}
+
+impl TryFrom<NetworkAwareResourceAddress> for ManifestAstValue {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwareResourceAddress) -> std::result::Result<Self, Self::Error> {
+        Ok(Self::ResourceAddress { address })
+    }
+}
+
+impl TryFrom<ManifestAstValue> for NetworkAwareResourceAddress {
+    type Error = Error;
+
+    fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
+        if let ManifestAstValue::ResourceAddress { address }
+        | ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress { address },
+        } = value
+        {
+            Ok(address)
+        } else {
+            Err(Error::InvalidKind {
+                expected: vec![
+                    ManifestAstValueKind::Address,
+                    ManifestAstValueKind::ResourceAddress,
+                ],
+                found: value.kind(),
+            })
+        }
+    }
+}
+
+impl TryFrom<scrypto::prelude::NonFungibleLocalId> for ManifestAstValue {
+    type Error = Error;
+
+    fn try_from(
+        value: scrypto::prelude::NonFungibleLocalId,
+    ) -> std::result::Result<Self, Self::Error> {
+        Ok(Self::NonFungibleLocalId { value })
+    }
+}
+
+impl TryFrom<ManifestAstValue> for scrypto::prelude::NonFungibleLocalId {
+    type Error = Error;
+
+    fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
+        if let ManifestAstValue::NonFungibleLocalId { value } = value {
+            Ok(value)
+        } else {
+            Err(Error::InvalidKind {
+                expected: vec![ManifestAstValueKind::NonFungibleLocalId],
+                found: value.kind(),
+            })
+        }
     }
 }

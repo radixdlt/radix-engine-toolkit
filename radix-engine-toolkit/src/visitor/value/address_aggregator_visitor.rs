@@ -90,8 +90,11 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
     }
 
     fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> Result<()> {
-        if let ManifestAstValue::NonFungibleGlobalId { address } = value {
-            self.resource_addresses.insert(address.resource_address);
+        if let ManifestAstValue::NonFungibleGlobalId {
+            resource_address, ..
+        } = value
+        {
+            self.resource_addresses.insert(*resource_address);
             Ok(())
         } else {
             Err(Error::Infallible {

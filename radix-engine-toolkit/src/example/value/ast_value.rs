@@ -317,55 +317,47 @@ pub fn non_fungible_local_id4() -> ManifestAstValue {
 
 pub fn non_fungible_global_id1() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        address: NonFungibleGlobalId {
-            resource_address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: ECDSA_SECP256K1_TOKEN,
-            },
-            non_fungible_local_id: NonFungibleLocalId::UUID(
-                UUIDNonFungibleLocalId::new(241008287272164729465721528295504357972).unwrap(),
-            ),
+        resource_address: NetworkAwareResourceAddress {
+            network_id: 0x01,
+            address: ECDSA_SECP256K1_TOKEN,
         },
+        non_fungible_local_id: NonFungibleLocalId::UUID(
+            UUIDNonFungibleLocalId::new(241008287272164729465721528295504357972).unwrap(),
+        ),
     }
 }
 
 pub fn non_fungible_global_id2() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        address: NonFungibleGlobalId {
-            resource_address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: ECDSA_SECP256K1_TOKEN,
-            },
-            non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
+        resource_address: NetworkAwareResourceAddress {
+            network_id: 0x01,
+            address: ECDSA_SECP256K1_TOKEN,
         },
+        non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
     }
 }
 
 pub fn non_fungible_global_id3() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        address: NonFungibleGlobalId {
-            resource_address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: ECDSA_SECP256K1_TOKEN,
-            },
-            non_fungible_local_id: NonFungibleLocalId::String(
-                StringNonFungibleLocalId::new("Scrypto".to_owned()).unwrap(),
-            ),
+        resource_address: NetworkAwareResourceAddress {
+            network_id: 0x01,
+            address: ECDSA_SECP256K1_TOKEN,
         },
+        non_fungible_local_id: NonFungibleLocalId::String(
+            StringNonFungibleLocalId::new("Scrypto".to_owned()).unwrap(),
+        ),
     }
 }
 
 pub fn non_fungible_global_id4() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        address: NonFungibleGlobalId {
-            resource_address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: ECDSA_SECP256K1_TOKEN,
-            },
-            non_fungible_local_id: NonFungibleLocalId::Bytes(
-                BytesNonFungibleLocalId::new(vec![0x01, 0x02, 0x03, 0x04]).unwrap(),
-            ),
+        resource_address: NetworkAwareResourceAddress {
+            network_id: 0x01,
+            address: ECDSA_SECP256K1_TOKEN,
         },
+        non_fungible_local_id: NonFungibleLocalId::Bytes(
+            BytesNonFungibleLocalId::new(vec![0x01, 0x02, 0x03, 0x04]).unwrap(),
+        ),
     }
 }
 

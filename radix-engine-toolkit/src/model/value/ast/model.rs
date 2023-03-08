@@ -19,7 +19,7 @@ use crate::define_kind_enum;
 use crate::error::{Error, Result};
 use crate::model::address::{
     EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress, NonFungibleGlobalId,
+    NetworkAwareResourceAddress,
 };
 use crate::model::engine_identifier::{BucketId, ProofId};
 
@@ -311,8 +311,13 @@ define_kind_enum! {
             example = "crate::example::value::ast_value::non_fungible_global_id4",
         )]
         NonFungibleGlobalId {
-            #[serde(flatten)]
-            address: NonFungibleGlobalId,
+            #[schemars(with = "ManifestAstValue")]
+            #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]
+            resource_address: NetworkAwareResourceAddress,
+
+            #[schemars(with = "ManifestAstValue")]
+            #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]
+            non_fungible_local_id: NonFungibleLocalId,
         },
 
         /// Represents a transaction manifest expression.

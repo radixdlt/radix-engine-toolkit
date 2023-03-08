@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::error::Error;
-use crate::model::address::{EntityAddress, NonFungibleGlobalId};
+use crate::model::address::EntityAddress;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::ManifestAstValueVisitor;
 /// A value visitor whose main responsibility is to perform aliasing on all encountered values. As
@@ -39,10 +39,8 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
                     }),
                 ) if elements.len() == 2 => {
                     *value = ManifestAstValue::NonFungibleGlobalId {
-                        address: NonFungibleGlobalId {
-                            resource_address: *resource_address,
-                            non_fungible_local_id: non_fungible_local_id.clone(),
-                        },
+                        resource_address: *resource_address,
+                        non_fungible_local_id: non_fungible_local_id.clone(),
                     };
                     Ok(())
                 }
