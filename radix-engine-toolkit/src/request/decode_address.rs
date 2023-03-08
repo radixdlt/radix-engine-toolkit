@@ -19,10 +19,10 @@ use super::traits::Handler;
 use crate::error::Result;
 use crate::model::address::{EntityAddress, EntityType};
 use crate::utils::network_definition_from_network_id;
-use radix_engine::types::AddressError;
 use toolkit_derive::serializable;
 
 use bech32::{self, FromBase32, Variant};
+use scrypto::address::AddressError;
 
 // =================
 // Model Definition

@@ -18,8 +18,8 @@
 use crate::error::{Error, Result};
 use crate::model::transaction::{InstructionKind, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
-use native_transaction::data::{manifest_decode, manifest_encode};
 use native_transaction::model as native;
+use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
 // =================

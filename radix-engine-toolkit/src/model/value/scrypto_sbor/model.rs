@@ -198,8 +198,7 @@ define_kind_enum! {
             example = "crate::example::value::scrypto_sbor_value::own2",
             example = "crate::example::value::scrypto_sbor_value::own3",
             example = "crate::example::value::scrypto_sbor_value::own4",
-            example = "crate::example::value::scrypto_sbor_value::own5",
-            example = "crate::example::value::scrypto_sbor_value::own6",
+            example = "crate::example::value::scrypto_sbor_value::own5"
         )]
         Own {
             #[schemars(with = "crate::model::engine_identifier::Own")]

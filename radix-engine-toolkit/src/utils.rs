@@ -19,7 +19,8 @@ use std::borrow::Borrow;
 
 use crate::error::Result;
 use bech32;
-use radix_engine::types::{AddressError, NetworkDefinition};
+use scrypto::address::AddressError;
+use scrypto::network::NetworkDefinition;
 use scrypto::prelude::ComponentAddress;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented

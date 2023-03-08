@@ -16,11 +16,12 @@
 // under the License.
 
 use native_transaction::builder::TransactionBuilder;
-use native_transaction::data::manifest_encode;
 use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
 use native_transaction::eddsa_ed25519::EddsaEd25519PrivateKey;
 use native_transaction::manifest::compile;
 use native_transaction::model::{NotarizedTransaction, TransactionHeader};
+use scrypto::network::NetworkDefinition;
+use scrypto::prelude::manifest_encode;
 
 use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::transaction::InstructionKind;

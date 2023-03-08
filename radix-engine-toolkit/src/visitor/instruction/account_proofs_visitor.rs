@@ -17,7 +17,7 @@
 
 use std::collections::BTreeSet;
 
-use radix_engine::types::blueprints::account::*;
+use scrypto::blueprints::account::*;
 
 use crate::error::Result;
 use crate::model::address::{EntityAddress, NetworkAwareResourceAddress};

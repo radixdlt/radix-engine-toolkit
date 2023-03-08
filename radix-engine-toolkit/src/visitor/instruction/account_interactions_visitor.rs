@@ -17,7 +17,7 @@
 
 use std::collections::BTreeSet;
 
-use radix_engine::types::blueprints::account::*;
+use scrypto::blueprints::account::*;
 
 use crate::error::Result;
 use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
@@ -163,7 +163,6 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     fn visit_set_method_access_rule(
         &mut self,
         entity_address: &mut crate::model::value::ast::ManifestAstValue,
-        _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {

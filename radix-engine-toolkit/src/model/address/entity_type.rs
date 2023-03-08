@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::types::address::EntityType as NativeEntityType;
+use scrypto::address::EntityType as NativeEntityType;
 use toolkit_derive::serializable;
 
 // =================

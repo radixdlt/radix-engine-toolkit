@@ -41,6 +41,7 @@ pub mod derive_virtual_account_address;
 pub mod derive_virtual_identity_address;
 
 pub mod analyze_manifest;
+pub mod analyze_manifest_with_preview_context;
 
 pub mod known_entity_addresses;
 pub mod statically_validate_transaction;
@@ -75,6 +76,7 @@ pub use derive_virtual_account_address::*;
 pub use derive_virtual_identity_address::*;
 
 pub use analyze_manifest::*;
+pub use analyze_manifest_with_preview_context::*;
 
 pub use known_entity_addresses::*;
 pub use statically_validate_transaction::*;
