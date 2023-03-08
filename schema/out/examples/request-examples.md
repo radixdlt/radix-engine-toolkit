@@ -3120,7 +3120,10 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "virtual_account_address": "account_sim1qakfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqe6yywy"
+  "virtual_account_address": {
+    "type": "ComponentAddress",
+    "address": "account_sim1qakfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqe6yywy"
+  }
 }
 ```
 </details>
@@ -3153,7 +3156,10 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "virtual_identity_address": "identity_sim1pfkfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqy9pgkj"
+  "virtual_identity_address": {
+    "type": "ComponentAddress",
+    "address": "identity_sim1pfkfdmv0q2cwz9cjxk5t8u0zx6pdydd9p2jv22nuwdhqy9pgkj"
+  }
 }
 ```
 </details>
