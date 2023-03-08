@@ -29,15 +29,14 @@ use super::decompile_transaction_intent::{
 };
 use super::traits::Handler;
 use crate::error::Error;
+use crate::error::Result;
 use crate::model::transaction::{
-    NotarizedTransaction, SignedTransactionIntent, TransactionIntent, TransactionManifest,
+    InstructionList, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
+    TransactionManifest,
 };
+use crate::model::{instruction::Instruction, transaction::InstructionKind};
 use crate::visitor::traverse_instruction;
 use crate::visitor::ValueAliasingVisitor;
-use crate::{
-    error::Result,
-    model::{instruction::Instruction, transaction::InstructionKind},
-};
 
 use toolkit_derive::serializable;
 
@@ -178,9 +177,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                                             manifest:
                                                 TransactionManifest {
                                                     instructions:
-                                                        crate::model::transaction::InstructionList::Parsed(
-                                                            ref mut instructions,
-                                                        ),
+                                                        InstructionList::Parsed(ref mut instructions),
                                                     ..
                                                 },
                                             ..
@@ -200,7 +197,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                                     manifest:
                                         TransactionManifest {
                                             instructions:
-                                                crate::model::transaction::InstructionList::Parsed(ref mut instructions),
+                                                InstructionList::Parsed(ref mut instructions),
                                             ..
                                         },
                                     ..
@@ -215,8 +212,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                         TransactionIntent {
                             manifest:
                                 TransactionManifest {
-                                    instructions:
-                                        crate::model::transaction::InstructionList::Parsed(ref mut instructions),
+                                    instructions: InstructionList::Parsed(ref mut instructions),
                                     ..
                                 },
                             ..
