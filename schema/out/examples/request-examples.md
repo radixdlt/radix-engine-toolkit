@@ -3193,7 +3193,10 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "non_fungible_global_id": {
-    "resource_address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h",
+    "resource_address": {
+      "type": "ResourceAddress",
+      "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqshxgp7h"
+    },
     "non_fungible_local_id": {
       "type": "Bytes",
       "value": "6c96ed8f02b0e1171235a8b3f1e23682d235a50aa4c52a7c736e"

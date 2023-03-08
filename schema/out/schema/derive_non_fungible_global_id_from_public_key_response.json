@@ -25,28 +25,40 @@
             "type": "Integer",
             "value": "1"
           },
-          "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+          "resource_address": {
+            "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+            "type": "ResourceAddress"
+          }
         },
         {
           "non_fungible_local_id": {
             "type": "String",
             "value": "Scrypto"
           },
-          "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+          "resource_address": {
+            "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+            "type": "ResourceAddress"
+          }
         },
         {
           "non_fungible_local_id": {
             "type": "Bytes",
             "value": "01020304"
           },
-          "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+          "resource_address": {
+            "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+            "type": "ResourceAddress"
+          }
         },
         {
           "non_fungible_local_id": {
             "type": "UUID",
             "value": "241008287272164729465721528295504357972"
           },
-          "resource_address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g"
+          "resource_address": {
+            "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+            "type": "ResourceAddress"
+          }
         }
       ],
       "type": "object",
@@ -56,12 +68,92 @@
       ],
       "properties": {
         "resource_address": {
-          "type": "string"
+          "$ref": "#/definitions/EntityAddress"
         },
         "non_fungible_local_id": {
           "$ref": "#/definitions/NonFungibleLocalId"
         }
       }
+    },
+    "EntityAddress": {
+      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
+      "oneOf": [
+        {
+          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "type": "ComponentAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ComponentAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "type": "ResourceAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ResourceAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "type": "PackageAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PackageAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        }
+      ]
     },
     "NonFungibleLocalId": {
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",

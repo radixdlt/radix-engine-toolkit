@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::model::address::EntityAddress;
 use scrypto::prelude::{
     FromPublicKey, NonFungibleGlobalId as NativeNonFungibleGlobalId, NonFungibleLocalId, PublicKey,
 };
@@ -34,8 +35,8 @@ use crate::model::address::NetworkAwareResourceAddress;
     example = "crate::example::address::non_fungible::non_fungible_global_uuid"
 )]
 pub struct NonFungibleGlobalId {
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub resource_address: NetworkAwareResourceAddress,
 
     #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
