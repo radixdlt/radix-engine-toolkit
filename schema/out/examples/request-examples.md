@@ -3057,11 +3057,11 @@ This document contains examples and descriptions of the different requests and r
       },
       {
         "type": "Bucket",
-        "identifier": 4
+        "identifier": "4"
       },
       {
         "type": "Proof",
-        "identifier": 5
+        "identifier": "5"
       },
       {
         "type": "Expression",
