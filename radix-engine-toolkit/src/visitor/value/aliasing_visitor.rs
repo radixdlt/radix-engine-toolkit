@@ -82,33 +82,4 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             })
         }
     }
-
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
-        match value {
-            ManifestAstValue::Address { address } => {
-                match address {
-                    EntityAddress::ComponentAddress { address } => {
-                        *value = ManifestAstValue::Address {
-                            address: EntityAddress::ComponentAddress { address: *address },
-                        };
-                    }
-                    EntityAddress::ResourceAddress { address } => {
-                        *value = ManifestAstValue::Address {
-                            address: EntityAddress::ResourceAddress { address: *address },
-                        };
-                    }
-                    EntityAddress::PackageAddress { address } => {
-                        *value = ManifestAstValue::Address {
-                            address: EntityAddress::PackageAddress { address: *address },
-                        };
-                    }
-                }
-
-                Ok(())
-            }
-            _ => Err(Error::Infallible {
-                message: "Must be an address!".into(),
-            }),
-        }
-    }
 }
