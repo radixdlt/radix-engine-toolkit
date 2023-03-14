@@ -79,9 +79,6 @@ define_value_visitor! {
         visit_precise_decimal,
 
         visit_address,
-        visit_component_address,
-        visit_resource_address,
-        visit_package_address,
 
         visit_bucket,
         visit_proof,
@@ -132,9 +129,6 @@ pub fn traverse_value(
         ManifestAstValueKind::PreciseDecimal => visit!(visitors, visit_precise_decimal, value)?,
 
         ManifestAstValueKind::Address => visit!(visitors, visit_address, value)?,
-        ManifestAstValueKind::ComponentAddress => visit!(visitors, visit_component_address, value)?,
-        ManifestAstValueKind::ResourceAddress => visit!(visitors, visit_resource_address, value)?,
-        ManifestAstValueKind::PackageAddress => visit!(visitors, visit_package_address, value)?,
 
         ManifestAstValueKind::Bucket => visit!(visitors, visit_bucket, value)?,
         ManifestAstValueKind::Proof => visit!(visitors, visit_proof, value)?,
@@ -199,9 +193,6 @@ pub fn traverse_value(
         | ManifestAstValue::None { .. }
         | ManifestAstValue::Decimal { .. }
         | ManifestAstValue::PreciseDecimal { .. }
-        | ManifestAstValue::ComponentAddress { .. }
-        | ManifestAstValue::ResourceAddress { .. }
-        | ManifestAstValue::PackageAddress { .. }
         | ManifestAstValue::Address { .. }
         | ManifestAstValue::Bucket { .. }
         | ManifestAstValue::Proof { .. }

@@ -31,8 +31,11 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (
-                    Some(ManifestAstValue::ResourceAddress {
-                        address: resource_address,
+                    Some(ManifestAstValue::Address {
+                        address:
+                            EntityAddress::ResourceAddress {
+                                address: resource_address,
+                            },
                     }),
                     Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
@@ -85,13 +88,19 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             ManifestAstValue::Address { address } => {
                 match address {
                     EntityAddress::ComponentAddress { address } => {
-                        *value = ManifestAstValue::ComponentAddress { address: *address };
+                        *value = ManifestAstValue::Address {
+                            address: EntityAddress::ComponentAddress { address: *address },
+                        };
                     }
                     EntityAddress::ResourceAddress { address } => {
-                        *value = ManifestAstValue::ResourceAddress { address: *address };
+                        *value = ManifestAstValue::Address {
+                            address: EntityAddress::ResourceAddress { address: *address },
+                        };
                     }
                     EntityAddress::PackageAddress { address } => {
-                        *value = ManifestAstValue::PackageAddress { address: *address };
+                        *value = ManifestAstValue::Address {
+                            address: EntityAddress::PackageAddress { address: *address },
+                        };
                     }
                 }
 

@@ -230,33 +230,6 @@ pub fn address3() -> ManifestAstValue {
     }
 }
 
-pub fn component_address() -> ManifestAstValue {
-    ManifestAstValue::ComponentAddress {
-        address: NetworkAwareComponentAddress {
-            network_id: 0x01,
-            address: FAUCET_COMPONENT,
-        },
-    }
-}
-
-pub fn resource_address() -> ManifestAstValue {
-    ManifestAstValue::ResourceAddress {
-        address: NetworkAwareResourceAddress {
-            network_id: 0x01,
-            address: RADIX_TOKEN,
-        },
-    }
-}
-
-pub fn package_address() -> ManifestAstValue {
-    ManifestAstValue::PackageAddress {
-        address: NetworkAwarePackageAddress {
-            network_id: 0x01,
-            address: FAUCET_PACKAGE,
-        },
-    }
-}
-
 pub fn bucket1() -> ManifestAstValue {
     ManifestAstValue::Bucket {
         identifier: BucketId(TransientIdentifier::String {

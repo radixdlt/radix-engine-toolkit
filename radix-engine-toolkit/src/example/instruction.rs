@@ -32,10 +32,12 @@ use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::
 
 pub fn call_function1() -> Instruction {
     let instruction = Instruction::CallFunction {
-        package_address: ManifestAstValue::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
+        package_address: ManifestAstValue::Address {
+            address: EntityAddress::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0x01,
+                    address: FAUCET_PACKAGE,
+                },
             },
         },
         blueprint_name: ManifestAstValue::String {
@@ -78,10 +80,12 @@ pub fn call_function2() -> Instruction {
 
 pub fn call_function3() -> Instruction {
     let instruction = Instruction::CallFunction {
-        package_address: ManifestAstValue::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
+        package_address: ManifestAstValue::Address {
+            address: EntityAddress::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0x01,
+                    address: FAUCET_PACKAGE,
+                },
             },
         },
         blueprint_name: ManifestAstValue::String {
@@ -145,10 +149,12 @@ pub fn call_method1() -> Instruction {
 
 pub fn call_method2() -> Instruction {
     let instruction = Instruction::CallMethod {
-        component_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        component_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
         method_name: ManifestAstValue::String {
@@ -183,10 +189,12 @@ pub fn call_method3() -> Instruction {
 
 pub fn call_method4() -> Instruction {
     let instruction = Instruction::CallMethod {
-        component_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        component_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
         method_name: ManifestAstValue::String {
@@ -220,10 +228,12 @@ pub fn take_from_worktop1() -> Instruction {
 
 pub fn take_from_worktop2() -> Instruction {
     let instruction = Instruction::TakeFromWorktop {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    address: RADIX_TOKEN,
+                    network_id: 0x01,
+                },
             },
         },
         into_bucket: ManifestAstValue::Bucket {
@@ -261,10 +271,12 @@ pub fn take_from_worktop_by_amount1() -> Instruction {
 
 pub fn take_from_worktop_by_amount2() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByAmount {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         amount: ManifestAstValue::Decimal {
@@ -282,10 +294,12 @@ pub fn take_from_worktop_by_amount2() -> Instruction {
 
 pub fn take_from_worktop_by_ids1() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByIds {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
@@ -353,10 +367,12 @@ pub fn assert_worktop_contains1() -> Instruction {
 
 pub fn assert_worktop_contains2() -> Instruction {
     let instruction = Instruction::AssertWorktopContains {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    address: RADIX_TOKEN,
+                    network_id: 0x01,
+                },
             },
         },
     };
@@ -384,10 +400,12 @@ pub fn assert_worktop_contains_by_amount1() -> Instruction {
 
 pub fn assert_worktop_contains_by_amount2() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByAmount {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         amount: ManifestAstValue::Decimal {
@@ -400,10 +418,12 @@ pub fn assert_worktop_contains_by_amount2() -> Instruction {
 
 pub fn assert_worktop_contains_by_ids1() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByIds {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
@@ -484,10 +504,12 @@ pub fn create_proof_from_auth_zone1() -> Instruction {
 
 pub fn create_proof_from_auth_zone2() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZone {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
-                network_id: 0x01,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    address: RADIX_TOKEN,
+                    network_id: 0x01,
+                },
             },
         },
         into_proof: ManifestAstValue::Proof {
@@ -525,10 +547,12 @@ pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
 
 pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByAmount {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         amount: ManifestAstValue::Decimal {
@@ -546,10 +570,12 @@ pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
 
 pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByIds {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0x01,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
@@ -725,10 +751,12 @@ pub fn recall_resource() -> Instruction {
 
 pub fn set_metadata() -> Instruction {
     let instruction = Instruction::SetMetadata {
-        entity_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        entity_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
         key: ManifestAstValue::String {
@@ -742,12 +770,32 @@ pub fn set_metadata() -> Instruction {
     instruction
 }
 
+pub fn remove_metadata() -> Instruction {
+    let instruction = Instruction::RemoveMetadata {
+        entity_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
+            },
+        },
+        key: ManifestAstValue::String {
+            value: "name".into(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
 pub fn set_package_royalty_config() -> Instruction {
     let instruction = Instruction::SetPackageRoyaltyConfig {
-        package_address: ManifestAstValue::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
+        package_address: ManifestAstValue::Address {
+            address: EntityAddress::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0x01,
+                    address: FAUCET_PACKAGE,
+                },
             },
         },
         royalty_config: ManifestAstValue::Map {
@@ -762,10 +810,12 @@ pub fn set_package_royalty_config() -> Instruction {
 
 pub fn set_component_royalty_config() -> Instruction {
     let instruction = Instruction::SetComponentRoyaltyConfig {
-        component_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        component_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
         royalty_config: ManifestAstValue::Tuple {
@@ -785,10 +835,12 @@ pub fn set_component_royalty_config() -> Instruction {
 
 pub fn claim_package_royalty() -> Instruction {
     let instruction = Instruction::ClaimPackageRoyalty {
-        package_address: ManifestAstValue::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
+        package_address: ManifestAstValue::Address {
+            address: EntityAddress::PackageAddress {
+                address: NetworkAwarePackageAddress {
+                    network_id: 0x01,
+                    address: FAUCET_PACKAGE,
+                },
             },
         },
     };
@@ -798,10 +850,12 @@ pub fn claim_package_royalty() -> Instruction {
 
 pub fn claim_component_royalty() -> Instruction {
     let instruction = Instruction::ClaimComponentRoyalty {
-        component_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        component_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
     };
@@ -811,10 +865,12 @@ pub fn claim_component_royalty() -> Instruction {
 
 pub fn set_method_access_rule() -> Instruction {
     let instruction = Instruction::SetMethodAccessRule {
-        entity_address: ManifestAstValue::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
+        entity_address: ManifestAstValue::Address {
+            address: EntityAddress::ComponentAddress {
+                address: NetworkAwareComponentAddress {
+                    network_id: 0x01,
+                    address: FAUCET_COMPONENT,
+                },
             },
         },
         key: ManifestAstValue::Tuple {
@@ -839,10 +895,12 @@ pub fn set_method_access_rule() -> Instruction {
 
 pub fn mint_fungible() -> Instruction {
     let instruction = Instruction::MintFungible {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0xf2,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         amount: ManifestAstValue::Decimal {
@@ -855,10 +913,12 @@ pub fn mint_fungible() -> Instruction {
 
 pub fn mint_non_fungible() -> Instruction {
     let instruction = Instruction::MintNonFungible {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0xf2,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         entries: ManifestAstValue::Map {
@@ -873,10 +933,12 @@ pub fn mint_non_fungible() -> Instruction {
 
 pub fn mint_uuid_non_fungible() -> Instruction {
     let instruction = Instruction::MintUuidNonFungible {
-        resource_address: ManifestAstValue::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0xf2,
-                address: RADIX_TOKEN,
+        resource_address: ManifestAstValue::Address {
+            address: EntityAddress::ResourceAddress {
+                address: NetworkAwareResourceAddress {
+                    network_id: 0xf2,
+                    address: RADIX_TOKEN,
+                },
             },
         },
         entries: ManifestAstValue::Array {

@@ -142,6 +142,11 @@ define_instruction_visitor! {
             _value: &mut crate::model::value::ast::ManifestAstValue
         ),
 
+        visit_remove_metadata(
+            _entity_address: &mut crate::model::value::ast::ManifestAstValue,
+            _key: &mut crate::model::value::ast::ManifestAstValue
+        ),
+
         visit_set_package_royalty_config(
             _package_address: &mut crate::model::value::ast::ManifestAstValue,
             _royalty_config: &mut crate::model::value::ast::ManifestAstValue
@@ -521,6 +526,20 @@ pub fn traverse_instruction(
                 entity_address,
                 key,
                 value
+            )?;
+        }
+
+        Instruction::RemoveMetadata {
+            entity_address,
+            key,
+        } => {
+            traverse_value(entity_address, value_visitors)?;
+            traverse_value(key, value_visitors)?;
+            visit!(
+                instructions_visitors,
+                visit_remove_metadata,
+                entity_address,
+                key
             )?;
         }
 

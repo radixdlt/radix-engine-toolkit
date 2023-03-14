@@ -53,9 +53,9 @@ impl From<ast::Type> for ManifestAstValueKind {
             ast::Type::PreciseDecimal => Self::PreciseDecimal,
 
             ast::Type::Address => Self::Address,
-            ast::Type::PackageAddress => Self::PackageAddress,
-            ast::Type::ResourceAddress => Self::ResourceAddress,
-            ast::Type::ComponentAddress => Self::ComponentAddress,
+            ast::Type::PackageAddress => Self::Address,
+            ast::Type::ResourceAddress => Self::Address,
+            ast::Type::ComponentAddress => Self::Address,
 
             ast::Type::Bucket => Self::Bucket,
             ast::Type::Proof => Self::Proof,
@@ -102,9 +102,6 @@ impl From<ManifestAstValueKind> for ast::Type {
             ManifestAstValueKind::PreciseDecimal => Self::PreciseDecimal,
 
             ManifestAstValueKind::Address => Self::Address,
-            ManifestAstValueKind::PackageAddress => Self::PackageAddress,
-            ManifestAstValueKind::ResourceAddress => Self::ResourceAddress,
-            ManifestAstValueKind::ComponentAddress => Self::ComponentAddress,
 
             ManifestAstValueKind::Bucket => Self::Bucket,
             ManifestAstValueKind::Proof => Self::Proof,
@@ -196,12 +193,7 @@ impl From<ManifestAstValueKind> for ManifestValueKind {
                 Self::Custom(ManifestCustomValueKind::PreciseDecimal)
             }
 
-            ManifestAstValueKind::Address
-            | ManifestAstValueKind::PackageAddress
-            | ManifestAstValueKind::ResourceAddress
-            | ManifestAstValueKind::ComponentAddress => {
-                Self::Custom(ManifestCustomValueKind::Address)
-            }
+            ManifestAstValueKind::Address => Self::Custom(ManifestCustomValueKind::Address),
 
             ManifestAstValueKind::Bucket => Self::Custom(ManifestCustomValueKind::Bucket),
             ManifestAstValueKind::Proof => Self::Custom(ManifestCustomValueKind::Proof),
@@ -295,21 +287,6 @@ impl ManifestAstValue {
             ManifestAstValue::Address { address: value } => ast::Value::Address(Box::new(
                 ast::Value::String(value.to_string_with_encoder(bech32_coder)),
             )),
-            ManifestAstValue::PackageAddress { address: value } => {
-                ast::Value::PackageAddress(Box::new(ast::Value::String(
-                    bech32_coder.encode_package_address(value.address),
-                )))
-            }
-            ManifestAstValue::ComponentAddress { address: value } => {
-                ast::Value::ComponentAddress(Box::new(ast::Value::String(
-                    bech32_coder.encode_component_address(&value.address),
-                )))
-            }
-            ManifestAstValue::ResourceAddress { address: value } => {
-                ast::Value::ResourceAddress(Box::new(ast::Value::String(
-                    bech32_coder.encode_resource_address(value.address),
-                )))
-            }
 
             ManifestAstValue::Bucket { identifier } => {
                 ast::Value::Bucket(Box::new(match identifier.0 {
@@ -461,27 +438,6 @@ impl ManifestAstValue {
                         .map(|address| ManifestAstValue::Address { address })
                 })?
             }
-            ast::Value::PackageAddress(address) => {
-                map_if_value_string(parsing, address, |address_string| {
-                    bech32_coder
-                        .decode_to_network_aware_package_address(address_string)
-                        .map(|address| ManifestAstValue::PackageAddress { address })
-                })?
-            }
-            ast::Value::ResourceAddress(address) => {
-                map_if_value_string(parsing, address, |address_string| {
-                    bech32_coder
-                        .decode_to_network_aware_resource_address(address_string)
-                        .map(|address| ManifestAstValue::ResourceAddress { address })
-                })?
-            }
-            ast::Value::ComponentAddress(address) => {
-                map_if_value_string(parsing, address, |address_string| {
-                    bech32_coder
-                        .decode_to_network_aware_component_address(address_string)
-                        .map(|address| ManifestAstValue::ComponentAddress { address })
-                })?
-            }
 
             ast::Value::Bucket(value) => {
                 if let ast::Value::U32(identifier) = &**value {
@@ -617,7 +573,9 @@ impl TryFrom<NetworkAwareResourceAddress> for ManifestAstValue {
     type Error = Error;
 
     fn try_from(address: NetworkAwareResourceAddress) -> std::result::Result<Self, Self::Error> {
-        Ok(Self::ResourceAddress { address })
+        Ok(Self::Address {
+            address: EntityAddress::ResourceAddress { address },
+        })
     }
 }
 
@@ -625,18 +583,14 @@ impl TryFrom<ManifestAstValue> for NetworkAwareResourceAddress {
     type Error = Error;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
-        if let ManifestAstValue::ResourceAddress { address }
-        | ManifestAstValue::Address {
+        if let ManifestAstValue::Address {
             address: EntityAddress::ResourceAddress { address },
         } = value
         {
             Ok(address)
         } else {
             Err(Error::InvalidKind {
-                expected: vec![
-                    ManifestAstValueKind::Address,
-                    ManifestAstValueKind::ResourceAddress,
-                ],
+                expected: vec![ManifestAstValueKind::Address],
                 found: value.kind(),
             })
         }

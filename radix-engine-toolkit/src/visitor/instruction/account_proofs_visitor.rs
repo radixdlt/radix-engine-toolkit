@@ -48,10 +48,7 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
             args.unwrap_or_default().get(0),
         ) {
             (
-                ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
-                }
-                | ManifestAstValue::Address {
+                ManifestAstValue::Address {
                     address:
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
@@ -60,17 +57,12 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
                 ManifestAstValue::String {
                     value: ref method_name,
                 },
-                Some(
-                    ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    }
-                    | ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    },
-                ),
+                Some(ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ResourceAddress {
+                            address: resource_address,
+                        },
+                }),
             ) if is_account(component_address)
                 && (method_name == ACCOUNT_CREATE_PROOF_IDENT
                     || method_name == ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT

@@ -56,39 +56,6 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
         }
     }
 
-    fn visit_component_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
-        if let ManifestAstValue::ComponentAddress { address } = value {
-            self.component_addresses.insert(*address);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected component address!".into(),
-            })
-        }
-    }
-
-    fn visit_resource_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
-        if let ManifestAstValue::ResourceAddress { address } = value {
-            self.resource_addresses.insert(*address);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected resource address!".into(),
-            })
-        }
-    }
-
-    fn visit_package_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
-        if let ManifestAstValue::PackageAddress { address } = value {
-            self.package_addresses.insert(*address);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected package address!".into(),
-            })
-        }
-    }
-
     fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::NonFungibleGlobalId {
             resource_address, ..
