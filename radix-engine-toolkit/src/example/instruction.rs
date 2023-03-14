@@ -737,7 +737,7 @@ pub fn recall_resource() -> Instruction {
     let instruction = Instruction::RecallResource {
         vault_id: ManifestAstValue::Bytes {
             value: hex::decode(
-                "776e134adba9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492",
+                "a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492",
             )
             .unwrap(),
         },
