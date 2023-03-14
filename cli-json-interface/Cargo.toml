@@ -1,0 +1,30 @@
+[package]
+name = "cli-json-interface"
+version = "0.9.0"
+edition = "2021"
+
+[dependencies]
+# Used for creating the CLI
+clap = { version = "4.1.8", features = ["derive", "string"] }
+
+# The core Radix Engine Toolkit dependency to be exposed by this interface.
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+
+# Serde Dependencies
+serde = "1.0.152"
+serde_json = "1.0.93"
+
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09", package = "transaction" }
+native_transaction-data = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09", package = "transaction-data" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a3e85db09" }
+hex = "0.4.3"
+
+[[bin]]
+name = "ret-cli"
+path = "src/main.rs"
+
+[workspace]
+members = []

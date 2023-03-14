@@ -2,6 +2,7 @@
     "rust-analyzer.linkedProjects": [
         "Cargo.toml",
         "native-json-interface/Cargo.toml",
+        "cli-json-interface/Cargo.toml",
     ],
     "cSpell.words": [
         "bech",
