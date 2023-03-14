@@ -15,8 +15,8 @@ radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 convert_case = "0.6.0"
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-3e71fc4d5f" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-3e71fc4d5f" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-3e71fc4d5f", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-3e71fc4d5f", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-3e71fc4d5f" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089" }
