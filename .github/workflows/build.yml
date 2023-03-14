@@ -108,6 +108,8 @@ jobs:
           wget https://dl.google.com/android/repository/android-ndk-r22b-darwin-x86_64.zip
           unzip -q android-ndk-r22b-darwin-x86_64.zip -d $HOME/android-ndk
 
+          brew install libunwind
+
       - name: Install Rust Toolchain
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
