@@ -736,10 +736,8 @@ pub fn burn_resource() -> Instruction {
 pub fn recall_resource() -> Instruction {
     let instruction = Instruction::RecallResource {
         vault_id: ManifestAstValue::Bytes {
-            value: hex::decode(
-                "a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492",
-            )
-            .unwrap(),
+            value: hex::decode("a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492")
+                .unwrap(),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
@@ -762,8 +760,14 @@ pub fn set_metadata() -> Instruction {
         key: ManifestAstValue::String {
             value: "name".into(),
         },
-        value: ManifestAstValue::String {
-            value: "deadbeef".into(),
+        value: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0u8 },
+            fields: Some(vec![ManifestAstValue::Enum {
+                variant: EnumDiscriminator::U8 { discriminator: 0u8 },
+                fields: Some(vec![ManifestAstValue::String {
+                    value: "deadbeef".into(),
+                }]),
+            }]),
         },
     };
     check_instruction(&instruction);
