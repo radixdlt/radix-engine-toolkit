@@ -139,6 +139,9 @@ define_kind_enum! {
         )]
         Enum {
             /// The variant of the enum.
+            #[schemars(regex(pattern = "[0-9]+"))]
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
             variant: u8,
 
             /// Optional fields that the enum may have
