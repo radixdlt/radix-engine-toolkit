@@ -53,7 +53,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,
                                     elements: vec![ManifestAstValue::Tuple { elements: vec![
-                                        ManifestAstValue::ResourceAddress { address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap() },
+                                        ManifestAstValue::Address { address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety".parse().unwrap() },
                                         ManifestAstValue::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
                                     ] }],
                                 }],

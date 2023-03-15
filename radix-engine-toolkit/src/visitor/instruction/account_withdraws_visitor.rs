@@ -67,24 +67,16 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
                         },
-                }
-                | ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
-                Some(
-                    ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    }
-                    | ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    },
-                ),
+                Some(ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ResourceAddress {
+                            address: resource_address,
+                        },
+                }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
                 None,
@@ -104,24 +96,16 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
                         },
-                }
-                | ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
-                Some(
-                    ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    }
-                    | ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    },
-                ),
+                Some(ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ResourceAddress {
+                            address: resource_address,
+                        },
+                }),
                 // Set of non-fungible ids
                 Some(ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::NonFungibleLocalId,
@@ -157,26 +141,18 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
                         },
-                }
-                | ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
                 },
                 // Method name
                 ManifestAstValue::String { value: method_name },
                 // Lock fee amount
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource address to withdraw
-                Some(
-                    ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    }
-                    | ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    },
-                ),
+                Some(ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ResourceAddress {
+                            address: resource_address,
+                        },
+                }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
             ) if is_account(component_address)
@@ -198,26 +174,18 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
                         },
-                }
-                | ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Amount to lock fee
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource Address
-                Some(
-                    ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    }
-                    | ManifestAstValue::ResourceAddress {
-                        address: resource_address,
-                    },
-                ),
+                Some(ManifestAstValue::Address {
+                    address:
+                        EntityAddress::ResourceAddress {
+                            address: resource_address,
+                        },
+                }),
                 // Array of non-fungible ids
                 Some(ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::NonFungibleLocalId,

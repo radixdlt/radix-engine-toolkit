@@ -31,8 +31,11 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (
-                    Some(ManifestAstValue::ResourceAddress {
-                        address: resource_address,
+                    Some(ManifestAstValue::Address {
+                        address:
+                            EntityAddress::ResourceAddress {
+                                address: resource_address,
+                            },
                     }),
                     Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
@@ -77,29 +80,6 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             Err(Error::Infallible {
                 message: "Must be an array!".into(),
             })
-        }
-    }
-
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
-        match value {
-            ManifestAstValue::Address { address } => {
-                match address {
-                    EntityAddress::ComponentAddress { address } => {
-                        *value = ManifestAstValue::ComponentAddress { address: *address };
-                    }
-                    EntityAddress::ResourceAddress { address } => {
-                        *value = ManifestAstValue::ResourceAddress { address: *address };
-                    }
-                    EntityAddress::PackageAddress { address } => {
-                        *value = ManifestAstValue::PackageAddress { address: *address };
-                    }
-                }
-
-                Ok(())
-            }
-            _ => Err(Error::Infallible {
-                message: "Must be an address!".into(),
-            }),
         }
     }
 }

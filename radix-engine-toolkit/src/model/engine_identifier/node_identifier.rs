@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
 use std::fmt::Display;
 use std::str::FromStr;
 
@@ -22,7 +23,6 @@ use scrypto_utils::copy_u8_array;
 use toolkit_derive::serializable;
 
 use crate::error::{Error, Result};
-use crate::model::constants::RADIX_ENGINE_NODE_IDENTIFIER_LENGTH;
 
 // =================
 // Model Definition
@@ -37,7 +37,7 @@ pub struct NodeIdentifier(
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::hex::Hex")]
-    pub [u8; RADIX_ENGINE_NODE_IDENTIFIER_LENGTH],
+    pub [u8; OBJECT_ID_LENGTH],
 );
 
 // =====
@@ -58,9 +58,9 @@ impl FromStr for NodeIdentifier {
         let bytes = hex::decode(s)?;
 
         // Check that the decoded bytes are of the expected length - error out if they're not
-        if bytes.len() != RADIX_ENGINE_NODE_IDENTIFIER_LENGTH {
+        if bytes.len() != OBJECT_ID_LENGTH {
             Err(Error::InvalidLength {
-                expected: RADIX_ENGINE_NODE_IDENTIFIER_LENGTH,
+                expected: OBJECT_ID_LENGTH,
                 found: bytes.len(),
             })
         } else {

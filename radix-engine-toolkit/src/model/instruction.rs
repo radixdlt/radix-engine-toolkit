@@ -376,6 +376,19 @@ pub enum Instruction {
         value: ManifestAstValue,
     },
 
+    /// An instruction to set the metadata on an entity.
+    #[schemars(example = "crate::example::instruction::remove_metadata")]
+    RemoveMetadata {
+        /// The address of the entity to set metadata on. This is a discriminated union of types
+        /// where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or
+        /// a `ComponentAddress`.
+        entity_address: ManifestAstValue,
+
+        /// A string of the key to remove the metadata for. This field is serialized as a `String`
+        /// from the ManifestAstValue model.
+        key: ManifestAstValue,
+    },
+
     /// An instruction to modify the royalties of a package.
     #[schemars(example = "crate::example::instruction::set_package_royalty_config")]
     SetPackageRoyaltyConfig {
@@ -794,6 +807,14 @@ impl Instruction {
                 value: value.to_ast_value(bech32_coder)?,
             },
 
+            Self::RemoveMetadata {
+                entity_address,
+                key,
+            } => ast::Instruction::RemoveMetadata {
+                entity_address: entity_address.to_ast_value(bech32_coder)?,
+                key: key.to_ast_value(bech32_coder)?,
+            },
+
             Self::SetPackageRoyaltyConfig {
                 package_address,
                 royalty_config,
@@ -1122,6 +1143,14 @@ impl Instruction {
                 entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
                 key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
                 value: ManifestAstValue::from_ast_value(value, bech32_coder)?,
+            },
+
+            ast::Instruction::RemoveMetadata {
+                entity_address,
+                key,
+            } => Self::RemoveMetadata {
+                entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
+                key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
             },
 
             ast::Instruction::SetPackageRoyaltyConfig {

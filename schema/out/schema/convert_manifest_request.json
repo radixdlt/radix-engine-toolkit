@@ -158,7 +158,7 @@
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-                "type": "PackageAddress"
+                "type": "Address"
               }
             },
             {
@@ -200,7 +200,7 @@
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-                "type": "PackageAddress"
+                "type": "Address"
               }
             },
             {
@@ -304,7 +304,7 @@
               ],
               "component_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -328,7 +328,7 @@
               "arguments": null,
               "component_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -406,7 +406,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -477,7 +477,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -544,7 +544,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             },
             {
@@ -661,7 +661,7 @@
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -709,7 +709,7 @@
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -760,7 +760,7 @@
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             },
             {
@@ -931,7 +931,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -1002,7 +1002,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -1069,7 +1069,7 @@
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             },
             {
@@ -1464,7 +1464,7 @@
               "instruction": "RECALL_RESOURCE",
               "vault_id": {
                 "type": "Bytes",
-                "value": "776e134adba9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492"
+                "value": "a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492"
               }
             }
           ],
@@ -1505,7 +1505,7 @@
             {
               "entity_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "SET_METADATA",
               "key": {
@@ -1513,8 +1513,26 @@
                 "value": "name"
               },
               "value": {
-                "type": "String",
-                "value": "deadbeef"
+                "fields": [
+                  {
+                    "fields": [
+                      {
+                        "type": "String",
+                        "value": "deadbeef"
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
               }
             }
           ],
@@ -1559,13 +1577,59 @@
           }
         },
         {
+          "description": "An instruction to set the metadata on an entity.",
+          "examples": [
+            {
+              "entity_address": {
+                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "type": "Address"
+              },
+              "instruction": "REMOVE_METADATA",
+              "key": {
+                "type": "String",
+                "value": "name"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "entity_address",
+            "instruction",
+            "key"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "REMOVE_METADATA"
+              ]
+            },
+            "entity_address": {
+              "description": "The address of the entity to set metadata on. This is a discriminated union of types where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or a `ComponentAddress`.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "key": {
+              "description": "A string of the key to remove the metadata for. This field is serialized as a `String` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
           "description": "An instruction to modify the royalties of a package.",
           "examples": [
             {
               "instruction": "SET_PACKAGE_ROYALTY_CONFIG",
               "package_address": {
                 "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-                "type": "PackageAddress"
+                "type": "Address"
               },
               "royalty_config": {
                 "entries": [],
@@ -1612,7 +1676,7 @@
             {
               "component_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
               "royalty_config": {
@@ -1670,7 +1734,7 @@
               "instruction": "CLAIM_PACKAGE_ROYALTY",
               "package_address": {
                 "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-                "type": "PackageAddress"
+                "type": "Address"
               }
             }
           ],
@@ -1702,7 +1766,7 @@
             {
               "component_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "CLAIM_COMPONENT_ROYALTY"
             }
@@ -1735,7 +1799,7 @@
             {
               "entity_address": {
                 "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-                "type": "ComponentAddress"
+                "type": "Address"
               },
               "instruction": "SET_METHOD_ACCESS_RULE",
               "key": {
@@ -1814,7 +1878,7 @@
               "instruction": "MINT_FUNGIBLE",
               "resource_address": {
                 "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -1862,7 +1926,7 @@
               "instruction": "MINT_NON_FUNGIBLE",
               "resource_address": {
                 "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -1936,7 +2000,7 @@
               "instruction": "MINT_UUID_NON_FUNGIBLE",
               "resource_address": {
                 "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
-                "type": "ResourceAddress"
+                "type": "Address"
               }
             }
           ],
@@ -3236,81 +3300,6 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-              "type": "ComponentAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ComponentAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-              "type": "ResourceAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ResourceAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-              "type": "PackageAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "PackageAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
@@ -3434,87 +3423,59 @@
           "examples": [
             {
               "non_fungible_local_id": {
-                "type": "UUID",
-                "value": "241008287272164729465721528295504357972"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "UUID",
+                  "value": "241008287272164729465721528295504357972"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "Integer",
-                "value": "1"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "Integer",
+                  "value": "1"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "String",
-                "value": "Scrypto"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "String",
+                  "value": "Scrypto"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "Bytes",
-                "value": "01020304"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "Bytes",
+                  "value": "01020304"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
-            },
-            {
-              "non_fungible_local_id": {
-                "type": "Integer",
-                "value": "1"
-              },
-              "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
-              }
-            },
-            {
-              "non_fungible_local_id": {
-                "type": "String",
-                "value": "Scrypto"
-              },
-              "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
-              }
-            },
-            {
-              "non_fungible_local_id": {
-                "type": "Bytes",
-                "value": "01020304"
-              },
-              "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
-              }
-            },
-            {
-              "non_fungible_local_id": {
-                "type": "UUID",
-                "value": "241008287272164729465721528295504357972"
-              },
-              "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
-              }
             }
           ],
           "type": "object",
@@ -3531,10 +3492,10 @@
               ]
             },
             "resource_address": {
-              "$ref": "#/definitions/EntityAddress"
+              "$ref": "#/definitions/ManifestAstValue"
             },
             "non_fungible_local_id": {
-              "$ref": "#/definitions/NonFungibleLocalId"
+              "$ref": "#/definitions/ManifestAstValue"
             }
           }
         },
@@ -4082,45 +4043,6 @@
           ]
         },
         {
-          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-              "type": "ComponentAddress"
-            }
-          ],
-          "type": "string",
-          "enum": [
-            "ComponentAddress"
-          ]
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-              "type": "ResourceAddress"
-            }
-          ],
-          "type": "string",
-          "enum": [
-            "ResourceAddress"
-          ]
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-              "type": "PackageAddress"
-            }
-          ],
-          "type": "string",
-          "enum": [
-            "PackageAddress"
-          ]
-        },
-        {
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
@@ -4208,45 +4130,57 @@
           "examples": [
             {
               "non_fungible_local_id": {
-                "type": "UUID",
-                "value": "241008287272164729465721528295504357972"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "UUID",
+                  "value": "241008287272164729465721528295504357972"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "Integer",
-                "value": "1"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "Integer",
+                  "value": "1"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "String",
-                "value": "Scrypto"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "String",
+                  "value": "Scrypto"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             },
             {
               "non_fungible_local_id": {
-                "type": "Bytes",
-                "value": "01020304"
+                "type": "NonFungibleLocalId",
+                "value": {
+                  "type": "Bytes",
+                  "value": "01020304"
+                }
               },
               "resource_address": {
                 "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
-                "type": "ResourceAddress"
+                "type": "Address"
               },
               "type": "NonFungibleGlobalId"
             }
@@ -4500,86 +4434,6 @@
               "type": "string",
               "maxLength": 64,
               "minLength": 1
-            }
-          }
-        }
-      ]
-    },
-    "EntityAddress": {
-      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
-      "oneOf": [
-        {
-          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
-              "type": "ComponentAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ComponentAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
-              "type": "ResourceAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ResourceAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
-              "type": "PackageAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "PackageAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
             }
           }
         }

@@ -15,9 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-/// A constant representing the length of Radix Engine Node Identifiers (`RENodeId`s)
-pub const RADIX_ENGINE_NODE_IDENTIFIER_LENGTH: usize = 36;
-
 /// A constant representing the length of hashes uses by the Radix Engine and Scrypto. This is
 /// defined as a constant to allow for easy changes if the hashing algorithm uses is changed.
 pub const RADIX_ENGINE_HASH_LENGTH: usize = 32;

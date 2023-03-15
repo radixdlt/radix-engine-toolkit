@@ -199,12 +199,22 @@ define_kind_enum! {
         /// Represents a Scrypto bucket which is identified through a transient identifier which is
         /// a 32-bit integer which is serialized as a Integer.
         #[schemars(example = "crate::example::value::manifest_sbor_value::bucket")]
-        Bucket { identifier: u32 },
+        Bucket {
+            #[schemars(regex(pattern = "[0-9]+"))]
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
+            identifier: u32
+        },
 
         /// Represents a Scrypto proof which is identified through a transient identifier which is
         /// a 32-bit integer which is serialized as a Integer.
         #[schemars(example = "crate::example::value::manifest_sbor_value::proof")]
-        Proof { identifier: u32 },
+        Proof {
+            #[schemars(regex(pattern = "[0-9]+"))]
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
+            identifier: u32
+        },
 
         /// A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum
         /// of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and

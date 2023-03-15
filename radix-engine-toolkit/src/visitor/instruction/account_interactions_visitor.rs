@@ -66,10 +66,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         // Checking for methods that require auth
         match (component_address, method_name) {
             (
-                ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
-                }
-                | ManifestAstValue::Address {
+                ManifestAstValue::Address {
                     address:
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
@@ -100,10 +97,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         _: &mut ManifestAstValue,
     ) -> Result<()> {
         match entity_address {
-            ManifestAstValue::ComponentAddress {
-                address: ref component_address,
-            }
-            | ManifestAstValue::Address {
+            ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
                         address: ref component_address,
@@ -123,10 +117,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         _: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
         match component_address {
-            ManifestAstValue::ComponentAddress {
-                address: ref component_address,
-            }
-            | ManifestAstValue::Address {
+            ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
                         address: ref component_address,
@@ -144,10 +135,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         component_address: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
         match component_address {
-            ManifestAstValue::ComponentAddress {
-                address: ref component_address,
-            }
-            | ManifestAstValue::Address {
+            ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
                         address: ref component_address,
@@ -167,10 +155,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         _: &mut crate::model::value::ast::ManifestAstValue,
     ) -> Result<()> {
         match entity_address {
-            ManifestAstValue::ComponentAddress {
-                address: ref component_address,
-            }
-            | ManifestAstValue::Address {
+            ManifestAstValue::Address {
                 address:
                     EntityAddress::ComponentAddress {
                         address: ref component_address,

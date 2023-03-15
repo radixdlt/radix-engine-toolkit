@@ -102,6 +102,33 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
     // Consuming Buckets
     //===================
 
+    fn visit_call_function(
+        &mut self,
+        _: &mut ManifestAstValue,
+        _: &mut ManifestAstValue,
+        _: &mut ManifestAstValue,
+        arguments: &mut Option<Vec<ManifestAstValue>>,
+    ) -> crate::error::Result<()> {
+        // Consuming buckets
+        let consumed_buckets = {
+            let mut arguments = arguments.clone().unwrap_or_default();
+            let mut visitor = BucketValueVisitor::default();
+            for value in arguments.iter_mut() {
+                traverse_value(value, &mut [&mut visitor])?;
+            }
+            visitor.0
+        };
+        for bucket_id in consumed_buckets {
+            self.buckets.remove(&bucket_id).map_or(
+                Err(Error::InvalidBucketId {
+                    bucket_id: bucket_id.clone(),
+                }),
+                |_| Ok(()),
+            )?;
+        }
+        Ok(())
+    }
+
     fn visit_call_method(
         &mut self,
         component_address: &mut ManifestAstValue,
@@ -113,10 +140,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         // Checking for account deposits
         match (component_address, method_name, &arguments) {
             (
-                ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
-                }
-                | ManifestAstValue::Address {
+                ManifestAstValue::Address {
                     address:
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
@@ -142,10 +166,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 }
             }
             (
-                ManifestAstValue::ComponentAddress {
-                    address: ref component_address,
-                }
-                | ManifestAstValue::Address {
+                ManifestAstValue::Address {
                     address:
                         EntityAddress::ComponentAddress {
                             address: ref component_address,
@@ -258,32 +279,134 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         Ok(())
     }
 
-    fn visit_call_function(
+    fn visit_take_from_worktop(
         &mut self,
-        _: &mut ManifestAstValue,
-        _: &mut ManifestAstValue,
-        _: &mut ManifestAstValue,
-        arguments: &mut Option<Vec<ManifestAstValue>>,
-    ) -> crate::error::Result<()> {
-        // Consuming buckets
-        let consumed_buckets = {
-            let mut arguments = arguments.clone().unwrap_or_default();
-            let mut visitor = BucketValueVisitor::default();
-            for value in arguments.iter_mut() {
-                traverse_value(value, &mut [&mut visitor])?;
+        resource_address: &mut ManifestAstValue,
+        into_bucket: &mut ManifestAstValue,
+    ) -> Result<()> {
+        if let (
+            ManifestAstValue::Address {
+                address:
+                    EntityAddress::ResourceAddress {
+                        address: resource_address,
+                    },
+            },
+            ManifestAstValue::Bucket {
+                identifier: bucket_id,
+            },
+        ) = (resource_address, into_bucket)
+        {
+            // TODO: Should we do a sanity check that the resource address in the instruction
+            // matches that in the worktop changes?
+            if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
+                if let Some(WorktopChange::Take(resource_specifier)) = worktop_changes.get(0) {
+                    self.add_bucket(
+                        bucket_id.clone(),
+                        ExactnessSpecifier::Estimate {
+                            instruction_index: self.instruction_index,
+                            resource_specifier: match resource_specifier {
+                                NativeResourceSpecifier::Amount(_, amount) => {
+                                    ResourceSpecifier::Amount {
+                                        resource_address: *resource_address,
+                                        amount: *amount,
+                                    }
+                                }
+                                NativeResourceSpecifier::Ids(_, ids) => ResourceSpecifier::Ids {
+                                    resource_address: *resource_address,
+                                    ids: ids.clone(),
+                                },
+                            },
+                        },
+                    )?;
+                }
             }
-            visitor.0
-        };
-        for bucket_id in consumed_buckets {
-            self.buckets.remove(&bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
-                |_| Ok(()),
+        }
+        Ok(())
+    }
+
+    fn visit_take_from_worktop_by_amount(
+        &mut self,
+        resource_address: &mut ManifestAstValue,
+        amount: &mut ManifestAstValue,
+        into_bucket: &mut ManifestAstValue,
+    ) -> Result<()> {
+        if let (
+            ManifestAstValue::Address {
+                address:
+                    EntityAddress::ResourceAddress {
+                        address: resource_address,
+                    },
+            },
+            ManifestAstValue::Decimal { value: amount },
+            ManifestAstValue::Bucket {
+                identifier: bucket_id,
+            },
+        ) = (resource_address, amount, into_bucket)
+        {
+            self.add_bucket(
+                bucket_id.clone(),
+                ExactnessSpecifier::Exact {
+                    resource_specifier: ResourceSpecifier::Amount {
+                        resource_address: NetworkAwareResourceAddress {
+                            network_id: self.network_id,
+                            address: resource_address.address,
+                        },
+                        amount: *amount,
+                    },
+                },
             )?;
         }
         Ok(())
     }
+
+    fn visit_take_from_worktop_by_ids(
+        &mut self,
+        resource_address: &mut ManifestAstValue,
+        ids: &mut Vec<ManifestAstValue>,
+        into_bucket: &mut ManifestAstValue,
+    ) -> Result<()> {
+        if let (
+            ManifestAstValue::Address {
+                address:
+                    EntityAddress::ResourceAddress {
+                        address: resource_address,
+                    },
+            },
+            ids,
+            ManifestAstValue::Bucket {
+                identifier: bucket_id,
+            },
+        ) = (resource_address, ids, into_bucket)
+        {
+            let ids = {
+                let mut resolved_ids = BTreeSet::new();
+                for id in ids {
+                    if let ManifestAstValue::NonFungibleLocalId { value: id } = id {
+                        resolved_ids.insert(id.clone());
+                    } else { /* TODO: currently a no-op. Should be an error? */
+                    }
+                }
+                resolved_ids
+            };
+            self.add_bucket(
+                bucket_id.clone(),
+                ExactnessSpecifier::Exact {
+                    resource_specifier: ResourceSpecifier::Ids {
+                        ids,
+                        resource_address: NetworkAwareResourceAddress {
+                            network_id: self.network_id,
+                            address: resource_address.address,
+                        },
+                    },
+                },
+            )?;
+        }
+        Ok(())
+    }
+
+    //==================
+    // Creating Buckets
+    //==================
 
     fn visit_return_to_worktop(&mut self, bucket: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::Bucket {
@@ -339,144 +462,6 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
             // TODO: Should be an error?
             Ok(())
         }
-    }
-
-    //==================
-    // Creating Buckets
-    //==================
-
-    fn visit_take_from_worktop(
-        &mut self,
-        resource_address: &mut ManifestAstValue,
-        into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
-        if let (
-            ManifestAstValue::ResourceAddress {
-                address: resource_address,
-            }
-            | ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, into_bucket)
-        {
-            // TODO: Should we do a sanity check that the resource address in the instruction
-            // matches that in the worktop changes?
-            if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
-                if let Some(WorktopChange::Take(resource_specifier)) = worktop_changes.get(0) {
-                    self.add_bucket(
-                        bucket_id.clone(),
-                        ExactnessSpecifier::Estimate {
-                            instruction_index: self.instruction_index,
-                            resource_specifier: match resource_specifier {
-                                NativeResourceSpecifier::Amount(_, amount) => {
-                                    ResourceSpecifier::Amount {
-                                        resource_address: *resource_address,
-                                        amount: *amount,
-                                    }
-                                }
-                                NativeResourceSpecifier::Ids(_, ids) => ResourceSpecifier::Ids {
-                                    resource_address: *resource_address,
-                                    ids: ids.clone(),
-                                },
-                            },
-                        },
-                    )?;
-                }
-            }
-        }
-        Ok(())
-    }
-
-    fn visit_take_from_worktop_by_amount(
-        &mut self,
-        resource_address: &mut ManifestAstValue,
-        amount: &mut ManifestAstValue,
-        into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
-        if let (
-            ManifestAstValue::ResourceAddress {
-                address: resource_address,
-            }
-            | ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ManifestAstValue::Decimal { value: amount },
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, amount, into_bucket)
-        {
-            self.add_bucket(
-                bucket_id.clone(),
-                ExactnessSpecifier::Exact {
-                    resource_specifier: ResourceSpecifier::Amount {
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: self.network_id,
-                            address: resource_address.address,
-                        },
-                        amount: *amount,
-                    },
-                },
-            )?;
-        }
-        Ok(())
-    }
-
-    fn visit_take_from_worktop_by_ids(
-        &mut self,
-        resource_address: &mut ManifestAstValue,
-        ids: &mut Vec<ManifestAstValue>,
-        into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
-        if let (
-            ManifestAstValue::ResourceAddress {
-                address: resource_address,
-            }
-            | ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ids,
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, ids, into_bucket)
-        {
-            let ids = {
-                let mut resolved_ids = BTreeSet::new();
-                for id in ids {
-                    if let ManifestAstValue::NonFungibleLocalId { value: id } = id {
-                        resolved_ids.insert(id.clone());
-                    } else { /* TODO: currently a no-op. Should be an error? */
-                    }
-                }
-                resolved_ids
-            };
-            self.add_bucket(
-                bucket_id.clone(),
-                ExactnessSpecifier::Exact {
-                    resource_specifier: ResourceSpecifier::Ids {
-                        ids,
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: self.network_id,
-                            address: resource_address.address,
-                        },
-                    },
-                },
-            )?;
-        }
-        Ok(())
     }
 
     //=================

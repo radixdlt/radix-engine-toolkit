@@ -17,10 +17,7 @@
 
 use crate::define_kind_enum;
 use crate::error::{Error, Result};
-use crate::model::address::{
-    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress,
-};
+use crate::model::address::{EntityAddress, NetworkAwareResourceAddress};
 use crate::model::engine_identifier::{BucketId, ProofId};
 
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
@@ -242,33 +239,6 @@ define_kind_enum! {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
             address: EntityAddress,
-        },
-
-        /// Represents a Bech32m encoded human-readable component address. This address is serialized
-        /// as a human-readable bech32m encoded string.
-        #[schemars(example = "crate::example::value::ast_value::component_address")]
-        ComponentAddress {
-            #[schemars(with = "String")]
-            #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: NetworkAwareComponentAddress,
-        },
-
-        /// Represents a Bech32m encoded human-readable resource address. This address is serialized
-        /// as a human-readable bech32m encoded string.
-        #[schemars(example = "crate::example::value::ast_value::resource_address")]
-        ResourceAddress {
-            #[schemars(with = "String")]
-            #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: NetworkAwareResourceAddress,
-        },
-
-        /// Represents a Bech32m encoded human-readable package address. This address is serialized
-        /// as a human-readable bech32m encoded string.
-        #[schemars(example = "crate::example::value::ast_value::package_address")]
-        PackageAddress {
-            #[schemars(with = "String")]
-            #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: NetworkAwarePackageAddress,
         },
 
         /// Represents a Scrypto bucket which is identified through a transient identifier which is
