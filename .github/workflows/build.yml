@@ -74,21 +74,21 @@ jobs:
           #   features: "jni"
           - crate: native-json-interface
             target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
             features: "jni"
           # - crate: native-json-interface
           #   target-triple: armv7-linux-androideabi
-          #   custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           #   features: "jni"
           - crate: native-json-interface
             target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
             features: "jni"
 
     steps:
@@ -105,7 +105,7 @@ jobs:
           brew install --cask android-ndk
 
           ls -la /usr/local/share/android-ndk/
-          ls -la /usr/local/share/android-ndk/25c
+          ls -la /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/
 
           brew tap messense/macos-cross-toolchains
           brew install aarch64-unknown-linux-gnu
