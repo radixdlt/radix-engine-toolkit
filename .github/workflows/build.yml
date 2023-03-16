@@ -23,6 +23,11 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: native-json-interface
+            target-triple: x86_64-apple-ios
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
             features: "jni"
           - crate: native-json-interface
             target-triple: x86_64-apple-darwin
@@ -177,6 +182,76 @@ jobs:
         with:
           name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
           path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
+
+  build-xc-framework:
+    needs: [build]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Extract Artifacts
+        working-directory: artifacts
+        run: |
+          mkdir native
+          
+          for d in native-json-interface-*.tar.gz; do
+            mv ./$d/* ./native/
+          done
+          
+          cd native
+          
+          for f in *.tar.gz; do 
+            fn=`echo "$f" | cut -d'.' -f 1`
+            mkdir "$fn"
+            tar -xvzf "$f" --directory="$fn";
+          done
+
+      - name: Building XCFramework
+        working-directory: artifacts
+        run: |
+          cd native
+
+          # The name of the crate that we are building
+          CRATE_NAME="native-json-interface"
+
+          # Creating the two directories where the temporary FAT libraries will be stored
+          mkdir ./macos-arm64_x86_64/
+          mkdir ./ios-simulator-arm64_x86_64
+
+          # Creating the fat libraries
+          lipo -create \
+              "./aarch64-apple-darwin/libradix_engine_toolkit.a" \
+              "./x86_64-apple-darwin/libradix_engine_toolkit.a" \
+              -o "./macos-arm64_x86_64/libradix_engine_toolkit.a"
+          lipo -create \
+              "./aarch64-apple-ios-sim/libradix_engine_toolkit.a" \
+              "./x86_64-apple-ios/libradix_engine_toolkit.a" \
+              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
+
+          # Copying the "include" directory from its origin into the fat library directory
+          cp -r ./aarch64-apple-darwin/include ./macos-arm64_x86_64/
+          cp -r ./aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
+
+          # Creating the XC Framework
+          xcodebuild -create-xcframework \
+            -library "./aarch64-apple-ios/libradix_engine_toolkit.a" \
+            -headers "./aarch64-apple-ios/include" \
+            -library "./macos-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./macos-arm64_x86_64/include" \
+            -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./ios-simulator-arm64_x86_64/include" \
+            -output "./RadixEngineToolkit.xcframework"
+
+          tar -czf "./RadixEngineToolkit.xcframework.tar.gz" ./RadixEngineToolkit.xcframework
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: "RadixEngineToolkit.xcframework.tar.gz"
+          path: "./artifacts/native/RadixEngineToolkit.xcframework.tar.gz"
 
   publish-csharp-nuget:
     needs: [build]
