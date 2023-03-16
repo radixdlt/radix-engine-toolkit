@@ -40,54 +40,54 @@ jobs:
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
             features: "jni"
-          - crate: native-json-interface
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: wasm32-unknown-unknown
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: aarch64-linux-android
-            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: armv7-linux-androideabi
-            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar
-            features: "jni"
-          - crate: native-json-interface
-            target-triple: i686-linux-android
-            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android-ar
-            features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-pc-windows-gnu
+          #   custom-linker: ""
+          #   custom-compiler: x86_64-w64-mingw32-gcc
+          #   custom-archiver: x86_64-w64-mingw32-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   custom-linker: x86_64-unknown-linux-gnu-gcc
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   custom-linker: aarch64-unknown-linux-gnu-gcc
+          #   custom-compiler: aarch64-unknown-linux-gnu-gcc
+          #   custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: i686-unknown-linux-gnu
+          #   custom-linker: i686-unknown-linux-gnu-gcc
+          #   custom-compiler: i686-unknown-linux-gnu-gcc
+          #   custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: wasm32-unknown-unknown
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-linux-android
+          #   custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: armv7-linux-androideabi
+          #   custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar
+          #   features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: i686-linux-android
+          #   custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android-ar
+          #   features: "jni"
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -218,22 +218,22 @@ jobs:
 
           # Creating the fat libraries
           lipo -create \
-              "./aarch64-apple-darwin/release/libradix_engine_toolkit.a" \
-              "./x86_64-apple-darwin/release/libradix_engine_toolkit.a" \
+              "./aarch64-apple-darwin/libradix_engine_toolkit.a" \
+              "./x86_64-apple-darwin/libradix_engine_toolkit.a" \
               -o "./target/macos-arm64_x86_64/libradix_engine_toolkit.a"
           lipo -create \
-              "./aarch64-apple-ios-sim/release/libradix_engine_toolkit.a" \
-              "./x86_64-apple-ios/release/libradix_engine_toolkit.a" \
+              "./aarch64-apple-ios-sim/libradix_engine_toolkit.a" \
+              "./x86_64-apple-ios/libradix_engine_toolkit.a" \
               -o "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
 
           # Copying the "include" directory from its origin into the fat library directory
-          cp -r $CRATE_PATH/target/aarch64-apple-darwin/release/include ./macos-arm64_x86_64/
-          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/release/include ./ios-simulator-arm64_x86_64/
+          cp -r $CRATE_PATH/target/aarch64-apple-darwin/include ./macos-arm64_x86_64/
+          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
 
           # Creating the XC Framework
           xcodebuild -create-xcframework \
-            -library "./aarch64-apple-ios/release/libradix_engine_toolkit.a" \
-            -headers "./aarch64-apple-ios/release/include" \
+            -library "./aarch64-apple-ios/libradix_engine_toolkit.a" \
+            -headers "./aarch64-apple-ios/include" \
             -library "./target/macos-arm64_x86_64/libradix_engine_toolkit.a" \
             -headers "./target/macos-arm64_x86_64/include" \
             -library "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
