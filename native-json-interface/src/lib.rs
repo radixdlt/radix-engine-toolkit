@@ -86,6 +86,7 @@ pub mod native {
 
     export_handler!(ConvertManifestHandler as convert_manifest);
     export_handler!(AnalyzeManifestHandler as analyze_manifest);
+    #[cfg(feature = "radix-engine")]
     export_handler!(
         AnalyzeManifestWithPreviewContextHandler as analyze_manifest_with_preview_context
     );
@@ -193,6 +194,7 @@ pub mod jni {
     export_handler!(
         AnalyzeManifestHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifest
     );
+    #[cfg(feature = "radix-engine")]
     export_handler!(
         AnalyzeManifestWithPreviewContextHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifestWithPreviewContext

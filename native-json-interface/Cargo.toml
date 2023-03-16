@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 jni = { version = "0.20.0", default-features = false, optional = true }
-radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit = { path = "../radix-engine-toolkit", default-features = false }
 serde = "1.0.152"
 serde_json = "1.0.91"
 
@@ -27,6 +27,7 @@ crate-type = ["staticlib", "cdylib"]
 [features]
 default = []
 jni = ["jni/default"]
+radix-engine = ["radix-engine-toolkit/radix-engine"]
 
 [workspace]
 members = []

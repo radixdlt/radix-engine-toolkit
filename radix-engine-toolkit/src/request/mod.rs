@@ -41,6 +41,7 @@ pub mod derive_virtual_account_address;
 pub mod derive_virtual_identity_address;
 
 pub mod analyze_manifest;
+#[cfg(feature = "radix-engine")]
 pub mod analyze_manifest_with_preview_context;
 
 pub mod known_entity_addresses;
@@ -76,6 +77,7 @@ pub use derive_virtual_account_address::*;
 pub use derive_virtual_identity_address::*;
 
 pub use analyze_manifest::*;
+#[cfg(feature = "radix-engine")]
 pub use analyze_manifest_with_preview_context::*;
 
 pub use known_entity_addresses::*;
