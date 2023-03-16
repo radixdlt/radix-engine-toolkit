@@ -232,8 +232,8 @@ jobs:
               -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
 
           # Copying the "include" directory from its origin into the fat library directory
-          cp -r $CRATE_PATH/target/aarch64-apple-darwin/include ./macos-arm64_x86_64/
-          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
+          cp -r ./aarch64-apple-darwin/include ./macos-arm64_x86_64/
+          cp -r ./aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
 
           # Creating the XC Framework
           xcodebuild -create-xcframework \
