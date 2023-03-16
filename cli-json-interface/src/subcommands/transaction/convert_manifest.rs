@@ -97,7 +97,7 @@ impl ConvertManifest {
                 for instruction in instructions {
                     if let native_transaction::manifest::ast::Instruction::PublishPackage {
                         code: native_transaction::manifest::ast::Value::Blob(code),
-                        abi: native_transaction::manifest::ast::Value::Blob(abi),
+                        schema: native_transaction::manifest::ast::Value::Blob(abi),
                         ..
                     } = instruction
                     {
