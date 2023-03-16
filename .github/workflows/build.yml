@@ -76,12 +76,12 @@ jobs:
             custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
             custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar
             features: "jni"
-          - crate: native-json-interface
-            target-triple: armv7-linux-androideabi
-            custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar
-            features: "jni"
+          # - crate: native-json-interface
+          #   target-triple: armv7-linux-androideabi
+          #   custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar
+          #   features: "jni"
           - crate: native-json-interface
             target-triple: i686-linux-android
             custom-linker: $HOME/android-ndk/android-ndk-r22b/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
@@ -128,6 +128,9 @@ jobs:
             export CURRENT_DIRECTORY=$(pwd)
             export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
             cd $CRATE_PATH
+
+            echo "[toolchain]" > rust-toolchain.toml
+            echo "channel = \"1.67.1\"" >> rust-toolchain.toml
 
             export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
             if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
