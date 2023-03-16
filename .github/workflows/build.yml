@@ -204,7 +204,49 @@ jobs:
             tar -xvzf "$f" --directory="$fn";
           done
 
-          ls -la .
+      - name: Building XCFramework
+        working-directory: artifacts
+        run: |
+          cd native
+
+          # The name of the crate that we are building
+          CRATE_NAME="native-json-interface"
+
+          # Creating the two directories where the temporary FAT libraries will be stored
+          mkdir ./macos-arm64_x86_64/
+          mkdir ./ios-simulator-arm64_x86_64
+
+          # Creating the fat libraries
+          lipo -create \
+              "./aarch64-apple-darwin/release/libradix_engine_toolkit.a" \
+              "./x86_64-apple-darwin/release/libradix_engine_toolkit.a" \
+              -o "./target/macos-arm64_x86_64/libradix_engine_toolkit.a"
+          lipo -create \
+              "./aarch64-apple-ios-sim/release/libradix_engine_toolkit.a" \
+              "./x86_64-apple-ios/release/libradix_engine_toolkit.a" \
+              -o "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
+
+          # Copying the "include" directory from its origin into the fat library directory
+          cp -r $CRATE_PATH/target/aarch64-apple-darwin/release/include ./macos-arm64_x86_64/
+          cp -r $CRATE_PATH/target/aarch64-apple-ios-sim/release/include ./ios-simulator-arm64_x86_64/
+
+          # Creating the XC Framework
+          xcodebuild -create-xcframework \
+            -library "./aarch64-apple-ios/release/libradix_engine_toolkit.a" \
+            -headers "./aarch64-apple-ios/release/include" \
+            -library "./target/macos-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./target/macos-arm64_x86_64/include" \
+            -library "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./target/ios-simulator-arm64_x86_64/include" \
+            -output "./RadixEngineToolkit.xcframework"
+
+          tar -czf "./RadixEngineToolkit.xcframework.tar.gz" ./RadixEngineToolkit.xcframework
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: "RadixEngineToolkit.xcframework.tar.gz"
+          path: "./artifacts/native/RadixEngineToolkit.xcframework.tar.gz"
 
   publish-csharp-nuget:
     needs: [build]
