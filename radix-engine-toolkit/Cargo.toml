@@ -20,7 +20,7 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f7
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc" }
 scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc", package = "utils" }
 native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc", package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc", optional = true }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc" }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-f78089-no-mimalloc" }
 
@@ -35,8 +35,12 @@ bech32 = { version = "0.9.0", default-features = false }
 # Used for more powerful declarative macros
 paste = { version = "1.0.11" }
 serde_json = "1.0.91"
-getrandom = { version = "0.2.8", features = ["js"] }
+getrandom = { version = "0.2.8", features = ["js"], optional = true }
 
 [dev-dependencies]
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
+
+[features]
+default = ["radix-engine"]
+radix-engine = ["dep:radix-engine", "dep:getrandom"]

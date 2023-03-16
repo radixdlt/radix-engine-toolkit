@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::types::Own;
 use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
+    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId, Own,
     StringNonFungibleLocalId, UUIDNonFungibleLocalId, FAUCET_COMPONENT, FAUCET_PACKAGE,
     RADIX_TOKEN,
 };

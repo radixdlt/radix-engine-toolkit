@@ -60,7 +60,8 @@ impl InMemoryExamplesBuilder {
 | Function Name     | `{}` |
 | ----------------- | :----------------- |
 | JNI Function Name | `{}` |
-| Functionality     | {} |
+| Functionality     | {}   |
+| Required Features | {}   |
 | Request Type      | `{}` |
 | Response Type     | `{}` |
 
@@ -84,6 +85,7 @@ impl InMemoryExamplesBuilder {
                 function_name,
                 jni_function_name,
                 example.request_description.replace('\n', "</br>"),
+                example.required_features,
                 example.request_type_name,
                 example.response_type_name,
                 example.request,
