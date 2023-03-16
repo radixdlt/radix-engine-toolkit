@@ -21,6 +21,11 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: native-json-interface
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
             features: "jni"
           - crate: native-json-interface
             target-triple: x86_64-apple-darwin
