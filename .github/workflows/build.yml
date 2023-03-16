@@ -220,11 +220,11 @@ jobs:
           lipo -create \
               "./aarch64-apple-darwin/libradix_engine_toolkit.a" \
               "./x86_64-apple-darwin/libradix_engine_toolkit.a" \
-              -o "./target/macos-arm64_x86_64/libradix_engine_toolkit.a"
+              -o "./macos-arm64_x86_64/libradix_engine_toolkit.a"
           lipo -create \
               "./aarch64-apple-ios-sim/libradix_engine_toolkit.a" \
               "./x86_64-apple-ios/libradix_engine_toolkit.a" \
-              -o "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
+              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
 
           # Copying the "include" directory from its origin into the fat library directory
           cp -r $CRATE_PATH/target/aarch64-apple-darwin/include ./macos-arm64_x86_64/
@@ -234,10 +234,10 @@ jobs:
           xcodebuild -create-xcframework \
             -library "./aarch64-apple-ios/libradix_engine_toolkit.a" \
             -headers "./aarch64-apple-ios/include" \
-            -library "./target/macos-arm64_x86_64/libradix_engine_toolkit.a" \
-            -headers "./target/macos-arm64_x86_64/include" \
-            -library "./target/ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
-            -headers "./target/ios-simulator-arm64_x86_64/include" \
+            -library "./macos-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./macos-arm64_x86_64/include" \
+            -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
+            -headers "./ios-simulator-arm64_x86_64/include" \
             -output "./RadixEngineToolkit.xcframework"
 
           tar -czf "./RadixEngineToolkit.xcframework.tar.gz" ./RadixEngineToolkit.xcframework
