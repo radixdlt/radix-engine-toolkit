@@ -2,7 +2,9 @@ name: Build
 
 on:
   push:
-
+    branches:
+      - develop
+      - main
   pull_request:
     branches:
       - develop
@@ -72,21 +74,21 @@ jobs:
           #   features: "jni"
           - crate: native-json-interface
             target-triple: aarch64-linux-android
-            custom-linker: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
             features: "jni"
           # - crate: native-json-interface
           #   target-triple: armv7-linux-androideabi
-          #   custom-linker: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-compiler: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-          #   custom-archiver: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          #   custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           #   features: "jni"
           - crate: native-json-interface
             target-triple: i686-linux-android
-            custom-linker: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /opt/homebrew/Caskroom/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            custom-linker: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /usr/local/share/android-ndk/25c/AndroidNDK9519653.app/Contents/NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
             features: "jni"
 
     steps:
@@ -126,9 +128,6 @@ jobs:
             export CURRENT_DIRECTORY=$(pwd)
             export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
             cd $CRATE_PATH
-
-            echo "[toolchain]" > rust-toolchain.toml
-            echo "channel = \"1.67.1\"" >> rust-toolchain.toml
 
             export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
             if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
