@@ -178,6 +178,34 @@ jobs:
           name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
           path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
 
+  build-xc-framework:
+    needs: [build]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Extract Artifacts
+        working-directory: artifacts
+        run: |
+          mkdir native
+          
+          for d in native-json-interface-*.tar.gz; do
+            mv ./$d/* ./native/
+          done
+          
+          cd native
+          
+          for f in *.tar.gz; do 
+            fn=`echo "$f" | cut -d'.' -f 1`
+            mkdir "$fn"
+            tar -xvzf "$f" --directory="$fn";
+          done
+
+          ls -la .
+
   publish-csharp-nuget:
     needs: [build]
     runs-on: ubuntu-latest
