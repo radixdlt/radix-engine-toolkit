@@ -127,6 +127,7 @@ pub struct Example {
     pub request_type_name: String,
     pub response_type_name: String,
     pub request_description: String,
+    pub required_features: String,
     pub request: String,
     pub response: String,
 }
@@ -160,6 +161,10 @@ where
             .to_owned()
     }
 
+    fn required_features() -> String {
+        "default".into()
+    }
+
     fn to_example() -> Example {
         let request = Self::example_request();
         let response = Self::example_response();
@@ -167,6 +172,7 @@ where
             request_type_name: Self::request_type_name(),
             response_type_name: Self::response_type_name(),
             request_description: Self::description(),
+            required_features: Self::required_features(),
             request: serde_json::to_string_pretty(&request).unwrap(),
             response: serde_json::to_string_pretty(&response).unwrap(),
         }
