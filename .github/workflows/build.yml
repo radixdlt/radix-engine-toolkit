@@ -22,7 +22,7 @@ jobs:
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           - crate: native-json-interface
-            target-triple: x86_64-apple-darwin
+            target-triple: x86_64-apple-ios
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
