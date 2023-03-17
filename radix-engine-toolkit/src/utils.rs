@@ -17,7 +17,7 @@
 
 use std::borrow::Borrow;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 use bech32;
 use scrypto::address::AddressError;
 use scrypto::network::NetworkDefinition;
@@ -138,4 +138,18 @@ pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
             | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
             | ComponentAddress::EddsaEd25519VirtualAccount(..)
     )
+}
+
+pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Result<[u8; N]> {
+    let slice = slice.as_ref();
+    if slice.len() != N {
+        Err(Error::InvalidLength {
+            expected: N,
+            found: slice.len(),
+        })
+    } else {
+        let mut bytes = [0u8; N];
+        bytes.copy_from_slice(&slice[0..N]);
+        Ok(bytes)
+    }
 }

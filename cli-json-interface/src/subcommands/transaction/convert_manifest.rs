@@ -24,9 +24,9 @@ use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::instruction::Instruction;
 use radix_engine_toolkit::model::transaction::{InstructionKind, InstructionList};
 use radix_engine_toolkit::model::value::ast::ManifestAstValue;
+use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use radix_engine_toolkit::visitor::{traverse_instruction, ManifestAstValueVisitor};
 use scrypto::prelude::Hash;
-use scrypto_utils::copy_u8_array;
 
 use crate::error::{Error, Result};
 use crate::utils::pretty_print;
@@ -106,8 +106,8 @@ impl ConvertManifest {
                             native_transaction::manifest::ast::Value::String(abi),
                         ) = (*code, *abi)
                         {
-                            blob_references.push(copy_u8_array(&hex::decode(code)?));
-                            blob_references.push(copy_u8_array(&hex::decode(abi)?));
+                            blob_references.push(checked_copy_u8_slice(&hex::decode(code)?)?);
+                            blob_references.push(checked_copy_u8_slice(&hex::decode(abi)?)?);
                         }
                     }
                 }

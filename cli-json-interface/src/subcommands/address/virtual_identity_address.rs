@@ -21,8 +21,8 @@ use clap::Parser;
 use radix_engine_toolkit::request::{
     DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest, Handler,
 };
+use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::prelude::{EcdsaSecp256k1PublicKey, EddsaEd25519PublicKey};
-use scrypto_utils::copy_u8_array;
 
 #[derive(Parser, Debug)]
 /// Derives virtual identity address of the given public key on the given network
@@ -41,10 +41,10 @@ impl VirtualIdentityAddress {
         let public_key_bytes = hex::decode(&self.public_key)?;
         let public_key = match public_key_bytes.len() {
             EcdsaSecp256k1PublicKey::LENGTH => {
-                Ok(EcdsaSecp256k1PublicKey(copy_u8_array(&public_key_bytes)).into())
+                Ok(EcdsaSecp256k1PublicKey(checked_copy_u8_slice(&public_key_bytes)?).into())
             }
             EddsaEd25519PublicKey::LENGTH => {
-                Ok(EddsaEd25519PublicKey(copy_u8_array(&public_key_bytes)).into())
+                Ok(EddsaEd25519PublicKey(checked_copy_u8_slice(&public_key_bytes)?).into())
             }
             _ => Err(Error::InvalidPublicKey),
         }?;

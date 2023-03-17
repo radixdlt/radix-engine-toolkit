@@ -20,7 +20,6 @@ use native_transaction::validation::ManifestValidator;
 use scrypto::prelude::{
     Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
 };
-use scrypto_utils::copy_u8_array;
 
 use crate::model::address::{
     EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
@@ -29,6 +28,7 @@ use crate::model::address::{
 use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
 use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
+use crate::utils::checked_copy_u8_slice;
 
 pub fn call_function1() -> Instruction {
     let instruction = Instruction::CallFunction {
@@ -651,16 +651,22 @@ pub fn clone_proof() -> Instruction {
 pub fn publish_package() -> Instruction {
     let instruction = Instruction::PublishPackage {
         code: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(copy_u8_array(
-                &hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                    .unwrap(),
-            )),
+            hash: ManifestBlobRef(
+                checked_copy_u8_slice(
+                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                        .unwrap(),
+                )
+                .unwrap(),
+            ),
         },
         schema: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(copy_u8_array(
-                &hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                    .unwrap(),
-            )),
+            hash: ManifestBlobRef(
+                checked_copy_u8_slice(
+                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                        .unwrap(),
+                )
+                .unwrap(),
+            ),
         },
         royalty_config: ManifestAstValue::Map {
             key_value_kind: ManifestAstValueKind::String,

@@ -21,6 +21,7 @@ use crate::model::address::{
     EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
     NetworkAwareResourceAddress,
 };
+use crate::utils::checked_copy_u8_slice;
 
 use scrypto::prelude::{
     BytesNonFungibleLocalId, ComponentAddress, Decimal, IntegerNonFungibleLocalId,
@@ -32,7 +33,6 @@ use scrypto::prelude::{
     ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
     ManifestPreciseDecimal, ManifestProof,
 };
-use scrypto_utils::copy_u8_array;
 
 impl From<ManifestValueKind> for ManifestSborValueKind {
     fn from(value: ManifestValueKind) -> Self {
@@ -204,31 +204,31 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>>>()?,
             },
 
-            // TODO: copy_u8_array can cause a crash if the length is not checked. MUST change
+            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST change
             Self::Address { address } => ManifestValue::Custom {
                 value: ManifestCustomValue::Address(match address {
                     EntityAddress::ComponentAddress { address } => {
-                        ManifestAddress::Component(copy_u8_array(&address.address.to_vec()))
+                        ManifestAddress::Component(checked_copy_u8_slice(address.address.to_vec())?)
                     }
                     EntityAddress::ResourceAddress { address } => {
-                        ManifestAddress::Resource(copy_u8_array(&address.address.to_vec()))
+                        ManifestAddress::Resource(checked_copy_u8_slice(address.address.to_vec())?)
                     }
                     EntityAddress::PackageAddress { address } => {
-                        ManifestAddress::Package(copy_u8_array(&address.address.to_vec()))
+                        ManifestAddress::Package(checked_copy_u8_slice(address.address.to_vec())?)
                     }
                 }),
             },
 
-            // TODO: copy_u8_array can cause a crash if the length is not checked. MUST change
+            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST change
             Self::Decimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Decimal(ManifestDecimal(copy_u8_array(
-                    &value.to_vec(),
-                ))),
+                value: ManifestCustomValue::Decimal(ManifestDecimal(checked_copy_u8_slice(
+                    value.to_vec(),
+                )?)),
             },
             Self::PreciseDecimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::PreciseDecimal(ManifestPreciseDecimal(copy_u8_array(
-                    &value.to_vec(),
-                ))),
+                value: ManifestCustomValue::PreciseDecimal(ManifestPreciseDecimal(
+                    checked_copy_u8_slice(value.to_vec())?,
+                )),
             },
 
             Self::Bucket { identifier } => ManifestValue::Custom {

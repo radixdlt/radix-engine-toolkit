@@ -19,10 +19,10 @@ use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
 use std::fmt::Display;
 use std::str::FromStr;
 
-use scrypto_utils::copy_u8_array;
 use toolkit_derive::serializable;
 
 use crate::error::{Error, Result};
+use crate::utils::checked_copy_u8_slice;
 
 // =================
 // Model Definition
@@ -64,7 +64,7 @@ impl FromStr for NodeIdentifier {
                 found: bytes.len(),
             })
         } else {
-            Ok(NodeIdentifier(copy_u8_array(&bytes)))
+            Ok(NodeIdentifier(checked_copy_u8_slice(&bytes)?))
         }
     }
 }

@@ -21,10 +21,10 @@ use scrypto::prelude::{
     RADIX_TOKEN,
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
-use scrypto_utils::copy_u8_array;
 
 use crate::model::address::*;
 use crate::model::value::manifest_sbor::{ManifestSborValue, ManifestSborValueKind};
+use crate::utils::checked_copy_u8_slice;
 
 pub fn value() -> ManifestSborValue {
     ManifestSborValue::Bool { value: false }
@@ -240,9 +240,12 @@ pub fn expression2() -> ManifestSborValue {
 
 pub fn blob() -> ManifestSborValue {
     ManifestSborValue::Blob {
-        hash: ManifestBlobRef(copy_u8_array(
-            &hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
-                .unwrap(),
-        )),
+        hash: ManifestBlobRef(
+            checked_copy_u8_slice(
+                hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
+                    .unwrap(),
+            )
+            .unwrap(),
+        ),
     }
 }
