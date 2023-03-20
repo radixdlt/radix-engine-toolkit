@@ -30,10 +30,10 @@ use crate::utils::checked_copy_u8_slice;
 
 #[serializable]
 /// Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a
-/// hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
+/// hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)
+#[derive(PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct NodeIdentifier(
-    #[schemars(length(equal = 72))]
+    #[schemars(length(equal = 31))]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::hex::Hex")]

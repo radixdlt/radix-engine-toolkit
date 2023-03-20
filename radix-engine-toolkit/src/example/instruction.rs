@@ -715,7 +715,7 @@ pub fn publish_package() -> Instruction {
     instruction
 }
 
-pub fn drop_proof() -> Instruction {
+pub fn burn_resource() -> Instruction {
     let instruction = Instruction::BurnResource {
         bucket: ManifestAstValue::Bucket {
             identifier: BucketId(TransientIdentifier::String {
@@ -733,8 +733,14 @@ pub fn drop_all_proofs() -> Instruction {
     instruction
 }
 
-pub fn burn_resource() -> Instruction {
-    let instruction = Instruction::DropAllProofs;
+pub fn drop_proof() -> Instruction {
+    let instruction = Instruction::DropProof {
+        proof: ManifestAstValue::Proof {
+            identifier: ProofId(TransientIdentifier::String {
+                value: "proof".into(),
+            }),
+        },
+    };
     check_instruction(&instruction);
     instruction
 }
@@ -1018,6 +1024,34 @@ pub fn create_non_fungible_resource() -> Instruction {
             variant: EnumDiscriminator::U8 { discriminator: 0 },
             fields: None,
         },
+        schema: ManifestAstValue::Tuple {
+            elements: vec![
+                ManifestAstValue::Tuple {
+                    elements: vec![
+                        ManifestAstValue::Array {
+                            element_kind: ManifestAstValueKind::Enum,
+                            elements: vec![],
+                        },
+                        ManifestAstValue::Array {
+                            element_kind: ManifestAstValueKind::Tuple,
+                            elements: vec![],
+                        },
+                        ManifestAstValue::Array {
+                            element_kind: ManifestAstValueKind::Enum,
+                            elements: vec![],
+                        },
+                    ],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: Some(vec![ManifestAstValue::U8 { value: 64 }]),
+                },
+                ManifestAstValue::Array {
+                    element_kind: ManifestAstValueKind::String,
+                    elements: vec![],
+                },
+            ],
+        },
         metadata: ManifestAstValue::Map {
             key_value_kind: ManifestAstValueKind::String,
             value_value_kind: ManifestAstValueKind::String,
@@ -1136,6 +1170,12 @@ pub fn create_validator() -> Instruction {
             fields: None,
         },
     };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn clear_signature_proofs() -> Instruction {
+    let instruction = Instruction::ClearSignatureProofs;
     check_instruction(&instruction);
     instruction
 }

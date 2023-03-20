@@ -18,6 +18,7 @@
 use super::model::*;
 use crate::error::Result;
 use crate::model::address::*;
+use crate::model::engine_identifier::NodeIdentifier;
 
 use scrypto::prelude::{
     ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
@@ -62,6 +63,9 @@ impl From<ScryptoValueKind> for ScryptoSborValueKind {
                 ScryptoSborValueKind::NonFungibleLocalId
             }
             ScryptoValueKind::Custom(ScryptoCustomValueKind::Own) => ScryptoSborValueKind::Own,
+            ScryptoValueKind::Custom(ScryptoCustomValueKind::Reference) => {
+                ScryptoSborValueKind::Reference
+            }
         }
     }
 }
@@ -103,6 +107,9 @@ impl From<ScryptoSborValueKind> for ScryptoValueKind {
                 ScryptoValueKind::Custom(ScryptoCustomValueKind::NonFungibleLocalId)
             }
             ScryptoSborValueKind::Own => ScryptoValueKind::Custom(ScryptoCustomValueKind::Own),
+            ScryptoSborValueKind::Reference => {
+                ScryptoValueKind::Custom(ScryptoCustomValueKind::Reference)
+            }
         }
     }
 }
@@ -188,6 +195,11 @@ impl ScryptoSborValue {
 
             Self::Own { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::Own(*value),
+            },
+            Self::Reference { value } => ScryptoValue::Custom {
+                value: ScryptoCustomValue::InternalRef(
+                    radix_engine_common::data::scrypto::model::InternalRef(value.0),
+                ),
             },
         };
         Ok(value)
@@ -308,6 +320,11 @@ impl ScryptoSborValue {
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Own(value),
             } => Self::Own { value: *value },
+            ScryptoValue::Custom {
+                value: ScryptoCustomValue::InternalRef(value),
+            } => Self::Reference {
+                value: NodeIdentifier(value.0),
+            },
         }
     }
 }

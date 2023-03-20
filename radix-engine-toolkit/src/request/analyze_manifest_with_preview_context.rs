@@ -17,7 +17,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::model::address::{EntityAddress, NetworkAwarePackageAddress};
 use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
 use crate::model::instruction::Instruction;
@@ -27,7 +27,7 @@ use crate::visitor::{
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
-use radix_engine::transaction::{TransactionReceipt, TransactionResult};
+use radix_engine::transaction::TransactionReceipt;
 use radix_engine::types::{scrypto_decode, ComponentAddress};
 use toolkit_derive::serializable;
 
@@ -280,28 +280,25 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
         let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
         let mut account_deposits_visitor = {
             let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
-            match receipt.result {
-                TransactionResult::Commit(commit_result) => {
-                    let resource_changes = commit_result
-                        .resource_changes
-                        .into_iter()
-                        .map(|(k, v)| (k as u32, v))
-                        .collect();
-                    let worktop_changes = receipt
-                        .execution
-                        .worktop_changes()
-                        .into_iter()
-                        .map(|(k, v)| (k as u32, v))
-                        .collect();
-                    Ok(AccountDepositsInstructionVisitor::new(
-                        request.network_id,
-                        resource_changes,
-                        worktop_changes,
-                    ))
-                }
-                _ => Err(Error::TransactionRejectionOrCommitFailure),
-            }
-        }?;
+            let resource_changes = receipt
+                .execution_trace
+                .resource_changes
+                .clone()
+                .into_iter()
+                .map(|(k, v)| (k as u32, v))
+                .collect();
+            let worktop_changes = receipt
+                .execution_trace
+                .worktop_changes()
+                .into_iter()
+                .map(|(k, v)| (k as u32, v))
+                .collect();
+            AccountDepositsInstructionVisitor::new(
+                request.network_id,
+                resource_changes,
+                worktop_changes,
+            )
+        };
         instructions
             .iter_mut()
             .map(|instruction| {

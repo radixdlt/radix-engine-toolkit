@@ -904,6 +904,26 @@
           }
         },
         {
+          "description": "Clears all the proofs of signature virtual badges.",
+          "examples": [
+            {
+              "instruction": "CLEAR_SIGNATURE_PROOFS"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CLEAR_SIGNATURE_PROOFS"
+              ]
+            }
+          }
+        },
+        {
           "description": "An instruction to create a proof of the entire amount of a given resource address from the auth zone.",
           "examples": [
             {
@@ -1244,14 +1264,14 @@
           "description": "An instruction to drop a proof.",
           "examples": [
             {
-              "bucket": {
+              "instruction": "DROP_PROOF",
+              "proof": {
                 "identifier": {
                   "type": "String",
-                  "value": "ident"
+                  "value": "proof"
                 },
-                "type": "Bucket"
-              },
-              "instruction": "BURN_RESOURCE"
+                "type": "Proof"
+              }
             }
           ],
           "type": "object",
@@ -1428,7 +1448,14 @@
           "description": "An instruction to burn a bucket of tokens.",
           "examples": [
             {
-              "instruction": "DROP_ALL_PROOFS"
+              "bucket": {
+                "identifier": {
+                  "type": "String",
+                  "value": "ident"
+                },
+                "type": "Bucket"
+              },
+              "instruction": "BURN_RESOURCE"
             }
           ],
           "type": "object",
@@ -2197,6 +2224,49 @@
                 "key_value_kind": "String",
                 "type": "Map",
                 "value_value_kind": "String"
+              },
+              "schema": {
+                "elements": [
+                  {
+                    "elements": [
+                      {
+                        "element_kind": "Enum",
+                        "elements": [],
+                        "type": "Array"
+                      },
+                      {
+                        "element_kind": "Tuple",
+                        "elements": [],
+                        "type": "Array"
+                      },
+                      {
+                        "element_kind": "Enum",
+                        "elements": [],
+                        "type": "Array"
+                      }
+                    ],
+                    "type": "Tuple"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "U8",
+                        "value": "64"
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "element_kind": "String",
+                    "elements": [],
+                    "type": "Array"
+                  }
+                ],
+                "type": "Tuple"
               }
             }
           ],
@@ -2205,7 +2275,8 @@
             "access_rules",
             "id_type",
             "instruction",
-            "metadata"
+            "metadata",
+            "schema"
           ],
           "properties": {
             "instruction": {
@@ -2216,6 +2287,14 @@
             },
             "id_type": {
               "description": "The type of the non-fungible id to use for this resource. This field is serialized as an `Enum` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "schema": {
+              "description": "The schema that all non-fungibles of this resource must adhere to.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"
@@ -2248,7 +2327,8 @@
             "id_type",
             "initial_supply",
             "instruction",
-            "metadata"
+            "metadata",
+            "schema"
           ],
           "properties": {
             "instruction": {
@@ -2259,6 +2339,14 @@
             },
             "id_type": {
               "description": "The type of the non-fungible id to use for this resource. This field is serialized as an `Enum` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "schema": {
+              "description": "The schema that all non-fungibles of this resource must adhere to.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"

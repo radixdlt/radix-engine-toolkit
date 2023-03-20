@@ -221,6 +221,10 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::clear_auth_zone")]
     ClearAuthZone,
 
+    /// Clears all the proofs of signature virtual badges.
+    #[schemars(example = "crate::example::instruction::clear_signature_proofs")]
+    ClearSignatureProofs,
+
     /// An instruction to create a proof of the entire amount of a given resource address from the
     /// auth zone.
     #[schemars(
@@ -533,6 +537,9 @@ pub enum Instruction {
         /// an `Enum` from the ManifestAstValue model.
         id_type: ManifestAstValue,
 
+        /// The schema that all non-fungibles of this resource must adhere to.
+        schema: ManifestAstValue,
+
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Map` from the ManifestAstValue model.
         metadata: ManifestAstValue,
@@ -552,6 +559,9 @@ pub enum Instruction {
         /// The type of the non-fungible id to use for this resource. This field is serialized as
         /// an `Enum` from the ManifestAstValue model.
         id_type: ManifestAstValue,
+
+        /// The schema that all non-fungibles of this resource must adhere to.
+        schema: ManifestAstValue,
 
         /// The metadata to set on the resource. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Map` from the ManifestAstValue model.
@@ -631,7 +641,7 @@ pub enum Instruction {
 
 impl Instruction {
     pub fn to_ast_instruction(&self, bech32_coder: &Bech32Coder) -> Result<ast::Instruction> {
-        let ast_instruction = match self.clone() {
+        let ast_instruction = match self {
             Self::CallFunction {
                 package_address,
                 blueprint_name,
@@ -642,6 +652,7 @@ impl Instruction {
                 blueprint_name: blueprint_name.to_ast_value(bech32_coder)?,
                 function_name: function_name.to_ast_value(bech32_coder)?,
                 args: arguments
+                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
@@ -655,6 +666,7 @@ impl Instruction {
                 component_address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
+                    .clone()
                     .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
@@ -684,7 +696,7 @@ impl Instruction {
                 ids: ManifestAstValue::Array {
                     element_kind:
                         crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
-                    elements: ids.into_iter().collect::<Vec<_>>(),
+                    elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
@@ -715,7 +727,7 @@ impl Instruction {
                     // can we introduce to catch this?
                     element_kind:
                         crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
-                    elements: ids.into_iter().collect::<Vec<_>>(),
+                    elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
@@ -753,7 +765,7 @@ impl Instruction {
                 ids: ManifestAstValue::Array {
                     element_kind:
                         crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
-                    elements: ids.into_iter().collect::<Vec<_>>(),
+                    elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
@@ -775,6 +787,7 @@ impl Instruction {
                 proof: proof.to_ast_value(bech32_coder)?,
             },
             Self::DropAllProofs => ast::Instruction::DropAllProofs,
+            Self::ClearSignatureProofs => ast::Instruction::ClearSignatureProofs,
             Self::BurnResource { bucket } => ast::Instruction::BurnResource {
                 bucket: bucket.to_ast_value(bech32_coder)?,
             },
@@ -875,20 +888,24 @@ impl Instruction {
             },
             Self::CreateNonFungibleResource {
                 id_type,
+                schema,
                 metadata,
                 access_rules,
             } => ast::Instruction::CreateNonFungibleResource {
                 id_type: id_type.to_ast_value(bech32_coder)?,
+                schema: schema.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
             },
             Self::CreateNonFungibleResourceWithInitialSupply {
                 id_type,
+                schema,
                 metadata,
                 access_rules,
                 initial_supply,
             } => ast::Instruction::CreateNonFungibleResourceWithInitialSupply {
                 id_type: id_type.to_ast_value(bech32_coder)?,
+                schema: schema.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
                 initial_supply: initial_supply.to_ast_value(bech32_coder)?,
@@ -905,14 +922,14 @@ impl Instruction {
                 entries,
             } => ast::Instruction::MintNonFungible {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
-                entries: entries.to_ast_value(bech32_coder)?,
+                args: entries.to_ast_value(bech32_coder)?,
             },
             Self::MintUuidNonFungible {
                 resource_address,
                 entries,
             } => ast::Instruction::MintUuidNonFungible {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
-                entries: entries.to_ast_value(bech32_coder)?,
+                args: entries.to_ast_value(bech32_coder)?,
             },
             Self::AssertAccessRule { access_rule } => ast::Instruction::AssertAccessRule {
                 access_rule: access_rule.to_ast_value(bech32_coder)?,
@@ -1115,6 +1132,7 @@ impl Instruction {
                 proof: ManifestAstValue::from_ast_value(proof, bech32_coder)?,
             },
             ast::Instruction::DropAllProofs => Self::DropAllProofs,
+            ast::Instruction::ClearSignatureProofs => Self::ClearSignatureProofs,
             ast::Instruction::BurnResource { bucket } => Self::BurnResource {
                 bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
             },
@@ -1222,20 +1240,24 @@ impl Instruction {
             },
             ast::Instruction::CreateNonFungibleResource {
                 id_type,
+                schema,
                 metadata,
                 access_rules,
             } => Self::CreateNonFungibleResource {
                 id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
+                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
                 access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
             },
             ast::Instruction::CreateNonFungibleResourceWithInitialSupply {
                 id_type,
+                schema,
                 metadata,
                 access_rules,
                 initial_supply,
             } => Self::CreateNonFungibleResourceWithInitialSupply {
                 id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
+                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
                 access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
                 initial_supply: ManifestAstValue::from_ast_value(initial_supply, bech32_coder)?,
@@ -1250,17 +1272,17 @@ impl Instruction {
             },
             ast::Instruction::MintNonFungible {
                 resource_address,
-                entries,
+                args,
             } => Self::MintNonFungible {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                entries: ManifestAstValue::from_ast_value(entries, bech32_coder)?,
+                entries: ManifestAstValue::from_ast_value(args, bech32_coder)?,
             },
             ast::Instruction::MintUuidNonFungible {
                 resource_address,
-                entries,
+                args,
             } => Self::MintUuidNonFungible {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                entries: ManifestAstValue::from_ast_value(entries, bech32_coder)?,
+                entries: ManifestAstValue::from_ast_value(args, bech32_coder)?,
             },
 
             ast::Instruction::CreateIdentity { access_rule } => Self::CreateIdentity {

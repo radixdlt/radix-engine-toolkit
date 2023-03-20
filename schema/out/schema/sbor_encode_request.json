@@ -768,6 +768,31 @@
               "$ref": "#/definitions/NonFungibleLocalId"
             }
           }
+        },
+        {
+          "description": "Represents a reference to some RENode.",
+          "examples": [
+            {
+              "type": "Reference",
+              "value": "00000000000000000000000000000000000000000000000000000000000000"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Reference"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NodeIdentifier"
+            }
+          }
         }
       ]
     },
@@ -1173,6 +1198,19 @@
           "enum": [
             "NonFungibleLocalId"
           ]
+        },
+        {
+          "description": "Represents a reference to some RENode.",
+          "examples": [
+            {
+              "type": "Reference",
+              "value": "00000000000000000000000000000000000000000000000000000000000000"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Reference"
+          ]
         }
       ]
     },
@@ -1277,10 +1315,10 @@
       ]
     },
     "NodeIdentifier": {
-      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
+      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)",
       "type": "string",
-      "maxLength": 72,
-      "minLength": 72,
+      "maxLength": 31,
+      "minLength": 31,
       "pattern": "[0-9a-fA-F]+"
     },
     "NonFungibleLocalId": {
