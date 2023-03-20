@@ -28,7 +28,7 @@ const MANIFESTS_PATH: &str = "./tests/test_vector/manifest";
 pub fn common_manifests_can_be_converted_to_parsed_manifests() {
     // Arrange
     for file_path in rtm_file_paths(MANIFESTS_PATH) {
-        let manifest_str = std::fs::read_to_string(file_path)
+        let manifest_str = std::fs::read_to_string(&file_path)
             .map(manifest_replace)
             .unwrap();
 
@@ -55,7 +55,7 @@ pub fn common_manifests_can_be_converted_to_parsed_manifests() {
 pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manifests() {
     // Arrange
     for file_path in rtm_file_paths(MANIFESTS_PATH) {
-        let manifest_str = std::fs::read_to_string(file_path)
+        let manifest_str = std::fs::read_to_string(&file_path)
             .map(manifest_replace)
             .unwrap();
 
@@ -81,7 +81,6 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
         let response = ConvertManifestHandler::fulfill(request);
 
         // Assert
-        println!("{:?}", response);
         assert!(matches!(response, Ok(..)));
     }
 }
@@ -144,7 +143,7 @@ fn manifest_replace(string: String) -> String {
             "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
         )
         .replace(
-            "{abi_blob_hash}",
+            "{schema_blob_hash}",
             "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
         )
         .replace("{initial_supply}", "12")

@@ -23,6 +23,7 @@ use scrypto::prelude::{
 };
 
 use crate::model::address::*;
+use crate::model::engine_identifier::NodeIdentifier;
 use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
 
 pub fn value() -> ScryptoSborValue {
@@ -244,5 +245,11 @@ pub fn non_fungible_local_id4() -> ScryptoSborValue {
         value: NonFungibleLocalId::Bytes(
             BytesNonFungibleLocalId::new(vec![0x01, 0x02, 0x03, 0x04]).unwrap(),
         ),
+    }
+}
+
+pub fn reference() -> ScryptoSborValue {
+    ScryptoSborValue::Reference {
+        value: NodeIdentifier([0; OBJECT_ID_LENGTH]),
     }
 }

@@ -17,6 +17,7 @@
 
 use crate::define_kind_enum;
 use crate::model::address::EntityAddress;
+use crate::model::engine_identifier::NodeIdentifier;
 
 use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
 use scrypto::runtime::Own;
@@ -248,5 +249,11 @@ define_kind_enum! {
             #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
             value: NonFungibleLocalId,
         },
+
+        /// Represents a reference to some RENode.
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::reference")]
+        Reference {
+            value: NodeIdentifier
+        }
     }
 }

@@ -201,12 +201,14 @@ define_instruction_visitor! {
 
         visit_create_non_fungible_resource(
             _id_type: &mut crate::model::value::ast::ManifestAstValue,
+            _schema: &mut crate::model::value::ast::ManifestAstValue,
             _metadata: &mut crate::model::value::ast::ManifestAstValue,
             _access_rules: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_non_fungible_resource_with_owner(
             _id_type: &mut crate::model::value::ast::ManifestAstValue,
+            _schema: &mut crate::model::value::ast::ManifestAstValue,
             _metadata: &mut crate::model::value::ast::ManifestAstValue,
             _access_rules: &mut crate::model::value::ast::ManifestAstValue,
             _initial_supply: &mut crate::model::value::ast::ManifestAstValue
@@ -237,6 +239,7 @@ define_instruction_visitor! {
 
         visit_clear_auth_zone(),
         visit_drop_all_proofs(),
+        visit_clear_signature_proofs(),
 
         post_visit()
     }
@@ -687,16 +690,19 @@ pub fn traverse_instruction(
 
         Instruction::CreateNonFungibleResource {
             id_type,
+            schema,
             metadata,
             access_rules,
         } => {
             traverse_value(id_type, value_visitors)?;
+            traverse_value(schema, value_visitors)?;
             traverse_value(metadata, value_visitors)?;
             traverse_value(access_rules, value_visitors)?;
             visit!(
                 instructions_visitors,
                 visit_create_non_fungible_resource,
                 id_type,
+                schema,
                 metadata,
                 access_rules
             )?;
@@ -704,11 +710,13 @@ pub fn traverse_instruction(
 
         Instruction::CreateNonFungibleResourceWithInitialSupply {
             id_type,
+            schema,
             metadata,
             access_rules,
             initial_supply,
         } => {
             traverse_value(id_type, value_visitors)?;
+            traverse_value(schema, value_visitors)?;
             traverse_value(metadata, value_visitors)?;
             traverse_value(access_rules, value_visitors)?;
             traverse_value(initial_supply, value_visitors)?;
@@ -716,6 +724,7 @@ pub fn traverse_instruction(
                 instructions_visitors,
                 visit_create_non_fungible_resource_with_owner,
                 id_type,
+                schema,
                 metadata,
                 access_rules,
                 initial_supply
@@ -770,6 +779,9 @@ pub fn traverse_instruction(
 
         Instruction::DropAllProofs => {
             visit!(instructions_visitors, visit_drop_all_proofs,)?;
+        }
+        Instruction::ClearSignatureProofs => {
+            visit!(instructions_visitors, visit_clear_signature_proofs,)?;
         }
         Instruction::ClearAuthZone => {
             visit!(instructions_visitors, visit_clear_auth_zone,)?;
