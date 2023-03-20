@@ -143,7 +143,7 @@ jobs:
             
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
-            export features=$${{ matrix.build-target.features }}
+            export features=${{ matrix.build-target.features }}
             export features=${features:="default"}
 
             cargo build \
