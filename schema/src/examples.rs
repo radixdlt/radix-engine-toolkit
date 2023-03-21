@@ -135,15 +135,16 @@ pub struct Example {
 pub trait ExampleData<I, O>
 where
     Self: Handler<I, O>,
-    I: Serialize + Clone,
-    O: Serialize + Clone,
+    I: Serialize + Clone + Debug,
+    O: Serialize + Clone + Debug,
 {
     fn description() -> String;
 
     fn example_request() -> I;
 
     fn example_response() -> O {
-        Self::fulfill(Self::example_request()).unwrap()
+        Self::fulfill(Self::example_request())
+            .expect(format!("Failed. Request: {:?}", Self::example_request()).as_str())
     }
 
     fn request_type_name() -> String {
@@ -387,7 +388,7 @@ impl ExampleData<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressH
 
     fn example_request() -> DecodeAddressRequest {
         DecodeAddressRequest {
-            address: "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqd60rqz".into(),
+            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k".into(),
         }
     }
 }

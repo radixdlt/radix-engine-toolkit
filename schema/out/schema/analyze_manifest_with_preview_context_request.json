@@ -146,7 +146,7 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               }
             },
@@ -167,7 +167,7 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               }
             },
@@ -188,7 +188,7 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               }
             },
@@ -209,7 +209,7 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               }
             }
@@ -275,7 +275,7 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -292,7 +292,7 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -304,7 +304,7 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -316,7 +316,7 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -380,7 +380,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -394,7 +394,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -447,7 +447,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -465,7 +465,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -532,7 +532,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -555,7 +555,7 @@
                 "type": "Bucket"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -642,14 +642,14 @@
             {
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
             {
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -686,7 +686,7 @@
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -697,7 +697,7 @@
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -748,7 +748,7 @@
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -764,7 +764,7 @@
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -925,7 +925,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -939,7 +939,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -992,7 +992,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -1010,7 +1010,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -1077,7 +1077,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             },
@@ -1100,7 +1100,7 @@
                 "type": "Proof"
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -1520,7 +1520,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "SET_METADATA",
@@ -1597,7 +1597,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "REMOVE_METADATA",
@@ -1644,7 +1644,7 @@
             {
               "instruction": "SET_PACKAGE_ROYALTY_CONFIG",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               },
               "royalty_config": {
@@ -1691,7 +1691,7 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
@@ -1749,7 +1749,7 @@
             {
               "instruction": "CLAIM_PACKAGE_ROYALTY",
               "package_address": {
-                "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+                "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
                 "type": "Address"
               }
             }
@@ -1781,7 +1781,7 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "CLAIM_COMPONENT_ROYALTY"
@@ -1814,7 +1814,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
                 "type": "Address"
               },
               "instruction": "SET_METHOD_ACCESS_RULE",
@@ -1893,7 +1893,7 @@
               },
               "instruction": "MINT_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
                 "type": "Address"
               }
             }
@@ -1941,7 +1941,7 @@
               },
               "instruction": "MINT_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
                 "type": "Address"
               }
             }
@@ -2015,7 +2015,7 @@
               },
               "instruction": "MINT_UUID_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz8qety",
+                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
                 "type": "Address"
               }
             }
@@ -3347,15 +3347,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],
@@ -3507,7 +3507,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -3521,7 +3521,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -3535,7 +3535,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -3549,7 +3549,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -4102,15 +4102,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],
@@ -4214,7 +4214,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -4228,7 +4228,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -4242,7 +4242,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"
@@ -4256,7 +4256,7 @@
                 }
               },
               "resource_address": {
-                "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs3ydc4g",
+                "address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqfkl4uk",
                 "type": "Address"
               },
               "type": "NonFungibleGlobalId"

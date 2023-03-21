@@ -44,7 +44,8 @@
       "description": "An enum describing the different entity types in the Radix Engine and Scrypto",
       "type": "string",
       "enum": [
-        "Resource",
+        "FungibleResource",
+        "NonFungibleResource",
         "Package",
         "NormalComponent",
         "AccountComponent",
