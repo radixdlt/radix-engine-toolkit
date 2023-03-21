@@ -143,12 +143,12 @@ jobs:
             
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
-            export features=$${{ matrix.build-target.features }}
+            export features=${{ matrix.build-target.features }}
             export features=${features:="default"}
 
             cargo build \
               --target ${{ matrix.build-target.target-triple }} \
-              --release --features jni
+              --release --features $features
 
             unset $LINKER_ENVIRONMENT_VARIABLE
             export CC="/usr/local/opt/llvm/bin/clang"
