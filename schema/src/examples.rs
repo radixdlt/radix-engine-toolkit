@@ -489,6 +489,26 @@ impl
     }
 }
 
+impl
+    ExampleData<
+        DeriveBabylonAddressFromOlympiaAddressRequest,
+        DeriveBabylonAddressFromOlympiaAddressResponse,
+    > for DeriveBabylonAddressFromOlympiaAddressHandler
+{
+    fn description() -> String {
+        r#"Derives the Babylon account address associated with the given Olympia account address"#
+            .to_owned()
+    }
+
+    fn example_request() -> DeriveBabylonAddressFromOlympiaAddressRequest {
+        DeriveBabylonAddressFromOlympiaAddressRequest {
+            network_id: 0x01,
+            olympia_account_address:
+                "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842".to_owned(),
+        }
+    }
+}
+
 impl ExampleData<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     for KnownEntityAddressesHandler
 {

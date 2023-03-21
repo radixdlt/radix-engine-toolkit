@@ -2298,6 +2298,44 @@ This document contains examples and descriptions of the different requests and r
 ```
 </details>
 
+## Derive Babylon Address From Olympia Address
+
+| Function Name     | `derive_babylon_address_from_olympia_address` |
+| ----------------- | :----------------- |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_deriveBabylonAddressFromOlympiaAddress` |
+| Functionality     | Derives the Babylon account address associated with the given Olympia account address   |
+| Required Features | default   |
+| Request Type      | `DeriveBabylonAddressFromOlympiaAddressRequest` |
+| Response Type     | `DeriveBabylonAddressFromOlympiaAddressResponse` |
+
+<details>
+    <summary>Request Example</summary>
+    
+```json
+{
+  "network_id": "1",
+  "olympia_account_address": "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842"
+}
+```
+</details>
+
+<details>
+    <summary>Response Example</summary>
+    
+```json
+{
+  "babylon_account_address": {
+    "type": "ComponentAddress",
+    "address": "account_rdx1pzg7l46zndnsluatt7dvyvvjuynzal3wa8rylqggh8xsq5pwrq"
+  },
+  "public_key": {
+    "curve": "EcdsaSecp256k1",
+    "public_key": "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c"
+  }
+}
+```
+</details>
+
 ## Derive Non Fungible Global Id From Public Key
 
 | Function Name     | `derive_non_fungible_global_id_from_public_key` |
