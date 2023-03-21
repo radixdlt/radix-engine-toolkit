@@ -25,7 +25,7 @@ name = "radix_engine_toolkit"
 crate-type = ["staticlib", "cdylib"]
 
 [features]
-default = []
+default = ["jni", "radix-engine"]
 jni = ["jni/default"]
 radix-engine = ["radix-engine-toolkit/radix-engine"]
 
