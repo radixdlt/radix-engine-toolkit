@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeriveBabylonAddressFromOlympiaAddressResponse",
+  "description": "The response form [`DeriveBabylonAddressFromOlympiaAddressRequest`] requests",
+  "type": "object",
+  "required": [
+    "babylon_account_address",
+    "public_key"
+  ],
+  "properties": {
+    "babylon_account_address": {
+      "description": "The Babylon account address associated with the Olympia address.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/EntityAddress"
+        }
+      ]
+    },
+    "public_key": {
+      "description": "The public key associated with the Olympia account address.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/PublicKey"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "EntityAddress": {
+      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
+      "oneOf": [
+        {
+          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "type": "ComponentAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ComponentAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+              "type": "ResourceAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ResourceAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "type": "PackageAddress"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PackageAddress"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "PublicKey": {
+      "description": "A discriminated union of the possible public keys used by Scrypto and the Radix Engine.",
+      "oneOf": [
+        {
+          "description": "A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string representing a public key from the ECDSA Secp256k1 elliptic curve.",
+          "examples": [
+            {
+              "curve": "EcdsaSecp256k1",
+              "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "curve",
+            "public_key"
+          ],
+          "properties": {
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EcdsaSecp256k1"
+              ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        },
+        {
+          "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
+          "examples": [
+            {
+              "curve": "EddsaEd25519",
+              "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "curve",
+            "public_key"
+          ],
+          "properties": {
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EddsaEd25519"
+              ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

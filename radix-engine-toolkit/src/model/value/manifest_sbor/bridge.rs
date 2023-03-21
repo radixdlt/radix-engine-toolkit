@@ -204,7 +204,8 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>>>()?,
             },
 
-            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST change
+            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST
+            // change
             Self::Address { address } => ManifestValue::Custom {
                 value: ManifestCustomValue::Address(match address {
                     EntityAddress::ComponentAddress { address } => {
@@ -219,7 +220,8 @@ impl ManifestSborValue {
                 }),
             },
 
-            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST change
+            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST
+            // change
             Self::Decimal { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(ManifestDecimal(checked_copy_u8_slice(
                     value.to_vec(),

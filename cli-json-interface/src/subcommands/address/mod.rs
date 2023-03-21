@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod babylon_address_from_olympia_address;
 mod decode;
 mod encode;
 mod known_addresses;
@@ -29,6 +30,9 @@ pub enum Address {
     KnownAddresses(known_addresses::KnownAddresses),
     VirtualAccountAddress(virtual_account_address::VirtualAccountAddress),
     VirtualIdentityAddress(virtual_identity_address::VirtualIdentityAddress),
+    BabylonAccountAddressFromOlympiaAddress(
+        babylon_address_from_olympia_address::BabylonAddressFromOlympiaAddress,
+    ),
 }
 
 impl Address {
@@ -39,6 +43,7 @@ impl Address {
             Self::KnownAddresses(cmd) => cmd.run(out),
             Self::VirtualAccountAddress(cmd) => cmd.run(out),
             Self::VirtualIdentityAddress(cmd) => cmd.run(out),
+            Self::BabylonAccountAddressFromOlympiaAddress(cmd) => cmd.run(out),
         }
     }
 }

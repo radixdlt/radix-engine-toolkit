@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeriveBabylonAddressFromOlympiaAddressRequest",
+  "description": "Given an Olympia account address, this converts it from an Olympia account address to a Babylon ECDSA Secp256k1 virtual account address and reveals the underlying public key of the Olympia account.",
+  "type": "object",
+  "required": [
+    "network_id",
+    "olympia_account_address"
+  ],
+  "properties": {
+    "network_id": {
+      "description": "An unsigned 8 bit integer serialized as a string which represents the ID of the network that the address will be used on. The primary use of this is for any Bech32m encoding or decoding of addresses",
+      "type": "string",
+      "pattern": "[0-9]+"
+    },
+    "olympia_account_address": {
+      "description": "A string of the address on the Olympia network",
+      "type": "string"
+    }
+  }
+}

@@ -196,6 +196,11 @@ pub enum Error {
 
     /// An error emitted when a transaction failed.
     TransactionRejectionOrCommitFailure,
+
+    /// An error emitted when the passed address is not believed to be an Olympia address.
+    NotAnOlympiaAddress {
+        address: String,
+    },
 }
 
 impl Display for Error {
