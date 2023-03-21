@@ -167,7 +167,10 @@ impl EntityAddress {
                 scrypto::prelude::ComponentAddress::Validator(_) => EntityType::Validator,
             },
             Self::ResourceAddress { address } => match address.address {
-                scrypto::prelude::ResourceAddress::Normal(_) => EntityType::Resource,
+                scrypto::prelude::ResourceAddress::Fungible(_) => EntityType::FungibleResource,
+                scrypto::prelude::ResourceAddress::NonFungible(_) => {
+                    EntityType::NonFungibleResource
+                }
             },
             Self::PackageAddress { address } => match address.address {
                 scrypto::prelude::PackageAddress::Normal(_) => EntityType::Package,

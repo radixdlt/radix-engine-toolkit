@@ -583,15 +583,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],
@@ -1075,15 +1075,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],
@@ -1975,15 +1975,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],
@@ -2492,15 +2492,15 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1qtkryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0tsrdcazt",
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
               "type": "Address"
             },
             {
-              "address": "resource_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqy99qqm",
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
               "type": "Address"
             },
             {
-              "address": "package_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqzrhqe8",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             }
           ],

@@ -15,8 +15,8 @@ radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 convert_case = "0.6.0"
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a2cc02494" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a2cc02494" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a2cc02494", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a2cc02494", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-a2cc02494" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-c8d9238c4" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-c8d9238c4" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-c8d9238c4", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-c8d9238c4", package = "transaction" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-c8d9238c4" }
