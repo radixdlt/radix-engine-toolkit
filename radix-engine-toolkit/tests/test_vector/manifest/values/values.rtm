@@ -56,7 +56,7 @@ CALL_METHOD
     Bucket("temp1")
     Proof("temp2")
     Expression("ENTIRE_WORKTOP")
-    Blob("a710f0959d8e139b3c1ca74ac4fcb9a95ada2c82e7f563304c5487e0117095c0")
+    Blob("5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b")
 
     Decimal("1.2")
     PreciseDecimal("1.2")
