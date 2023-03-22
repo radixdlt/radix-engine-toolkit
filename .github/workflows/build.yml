@@ -148,9 +148,12 @@ jobs:
             export features=${{ matrix.build-target.features }}
             export features=${features:="default"}
 
-            cargo build \
+            cargo +nightly build \
+              -Z build-std=std,panic_abort \
+              -Z build-std-features=panic_immediate_abort \
               --target ${{ matrix.build-target.target-triple }} \
-              --release --features $features
+              --features $features \
+              --release
 
             unset $LINKER_ENVIRONMENT_VARIABLE
             export CC="/usr/local/opt/llvm/bin/clang"
