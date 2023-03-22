@@ -20,84 +20,84 @@ jobs:
       matrix:
         build-target:
           # native-json-interface Crate
-          - crate: native-json-interface
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: x86_64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: aarch64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: aarch64-apple-ios-sim
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-            features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-apple-darwin
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-apple-darwin
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-apple-ios-sim
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-pc-windows-gnu
+          #   custom-linker: ""
+          #   custom-compiler: x86_64-w64-mingw32-gcc
+          #   custom-archiver: x86_64-w64-mingw32-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   custom-linker: x86_64-unknown-linux-gnu-gcc
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   custom-linker: aarch64-unknown-linux-gnu-gcc
+          #   custom-compiler: aarch64-unknown-linux-gnu-gcc
+          #   custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: i686-unknown-linux-gnu
+          #   custom-linker: i686-unknown-linux-gnu-gcc
+          #   custom-compiler: i686-unknown-linux-gnu-gcc
+          #   custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          #   features: "jni,radix-engine"
           - crate: native-json-interface
             target-triple: wasm32-unknown-unknown
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
             features: ""
-          - crate: native-json-interface
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-            features: "jni,radix-engine"
-          - crate: native-json-interface
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-            features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: aarch64-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: armv7-linux-androideabi
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          #   features: "jni,radix-engine"
+          # - crate: native-json-interface
+          #   target-triple: i686-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          #   features: "jni,radix-engine"
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -148,9 +148,12 @@ jobs:
             
             if [ -z "${{ matrix.build-target.features }}" ]; 
             then 
+              echo "No special feature handling"
               export features="" 
             else 
               export features="--no-default-features --features ${{ matrix.build-target.features }}"
+              echo "Special feature handling"
+              echo $features
             fi
 
             cargo +nightly build \
