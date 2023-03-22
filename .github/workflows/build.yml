@@ -146,8 +146,9 @@ jobs:
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
             
-            if [ "${{ matrix.build-target.features }}" = "" ]; then 
-              export features=""
+            if [ -z "${{ matrix.build-target.features }}" ]; 
+            then 
+              export features="" 
             else 
               export features="--no-default-features --features ${{ matrix.build-target.features }}"
             fi
