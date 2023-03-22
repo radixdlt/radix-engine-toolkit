@@ -149,7 +149,7 @@ jobs:
             if [ "${{ matrix.build-target.features }}" = "" ]; then 
               export features=""
             else 
-              export features="--no-default-features --features \"${{ matrix.build-target.features }}\""
+              export features="--no-default-features --features ${{ matrix.build-target.features }}"
             fi
 
             cargo build \
