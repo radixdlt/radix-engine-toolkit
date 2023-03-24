@@ -40,20 +40,20 @@ CREATE_NON_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY
         # a vault that they control. This behavior is permanent and can not be changed by anybody
         # as the mutability is a `Enum("AccessRule::DenyAll")`.
         # 
-        #        ┌ We Are customizing the "Withdraw" behavior of the resource
-        #        │                       
-        #        │                       ┌ The resource may be withdrawn by anybody who has it
-        #        │                       │                 
-        #        │                       │                 ┌ The withdraw behavior (the resource is withdrawable by
-        #        │                       │                 │ by anybody who has the resource) is permanent and can't 
-        #        │                       │                 │ be changed in the future.
-        #        │                       │                 │
+        #         ┌ We Are customizing the "Withdraw" behavior of the resource
+        #         │                       
+        #         │                       ┌ The resource may be withdrawn by anybody who has it
+        #         │                       │                 
+        #         │                       │                 ┌ The withdraw behavior (the resource is withdrawable by
+        #         │                       │                 │ by anybody who has the resource) is permanent and can't 
+        #         │                       │                 │ be changed in the future.
+        #         │                       │                 │
         Enum("ResourceMethodAuthKey::Withdraw"), Tuple(Enum("AccessRule::AllowAll"), Enum("AccessRule::DenyAll")),
         Enum("ResourceMethodAuthKey::Deposit"), Tuple(Enum("AccessRule::AllowAll"), Enum("AccessRule::DenyAll"))
     )
     Map<NonFungibleLocalId, Tuple>(
         NonFungibleLocalId("${non_fungible_local_id}"),
-        Tuple("Hello World", Decimal("12"))
+        Tuple(Tuple("Hello World", Decimal("12")))
     );
 
 # Depositing the entirety of the initial supply of the newly created resource into our account 

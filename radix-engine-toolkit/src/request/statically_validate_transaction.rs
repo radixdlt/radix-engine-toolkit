@@ -51,6 +51,7 @@ pub struct StaticallyValidateTransactionRequest {
 /// The response from [`StaticallyValidateTransactionRequest`].
 #[serializable]
 #[serde(tag = "validity")]
+#[derive(PartialEq, Eq)]
 pub enum StaticallyValidateTransactionResponse {
     Valid,
     Invalid { error: String },
