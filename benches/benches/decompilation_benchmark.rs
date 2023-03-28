@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use benches::{Invoke, RadixEngineToolkit};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use native_transaction::{manifest::decompile, model::NotarizedTransaction};
+use native_transaction::{
+    manifest::{compile, decompile},
+    model::NotarizedTransaction,
+};
 use radix_engine_toolkit::model::transaction::InstructionKind;
 use radix_engine_toolkit::request::*;
 use scrypto::{network::NetworkDefinition, prelude::manifest_decode};
@@ -31,6 +34,23 @@ fn decompile_intent_natively_benchmarks(c: &mut Criterion) {
             })
         })
     });
+    group.bench_function(
+        "SBOR Decode to NotarizedTransaction, Decompile, then Recompile",
+        |b| {
+            b.iter(|| {
+                black_box({
+                    let transaction =
+                        manifest_decode::<NotarizedTransaction>(&compiled_transaction).unwrap();
+                    let manifest = decompile(
+                        &transaction.signed_intent.intent.manifest.instructions,
+                        &NetworkDefinition::simulator(),
+                    )
+                    .unwrap();
+                    compile(&manifest, &NetworkDefinition::simulator(), vec![])
+                })
+            })
+        },
+    );
 
     group.finish();
 }
