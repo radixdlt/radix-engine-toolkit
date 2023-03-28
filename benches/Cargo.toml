@@ -1,0 +1,30 @@
+[package]
+name = "benches"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[workspace]
+members = []
+
+[dependencies]
+serde = "1.0.159"
+serde_json = "1.0.95"
+
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+
+[dev-dependencies]
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-2b019f93" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-2b019f93", package = "transaction" }
+criterion = "0.4.0"
+hex = "0.4.3"
+
+[profile.bench]
+debug = true
+# lto = true
+# codegen-units = 1
+# opt-level = 3
+
+[[bench]]
+name = "decompilation_benchmark"
+harness = false
