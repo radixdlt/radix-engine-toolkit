@@ -3,6 +3,7 @@
         "Cargo.toml",
         "native-json-interface/Cargo.toml",
         "cli-json-interface/Cargo.toml",
+        "benches/Cargo.toml",
     ],
     "cSpell.words": [
         "bech",
