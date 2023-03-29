@@ -40,7 +40,7 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         args: &mut Option<Vec<ManifestAstValue>>,
     ) -> Result<()> {
         // Checking for instructions that create proofs from accounts. Since all that is of interest
-        // to us is the resource address then only the first argument needs to be analyzed
+        // to us is the resource address then only the first argument needs to be analyzed.
         let args = args.clone();
         match (
             component_address,
