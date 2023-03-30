@@ -17,7 +17,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::model::address::{EntityAddress, NetworkAwarePackageAddress};
 use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
 use crate::model::instruction::Instruction;
@@ -27,7 +27,7 @@ use crate::visitor::{
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
-use radix_engine::transaction::TransactionReceipt;
+use radix_engine::transaction::{TransactionReceipt, TransactionResult};
 use radix_engine::types::{scrypto_decode, ComponentAddress};
 use toolkit_derive::serializable;
 
@@ -110,6 +110,9 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     /// deposits which are guaranteed by the static analysis while the ones referred to as
     /// "estimate" are deposits which are primarily obtained from the context of the previews
     pub account_deposits: Vec<AccountDeposit>,
+
+    /// The set of entities which were newly created in this transaction.
+    pub created_entities: CreatedEntities,
 }
 
 /// The set of addresses encountered in the manifest
@@ -125,6 +128,26 @@ pub struct EncounteredAddresses {
     pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
 
     /// The set of package addresses encountered in the manifest
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+}
+
+/// The set of newly created entities
+#[serializable]
+#[derive(PartialEq, PartialOrd, Eq, Ord)]
+pub struct CreatedEntities {
+    /// The set of addresses of newly created components.
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+
+    /// The set of addresses of newly created resources.
+    #[schemars(with = "BTreeSet<EntityAddress>")]
+    #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
+    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+
+    /// The set of addresses of newly created packages.
     #[schemars(with = "BTreeSet<EntityAddress>")]
     #[serde_as(as = "BTreeSet<serde_with::TryFromInto<EntityAddress>>")]
     pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
@@ -273,13 +296,18 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             }
         }?;
 
+        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
+        let commit = match receipt.result {
+            TransactionResult::Commit(commit) => Ok(commit),
+            _ => Err(Error::TransactionNotCommitted),
+        }?;
+
         // Setting up the visitors that will be used on the instructions
         let mut account_interactions_visitor = AccountInteractionsInstructionVisitor::default();
         let mut account_withdraws_visitor = AccountWithdrawsInstructionVisitor::default();
         let mut account_proofs_visitor = AccountProofsInstructionVisitor::default();
         let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
         let mut account_deposits_visitor = {
-            let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
             let resource_changes = receipt
                 .execution_trace
                 .resource_changes
@@ -325,6 +353,32 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             },
             account_withdraws: account_withdraws_visitor.0,
             account_deposits: account_deposits_visitor.deposits,
+            created_entities: CreatedEntities {
+                component_addresses: commit
+                    .new_component_addresses()
+                    .iter()
+                    .map(|address| NetworkAwareComponentAddress {
+                        address: *address,
+                        network_id: request.network_id,
+                    })
+                    .collect(),
+                resource_addresses: commit
+                    .new_resource_addresses()
+                    .iter()
+                    .map(|address| NetworkAwareResourceAddress {
+                        address: *address,
+                        network_id: request.network_id,
+                    })
+                    .collect(),
+                package_addresses: commit
+                    .new_package_addresses()
+                    .iter()
+                    .map(|address| NetworkAwarePackageAddress {
+                        address: *address,
+                        network_id: request.network_id,
+                    })
+                    .collect(),
+            },
         })
     }
 

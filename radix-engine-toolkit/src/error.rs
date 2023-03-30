@@ -201,6 +201,9 @@ pub enum Error {
     NotAnOlympiaAddress {
         address: String,
     },
+
+    /// Transaction was not committed.
+    TransactionNotCommitted,
 }
 
 impl Display for Error {
