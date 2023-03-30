@@ -8,6 +8,7 @@
     "account_proof_resources",
     "account_withdraws",
     "accounts_requiring_auth",
+    "created_entities",
     "encountered_addresses"
   ],
   "properties": {
@@ -48,6 +49,14 @@
       "items": {
         "$ref": "#/definitions/AccountDeposit"
       }
+    },
+    "created_entities": {
+      "description": "The set of entities which were newly created in this transaction.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CreatedEntities"
+        }
+      ]
     }
   },
   "definitions": {
@@ -502,6 +511,41 @@
       "properties": {
         "component_address": {
           "$ref": "#/definitions/EntityAddress"
+        }
+      }
+    },
+    "CreatedEntities": {
+      "description": "The set of newly created entities",
+      "type": "object",
+      "required": [
+        "component_addresses",
+        "package_addresses",
+        "resource_addresses"
+      ],
+      "properties": {
+        "component_addresses": {
+          "description": "The set of addresses of newly created components.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "resource_addresses": {
+          "description": "The set of addresses of newly created resources.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
+        },
+        "package_addresses": {
+          "description": "The set of addresses of newly created packages.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EntityAddress"
+          },
+          "uniqueItems": true
         }
       }
     }

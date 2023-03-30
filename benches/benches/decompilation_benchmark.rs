@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use benches::{Invoke, RadixEngineToolkit};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use native_transaction::{
@@ -59,8 +57,6 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     let compiled_transaction = hex::decode(include_str!("./transaction.hex")).unwrap();
 
     let mut group = c.benchmark_group("Decompile Intent with Toolkit Core");
-    group.sample_size(10);
-
     group.bench_function("Decompile Unknown Intent to String", |b| {
         b.iter(|| {
             black_box({
@@ -169,8 +165,7 @@ fn decompile_intent_with_toolkit_wrapper_benchmarks(c: &mut Criterion) {
 
 criterion_group!(
     name = benches;
-    config = Criterion::default().measurement_time(Duration::from_secs(10));
-    // config = Criterion::default();
+    config = Criterion::default();
     targets = decompile_intent_natively_benchmarks, decompile_intent_with_toolkit_wrapper_benchmarks, decompile_intent_with_core_toolkit_benchmarks
 );
 criterion_main!(benches);
