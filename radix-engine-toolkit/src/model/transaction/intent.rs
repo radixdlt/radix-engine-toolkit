@@ -15,13 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::{scrypto_decode, scrypto_encode};
-use serializable::serializable;
+use scrypto::prelude::{manifest_decode, manifest_encode};
+use toolkit_derive::serializable;
 
-use crate::address::Bech32Coder;
+use crate::error::Error;
 use crate::error::Result;
+use crate::model::address::Bech32Coder;
+use crate::model::transaction::InstructionKind;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
-use crate::{CompilableIntent, Error, InstructionKind};
+use crate::traits::CompilableIntent;
 use native_transaction::model as native;
 
 // =================
@@ -31,6 +33,7 @@ use native_transaction::model as native;
 /// A transaction intent which is made of the header containing the transaction metadata and a
 /// manifest consisting of the instructions and blobs.
 #[serializable]
+#[schemars(example = "crate::example::transaction::transaction_structure::intent")]
 pub struct TransactionIntent {
     /// A transaction header of the transaction metadata.
     pub header: TransactionHeader,
@@ -46,7 +49,7 @@ pub struct TransactionIntent {
 impl CompilableIntent for TransactionIntent {
     fn compile(&self) -> Result<Vec<u8>> {
         self.to_native_transaction_intent()
-            .and_then(|intent| scrypto_encode(&intent).map_err(Error::from))
+            .and_then(|intent| manifest_encode(&intent).map_err(Error::from))
     }
 
     fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
@@ -54,7 +57,7 @@ impl CompilableIntent for TransactionIntent {
         Self: Sized,
         T: AsRef<[u8]>,
     {
-        scrypto_decode(data.as_ref())
+        manifest_decode(data.as_ref())
             .map_err(Error::from)
             .and_then(|decoded| Self::from_native_transaction_intent(&decoded, instructions_kind))
     }

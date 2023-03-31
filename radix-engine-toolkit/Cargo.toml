@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit"
-version = "0.8.1"
+version = "0.9.0"
 edition = "2021"
 build = "build.rs"
 
@@ -13,14 +13,16 @@ serde_with = { version = "2.2.0", features = ["hex"] }
 schemars = { version = "0.8.11", features = ["preserve_order"] }
 
 # An attribute macro to setup a model to be serializable and also to have a JSON schema. 
-serializable = { path = "../serializable" }
+toolkit-derive = { path = "../toolkit-derive" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-da72287e6" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-da72287e6" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-da72287e6", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-da72287e6", package = "transaction" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "betanet-v2-da72287e6" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", optional = true }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
@@ -30,6 +32,14 @@ hex = { version = "0.4.3", default-features = false }
 # don't expose through the Scrypto Bech32 encoder and decoder)
 bech32 = { version = "0.9.0", default-features = false }
 
+# Used for more powerful declarative macros
+paste = { version = "1.0.11" }
+serde_json = "1.0.91"
+
 [dev-dependencies]
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
+
+[features]
+default = ["radix-engine"]
+radix-engine = ["dep:radix-engine"]

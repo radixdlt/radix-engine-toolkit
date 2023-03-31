@@ -15,11 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::request::Handler;
-use crate::value::Value;
-use crate::{traverse_value, ValueAliasingVisitor};
-use serializable::serializable;
+use crate::error::{Error, Result};
+use crate::model::value::manifest_sbor::ManifestSborValue;
+use crate::model::value::scrypto_sbor::ScryptoSborValue;
+use crate::request::traits::Handler;
+use scrypto::prelude::{
+    manifest_decode, scrypto_decode, ManifestValue, ScryptoValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
+    SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
+};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -48,9 +52,10 @@ pub struct SborDecodeRequest {
 
 /// The response from the [`SborDecodeRequest`].
 #[serializable]
-pub struct SborDecodeResponse {
-    /// A value representing the SBOR decoded form of the passed SBOR buffer.
-    pub value: Value,
+#[serde(tag = "type", content = "value")]
+pub enum SborDecodeResponse {
+    ScryptoSbor(ScryptoSborValue),
+    ManifestSbor(ManifestSborValue),
 }
 
 // ===============
@@ -65,23 +70,46 @@ impl Handler<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
     }
 
     fn handle(request: &SborDecodeRequest) -> Result<SborDecodeResponse> {
-        Value::decode(&request.encoded_value, request.network_id)
-            .map(|value| SborDecodeResponse { value })
+        match request.encoded_value.first().copied() {
+            Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+                scrypto_decode::<ScryptoValue>(&request.encoded_value)
+                    .map(|scrypto_value| {
+                        ScryptoSborValue::from_scrypto_sbor_value(
+                            &scrypto_value,
+                            request.network_id,
+                        )
+                    })
+                    .map(SborDecodeResponse::ScryptoSbor)
+                    .map_err(Error::from)
+            }
+            Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+                manifest_decode::<ManifestValue>(&request.encoded_value)
+                    .map_err(Error::from)
+                    .and_then(|manifest_value| {
+                        ManifestSborValue::from_manifest_sbor_value(
+                            &manifest_value,
+                            request.network_id,
+                        )
+                        .map_err(Error::from)
+                    })
+                    .map(SborDecodeResponse::ManifestSbor)
+                    .map_err(Error::from)
+            }
+            Some(p) => Err(Error::InvalidSborPrefix {
+                expected: vec![
+                    SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
+                    MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
+                ],
+                found: p,
+            }),
+            None => Err(Error::EmptyPayloadError),
+        }
     }
 
     fn post_process(
         _: &SborDecodeRequest,
-        mut response: SborDecodeResponse,
+        response: SborDecodeResponse,
     ) -> Result<SborDecodeResponse> {
-        // Visitors
-        let mut aliasing_visitor = ValueAliasingVisitor::default();
-
-        // Traverse value with visitors
-        traverse_value(&mut response.value, &mut [&mut aliasing_visitor])?;
-
-        // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
-        // else needs to be done here.
-
         Ok(response)
     }
 }

@@ -15,14 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::traits::Handler;
 use crate::error::Result;
-use crate::model::transaction::SignedTransactionIntent;
-use crate::request::Handler;
+use crate::model::instruction::Instruction;
+use crate::model::transaction::{InstructionKind, InstructionList, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
-use crate::{
-    traverse_instruction, Instruction, InstructionKind, InstructionList, ValueAliasingVisitor,
-};
-use serializable::serializable;
+use crate::visitor::{traverse_instruction, ValueAliasingVisitor};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition

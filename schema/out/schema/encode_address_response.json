@@ -6,6 +6,12 @@
   "oneOf": [
     {
       "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
+      "examples": [
+        {
+          "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+          "type": "ComponentAddress"
+        }
+      ],
       "type": "object",
       "required": [
         "address",
@@ -25,6 +31,12 @@
     },
     {
       "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
+      "examples": [
+        {
+          "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+          "type": "ResourceAddress"
+        }
+      ],
       "type": "object",
       "required": [
         "address",
@@ -44,6 +56,12 @@
     },
     {
       "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
+      "examples": [
+        {
+          "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+          "type": "PackageAddress"
+        }
+      ],
       "type": "object",
       "required": [
         "address",

@@ -16,13 +16,14 @@
 // under the License.
 
 use crate::error::Result;
-use crate::transaction::NotarizedTransaction;
+use crate::model::transaction::{InstructionKind, NotarizedTransaction};
+use crate::traits::CompilableIntent;
 use native_transaction::validation::{
     NotarizedTransactionValidator, TestIntentHashManager, TransactionValidator, ValidationConfig,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
-use crate::{CompilableIntent, Handler};
+use crate::request::traits::Handler;
 
 // =================
 // Model Definition
@@ -50,6 +51,7 @@ pub struct StaticallyValidateTransactionRequest {
 /// The response from [`StaticallyValidateTransactionRequest`].
 #[serializable]
 #[serde(tag = "validity")]
+#[derive(PartialEq, Eq)]
 pub enum StaticallyValidateTransactionResponse {
     Valid,
     Invalid { error: String },
@@ -75,7 +77,7 @@ impl Handler<StaticallyValidateTransactionRequest, StaticallyValidateTransaction
     ) -> Result<StaticallyValidateTransactionResponse> {
         let notarized_transaction = NotarizedTransaction::decompile(
             &request.compiled_notarized_intent,
-            crate::InstructionKind::String,
+            InstructionKind::String,
         )?;
 
         let intent_hash_manager = TestIntentHashManager::new();

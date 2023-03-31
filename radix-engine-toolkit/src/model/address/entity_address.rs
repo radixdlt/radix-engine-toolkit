@@ -17,10 +17,12 @@
 
 use crate::error::{Error, Result};
 use crate::model::address::network_aware_address::*;
-use scrypto::radix_engine_interface::address::EntityType;
-use serializable::serializable;
+use crate::model::address::Bech32Coder;
+use scrypto::address::EntityType;
+use scrypto::runtime::Address;
 use std::fmt::Display;
 use std::str::FromStr;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -30,9 +32,11 @@ use std::str::FromStr;
 /// string.
 #[serializable]
 #[serde(tag = "type")]
+#[derive(Hash, Eq, PartialEq)]
 pub enum EntityAddress {
     /// Represents a Bech32m encoded human-readable component address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_component_address")]
     ComponentAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -41,6 +45,7 @@ pub enum EntityAddress {
 
     /// Represents a Bech32m encoded human-readable resource address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_resource_address")]
     ResourceAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
@@ -49,11 +54,86 @@ pub enum EntityAddress {
 
     /// Represents a Bech32m encoded human-readable package address. This address is serialized
     /// as a human-readable bech32m encoded string.
+    #[schemars(example = "crate::example::address::entity_address::entity_package_address")]
     PackageAddress {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
         address: NetworkAwarePackageAddress,
     },
+}
+
+// ===========
+// Conversion
+// ===========
+
+impl From<EntityAddress> for Address {
+    fn from(value: EntityAddress) -> Self {
+        match value {
+            EntityAddress::ComponentAddress { address } => Self::Component(address.address),
+            EntityAddress::ResourceAddress { address } => Self::Resource(address.address),
+            EntityAddress::PackageAddress { address } => Self::Package(address.address),
+        }
+    }
+}
+
+impl TryFrom<NetworkAwareComponentAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwareComponentAddress) -> Result<Self> {
+        Ok(Self::ComponentAddress { address })
+    }
+}
+
+impl TryFrom<NetworkAwarePackageAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwarePackageAddress) -> Result<Self> {
+        Ok(Self::PackageAddress { address })
+    }
+}
+
+impl TryFrom<NetworkAwareResourceAddress> for EntityAddress {
+    type Error = Error;
+
+    fn try_from(address: NetworkAwareResourceAddress) -> Result<Self> {
+        Ok(Self::ResourceAddress { address })
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwareComponentAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::ComponentAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwareResourceAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::ResourceAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
+}
+
+impl TryFrom<EntityAddress> for NetworkAwarePackageAddress {
+    type Error = Error;
+
+    fn try_from(value: EntityAddress) -> Result<Self> {
+        if let EntityAddress::PackageAddress { address } = value {
+            Ok(address)
+        } else {
+            Err(Error::InvalidConversion)
+        }
+    }
 }
 
 // ===============
@@ -87,7 +167,10 @@ impl EntityAddress {
                 scrypto::prelude::ComponentAddress::Validator(_) => EntityType::Validator,
             },
             Self::ResourceAddress { address } => match address.address {
-                scrypto::prelude::ResourceAddress::Normal(_) => EntityType::Resource,
+                scrypto::prelude::ResourceAddress::Fungible(_) => EntityType::FungibleResource,
+                scrypto::prelude::ResourceAddress::NonFungible(_) => {
+                    EntityType::NonFungibleResource
+                }
             },
             Self::PackageAddress { address } => match address.address {
                 scrypto::prelude::PackageAddress::Normal(_) => EntityType::Package,
@@ -140,6 +223,29 @@ impl FromStr for EntityAddress {
             Ok(Self::ResourceAddress { address })
         } else if let Ok(address) = NetworkAwarePackageAddress::from_str(s) {
             Ok(Self::PackageAddress { address })
+        } else {
+            Err(Error::UnrecognizedAddressFormat)
+        }
+    }
+}
+
+impl EntityAddress {
+    pub fn to_string_with_encoder(&self, bech32_coder: &Bech32Coder) -> String {
+        match self {
+            Self::ComponentAddress { address } => bech32_coder.encode_component_address(address),
+            Self::ResourceAddress { address } => bech32_coder.encode_resource_address(*address),
+            Self::PackageAddress { address } => bech32_coder.encode_package_address(*address),
+        }
+    }
+
+    pub fn from_str_with_coder<S: AsRef<str>>(s: S, bech32_coder: &Bech32Coder) -> Result<Self> {
+        if let Ok(address) = bech32_coder.decode_to_network_aware_component_address(s.as_ref()) {
+            Ok(Self::ComponentAddress { address })
+        } else if let Ok(address) = bech32_coder.decode_to_network_aware_package_address(s.as_ref())
+        {
+            Ok(Self::PackageAddress { address })
+        } else if let Ok(address) = bech32_coder.decode_to_network_aware_resource_address(s) {
+            Ok(Self::ResourceAddress { address })
         } else {
             Err(Error::UnrecognizedAddressFormat)
         }

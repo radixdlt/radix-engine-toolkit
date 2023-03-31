@@ -2,5 +2,5 @@
 members = [
     "radix-engine-toolkit",
     "schema",
-    "serializable",
+    "toolkit-derive",
 ]

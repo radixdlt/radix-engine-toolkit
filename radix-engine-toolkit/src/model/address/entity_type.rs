@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::radix_engine_interface::address::EntityType as NativeEntityType;
-use serializable::serializable;
+use scrypto::address::EntityType as NativeEntityType;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -25,7 +25,8 @@ use serializable::serializable;
 /// An enum describing the different entity types in the Radix Engine and Scrypto
 #[serializable]
 pub enum EntityType {
-    Resource,
+    FungibleResource,
+    NonFungibleResource,
     Package,
     NormalComponent,
     AccountComponent,
@@ -47,7 +48,8 @@ pub enum EntityType {
 impl From<EntityType> for NativeEntityType {
     fn from(value: EntityType) -> Self {
         match value {
-            EntityType::Resource => Self::Resource,
+            EntityType::FungibleResource => Self::FungibleResource,
+            EntityType::NonFungibleResource => Self::NonFungibleResource,
             EntityType::Package => Self::Package,
             EntityType::NormalComponent => Self::NormalComponent,
             EntityType::AccountComponent => Self::AccountComponent,
@@ -75,7 +77,8 @@ impl From<EntityType> for NativeEntityType {
 impl From<NativeEntityType> for EntityType {
     fn from(value: NativeEntityType) -> Self {
         match value {
-            NativeEntityType::Resource => Self::Resource,
+            NativeEntityType::FungibleResource => Self::FungibleResource,
+            NativeEntityType::NonFungibleResource => Self::NonFungibleResource,
             NativeEntityType::Package => Self::Package,
             NativeEntityType::NormalComponent => Self::NormalComponent,
             NativeEntityType::AccountComponent => Self::AccountComponent,

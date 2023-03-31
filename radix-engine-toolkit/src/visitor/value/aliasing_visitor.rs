@@ -1,32 +1,49 @@
-use super::ValueVisitor;
-use crate::error::Error;
-use crate::model::{NonFungibleGlobalId, Value};
-use crate::ValueKind;
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
+use crate::error::Error;
+use crate::model::address::EntityAddress;
+use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
+use crate::visitor::ManifestAstValueVisitor;
 /// A value visitor whose main responsibility is to perform aliasing on all encountered values. As
 /// an example, this is the main visitor responsible for turing a Tuple(ResourceAddress, NFLocalId)
 /// to a NonFungibleGlobalAddress
 #[derive(Debug, Default)]
 pub struct ValueAliasingVisitor;
 
-impl ValueVisitor for ValueAliasingVisitor {
-    fn visit_tuple(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::Tuple { ref elements } = value {
+impl ManifestAstValueVisitor for ValueAliasingVisitor {
+    fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
+        if let ManifestAstValue::Tuple { ref elements } = value {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (
-                    Some(Value::ResourceAddress {
-                        address: resource_address,
+                    Some(ManifestAstValue::Address {
+                        address:
+                            EntityAddress::ResourceAddress {
+                                address: resource_address,
+                            },
                     }),
-                    Some(Value::NonFungibleLocalId {
+                    Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
                     }),
                 ) if elements.len() == 2 => {
-                    *value = Value::NonFungibleGlobalId {
-                        address: NonFungibleGlobalId {
-                            resource_address: *resource_address,
-                            non_fungible_local_id: non_fungible_local_id.clone(),
-                        },
+                    *value = ManifestAstValue::NonFungibleGlobalId {
+                        resource_address: *resource_address,
+                        non_fungible_local_id: non_fungible_local_id.clone(),
                     };
                     Ok(())
                 }
@@ -39,25 +56,25 @@ impl ValueVisitor for ValueAliasingVisitor {
         }
     }
 
-    fn visit_array(&mut self, value: &mut crate::Value) -> crate::Result<()> {
-        if let Value::Array {
+    fn visit_array(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
+        if let ManifestAstValue::Array {
             ref elements,
-            element_kind: ValueKind::U8,
+            element_kind: ManifestAstValueKind::U8,
         } = value
         {
             // Case: Bytes - An array of u8
             let mut bytes = Vec::new();
             for element in elements.iter() {
                 match element {
-                    Value::U8 { value } => bytes.push(*value),
+                    ManifestAstValue::U8 { value } => bytes.push(*value),
                     // If we encounter anything that is not a U8, then we stop the aliasing op and
                     // don't continue.
                     _ => return Ok(()),
                 }
             }
-            *value = Value::Bytes { value: bytes };
+            *value = ManifestAstValue::Bytes { value: bytes };
             Ok(())
-        } else if let Value::Array { .. } = value {
+        } else if let ManifestAstValue::Array { .. } = value {
             Ok(())
         } else {
             Err(Error::Infallible {

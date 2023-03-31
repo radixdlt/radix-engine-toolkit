@@ -2,26 +2,60 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SborDecodeResponse",
   "description": "The response from the [`SborDecodeRequest`].",
-  "type": "object",
-  "required": [
-    "value"
-  ],
-  "properties": {
-    "value": {
-      "description": "A value representing the SBOR decoded form of the passed SBOR buffer.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Value"
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ScryptoSbor"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/ScryptoSborValue"
         }
-      ]
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ManifestSbor"
+          ]
+        },
+        "value": {
+          "$ref": "#/definitions/ManifestSborValue"
+        }
+      }
     }
-  },
+  ],
   "definitions": {
-    "Value": {
-      "description": "The Value model used to describe all of the types that the Radix Engine Toolkit accepts and returns.",
+    "ScryptoSborValue": {
+      "description": "A value model used to describe an algebraic sum type which is used to express Scrypto SBOR values. This is serialized as a discriminated union of types.",
       "oneOf": [
         {
           "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
+            },
+            {
+              "type": "Bool",
+              "value": true
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -41,6 +75,12 @@
         },
         {
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -61,6 +101,12 @@
         },
         {
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -81,6 +127,12 @@
         },
         {
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -101,6 +153,12 @@
         },
         {
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -121,6 +179,12 @@
         },
         {
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -141,6 +205,12 @@
         },
         {
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -161,6 +231,12 @@
         },
         {
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -181,6 +257,12 @@
         },
         {
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -201,6 +283,12 @@
         },
         {
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -221,6 +309,12 @@
         },
         {
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -241,6 +335,12 @@
         },
         {
           "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -260,6 +360,22 @@
         },
         {
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": "1"
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -273,12 +389,9 @@
               ]
             },
             "variant": {
-              "description": "The name of the variant of the enum",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/EnumDiscriminator"
-                }
-              ]
+              "description": "The variant of the enum.",
+              "type": "string",
+              "pattern": "[0-9]+"
             },
             "fields": {
               "description": "Optional fields that the enum may have",
@@ -287,85 +400,33 @@
                 "null"
               ],
               "items": {
-                "$ref": "#/definitions/Value"
+                "$ref": "#/definitions/ScryptoSborValue"
               }
             }
           }
         },
         {
-          "description": "The `Some` case of Rust Options where the value is some Value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Some"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/Value"
-            }
-          }
-        },
-        {
-          "description": "The `None` case of Rust Options where there is value",
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "None"
-              ]
-            }
-          }
-        },
-        {
-          "description": "The `Ok` case of Rust Results where the value is some Value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Ok"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/Value"
-            }
-          }
-        },
-        {
-          "description": "The `Err` case of Rust Results where the value is some Value",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Err"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/Value"
-            }
-          }
-        },
-        {
           "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
           "type": "object",
           "required": [
             "element_kind",
@@ -383,7 +444,7 @@
               "description": "The kind of elements that the array contains. An array will be validated to ensure that it contains a single element kind.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ValueKind"
+                  "$ref": "#/definitions/ScryptoSborValueKind"
                 }
               ]
             },
@@ -391,13 +452,42 @@
               "description": "The elements of the array which may contain 0 or more elements.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Value"
+                "$ref": "#/definitions/ScryptoSborValue"
               }
             }
           }
         },
         {
           "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
           "type": "object",
           "required": [
             "entries",
@@ -416,7 +506,7 @@
               "description": "The kind of the keys used for the map. A map will be validated to ensure that its keys are all of a single kind.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ValueKind"
+                  "$ref": "#/definitions/ScryptoSborValueKind"
                 }
               ]
             },
@@ -424,7 +514,7 @@
               "description": "The kind of the values used for the map. A map will be validated to ensure that its values are all of a single kind.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ValueKind"
+                  "$ref": "#/definitions/ScryptoSborValueKind"
                 }
               ]
             },
@@ -435,10 +525,10 @@
                 "type": "array",
                 "items": [
                   {
-                    "$ref": "#/definitions/Value"
+                    "$ref": "#/definitions/ScryptoSborValue"
                   },
                   {
-                    "$ref": "#/definitions/Value"
+                    "$ref": "#/definitions/ScryptoSborValue"
                   }
                 ],
                 "maxItems": 2,
@@ -449,6 +539,26 @@
         },
         {
           "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
           "type": "object",
           "required": [
             "elements",
@@ -464,13 +574,108 @@
             "elements": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Value"
+                "$ref": "#/definitions/ScryptoSborValue"
               }
             }
           }
         },
         {
+          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "type": "Address"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Address"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a tagged enum of owned Radix Engine Nodes.",
+          "examples": [
+            {
+              "type": "Own",
+              "value": {
+                "type": "Bucket",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Proof",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Vault",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Object",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "KeyValueStore",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Own"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Own"
+            }
+          }
+        },
+        {
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -491,6 +696,12 @@
         },
         {
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -510,231 +721,37 @@
           }
         },
         {
-          "description": "Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of the transaction manifest.",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Own"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/Own"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ComponentAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ResourceAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "PackageAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a hash coming from Scrypto's and the Radix Engine's common hash function. The hashing function that they use is SHA256 which produces 32 byte long hashes which are serialized as a 64 character long hex string (since hex encoding doubles the Integer of bytes needed)",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Hash"
-              ]
-            },
-            "value": {
-              "type": "string",
-              "maxLength": 64,
-              "minLength": 64,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string representing a public key from the ECDSA Secp256k1 elliptic curve.",
-          "type": "object",
-          "required": [
-            "public_key",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "EcdsaSecp256k1PublicKey"
-              ]
-            },
-            "public_key": {
-              "type": "string",
-              "maxLength": 66,
-              "minLength": 66,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A byte array of 65 bytes which are serialized as a 130 character long hex-encoded string representing a signature from the ECDSA Secp256k1 elliptic curve. An important note on ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s] where `v` is the recovery id and is a single byte and `r` and `s` are the signature results and are 32 bytes each.",
-          "type": "object",
-          "required": [
-            "signature",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "EcdsaSecp256k1Signature"
-              ]
-            },
-            "signature": {
-              "type": "string",
-              "maxLength": 130,
-              "minLength": 130,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
-          "type": "object",
-          "required": [
-            "public_key",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "EddsaEd25519PublicKey"
-              ]
-            },
-            "public_key": {
-              "type": "string",
-              "maxLength": 64,
-              "minLength": 64,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "A byte array of 64 bytes which are serialized as a 128 character long hex-encoded string representing a signature from the EDDSA Ed25519 edwards curve.",
-          "type": "object",
-          "required": [
-            "signature",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "EddsaEd25519Signature"
-              ]
-            },
-            "signature": {
-              "type": "string",
-              "maxLength": 128,
-              "minLength": 128,
-              "pattern": "[0-9a-fA-F]+"
-            }
-          }
-        },
-        {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Bucket"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/BucketId"
-            }
-          }
-        },
-        {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
-          "type": "object",
-          "required": [
-            "identifier",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Proof"
-              ]
-            },
-            "identifier": {
-              "$ref": "#/definitions/ProofId"
-            }
-          }
-        },
-        {
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -753,30 +770,13 @@
           }
         },
         {
-          "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
-          "type": "object",
-          "required": [
-            "non_fungible_local_id",
-            "resource_address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "NonFungibleGlobalId"
-              ]
-            },
-            "resource_address": {
-              "$ref": "#/definitions/Value"
-            },
-            "non_fungible_local_id": {
-              "$ref": "#/definitions/Value"
+          "description": "Represents a reference to some RENode.",
+          "examples": [
+            {
+              "type": "Reference",
+              "value": "00000000000000000000000000000000000000000000000000000000000000"
             }
-          }
-        },
-        {
-          "description": "Represents a transaction manifest expression.",
+          ],
           "type": "object",
           "required": [
             "type",
@@ -786,140 +786,432 @@
             "type": {
               "type": "string",
               "enum": [
-                "Expression"
+                "Reference"
               ]
             },
             "value": {
-              "$ref": "#/definitions/Expression"
-            }
-          }
-        },
-        {
-          "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
-          "type": "object",
-          "required": [
-            "hash",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Blob"
-              ]
-            },
-            "hash": {
-              "$ref": "#/definitions/Blob"
-            }
-          }
-        },
-        {
-          "description": "Represents a byte array of an unknown size which is serialized as a hex string",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Bytes"
-              ]
-            },
-            "value": {
-              "type": "string"
+              "$ref": "#/definitions/NodeIdentifier"
             }
           }
         }
       ]
     },
-    "EnumDiscriminator": {
-      "description": "A union of the types of discriminators that enums may have. This may either be a string or an 8-bit unsigned number.",
+    "ScryptoSborValueKind": {
       "oneOf": [
         {
-          "type": "object",
-          "required": [
-            "discriminator",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "String"
-              ]
+          "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
             },
-            "discriminator": {
-              "description": "A string discriminator of the fully qualified well-known enum name",
-              "type": "string"
+            {
+              "type": "Bool",
+              "value": true
             }
-          }
+          ],
+          "type": "string",
+          "enum": [
+            "Bool"
+          ]
         },
         {
-          "type": "object",
-          "required": [
-            "discriminator",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "U8"
-              ]
-            },
-            "discriminator": {
-              "description": "An 8-bit unsigned integer serialized as a string.",
-              "type": "string",
-              "pattern": "[0-9]+"
+          "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
             }
-          }
+          ],
+          "type": "string",
+          "enum": [
+            "U8"
+          ]
+        },
+        {
+          "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U16"
+          ]
+        },
+        {
+          "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U32"
+          ]
+        },
+        {
+          "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U64"
+          ]
+        },
+        {
+          "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U128"
+          ]
+        },
+        {
+          "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I8"
+          ]
+        },
+        {
+          "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I16"
+          ]
+        },
+        {
+          "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I32"
+          ]
+        },
+        {
+          "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I64"
+          ]
+        },
+        {
+          "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I128"
+          ]
+        },
+        {
+          "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "String"
+          ]
+        },
+        {
+          "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": "1"
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Enum"
+          ]
+        },
+        {
+          "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Array"
+          ]
+        },
+        {
+          "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Map"
+          ]
+        },
+        {
+          "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Tuple"
+          ]
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "type": "Address"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Address"
+          ]
+        },
+        {
+          "description": "Represents a tagged enum of owned Radix Engine Nodes.",
+          "examples": [
+            {
+              "type": "Own",
+              "value": {
+                "type": "Bucket",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Proof",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Vault",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "Object",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            {
+              "type": "Own",
+              "value": {
+                "type": "KeyValueStore",
+                "value": "00000000000000000000000000000000000000000000000000000000000000"
+              }
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Own"
+          ]
+        },
+        {
+          "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Decimal"
+          ]
+        },
+        {
+          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "PreciseDecimal"
+          ]
+        },
+        {
+          "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "NonFungibleLocalId"
+          ]
+        },
+        {
+          "description": "Represents a reference to some RENode.",
+          "examples": [
+            {
+              "type": "Reference",
+              "value": "00000000000000000000000000000000000000000000000000000000000000"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Reference"
+          ]
         }
-      ]
-    },
-    "ValueKind": {
-      "description": "An Enum of all of the supported kinds of values by the Radix Engine Toolkit. This enum is essentially the `type` tags used for the value model.",
-      "type": "string",
-      "enum": [
-        "Bool",
-        "U8",
-        "U16",
-        "U32",
-        "U64",
-        "U128",
-        "I8",
-        "I16",
-        "I32",
-        "I64",
-        "I128",
-        "String",
-        "Enum",
-        "Some",
-        "None",
-        "Ok",
-        "Err",
-        "Map",
-        "Array",
-        "Tuple",
-        "Decimal",
-        "PreciseDecimal",
-        "Own",
-        "ComponentAddress",
-        "ResourceAddress",
-        "PackageAddress",
-        "Hash",
-        "EcdsaSecp256k1PublicKey",
-        "EcdsaSecp256k1Signature",
-        "EddsaEd25519PublicKey",
-        "EddsaEd25519Signature",
-        "Bucket",
-        "Proof",
-        "NonFungibleLocalId",
-        "NonFungibleGlobalId",
-        "Expression",
-        "Blob",
-        "Bytes"
       ]
     },
     "Own": {
@@ -945,7 +1237,7 @@
           }
         },
         {
-          "description": "Represents an owned Component",
+          "description": "Represents an owned Object",
           "type": "object",
           "required": [
             "type",
@@ -955,7 +1247,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Component"
+                "Object"
               ]
             },
             "value": {
@@ -983,7 +1275,7 @@
           }
         },
         {
-          "description": "Represents an owned Bucket identified through an unsigned 32-bit integer which is serialized as a string",
+          "description": "Represents an owned Bucket",
           "type": "object",
           "required": [
             "type",
@@ -997,12 +1289,12 @@
               ]
             },
             "value": {
-              "type": "string"
+              "$ref": "#/definitions/NodeIdentifier"
             }
           }
         },
         {
-          "description": "Represents an owned Proof identified through an unsigned 32-bit integer which is serialized as a string",
+          "description": "Represents an owned Proof",
           "type": "object",
           "required": [
             "type",
@@ -1016,84 +1308,30 @@
               ]
             },
             "value": {
-              "type": "string"
+              "$ref": "#/definitions/NodeIdentifier"
             }
           }
         }
       ]
     },
     "NodeIdentifier": {
-      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)",
+      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)",
       "type": "string",
-      "maxLength": 72,
-      "minLength": 72,
+      "maxLength": 31,
+      "minLength": 31,
       "pattern": "[0-9a-fA-F]+"
-    },
-    "BucketId": {
-      "description": "Represents a BucketId which uses a transient identifier.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
-    },
-    "TransientIdentifier": {
-      "description": "Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "String"
-              ]
-            },
-            "value": {
-              "description": "A string identifier",
-              "type": "string"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "U32"
-              ]
-            },
-            "value": {
-              "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
-              "type": "string",
-              "pattern": "[0-9]+"
-            }
-          }
-        }
-      ]
-    },
-    "ProofId": {
-      "description": "Represents a ProofId which uses a transient identifier.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
     },
     "NonFungibleLocalId": {
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
       "oneOf": [
         {
           "description": "A 64 bit unsigned integer non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "Integer",
+              "value": "1"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1114,6 +1352,12 @@
         },
         {
           "description": "A 128 bit unsigned integer UUID non-fungible id type which is serialized as a string",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1134,6 +1378,12 @@
         },
         {
           "description": "An byte array non-fungible id type which is serialized as a hex string. This can be between 1 and 64 bytes in length which translates to a length range of 2 and 128 when hex-encoded.",
+          "examples": [
+            {
+              "type": "UUID",
+              "value": "241008287272164729465721528295504357972"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1156,6 +1406,12 @@
         },
         {
           "description": "A string non-fungible id. This can be between 1 and 64 characters long.",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
           "type": "object",
           "required": [
             "type",
@@ -1174,6 +1430,1203 @@
               "minLength": 1
             }
           }
+        }
+      ]
+    },
+    "ManifestSborValue": {
+      "description": "A value model used to describe an algebraic sum type which is used to express Manifest SBOR values. This is serialized as a discriminated union of types.",
+      "oneOf": [
+        {
+          "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
+            },
+            {
+              "type": "Bool",
+              "value": true
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bool"
+              ]
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U8"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U16"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U128"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I8"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I16"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I64",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I128"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "String"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": "1"
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "variant"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Enum"
+              ]
+            },
+            "variant": {
+              "description": "The variant of the enum.",
+              "type": "string",
+              "pattern": "[0-9]+"
+            },
+            "fields": {
+              "description": "Optional fields that the enum may have",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/definitions/ManifestSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "element_kind",
+            "elements",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Array"
+              ]
+            },
+            "element_kind": {
+              "description": "The kind of elements that the array contains. An array will be validated to ensure that it contains a single element kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestSborValueKind"
+                }
+              ]
+            },
+            "elements": {
+              "description": "The elements of the array which may contain 0 or more elements.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ManifestSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "entries",
+            "key_value_kind",
+            "type",
+            "value_value_kind"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Map"
+              ]
+            },
+            "key_value_kind": {
+              "description": "The kind of the keys used for the map. A map will be validated to ensure that its keys are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestSborValueKind"
+                }
+              ]
+            },
+            "value_value_kind": {
+              "description": "The kind of the values used for the map. A map will be validated to ensure that its values are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestSborValueKind"
+                }
+              ]
+            },
+            "entries": {
+              "description": "A vector of tuples representing the entires in the map where each tuple is made up of two elements: a key and a value.",
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/ManifestSborValue"
+                  },
+                  {
+                    "$ref": "#/definitions/ManifestSborValue"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            }
+          }
+        },
+        {
+          "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "elements",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Tuple"
+              ]
+            },
+            "elements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ManifestSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "type": "Address"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Address"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is a 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": "1",
+              "type": "Bucket"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "identifier",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bucket"
+              ]
+            },
+            "identifier": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "Represents a Scrypto proof which is identified through a transient identifier which is a 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": "1",
+              "type": "Proof"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "identifier",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Proof"
+              ]
+            },
+            "identifier": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Decimal"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PreciseDecimal"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NonFungibleLocalId"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NonFungibleLocalId"
+            }
+          }
+        },
+        {
+          "description": "Represents a transaction manifest expression.",
+          "examples": [
+            {
+              "type": "Expression",
+              "value": "ENTIRE_AUTH_ZONE"
+            },
+            {
+              "type": "Expression",
+              "value": "ENTIRE_WORKTOP"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Expression"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/Expression"
+            }
+          }
+        },
+        {
+          "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
+          "examples": [
+            {
+              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "type": "Blob"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "hash",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Blob"
+              ]
+            },
+            "hash": {
+              "$ref": "#/definitions/Blob"
+            }
+          }
+        }
+      ]
+    },
+    "ManifestSborValueKind": {
+      "oneOf": [
+        {
+          "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "type": "Bool",
+              "value": false
+            },
+            {
+              "type": "Bool",
+              "value": true
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Bool"
+          ]
+        },
+        {
+          "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U8",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U8"
+          ]
+        },
+        {
+          "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U16",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U16"
+          ]
+        },
+        {
+          "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U32",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U32"
+          ]
+        },
+        {
+          "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U64",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U64"
+          ]
+        },
+        {
+          "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "U128",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "U128"
+          ]
+        },
+        {
+          "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I8",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I8"
+          ]
+        },
+        {
+          "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I16",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I16"
+          ]
+        },
+        {
+          "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I32"
+          ]
+        },
+        {
+          "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I64",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I64"
+          ]
+        },
+        {
+          "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "type": "I128",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "I128"
+          ]
+        },
+        {
+          "description": "A type representing a string",
+          "examples": [
+            {
+              "type": "String",
+              "value": "Scrypto"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "String"
+          ]
+        },
+        {
+          "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "type": "Enum",
+              "variant": "1"
+            },
+            {
+              "fields": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                }
+              ],
+              "type": "Enum",
+              "variant": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Enum"
+          ]
+        },
+        {
+          "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "type": "U8",
+                  "value": "1"
+                },
+                {
+                  "type": "U8",
+                  "value": "2"
+                },
+                {
+                  "type": "U8",
+                  "value": "3"
+                }
+              ],
+              "type": "Array"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Array"
+          ]
+        },
+        {
+          "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                [
+                  {
+                    "type": "U8",
+                    "value": "65"
+                  },
+                  {
+                    "type": "String",
+                    "value": "A"
+                  }
+                ],
+                [
+                  {
+                    "type": "U8",
+                    "value": "66"
+                  },
+                  {
+                    "type": "String",
+                    "value": "B"
+                  }
+                ]
+              ],
+              "key_value_kind": "U8",
+              "type": "Map",
+              "value_value_kind": "String"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Map"
+          ]
+        },
+        {
+          "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "elements": [
+                {
+                  "elements": [
+                    {
+                      "type": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "type": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "type": "Tuple"
+                }
+              ],
+              "type": "Tuple"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Tuple"
+          ]
+        },
+        {
+          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
+          "examples": [
+            {
+              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "type": "Address"
+            },
+            {
+              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
+              "type": "Address"
+            },
+            {
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "type": "Address"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Address"
+          ]
+        },
+        {
+          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is a 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": "1",
+              "type": "Bucket"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Bucket"
+          ]
+        },
+        {
+          "description": "Represents a Scrypto proof which is identified through a transient identifier which is a 32-bit integer which is serialized as a Integer.",
+          "examples": [
+            {
+              "identifier": "1",
+              "type": "Proof"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Proof"
+          ]
+        },
+        {
+          "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "type": "Decimal",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Decimal"
+          ]
+        },
+        {
+          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "type": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "PreciseDecimal"
+          ]
+        },
+        {
+          "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "UUID",
+                "value": "241008287272164729465721528295504357972"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Integer",
+                "value": "1"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "String",
+                "value": "Scrypto"
+              }
+            },
+            {
+              "type": "NonFungibleLocalId",
+              "value": {
+                "type": "Bytes",
+                "value": "01020304"
+              }
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "NonFungibleLocalId"
+          ]
+        },
+        {
+          "description": "Represents a transaction manifest expression.",
+          "examples": [
+            {
+              "type": "Expression",
+              "value": "ENTIRE_AUTH_ZONE"
+            },
+            {
+              "type": "Expression",
+              "value": "ENTIRE_WORKTOP"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Expression"
+          ]
+        },
+        {
+          "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
+          "examples": [
+            {
+              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "type": "Blob"
+            }
+          ],
+          "type": "string",
+          "enum": [
+            "Blob"
+          ]
         }
       ]
     },

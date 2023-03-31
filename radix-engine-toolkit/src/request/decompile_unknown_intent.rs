@@ -15,20 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use super::decompile_notarized_transaction::{
+    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest,
+    DecompileNotarizedTransactionResponse,
+};
+use super::decompile_signed_transaction_intent::{
+    DecompileSignedTransactionIntentHandler, DecompileSignedTransactionIntentRequest,
+    DecompileSignedTransactionIntentResponse,
+};
+use super::decompile_transaction_intent::{
+    DecompileTransactionIntentHandler, DecompileTransactionIntentRequest,
+    DecompileTransactionIntentResponse,
+};
+use super::traits::Handler;
+use crate::error::Error;
 use crate::error::Result;
-use crate::request::Handler;
-use crate::request::{
-    DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse,
-    DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse,
-    DecompileTransactionIntentRequest, DecompileTransactionIntentResponse,
+use crate::model::transaction::{
+    InstructionList, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
+    TransactionManifest,
 };
-use crate::{
-    traverse_instruction, DecompileNotarizedTransactionHandler,
-    DecompileSignedTransactionIntentHandler, DecompileTransactionIntentHandler, Error, Instruction,
-    InstructionKind, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
-    TransactionManifest, ValueAliasingVisitor,
-};
-use serializable::serializable;
+use crate::model::{instruction::Instruction, transaction::InstructionKind};
+use crate::visitor::traverse_instruction;
+use crate::visitor::ValueAliasingVisitor;
+
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -167,9 +177,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                                             manifest:
                                                 TransactionManifest {
                                                     instructions:
-                                                        crate::InstructionList::Parsed(
-                                                            ref mut instructions,
-                                                        ),
+                                                        InstructionList::Parsed(ref mut instructions),
                                                     ..
                                                 },
                                             ..
@@ -189,7 +197,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                                     manifest:
                                         TransactionManifest {
                                             instructions:
-                                                crate::InstructionList::Parsed(ref mut instructions),
+                                                InstructionList::Parsed(ref mut instructions),
                                             ..
                                         },
                                     ..
@@ -204,8 +212,7 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
                         TransactionIntent {
                             manifest:
                                 TransactionManifest {
-                                    instructions:
-                                        crate::InstructionList::Parsed(ref mut instructions),
+                                    instructions: InstructionList::Parsed(ref mut instructions),
                                     ..
                                 },
                             ..

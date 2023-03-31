@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::fmt::Debug;
+
 use convert_case::{Case, Casing};
 use serde::Serialize;
 
@@ -34,8 +36,8 @@ impl InMemoryExamplesBuilder {
     pub fn add_example<H, I, O>(mut self) -> Self
     where
         H: ExampleData<I, O>,
-        I: Serialize + Clone,
-        O: Serialize + Clone,
+        I: Serialize + Clone + Debug,
+        O: Serialize + Clone + Debug,
     {
         let example = H::to_example();
         self.examples.push(example);
@@ -60,7 +62,8 @@ impl InMemoryExamplesBuilder {
 | Function Name     | `{}` |
 | ----------------- | :----------------- |
 | JNI Function Name | `{}` |
-| Functionality     | {} |
+| Functionality     | {}   |
+| Required Features | {}   |
 | Request Type      | `{}` |
 | Response Type     | `{}` |
 
@@ -84,6 +87,7 @@ impl InMemoryExamplesBuilder {
                 function_name,
                 jni_function_name,
                 example.request_description.replace('\n', "</br>"),
+                example.required_features,
                 example.request_type_name,
                 example.response_type_name,
                 example.request,

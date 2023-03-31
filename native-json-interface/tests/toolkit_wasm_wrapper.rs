@@ -138,7 +138,13 @@ impl RadixEngineToolkit {
         // release.
         let status: std::process::ExitStatus = std::process::Command::new("cargo")
             .current_dir(&manifest_directory)
-            .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
+            .args([
+                "build",
+                "--target",
+                "wasm32-unknown-unknown",
+                "--release",
+                "--no-default-features",
+            ])
             .status()
             .expect("Compilation of WASM for tests failed");
         if !status.success() {

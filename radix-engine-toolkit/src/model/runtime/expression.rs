@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::runtime::ManifestExpression;
-use serializable::serializable;
+use scrypto::prelude::ManifestExpression;
+use toolkit_derive::serializable;
 
 #[serializable]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]

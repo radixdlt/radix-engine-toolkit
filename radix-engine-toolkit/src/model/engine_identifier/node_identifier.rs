@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
 use std::fmt::Display;
 use std::str::FromStr;
 
-use scrypto_utils::copy_u8_array;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
-use crate::constants::RADIX_ENGINE_NODE_IDENTIFIER_LENGTH;
 use crate::error::{Error, Result};
+use crate::utils::checked_copy_u8_slice;
 
 // =================
 // Model Definition
@@ -30,13 +30,14 @@ use crate::error::{Error, Result};
 
 #[serializable]
 /// Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a
-/// hexadecimal string of length 72 (since hex encoding doubles the number of bytes needed.)
+/// hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)
+#[derive(PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct NodeIdentifier(
-    #[schemars(length(equal = 72))]
+    #[schemars(length(equal = 31))]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::hex::Hex")]
-    pub [u8; RADIX_ENGINE_NODE_IDENTIFIER_LENGTH],
+    pub [u8; OBJECT_ID_LENGTH],
 );
 
 // =====
@@ -57,13 +58,13 @@ impl FromStr for NodeIdentifier {
         let bytes = hex::decode(s)?;
 
         // Check that the decoded bytes are of the expected length - error out if they're not
-        if bytes.len() != RADIX_ENGINE_NODE_IDENTIFIER_LENGTH {
+        if bytes.len() != OBJECT_ID_LENGTH {
             Err(Error::InvalidLength {
-                expected: RADIX_ENGINE_NODE_IDENTIFIER_LENGTH,
+                expected: OBJECT_ID_LENGTH,
                 found: bytes.len(),
             })
         } else {
-            Ok(NodeIdentifier(copy_u8_array(&bytes)))
+            Ok(NodeIdentifier(checked_copy_u8_slice(&bytes)?))
         }
     }
 }

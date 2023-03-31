@@ -16,9 +16,11 @@
 // under the License.
 
 use crate::error::Result;
-use crate::request::Handler;
-use crate::value::Value;
-use serializable::serializable;
+use crate::model::value::manifest_sbor::ManifestSborValue;
+use crate::model::value::scrypto_sbor::ScryptoSborValue;
+use crate::request::traits::Handler;
+use scrypto::prelude::{manifest_encode, scrypto_encode};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -27,10 +29,10 @@ use serializable::serializable;
 /// This request takes in a [`Value`] and attempts to SBOR encode it and return back an SBOR byte
 /// array.
 #[serializable]
-pub struct SborEncodeRequest {
-    /// The value to SBOR encode.
-    #[serde(flatten)]
-    pub value: Value,
+#[serde(tag = "type", content = "value")]
+pub enum SborEncodeRequest {
+    ScryptoSbor(ScryptoSborValue),
+    ManifestSbor(ManifestSborValue),
 }
 
 /// The response from the [`SborEncodeRequest`].
@@ -55,10 +57,14 @@ impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
     }
 
     fn handle(request: &SborEncodeRequest) -> Result<SborEncodeResponse> {
-        request
-            .value
-            .encode()
-            .map(|encoded_value| SborEncodeResponse { encoded_value })
+        match request {
+            SborEncodeRequest::ManifestSbor(value) => Ok(SborEncodeResponse {
+                encoded_value: manifest_encode(&value.to_manifest_sbor_value()?)?,
+            }),
+            SborEncodeRequest::ScryptoSbor(value) => Ok(SborEncodeResponse {
+                encoded_value: scrypto_encode(&value.to_scrypto_sbor_value()?)?,
+            }),
+        }
     }
 
     fn post_process(

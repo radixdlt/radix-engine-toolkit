@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::address::Bech32Coder;
 use crate::error::Result;
-use crate::model::Instruction;
+use crate::model::address::Bech32Coder;
+use crate::model::instruction::Instruction;
 use native_transaction::manifest::{ast, decompile};
 use native_transaction::model as transaction;
 use scrypto::prelude::hash;
-use serializable::serializable;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -34,7 +34,9 @@ use serializable::serializable;
 #[serializable]
 #[serde(tag = "type", content = "value")]
 pub enum InstructionList {
+    #[schemars(example = "crate::example::transaction::instruction_list::string")]
     String(String),
+    #[schemars(example = "crate::example::transaction::instruction_list::parsed")]
     Parsed(Vec<Instruction>),
 }
 
@@ -82,7 +84,7 @@ impl InstructionList {
         // TODO: This is a work around for a larger issue. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Vec<transaction::BasicInstruction>> {
+    ) -> Result<Vec<transaction::Instruction>> {
         let instructions = self.ast_instructions(bech32_coder)?;
         let instructions = native_transaction::manifest::generator::generate_manifest(
             &instructions,
@@ -107,17 +109,17 @@ impl InstructionList {
                 // understood by the radix transaction manifest compiler is by going through a
                 // series of steps:
                 //
-                // Vec<Instruction> -> Vec<ast::Instruction> -> Vec<transaction::BasicInstruction>
+                // Vec<Instruction> -> Vec<ast::Instruction> -> Vec<transaction::Instruction>
                 // -> String
                 //
                 // This long conversion is because we would like to use the decompiler provided by
                 // the Scrypto repo.
                 //
-                // Q. Why not just implement a Instruction -> transaction::BasicInstruction
+                // Q. Why not just implement a Instruction -> transaction::Instruction
                 // conversion and skip the ast::Instruction phase?
                 // A. Because the IdValidator and id validation in general takes place when the
                 // instruction is being converted from ast::Instruction ->
-                // transaction::BasicInstruction. If i implement my own conversion
+                // transaction::Instruction. If i implement my own conversion
                 // (which is easy) then I lose out on the benefits of running the id
                 // validator on transactions and the validation that it performs.
                 //
@@ -142,11 +144,11 @@ impl InstructionList {
                 // So, while in the long term, a better solution is for sure needed and required,
                 // we should not immediately do something about this.
 
-                // Vec<Instruction> --> Vec<ast::Instruction> --> Vec<transaction::BasicInstruction>
+                // Vec<Instruction> --> Vec<ast::Instruction> --> Vec<transaction::Instruction>
                 // Conversion (based on above comment).
                 let instructions = self.basic_instructions(bech32_coder, blobs)?;
 
-                // Vec<transaction::BasicInstruction> --> String Conversion (based on above comment)
+                // Vec<transaction::Instruction> --> String Conversion (based on above comment)
                 Ok(Self::String(decompile(
                     &instructions,
                     bech32_coder.network_definition(),

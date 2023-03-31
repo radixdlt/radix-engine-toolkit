@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::{EcdsaSecp256k1Signature, EddsaEd25519Signature};
-use serializable::serializable;
+use native_transaction::{
+    ecdsa_secp256k1::EcdsaSecp256k1Signature, eddsa_ed25519::EddsaEd25519Signature,
+};
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -32,6 +34,7 @@ pub enum Signature {
     /// ECDSA Secp256k1 signatures is that the format used and accepted by Scrypto is [v, r, s]
     /// where `v` is the recovery id and is a single byte and `r` and `s` are the signature results
     /// and are 32 bytes each.
+    #[schemars(example = "crate::example::crypto::signature1")]
     EcdsaSecp256k1 {
         #[schemars(length(equal = 130))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
@@ -42,6 +45,7 @@ pub enum Signature {
 
     /// A byte array of 64 bytes which are serialized as a 128 character long hex-encoded string
     /// representing a signature from the EDDSA Ed25519 edwards curve.
+    #[schemars(example = "crate::example::crypto::signature2")]
     EddsaEd25519 {
         #[schemars(length(equal = 128))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
@@ -55,7 +59,7 @@ pub enum Signature {
 // Conversions
 // ============
 
-impl From<Signature> for scrypto::prelude::Signature {
+impl From<Signature> for native_transaction::model::Signature {
     fn from(value: Signature) -> Self {
         match value {
             Signature::EcdsaSecp256k1 { signature } => Self::EcdsaSecp256k1(signature),
@@ -64,13 +68,13 @@ impl From<Signature> for scrypto::prelude::Signature {
     }
 }
 
-impl From<scrypto::prelude::Signature> for Signature {
-    fn from(value: scrypto::prelude::Signature) -> Self {
+impl From<native_transaction::model::Signature> for Signature {
+    fn from(value: native_transaction::model::Signature) -> Self {
         match value {
-            scrypto::prelude::Signature::EcdsaSecp256k1(signature) => {
+            native_transaction::model::Signature::EcdsaSecp256k1(signature) => {
                 Self::EcdsaSecp256k1 { signature }
             }
-            scrypto::prelude::Signature::EddsaEd25519(signature) => {
+            native_transaction::model::Signature::EddsaEd25519(signature) => {
                 Self::EddsaEd25519 { signature }
             }
         }

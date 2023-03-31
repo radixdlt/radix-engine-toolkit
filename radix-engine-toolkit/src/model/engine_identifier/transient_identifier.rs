@@ -15,11 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::{Error, Result};
-use scrypto::prelude::ScryptoCustomValue;
-use scrypto::runtime::{ManifestBucket, ManifestProof};
-use serializable::serializable;
+use crate::error::{Error, Result};
 use std::str::FromStr;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -32,10 +30,13 @@ use std::str::FromStr;
 /// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
 /// number and not a string)
 pub enum TransientIdentifier {
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::string")]
     String {
         /// A string identifier
         value: String,
     },
+
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::u32")]
     U32 {
         /// A 32-bit unsigned integer which is serialized and deserialized as a string.
         #[schemars(regex(pattern = "[0-9]+"))]
@@ -47,11 +48,19 @@ pub enum TransientIdentifier {
 
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id1",
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id2"
+)]
 /// Represents a BucketId which uses a transient identifier.
 pub struct BucketId(pub TransientIdentifier);
 
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::proof_id1",
+    example = "crate::example::engine_identifier::transient_identifier::proof_id2"
+)]
 /// Represents a ProofId which uses a transient identifier.
 pub struct ProofId(pub TransientIdentifier);
 
@@ -102,65 +111,5 @@ impl From<TransientIdentifier> for ProofId {
 impl From<ProofId> for TransientIdentifier {
     fn from(proof_id: ProofId) -> Self {
         proof_id.0
-    }
-}
-
-impl TryFrom<BucketId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: BucketId) -> std::result::Result<Self, Self::Error> {
-        match value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Bucket(ManifestBucket(identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Bucket,
-            }),
-        }
-    }
-}
-
-impl TryFrom<&BucketId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: &BucketId) -> std::result::Result<Self, Self::Error> {
-        match &value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Bucket(ManifestBucket(*identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Bucket,
-            }),
-        }
-    }
-}
-
-impl TryFrom<ProofId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: ProofId) -> std::result::Result<Self, Self::Error> {
-        match value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Proof(ManifestProof(identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Proof,
-            }),
-        }
-    }
-}
-
-impl TryFrom<&ProofId> for ScryptoCustomValue {
-    type Error = Error;
-
-    fn try_from(value: &ProofId) -> std::result::Result<Self, Self::Error> {
-        match &value.0 {
-            TransientIdentifier::U32 { value: identifier } => {
-                Ok(ScryptoCustomValue::Proof(ManifestProof(*identifier)))
-            }
-            TransientIdentifier::String { .. } => Err(Error::BucketOrProofSBORError {
-                value_kind: crate::ValueKind::Proof,
-            }),
-        }
     }
 }

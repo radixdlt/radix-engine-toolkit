@@ -51,3 +51,4 @@ jobs:
           do
             cmp --quiet out/schema/$filename ./old-out/schema/$filename && exit 0 || exit 1
           done
+          exit 0

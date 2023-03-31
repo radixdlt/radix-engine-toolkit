@@ -15,11 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::Hash;
-use scrypto::runtime::ManifestBlobRef;
-use serializable::serializable;
+use scrypto::prelude::ManifestBlobRef;
+use toolkit_derive::serializable;
 
-use crate::RADIX_ENGINE_HASH_LENGTH;
+use crate::model::constants::RADIX_ENGINE_HASH_LENGTH;
 
 #[serializable]
 /// Represents the hash of a blob provided as part of a transaction manifest. This is represented as
@@ -34,12 +33,12 @@ pub struct Blob(
 
 impl From<ManifestBlobRef> for Blob {
     fn from(value: ManifestBlobRef) -> Self {
-        Self(value.0 .0)
+        Self(value.0)
     }
 }
 
 impl From<Blob> for ManifestBlobRef {
     fn from(value: Blob) -> Self {
-        Self(Hash(value.0))
+        Self(value.0)
     }
 }

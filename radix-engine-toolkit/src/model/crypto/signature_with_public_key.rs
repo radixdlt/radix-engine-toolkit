@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::{EcdsaSecp256k1Signature, EddsaEd25519PublicKey, EddsaEd25519Signature};
-use serializable::serializable;
+use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1Signature;
+use native_transaction::eddsa_ed25519::EddsaEd25519Signature;
+use scrypto::prelude::EddsaEd25519PublicKey;
+use toolkit_derive::serializable;
 
 // =================
 // Model Definition
@@ -28,6 +30,7 @@ use serializable::serializable;
 #[serde(tag = "curve")]
 pub enum SignatureWithPublicKey {
     /// Cryptographic signature and public key for Ecdsa Secp256k1
+    #[schemars(example = "crate::example::crypto::signature_with_public_key1")]
     EcdsaSecp256k1 {
         /// A byte array of 65 bytes which are serialized as a 130 character long hex-encoded
         /// string representing a signature from the ECDSA Secp256k1 elliptic curve. An
@@ -44,6 +47,7 @@ pub enum SignatureWithPublicKey {
     },
 
     /// Cryptographic signature and public key for EdDSA Ed25519
+    #[schemars(example = "crate::example::crypto::signature_with_public_key2")]
     EddsaEd25519 {
         /// A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string
         /// representing a public key from the EDDSA Ed25519 edwards curve.
@@ -67,7 +71,7 @@ pub enum SignatureWithPublicKey {
 // Conversions
 // ============
 
-impl From<SignatureWithPublicKey> for scrypto::prelude::SignatureWithPublicKey {
+impl From<SignatureWithPublicKey> for native_transaction::model::SignatureWithPublicKey {
     fn from(value: SignatureWithPublicKey) -> Self {
         match value {
             SignatureWithPublicKey::EcdsaSecp256k1 { signature } => {
@@ -84,13 +88,13 @@ impl From<SignatureWithPublicKey> for scrypto::prelude::SignatureWithPublicKey {
     }
 }
 
-impl From<scrypto::prelude::SignatureWithPublicKey> for SignatureWithPublicKey {
-    fn from(value: scrypto::prelude::SignatureWithPublicKey) -> Self {
+impl From<native_transaction::model::SignatureWithPublicKey> for SignatureWithPublicKey {
+    fn from(value: native_transaction::model::SignatureWithPublicKey) -> Self {
         match value {
-            scrypto::prelude::SignatureWithPublicKey::EcdsaSecp256k1 { signature } => {
+            native_transaction::model::SignatureWithPublicKey::EcdsaSecp256k1 { signature } => {
                 Self::EcdsaSecp256k1 { signature }
             }
-            scrypto::prelude::SignatureWithPublicKey::EddsaEd25519 {
+            native_transaction::model::SignatureWithPublicKey::EddsaEd25519 {
                 signature,
                 public_key,
             } => Self::EddsaEd25519 {

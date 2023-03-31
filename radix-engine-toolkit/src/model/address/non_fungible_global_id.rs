@@ -15,25 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::model::address::EntityAddress;
 use scrypto::prelude::{
     FromPublicKey, NonFungibleGlobalId as NativeNonFungibleGlobalId, NonFungibleLocalId, PublicKey,
 };
-use serializable::serializable;
+use toolkit_derive::serializable;
 
-use crate::model::NetworkAwareResourceAddress;
+use crate::model::address::NetworkAwareResourceAddress;
 
 /// Represents a non-fungible address which may be considered as the "global" address of a
 /// non-fungible unit as it contains both the resource address and the non-fungible id for that
 /// unit.
 #[serializable]
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::address::non_fungible::non_fungible_global_integer",
+    example = "crate::example::address::non_fungible::non_fungible_global_string",
+    example = "crate::example::address::non_fungible::non_fungible_global_bytes",
+    example = "crate::example::address::non_fungible::non_fungible_global_uuid"
+)]
 pub struct NonFungibleGlobalId {
-    #[schemars(with = "crate::Value")]
-    #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
+    #[schemars(with = "EntityAddress")]
+    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
     pub resource_address: NetworkAwareResourceAddress,
 
-    #[serde_as(as = "serde_with::TryFromInto<crate::Value>")]
-    #[schemars(with = "crate::Value")]
+    #[serde_as(as = "serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>")]
+    #[schemars(with = "crate::model::address::NonFungibleLocalId")]
     pub non_fungible_local_id: NonFungibleLocalId,
 }
 
