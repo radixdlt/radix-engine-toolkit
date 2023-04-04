@@ -20,6 +20,7 @@ use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
 use native_transaction::eddsa_ed25519::EddsaEd25519PrivateKey;
 use native_transaction::manifest::compile;
 use native_transaction::model::{NotarizedTransaction, TransactionHeader};
+use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::network::NetworkDefinition;
 use scrypto::prelude::manifest_encode;
 
@@ -505,6 +506,31 @@ impl
             network_id: 0x01,
             olympia_account_address:
                 "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842".to_owned(),
+        }
+    }
+}
+
+impl
+    ExampleData<DeriveOlympiaAddressFromPublicKeyRequest, DeriveOlympiaAddressFromPublicKeyResponse>
+    for DeriveOlympiaAddressFromPublicKeyHandler
+{
+    fn description() -> String {
+        r#"Given an ECDSA Secp256k1 Public Key and Olympia network, this function derives the Olympia account address associated with the public key on that network."#
+            .to_owned()
+    }
+
+    fn example_request() -> DeriveOlympiaAddressFromPublicKeyRequest {
+        DeriveOlympiaAddressFromPublicKeyRequest {
+            network: OlympiaNetwork::Mainnet,
+            public_key: PublicKey::EcdsaSecp256k1(EcdsaSecp256k1PublicKey(
+                checked_copy_u8_slice(
+                    hex::decode(
+                        "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c",
+                    )
+                    .unwrap(),
+                )
+                .unwrap(),
+            )),
         }
     }
 }
