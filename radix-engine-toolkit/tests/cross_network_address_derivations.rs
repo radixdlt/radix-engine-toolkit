@@ -19,7 +19,8 @@ use radix_engine_common::crypto::{EcdsaSecp256k1PublicKey, PublicKey};
 use radix_engine_common::data::scrypto::model::ComponentAddress;
 use radix_engine_toolkit::request::{
     DeriveBabylonAddressFromOlympiaAddressHandler, DeriveBabylonAddressFromOlympiaAddressRequest,
-    Handler,
+    DeriveOlympiaAddressFromPublicKeyHandler, DeriveOlympiaAddressFromPublicKeyRequest, Handler,
+    OlympiaNetwork,
 };
 use radix_engine_toolkit::utils::checked_copy_u8_slice;
 
@@ -50,4 +51,31 @@ pub fn deriving_babylon_address_from_olympia_address_succeeds_and_produces_expec
     // Assert
     assert_eq!(expected_public_key, public_key);
     assert_eq!(expected_nebunet_address, account_address.address);
+}
+
+#[test]
+pub fn deriving_olympia_mainnet_address_from_public_key_succeeds_and_produces_expected_address() {
+    // Arrange
+    let expected_olympia_address =
+        "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842";
+    let public_key = PublicKey::EcdsaSecp256k1(EcdsaSecp256k1PublicKey(
+        checked_copy_u8_slice(
+            hex::decode("026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c")
+                .unwrap(),
+        )
+        .unwrap(),
+    ));
+
+    // Act
+    let olympia_address = {
+        let request = DeriveOlympiaAddressFromPublicKeyRequest {
+            network: OlympiaNetwork::Mainnet,
+            public_key,
+        };
+        let response = DeriveOlympiaAddressFromPublicKeyHandler::fulfill(request).unwrap();
+        response.olympia_account_address
+    };
+
+    // Assert
+    assert_eq!(expected_olympia_address, olympia_address);
 }
