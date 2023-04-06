@@ -182,30 +182,26 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                             value: ManifestExpression::EntireWorktop,
                         }),
                     ) => {
-                        let resource_changes = self
-                            .resource_changes
-                            .get(&self.instruction_index)
-                            .map_or(
-                                Err(Error::NoResourceChangesForInstruction {
-                                    instruction_index: self.instruction_index,
-                                }),
-                                Ok,
-                            )?
-                            .iter()
-                            .filter(
-                                |ResourceChange {
-                                     node_id, amount, ..
-                                 }| {
-                                    *node_id
-                                        == RENodeId::GlobalObject(
-                                            radix_engine::types::Address::Component(
-                                                component_address.address,
-                                            ),
-                                        )
-                                        && amount.is_positive()
-                                },
-                            )
-                            .collect::<Vec<&ResourceChange>>();
+                        let resource_changes =
+                            match self.resource_changes.get(&self.instruction_index) {
+                                Some(resource_changes) => resource_changes
+                                    .iter()
+                                    .filter(
+                                        |ResourceChange {
+                                             node_id, amount, ..
+                                         }| {
+                                            *node_id
+                                                == RENodeId::GlobalObject(
+                                                    radix_engine::types::Address::Component(
+                                                        component_address.address,
+                                                    ),
+                                                )
+                                                && amount.is_positive()
+                                        },
+                                    )
+                                    .collect::<Vec<&ResourceChange>>(),
+                                None => Vec::new(),
+                            };
 
                         for resource_change in resource_changes {
                             self.deposits.push(AccountDeposit {
