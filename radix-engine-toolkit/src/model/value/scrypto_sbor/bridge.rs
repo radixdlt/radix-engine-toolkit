@@ -17,13 +17,11 @@
 
 use super::model::*;
 use crate::error::Result;
-use crate::model::address::*;
 use crate::model::engine_identifier::NodeIdentifier;
 
 use scrypto::prelude::{
     ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
 };
-use scrypto::runtime::Address;
 
 impl From<ScryptoValueKind> for ScryptoSborValueKind {
     fn from(value: ScryptoValueKind) -> Self {
@@ -48,10 +46,6 @@ impl From<ScryptoValueKind> for ScryptoSborValueKind {
             ScryptoValueKind::Map => ScryptoSborValueKind::Map,
             ScryptoValueKind::Array => ScryptoSborValueKind::Array,
             ScryptoValueKind::Tuple => ScryptoSborValueKind::Tuple,
-
-            ScryptoValueKind::Custom(ScryptoCustomValueKind::Address) => {
-                ScryptoSborValueKind::Address
-            }
 
             ScryptoValueKind::Custom(ScryptoCustomValueKind::Decimal) => {
                 ScryptoSborValueKind::Decimal
@@ -94,9 +88,6 @@ impl From<ScryptoSborValueKind> for ScryptoValueKind {
             ScryptoSborValueKind::Array => ScryptoValueKind::Array,
             ScryptoSborValueKind::Tuple => ScryptoValueKind::Tuple,
 
-            ScryptoSborValueKind::Address => {
-                ScryptoValueKind::Custom(ScryptoCustomValueKind::Address)
-            }
             ScryptoSborValueKind::Decimal => {
                 ScryptoValueKind::Custom(ScryptoCustomValueKind::Decimal)
             }
@@ -178,10 +169,6 @@ impl ScryptoSborValue {
                     .collect::<Result<Vec<_>>>()?,
             },
 
-            Self::Address { address } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::Address(address.clone().into()),
-            },
-
             Self::Decimal { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::Decimal(*value),
             },
@@ -197,8 +184,8 @@ impl ScryptoSborValue {
                 value: ScryptoCustomValue::Own(*value),
             },
             Self::Reference { value } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::InternalRef(
-                    radix_engine_common::data::scrypto::model::InternalRef(value.0),
+                value: ScryptoCustomValue::Reference(
+                    radix_engine_common::data::scrypto::model::Reference(value.0),
                 ),
             },
         };
@@ -280,31 +267,6 @@ impl ScryptoSborValue {
             },
 
             ScryptoValue::Custom {
-                value: ScryptoCustomValue::Address(value),
-            } => Self::Address {
-                address: match value {
-                    Address::Component(address) => EntityAddress::ComponentAddress {
-                        address: NetworkAwareComponentAddress {
-                            network_id,
-                            address: *address,
-                        },
-                    },
-                    Address::Resource(address) => EntityAddress::ResourceAddress {
-                        address: NetworkAwareResourceAddress {
-                            network_id,
-                            address: *address,
-                        },
-                    },
-                    Address::Package(address) => EntityAddress::PackageAddress {
-                        address: NetworkAwarePackageAddress {
-                            network_id,
-                            address: *address,
-                        },
-                    },
-                },
-            },
-
-            ScryptoValue::Custom {
                 value: ScryptoCustomValue::Decimal(value),
             } => Self::Decimal { value: *value },
             ScryptoValue::Custom {
@@ -321,7 +283,7 @@ impl ScryptoSborValue {
                 value: ScryptoCustomValue::Own(value),
             } => Self::Own { value: *value },
             ScryptoValue::Custom {
-                value: ScryptoCustomValue::InternalRef(value),
+                value: ScryptoCustomValue::Reference(value),
             } => Self::Reference {
                 value: NodeIdentifier(value.0),
             },

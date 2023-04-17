@@ -155,39 +155,6 @@ pub fn precise_decimal() -> ScryptoSborValue {
     }
 }
 
-pub fn address1() -> ScryptoSborValue {
-    ScryptoSborValue::Address {
-        address: EntityAddress::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
-            },
-        },
-    }
-}
-
-pub fn address2() -> ScryptoSborValue {
-    ScryptoSborValue::Address {
-        address: EntityAddress::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
-            },
-        },
-    }
-}
-
-pub fn address3() -> ScryptoSborValue {
-    ScryptoSborValue::Address {
-        address: EntityAddress::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
-            },
-        },
-    }
-}
-
 pub fn own1() -> ScryptoSborValue {
     ScryptoSborValue::Own {
         value: Own::Bucket([0; OBJECT_ID_LENGTH]),

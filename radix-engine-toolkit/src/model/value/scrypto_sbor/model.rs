@@ -16,7 +16,6 @@
 // under the License.
 
 use crate::define_kind_enum;
-use crate::model::address::EntityAddress;
 use crate::model::engine_identifier::NodeIdentifier;
 
 use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
@@ -181,20 +180,6 @@ define_kind_enum! {
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::tuple")]
         Tuple { elements: Vec<Self> },
-
-        /// Represents a Bech32m encoded human-readable address which may be used to address a package,
-        /// component, or resource. This address is serialized as a human-readable bech32m encoded
-        /// string.
-        #[schemars(
-            example = "crate::example::value::scrypto_sbor_value::address1",
-            example = "crate::example::value::scrypto_sbor_value::address2",
-            example = "crate::example::value::scrypto_sbor_value::address3"
-        )]
-        Address {
-            #[schemars(with = "String")]
-            #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: EntityAddress,
-        },
 
         /// Represents a tagged enum of owned Radix Engine Nodes.
         #[schemars(

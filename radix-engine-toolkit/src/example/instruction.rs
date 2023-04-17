@@ -17,8 +17,9 @@
 
 use native_transaction::manifest::generator::{generate_instruction, NameResolver};
 use native_transaction::validation::ManifestValidator;
+use scrypto::address::Bech32Decoder;
 use scrypto::prelude::{
-    Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
+    ComponentAddress, Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 
 use crate::model::address::{
@@ -29,6 +30,12 @@ use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
 use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
 use crate::utils::checked_copy_u8_slice;
+
+fn example_component_address() -> ComponentAddress {
+    let address = "component_sim1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyskzs0y9";
+    let decoder = Bech32Decoder::for_simulator();
+    ComponentAddress::try_from_bech32(&decoder, address).unwrap()
+}
 
 pub fn call_function1() -> Instruction {
     let instruction = Instruction::CallFunction {
@@ -132,7 +139,7 @@ pub fn call_method1() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -153,7 +160,7 @@ pub fn call_method2() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -174,7 +181,7 @@ pub fn call_method3() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -193,7 +200,7 @@ pub fn call_method4() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -678,6 +685,41 @@ pub fn publish_package() -> Instruction {
             value_value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn publish_package_advanced() -> Instruction {
+    let instruction = Instruction::PublishPackageAdvanced {
+        code: ManifestAstValue::Blob {
+            hash: ManifestBlobRef(
+                checked_copy_u8_slice(
+                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                        .unwrap(),
+                )
+                .unwrap(),
+            ),
+        },
+        schema: ManifestAstValue::Blob {
+            hash: ManifestBlobRef(
+                checked_copy_u8_slice(
+                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
+                        .unwrap(),
+                )
+                .unwrap(),
+            ),
+        },
+        royalty_config: ManifestAstValue::Map {
+            key_value_kind: ManifestAstValueKind::String,
+            value_value_kind: ManifestAstValueKind::Tuple,
+            entries: Vec::new(),
+        },
+        metadata: ManifestAstValue::Map {
+            key_value_kind: ManifestAstValueKind::String,
+            value_value_kind: ManifestAstValueKind::String,
+            entries: Vec::new(),
+        },
         access_rules: ManifestAstValue::Tuple {
             elements: vec![
                 ManifestAstValue::Map {
@@ -765,7 +807,7 @@ pub fn set_metadata() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -792,7 +834,7 @@ pub fn remove_metadata() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -830,7 +872,7 @@ pub fn set_component_royalty_config() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -870,7 +912,7 @@ pub fn claim_component_royalty() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -885,7 +927,7 @@ pub fn set_method_access_rule() -> Instruction {
             address: EntityAddress::ComponentAddress {
                 address: NetworkAwareComponentAddress {
                     network_id: 0x01,
-                    address: FAUCET_COMPONENT,
+                    address: example_component_address(),
                 },
             },
         },
@@ -1125,21 +1167,44 @@ pub fn create_access_controller() -> Instruction {
 }
 
 pub fn create_identity() -> Instruction {
-    let instruction = Instruction::CreateIdentity {
-        access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
-        },
-    };
+    let instruction = Instruction::CreateIdentity {};
     check_instruction(&instruction);
     instruction
 }
 
-pub fn assert_access_rule() -> Instruction {
-    let instruction = Instruction::AssertAccessRule {
-        access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
+pub fn create_identity_advanced() -> Instruction {
+    let instruction = Instruction::CreateIdentityAdvanced {
+        config: ManifestAstValue::Tuple {
+            elements: vec![
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::String,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::String,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+            ],
         },
     };
     check_instruction(&instruction);
@@ -1147,10 +1212,44 @@ pub fn assert_access_rule() -> Instruction {
 }
 
 pub fn create_account() -> Instruction {
-    let instruction = Instruction::CreateAccount {
-        withdraw_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
+    let instruction = Instruction::CreateAccount {};
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_account_advanced() -> Instruction {
+    let instruction = Instruction::CreateAccountAdvanced {
+        config: ManifestAstValue::Tuple {
+            elements: vec![
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::String,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::String,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: None,
+                },
+            ],
         },
     };
     check_instruction(&instruction);
@@ -1164,10 +1263,6 @@ pub fn create_validator() -> Instruction {
                 "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
             )
             .unwrap(),
-        },
-        owner_access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
         },
     };
     check_instruction(&instruction);

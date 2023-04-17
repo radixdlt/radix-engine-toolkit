@@ -204,8 +204,6 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>>>()?,
             },
 
-            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST
-            // change
             Self::Address { address } => ManifestValue::Custom {
                 value: ManifestCustomValue::Address(match address {
                     EntityAddress::ComponentAddress { address } => {

@@ -770,11 +770,6 @@ pub fn traverse_instruction(
             visit!(instructions_visitors, visit_create_identity, access_rule)?;
         }
 
-        Instruction::AssertAccessRule { access_rule } => {
-            traverse_value(access_rule, value_visitors)?;
-            visit!(instructions_visitors, visit_assert_access_rule, access_rule)?;
-        }
-
         Instruction::CreateValidator {
             key,
             owner_access_rule,
