@@ -17,8 +17,8 @@
 
 use crate::define_kind_enum;
 use crate::error::{Error, Result};
-use crate::model::address::NetworkAwareResourceAddress;
-use crate::model::engine_identifier::{BucketId, NetworkAwareNodeId, ProofId};
+use crate::model::address::NetworkAwareNodeId;
+use crate::model::engine_identifier::{BucketId, ProofId};
 
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
 use scrypto::prelude::{
@@ -283,7 +283,7 @@ define_kind_enum! {
         NonFungibleGlobalId {
             #[schemars(with = "ManifestAstValue")]
             #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]
-            resource_address: NetworkAwareResourceAddress,
+            resource_address: NetworkAwareNodeId,
 
             #[schemars(with = "ManifestAstValue")]
             #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]

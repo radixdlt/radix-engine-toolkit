@@ -18,11 +18,10 @@
 use super::model::*;
 use crate::error::{Error, Result};
 use crate::model::address::*;
-use crate::model::engine_identifier::{NetworkAwareNodeId, TransientIdentifier};
+use crate::model::engine_identifier::TransientIdentifier;
 
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::GeneratorError;
-use scrypto::prelude::ResourceAddress;
 use scrypto::prelude::{
     ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind, NodeId,
 };
@@ -312,12 +311,12 @@ impl ManifestAstValue {
                 ast::Value::NonFungibleLocalId(Box::new(ast::Value::String(value.to_string())))
             }
             ManifestAstValue::NonFungibleGlobalId {
-                resource_address: NetworkAwareResourceAddress { address, .. },
+                resource_address,
                 non_fungible_local_id,
             } => {
                 let nf_global_id_string = format!(
                     "{}:{}",
-                    bech32_coder.encode(*address.as_node_id())?,
+                    bech32_coder.encode(resource_address.node_id())?,
                     non_fungible_local_id
                 );
                 ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
@@ -504,10 +503,10 @@ impl ManifestAstValue {
                             string,
                         )?;
                     Self::NonFungibleGlobalId {
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: bech32_coder.network_id(),
-                            address: native_global_id.resource_address(),
-                        },
+                        resource_address: NetworkAwareNodeId(
+                            native_global_id.resource_address().as_node_id().0,
+                            bech32_coder.network_id(),
+                        ),
                         non_fungible_local_id: native_global_id.local_id().clone(),
                     }
                 }
@@ -575,25 +574,20 @@ where
     }
 }
 
-impl TryFrom<NetworkAwareResourceAddress> for ManifestAstValue {
+impl TryFrom<NetworkAwareNodeId> for ManifestAstValue {
     type Error = Error;
 
-    fn try_from(address: NetworkAwareResourceAddress) -> std::result::Result<Self, Self::Error> {
-        Ok(Self::Address {
-            address: address.network_aware_node_id(),
-        })
+    fn try_from(address: NetworkAwareNodeId) -> std::result::Result<Self, Self::Error> {
+        Ok(Self::Address { address })
     }
 }
 
-impl TryFrom<ManifestAstValue> for NetworkAwareResourceAddress {
+impl TryFrom<ManifestAstValue> for NetworkAwareNodeId {
     type Error = Error;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
         if let ManifestAstValue::Address { address } = value {
-            Ok(NetworkAwareResourceAddress {
-                network_id: address.1,
-                address: ResourceAddress::new_unchecked(address.0),
-            })
+            Ok(address)
         } else {
             Err(Error::InvalidKind {
                 expected: vec![ManifestAstValueKind::Address],

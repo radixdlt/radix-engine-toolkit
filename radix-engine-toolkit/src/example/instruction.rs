@@ -22,7 +22,8 @@ use scrypto::prelude::{
     ComponentAddress, Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 
-use crate::model::engine_identifier::{BucketId, NetworkAwareNodeId, ProofId, TransientIdentifier};
+use crate::model::address::NetworkAwareNodeId;
+use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
 use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
 use crate::utils::checked_copy_u8_slice;

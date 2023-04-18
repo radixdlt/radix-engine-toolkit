@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod node_identifier;
 pub mod transient_identifier;
 
-pub use node_identifier::*;
 pub use transient_identifier::*;

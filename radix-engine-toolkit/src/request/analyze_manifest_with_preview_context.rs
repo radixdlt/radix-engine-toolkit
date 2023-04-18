@@ -18,8 +18,7 @@
 use std::collections::BTreeSet;
 
 use crate::error::{Error, Result};
-use crate::model::address::NetworkAwarePackageAddress;
-use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::visitor::{
@@ -83,7 +82,7 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     /// auth based on that.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub accounts_requiring_auth: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts_requiring_auth: BTreeSet<NetworkAwareNodeId>,
 
     /// A set of the resource addresses of which proofs were created from accounts in this
     /// manifest.
@@ -94,7 +93,7 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     /// proof was created from.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub account_proof_resources: BTreeSet<NetworkAwareResourceAddress>,
+    pub account_proof_resources: BTreeSet<NetworkAwareNodeId>,
 
     /// A list of the account withdraws seen in the manifest.
     ///
@@ -126,12 +125,12 @@ pub struct EncounteredAddresses {
     /// The set of resource addresses encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of package addresses encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 /// The set of newly created entities
@@ -141,17 +140,17 @@ pub struct CreatedEntities {
     /// The set of addresses of newly created components.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+    pub component_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of addresses of newly created resources.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of addresses of newly created packages.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 /// The set of addresses encountered in the manifest
@@ -161,41 +160,41 @@ pub struct EncounteredComponents {
     /// The set of user application components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub user_applications: BTreeSet<NetworkAwareComponentAddress>,
+    pub user_applications: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of account components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub accounts: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of identity components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub identities: BTreeSet<NetworkAwareComponentAddress>,
+    pub identities: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of clock components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub clocks: BTreeSet<NetworkAwareComponentAddress>,
+    pub clocks: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of epoch_manager components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub epoch_managers: BTreeSet<NetworkAwareComponentAddress>,
+    pub epoch_managers: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of validator components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub validators: BTreeSet<NetworkAwareComponentAddress>,
+    pub validators: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of validator components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub access_controller: BTreeSet<NetworkAwareComponentAddress>,
+    pub access_controller: BTreeSet<NetworkAwareNodeId>,
 }
 
-impl From<BTreeSet<NetworkAwareComponentAddress>> for EncounteredComponents {
-    fn from(value: BTreeSet<NetworkAwareComponentAddress>) -> Self {
+impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
+    fn from(value: BTreeSet<NetworkAwareNodeId>) -> Self {
         let mut user_applications = BTreeSet::new();
         let mut accounts = BTreeSet::new();
         let mut identities = BTreeSet::new();
@@ -205,7 +204,7 @@ impl From<BTreeSet<NetworkAwareComponentAddress>> for EncounteredComponents {
         let mut access_controller = BTreeSet::new();
 
         for address in value {
-            if let Some(entity_type) = address.address.as_node_id().entity_type() {
+            if let Some(entity_type) = address.node_id().entity_type() {
                 match entity_type {
                     EntityType::GlobalAccount
                     | EntityType::InternalAccount
@@ -375,26 +374,17 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
                 component_addresses: commit
                     .new_component_addresses()
                     .iter()
-                    .map(|address| NetworkAwareComponentAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
                 resource_addresses: commit
                     .new_resource_addresses()
                     .iter()
-                    .map(|address| NetworkAwareResourceAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
                 package_addresses: commit
                     .new_package_addresses()
                     .iter()
-                    .map(|address| NetworkAwarePackageAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
             },
         })

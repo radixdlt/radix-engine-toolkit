@@ -20,7 +20,7 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::NetworkAwareComponentAddress;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
@@ -34,7 +34,7 @@ pub struct AccountWithdrawsInstructionVisitor(pub Vec<AccountWithdraw>);
 impl AccountWithdrawsInstructionVisitor {
     pub fn add(
         &mut self,
-        component_address: NetworkAwareComponentAddress,
+        component_address: NetworkAwareNodeId,
         resource_specifier: ResourceSpecifier,
     ) {
         self.0.push(AccountWithdraw {
@@ -79,10 +79,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 && resource_address.node_id().is_global_resource() =>
             {
                 self.add(
-                    (*component_address).try_into()?,
+                    *component_address,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: (*resource_address).try_into()?,
+                        resource_address: *resource_address,
                     },
                 )
             }
@@ -119,10 +119,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     resolved_ids
                 };
                 self.add(
-                    (*component_address).try_into()?,
+                    *component_address,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: (*resource_address).try_into()?,
+                        resource_address: *resource_address,
                     },
                 )
             }
@@ -147,10 +147,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 && resource_address.node_id().is_global_resource() =>
             {
                 self.add(
-                    (*component_address).try_into()?,
+                    *component_address,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: (*resource_address).try_into()?,
+                        resource_address: *resource_address,
                     },
                 )
             }
@@ -188,10 +188,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     resolved_ids
                 };
                 self.add(
-                    (*component_address).try_into()?,
+                    *component_address,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: (*resource_address).try_into()?,
+                        resource_address: *resource_address,
                     },
                 )
             }
@@ -207,7 +207,7 @@ pub struct AccountWithdraw {
     /// The component address of the account that the resources were withdrawn from.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    component_address: NetworkAwareComponentAddress,
+    component_address: NetworkAwareNodeId,
 
     /// A specifier used to specify what was withdrawn from the account - this could either be an
     /// amount or a set of non-fungible local ids.

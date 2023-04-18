@@ -18,7 +18,7 @@
 use super::model::*;
 use crate::error::Result;
 
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::utils::checked_copy_u8_slice;
 
 use scrypto::prelude::{

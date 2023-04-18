@@ -20,7 +20,7 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::NetworkAwareComponentAddress;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
@@ -29,9 +29,9 @@ use crate::visitor::InstructionVisitor;
 /// accounts
 #[derive(Debug, Default)]
 pub struct AccountInteractionsInstructionVisitor {
-    pub auth_required: BTreeSet<NetworkAwareComponentAddress>,
-    pub accounts_withdrawn_from: BTreeSet<NetworkAwareComponentAddress>,
-    pub accounts_deposited_into: BTreeSet<NetworkAwareComponentAddress>,
+    pub auth_required: BTreeSet<NetworkAwareNodeId>,
+    pub accounts_withdrawn_from: BTreeSet<NetworkAwareNodeId>,
+    pub accounts_deposited_into: BTreeSet<NetworkAwareNodeId>,
 }
 
 impl AccountInteractionsInstructionVisitor {
@@ -72,15 +72,13 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
                 ManifestAstValue::String { value: method_name },
             ) if is_account(*component_address) => {
                 if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
-                    self.auth_required.insert((*component_address).try_into()?);
+                    self.auth_required.insert(*component_address);
                 }
                 if Self::WITHDRAW_METHODS.contains(&method_name.as_str()) {
-                    self.accounts_withdrawn_from
-                        .insert((*component_address).try_into()?);
+                    self.accounts_withdrawn_from.insert(*component_address);
                 }
                 if Self::DEPOSIT_METHODS.contains(&method_name.as_str()) {
-                    self.accounts_deposited_into
-                        .insert((*component_address).try_into()?);
+                    self.accounts_deposited_into.insert(*component_address);
                 }
             }
             _ => {}
@@ -99,7 +97,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
             ManifestAstValue::Address {
                 address: component_address,
             } if is_account(*component_address) => {
-                self.auth_required.insert((*component_address).try_into()?);
+                self.auth_required.insert(*component_address);
             }
             _ => {}
         }
@@ -116,7 +114,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
             ManifestAstValue::Address {
                 address: component_address,
             } if is_account(*component_address) => {
-                self.auth_required.insert((*component_address).try_into()?);
+                self.auth_required.insert(*component_address);
             }
             _ => {}
         }
@@ -131,7 +129,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
             ManifestAstValue::Address {
                 address: component_address,
             } if is_account(*component_address) => {
-                self.auth_required.insert((*component_address).try_into()?);
+                self.auth_required.insert(*component_address);
             }
             _ => {}
         }
@@ -148,7 +146,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
             ManifestAstValue::Address {
                 address: component_address,
             } if is_account(*component_address) => {
-                self.auth_required.insert((*component_address).try_into()?);
+                self.auth_required.insert(*component_address);
             }
             _ => {}
         }
