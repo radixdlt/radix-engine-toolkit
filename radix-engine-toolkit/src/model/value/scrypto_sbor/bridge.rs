@@ -17,7 +17,7 @@
 
 use super::model::*;
 use crate::error::Result;
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 
 use scrypto::prelude::{
     NodeId, Own, ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,

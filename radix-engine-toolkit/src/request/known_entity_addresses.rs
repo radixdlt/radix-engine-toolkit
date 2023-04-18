@@ -16,9 +16,7 @@
 // under the License.
 
 use crate::error::Result;
-use crate::model::address::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-};
+use crate::model::address::NetworkAwareNodeId;
 use crate::request::traits::Handler;
 use scrypto::prelude::{
     ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_TOKEN, EDDSA_ED25519_TOKEN, EPOCH_MANAGER,
@@ -52,55 +50,55 @@ pub struct KnownEntityAddressesResponse {
     /// the address of the faucet package on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub faucet_package_address: NetworkAwarePackageAddress,
+    pub faucet_package_address: NetworkAwareNodeId,
 
     /// A package address serialized as a `PackageAddress` from the `Value` model which represents
     /// the address of the account package on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub account_package_address: NetworkAwarePackageAddress,
+    pub account_package_address: NetworkAwareNodeId,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the XRD resource on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub xrd_resource_address: NetworkAwareResourceAddress,
+    pub xrd_resource_address: NetworkAwareNodeId,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the system resource on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub system_token_resource_address: NetworkAwareResourceAddress,
+    pub system_token_resource_address: NetworkAwareNodeId,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the Ecdsa Secp256k1 resource on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub ecdsa_secp256k1_token_resource_address: NetworkAwareResourceAddress,
+    pub ecdsa_secp256k1_token_resource_address: NetworkAwareNodeId,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the EdDSA Ed25519 resource on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress,
+    pub eddsa_ed25519_token_resource_address: NetworkAwareNodeId,
 
     /// A resource address serialized as a `ResourceAddress` from the `Value` model which
     /// represents the address of the package token resource on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub package_token_resource_address: NetworkAwareResourceAddress,
+    pub package_token_resource_address: NetworkAwareNodeId,
 
     /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the epoch manager on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub epoch_manager_system_address: NetworkAwareComponentAddress,
+    pub epoch_manager_system_address: NetworkAwareNodeId,
 
     /// A system address serialized as a `ComponentAddress` from the `Value` model which represents
     /// the address of the clock on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub clock_system_address: NetworkAwareComponentAddress,
+    pub clock_system_address: NetworkAwareNodeId,
 }
 
 // ===============
@@ -119,42 +117,30 @@ impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     fn handle(request: &KnownEntityAddressesRequest) -> Result<KnownEntityAddressesResponse> {
         let network_id = request.network_id;
         Ok(KnownEntityAddressesResponse {
-            faucet_package_address: NetworkAwarePackageAddress {
-                address: FAUCET_PACKAGE,
+            faucet_package_address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, network_id),
+            account_package_address: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, network_id),
+            xrd_resource_address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, network_id),
+            system_token_resource_address: NetworkAwareNodeId(
+                SYSTEM_TOKEN.as_node_id().0,
                 network_id,
-            },
-            account_package_address: NetworkAwarePackageAddress {
-                address: ACCOUNT_PACKAGE,
+            ),
+            ecdsa_secp256k1_token_resource_address: NetworkAwareNodeId(
+                ECDSA_SECP256K1_TOKEN.as_node_id().0,
                 network_id,
-            },
-            xrd_resource_address: NetworkAwareResourceAddress {
-                address: RADIX_TOKEN,
+            ),
+            eddsa_ed25519_token_resource_address: NetworkAwareNodeId(
+                EDDSA_ED25519_TOKEN.as_node_id().0,
                 network_id,
-            },
-            system_token_resource_address: NetworkAwareResourceAddress {
-                address: SYSTEM_TOKEN,
+            ),
+            package_token_resource_address: NetworkAwareNodeId(
+                PACKAGE_TOKEN.as_node_id().0,
                 network_id,
-            },
-            ecdsa_secp256k1_token_resource_address: NetworkAwareResourceAddress {
-                address: ECDSA_SECP256K1_TOKEN,
+            ),
+            epoch_manager_system_address: NetworkAwareNodeId(
+                EPOCH_MANAGER.as_node_id().0,
                 network_id,
-            },
-            eddsa_ed25519_token_resource_address: NetworkAwareResourceAddress {
-                address: EDDSA_ED25519_TOKEN,
-                network_id,
-            },
-            package_token_resource_address: NetworkAwareResourceAddress {
-                address: PACKAGE_TOKEN,
-                network_id,
-            },
-            epoch_manager_system_address: NetworkAwareComponentAddress {
-                address: EPOCH_MANAGER,
-                network_id,
-            },
-            clock_system_address: NetworkAwareComponentAddress {
-                address: CLOCK,
-                network_id,
-            },
+            ),
+            clock_system_address: NetworkAwareNodeId(CLOCK.as_node_id().0, network_id),
         })
     }
 

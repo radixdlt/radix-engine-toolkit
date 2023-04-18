@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::{define_kind_enum, model::engine_identifier::NetworkAwareNodeId};
+use crate::define_kind_enum;
+use crate::model::address::NetworkAwareNodeId;
 
 use scrypto::prelude::{
     Decimal, ManifestBlobRef, ManifestExpression, NonFungibleLocalId, PreciseDecimal,

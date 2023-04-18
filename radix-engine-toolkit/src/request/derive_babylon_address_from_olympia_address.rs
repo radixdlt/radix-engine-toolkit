@@ -21,7 +21,7 @@ use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
 use crate::error::{Error, Result};
-use crate::model::address::NetworkAwareComponentAddress;
+use crate::model::address::NetworkAwareNodeId;
 use crate::utils::checked_copy_u8_slice;
 
 use super::traits::Handler;
@@ -53,7 +53,7 @@ pub struct DeriveBabylonAddressFromOlympiaAddressResponse {
     /// The Babylon account address associated with the Olympia address.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub babylon_account_address: NetworkAwareComponentAddress,
+    pub babylon_account_address: NetworkAwareNodeId,
 
     /// The public key associated with the Olympia account address.
     #[schemars(with = "crate::model::crypto::PublicKey")]
@@ -129,10 +129,12 @@ impl
         let public_key = EcdsaSecp256k1PublicKey(checked_copy_u8_slice(data)?);
 
         Ok(DeriveBabylonAddressFromOlympiaAddressResponse {
-            babylon_account_address: NetworkAwareComponentAddress {
-                address: ComponentAddress::virtual_account_from_public_key(&public_key),
-                network_id: request.network_id,
-            },
+            babylon_account_address: NetworkAwareNodeId(
+                ComponentAddress::virtual_account_from_public_key(&public_key)
+                    .as_node_id()
+                    .0,
+                request.network_id,
+            ),
             public_key: public_key.into(),
         })
     }

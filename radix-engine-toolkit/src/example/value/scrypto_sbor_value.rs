@@ -20,7 +20,7 @@ use scrypto::prelude::{
     StringNonFungibleLocalId, UUIDNonFungibleLocalId, ACCOUNT_PACKAGE,
 };
 
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
 
 pub fn value() -> ScryptoSborValue {

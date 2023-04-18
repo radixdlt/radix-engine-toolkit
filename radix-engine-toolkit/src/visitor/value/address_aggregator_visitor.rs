@@ -18,9 +18,7 @@
 use std::collections::BTreeSet;
 
 use crate::error::{Error, Result};
-use crate::model::address::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-};
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
 use crate::visitor::ManifestAstValueVisitor;
 
@@ -28,9 +26,9 @@ use crate::visitor::ManifestAstValueVisitor;
 /// stored them in its state.
 #[derive(Debug, Default)]
 pub struct AddressAggregatorVisitor {
-    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub component_addresses: BTreeSet<NetworkAwareNodeId>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
@@ -38,11 +36,11 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
         if let ManifestAstValue::Address { address } = value {
             let node_id = address.node_id();
             if node_id.is_global_component() {
-                self.component_addresses.insert((*address).try_into()?);
+                self.component_addresses.insert(*address);
             } else if node_id.is_global_resource() {
-                self.resource_addresses.insert((*address).try_into()?);
+                self.resource_addresses.insert(*address);
             } else if node_id.is_global_package() {
-                self.package_addresses.insert((*address).try_into()?);
+                self.package_addresses.insert(*address);
             }
             Ok(())
         } else {

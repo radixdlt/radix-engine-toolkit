@@ -18,7 +18,7 @@
 use super::traits::Handler;
 use crate::error::{Error, Result};
 use crate::model::address::EntityType;
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::utils::network_definition_from_network_id;
 use scrypto::address::DecodeBech32AddressError;
 use toolkit_derive::serializable;

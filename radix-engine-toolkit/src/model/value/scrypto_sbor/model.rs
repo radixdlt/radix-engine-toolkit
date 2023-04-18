@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::define_kind_enum;
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 
 use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
 

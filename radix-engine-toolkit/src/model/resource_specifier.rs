@@ -19,7 +19,7 @@ use scrypto::prelude::{Decimal, NonFungibleLocalId};
 use std::collections::BTreeSet;
 use toolkit_derive::serializable;
 
-use super::address::NetworkAwareResourceAddress;
+use super::address::NetworkAwareNodeId;
 
 /// Specifies resources either through amounts for fungible and non-fungible resources or through
 /// ids for non-fungible resources.
@@ -32,7 +32,7 @@ pub enum ResourceSpecifier {
         /// The resource address associated with the resource
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
-        resource_address: NetworkAwareResourceAddress,
+        resource_address: NetworkAwareNodeId,
 
         /// The amount of resources withdrawn from the account. This is a decimal value which is
         /// serialized as a string.
@@ -46,7 +46,7 @@ pub enum ResourceSpecifier {
         /// The resource address associated with the resource
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]
-        resource_address: NetworkAwareResourceAddress,
+        resource_address: NetworkAwareNodeId,
 
         /// The set of non-fungible ids
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
