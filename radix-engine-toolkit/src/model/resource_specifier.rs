@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::model::address::EntityAddress;
 use scrypto::prelude::{Decimal, NonFungibleLocalId};
 use std::collections::BTreeSet;
 use toolkit_derive::serializable;
@@ -31,8 +30,8 @@ pub enum ResourceSpecifier {
     // Specifies resources using a decimal quantity.
     Amount {
         /// The resource address associated with the resource
-        #[schemars(with = "EntityAddress")]
-        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
         resource_address: NetworkAwareResourceAddress,
 
         /// The amount of resources withdrawn from the account. This is a decimal value which is
@@ -45,8 +44,8 @@ pub enum ResourceSpecifier {
     // Specifies resources through a set of non-fungible local id.
     Ids {
         /// The resource address associated with the resource
-        #[schemars(with = "EntityAddress")]
-        #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
         resource_address: NetworkAwareResourceAddress,
 
         /// The set of non-fungible ids

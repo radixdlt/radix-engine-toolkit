@@ -145,7 +145,7 @@ where
 
     fn example_response() -> O {
         Self::fulfill(Self::example_request())
-            .expect(format!("Failed. Request: {:?}", Self::example_request()).as_str())
+            .unwrap_or_else(|_| panic!("Failed. Request: {:?}", Self::example_request()))
     }
 
     fn request_type_name() -> String {
@@ -465,25 +465,6 @@ impl ExampleData<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddre
 
     fn example_request() -> DeriveVirtualIdentityAddressRequest {
         DeriveVirtualIdentityAddressRequest {
-            network_id: 0xf2,
-            public_key: notary_private_key().public_key().into(),
-        }
-    }
-}
-
-impl
-    ExampleData<
-        DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-        DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-    > for DeriveNonFungibleGlobalIdFromPublicKeyHandler
-{
-    fn description() -> String {
-        r#"Derives the non-fungible global id of the virtual badge associated with a given public key"#
-            .to_owned()
-    }
-
-    fn example_request() -> DeriveNonFungibleGlobalIdFromPublicKeyRequest {
-        DeriveNonFungibleGlobalIdFromPublicKeyRequest {
             network_id: 0xf2,
             public_key: notary_private_key().public_key().into(),
         }

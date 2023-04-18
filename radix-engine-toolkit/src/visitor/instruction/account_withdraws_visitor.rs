@@ -20,7 +20,7 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
+use crate::model::address::NetworkAwareComponentAddress;
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
@@ -63,48 +63,40 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
                 Some(ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ResourceAddress {
-                            address: resource_address,
-                        },
+                    address: resource_address,
                 }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
                 None,
-            ) if is_account(component_address) && method_name == ACCOUNT_WITHDRAW_IDENT => self
-                .add(
-                    component_address.to_owned(),
+            ) if is_account(*component_address)
+                && method_name == ACCOUNT_WITHDRAW_IDENT
+                && resource_address.node_id().is_global_resource() =>
+            {
+                self.add(
+                    (*component_address).try_into()?,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: resource_address.to_owned(),
+                        resource_address: (*resource_address).try_into()?,
                     },
-                ),
+                )
+            }
             // Withdraw from account by ids
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
                 Some(ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ResourceAddress {
-                            address: resource_address,
-                        },
+                    address: resource_address,
                 }),
                 // Set of non-fungible ids
                 Some(ManifestAstValue::Array {
@@ -112,8 +104,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     elements: ids,
                 }),
                 None,
-            ) if is_account(component_address)
-                && method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT =>
+            ) if is_account(*component_address)
+                && method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT
+                && resource_address.node_id().is_global_resource() =>
             {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
@@ -126,10 +119,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     resolved_ids
                 };
                 self.add(
-                    component_address.to_owned(),
+                    (*component_address).try_into()?,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: resource_address.to_owned(),
+                        resource_address: (*resource_address).try_into()?,
                     },
                 )
             }
@@ -137,10 +130,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 // Method name
                 ManifestAstValue::String { value: method_name },
@@ -148,21 +138,19 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource address to withdraw
                 Some(ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ResourceAddress {
-                            address: resource_address,
-                        },
+                    address: resource_address,
                 }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
-            ) if is_account(component_address)
-                && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT =>
+            ) if is_account(*component_address)
+                && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT
+                && resource_address.node_id().is_global_resource() =>
             {
                 self.add(
-                    component_address.to_owned(),
+                    (*component_address).try_into()?,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: resource_address.to_owned(),
+                        resource_address: (*resource_address).try_into()?,
                     },
                 )
             }
@@ -170,10 +158,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
@@ -181,18 +166,16 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource Address
                 Some(ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ResourceAddress {
-                            address: resource_address,
-                        },
+                    address: resource_address,
                 }),
                 // Array of non-fungible ids
                 Some(ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids,
                 }),
-            ) if is_account(component_address)
-                && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT =>
+            ) if is_account(*component_address)
+                && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
+                && resource_address.node_id().is_global_resource() =>
             {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
@@ -205,10 +188,10 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     resolved_ids
                 };
                 self.add(
-                    component_address.to_owned(),
+                    (*component_address).try_into()?,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: resource_address.to_owned(),
+                        resource_address: (*resource_address).try_into()?,
                     },
                 )
             }
@@ -222,8 +205,8 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 pub struct AccountWithdraw {
     /// The component address of the account that the resources were withdrawn from.
-    #[schemars(with = "EntityAddress")]
-    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     component_address: NetworkAwareComponentAddress,
 
     /// A specifier used to specify what was withdrawn from the account - this could either be an

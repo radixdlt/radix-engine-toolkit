@@ -15,5 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod entity_address;
 pub mod non_fungible;

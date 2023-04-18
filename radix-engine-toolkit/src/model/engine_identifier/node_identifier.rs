@@ -15,56 +15,73 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
+use radix_engine_common::types::NodeId;
+
 use std::fmt::Display;
 use std::str::FromStr;
 
-use toolkit_derive::serializable;
-
 use crate::error::{Error, Result};
-use crate::utils::checked_copy_u8_slice;
+use crate::model::address::Bech32Coder;
 
 // =================
 // Model Definition
 // =================
 
-#[serializable]
-/// Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a
-/// hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)
-#[derive(PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub struct NodeIdentifier(
-    #[schemars(length(equal = 31))]
-    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::hex::Hex")]
-    pub [u8; OBJECT_ID_LENGTH],
-);
+/// Represents a Radix Engine persistent node identifier which is 27 bytes long and serialized as a
+/// Bech32m encoded string.
+#[derive(PartialEq, PartialOrd, Eq, Ord, Hash, Copy, Clone, Debug)]
+pub struct NetworkAwareNodeId(pub [u8; NodeId::LENGTH], pub u8);
+
+impl NetworkAwareNodeId {
+    pub fn node_id(&self) -> NodeId {
+        NodeId(self.0)
+    }
+
+    pub fn network_id(&self) -> u8 {
+        self.1
+    }
+}
+
+impl From<NetworkAwareNodeId> for NodeId {
+    fn from(value: NetworkAwareNodeId) -> Self {
+        Self(value.0)
+    }
+}
+
+impl From<&NetworkAwareNodeId> for NodeId {
+    fn from(value: &NetworkAwareNodeId) -> Self {
+        Self(value.0)
+    }
+}
+
+impl From<&mut NetworkAwareNodeId> for NodeId {
+    fn from(value: &mut NetworkAwareNodeId) -> Self {
+        Self(value.0)
+    }
+}
 
 // =====
 // Text
 // =====
 
-impl Display for NodeIdentifier {
+impl Display for NetworkAwareNodeId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", hex::encode(self.0))
+        let coder = Bech32Coder::new(self.1);
+        let node_id = NodeId(self.0);
+
+        coder
+            .encode(node_id)
+            .map_err(|_| std::fmt::Error)
+            .and_then(|node_id| write!(f, "{}", node_id))
     }
 }
 
-impl FromStr for NodeIdentifier {
+impl FromStr for NetworkAwareNodeId {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        // Attempt the decode the string as a hex-string
-        let bytes = hex::decode(s)?;
-
-        // Check that the decoded bytes are of the expected length - error out if they're not
-        if bytes.len() != OBJECT_ID_LENGTH {
-            Err(Error::InvalidLength {
-                expected: OBJECT_ID_LENGTH,
-                found: bytes.len(),
-            })
-        } else {
-            Ok(NodeIdentifier(checked_copy_u8_slice(&bytes)?))
-        }
+        let bech32_coder = Bech32Coder::new_from_address(s)?;
+        let node_id = bech32_coder.decode(s)?;
+        Ok(Self(node_id.0, bech32_coder.network_id()))
     }
 }

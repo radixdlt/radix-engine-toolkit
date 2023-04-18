@@ -20,7 +20,7 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::{EntityAddress, NetworkAwareResourceAddress};
+use crate::model::address::NetworkAwareResourceAddress;
 use crate::model::value::ast::ManifestAstValue;
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
@@ -49,26 +49,21 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         ) {
             (
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 ManifestAstValue::String {
                     value: ref method_name,
                 },
                 Some(ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ResourceAddress {
-                            address: resource_address,
-                        },
+                    address: resource_address,
                 }),
-            ) if is_account(component_address)
+            ) if is_account(*component_address)
                 && (method_name == ACCOUNT_CREATE_PROOF_IDENT
                     || method_name == ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT
-                    || method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT) =>
+                    || method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT)
+                && resource_address.node_id().is_global_resource() =>
             {
-                self.created_proofs.insert(*resource_address);
+                self.created_proofs.insert((*resource_address).try_into()?);
             }
             _ => {}
         }

@@ -16,15 +16,11 @@
 // under the License.
 
 pub mod coder;
-pub mod entity_address;
 pub mod entity_type;
 pub mod network_aware_address;
-pub mod non_fungible_global_id;
 pub mod non_fungible_local_id;
 
 pub use coder::*;
-pub use entity_address::*;
 pub use entity_type::*;
 pub use network_aware_address::*;
-pub use non_fungible_global_id::*;
 pub use non_fungible_local_id::*;

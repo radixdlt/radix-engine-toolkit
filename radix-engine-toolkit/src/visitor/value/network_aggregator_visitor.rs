@@ -52,7 +52,7 @@ impl ManifestAstValueVisitor for ValueNetworkAggregatorVisitor {
         value: &mut crate::model::value::ast::ManifestAstValue,
     ) -> crate::error::Result<()> {
         if let ManifestAstValue::Address { address } = value {
-            self.0.insert(address.network_id());
+            self.0.insert(address.1);
             Ok(())
         } else {
             Err(Error::Infallible {

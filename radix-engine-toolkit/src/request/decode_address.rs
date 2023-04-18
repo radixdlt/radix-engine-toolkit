@@ -16,13 +16,14 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
-use crate::model::address::{EntityAddress, EntityType};
+use crate::error::{Error, Result};
+use crate::model::address::EntityType;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::utils::network_definition_from_network_id;
+use scrypto::address::DecodeBech32AddressError;
 use toolkit_derive::serializable;
 
 use bech32::{self, FromBase32, Variant};
-use scrypto::address::AddressError;
 
 // =================
 // Model Definition
@@ -83,16 +84,20 @@ impl Handler<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressHandl
     fn handle(request: &DecodeAddressRequest) -> Result<DecodeAddressResponse> {
         // We need to deduce the network from the HRP of the passed address. Therefore, we need to
         // begin by decoding the address, and getting the HRP.
-        let (hrp, data, variant) =
-            bech32::decode(&request.address).map_err(AddressError::Bech32mDecodingError)?;
-        let data = Vec::<u8>::from_base32(&data).map_err(AddressError::Bech32mDecodingError)?;
+        let (hrp, data, variant) = bech32::decode(&request.address)
+            .map_err(DecodeBech32AddressError::Bech32mDecodingError)
+            .map_err(|error| Error::AddressError {
+                message: format!("{:?}", error),
+            })?;
+        let data = Vec::<u8>::from_base32(&data)
+            .map_err(DecodeBech32AddressError::Bech32mDecodingError)?;
 
         match variant {
             Variant::Bech32m => Ok(()),
-            variant => Err(AddressError::InvalidVariant(variant)),
+            variant => Err(DecodeBech32AddressError::InvalidVariant(variant)),
         }?;
 
-        let address = request.address.parse::<EntityAddress>()?;
+        let address = request.address.parse::<NetworkAwareNodeId>()?;
         let network_definition = network_definition_from_network_id(address.network_id());
 
         Ok(DecodeAddressResponse {
@@ -100,7 +105,12 @@ impl Handler<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressHandl
             network_name: network_definition.logical_name,
             hrp,
             data,
-            entity_type: address.kind().into(),
+            entity_type: address.node_id().entity_type().map_or(
+                Err(Error::AddressError {
+                    message: "Invalid entity type".to_owned(),
+                }),
+                |entity_type| Ok(entity_type.into()),
+            )?,
         })
     }
 

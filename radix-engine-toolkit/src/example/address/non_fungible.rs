@@ -15,11 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::model::address::{NetworkAwareResourceAddress, NonFungibleGlobalId, NonFungibleLocalId};
-use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, StringNonFungibleLocalId,
-    UUIDNonFungibleLocalId, ECDSA_SECP256K1_TOKEN,
-};
+use crate::model::address::NonFungibleLocalId;
 
 pub fn non_fungible_local_uuid() -> NonFungibleLocalId {
     NonFungibleLocalId::UUID(241008287272164729465721528295504357972)
@@ -35,52 +31,4 @@ pub fn non_fungible_local_string() -> NonFungibleLocalId {
 
 pub fn non_fungible_local_bytes() -> NonFungibleLocalId {
     NonFungibleLocalId::Bytes(vec![0x00, 0x01, 0x02, 0x03])
-}
-
-pub fn non_fungible_global_uuid() -> NonFungibleGlobalId {
-    NonFungibleGlobalId {
-        resource_address: NetworkAwareResourceAddress {
-            network_id: 0x01,
-            address: ECDSA_SECP256K1_TOKEN,
-        },
-        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::UUID(
-            UUIDNonFungibleLocalId::new(241008287272164729465721528295504357972).unwrap(),
-        ),
-    }
-}
-
-pub fn non_fungible_global_integer() -> NonFungibleGlobalId {
-    NonFungibleGlobalId {
-        resource_address: NetworkAwareResourceAddress {
-            network_id: 0x01,
-            address: ECDSA_SECP256K1_TOKEN,
-        },
-        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(
-            IntegerNonFungibleLocalId::new(1),
-        ),
-    }
-}
-
-pub fn non_fungible_global_string() -> NonFungibleGlobalId {
-    NonFungibleGlobalId {
-        resource_address: NetworkAwareResourceAddress {
-            network_id: 0x01,
-            address: ECDSA_SECP256K1_TOKEN,
-        },
-        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::String(
-            StringNonFungibleLocalId::new("Scrypto".to_owned()).unwrap(),
-        ),
-    }
-}
-
-pub fn non_fungible_global_bytes() -> NonFungibleGlobalId {
-    NonFungibleGlobalId {
-        resource_address: NetworkAwareResourceAddress {
-            network_id: 0x01,
-            address: ECDSA_SECP256K1_TOKEN,
-        },
-        non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Bytes(
-            BytesNonFungibleLocalId::new(vec![0x01, 0x02, 0x03, 0x04]).unwrap(),
-        ),
-    }
 }

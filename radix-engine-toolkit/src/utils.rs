@@ -15,13 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Borrow;
-
 use crate::error::{Error, Result};
 use bech32;
-use scrypto::address::AddressError;
+use radix_engine_common::types::EntityType;
+use regex::Regex;
 use scrypto::network::NetworkDefinition;
-use scrypto::prelude::ComponentAddress;
+use scrypto::prelude::NodeId;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented
 /// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
@@ -94,31 +93,35 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
 pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Result<u8> {
     // Getting the network specifier from the given HRP. Bech32 HRPs used in Babylon are structured
     // as follows:
-    let splitted_hrp = hrp.as_ref().split('_').collect::<Vec<&str>>();
+    // TODO: Better errors and remove unwraps
     let network_specifier = {
-        match splitted_hrp.get(1) {
-            Some(_) => Ok(splitted_hrp
-                .into_iter()
-                .skip(1)
-                .collect::<Vec<&str>>()
-                .join("_")),
-            None => Err(AddressError::InvalidHrp),
-        }
-    }?;
+        let re = Regex::new("_(sim|loc|rdx|tdx_[A-Fa-f0-9]{1,2}_)$").unwrap();
+        re.captures(hrp.as_ref())
+            .unwrap()
+            .get(1)
+            .unwrap()
+            .as_str()
+            .trim_end_matches('_')
+    };
 
     // Matching the network specifier to obtain the network id from it
-    let network_id = match network_specifier.as_str() {
-        "rdx" => NetworkDefinition::mainnet().id,
-        "sim" => NetworkDefinition::simulator().id,
-        "loc" => 0xF0,
-        numeric_network_specifier => {
-            match numeric_network_specifier.split('_').nth(1) {
-                Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
-                    .map_err(|_| AddressError::InvalidHrp)?),
-                None => Err(AddressError::InvalidHrp),
-            }
-        }?,
-    };
+    let network_id =
+        match network_specifier {
+            "rdx" => NetworkDefinition::mainnet().id,
+            "sim" => NetworkDefinition::simulator().id,
+            "loc" => 0xF0,
+            numeric_network_specifier => {
+                match numeric_network_specifier.split('_').nth(1) {
+                    Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
+                        .map_err(|_| Error::Infallible {
+                            message: "TODO: Rework errors".into(),
+                        })?),
+                    None => Err(Error::Infallible {
+                        message: "TODO: Rework errors".into(),
+                    }),
+                }
+            }?,
+        };
     Ok(network_id)
 }
 
@@ -126,18 +129,22 @@ pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8> {
     // Attempt to Bech32m decode this address to get the hrp and the data type (will not be used).
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
-    let (hrp, _, _) =
-        bech32::decode(address.as_ref()).map_err(AddressError::Bech32mDecodingError)?;
+    let (hrp, _, _) = bech32::decode(address.as_ref()).map_err(|_| Error::Infallible {
+        message: "TODO: Rework errors".into(),
+    })?;
     network_id_from_hrp(hrp)
 }
 
-pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
-    matches!(
-        address.borrow(),
-        ComponentAddress::Account(..)
-            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-            | ComponentAddress::EddsaEd25519VirtualAccount(..)
-    )
+pub fn is_account<A: Into<NodeId>>(node_id: A) -> bool {
+    node_id.into().entity_type().map_or(false, |entity_type| {
+        matches!(
+            entity_type,
+            EntityType::GlobalAccount
+                | EntityType::GlobalVirtualEcdsaAccount
+                | EntityType::GlobalVirtualEddsaAccount
+                | EntityType::InternalAccount
+        )
+    })
 }
 
 pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Result<[u8; N]> {

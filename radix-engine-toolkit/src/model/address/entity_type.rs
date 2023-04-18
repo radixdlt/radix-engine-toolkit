@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::address::EntityType as NativeEntityType;
+use scrypto::prelude::EntityType as NativeEntityType;
 use toolkit_derive::serializable;
 
 // =================
@@ -25,20 +25,27 @@ use toolkit_derive::serializable;
 /// An enum describing the different entity types in the Radix Engine and Scrypto
 #[serializable]
 pub enum EntityType {
-    FungibleResource,
-    NonFungibleResource,
-    Package,
-    NormalComponent,
-    AccountComponent,
-    EcdsaSecp256k1VirtualAccountComponent,
-    EddsaEd25519VirtualAccountComponent,
-    EpochManager,
-    Clock,
-    Validator,
-    IdentityComponent,
-    EcdsaSecp256k1VirtualIdentityComponent,
-    EddsaEd25519VirtualIdentityComponent,
-    AccessControllerComponent,
+    GlobalPackage,
+    GlobalFungibleResource,
+    GlobalNonFungibleResource,
+    GlobalEpochManager,
+    GlobalValidator,
+    GlobalClock,
+    GlobalAccessController,
+    GlobalAccount,
+    GlobalIdentity,
+    GlobalGenericComponent, // generic
+
+    GlobalVirtualEcdsaAccount,
+    GlobalVirtualEddsaAccount,
+    GlobalVirtualEcdsaIdentity,
+    GlobalVirtualEddsaIdentity,
+
+    InternalFungibleVault,
+    InternalNonFungibleVault,
+    InternalAccount,
+    InternalKeyValueStore,
+    InternalGenericComponent, // generic
 }
 
 // ============
@@ -48,28 +55,25 @@ pub enum EntityType {
 impl From<EntityType> for NativeEntityType {
     fn from(value: EntityType) -> Self {
         match value {
-            EntityType::FungibleResource => Self::FungibleResource,
-            EntityType::NonFungibleResource => Self::NonFungibleResource,
-            EntityType::Package => Self::Package,
-            EntityType::NormalComponent => Self::NormalComponent,
-            EntityType::AccountComponent => Self::AccountComponent,
-            EntityType::EcdsaSecp256k1VirtualAccountComponent => {
-                Self::EcdsaSecp256k1VirtualAccountComponent
-            }
-            EntityType::EddsaEd25519VirtualAccountComponent => {
-                Self::EddsaEd25519VirtualAccountComponent
-            }
-            EntityType::EpochManager => Self::EpochManager,
-            EntityType::Clock => Self::Clock,
-            EntityType::Validator => Self::Validator,
-            EntityType::IdentityComponent => Self::IdentityComponent,
-            EntityType::EcdsaSecp256k1VirtualIdentityComponent => {
-                Self::EcdsaSecp256k1VirtualIdentityComponent
-            }
-            EntityType::EddsaEd25519VirtualIdentityComponent => {
-                Self::EddsaEd25519VirtualIdentityComponent
-            }
-            EntityType::AccessControllerComponent => Self::AccessControllerComponent,
+            EntityType::GlobalPackage => Self::GlobalPackage,
+            EntityType::GlobalFungibleResource => Self::GlobalFungibleResource,
+            EntityType::GlobalNonFungibleResource => Self::GlobalNonFungibleResource,
+            EntityType::GlobalEpochManager => Self::GlobalEpochManager,
+            EntityType::GlobalValidator => Self::GlobalValidator,
+            EntityType::GlobalClock => Self::GlobalClock,
+            EntityType::GlobalAccessController => Self::GlobalAccessController,
+            EntityType::GlobalAccount => Self::GlobalAccount,
+            EntityType::GlobalIdentity => Self::GlobalIdentity,
+            EntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
+            EntityType::GlobalVirtualEcdsaAccount => Self::GlobalVirtualEcdsaAccount,
+            EntityType::GlobalVirtualEddsaAccount => Self::GlobalVirtualEddsaAccount,
+            EntityType::GlobalVirtualEcdsaIdentity => Self::GlobalVirtualEcdsaIdentity,
+            EntityType::GlobalVirtualEddsaIdentity => Self::GlobalVirtualEddsaIdentity,
+            EntityType::InternalFungibleVault => Self::InternalFungibleVault,
+            EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
+            EntityType::InternalAccount => Self::InternalAccount,
+            EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+            EntityType::InternalGenericComponent => Self::InternalGenericComponent,
         }
     }
 }
@@ -77,28 +81,25 @@ impl From<EntityType> for NativeEntityType {
 impl From<NativeEntityType> for EntityType {
     fn from(value: NativeEntityType) -> Self {
         match value {
-            NativeEntityType::FungibleResource => Self::FungibleResource,
-            NativeEntityType::NonFungibleResource => Self::NonFungibleResource,
-            NativeEntityType::Package => Self::Package,
-            NativeEntityType::NormalComponent => Self::NormalComponent,
-            NativeEntityType::AccountComponent => Self::AccountComponent,
-            NativeEntityType::EcdsaSecp256k1VirtualAccountComponent => {
-                Self::EcdsaSecp256k1VirtualAccountComponent
-            }
-            NativeEntityType::EddsaEd25519VirtualAccountComponent => {
-                Self::EddsaEd25519VirtualAccountComponent
-            }
-            NativeEntityType::EpochManager => Self::EpochManager,
-            NativeEntityType::Clock => Self::Clock,
-            NativeEntityType::Validator => Self::Validator,
-            NativeEntityType::IdentityComponent => Self::IdentityComponent,
-            NativeEntityType::EcdsaSecp256k1VirtualIdentityComponent => {
-                Self::EcdsaSecp256k1VirtualIdentityComponent
-            }
-            NativeEntityType::EddsaEd25519VirtualIdentityComponent => {
-                Self::EddsaEd25519VirtualIdentityComponent
-            }
-            NativeEntityType::AccessControllerComponent => Self::AccessControllerComponent,
+            NativeEntityType::GlobalPackage => Self::GlobalPackage,
+            NativeEntityType::GlobalFungibleResource => Self::GlobalFungibleResource,
+            NativeEntityType::GlobalNonFungibleResource => Self::GlobalNonFungibleResource,
+            NativeEntityType::GlobalEpochManager => Self::GlobalEpochManager,
+            NativeEntityType::GlobalValidator => Self::GlobalValidator,
+            NativeEntityType::GlobalClock => Self::GlobalClock,
+            NativeEntityType::GlobalAccessController => Self::GlobalAccessController,
+            NativeEntityType::GlobalAccount => Self::GlobalAccount,
+            NativeEntityType::GlobalIdentity => Self::GlobalIdentity,
+            NativeEntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
+            NativeEntityType::GlobalVirtualEcdsaAccount => Self::GlobalVirtualEcdsaAccount,
+            NativeEntityType::GlobalVirtualEddsaAccount => Self::GlobalVirtualEddsaAccount,
+            NativeEntityType::GlobalVirtualEcdsaIdentity => Self::GlobalVirtualEcdsaIdentity,
+            NativeEntityType::GlobalVirtualEddsaIdentity => Self::GlobalVirtualEddsaIdentity,
+            NativeEntityType::InternalFungibleVault => Self::InternalFungibleVault,
+            NativeEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
+            NativeEntityType::InternalAccount => Self::InternalAccount,
+            NativeEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+            NativeEntityType::InternalGenericComponent => Self::InternalGenericComponent,
         }
     }
 }

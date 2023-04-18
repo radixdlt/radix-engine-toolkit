@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::define_kind_enum;
-use crate::model::address::EntityAddress;
+use crate::{define_kind_enum, model::engine_identifier::NetworkAwareNodeId};
 
 use scrypto::prelude::{
     Decimal, ManifestBlobRef, ManifestExpression, NonFungibleLocalId, PreciseDecimal,
@@ -193,7 +192,7 @@ define_kind_enum! {
         Address {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: EntityAddress,
+            address: NetworkAwareNodeId,
         },
 
         /// Represents a Scrypto bucket which is identified through a transient identifier which is

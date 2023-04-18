@@ -338,6 +338,28 @@ pub enum Instruction {
         /// The metadata to use for the package. The underlying type of this is a string-string Map
         /// of the metadata. This is serialized as an `Map` from the ManifestAstValue model.
         metadata: ManifestAstValue,
+    },
+
+    /// An instruction to publish a package and set it's associated royalty configs, metadata,
+    /// and access rules.
+    #[schemars(example = "crate::example::instruction::publish_package")]
+    PublishPackageAdvanced {
+        /// The blob of the package code. This field is serialized as a `Blob` from the
+        /// ManifestAstValue model.
+        code: ManifestAstValue,
+
+        /// The blob of the package ABI. This field is serialized as a `Blob` from the
+        /// ManifestAstValue model.
+        schema: ManifestAstValue,
+
+        /// The configurations of the royalty for the package. The underlying type of this is a Map
+        /// where the key is a string of the blueprint name and the value is a `RoyaltyConfig`.
+        /// This is serialized as an `Map` from the ManifestAstValue model.
+        royalty_config: ManifestAstValue,
+
+        /// The metadata to use for the package. The underlying type of this is a string-string Map
+        /// of the metadata. This is serialized as an `Map` from the ManifestAstValue model.
+        metadata: ManifestAstValue,
 
         /// The access rules to use for the package. This is serialized as a `Tuple` from the
         /// ManifestAstValue model.
@@ -598,41 +620,29 @@ pub enum Instruction {
         timed_recovery_delay_in_minutes: ManifestAstValue,
     },
 
-    /// Creates a new identity native component with the passed access rule.
-    #[schemars(example = "crate::example::instruction::create_identity")]
-    CreateIdentity {
-        /// The access rule to protect the identity with. The underlying type of this is an `Enum`
-        /// from the `ManifestAstValue` model.
-        access_rule: ManifestAstValue,
-    },
-
-    /// Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of
-    /// the transaction
-    #[schemars(example = "crate::example::instruction::assert_access_rule")]
-    AssertAccessRule {
-        /// The access rule to assert. The underlying type of this is an `Enum` from the
-        /// `ManifestAstValue` model which represents the access rule to assert.
-        access_rule: ManifestAstValue,
-    },
-
     /// Creates a validator given the public key of the owner who controls it
     #[schemars(example = "crate::example::instruction::create_validator")]
     CreateValidator {
         /// The ECDSA Secp256k1 public key of the owner of the validator. The underlying type of
         /// this is an `EcdsaSecp256k1PublicKey` from the `ManifestAstValue` model.
         key: ManifestAstValue,
-
-        /// The access rule to protect the validator with. The underlying type of this is an `Enum`
-        /// from the `ManifestAstValue` model which represents the access rule to assert.
-        owner_access_rule: ManifestAstValue,
     },
 
-    /// Creates a new global account component which has the withdraw rule seen in the rule.
+    /// Creates a new identity native component.
+    #[schemars(example = "crate::example::instruction::create_identity")]
+    CreateIdentity,
+
+    /// Creates a new identity native component with the specified access rules config.
+    #[schemars(example = "crate::example::instruction::create_identity_advanced")]
+    CreateIdentityAdvanced { config: ManifestAstValue },
+
+    /// Creates a new global account component.
     #[schemars(example = "crate::example::instruction::create_account")]
-    CreateAccount {
-        /// The withdraw rule to associate with the account.
-        withdraw_rule: ManifestAstValue,
-    },
+    CreateAccount,
+
+    /// Creates a new global account component with the specified access rules config.
+    #[schemars(example = "crate::example::instruction::create_account_advanced")]
+    CreateAccountAdvanced { config: ManifestAstValue },
 }
 
 // ============
@@ -796,8 +806,19 @@ impl Instruction {
                 schema,
                 royalty_config,
                 metadata,
-                access_rules,
             } => ast::Instruction::PublishPackage {
+                code: code.to_ast_value(bech32_coder)?,
+                schema: schema.to_ast_value(bech32_coder)?,
+                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+                metadata: metadata.to_ast_value(bech32_coder)?,
+            },
+            Self::PublishPackageAdvanced {
+                code,
+                schema,
+                royalty_config,
+                metadata,
+                access_rules,
+            } => ast::Instruction::PublishPackageAdvanced {
                 code: code.to_ast_value(bech32_coder)?,
                 schema: schema.to_ast_value(bech32_coder)?,
                 royalty_config: royalty_config.to_ast_value(bech32_coder)?,
@@ -931,9 +952,6 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 args: entries.to_ast_value(bech32_coder)?,
             },
-            Self::AssertAccessRule { access_rule } => ast::Instruction::AssertAccessRule {
-                access_rule: access_rule.to_ast_value(bech32_coder)?,
-            },
             Self::CreateAccessController {
                 controlled_asset,
                 rule_set,
@@ -944,18 +962,16 @@ impl Instruction {
                 timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes
                     .to_ast_value(bech32_coder)?,
             },
-            Self::CreateIdentity { access_rule } => ast::Instruction::CreateIdentity {
-                access_rule: access_rule.to_ast_value(bech32_coder)?,
+            Self::CreateIdentity => ast::Instruction::CreateIdentity {},
+            Self::CreateIdentityAdvanced { config } => ast::Instruction::CreateIdentityAdvanced {
+                config: config.to_ast_value(bech32_coder)?,
             },
-            Self::CreateValidator {
-                key,
-                owner_access_rule,
-            } => ast::Instruction::CreateValidator {
+            Self::CreateValidator { key } => ast::Instruction::CreateValidator {
                 key: key.to_ast_value(bech32_coder)?,
-                owner_access_rule: owner_access_rule.to_ast_value(bech32_coder)?,
             },
-            Self::CreateAccount { withdraw_rule } => ast::Instruction::CreateAccount {
-                withdraw_rule: withdraw_rule.to_ast_value(bech32_coder)?,
+            Self::CreateAccount {} => ast::Instruction::CreateAccount {},
+            Self::CreateAccountAdvanced { config } => ast::Instruction::CreateAccountAdvanced {
+                config: config.to_ast_value(bech32_coder)?,
             },
         };
         Ok(ast_instruction)
@@ -1141,8 +1157,19 @@ impl Instruction {
                 schema,
                 royalty_config,
                 metadata,
-                access_rules,
             } => Self::PublishPackage {
+                code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
+                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
+                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+            },
+            ast::Instruction::PublishPackageAdvanced {
+                code,
+                schema,
+                royalty_config,
+                metadata,
+                access_rules,
+            } => Self::PublishPackageAdvanced {
                 code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
                 schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
                 royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
@@ -1285,11 +1312,9 @@ impl Instruction {
                 entries: ManifestAstValue::from_ast_value(args, bech32_coder)?,
             },
 
-            ast::Instruction::CreateIdentity { access_rule } => Self::CreateIdentity {
-                access_rule: ManifestAstValue::from_ast_value(access_rule, bech32_coder)?,
-            },
-            ast::Instruction::AssertAccessRule { access_rule } => Self::AssertAccessRule {
-                access_rule: ManifestAstValue::from_ast_value(access_rule, bech32_coder)?,
+            ast::Instruction::CreateIdentity {} => Self::CreateIdentity,
+            ast::Instruction::CreateIdentityAdvanced { config } => Self::CreateIdentityAdvanced {
+                config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
             },
             ast::Instruction::CreateAccessController {
                 controlled_asset,
@@ -1303,18 +1328,12 @@ impl Instruction {
                     bech32_coder,
                 )?,
             },
-            ast::Instruction::CreateValidator {
-                key,
-                owner_access_rule,
-            } => Self::CreateValidator {
+            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
                 key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
-                owner_access_rule: ManifestAstValue::from_ast_value(
-                    owner_access_rule,
-                    bech32_coder,
-                )?,
             },
-            ast::Instruction::CreateAccount { withdraw_rule } => Self::CreateAccount {
-                withdraw_rule: ManifestAstValue::from_ast_value(withdraw_rule, bech32_coder)?,
+            ast::Instruction::CreateAccount {} => Self::CreateAccount,
+            ast::Instruction::CreateAccountAdvanced { config } => Self::CreateAccountAdvanced {
+                config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
             },
         };
         Ok(instruction)
