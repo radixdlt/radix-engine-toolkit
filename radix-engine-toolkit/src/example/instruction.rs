@@ -594,13 +594,21 @@ pub fn publish_package_advanced() -> Instruction {
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::String,
                     value_value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
                 ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::Tuple,
@@ -614,7 +622,10 @@ pub fn publish_package_advanced() -> Instruction {
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
             ],
         },
@@ -655,8 +666,9 @@ pub fn drop_proof() -> Instruction {
 
 pub fn recall_resource() -> Instruction {
     let instruction = Instruction::RecallResource {
-        vault_id: ManifestAstValue::Bytes {
-            value: hex::decode("a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492")
+        vault_id: ManifestAstValue::Address {
+            address: "internal_vault_sim1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsdm5dfg"
+                .parse()
                 .unwrap(),
         },
         amount: ManifestAstValue::Decimal {
@@ -998,13 +1010,21 @@ pub fn create_identity_advanced() -> Instruction {
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::String,
                     value_value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
                 ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::Tuple,
@@ -1018,7 +1038,10 @@ pub fn create_identity_advanced() -> Instruction {
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
             ],
         },
@@ -1043,13 +1066,21 @@ pub fn create_account_advanced() -> Instruction {
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
+                    key_value_kind: ManifestAstValueKind::Tuple,
+                    value_value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::String,
                     value_value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
                 ManifestAstValue::Map {
                     key_value_kind: ManifestAstValueKind::Tuple,
@@ -1063,7 +1094,10 @@ pub fn create_account_advanced() -> Instruction {
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: Some(vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: None,
+                    }]),
                 },
             ],
         },
@@ -1177,5 +1211,5 @@ fn check_instruction(instruction: &Instruction) {
         bech32_coder.decoder(),
         &blobs.iter().map(|hash| (*hash, vec![])).collect(),
     )
-    .unwrap_or_else(|_| panic!("Failed at: {:?}", instruction));
+    .unwrap_or_else(|error| panic!("Failed at: {:?}. Error: {:?}", instruction, error));
 }

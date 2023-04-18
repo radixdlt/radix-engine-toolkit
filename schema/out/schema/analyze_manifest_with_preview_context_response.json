@@ -24,7 +24,7 @@
       "description": "A set of account component addresses which were involved in actions that require auth.\n\nThis field is obtained through static analysis of the manifest by the Radix Engine Toolkit. When the toolkit encounters an instruction being performed on an account that requires auth (e.g., withdrawing funds, locking fee, creating proofs), it is added to this address set.\n\nIt is then the job of the wallet to determine whether the account has been securified and uses an access controller or is still operating in signature mode and produce the correct auth based on that.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EntityAddress"
+        "type": "string"
       },
       "uniqueItems": true
     },
@@ -32,7 +32,7 @@
       "description": "A set of the resource addresses of which proofs were created from accounts in this manifest.\n\nThis field is populated through static analysis of the manifest instruction. This field captures the resource addresses of all of the proofs created from accounts throughout the manifest. This field does not capture the amount of the proof created nor which account the proof was created from.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/EntityAddress"
+        "type": "string"
       },
       "uniqueItems": true
     },
@@ -81,7 +81,7 @@
           "description": "The set of resource addresses encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -89,7 +89,7 @@
           "description": "The set of package addresses encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         }
@@ -112,7 +112,7 @@
           "description": "The set of user application components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -120,7 +120,7 @@
           "description": "The set of account components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -128,7 +128,7 @@
           "description": "The set of identity components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -136,7 +136,7 @@
           "description": "The set of clock components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -144,7 +144,7 @@
           "description": "The set of epoch_manager components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -152,7 +152,7 @@
           "description": "The set of validator components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -160,91 +160,11 @@
           "description": "The set of validator components encountered in the manifest",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         }
       }
-    },
-    "EntityAddress": {
-      "description": "A discriminated union of entity addresses where addresses are serialized as a Bech32m encoded string.",
-      "oneOf": [
-        {
-          "description": "Represents a Bech32m encoded human-readable component address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
-              "type": "ComponentAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ComponentAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable resource address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
-              "type": "ResourceAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ResourceAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "Represents a Bech32m encoded human-readable package address. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
-              "type": "PackageAddress"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "PackageAddress"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        }
-      ]
     },
     "AccountWithdraw": {
       "type": "object",
@@ -255,11 +175,7 @@
       "properties": {
         "component_address": {
           "description": "The component address of the account that the resources were withdrawn from.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/EntityAddress"
-            }
-          ]
+          "type": "string"
         },
         "resource_specifier": {
           "description": "A specifier used to specify what was withdrawn from the account - this could either be an amount or a set of non-fungible local ids.\n\nWhen this vector has more than one item, it means that multiple instructions performed a withdraw from the same account of the same resource.",
@@ -290,11 +206,7 @@
             },
             "resource_address": {
               "description": "The resource address associated with the resource",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/EntityAddress"
-                }
-              ]
+              "type": "string"
             },
             "amount": {
               "description": "The amount of resources withdrawn from the account. This is a decimal value which is serialized as a string.",
@@ -319,11 +231,7 @@
             },
             "resource_address": {
               "description": "The resource address associated with the resource",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/EntityAddress"
-                }
-              ]
+              "type": "string"
             },
             "ids": {
               "description": "The set of non-fungible ids",
@@ -510,7 +418,7 @@
       ],
       "properties": {
         "component_address": {
-          "$ref": "#/definitions/EntityAddress"
+          "type": "string"
         }
       }
     },
@@ -527,7 +435,7 @@
           "description": "The set of addresses of newly created components.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -535,7 +443,7 @@
           "description": "The set of addresses of newly created resources.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         },
@@ -543,7 +451,7 @@
           "description": "The set of addresses of newly created packages.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EntityAddress"
+            "type": "string"
           },
           "uniqueItems": true
         }

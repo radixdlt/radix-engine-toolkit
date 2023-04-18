@@ -580,75 +580,11 @@
           }
         },
         {
-          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
-              "type": "Address"
-            },
-            {
-              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
-              "type": "Address"
-            },
-            {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
-              "type": "Address"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "address",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Address"
-              ]
-            },
-            "address": {
-              "type": "string"
-            }
-          }
-        },
-        {
           "description": "Represents a tagged enum of owned Radix Engine Nodes.",
           "examples": [
             {
               "type": "Own",
-              "value": {
-                "type": "Bucket",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Proof",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Vault",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Object",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "KeyValueStore",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
+              "value": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzsew9vdj"
             }
           ],
           "type": "object",
@@ -664,7 +600,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/Own"
+              "type": "string"
             }
           }
         },
@@ -774,7 +710,7 @@
           "examples": [
             {
               "type": "Reference",
-              "value": "00000000000000000000000000000000000000000000000000000000000000"
+              "value": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjunfwd"
             }
           ],
           "type": "object",
@@ -790,7 +726,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
+              "type": "string"
             }
           }
         }
@@ -1072,63 +1008,11 @@
           ]
         },
         {
-          "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
-          "examples": [
-            {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
-              "type": "Address"
-            },
-            {
-              "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
-              "type": "Address"
-            },
-            {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
-              "type": "Address"
-            }
-          ],
-          "type": "string",
-          "enum": [
-            "Address"
-          ]
-        },
-        {
           "description": "Represents a tagged enum of owned Radix Engine Nodes.",
           "examples": [
             {
               "type": "Own",
-              "value": {
-                "type": "Bucket",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Proof",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Vault",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "Object",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
-            },
-            {
-              "type": "Own",
-              "value": {
-                "type": "KeyValueStore",
-                "value": "00000000000000000000000000000000000000000000000000000000000000"
-              }
+              "value": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzsew9vdj"
             }
           ],
           "type": "string",
@@ -1204,7 +1088,7 @@
           "examples": [
             {
               "type": "Reference",
-              "value": "00000000000000000000000000000000000000000000000000000000000000"
+              "value": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqjunfwd"
             }
           ],
           "type": "string",
@@ -1213,113 +1097,6 @@
           ]
         }
       ]
-    },
-    "Own": {
-      "description": "Represents a tagged enum of Radix Engine Nodes which may be owned in the point of view of the transaction manifest.",
-      "oneOf": [
-        {
-          "description": "Represents an owned KeyValueStore",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "KeyValueStore"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
-            }
-          }
-        },
-        {
-          "description": "Represents an owned Object",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Object"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
-            }
-          }
-        },
-        {
-          "description": "Represents an owned Vault",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Vault"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
-            }
-          }
-        },
-        {
-          "description": "Represents an owned Bucket",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Bucket"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
-            }
-          }
-        },
-        {
-          "description": "Represents an owned Proof",
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Proof"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/NetworkAwareNodeId"
-            }
-          }
-        }
-      ]
-    },
-    "NetworkAwareNodeId": {
-      "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)",
-      "type": "string",
-      "maxLength": 31,
-      "minLength": 31,
-      "pattern": "[0-9a-fA-F]+"
     },
     "NonFungibleLocalId": {
       "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
@@ -1975,7 +1752,7 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             },
             {
@@ -1983,7 +1760,7 @@
               "type": "Address"
             },
             {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "address": "clock_rdx1q5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqyynlg0",
               "type": "Address"
             }
           ],
@@ -2492,7 +2269,7 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             },
             {
@@ -2500,7 +2277,7 @@
               "type": "Address"
             },
             {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "address": "clock_rdx1q5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqyynlg0",
               "type": "Address"
             }
           ],

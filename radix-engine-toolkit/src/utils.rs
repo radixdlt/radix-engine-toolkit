@@ -18,6 +18,7 @@
 use crate::error::{Error, Result};
 use bech32;
 use radix_engine_common::types::EntityType;
+use regex::Regex;
 use scrypto::network::NetworkDefinition;
 use scrypto::prelude::NodeId;
 
@@ -92,23 +93,20 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
 pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Result<u8> {
     // Getting the network specifier from the given HRP. Bech32 HRPs used in Babylon are structured
     // as follows:
-    let splitted_hrp = hrp.as_ref().split('_').collect::<Vec<&str>>();
+    // TODO: Better errors and remove unwraps
     let network_specifier = {
-        match splitted_hrp.get(1) {
-            Some(_) => Ok(splitted_hrp
-                .into_iter()
-                .skip(1)
-                .collect::<Vec<&str>>()
-                .join("_")),
-            None => Err(Error::Infallible {
-                message: "TODO: Rework errors".into(),
-            }), // TODO: Cleanup errors
-        }
-    }?;
+        let re = Regex::new("_(sim|loc|rdx|tdx_[A-Fa-f0-9]{1,2}_)$").unwrap();
+        re.captures(hrp.as_ref())
+            .unwrap()
+            .get(1)
+            .unwrap()
+            .as_str()
+            .trim_end_matches('_')
+    };
 
     // Matching the network specifier to obtain the network id from it
     let network_id =
-        match network_specifier.as_str() {
+        match network_specifier {
             "rdx" => NetworkDefinition::mainnet().id,
             "sim" => NetworkDefinition::simulator().id,
             "loc" => 0xF0,

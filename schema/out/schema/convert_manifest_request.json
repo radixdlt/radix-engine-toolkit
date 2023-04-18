@@ -286,7 +286,7 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -303,7 +303,7 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -315,7 +315,7 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -327,7 +327,7 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "CALL_METHOD",
@@ -1320,49 +1320,82 @@
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
           "examples": [
             {
-              "access_rules": {
-                "elements": [
-                  {
-                    "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
-                  },
-                  {
-                    "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
-                  },
-                  {
-                    "type": "Enum",
-                    "variant": {
-                      "discriminator": "0",
-                      "type": "U8"
-                    }
-                  },
-                  {
-                    "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
-                  },
-                  {
-                    "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
-                  },
-                  {
-                    "type": "Enum",
-                    "variant": {
-                      "discriminator": "0",
-                      "type": "U8"
-                    }
-                  }
-                ],
-                "type": "Tuple"
+              "code": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
               },
+              "instruction": "PUBLISH_PACKAGE",
+              "metadata": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "String"
+              },
+              "royalty_config": {
+                "entries": [],
+                "key_value_kind": "String",
+                "type": "Map",
+                "value_value_kind": "Tuple"
+              },
+              "schema": {
+                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+                "type": "Blob"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "code",
+            "instruction",
+            "metadata",
+            "royalty_config",
+            "schema"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "PUBLISH_PACKAGE"
+              ]
+            },
+            "code": {
+              "description": "The blob of the package code. This field is serialized as a `Blob` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "schema": {
+              "description": "The blob of the package ABI. This field is serialized as a `Blob` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "royalty_config": {
+              "description": "The configurations of the royalty for the package. The underlying type of this is a Map where the key is a string of the blueprint name and the value is a `RoyaltyConfig`. This is serialized as an `Map` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The metadata to use for the package. The underlying type of this is a string-string Map of the metadata. This is serialized as an `Map` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
+          "examples": [
+            {
               "code": {
                 "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                 "type": "Blob"
@@ -1399,7 +1432,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "PUBLISH_PACKAGE"
+                "PUBLISH_PACKAGE_ADVANCED"
               ]
             },
             "code": {
@@ -1490,8 +1523,8 @@
               },
               "instruction": "RECALL_RESOURCE",
               "vault_id": {
-                "type": "Bytes",
-                "value": "a9d55474c4fe9b04a5f39dc8164b9a9c22dae66a34e1417162c327912cc492"
+                "address": "internal_vault_sim1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsdm5dfg",
+                "type": "Address"
               }
             }
           ],
@@ -1531,7 +1564,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "SET_METADATA",
@@ -1608,7 +1641,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "REMOVE_METADATA",
@@ -1702,7 +1735,7 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
@@ -1792,7 +1825,7 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "CLAIM_COMPONENT_ROYALTY"
@@ -1825,7 +1858,7 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+                "address": "component_rdx1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyssq4k06",
                 "type": "Address"
               },
               "instruction": "SET_METHOD_ACCESS_RULE",
@@ -1904,7 +1937,7 @@
               },
               "instruction": "MINT_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -1952,7 +1985,7 @@
               },
               "instruction": "MINT_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -2026,7 +2059,7 @@
               },
               "instruction": "MINT_UUID_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k",
+                "address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkcg7wf",
                 "type": "Address"
               }
             }
@@ -2467,78 +2500,6 @@
           }
         },
         {
-          "description": "Creates a new identity native component with the passed access rule.",
-          "examples": [
-            {
-              "access_rule": {
-                "type": "Enum",
-                "variant": {
-                  "discriminator": "0",
-                  "type": "U8"
-                }
-              },
-              "instruction": "CREATE_IDENTITY"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "access_rule",
-            "instruction"
-          ],
-          "properties": {
-            "instruction": {
-              "type": "string",
-              "enum": [
-                "CREATE_IDENTITY"
-              ]
-            },
-            "access_rule": {
-              "description": "The access rule to protect the identity with. The underlying type of this is an `Enum` from the `ManifestAstValue` model.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "description": "Assert that the given access rule is currently fulfilled by the proofs in the Auth Zone of the transaction",
-          "examples": [
-            {
-              "access_rule": {
-                "type": "Enum",
-                "variant": {
-                  "discriminator": "0",
-                  "type": "U8"
-                }
-              },
-              "instruction": "ASSERT_ACCESS_RULE"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "access_rule",
-            "instruction"
-          ],
-          "properties": {
-            "instruction": {
-              "type": "string",
-              "enum": [
-                "ASSERT_ACCESS_RULE"
-              ]
-            },
-            "access_rule": {
-              "description": "The access rule to assert. The underlying type of this is an `Enum` from the `ManifestAstValue` model which represents the access rule to assert.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
-            }
-          }
-        },
-        {
           "description": "Creates a validator given the public key of the owner who controls it",
           "examples": [
             {
@@ -2546,21 +2507,13 @@
               "key": {
                 "type": "Bytes",
                 "value": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
-              },
-              "owner_access_rule": {
-                "type": "Enum",
-                "variant": {
-                  "discriminator": "0",
-                  "type": "U8"
-                }
               }
             }
           ],
           "type": "object",
           "required": [
             "instruction",
-            "key",
-            "owner_access_rule"
+            "key"
           ],
           "properties": {
             "instruction": {
@@ -2576,35 +2529,130 @@
                   "$ref": "#/definitions/ManifestAstValue"
                 }
               ]
-            },
-            "owner_access_rule": {
-              "description": "The access rule to protect the validator with. The underlying type of this is an `Enum` from the `ManifestAstValue` model which represents the access rule to assert.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
+            }
+          }
+        },
+        {
+          "description": "Creates a new identity native component.",
+          "examples": [
+            {
+              "instruction": "CREATE_IDENTITY"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_IDENTITY"
               ]
             }
           }
         },
         {
-          "description": "Creates a new global account component which has the withdraw rule seen in the rule.",
+          "description": "Creates a new identity native component with the specified access rules config.",
           "examples": [
             {
-              "instruction": "CREATE_ACCOUNT",
-              "withdraw_rule": {
-                "type": "Enum",
-                "variant": {
-                  "discriminator": "0",
-                  "type": "U8"
-                }
-              }
+              "config": {
+                "elements": [
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Tuple"
+              },
+              "instruction": "CREATE_IDENTITY_ADVANCED"
             }
           ],
           "type": "object",
           "required": [
-            "instruction",
-            "withdraw_rule"
+            "config",
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_IDENTITY_ADVANCED"
+              ]
+            },
+            "config": {
+              "$ref": "#/definitions/ManifestAstValue"
+            }
+          }
+        },
+        {
+          "description": "Creates a new global account component.",
+          "examples": [
+            {
+              "instruction": "CREATE_ACCOUNT"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "instruction"
           ],
           "properties": {
             "instruction": {
@@ -2612,14 +2660,97 @@
               "enum": [
                 "CREATE_ACCOUNT"
               ]
-            },
-            "withdraw_rule": {
-              "description": "The withdraw rule to associate with the account.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
+            }
+          }
+        },
+        {
+          "description": "Creates a new global account component with the specified access rules config.",
+          "examples": [
+            {
+              "config": {
+                "elements": [
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Tuple"
+              },
+              "instruction": "CREATE_ACCOUNT_ADVANCED"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "config",
+            "instruction"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_ACCOUNT_ADVANCED"
               ]
+            },
+            "config": {
+              "$ref": "#/definitions/ManifestAstValue"
             }
           }
         }
@@ -3358,7 +3489,7 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             },
             {
@@ -3366,7 +3497,7 @@
               "type": "Address"
             },
             {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "address": "clock_rdx1q5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqyynlg0",
               "type": "Address"
             }
           ],
@@ -4113,7 +4244,7 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "component_rdx1q0kryz5scup945usk39qjc2yjh6l5zsyuh8t7v5pk0ts3s4rve",
+              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
               "type": "Address"
             },
             {
@@ -4121,7 +4252,7 @@
               "type": "Address"
             },
             {
-              "address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpqqs767h4",
+              "address": "clock_rdx1q5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqyynlg0",
               "type": "Address"
             }
           ],
