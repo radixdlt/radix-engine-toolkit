@@ -18,7 +18,6 @@
 use super::model::*;
 use crate::error::{Error, Result};
 use crate::model::address::*;
-use crate::model::engine_identifier::TransientIdentifier;
 
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::GeneratorError;

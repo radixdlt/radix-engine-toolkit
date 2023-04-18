@@ -23,9 +23,10 @@ use scrypto::prelude::{
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
-use crate::model::value::ast::model::ManifestAstValue;
-use crate::model::value::ast::{EnumDiscriminator, ManifestAstValueKind};
+use crate::model::value::ast::{
+    BucketId, EnumDiscriminator, ManifestAstValue, ManifestAstValueKind, ProofId,
+    TransientIdentifier,
+};
 use crate::utils::checked_copy_u8_slice;
 
 pub fn value() -> ManifestAstValue {

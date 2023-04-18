@@ -21,9 +21,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::error::{Error, Result};
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::engine_identifier::BucketId;
 use crate::model::resource_specifier::ResourceSpecifier;
-use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
+use crate::model::value::ast::{BucketId, ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
 use radix_engine::system::system_modules::execution_trace::{

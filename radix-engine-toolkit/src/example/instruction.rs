@@ -23,8 +23,10 @@ use scrypto::prelude::{
 };
 
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
-use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
+use crate::model::value::ast::{
+    BucketId, EnumDiscriminator, ManifestAstValue, ManifestAstValueKind, ProofId,
+    TransientIdentifier,
+};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
 use crate::utils::checked_copy_u8_slice;
 
