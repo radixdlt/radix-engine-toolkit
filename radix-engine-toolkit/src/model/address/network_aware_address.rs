@@ -40,7 +40,7 @@ macro_rules! define_network_aware_address {
         impl TryFrom<$crate::model::engine_identifier::NetworkAwareNodeId>
             for $network_aware_struct_ident
         {
-            type Error = $crate::error::Error;
+            type Error = $crate::model::address::AddressError;
 
             fn try_from(
                 node_id: $crate::model::engine_identifier::NetworkAwareNodeId,
@@ -53,7 +53,7 @@ macro_rules! define_network_aware_address {
                         address,
                     })
                 } else {
-                    Err($crate::error::Error::AddressError {
+                    Err($crate::model::address::AddressError::AddressError {
                         message: "Invalid Address".into(),
                     })
                 }
@@ -76,7 +76,7 @@ macro_rules! define_network_aware_address {
                         address,
                     })
                 } else {
-                    Err($crate::error::Error::UnrecognizedAddressFormat)
+                    Err($crate::model::address::AddressError::UnrecognizedAddressFormat)
                 }
             }
 
@@ -98,7 +98,7 @@ macro_rules! define_network_aware_address {
         }
 
         impl FromStr for $network_aware_struct_ident {
-            type Err = $crate::error::Error;
+            type Err = $crate::model::address::AddressError;
 
             fn from_str(s: &str) -> $crate::error::Result<Self> {
                 let node_id = $crate::model::engine_identifier::NetworkAwareNodeId::from_str(s)?;
