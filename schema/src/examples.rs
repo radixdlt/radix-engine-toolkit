@@ -145,7 +145,7 @@ where
 
     fn example_response() -> O {
         Self::fulfill(Self::example_request())
-            .expect(format!("Failed. Request: {:?}", Self::example_request()).as_str())
+            .unwrap_or_else(|_| panic!("Failed. Request: {:?}", Self::example_request()))
     }
 
     fn request_type_name() -> String {

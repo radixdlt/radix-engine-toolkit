@@ -18,8 +18,6 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use crate::model::address::Bech32Coder;
-
 // Defines a network aware address. This is needed for the serialization and deserialization using
 // serde.
 macro_rules! define_network_aware_address {
@@ -104,12 +102,9 @@ macro_rules! define_network_aware_address {
 
             fn from_str(s: &str) -> $crate::error::Result<Self> {
                 let node_id = $crate::model::engine_identifier::NetworkAwareNodeId::from_str(s)?;
-
-                let bech32_coder = Bech32Coder::new_from_address(s)?;
-                let node_id = bech32_coder.decode(s)?;
                 Ok(Self {
                     address: <$underlying_type>::new_unchecked(node_id.0),
-                    network_id: bech32_coder.network_id(),
+                    network_id: node_id.1,
                 })
             }
         }

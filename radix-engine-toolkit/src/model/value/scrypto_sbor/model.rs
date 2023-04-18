@@ -19,7 +19,7 @@ use crate::define_kind_enum;
 use crate::model::engine_identifier::NetworkAwareNodeId;
 
 use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
-use scrypto::runtime::Own;
+
 use serde_with::serde_as;
 use toolkit_derive::serializable;
 

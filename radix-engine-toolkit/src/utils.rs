@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Borrow;
-
 use crate::error::{Error, Result};
 use bech32;
 use radix_engine_common::types::EntityType;
@@ -140,16 +138,15 @@ pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8> {
 }
 
 pub fn is_account<A: Into<NodeId>>(node_id: A) -> bool {
-    node_id
-        .into()
-        .entity_type()
-        .map_or(false, |entity_type| match entity_type {
+    node_id.into().entity_type().map_or(false, |entity_type| {
+        matches!(
+            entity_type,
             EntityType::GlobalAccount
-            | EntityType::GlobalVirtualEcdsaAccount
-            | EntityType::GlobalVirtualEddsaAccount
-            | EntityType::InternalAccount => true,
-            _ => false,
-        })
+                | EntityType::GlobalVirtualEcdsaAccount
+                | EntityType::GlobalVirtualEddsaAccount
+                | EntityType::InternalAccount
+        )
+    })
 }
 
 pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Result<[u8; N]> {

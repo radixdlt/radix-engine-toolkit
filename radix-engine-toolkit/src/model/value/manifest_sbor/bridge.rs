@@ -202,7 +202,7 @@ impl ManifestSborValue {
             },
 
             Self::Address { address } => ManifestValue::Custom {
-                value: ManifestCustomValue::Address(ManifestAddress(address.clone().into())),
+                value: ManifestCustomValue::Address(ManifestAddress((*address).into())),
             },
 
             Self::Decimal { value } => ManifestValue::Custom {

@@ -19,7 +19,7 @@ use crate::error::Result;
 use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::request::traits::Handler;
 use crate::utils::checked_copy_u8_slice;
-use radix_engine::types::NodeId;
+
 use toolkit_derive::serializable;
 
 // =================
