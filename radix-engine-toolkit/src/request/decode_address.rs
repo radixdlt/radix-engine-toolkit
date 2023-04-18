@@ -20,7 +20,7 @@ use crate::error::{Error, Result};
 use crate::model::address::EntityType;
 use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::utils::network_definition_from_network_id;
-use radix_engine::types::DecodeBech32AddressError;
+use scrypto::address::DecodeBech32AddressError;
 use toolkit_derive::serializable;
 
 use bech32::{self, FromBase32, Variant};

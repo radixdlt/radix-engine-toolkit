@@ -22,7 +22,7 @@ use crate::model::engine_identifier::{NetworkAwareNodeId, TransientIdentifier};
 
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::GeneratorError;
-use radix_engine::types::ResourceAddress;
+use scrypto::prelude::ResourceAddress;
 use scrypto::prelude::{
     ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind, NodeId,
 };

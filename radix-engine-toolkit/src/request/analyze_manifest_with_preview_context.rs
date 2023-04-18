@@ -28,7 +28,7 @@ use crate::visitor::{
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
 use radix_engine::transaction::{TransactionReceipt, TransactionResult};
-use radix_engine::types::scrypto_decode;
+use scrypto::prelude::scrypto_decode;
 use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
 

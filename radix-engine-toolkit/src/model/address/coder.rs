@@ -21,9 +21,9 @@ use crate::utils::checked_copy_u8_slice;
 use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
-use radix_engine::types::NodeId;
 use scrypto::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::network::NetworkDefinition;
+use scrypto::prelude::NodeId;
 
 /// A Bech32m encoder and decoder used in the Radix Engine Toolkit for all of it's address encoding
 /// and decoding needs

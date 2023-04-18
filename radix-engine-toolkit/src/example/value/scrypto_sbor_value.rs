@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::types::{NodeId, ACCOUNT_PACKAGE};
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId,
+    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NodeId, NonFungibleLocalId,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId, ACCOUNT_PACKAGE,
 };
 
 use crate::model::engine_identifier::NetworkAwareNodeId;
