@@ -16,9 +16,9 @@
 // under the License.
 
 use crate::error::Error;
-use crate::model::address::EntityAddress;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::ManifestAstValueVisitor;
+
 /// A value visitor whose main responsibility is to perform aliasing on all encountered values. As
 /// an example, this is the main visitor responsible for turing a Tuple(ResourceAddress, NFLocalId)
 /// to a NonFungibleGlobalAddress
@@ -31,18 +31,13 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (
-                    Some(ManifestAstValue::Address {
-                        address:
-                            EntityAddress::ResourceAddress {
-                                address: resource_address,
-                            },
-                    }),
+                    Some(ManifestAstValue::Address { address }),
                     Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
                     }),
-                ) if elements.len() == 2 => {
+                ) if elements.len() == 2 && address.node_id().is_global_resource() => {
                     *value = ManifestAstValue::NonFungibleGlobalId {
-                        resource_address: *resource_address,
+                        resource_address: (*address).try_into()?,
                         non_fungible_local_id: non_fungible_local_id.clone(),
                     };
                     Ok(())

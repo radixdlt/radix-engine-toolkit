@@ -16,9 +16,7 @@
 // under the License.
 
 pub mod node_identifier;
-pub mod own;
 pub mod transient_identifier;
 
 pub use node_identifier::*;
-pub use own::*;
 pub use transient_identifier::*;

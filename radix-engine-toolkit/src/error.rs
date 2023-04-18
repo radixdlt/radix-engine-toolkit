@@ -234,7 +234,8 @@ macro_rules! generate_from_error {
 }
 
 generate_from_error!(hex::FromHexError as FailedToDecodeHex);
-generate_from_error!(scrypto::address::AddressError as AddressError);
+generate_from_error!(scrypto::address::EncodeBech32AddressError as AddressError);
+generate_from_error!(scrypto::address::DecodeBech32AddressError as AddressError);
 generate_from_error!(sbor::EncodeError as SborEncodeError);
 generate_from_error!(sbor::DecodeError as SborDecodeError);
 generate_from_error!(native_transaction::manifest::CompileError as ManifestCompileError);

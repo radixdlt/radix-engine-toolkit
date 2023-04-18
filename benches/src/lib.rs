@@ -19,7 +19,6 @@ mod ffi {
         pub fn derive_babylon_address_from_olympia_address(pointer: Pointer) -> Pointer;
         pub fn derive_virtual_account_address(pointer: Pointer) -> Pointer;
         pub fn derive_virtual_identity_address(pointer: Pointer) -> Pointer;
-        pub fn derive_non_fungible_global_id_from_public_key(pointer: Pointer) -> Pointer;
         pub fn encode_address(pointer: Pointer) -> Pointer;
         pub fn decode_address(pointer: Pointer) -> Pointer;
         pub fn sbor_encode(pointer: Pointer) -> Pointer;
@@ -29,7 +28,6 @@ mod ffi {
         pub fn hash(pointer: Pointer) -> Pointer;
 
         pub fn toolkit_alloc(capacity: usize) -> Pointer;
-        pub fn _toolkit_free(pointer: Pointer, capacity: usize);
         pub fn toolkit_free_c_string(pointer: Pointer);
     }
 }
@@ -149,7 +147,6 @@ impl_invoke! { DecompileUnknownTransactionIntentRequest, DecompileUnknownTransac
 impl_invoke! { DeriveBabylonAddressFromOlympiaAddressRequest, DeriveBabylonAddressFromOlympiaAddressResponse, ffi::derive_babylon_address_from_olympia_address }
 impl_invoke! { DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse, ffi::derive_virtual_account_address }
 impl_invoke! { DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse, ffi::derive_virtual_identity_address }
-impl_invoke! { DeriveNonFungibleGlobalIdFromPublicKeyRequest, DeriveNonFungibleGlobalIdFromPublicKeyResponse, ffi::derive_non_fungible_global_id_from_public_key }
 impl_invoke! { EncodeAddressRequest, EncodeAddressResponse, ffi::encode_address }
 impl_invoke! { DecodeAddressRequest, DecodeAddressResponse, ffi::decode_address }
 impl_invoke! { SborEncodeRequest, SborEncodeResponse, ffi::sbor_encode }

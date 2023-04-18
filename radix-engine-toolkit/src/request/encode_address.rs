@@ -16,8 +16,10 @@
 // under the License.
 
 use crate::error::Result;
-use crate::model::address::EntityAddress;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::request::traits::Handler;
+use crate::utils::checked_copy_u8_slice;
+use radix_engine::types::NodeId;
 use toolkit_derive::serializable;
 
 // =================
@@ -50,8 +52,9 @@ pub struct EncodeAddressRequest {
 pub struct EncodeAddressResponse {
     /// A discriminated union of entity addresses where addresses are serialized as a Bech32m
     /// encoded string.
-    #[serde(flatten)]
-    pub address: EntityAddress,
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub address: NetworkAwareNodeId,
 }
 
 // ===============
@@ -66,8 +69,9 @@ impl Handler<EncodeAddressRequest, EncodeAddressResponse> for EncodeAddressHandl
     }
 
     fn handle(request: &EncodeAddressRequest) -> crate::error::Result<EncodeAddressResponse> {
-        EntityAddress::from_u8_array(&request.address_bytes, request.network_id)
-            .map(|address| EncodeAddressResponse { address })
+        checked_copy_u8_slice(&request.address_bytes).map(|address| EncodeAddressResponse {
+            address: NetworkAwareNodeId(address, request.network_id),
+        })
     }
 
     fn post_process(

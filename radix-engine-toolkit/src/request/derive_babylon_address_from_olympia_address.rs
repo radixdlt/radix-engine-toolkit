@@ -16,13 +16,11 @@
 // under the License.
 
 use bech32::FromBase32;
-use radix_engine_common::address::AddressError;
 use radix_engine_common::crypto::EcdsaSecp256k1PublicKey;
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
 use crate::error::{Error, Result};
-use crate::model::address::EntityAddress;
 use crate::model::address::NetworkAwareComponentAddress;
 use crate::utils::checked_copy_u8_slice;
 
@@ -53,8 +51,8 @@ pub struct DeriveBabylonAddressFromOlympiaAddressRequest {
 #[serializable]
 pub struct DeriveBabylonAddressFromOlympiaAddressResponse {
     /// The Babylon account address associated with the Olympia address.
-    #[schemars(with = "EntityAddress")]
-    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub babylon_account_address: NetworkAwareComponentAddress,
 
     /// The public key associated with the Olympia account address.
@@ -99,8 +97,12 @@ impl
 
         // Bech32 decode the passed address. If the Bech32 variant is not Bech32, then this is not
         // an Olympia address
-        let (_, data, variant) = bech32::decode(&request.olympia_account_address)
-            .map_err(AddressError::Bech32mDecodingError)?;
+        let (_, data, variant) =
+            bech32::decode(&request.olympia_account_address).map_err(|error| {
+                Error::AddressError {
+                    message: format!("{:?}", error),
+                }
+            })?;
         if let bech32::Variant::Bech32 = variant {
             Ok(())
         } else {
@@ -110,7 +112,9 @@ impl
         }?;
 
         // Convert from 5 bits to 8 bits.
-        let mut data = Vec::<u8>::from_base32(&data).map_err(AddressError::Bech32mDecodingError)?;
+        let mut data = Vec::<u8>::from_base32(&data).map_err(|error| Error::AddressError {
+            message: format!("{:?}", error),
+        })?;
 
         // Check the length of the data to ensure that it's a public key. Length should be 1 + 33
         // where the added 1 byte is because of the 0x04 prefix that public keys have.

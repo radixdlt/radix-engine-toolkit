@@ -19,8 +19,7 @@ use std::collections::BTreeSet;
 
 use crate::error::{Error, Result};
 use crate::model::address::{
-    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress,
+    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
 };
 use crate::model::value::ast::ManifestAstValue;
 use crate::visitor::ManifestAstValueVisitor;
@@ -37,16 +36,13 @@ pub struct AddressAggregatorVisitor {
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
     fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
         if let ManifestAstValue::Address { address } = value {
-            match address {
-                EntityAddress::ComponentAddress { address } => {
-                    self.component_addresses.insert(*address);
-                }
-                EntityAddress::ResourceAddress { address } => {
-                    self.resource_addresses.insert(*address);
-                }
-                EntityAddress::PackageAddress { address } => {
-                    self.package_addresses.insert(*address);
-                }
+            let node_id = address.node_id();
+            if node_id.is_global_component() {
+                self.component_addresses.insert((*address).try_into()?);
+            } else if node_id.is_global_resource() {
+                self.resource_addresses.insert((*address).try_into()?);
+            } else if node_id.is_global_package() {
+                self.package_addresses.insert((*address).try_into()?);
             }
             Ok(())
         } else {

@@ -15,17 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Borrow;
-
 use crate::error::Error;
 use crate::error::Result;
-use crate::model::address::network_aware_address::*;
+use crate::utils::checked_copy_u8_slice;
 use crate::utils::{
     network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
 };
+use radix_engine::types::NodeId;
 use scrypto::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::network::NetworkDefinition;
-use scrypto::prelude::{ComponentAddress, PackageAddress, ResourceAddress};
 
 /// A Bech32m encoder and decoder used in the Radix Engine Toolkit for all of it's address encoding
 /// and decoding needs
@@ -73,84 +71,17 @@ impl Bech32Coder {
         network_id_from_address_string(address).map(Self::new)
     }
 
-    pub fn encode_component_address<A: Borrow<ComponentAddress>>(
-        &self,
-        component_address: &A,
-    ) -> String {
+    pub fn encode<T: Into<NodeId>>(&self, node_id: T) -> Result<String> {
         self.encoder
-            .encode_component_address_to_string(component_address.borrow())
-    }
-
-    pub fn encode_resource_address<A: Borrow<ResourceAddress>>(
-        &self,
-        resource_address: A,
-    ) -> String {
-        self.encoder
-            .encode_resource_address_to_string(resource_address.borrow())
-    }
-
-    pub fn encode_package_address<A: Borrow<PackageAddress>>(&self, package_address: A) -> String {
-        self.encoder
-            .encode_package_address_to_string(package_address.borrow())
-    }
-
-    pub fn decode_component_address<S: AsRef<str>>(
-        &self,
-        component_address: S,
-    ) -> Result<ComponentAddress> {
-        self.decoder
-            .validate_and_decode_component_address(component_address.as_ref())
+            .encode(node_id.into().0.as_ref())
             .map_err(Error::from)
     }
 
-    pub fn decode_resource_address<S: AsRef<str>>(
-        &self,
-        resource_address: S,
-    ) -> Result<ResourceAddress> {
+    pub fn decode<S: AsRef<str>>(&self, string: S) -> Result<NodeId> {
         self.decoder
-            .validate_and_decode_resource_address(resource_address.as_ref())
+            .validate_and_decode(string.as_ref())
             .map_err(Error::from)
-    }
-
-    pub fn decode_package_address<S: AsRef<str>>(
-        &self,
-        package_address: S,
-    ) -> Result<PackageAddress> {
-        self.decoder
-            .validate_and_decode_package_address(package_address.as_ref())
+            .and_then(|(_, data)| checked_copy_u8_slice(data).map(NodeId))
             .map_err(Error::from)
-    }
-
-    pub fn decode_to_network_aware_component_address<S: AsRef<str>>(
-        &self,
-        component_address: S,
-    ) -> Result<NetworkAwareComponentAddress> {
-        self.decode_component_address(component_address)
-            .map(|component_address| NetworkAwareComponentAddress {
-                network_id: self.network_id(),
-                address: component_address,
-            })
-    }
-
-    pub fn decode_to_network_aware_resource_address<S: AsRef<str>>(
-        &self,
-        resource_address: S,
-    ) -> Result<NetworkAwareResourceAddress> {
-        self.decode_resource_address(resource_address)
-            .map(|resource_address| NetworkAwareResourceAddress {
-                network_id: self.network_id(),
-                address: resource_address,
-            })
-    }
-
-    pub fn decode_to_network_aware_package_address<S: AsRef<str>>(
-        &self,
-        package_address: S,
-    ) -> Result<NetworkAwarePackageAddress> {
-        self.decode_package_address(package_address)
-            .map(|package_address| NetworkAwarePackageAddress {
-                network_id: self.network_id(),
-                address: package_address,
-            })
     }
 }

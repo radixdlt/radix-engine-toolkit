@@ -790,7 +790,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         }
@@ -1232,7 +1232,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         },
@@ -1251,7 +1251,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         },
@@ -1270,7 +1270,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         },
@@ -1289,7 +1289,7 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         },
@@ -1308,13 +1308,13 @@
               ]
             },
             "value": {
-              "$ref": "#/definitions/NodeIdentifier"
+              "$ref": "#/definitions/NetworkAwareNodeId"
             }
           }
         }
       ]
     },
-    "NodeIdentifier": {
+    "NetworkAwareNodeId": {
       "description": "Represents a Radix Engine persistent node identifier which is 36 bytes long and serialized as a hexadecimal string of length 31 (since hex encoding doubles the number of bytes needed.)",
       "type": "string",
       "maxLength": 31,

@@ -111,10 +111,6 @@ pub mod native {
     );
     export_handler!(DeriveVirtualAccountAddressHandler as derive_virtual_account_address);
     export_handler!(DeriveVirtualIdentityAddressHandler as derive_virtual_identity_address);
-    export_handler!(
-        DeriveNonFungibleGlobalIdFromPublicKeyHandler
-            as derive_non_fungible_global_id_from_public_key
-    );
 
     export_handler!(EncodeAddressHandler as encode_address);
     export_handler!(DecodeAddressHandler as decode_address);
@@ -253,7 +249,6 @@ pub mod jni {
         DeriveVirtualIdentityAddressHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualIdentityAddress
     );
-    export_handler!(DeriveNonFungibleGlobalIdFromPublicKeyHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveNonFungibleGlobalIdFromPublicKey);
 
     export_handler!(
         EncodeAddressHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_encodeAddress

@@ -16,13 +16,13 @@
 // under the License.
 
 use radix_engine_common::crypto::{EcdsaSecp256k1PublicKey, PublicKey};
-use radix_engine_common::data::scrypto::model::ComponentAddress;
 use radix_engine_toolkit::request::{
     DeriveBabylonAddressFromOlympiaAddressHandler, DeriveBabylonAddressFromOlympiaAddressRequest,
     DeriveOlympiaAddressFromPublicKeyHandler, DeriveOlympiaAddressFromPublicKeyRequest, Handler,
     OlympiaNetwork,
 };
 use radix_engine_toolkit::utils::checked_copy_u8_slice;
+use scrypto::prelude::ComponentAddress;
 
 #[test]
 pub fn deriving_babylon_address_from_olympia_address_succeeds_and_produces_expected_address() {

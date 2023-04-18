@@ -18,12 +18,13 @@
 use super::model::*;
 use crate::error::{Error, Result};
 use crate::model::address::*;
-use crate::model::engine_identifier::TransientIdentifier;
+use crate::model::engine_identifier::{NetworkAwareNodeId, TransientIdentifier};
 
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::GeneratorError;
+use radix_engine::types::ResourceAddress;
 use scrypto::prelude::{
-    ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind,
+    ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind, NodeId,
 };
 
 impl From<ast::Type> for ManifestAstValueKind {
@@ -284,9 +285,11 @@ impl ManifestAstValue {
                 ast::Value::PreciseDecimal(Box::new(ast::Value::String(value.to_string())))
             }
 
-            ManifestAstValue::Address { address: value } => ast::Value::Address(Box::new(
-                ast::Value::String(value.to_string_with_encoder(bech32_coder)),
-            )),
+            ManifestAstValue::Address {
+                address: NetworkAwareNodeId(node_id, ..),
+            } => ast::Value::Address(Box::new(ast::Value::String(
+                bech32_coder.encode(NodeId(*node_id))?,
+            ))),
 
             ManifestAstValue::Bucket { identifier } => {
                 ast::Value::Bucket(Box::new(match identifier.0 {
@@ -314,7 +317,7 @@ impl ManifestAstValue {
             } => {
                 let nf_global_id_string = format!(
                     "{}:{}",
-                    bech32_coder.encode_resource_address(address),
+                    bech32_coder.encode(*address.as_node_id())?,
                     non_fungible_local_id
                 );
                 ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
@@ -434,8 +437,11 @@ impl ManifestAstValue {
             })?,
             ast::Value::Address(address) => {
                 map_if_value_string(parsing, address, |address_string| {
-                    EntityAddress::from_str_with_coder(address_string, bech32_coder)
-                        .map(|address| ManifestAstValue::Address { address })
+                    bech32_coder
+                        .decode(address_string)
+                        .map(|node_id| ManifestAstValue::Address {
+                            address: NetworkAwareNodeId(node_id.0, bech32_coder.network_id()),
+                        })
                 })?
             }
 
@@ -574,7 +580,7 @@ impl TryFrom<NetworkAwareResourceAddress> for ManifestAstValue {
 
     fn try_from(address: NetworkAwareResourceAddress) -> std::result::Result<Self, Self::Error> {
         Ok(Self::Address {
-            address: EntityAddress::ResourceAddress { address },
+            address: address.network_aware_node_id(),
         })
     }
 }
@@ -583,11 +589,11 @@ impl TryFrom<ManifestAstValue> for NetworkAwareResourceAddress {
     type Error = Error;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
-        if let ManifestAstValue::Address {
-            address: EntityAddress::ResourceAddress { address },
-        } = value
-        {
-            Ok(address)
+        if let ManifestAstValue::Address { address } = value {
+            Ok(NetworkAwareResourceAddress {
+                network_id: address.1,
+                address: ResourceAddress::new_unchecked(address.0),
+            })
         } else {
             Err(Error::InvalidKind {
                 expected: vec![ManifestAstValueKind::Address],

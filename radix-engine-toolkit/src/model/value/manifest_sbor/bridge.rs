@@ -17,17 +17,14 @@
 
 use super::model::*;
 use crate::error::Result;
-use crate::model::address::{
-    EntityAddress, NetworkAwareComponentAddress, NetworkAwarePackageAddress,
-    NetworkAwareResourceAddress,
-};
+
+use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::utils::checked_copy_u8_slice;
 
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, ComponentAddress, Decimal, IntegerNonFungibleLocalId,
-    ManifestCustomValue, ManifestCustomValueKind, ManifestValue, ManifestValueKind,
-    NonFungibleLocalId, PackageAddress, PreciseDecimal, ResourceAddress, StringNonFungibleLocalId,
-    UUIDNonFungibleLocalId,
+    BytesNonFungibleLocalId, Decimal, IntegerNonFungibleLocalId, ManifestCustomValue,
+    ManifestCustomValueKind, ManifestValue, ManifestValueKind, NonFungibleLocalId, PreciseDecimal,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId,
 };
 use scrypto::prelude::{
     ManifestAddress, ManifestBlobRef, ManifestBucket, ManifestDecimal, ManifestNonFungibleLocalId,
@@ -205,21 +202,9 @@ impl ManifestSborValue {
             },
 
             Self::Address { address } => ManifestValue::Custom {
-                value: ManifestCustomValue::Address(match address {
-                    EntityAddress::ComponentAddress { address } => {
-                        ManifestAddress::Component(checked_copy_u8_slice(address.address.to_vec())?)
-                    }
-                    EntityAddress::ResourceAddress { address } => {
-                        ManifestAddress::Resource(checked_copy_u8_slice(address.address.to_vec())?)
-                    }
-                    EntityAddress::PackageAddress { address } => {
-                        ManifestAddress::Package(checked_copy_u8_slice(address.address.to_vec())?)
-                    }
-                }),
+                value: ManifestCustomValue::Address(ManifestAddress(address.clone().into())),
             },
 
-            // TODO: checked_copy_u8_slice can cause a crash if the length is not checked. MUST
-            // change
             Self::Decimal { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(ManifestDecimal(checked_copy_u8_slice(
                     value.to_vec(),
@@ -339,31 +324,8 @@ impl ManifestSborValue {
 
             ManifestValue::Custom {
                 value: ManifestCustomValue::Address(value),
-            } => match value {
-                ManifestAddress::Component(address) => Self::Address {
-                    address: EntityAddress::ComponentAddress {
-                        address: NetworkAwareComponentAddress {
-                            network_id,
-                            address: ComponentAddress::try_from(address.as_slice())?,
-                        },
-                    },
-                },
-                ManifestAddress::Resource(address) => Self::Address {
-                    address: EntityAddress::ResourceAddress {
-                        address: NetworkAwareResourceAddress {
-                            network_id,
-                            address: ResourceAddress::try_from(address.as_slice())?,
-                        },
-                    },
-                },
-                ManifestAddress::Package(address) => Self::Address {
-                    address: EntityAddress::PackageAddress {
-                        address: NetworkAwarePackageAddress {
-                            network_id,
-                            address: PackageAddress::try_from(address.as_slice())?,
-                        },
-                    },
-                },
+            } => Self::Address {
+                address: NetworkAwareNodeId(value.0 .0, network_id),
             },
 
             ManifestValue::Custom {

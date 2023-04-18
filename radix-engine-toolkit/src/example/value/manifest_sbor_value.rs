@@ -17,12 +17,11 @@
 
 use scrypto::prelude::{
     BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId, FAUCET_COMPONENT, FAUCET_PACKAGE,
-    RADIX_TOKEN,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId, CLOCK, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
-use crate::model::address::*;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::model::value::manifest_sbor::{ManifestSborValue, ManifestSborValueKind};
 use crate::utils::checked_copy_u8_slice;
 
@@ -157,34 +156,19 @@ pub fn precise_decimal() -> ManifestSborValue {
 
 pub fn address1() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: EntityAddress::ComponentAddress {
-            address: NetworkAwareComponentAddress {
-                network_id: 0x01,
-                address: FAUCET_COMPONENT,
-            },
-        },
+        address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
     }
 }
 
 pub fn address2() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: EntityAddress::ResourceAddress {
-            address: NetworkAwareResourceAddress {
-                network_id: 0x01,
-                address: RADIX_TOKEN,
-            },
-        },
+        address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
     }
 }
 
 pub fn address3() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: EntityAddress::PackageAddress {
-            address: NetworkAwarePackageAddress {
-                network_id: 0x01,
-                address: FAUCET_PACKAGE,
-            },
-        },
+        address: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
     }
 }
 

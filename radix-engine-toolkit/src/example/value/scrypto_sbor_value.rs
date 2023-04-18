@@ -15,15 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::data::scrypto::model::OBJECT_ID_LENGTH;
+use radix_engine::types::{NodeId, ACCOUNT_PACKAGE};
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId, Own,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId, FAUCET_COMPONENT, FAUCET_PACKAGE,
-    RADIX_TOKEN,
+    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId,
 };
 
-use crate::model::address::*;
-use crate::model::engine_identifier::NodeIdentifier;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
 
 pub fn value() -> ScryptoSborValue {
@@ -155,33 +153,11 @@ pub fn precise_decimal() -> ScryptoSborValue {
     }
 }
 
-pub fn own1() -> ScryptoSborValue {
+pub fn own() -> ScryptoSborValue {
     ScryptoSborValue::Own {
-        value: Own::Bucket([0; OBJECT_ID_LENGTH]),
-    }
-}
-
-pub fn own2() -> ScryptoSborValue {
-    ScryptoSborValue::Own {
-        value: Own::Proof([0; OBJECT_ID_LENGTH]),
-    }
-}
-
-pub fn own3() -> ScryptoSborValue {
-    ScryptoSborValue::Own {
-        value: Own::Vault([0; OBJECT_ID_LENGTH]),
-    }
-}
-
-pub fn own4() -> ScryptoSborValue {
-    ScryptoSborValue::Own {
-        value: Own::Object([0; OBJECT_ID_LENGTH]),
-    }
-}
-
-pub fn own5() -> ScryptoSborValue {
-    ScryptoSborValue::Own {
-        value: Own::KeyValueStore([0; OBJECT_ID_LENGTH]),
+        value: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, 1), /* TODO: Replace with
+                                                                       * something that can
+                                                                       * actually be owned */
     }
 }
 
@@ -217,6 +193,6 @@ pub fn non_fungible_local_id4() -> ScryptoSborValue {
 
 pub fn reference() -> ScryptoSborValue {
     ScryptoSborValue::Reference {
-        value: NodeIdentifier([0; OBJECT_ID_LENGTH]),
+        value: NetworkAwareNodeId([0; NodeId::LENGTH], 1),
     }
 }

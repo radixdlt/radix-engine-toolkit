@@ -18,7 +18,6 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use crate::error::{Error, Result};
 use crate::model::address::Bech32Coder;
 
 // Defines a network aware address. This is needed for the serialization and deserialization using
@@ -26,47 +25,90 @@ use crate::model::address::Bech32Coder;
 macro_rules! define_network_aware_address {
     (
         $underlying_type: ty => $network_aware_struct_ident: ident,
-        $encoding_method_ident: ident,
-        $decoding_method_ident: ident
+        $check_fn_ident: ident
     ) => {
         #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, PartialOrd, Ord)]
         pub struct $network_aware_struct_ident {
             pub network_id: u8,
             pub address: $underlying_type,
         }
+
         impl From<$network_aware_struct_ident> for $underlying_type {
             fn from(address: $network_aware_struct_ident) -> $underlying_type {
                 address.address
             }
         }
 
+        impl TryFrom<$crate::model::engine_identifier::NetworkAwareNodeId>
+            for $network_aware_struct_ident
+        {
+            type Error = $crate::error::Error;
+
+            fn try_from(
+                node_id: $crate::model::engine_identifier::NetworkAwareNodeId,
+            ) -> Result<Self, Self::Error> {
+                let native_node_id = radix_engine_common::types::NodeId(node_id.0);
+                if native_node_id.$check_fn_ident() {
+                    let address = <$underlying_type>::new_unchecked(node_id.0);
+                    Ok($network_aware_struct_ident {
+                        network_id: node_id.1,
+                        address,
+                    })
+                } else {
+                    Err($crate::error::Error::AddressError {
+                        message: "Invalid Address".into(),
+                    })
+                }
+            }
+        }
+
+        impl From<$network_aware_struct_ident>
+            for $crate::model::engine_identifier::NetworkAwareNodeId
+        {
+            fn from(address: $network_aware_struct_ident) -> Self {
+                Self(address.address.as_node_id().0, address.network_id)
+            }
+        }
+
         impl $network_aware_struct_ident {
-            pub fn from_u8_array(data: &[u8], network_id: u8) -> Result<Self> {
+            pub fn from_u8_array(data: &[u8], network_id: u8) -> $crate::error::Result<Self> {
                 if let Ok(address) = <$underlying_type>::try_from(data) {
                     Ok($network_aware_struct_ident {
                         network_id,
                         address,
                     })
                 } else {
-                    Err(Error::UnrecognizedAddressFormat)
+                    Err($crate::error::Error::UnrecognizedAddressFormat)
                 }
+            }
+
+            pub fn network_aware_node_id(
+                &self,
+            ) -> $crate::model::engine_identifier::NetworkAwareNodeId {
+                $crate::model::engine_identifier::NetworkAwareNodeId(
+                    self.address.as_node_id().0,
+                    self.network_id,
+                )
             }
         }
 
         impl Display for $network_aware_struct_ident {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                let bech32_coder = Bech32Coder::new(self.network_id);
-                write!(f, "{}", bech32_coder.$encoding_method_ident(&self.address))
+                let node_id = self.network_aware_node_id();
+                node_id.fmt(f)
             }
         }
 
         impl FromStr for $network_aware_struct_ident {
-            type Err = Error;
+            type Err = $crate::error::Error;
 
-            fn from_str(s: &str) -> Result<Self> {
+            fn from_str(s: &str) -> $crate::error::Result<Self> {
+                let node_id = $crate::model::engine_identifier::NetworkAwareNodeId::from_str(s)?;
+
                 let bech32_coder = Bech32Coder::new_from_address(s)?;
+                let node_id = bech32_coder.decode(s)?;
                 Ok(Self {
-                    address: bech32_coder.$decoding_method_ident(s)?,
+                    address: <$underlying_type>::new_unchecked(node_id.0),
                     network_id: bech32_coder.network_id(),
                 })
             }
@@ -96,16 +138,13 @@ macro_rules! define_network_aware_address {
 
 define_network_aware_address!(
     scrypto::prelude::ComponentAddress => NetworkAwareComponentAddress,
-    encode_component_address,
-    decode_component_address
+    is_global_component
 );
 define_network_aware_address!(
     scrypto::prelude::PackageAddress => NetworkAwarePackageAddress,
-    encode_package_address,
-    decode_package_address
+    is_global_package
 );
 define_network_aware_address!(
     scrypto::prelude::ResourceAddress => NetworkAwareResourceAddress,
-    encode_resource_address,
-    decode_resource_address
+    is_global_resource
 );

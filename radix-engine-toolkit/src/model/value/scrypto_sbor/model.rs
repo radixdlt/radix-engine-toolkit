@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::define_kind_enum;
-use crate::model::engine_identifier::NodeIdentifier;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 
 use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
 use scrypto::runtime::Own;
@@ -182,17 +182,11 @@ define_kind_enum! {
         Tuple { elements: Vec<Self> },
 
         /// Represents a tagged enum of owned Radix Engine Nodes.
-        #[schemars(
-            example = "crate::example::value::scrypto_sbor_value::own1",
-            example = "crate::example::value::scrypto_sbor_value::own2",
-            example = "crate::example::value::scrypto_sbor_value::own3",
-            example = "crate::example::value::scrypto_sbor_value::own4",
-            example = "crate::example::value::scrypto_sbor_value::own5"
-        )]
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::own")]
         Own {
-            #[schemars(with = "crate::model::engine_identifier::Own")]
-            #[serde_as(as = "serde_with::FromInto<crate::model::engine_identifier::Own>")]
-            value: Own,
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
+            value: NetworkAwareNodeId,
         },
 
         /// A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum
@@ -238,7 +232,9 @@ define_kind_enum! {
         /// Represents a reference to some RENode.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::reference")]
         Reference {
-            value: NodeIdentifier
+            #[schemars(with = "String")]
+            #[serde_as(as = "serde_with::DisplayFromStr")]
+            value: NetworkAwareNodeId,
         }
     }
 }

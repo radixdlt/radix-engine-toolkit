@@ -97,8 +97,6 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
         DeriveBabylonAddressFromOlympiaAddressResponse,
         DeriveOlympiaAddressFromPublicKeyRequest,
         DeriveOlympiaAddressFromPublicKeyResponse,
-        DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-        DeriveNonFungibleGlobalIdFromPublicKeyResponse,
         KnownEntityAddressesRequest,
         KnownEntityAddressesResponse,
         StaticallyValidateTransactionRequest,
@@ -157,7 +155,6 @@ fn generate_request_examples() -> Result<(), GenerationError> {
         .add_example::<DeriveVirtualIdentityAddressHandler, _, _>()
         .add_example::<DeriveBabylonAddressFromOlympiaAddressHandler, _, _>()
         .add_example::<DeriveOlympiaAddressFromPublicKeyHandler, _, _>()
-        .add_example::<DeriveNonFungibleGlobalIdFromPublicKeyHandler, _, _>()
         .add_example::<StaticallyValidateTransactionHandler, _, _>()
         .add_example::<KnownEntityAddressesHandler, _, _>()
         .add_example::<HashHandler, _, _>()

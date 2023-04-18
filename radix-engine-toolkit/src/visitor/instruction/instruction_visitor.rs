@@ -140,6 +140,13 @@ define_instruction_visitor! {
             _code: &mut crate::model::value::ast::ManifestAstValue,
             _abi: &mut crate::model::value::ast::ManifestAstValue,
             _royalty_config: &mut crate::model::value::ast::ManifestAstValue,
+            _metadata: &mut crate::model::value::ast::ManifestAstValue
+        ),
+
+        visit_publish_package_advanced(
+            _code: &mut crate::model::value::ast::ManifestAstValue,
+            _abi: &mut crate::model::value::ast::ManifestAstValue,
+            _royalty_config: &mut crate::model::value::ast::ManifestAstValue,
             _metadata: &mut crate::model::value::ast::ManifestAstValue,
             _access_rules: &mut crate::model::value::ast::ManifestAstValue
         ),
@@ -237,21 +244,24 @@ define_instruction_visitor! {
             _timed_recovery_delay_in_minutes: &mut crate::model::value::ast::ManifestAstValue
         ),
 
-        visit_create_identity(
-            _access_rule: &mut crate::model::value::ast::ManifestAstValue
-        ),
-
         visit_assert_access_rule(
             _access_rule: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_create_validator(
-            _key: &mut crate::model::value::ast::ManifestAstValue,
-            _owner_access_rule: &mut crate::model::value::ast::ManifestAstValue
+            _key: &mut crate::model::value::ast::ManifestAstValue
         ),
 
-        visit_create_account(
-            _withdraw_rule: &mut crate::model::value::ast::ManifestAstValue
+        visit_create_identity(),
+
+        visit_create_identity_advanced(
+            _config: &mut crate::model::value::ast::ManifestAstValue
+        ),
+
+        visit_create_account(),
+
+        visit_create_account_advanced(
+            _config: &mut crate::model::value::ast::ManifestAstValue
         ),
 
         visit_clear_auth_zone(),
@@ -498,6 +508,26 @@ pub fn traverse_instruction(
             schema: abi,
             royalty_config,
             metadata,
+        } => {
+            traverse_value(code, value_visitors)?;
+            traverse_value(abi, value_visitors)?;
+            traverse_value(royalty_config, value_visitors)?;
+            traverse_value(metadata, value_visitors)?;
+            visit!(
+                instructions_visitors,
+                visit_publish_package,
+                code,
+                abi,
+                royalty_config,
+                metadata
+            )?;
+        }
+
+        Instruction::PublishPackageAdvanced {
+            code,
+            schema: abi,
+            royalty_config,
+            metadata,
             access_rules,
         } => {
             traverse_value(code, value_visitors)?;
@@ -507,7 +537,7 @@ pub fn traverse_instruction(
             traverse_value(access_rules, value_visitors)?;
             visit!(
                 instructions_visitors,
-                visit_publish_package,
+                visit_publish_package_advanced,
                 code,
                 abi,
                 royalty_config,
@@ -765,28 +795,31 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::CreateIdentity { access_rule } => {
-            traverse_value(access_rule, value_visitors)?;
-            visit!(instructions_visitors, visit_create_identity, access_rule)?;
+        Instruction::CreateIdentity => {
+            visit!(instructions_visitors, visit_create_identity,)?;
         }
 
-        Instruction::CreateValidator {
-            key,
-            owner_access_rule,
-        } => {
-            traverse_value(key, value_visitors)?;
-            traverse_value(owner_access_rule, value_visitors)?;
+        Instruction::CreateIdentityAdvanced { config } => {
+            traverse_value(config, value_visitors)?;
             visit!(
                 instructions_visitors,
-                visit_create_validator,
-                key,
-                owner_access_rule
+                visit_create_identity_advanced,
+                config
             )?;
         }
 
-        Instruction::CreateAccount { withdraw_rule } => {
-            traverse_value(withdraw_rule, value_visitors)?;
-            visit!(instructions_visitors, visit_create_account, withdraw_rule)?;
+        Instruction::CreateValidator { key } => {
+            traverse_value(key, value_visitors)?;
+            visit!(instructions_visitors, visit_create_validator, key)?;
+        }
+
+        Instruction::CreateAccount => {
+            visit!(instructions_visitors, visit_create_account,)?;
+        }
+
+        Instruction::CreateAccountAdvanced { config } => {
+            traverse_value(config, value_visitors)?;
+            visit!(instructions_visitors, visit_create_account_advanced, config)?;
         }
 
         Instruction::DropAllProofs => {

@@ -17,10 +17,10 @@
 
 use super::model::*;
 use crate::error::Result;
-use crate::model::engine_identifier::NodeIdentifier;
+use crate::model::engine_identifier::NetworkAwareNodeId;
 
 use scrypto::prelude::{
-    ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
+    NodeId, Own, ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
 };
 
 impl From<ScryptoValueKind> for ScryptoSborValueKind {
@@ -181,11 +181,11 @@ impl ScryptoSborValue {
             },
 
             Self::Own { value } => ScryptoValue::Custom {
-                value: ScryptoCustomValue::Own(*value),
+                value: ScryptoCustomValue::Own(Own(NodeId(value.0))),
             },
             Self::Reference { value } => ScryptoValue::Custom {
                 value: ScryptoCustomValue::Reference(
-                    radix_engine_common::data::scrypto::model::Reference(value.0),
+                    radix_engine_common::data::scrypto::model::Reference(value.0.into()),
                 ),
             },
         };
@@ -281,11 +281,13 @@ impl ScryptoSborValue {
 
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Own(value),
-            } => Self::Own { value: *value },
+            } => Self::Own {
+                value: NetworkAwareNodeId(value.0 .0, network_id),
+            },
             ScryptoValue::Custom {
                 value: ScryptoCustomValue::Reference(value),
             } => Self::Reference {
-                value: NodeIdentifier(value.0),
+                value: NetworkAwareNodeId(value.0 .0, network_id),
             },
         }
     }

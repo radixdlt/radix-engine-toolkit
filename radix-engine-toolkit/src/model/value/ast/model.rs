@@ -17,8 +17,8 @@
 
 use crate::define_kind_enum;
 use crate::error::{Error, Result};
-use crate::model::address::{EntityAddress, NetworkAwareResourceAddress};
-use crate::model::engine_identifier::{BucketId, ProofId};
+use crate::model::address::NetworkAwareResourceAddress;
+use crate::model::engine_identifier::{BucketId, NetworkAwareNodeId, ProofId};
 
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
 use scrypto::prelude::{
@@ -238,7 +238,7 @@ define_kind_enum! {
         Address {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: EntityAddress,
+            address: NetworkAwareNodeId,
         },
 
         /// Represents a Scrypto bucket which is identified through a transient identifier which is

@@ -20,7 +20,7 @@ use std::collections::BTreeSet;
 use scrypto::blueprints::account::*;
 
 use crate::error::Result;
-use crate::model::address::{EntityAddress, NetworkAwareComponentAddress};
+use crate::model::address::NetworkAwareComponentAddress;
 use crate::model::value::ast::ManifestAstValue;
 use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
@@ -67,21 +67,20 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         match (component_address, method_name) {
             (
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
-            ) if is_account(component_address) => {
+            ) if is_account(*component_address) => {
                 if Self::AUTH_REQUIRING_METHODS.contains(&method_name.as_str()) {
-                    self.auth_required.insert(*component_address);
+                    self.auth_required.insert((*component_address).try_into()?);
                 }
                 if Self::WITHDRAW_METHODS.contains(&method_name.as_str()) {
-                    self.accounts_withdrawn_from.insert(*component_address);
+                    self.accounts_withdrawn_from
+                        .insert((*component_address).try_into()?);
                 }
                 if Self::DEPOSIT_METHODS.contains(&method_name.as_str()) {
-                    self.accounts_deposited_into.insert(*component_address);
+                    self.accounts_deposited_into
+                        .insert((*component_address).try_into()?);
                 }
             }
             _ => {}
@@ -98,12 +97,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match entity_address {
             ManifestAstValue::Address {
-                address:
-                    EntityAddress::ComponentAddress {
-                        address: ref component_address,
-                    },
-            } if is_account(component_address) => {
-                self.auth_required.insert(*component_address);
+                address: component_address,
+            } if is_account(*component_address) => {
+                self.auth_required.insert((*component_address).try_into()?);
             }
             _ => {}
         }
@@ -118,12 +114,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match component_address {
             ManifestAstValue::Address {
-                address:
-                    EntityAddress::ComponentAddress {
-                        address: ref component_address,
-                    },
-            } if is_account(component_address) => {
-                self.auth_required.insert(*component_address);
+                address: component_address,
+            } if is_account(*component_address) => {
+                self.auth_required.insert((*component_address).try_into()?);
             }
             _ => {}
         }
@@ -136,12 +129,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match component_address {
             ManifestAstValue::Address {
-                address:
-                    EntityAddress::ComponentAddress {
-                        address: ref component_address,
-                    },
-            } if is_account(component_address) => {
-                self.auth_required.insert(*component_address);
+                address: component_address,
+            } if is_account(*component_address) => {
+                self.auth_required.insert((*component_address).try_into()?);
             }
             _ => {}
         }
@@ -156,12 +146,9 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<()> {
         match entity_address {
             ManifestAstValue::Address {
-                address:
-                    EntityAddress::ComponentAddress {
-                        address: ref component_address,
-                    },
-            } if is_account(component_address) => {
-                self.auth_required.insert(*component_address);
+                address: component_address,
+            } if is_account(*component_address) => {
+                self.auth_required.insert((*component_address).try_into()?);
             }
             _ => {}
         }

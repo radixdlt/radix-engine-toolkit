@@ -20,18 +20,15 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::error::{Error, Result};
-use crate::model::address::{
-    EntityAddress, NetworkAwareComponentAddress, NetworkAwareResourceAddress,
-};
+use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
 use crate::model::engine_identifier::BucketId;
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::utils::is_account;
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
-use radix_engine::system::kernel_modules::execution_trace::{
+use radix_engine::system::system_modules::execution_trace::{
     ResourceChange, ResourceSpecifier as NativeResourceSpecifier, WorktopChange,
 };
-use radix_engine::types::RENodeId;
 use scrypto::blueprints::account::{ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT};
 use scrypto::prelude::ManifestExpression;
 use toolkit_derive::serializable;
@@ -67,8 +64,8 @@ impl AccountDepositsInstructionVisitor {
 #[serializable]
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 pub struct AccountDeposit {
-    #[schemars(with = "EntityAddress")]
-    #[serde_as(as = "serde_with::TryFromInto<EntityAddress>")]
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
     pub component_address: NetworkAwareComponentAddress,
 
     #[serde(flatten)]
@@ -141,14 +138,11 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         match (component_address, method_name, &arguments) {
             (
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
-            ) if is_account(component_address) && method_name == ACCOUNT_DEPOSIT_IDENT => {
+            ) if is_account(*component_address) && method_name == ACCOUNT_DEPOSIT_IDENT => {
                 if let Some(ManifestAstValue::Bucket {
                     identifier: bucket_id,
                 }) = arguments.get(0)
@@ -160,21 +154,18 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                         Ok,
                     )?;
                     self.deposits.push(AccountDeposit {
-                        component_address: component_address.to_owned(),
+                        component_address: (*component_address).try_into()?,
                         deposited: bucket_info.to_owned(),
                     });
                 }
             }
             (
                 ManifestAstValue::Address {
-                    address:
-                        EntityAddress::ComponentAddress {
-                            address: ref component_address,
-                        },
+                    address: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
-            ) if is_account(component_address) && method_name == ACCOUNT_DEPOSIT_BATCH_IDENT => {
+            ) if is_account(*component_address) && method_name == ACCOUNT_DEPOSIT_BATCH_IDENT => {
                 match (arguments.len(), arguments.get(0)) {
                     (
                         1,
@@ -196,20 +187,14 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                                 |ResourceChange {
                                      node_id, amount, ..
                                  }| {
-                                    *node_id
-                                        == RENodeId::GlobalObject(
-                                            radix_engine::types::Address::Component(
-                                                component_address.address,
-                                            ),
-                                        )
-                                        && amount.is_positive()
+                                    *node_id == component_address.node_id() && amount.is_positive()
                                 },
                             )
                             .collect::<Vec<&ResourceChange>>();
 
                         for resource_change in resource_changes {
                             self.deposits.push(AccountDeposit {
-                                component_address: component_address.to_owned(),
+                                component_address: (*component_address).try_into()?,
                                 deposited: ExactnessSpecifier::Estimate {
                                     instruction_index: self.instruction_index,
                                     resource_specifier: ResourceSpecifier::Amount {
@@ -248,7 +233,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                                 Ok,
                             )?;
                             self.deposits.push(AccountDeposit {
-                                component_address: component_address.to_owned(),
+                                component_address: (*component_address).try_into()?,
                                 deposited: bucket_info.to_owned(),
                             });
                         }
@@ -284,44 +269,43 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         resource_address: &mut ManifestAstValue,
         into_bucket: &mut ManifestAstValue,
     ) -> Result<()> {
-        if let (
-            ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, into_bucket)
-        {
-            // TODO: Should we do a sanity check that the resource address in the instruction
-            // matches that in the worktop changes?
-            if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
-                if let Some(WorktopChange::Take(resource_specifier)) = worktop_changes.get(0) {
-                    self.add_bucket(
-                        bucket_id.clone(),
-                        ExactnessSpecifier::Estimate {
-                            instruction_index: self.instruction_index,
-                            resource_specifier: match resource_specifier {
-                                NativeResourceSpecifier::Amount(_, amount) => {
-                                    ResourceSpecifier::Amount {
-                                        resource_address: *resource_address,
-                                        amount: *amount,
+        match (resource_address, into_bucket) {
+            (
+                ManifestAstValue::Address {
+                    address: resource_address,
+                },
+                ManifestAstValue::Bucket {
+                    identifier: bucket_id,
+                },
+            ) if resource_address.node_id().is_global_resource() => {
+                if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
+                    if let Some(WorktopChange::Take(resource_specifier)) = worktop_changes.get(0) {
+                        self.add_bucket(
+                            bucket_id.clone(),
+                            ExactnessSpecifier::Estimate {
+                                instruction_index: self.instruction_index,
+                                resource_specifier: match resource_specifier {
+                                    NativeResourceSpecifier::Amount(_, amount) => {
+                                        ResourceSpecifier::Amount {
+                                            resource_address: (*resource_address).try_into()?,
+                                            amount: *amount,
+                                        }
                                     }
-                                }
-                                NativeResourceSpecifier::Ids(_, ids) => ResourceSpecifier::Ids {
-                                    resource_address: *resource_address,
-                                    ids: ids.clone(),
+                                    NativeResourceSpecifier::Ids(_, ids) => {
+                                        ResourceSpecifier::Ids {
+                                            resource_address: (*resource_address).try_into()?,
+                                            ids: ids.clone(),
+                                        }
+                                    }
                                 },
                             },
-                        },
-                    )?;
+                        )?;
+                    }
                 }
+                Ok(())
             }
+            _ => Ok(()),
         }
-        Ok(())
     }
 
     fn visit_take_from_worktop_by_amount(
@@ -330,33 +314,29 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         amount: &mut ManifestAstValue,
         into_bucket: &mut ManifestAstValue,
     ) -> Result<()> {
-        if let (
-            ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ManifestAstValue::Decimal { value: amount },
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, amount, into_bucket)
-        {
-            self.add_bucket(
-                bucket_id.clone(),
-                ExactnessSpecifier::Exact {
-                    resource_specifier: ResourceSpecifier::Amount {
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: self.network_id,
-                            address: resource_address.address,
-                        },
-                        amount: *amount,
-                    },
+        match (resource_address, amount, into_bucket) {
+            (
+                ManifestAstValue::Address {
+                    address: resource_address,
                 },
-            )?;
+                ManifestAstValue::Decimal { value: amount },
+                ManifestAstValue::Bucket {
+                    identifier: bucket_id,
+                },
+            ) if resource_address.node_id().is_global_resource() => {
+                self.add_bucket(
+                    bucket_id.clone(),
+                    ExactnessSpecifier::Exact {
+                        resource_specifier: ResourceSpecifier::Amount {
+                            resource_address: (*resource_address).try_into()?,
+                            amount: *amount,
+                        },
+                    },
+                )?;
+                Ok(())
+            }
+            _ => Ok(()),
         }
-        Ok(())
     }
 
     fn visit_take_from_worktop_by_ids(
@@ -365,43 +345,39 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         ids: &mut Vec<ManifestAstValue>,
         into_bucket: &mut ManifestAstValue,
     ) -> Result<()> {
-        if let (
-            ManifestAstValue::Address {
-                address:
-                    EntityAddress::ResourceAddress {
-                        address: resource_address,
-                    },
-            },
-            ids,
-            ManifestAstValue::Bucket {
-                identifier: bucket_id,
-            },
-        ) = (resource_address, ids, into_bucket)
-        {
-            let ids = {
-                let mut resolved_ids = BTreeSet::new();
-                for id in ids {
-                    if let ManifestAstValue::NonFungibleLocalId { value: id } = id {
-                        resolved_ids.insert(id.clone());
-                    } else { /* TODO: currently a no-op. Should be an error? */
+        match (resource_address, ids, into_bucket) {
+            (
+                ManifestAstValue::Address {
+                    address: resource_address,
+                },
+                ids,
+                ManifestAstValue::Bucket {
+                    identifier: bucket_id,
+                },
+            ) if resource_address.node_id().is_global_resource() => {
+                let ids = {
+                    let mut resolved_ids = BTreeSet::new();
+                    for id in ids {
+                        if let ManifestAstValue::NonFungibleLocalId { value: id } = id {
+                            resolved_ids.insert(id.clone());
+                        } else { /* TODO: currently a no-op. Should be an error? */
+                        }
                     }
-                }
-                resolved_ids
-            };
-            self.add_bucket(
-                bucket_id.clone(),
-                ExactnessSpecifier::Exact {
-                    resource_specifier: ResourceSpecifier::Ids {
-                        ids,
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: self.network_id,
-                            address: resource_address.address,
+                    resolved_ids
+                };
+                self.add_bucket(
+                    bucket_id.clone(),
+                    ExactnessSpecifier::Exact {
+                        resource_specifier: ResourceSpecifier::Ids {
+                            ids,
+                            resource_address: (*resource_address).try_into()?,
                         },
                     },
-                },
-            )?;
+                )?;
+                Ok(())
+            }
+            _ => Ok(()),
         }
-        Ok(())
     }
 
     //==================

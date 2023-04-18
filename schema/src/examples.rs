@@ -473,25 +473,6 @@ impl ExampleData<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddre
 
 impl
     ExampleData<
-        DeriveNonFungibleGlobalIdFromPublicKeyRequest,
-        DeriveNonFungibleGlobalIdFromPublicKeyResponse,
-    > for DeriveNonFungibleGlobalIdFromPublicKeyHandler
-{
-    fn description() -> String {
-        r#"Derives the non-fungible global id of the virtual badge associated with a given public key"#
-            .to_owned()
-    }
-
-    fn example_request() -> DeriveNonFungibleGlobalIdFromPublicKeyRequest {
-        DeriveNonFungibleGlobalIdFromPublicKeyRequest {
-            network_id: 0xf2,
-            public_key: notary_private_key().public_key().into(),
-        }
-    }
-}
-
-impl
-    ExampleData<
         DeriveBabylonAddressFromOlympiaAddressRequest,
         DeriveBabylonAddressFromOlympiaAddressResponse,
     > for DeriveBabylonAddressFromOlympiaAddressHandler
