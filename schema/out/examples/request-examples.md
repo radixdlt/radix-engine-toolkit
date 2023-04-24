@@ -57,7 +57,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -66,7 +66,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             {
               "type": "Decimal",
@@ -78,7 +78,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -96,7 +96,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
           },
           "method_name": {
             "type": "String",
@@ -116,7 +116,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -127,14 +127,14 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           }
         },
         {
           "instruction": "TAKE_FROM_WORKTOP",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "into_bucket": {
             "type": "Bucket",
@@ -158,7 +158,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "ids": [
             {
@@ -181,7 +181,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -214,7 +214,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "CALL_METHOD",
         "component_address": {
           "type": "Address",
-          "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+          "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
         },
         "method_name": {
           "type": "String",
@@ -223,7 +223,7 @@ This document contains examples and descriptions of the different requests and r
         "arguments": [
           {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           {
             "type": "Decimal",
@@ -235,7 +235,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
         "resource_address": {
           "type": "Address",
-          "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
         },
         "amount": {
           "type": "Decimal",
@@ -253,7 +253,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "CALL_METHOD",
         "component_address": {
           "type": "Address",
-          "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+          "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
         },
         "method_name": {
           "type": "String",
@@ -273,7 +273,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
         "resource_address": {
           "type": "Address",
-          "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
         },
         "amount": {
           "type": "Decimal",
@@ -284,14 +284,14 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "ASSERT_WORKTOP_CONTAINS",
         "resource_address": {
           "type": "Address",
-          "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
         }
       },
       {
         "instruction": "TAKE_FROM_WORKTOP",
         "resource_address": {
           "type": "Address",
-          "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
         },
         "into_bucket": {
           "type": "Bucket",
@@ -315,7 +315,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
         "resource_address": {
           "type": "Address",
-          "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
         },
         "ids": [
           {
@@ -338,7 +338,7 @@ This document contains examples and descriptions of the different requests and r
         "instruction": "CALL_METHOD",
         "component_address": {
           "type": "Address",
-          "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+          "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
         },
         "method_name": {
           "type": "String",
@@ -377,7 +377,7 @@ This document contains examples and descriptions of the different requests and r
   "manifest": {
     "instructions": {
       "type": "String",
-      "value": "CALL_METHOD\n    Address(\"account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl\")\n    \"withdraw\"\n    Address(\"resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00\")\n    Decimal(\"5\");\nTAKE_FROM_WORKTOP_BY_AMOUNT\n    Decimal(\"2\")\n    Address(\"resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00\")\n    Bucket(\"bucket1\");\nCALL_METHOD\n    Address(\"component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9\")\n    \"buy_gumball\"\n    Bucket(\"bucket1\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n    Decimal(\"3\")\n    Address(\"resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00\");\nASSERT_WORKTOP_CONTAINS\n    Address(\"resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c\");\nTAKE_FROM_WORKTOP\n    Address(\"resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00\")\n    Bucket(\"bucket2\");\nRETURN_TO_WORKTOP\n    Bucket(\"bucket2\");\nTAKE_FROM_WORKTOP_BY_IDS\n    Array<NonFungibleLocalId>(NonFungibleLocalId(\"#1#\"))\n    Address(\"resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00\")\n    Bucket(\"bucket3\");\nCALL_METHOD\n    Address(\"account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl\")\n    \"deposit_batch\"\n    Expression(\"ENTIRE_WORKTOP\");\n"
+      "value": "CALL_METHOD\n    Address(\"account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt\")\n    \"withdraw\"\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Decimal(\"5\");\nTAKE_FROM_WORKTOP_BY_AMOUNT\n    Decimal(\"2\")\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket1\");\nCALL_METHOD\n    Address(\"component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44\")\n    \"buy_gumball\"\n    Bucket(\"bucket1\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n    Decimal(\"3\")\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\");\nASSERT_WORKTOP_CONTAINS\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\");\nTAKE_FROM_WORKTOP\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket2\");\nRETURN_TO_WORKTOP\n    Bucket(\"bucket2\");\nTAKE_FROM_WORKTOP_BY_IDS\n    Array<NonFungibleLocalId>(NonFungibleLocalId(\"#1#\"))\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket3\");\nCALL_METHOD\n    Address(\"account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt\")\n    \"deposit_batch\"\n    Expression(\"ENTIRE_WORKTOP\");\n"
     },
     "blobs": []
   }
@@ -392,24 +392,23 @@ This document contains examples and descriptions of the different requests and r
 {
   "package_addresses": [],
   "component_addresses": [
-    "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl",
-    "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt",
+    "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
   ],
   "resource_addresses": [
-    "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00",
-    "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+    "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
   ],
   "account_addresses": [
-    "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
   ],
   "accounts_requiring_auth": [
-    "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
   ],
   "accounts_withdrawn_from": [
-    "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
   ],
   "accounts_deposited_into": [
-    "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
   ]
 }
 ```
@@ -452,7 +451,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -461,7 +460,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             {
               "type": "Decimal",
@@ -473,7 +472,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -491,7 +490,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
           },
           "method_name": {
             "type": "String",
@@ -511,7 +510,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -522,14 +521,14 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           }
         },
         {
           "instruction": "TAKE_FROM_WORKTOP",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "into_bucket": {
             "type": "Bucket",
@@ -553,7 +552,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "ids": [
             {
@@ -576,7 +575,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -602,7 +601,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f626174636821018300202000"
+  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000"
 }
 ```
 </details>
@@ -623,7 +622,7 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f626174636821018300202000"
+  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000"
 }
 ```
 </details>
@@ -655,7 +654,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -664,7 +663,7 @@ This document contains examples and descriptions of the different requests and r
           "arguments": [
             {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             {
               "type": "Decimal",
@@ -676,7 +675,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -694,7 +693,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
           },
           "method_name": {
             "type": "String",
@@ -714,7 +713,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "amount": {
             "type": "Decimal",
@@ -725,14 +724,14 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "ASSERT_WORKTOP_CONTAINS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           }
         },
         {
           "instruction": "TAKE_FROM_WORKTOP",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "into_bucket": {
             "type": "Bucket",
@@ -756,7 +755,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
           "resource_address": {
             "type": "Address",
-            "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
           },
           "ids": [
             {
@@ -779,7 +778,7 @@ This document contains examples and descriptions of the different requests and r
           "instruction": "CALL_METHOD",
           "component_address": {
             "type": "Address",
-            "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
           },
           "method_name": {
             "type": "String",
@@ -838,7 +837,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
             },
             "method_name": {
               "type": "String",
@@ -847,7 +846,7 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               {
                 "type": "Decimal",
@@ -859,7 +858,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "amount": {
               "type": "Decimal",
@@ -877,7 +876,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+              "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
             },
             "method_name": {
               "type": "String",
@@ -897,7 +896,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "amount": {
               "type": "Decimal",
@@ -908,14 +907,14 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "ASSERT_WORKTOP_CONTAINS",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             }
           },
           {
             "instruction": "TAKE_FROM_WORKTOP",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "into_bucket": {
               "type": "Bucket",
@@ -939,7 +938,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "ids": [
               {
@@ -962,7 +961,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
             },
             "method_name": {
               "type": "String",
@@ -983,30 +982,30 @@ This document contains examples and descriptions of the different requests and r
   "intent_signatures": [
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+      "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "00334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e"
+      "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "01964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae"
+      "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-      "signature": "523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b808"
+      "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-      "signature": "c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae08"
+      "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-      "signature": "26957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+      "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
     }
   ]
 }
@@ -1018,7 +1017,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "compiled_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+  "compiled_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
 }
 ```
 </details>
@@ -1039,7 +1038,7 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_signed_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+  "compiled_signed_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
 }
 ```
 </details>
@@ -1072,7 +1071,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
             },
             "method_name": {
               "type": "String",
@@ -1081,7 +1080,7 @@ This document contains examples and descriptions of the different requests and r
             "arguments": [
               {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               {
                 "type": "Decimal",
@@ -1093,7 +1092,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "amount": {
               "type": "Decimal",
@@ -1111,7 +1110,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+              "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
             },
             "method_name": {
               "type": "String",
@@ -1131,7 +1130,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "amount": {
               "type": "Decimal",
@@ -1142,14 +1141,14 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "ASSERT_WORKTOP_CONTAINS",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             }
           },
           {
             "instruction": "TAKE_FROM_WORKTOP",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "into_bucket": {
               "type": "Bucket",
@@ -1173,7 +1172,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
             "resource_address": {
               "type": "Address",
-              "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
             },
             "ids": [
               {
@@ -1196,7 +1195,7 @@ This document contains examples and descriptions of the different requests and r
             "instruction": "CALL_METHOD",
             "component_address": {
               "type": "Address",
-              "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
             },
             "method_name": {
               "type": "String",
@@ -1217,30 +1216,30 @@ This document contains examples and descriptions of the different requests and r
   "intent_signatures": [
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+      "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "00334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e"
+      "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "01964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae"
+      "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-      "signature": "523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b808"
+      "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-      "signature": "c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae08"
+      "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-      "signature": "26957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+      "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
     }
   ]
 }
@@ -1286,7 +1285,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
               },
               "method_name": {
                 "type": "String",
@@ -1295,7 +1294,7 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 {
                   "type": "Decimal",
@@ -1307,7 +1306,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "amount": {
                 "type": "Decimal",
@@ -1325,7 +1324,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+                "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
               },
               "method_name": {
                 "type": "String",
@@ -1345,7 +1344,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "amount": {
                 "type": "Decimal",
@@ -1356,14 +1355,14 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               }
             },
             {
               "instruction": "TAKE_FROM_WORKTOP",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "into_bucket": {
                 "type": "Bucket",
@@ -1387,7 +1386,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "ids": [
                 {
@@ -1410,7 +1409,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
               },
               "method_name": {
                 "type": "String",
@@ -1431,36 +1430,36 @@ This document contains examples and descriptions of the different requests and r
     "intent_signatures": [
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+        "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "00334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e"
+        "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "01964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae"
+        "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b808"
+        "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae08"
+        "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "26957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+        "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
       }
     ]
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": "0154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+    "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
   }
 }
 ```
@@ -1471,7 +1470,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "compiled_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e22000121012007410154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+  "compiled_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
 }
 ```
 </details>
@@ -1492,7 +1491,7 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e22000121012007410154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
 }
 ```
 </details>
@@ -1526,7 +1525,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
               },
               "method_name": {
                 "type": "String",
@@ -1535,7 +1534,7 @@ This document contains examples and descriptions of the different requests and r
               "arguments": [
                 {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 {
                   "type": "Decimal",
@@ -1547,7 +1546,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "amount": {
                 "type": "Decimal",
@@ -1565,7 +1564,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+                "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
               },
               "method_name": {
                 "type": "String",
@@ -1585,7 +1584,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "amount": {
                 "type": "Decimal",
@@ -1596,14 +1595,14 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               }
             },
             {
               "instruction": "TAKE_FROM_WORKTOP",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "into_bucket": {
                 "type": "Bucket",
@@ -1627,7 +1626,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
               "resource_address": {
                 "type": "Address",
-                "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
               },
               "ids": [
                 {
@@ -1650,7 +1649,7 @@ This document contains examples and descriptions of the different requests and r
               "instruction": "CALL_METHOD",
               "component_address": {
                 "type": "Address",
-                "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
               },
               "method_name": {
                 "type": "String",
@@ -1671,36 +1670,36 @@ This document contains examples and descriptions of the different requests and r
     "intent_signatures": [
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+        "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "00334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e"
+        "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "01964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae"
+        "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b808"
+        "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae08"
+        "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "26957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+        "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
       }
     ]
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": "0154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+    "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
   }
 }
 ```
@@ -1722,7 +1721,7 @@ This document contains examples and descriptions of the different requests and r
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_unknown_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e22000121012007410154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+  "compiled_unknown_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
 }
 ```
 </details>
@@ -1758,7 +1757,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "CALL_METHOD",
                 "component_address": {
                   "type": "Address",
-                  "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                  "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
                 },
                 "method_name": {
                   "type": "String",
@@ -1767,7 +1766,7 @@ This document contains examples and descriptions of the different requests and r
                 "arguments": [
                   {
                     "type": "Address",
-                    "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                    "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                   },
                   {
                     "type": "Decimal",
@@ -1779,7 +1778,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
                 "resource_address": {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 "amount": {
                   "type": "Decimal",
@@ -1797,7 +1796,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "CALL_METHOD",
                 "component_address": {
                   "type": "Address",
-                  "address": "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9"
+                  "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
                 },
                 "method_name": {
                   "type": "String",
@@ -1817,7 +1816,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
                 "resource_address": {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 "amount": {
                   "type": "Decimal",
@@ -1828,14 +1827,14 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "ASSERT_WORKTOP_CONTAINS",
                 "resource_address": {
                   "type": "Address",
-                  "address": "resource_sim1qy227ueqye9wcv9nlt7jqfdvw3a3wvlhwp5p53sttpefsg2d5zv25c"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 }
               },
               {
                 "instruction": "TAKE_FROM_WORKTOP",
                 "resource_address": {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 "into_bucket": {
                   "type": "Bucket",
@@ -1859,7 +1858,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
                 "resource_address": {
                   "type": "Address",
-                  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
                 },
                 "ids": [
                   {
@@ -1882,7 +1881,7 @@ This document contains examples and descriptions of the different requests and r
                 "instruction": "CALL_METHOD",
                 "component_address": {
                   "type": "Address",
-                  "address": "account_sim1qumxq3q2w0wu5ds0tquulm882mdepq8c3s3n8n9fjd7kyd836h8xyl"
+                  "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
                 },
                 "method_name": {
                   "type": "String",
@@ -1903,36 +1902,36 @@ This document contains examples and descriptions of the different requests and r
       "intent_signatures": [
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+          "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
         },
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "00334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e"
+          "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
         },
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "01964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae"
+          "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-          "signature": "523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b808"
+          "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-          "signature": "c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae08"
+          "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-          "signature": "26957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e"
+          "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
         }
       ]
     },
     "notary_signature": {
       "curve": "EcdsaSecp256k1",
-      "signature": "0154ced0890bb19f8a59aab7afcefa6989d644cbe69acb7abd5077b04bf5b2afa93bc7d6ab2909ea1c8c7bf9d0acd0dd6af7d77ba9733ff16eb7dec32b2bb19d78"
+      "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
     }
   }
 }
@@ -2343,7 +2342,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e2200012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36",
+  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126",
   "validation_config": {
     "network_id": "242",
     "min_cost_unit_limit": "1000000",
@@ -2420,7 +2419,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "payload": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f5050800002102202209210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c087769746864726177210280010000000000000000000000000000000000000000000000000000000000850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b00000000000000000000000000000000000000000000000080010000000000000000000000000000000000000000000000000000000000210380093b63305f8470eb242aa185e6f1212ca6ed3846cc706edb8a973cbf938c0c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a229000000000000000000000000000000000000000000000000800100000000000000000000000000000000000000000000000000000000000401800114af7320264aec30b3fafd2025ac747b1733f770681a460b587298214d00018001000000000000000000000000000000000000000000000000000000000003018101000000020220870101000000000000000180010000000000000000000000000000000000000000000000000000000000210380073660440a73ddca360f5839cfece756db9080f88c2333cca9937d6234f10c0d6465706f7369745f62617463682101830020200020220600012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed360001210120074100334d7c48f72eab4fcc7868e18340d657a074495fe2d8c2e3542093cfbf32c4a11787073f8ad036c8f250d9bb2394c04e26412c4f47d8fae190cdaab0db65d20e0001210120074101964f30050b145cf3f32e89d8a407fae2b838ce491a85aea39f4efe4a3093994e466cde03e3628b8c56b7d02b3cb0781795085f35e825620298338e626b0756ae01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740523cf102570eed7cada9c616ac918f61f5341f7e7cecc3ee9869a22184edb84cf4a8df93ebcfb56a7a36b2a771819fe5aa8abb9309a2b90f52eefaa70400b80801022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740c227eae48be23995067e016aee13f57270f3d8b7d30d48d19a9795f1d4efc4be1e4077a0e57bc0bbc120660fc2655db30c224ec71e55a7e9c2eb187badafae080102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074026957d8f507caea34293ac2895492996ddeacba0f1be0ebf11b5262fa75e2e233742024e97b3abf7f626ec27b47fc4ee68c6fdd4bc0978fca705efdf6389c80e2200012101200741010fe04368eb040b84a52477b08dac77bfa0a8c88845b9c6de509c02673daf712b56c88bcb13523ba264cdf25d00b48771d3619f6fb8d815199a03cf438971ed36"
+  "payload": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
 }
 ```
 </details>
@@ -2430,7 +2429,7 @@ This document contains examples and descriptions of the different requests and r
     
 ```json
 {
-  "value": "32536bf9beb90dd22207e4a9e6942e285da3ef2ac77e68ecc5c857ea925ebc2d"
+  "value": "71d77b068a408d49747eb2f44216a7fa4dc953c6d61b1d41adbb93ad3f4a7baa"
 }
 ```
 </details>
