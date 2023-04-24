@@ -31,7 +31,7 @@ use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::
 use crate::utils::checked_copy_u8_slice;
 
 fn example_component_address() -> ComponentAddress {
-    let address = "component_sim1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyskzs0y9";
+    let address = "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9";
     let decoder = Bech32Decoder::for_simulator();
     ComponentAddress::try_from_bech32(&decoder, address).unwrap()
 }
@@ -670,7 +670,7 @@ pub fn drop_proof() -> Instruction {
 pub fn recall_resource() -> Instruction {
     let instruction = Instruction::RecallResource {
         vault_id: ManifestAstValue::Address {
-            address: "internal_vault_sim1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsdm5dfg"
+            address: "internal_vault_sim1pcqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqz5f7ul"
                 .parse()
                 .unwrap(),
         },

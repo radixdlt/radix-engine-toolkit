@@ -375,7 +375,8 @@ impl ExampleData<EncodeAddressRequest, EncodeAddressResponse> for EncodeAddressH
     fn example_request() -> EncodeAddressRequest {
         EncodeAddressRequest {
             address_bytes: vec![
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 2,
             ],
             network_id: 0xf2,
         }
@@ -389,7 +390,7 @@ impl ExampleData<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressH
 
     fn example_request() -> DecodeAddressRequest {
         DecodeAddressRequest {
-            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqs6d89k"
+            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
                 .parse()
                 .unwrap(),
         }
@@ -417,13 +418,9 @@ impl ExampleData<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
             encoded_value: vec![
                 77, // prefix
                 33, // struct
-                10, // field length
+                8,  // field length
                 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, // address
-                128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                1, // address
-                128, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                2, // address
+                0, 0, 0, 0, // address
                 129, 4, 0, 0, 0, // bucket
                 130, 5, 0, 0, 0, // proof
                 131, 1, // expression
