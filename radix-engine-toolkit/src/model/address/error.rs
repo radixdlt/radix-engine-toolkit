@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::types::{DecodeBech32AddressError, EncodeBech32AddressError};
+use scrypto::address::{DecodeBech32AddressError, EncodeBech32AddressError};
 use toolkit_derive::serializable;
 
 use crate::{impl_display_as_debug, utils::debug_string};

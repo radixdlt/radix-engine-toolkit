@@ -20,7 +20,7 @@ use crate::model::address::utils::network_definition_from_network_id;
 use crate::model::address::EntityType;
 use crate::model::address::NetworkAwareNodeId;
 use crate::utils::debug_string;
-use radix_engine::types::NodeId;
+use scrypto::prelude::NodeId;
 use toolkit_derive::serializable;
 
 use bech32::{self};
