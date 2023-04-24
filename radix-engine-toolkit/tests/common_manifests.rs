@@ -90,55 +90,55 @@ fn manifest_replace(string: String) -> String {
         .replace("${", "{")
         .replace(
             "{xrd_resource_address}",
-            "resource_sim1q88e5v6nynxjnn2hr6pjm4ttvgwfctuall7yhnty7mrq30ccxs",
+            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
         )
         .replace(
             "{faucet_component_address}",
-            "component_sim1pyh6hkm4emes653c38qgllau47rufnsj0qumeez85zyskzs0y9",
+            "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9",
         )
         .replace(
             "{account_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{this_account_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{account_component_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{other_account_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{account_a_component_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{account_b_component_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{account_c_component_address}",
-            "account_sim1q7qp88kspl8e4ay2jvqxln9r0kq3jy49akm3aue3jcaqnth6t3",
+            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
         )
         .replace(
             "{owner_badge_resource_address}",
-            "resource_sim1q88e5v6nynxjnn2hr6pjm4ttvgwfctuall7yhnty7mrq30ccxs",
+            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
         )
         .replace(
             "{minter_badge_resource_address}",
-            "resource_sim1q88e5v6nynxjnn2hr6pjm4ttvgwfctuall7yhnty7mrq30ccxs",
+            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
         )
         .replace(
             "{auth_badge_resource_address}",
-            "resource_sim1q88e5v6nynxjnn2hr6pjm4ttvgwfctuall7yhnty7mrq30ccxs",
+            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
         )
         .replace(
             "{mintable_resource_address}",
-            "resource_sim1q88e5v6nynxjnn2hr6pjm4ttvgwfctuall7yhnty7mrq30ccxs",
+            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
         )
         .replace("{owner_badge_non_fungible_local_id}", "#1#")
         .replace("{auth_badge_non_fungible_local_id}", "#1#")
