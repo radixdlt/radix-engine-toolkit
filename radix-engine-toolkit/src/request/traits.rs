@@ -17,10 +17,12 @@
 
 use std::fmt::Debug;
 
+use crate::error::InvocationHandlingError;
+
 /// A trait describing request handlers - their main responsibility is handling request
 /// preprocessing, handling, and postprocessing.
 pub trait Handler<I, O> {
-    type Error: Debug;
+    type Error: Debug + Into<InvocationHandlingError>;
 
     /// Performs request preprocessing - example, validation of requests to ensure that values and
     /// instructions all follow expected format.

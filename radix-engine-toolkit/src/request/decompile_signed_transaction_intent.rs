@@ -109,7 +109,7 @@ impl Handler<DecompileSignedTransactionIntentRequest, DecompileSignedTransaction
                 traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
             })
             .collect::<Result<Vec<_>, _>>()
-            .map_err(DecompileSignedTransactionIntentError::PostProcessingError);
+            .map_err(DecompileSignedTransactionIntentError::PostProcessingError)?;
 
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.

@@ -21,6 +21,8 @@ use crate::model::address::NonFungibleLocalIdConversionError;
 use crate::model::value::ast::ManifestAstValueConversionError;
 use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::ScryptoSborValueConversionError;
+use crate::request::*;
+use crate::utils::debug_string;
 use crate::visitor::AccountDepositsVisitorError;
 
 /// The error type that's returned by the Radix Engine Toolkit when an error takes place. This type
@@ -29,13 +31,101 @@ use crate::visitor::AccountDepositsVisitorError;
 #[serde(tag = "type")]
 pub enum RETError {
     InvocationHandlingError(InvocationHandlingError),
+    InvocationInterpretationError(InvocationInterpretationError),
+}
+
+/// Errors emitted when the invocation could not be interpreted.
+#[serializable]
+#[serde(tag = "type")]
+pub enum InvocationInterpretationError {
+    /// An error emitted when the serialized invocation string contains characters that are not
+    /// valid UTF-8
+    Utf8Error { message: String },
+
+    /// An error emitted when the deserialization of the invocation fails.
+    DeserializationError { message: String },
+
+    /// An error emitted when the serialization of an invocation response fails
+    SerializationError { message: String },
+
+    /// An error emitted when the allocation of strings through the JNI environment fails
+    JniStringAllocationFailed,
+
+    /// An error emitted when a string could not be read through the JNI environment
+    JniStringReadFailed,
+}
+
+impl From<std::str::Utf8Error> for InvocationInterpretationError {
+    fn from(value: std::str::Utf8Error) -> Self {
+        Self::Utf8Error {
+            message: debug_string(value),
+        }
+    }
 }
 
 /// Errors pertaining to invocations handling. This set of errors are returned when an invocation is
 /// of a correct structure, but the handling of the invocation failed (e.g., due to validation).
 #[serializable]
 #[serde(tag = "type")]
-pub enum InvocationHandlingError {}
+pub enum InvocationHandlingError {
+    #[cfg(feature = "radix-engine")]
+    AnalyzeManifestWithPreviewContextError(AnalyzeManifestWithPreviewContextError),
+    InformationError(InformationError),
+    ConvertManifestError(ConvertManifestError),
+    CompileTransactionIntentError(CompileTransactionIntentError),
+    DecompileTransactionIntentError(DecompileTransactionIntentError),
+    CompileSignedTransactionIntentError(CompileSignedTransactionIntentError),
+    DecompileSignedTransactionIntentError(DecompileSignedTransactionIntentError),
+    CompileNotarizedTransactionError(CompileNotarizedTransactionError),
+    DecompileNotarizedTransactionError(DecompileNotarizedTransactionError),
+    DecompileUnknownTransactionIntentError(DecompileUnknownTransactionIntentError),
+    DecodeAddressError(DecodeAddressError),
+    EncodeAddressError(EncodeAddressError),
+    SborDecodeError(SborDecodeError),
+    SborEncodeError(SborEncodeError),
+    DeriveBabylonAddressFromOlympiaAddressError(DeriveBabylonAddressFromOlympiaAddressError),
+    DeriveOlympiaAddressFromPublicKeyError(DeriveOlympiaAddressFromPublicKeyError),
+    DeriveVirtualAccountAddressError(DeriveVirtualAccountAddressError),
+    DeriveVirtualIdentityAddressError(DeriveVirtualIdentityAddressError),
+    AnalyzeManifestError(AnalyzeManifestError),
+    KnownEntityAddressesError(KnownEntityAddressesError),
+    StaticallyValidateTransactionError(StaticallyValidateTransactionError),
+    HashError(HashError),
+}
+
+macro_rules! impl_from {
+    ($type: ident for $for: ident) => {
+        impl From<$type> for $for {
+            fn from(value: $type) -> Self {
+                Self::$type(value)
+            }
+        }
+    };
+}
+
+#[cfg(feature = "radix-engine")]
+impl_from! { AnalyzeManifestWithPreviewContextError for InvocationHandlingError }
+impl_from! { InformationError for InvocationHandlingError }
+impl_from! { ConvertManifestError for InvocationHandlingError }
+impl_from! { CompileTransactionIntentError for InvocationHandlingError }
+impl_from! { DecompileTransactionIntentError for InvocationHandlingError }
+impl_from! { CompileSignedTransactionIntentError for InvocationHandlingError }
+impl_from! { DecompileSignedTransactionIntentError for InvocationHandlingError }
+impl_from! { CompileNotarizedTransactionError for InvocationHandlingError }
+impl_from! { DecompileNotarizedTransactionError for InvocationHandlingError }
+impl_from! { DecompileUnknownTransactionIntentError for InvocationHandlingError }
+impl_from! { DecodeAddressError for InvocationHandlingError }
+impl_from! { EncodeAddressError for InvocationHandlingError }
+impl_from! { SborDecodeError for InvocationHandlingError }
+impl_from! { SborEncodeError for InvocationHandlingError }
+impl_from! { DeriveBabylonAddressFromOlympiaAddressError for InvocationHandlingError }
+impl_from! { DeriveOlympiaAddressFromPublicKeyError for InvocationHandlingError }
+impl_from! { DeriveVirtualAccountAddressError for InvocationHandlingError }
+impl_from! { DeriveVirtualIdentityAddressError for InvocationHandlingError }
+impl_from! { AnalyzeManifestError for InvocationHandlingError }
+impl_from! { KnownEntityAddressesError for InvocationHandlingError }
+impl_from! { StaticallyValidateTransactionError for InvocationHandlingError }
+impl_from! { HashError for InvocationHandlingError }
 
 /// Errors emitted when the conversion between the native Scrypto models and the RET models fails.
 #[serializable]

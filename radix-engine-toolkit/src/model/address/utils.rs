@@ -141,7 +141,7 @@ pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8, A
     // The decoding process also yields a variant. We will not be verifying that this is bech32m
     // since this method is not meant to be a validation method.
     let (hrp, _, _) =
-        bech32::decode(address.as_ref()).map_err(|error| AddressError::Bech32DecodeError {
+        bech32::decode(address.as_ref()).map_err(|_| AddressError::Bech32DecodeError {
             address: address.as_ref().to_string(),
         })?;
     network_id_from_hrp(hrp)

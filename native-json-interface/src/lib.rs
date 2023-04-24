@@ -19,20 +19,21 @@
 #![allow(non_snake_case)]
 
 pub mod native {
-    use radix_engine_toolkit::error::Result;
     use radix_engine_toolkit::request::*;
+    use radix_engine_toolkit::utils::debug_string;
+    use radix_engine_toolkit::{buffer::Pointer, error::InvocationInterpretationError};
     use serde::{Deserialize, Serialize};
 
     pub unsafe fn deserialize_from_memory<'a, T: Deserialize<'a>>(
-        string_pointer: radix_engine_toolkit::buffer::Pointer,
-    ) -> Result<T> {
+        string_pointer: Pointer,
+    ) -> Result<T, InvocationInterpretationError> {
         std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char)
             .to_str()
-            .map_err(radix_engine_toolkit::error::Error::from)
+            .map_err(InvocationInterpretationError::from)
             .and_then(|string| {
                 serde_json::from_str(string).map_err(|error| {
-                    radix_engine_toolkit::error::Error::InvalidRequestString {
-                        message: format!("{:?}", error),
+                    InvocationInterpretationError::DeserializationError {
+                        message: debug_string(error),
                     }
                 })
             })
@@ -40,20 +41,18 @@ pub mod native {
 
     pub unsafe fn write_serializable_to_memory<T: Serialize>(
         object: &T,
-    ) -> Result<radix_engine_toolkit::buffer::Pointer> {
+    ) -> Result<Pointer, InvocationInterpretationError> {
         serde_json::to_string(object)
-            .map_err(
-                |error| radix_engine_toolkit::error::Error::InvalidRequestString {
-                    message: format!("{:?}", error),
-                },
-            )
+            .map_err(|error| InvocationInterpretationError::SerializationError {
+                message: debug_string(error),
+            })
             .map(|string| {
                 let object_bytes = string.as_bytes();
                 let byte_count = object_bytes.len() + 1;
 
                 let pointer = radix_engine_toolkit::buffer::toolkit_alloc(byte_count);
                 pointer.copy_from(
-                    [object_bytes, &[0]].concat().as_ptr() as radix_engine_toolkit::buffer::Pointer,
+                    [object_bytes, &[0]].concat().as_ptr() as Pointer,
                     byte_count,
                 );
 
@@ -68,8 +67,23 @@ pub mod native {
                 string_pointer: radix_engine_toolkit::buffer::Pointer,
             ) -> radix_engine_toolkit::buffer::Pointer {
                 let result_pointers = deserialize_from_memory(string_pointer)
-                    .and_then($handler::fulfill)
-                    .and_then(|response| write_serializable_to_memory(&response))
+                    .map_err(|error| {
+                        radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
+                    })
+                    .and_then(|request| {
+                        $handler::fulfill(request).map_err(|error| {
+                            radix_engine_toolkit::error::RETError::InvocationHandlingError(
+                                error.into(),
+                            )
+                        })
+                    })
+                    .and_then(|response| {
+                        write_serializable_to_memory(&response).map_err(|error| {
+                            radix_engine_toolkit::error::RETError::InvocationInterpretationError(
+                                error,
+                            )
+                        })
+                    })
                     .map_err(|error| {
                         write_serializable_to_memory(&error)
                             .expect("Failed to serialize error which is a trusted object")
@@ -126,26 +140,22 @@ pub mod native {
 
 #[cfg(feature = "jni")]
 pub mod jni {
-    use radix_engine_toolkit::error::Result;
-    use radix_engine_toolkit::request::*;
+    use radix_engine_toolkit::{
+        error::InvocationInterpretationError, request::*, utils::debug_string,
+    };
     use serde::Serialize;
 
     fn serialize_to_jstring<T: Serialize>(
         env: jni::JNIEnv,
         object: &T,
-    ) -> Result<jni::sys::jstring> {
+    ) -> Result<jni::sys::jstring, InvocationInterpretationError> {
         serde_json::to_string(object)
-            .map_err(
-                |error| radix_engine_toolkit::error::Error::InvalidRequestString {
-                    message: format!("{:?}", error),
-                },
-            )
+            .map_err(|error| InvocationInterpretationError::SerializationError {
+                message: debug_string(error),
+            })
             .and_then(|string| {
-                env.new_string(&string).map_err(|error| {
-                    radix_engine_toolkit::error::Error::InvalidRequestString {
-                        message: format!("{:?}", error),
-                    }
-                })
+                env.new_string(&string)
+                    .map_err(|_| InvocationInterpretationError::JniStringAllocationFailed)
             })
             .map(|object| object.into_raw())
     }
@@ -161,19 +171,28 @@ pub mod jni {
                 let result_strings = env
                     .get_string(input)
                     .map_err(
-                        |error| radix_engine_toolkit::error::Error::InvalidRequestString {
-                            message: format!("{:?}", error),
-                        },
+                        |_| radix_engine_toolkit::error::InvocationInterpretationError::JniStringReadFailed,
                     )
                     .and_then(|string_object| {
                         serde_json::from_str(&String::from(string_object)).map_err(|error| {
-                            radix_engine_toolkit::error::Error::InvalidRequestString {
-                                message: format!("{:?}", error),
+                            InvocationInterpretationError::DeserializationError {
+                                message: debug_string(error),
                             }
                         })
                     })
-                    .and_then($handler::fulfill)
-                    .and_then(|response| serialize_to_jstring(env, &response))
+                    .map_err(|error| {
+                        radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
+                    })
+                    .and_then(|request| {
+                        $handler::fulfill(request).map_err(|error| {
+                            radix_engine_toolkit::error::RETError::InvocationHandlingError(
+                                error.into(),
+                            )
+                        })
+                    })
+                    .and_then(|response| serialize_to_jstring(env, &response).map_err(|error| {
+                        radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
+                    }))
                     .map_err(|error| {
                         serialize_to_jstring(env, &error)
                             .expect("Failed to convert a trusted payload to jstring")

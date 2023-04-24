@@ -80,7 +80,7 @@ impl Handler<CompileTransactionIntentRequest, CompileTransactionIntentResponse>
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
             .collect::<Result<Vec<_>, _>>()
-            .map_err(Self::Error::PreProcessingError);
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         let expected_network_id = request.transaction_intent.header.network_id;
