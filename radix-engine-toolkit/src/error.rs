@@ -23,6 +23,7 @@ use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::ScryptoSborValueConversionError;
 use crate::request::*;
 use crate::utils::debug_string;
+#[cfg(feature = "radix-engine")]
 use crate::visitor::AccountDepositsVisitorError;
 
 /// The error type that's returned by the Radix Engine Toolkit when an error takes place. This type
@@ -166,6 +167,7 @@ pub enum ValueVisitorError {}
 #[serializable]
 #[serde(tag = "type")]
 pub enum InstructionVisitorError {
+    #[cfg(feature = "radix-engine")]
     /// Errors emitted by the account deposits visitor.
     AccountDepositsVisitorError(AccountDepositsVisitorError),
 }
