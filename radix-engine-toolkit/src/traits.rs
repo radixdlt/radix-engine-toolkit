@@ -15,20 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::model::transaction::InstructionKind;
+use std::fmt::Debug;
+
+use crate::{model::transaction::InstructionKind, utils::debug_string};
+use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{hash, Hash};
 
 /// A trait that defines the common interface of all compile-able intents
 pub trait CompilableIntent {
-    fn compile(&self) -> Result<Vec<u8>>;
+    type Error: Debug;
 
-    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
+    fn compile(&self) -> Result<Vec<u8>, Self::Error>;
+
+    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self, Self::Error>
     where
         Self: Sized,
         T: AsRef<[u8]>;
 
-    fn hash(&self) -> Result<Hash> {
+    fn hash(&self) -> Result<Hash, Self::Error> {
         self.compile().map(hash)
     }
 }

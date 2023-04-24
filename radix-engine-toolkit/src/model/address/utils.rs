@@ -16,7 +16,6 @@
 // under the License.
 
 use super::AddressError;
-use crate::utils::debug_string;
 
 use bech32;
 use regex::Regex;
@@ -27,7 +26,7 @@ use scrypto::prelude::NodeId;
 
 /// A deterministic function that generates a network definition given a network ID. Implemented
 /// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
-pub const fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
+pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
     match network_id {
         0x01 => NetworkDefinition::mainnet(),
         0x02 => NetworkDefinition {

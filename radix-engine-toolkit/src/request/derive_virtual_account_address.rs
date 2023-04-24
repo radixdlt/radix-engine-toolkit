@@ -18,7 +18,6 @@
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
-use crate::error::Result;
 use crate::model::address::NetworkAwareNodeId;
 
 use super::traits::Handler;
@@ -63,15 +62,17 @@ pub struct DeriveVirtualAccountAddressHandler;
 impl Handler<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>
     for DeriveVirtualAccountAddressHandler
 {
+    type Error = DeriveVirtualAccountAddressError;
+
     fn pre_process(
         request: DeriveVirtualAccountAddressRequest,
-    ) -> Result<DeriveVirtualAccountAddressRequest> {
+    ) -> Result<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressError> {
         Ok(request)
     }
 
     fn handle(
         request: &DeriveVirtualAccountAddressRequest,
-    ) -> Result<DeriveVirtualAccountAddressResponse> {
+    ) -> Result<DeriveVirtualAccountAddressResponse, DeriveVirtualAccountAddressError> {
         Ok(DeriveVirtualAccountAddressResponse {
             virtual_account_address: NetworkAwareNodeId(
                 ComponentAddress::virtual_account_from_public_key(&request.public_key)
@@ -85,7 +86,10 @@ impl Handler<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResp
     fn post_process(
         _: &DeriveVirtualAccountAddressRequest,
         response: DeriveVirtualAccountAddressResponse,
-    ) -> Result<DeriveVirtualAccountAddressResponse> {
+    ) -> Result<DeriveVirtualAccountAddressResponse, DeriveVirtualAccountAddressError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct DeriveVirtualAccountAddressError;

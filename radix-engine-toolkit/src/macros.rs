@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,25 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::utils::pretty_print;
-use clap::Parser;
-use radix_engine_toolkit::request::{Handler, HashHandler, HashRequest};
-
-#[derive(Parser, Debug)]
-/// Hashes some data using the hashing algorithm of Scrypto and the Radix Engine. Currently, this
-/// is Blake2b with 256 bit digests.
-pub struct Hash {
-    /// A hex-encoded string of the data to hash
-    #[clap(short, long)]
-    data: String,
+#[macro_export]
+macro_rules! impl_from_parse_error {
+    ($container_error: ty, $error_type: ty => $kind: ident) => {
+        impl From<$error_type> for $container_error {
+            fn from(error: $error_type) -> Self {
+                Self::ParseError {
+                    parsing: stringify!($kind).to_owned(),
+                    message: format!("{:?}", error),
+                }
+            }
+        }
+    };
 }
 
-impl Hash {
-    pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = HashRequest {
-            payload: hex::decode(&self.data)?,
-        };
-        let response = HashHandler::fulfill(request)?;
-        pretty_print(&response, out)
-    }
+#[macro_export]
+macro_rules! impl_display_as_debug {
+    ($type: ty) => {
+        impl std::fmt::Display for $type {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Debug::fmt(self, f)
+            }
+        }
+    };
 }

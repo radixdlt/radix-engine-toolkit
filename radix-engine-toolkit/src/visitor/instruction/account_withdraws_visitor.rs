@@ -19,11 +19,11 @@ use std::collections::BTreeSet;
 
 use scrypto::blueprints::account::*;
 
-use crate::error::Result;
+use crate::error::VisitorError;
+use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
-use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
 use toolkit_derive::serializable;
 
@@ -50,7 +50,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
         args: &mut Option<Vec<ManifestAstValue>>,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         let args = args.clone().unwrap_or_default();
         match (
             component_address,

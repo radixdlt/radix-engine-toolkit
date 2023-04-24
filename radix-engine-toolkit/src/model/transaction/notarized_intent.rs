@@ -15,12 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::{Error, Result};
 use crate::model::transaction::{InstructionKind, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
+use crate::utils::debug_string;
 use native_transaction::model as native;
+use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
+
+use super::SignedTransactionIntentConversionError;
 
 // =================
 // Model Definition
@@ -45,20 +48,22 @@ pub struct NotarizedTransaction {
 // ===============
 
 impl CompilableIntent for NotarizedTransaction {
-    fn compile(&self) -> Result<Vec<u8>> {
+    type Error = NotarizedTransactionConversionError;
+
+    fn compile(&self) -> Result<Vec<u8>, Self::Error> {
         self.to_native_notarized_transaction_intent()
             .and_then(|notarized_transaction| {
-                manifest_encode(&notarized_transaction).map_err(Error::from)
+                manifest_encode(&notarized_transaction).map_err(Self::Error::from)
             })
     }
 
-    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
+    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self, Self::Error>
     where
         Self: Sized,
         T: AsRef<[u8]>,
     {
         manifest_decode(data.as_ref())
-            .map_err(Error::from)
+            .map_err(Self::Error::from)
             .and_then(|decoded| {
                 Self::from_native_notarized_transaction_intent(&decoded, instructions_kind)
             })
@@ -73,7 +78,7 @@ impl NotarizedTransaction {
     pub fn from_native_notarized_transaction_intent(
         native_notarized_transaction_intent: &native::NotarizedTransaction,
         instructions_kind: InstructionKind,
-    ) -> Result<Self> {
+    ) -> Result<Self, NotarizedTransactionConversionError> {
         SignedTransactionIntent::from_native_signed_transaction_intent(
             &native_notarized_transaction_intent.signed_intent,
             instructions_kind,
@@ -82,14 +87,55 @@ impl NotarizedTransaction {
             signed_intent,
             notary_signature: native_notarized_transaction_intent.notary_signature,
         })
+        .map_err(NotarizedTransactionConversionError::from)
     }
 
-    pub fn to_native_notarized_transaction_intent(&self) -> Result<native::NotarizedTransaction> {
+    pub fn to_native_notarized_transaction_intent(
+        &self,
+    ) -> Result<native::NotarizedTransaction, NotarizedTransactionConversionError> {
         self.signed_intent
             .to_native_signed_transaction_intent()
             .map(|signed_intent| native::NotarizedTransaction {
                 signed_intent,
                 notary_signature: self.notary_signature,
             })
+            .map_err(NotarizedTransactionConversionError::from)
+    }
+}
+
+/// An error emitted if the conversion between the native and RET representations of the notarized
+/// transaction intent fails.
+#[serializable]
+#[serde(tag = "type")]
+pub enum NotarizedTransactionConversionError {
+    /// Emitted when the decoding of the SBOR payload into a transaction intent fails
+    DecodeError { message: String },
+
+    /// Emitted when the encoding of the SBOR payload into a transaction intent fails
+    EncodeError { message: String },
+
+    /// Emitted when the conversion of the signed intent fails
+    SignedTransactionIntentConversionError(SignedTransactionIntentConversionError),
+}
+
+impl From<DecodeError> for NotarizedTransactionConversionError {
+    fn from(value: DecodeError) -> Self {
+        Self::DecodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<EncodeError> for NotarizedTransactionConversionError {
+    fn from(value: EncodeError) -> Self {
+        Self::EncodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<SignedTransactionIntentConversionError> for NotarizedTransactionConversionError {
+    fn from(value: SignedTransactionIntentConversionError) -> Self {
+        Self::SignedTransactionIntentConversionError(value)
     }
 }

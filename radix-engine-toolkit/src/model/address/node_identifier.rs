@@ -20,7 +20,7 @@ use radix_engine_common::types::NodeId;
 use std::fmt::Display;
 use std::str::FromStr;
 
-use crate::error::{Error, Result};
+use super::AddressError;
 use crate::model::address::Bech32Coder;
 
 // =================
@@ -77,9 +77,9 @@ impl Display for NetworkAwareNodeId {
 }
 
 impl FromStr for NetworkAwareNodeId {
-    type Err = Error;
+    type Err = AddressError;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let bech32_coder = Bech32Coder::new_from_address(s)?;
         let node_id = bech32_coder.decode(s)?;
         Ok(Self(node_id.0, bech32_coder.network_id()))

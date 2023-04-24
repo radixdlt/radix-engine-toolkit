@@ -16,9 +16,12 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
-use crate::model::transaction::{InstructionList, SignedTransactionIntent};
+use crate::model::transaction::{
+    InstructionList, SignedTransactionIntent, SignedTransactionIntentConversionError,
+};
 use crate::traits::CompilableIntent;
 use crate::visitor::{traverse_instruction, ValueNetworkAggregatorVisitor};
 use toolkit_derive::serializable;
@@ -56,9 +59,11 @@ pub struct CompileSignedTransactionIntentHandler;
 impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse>
     for CompileSignedTransactionIntentHandler
 {
+    type Error = CompileSignedTransactionIntentError;
+
     fn pre_process(
         mut request: CompileSignedTransactionIntentRequest,
-    ) -> Result<CompileSignedTransactionIntentRequest> {
+    ) -> Result<CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentError> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
@@ -75,7 +80,8 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         let expected_network_id = request.signed_intent.intent.header.network_id;
@@ -84,7 +90,7 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
             .iter()
             .find(|network_id| **network_id != expected_network_id)
         {
-            return Err(crate::error::Error::NetworkMismatchError {
+            return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
                 expected: expected_network_id,
             });
@@ -94,17 +100,37 @@ impl Handler<CompileSignedTransactionIntentRequest, CompileSignedTransactionInte
 
     fn handle(
         request: &CompileSignedTransactionIntentRequest,
-    ) -> Result<CompileSignedTransactionIntentResponse> {
+    ) -> Result<CompileSignedTransactionIntentResponse, CompileSignedTransactionIntentError> {
         request
             .signed_intent
             .compile()
             .map(|compiled_intent| CompileSignedTransactionIntentResponse { compiled_intent })
+            .map_err(Self::Error::from)
     }
 
     fn post_process(
         _: &CompileSignedTransactionIntentRequest,
         response: CompileSignedTransactionIntentResponse,
-    ) -> Result<CompileSignedTransactionIntentResponse> {
+    ) -> Result<CompileSignedTransactionIntentResponse, CompileSignedTransactionIntentError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum CompileSignedTransactionIntentError {
+    /// An error emitted during the pre processing of the invocation
+    PreProcessingError(VisitorError),
+
+    /// An error emitted when an address is encountered in the manifest with an invalid network id
+    InvalidNetworkIdEncountered { expected: u8, found: u8 },
+
+    /// An error emitted when the compilation of the transaction intent fails
+    CompilationError(SignedTransactionIntentConversionError),
+}
+
+impl From<SignedTransactionIntentConversionError> for CompileSignedTransactionIntentError {
+    fn from(value: SignedTransactionIntentConversionError) -> Self {
+        Self::CompilationError(value)
     }
 }

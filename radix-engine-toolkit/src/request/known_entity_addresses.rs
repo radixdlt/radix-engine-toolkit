@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::model::address::NetworkAwareNodeId;
 use crate::request::traits::Handler;
 use scrypto::prelude::{
@@ -110,11 +109,17 @@ pub struct KnownEntityAddressesHandler;
 impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     for KnownEntityAddressesHandler
 {
-    fn pre_process(request: KnownEntityAddressesRequest) -> Result<KnownEntityAddressesRequest> {
+    type Error = KnownEntityAddressesError;
+
+    fn pre_process(
+        request: KnownEntityAddressesRequest,
+    ) -> Result<KnownEntityAddressesRequest, KnownEntityAddressesError> {
         Ok(request)
     }
 
-    fn handle(request: &KnownEntityAddressesRequest) -> Result<KnownEntityAddressesResponse> {
+    fn handle(
+        request: &KnownEntityAddressesRequest,
+    ) -> Result<KnownEntityAddressesResponse, KnownEntityAddressesError> {
         let network_id = request.network_id;
         Ok(KnownEntityAddressesResponse {
             faucet_package_address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, network_id),
@@ -147,7 +152,10 @@ impl Handler<KnownEntityAddressesRequest, KnownEntityAddressesResponse>
     fn post_process(
         _: &KnownEntityAddressesRequest,
         response: KnownEntityAddressesResponse,
-    ) -> Result<KnownEntityAddressesResponse> {
+    ) -> Result<KnownEntityAddressesResponse, KnownEntityAddressesError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct KnownEntityAddressesError;

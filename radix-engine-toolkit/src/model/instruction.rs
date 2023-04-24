@@ -17,7 +17,6 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::Result;
 use crate::model::address::Bech32Coder;
 use crate::model::value::ast::ManifestAstValue;
 
@@ -25,8 +24,10 @@ use native_transaction::manifest::ast;
 
 use toolkit_derive::serializable;
 
+use super::value::ast::ManifestAstValueConversionError;
+
 // NOTE: The model below should ALWAYS be kept up to date with that present in the Scrypto repo.
-//       this model was authored for commit: e497a8b8c19fea8266337c5b3e5ada2e723153fc. When you
+//       this model was authored for commit: 508fa797a7f0a7bc0e14858651c7d2c085d529a8. When you
 //       update the toolkit, do a diff against the commit above and the latest commit and update
 //       based on that. Also, make sure to update the commit hash above.
 //       https://github.com/radixdlt/radixdlt-scrypto/compare/old_commit_hash..new_commit_hash
@@ -650,7 +651,10 @@ pub enum Instruction {
 // ============
 
 impl Instruction {
-    pub fn to_ast_instruction(&self, bech32_coder: &Bech32Coder) -> Result<ast::Instruction> {
+    pub fn to_ast_instruction(
+        &self,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<ast::Instruction, ManifestAstValueConversionError> {
         let ast_instruction = match self {
             Self::CallFunction {
                 package_address,
@@ -666,7 +670,7 @@ impl Instruction {
                     .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::CallMethod {
                 component_address,
@@ -680,7 +684,7 @@ impl Instruction {
                     .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::TakeFromWorktop {
                 resource_address,
@@ -980,7 +984,7 @@ impl Instruction {
     pub fn from_ast_instruction(
         ast_instruction: &ast::Instruction,
         bech32_coder: &Bech32Coder,
-    ) -> Result<Self> {
+    ) -> Result<Self, ManifestAstValueConversionError> {
         let instruction = match ast_instruction {
             ast::Instruction::CallFunction {
                 package_address,
@@ -995,7 +999,7 @@ impl Instruction {
                     let arguments = args
                         .iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<ManifestAstValue>>>()?;
+                        .collect::<Result<Vec<_>, _>>()?;
                     match arguments.len() {
                         0 => None,
                         _ => Some(arguments),
@@ -1016,7 +1020,7 @@ impl Instruction {
                     let arguments = args
                         .iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<ManifestAstValue>>>()?;
+                        .collect::<Result<Vec<_>, _>>()?;
                     match arguments.len() {
                         0 => None,
                         _ => Some(arguments),

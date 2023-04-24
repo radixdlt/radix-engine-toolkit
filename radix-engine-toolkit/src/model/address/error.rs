@@ -18,7 +18,7 @@
 use radix_engine::types::{DecodeBech32AddressError, EncodeBech32AddressError};
 use toolkit_derive::serializable;
 
-use crate::utils::debug_string;
+use crate::{impl_display_as_debug, utils::debug_string};
 
 #[serializable]
 #[serde(tag = "type")]
@@ -50,6 +50,8 @@ pub enum AddressError {
     /// not of the length expected for addresses.
     InvalidDataLength { expected: usize, actual: usize },
 }
+
+impl_display_as_debug!(AddressError);
 
 impl From<EncodeBech32AddressError> for AddressError {
     fn from(value: EncodeBech32AddressError) -> Self {

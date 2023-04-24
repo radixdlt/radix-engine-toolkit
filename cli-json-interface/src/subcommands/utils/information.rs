@@ -18,7 +18,6 @@
 use clap::Parser;
 use radix_engine_toolkit::request::{Handler, InformationHandler, InformationRequest};
 
-use crate::error::Result;
 use crate::utils::pretty_print;
 
 #[derive(Parser, Debug)]

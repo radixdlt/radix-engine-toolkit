@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::request::{Handler, SborEncodeHandler};

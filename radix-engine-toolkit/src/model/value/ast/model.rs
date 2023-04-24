@@ -18,7 +18,6 @@
 use std::str::FromStr;
 
 use crate::define_kind_enum;
-use crate::error::{Error, Result};
 use crate::model::address::NetworkAwareNodeId;
 
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
@@ -27,6 +26,8 @@ use scrypto::prelude::{
 };
 use serde_with::serde_as;
 use toolkit_derive::serializable;
+
+use super::ManifestAstValueConversionError;
 
 define_kind_enum! {
     /// A value model used to describe an algebraic sum type which is used to express transaction
@@ -346,15 +347,17 @@ pub enum EnumDiscriminator {
 
 impl EnumDiscriminator {
     /// Resolves the enum discriminator to a [`u8`] discriminator.
-    pub fn resolve_discriminator(&self) -> Result<u8> {
+    pub fn resolve_discriminator(&self) -> Result<u8, ManifestAstValueConversionError> {
         match self {
             Self::U8 { discriminator } => Ok(*discriminator),
             Self::String { discriminator } => KNOWN_ENUM_DISCRIMINATORS
                 .get(discriminator.as_str())
                 .copied()
-                .ok_or(Error::InvalidEnumDiscriminator {
-                    discriminator: discriminator.clone(),
-                }),
+                .ok_or(
+                    ManifestAstValueConversionError::FailedToResolveEnumDiscriminator {
+                        variant_name: discriminator.clone(),
+                    },
+                ),
         }
     }
 }
@@ -405,9 +408,9 @@ pub struct ProofId(pub TransientIdentifier);
 // ============
 
 impl FromStr for TransientIdentifier {
-    type Err = Error;
+    type Err = ManifestAstValueConversionError;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self::String {
             value: s.to_owned(),
         })

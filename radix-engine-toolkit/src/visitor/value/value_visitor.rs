@@ -27,7 +27,10 @@ macro_rules! define_value_visitor {
         $(#[$meta])*
         $vis trait $trait_ident {
             $(
-                fn $method_ident(&mut self, _value: &mut $crate::model::value::ast::ManifestAstValue) -> $crate::error::Result<()> {
+                fn $method_ident(
+                    &mut self,
+                    _value: &mut $crate::model::value::ast::ManifestAstValue
+                ) -> Result<(), $crate::error::VisitorError> {
                     Ok(())
                 }
             )*
@@ -40,7 +43,7 @@ macro_rules! visit {
         $visitors
             .iter_mut()
             .map(|visitor| visitor.$method($value))
-            .collect::<$crate::error::Result<Vec<_>>>()
+            .collect::<Result<Vec<_>, _>>()
     };
 }
 
@@ -95,7 +98,7 @@ define_value_visitor! {
 pub fn traverse_value(
     value: &mut crate::model::value::ast::ManifestAstValue,
     visitors: &mut [&mut dyn ManifestAstValueVisitor],
-) -> crate::error::Result<()> {
+) -> Result<(), crate::error::VisitorError> {
     // Visit the top level value parts
     match value.kind() {
         ManifestAstValueKind::Bool => visit!(visitors, visit_bool, value)?,
@@ -155,7 +158,7 @@ pub fn traverse_value(
                 .iter_mut()
                 .flat_map(|(x, y)| [x, y])
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::error::Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, _>>()?;
         }
         ManifestAstValue::Enum {
             fields: Some(values),
@@ -170,7 +173,7 @@ pub fn traverse_value(
             values
                 .iter_mut()
                 .map(|value| traverse_value(value, visitors))
-                .collect::<crate::error::Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, _>>()?;
         }
         ManifestAstValue::Some { value }
         | ManifestAstValue::Ok { value }

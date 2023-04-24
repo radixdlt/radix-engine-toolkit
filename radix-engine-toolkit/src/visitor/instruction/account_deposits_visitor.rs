@@ -19,11 +19,11 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use crate::error::{Error, Result};
+use crate::error::{InstructionVisitorError, VisitorError};
+use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::resource_specifier::ResourceSpecifier;
 use crate::model::value::ast::{BucketId, ManifestAstValue, ManifestAstValueKind};
-use crate::utils::is_account;
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
 use radix_engine::system::system_modules::execution_trace::{
     ResourceChange, ResourceSpecifier as NativeResourceSpecifier, WorktopChange,
@@ -104,7 +104,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
         arguments: &mut Option<Vec<ManifestAstValue>>,
-    ) -> crate::error::Result<()> {
+    ) -> Result<(), VisitorError> {
         // Consuming buckets
         let consumed_buckets = {
             let mut arguments = arguments.clone().unwrap_or_default();
@@ -116,9 +116,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         };
         for bucket_id in consumed_buckets {
             self.buckets.remove(&bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
+                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                    bucket_id.clone(),
+                )),
                 |_| Ok(()),
             )?;
         }
@@ -130,7 +130,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
         arguments: &mut Option<Vec<ManifestAstValue>>,
-    ) -> crate::error::Result<()> {
+    ) -> Result<(), VisitorError> {
         let arguments = arguments.clone().unwrap_or_default();
 
         // Checking for account deposits
@@ -147,9 +147,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 }) = arguments.get(0)
                 {
                     let bucket_info = self.buckets.get(bucket_id).map_or(
-                        Err(Error::InvalidBucketId {
-                            bucket_id: bucket_id.clone(),
-                        }),
+                        Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                            bucket_id.clone(),
+                        )),
                         Ok,
                     )?;
                     self.deposits.push(AccountDeposit {
@@ -176,9 +176,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                             .resource_changes
                             .get(&self.instruction_index)
                             .map_or(
-                                Err(Error::NoResourceChangesForInstruction {
-                                    instruction_index: self.instruction_index,
-                                }),
+                                Err(AccountDepositsVisitorError::NoCorrespondingResourceChangesForInstruction(
+                                 self.instruction_index,
+                                )),
                                 Ok,
                             )?
                             .iter()
@@ -226,9 +226,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                         };
                         for bucket_id in bucket_ids {
                             let bucket_info = self.buckets.get(&bucket_id).map_or(
-                                Err(Error::InvalidBucketId {
-                                    bucket_id: bucket_id.clone(),
-                                }),
+                                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                                    bucket_id.clone(),
+                                )),
                                 Ok,
                             )?;
                             self.deposits.push(AccountDeposit {
@@ -254,9 +254,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         };
         for bucket_id in consumed_buckets {
             self.buckets.remove(&bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
+                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                    bucket_id.clone(),
+                )),
                 |_| Ok(()),
             )?;
         }
@@ -267,7 +267,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         &mut self,
         resource_address: &mut ManifestAstValue,
         into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match (resource_address, into_bucket) {
             (
                 ManifestAstValue::Address {
@@ -312,7 +312,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         resource_address: &mut ManifestAstValue,
         amount: &mut ManifestAstValue,
         into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match (resource_address, amount, into_bucket) {
             (
                 ManifestAstValue::Address {
@@ -343,7 +343,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         resource_address: &mut ManifestAstValue,
         ids: &mut Vec<ManifestAstValue>,
         into_bucket: &mut ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match (resource_address, ids, into_bucket) {
             (
                 ManifestAstValue::Address {
@@ -383,15 +383,18 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
     // Creating Buckets
     //==================
 
-    fn visit_return_to_worktop(&mut self, bucket: &mut ManifestAstValue) -> Result<()> {
+    fn visit_return_to_worktop(
+        &mut self,
+        bucket: &mut ManifestAstValue,
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::Bucket {
             identifier: bucket_id,
         } = bucket
         {
             self.buckets.remove(bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
+                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                    bucket_id.clone(),
+                ))?,
                 |_| Ok(()),
             )
         } else {
@@ -400,15 +403,15 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         }
     }
 
-    fn visit_burn_resource(&mut self, bucket: &mut ManifestAstValue) -> Result<()> {
+    fn visit_burn_resource(&mut self, bucket: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Bucket {
             identifier: bucket_id,
         } = bucket
         {
             self.buckets.remove(bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
+                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                    bucket_id.clone(),
+                ))?,
                 |_| Ok(()),
             )
         } else {
@@ -422,15 +425,15 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         bucket: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::Bucket {
             identifier: bucket_id,
         } = bucket
         {
             self.buckets.remove(bucket_id).map_or(
-                Err(Error::InvalidBucketId {
-                    bucket_id: bucket_id.clone(),
-                }),
+                Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
+                    bucket_id.clone(),
+                ))?,
                 |_| Ok(()),
             )
         } else {
@@ -443,19 +446,23 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
     // Post Processing
     //=================
 
-    fn post_visit(&mut self) -> Result<()> {
+    fn post_visit(&mut self) -> Result<(), VisitorError> {
         self.instruction_index += 1;
         Ok(())
     }
 }
 
 impl AccountDepositsInstructionVisitor {
-    pub fn add_bucket(&mut self, bucket_id: BucketId, specifier: ExactnessSpecifier) -> Result<()> {
+    pub fn add_bucket(
+        &mut self,
+        bucket_id: BucketId,
+        specifier: ExactnessSpecifier,
+    ) -> Result<(), VisitorError> {
         if !self.buckets.contains_key(&bucket_id) {
             self.buckets.insert(bucket_id, specifier);
             Ok(())
         } else {
-            Err(Error::BucketExistsError { bucket_id })
+            Err(AccountDepositsVisitorError::DuplicateBucketDeclaration(bucket_id).into())
         }
     }
 }
@@ -464,7 +471,7 @@ impl AccountDepositsInstructionVisitor {
 struct BucketValueVisitor(Vec<BucketId>);
 
 impl ManifestAstValueVisitor for BucketValueVisitor {
-    fn visit_bucket(&mut self, bucket: &mut ManifestAstValue) -> Result<()> {
+    fn visit_bucket(&mut self, bucket: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Bucket {
             identifier: bucket_id,
         } = bucket
@@ -472,5 +479,18 @@ impl ManifestAstValueVisitor for BucketValueVisitor {
             self.0.push(bucket_id.to_owned());
         }
         Ok(())
+    }
+}
+
+#[serializable]
+pub enum AccountDepositsVisitorError {
+    DuplicateBucketDeclaration(BucketId),
+    UseOfUndeclaredBucket(BucketId),
+    NoCorrespondingResourceChangesForInstruction(u32),
+}
+
+impl From<AccountDepositsVisitorError> for VisitorError {
+    fn from(value: AccountDepositsVisitorError) -> Self {
+        Self::InstructionVisitorError(InstructionVisitorError::AccountDepositsVisitorError(value))
     }
 }

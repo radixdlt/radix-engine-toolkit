@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::request::traits::Handler;
 use toolkit_derive::serializable;
 
@@ -50,11 +49,13 @@ pub struct InformationResponse {
 pub struct InformationHandler;
 
 impl Handler<InformationRequest, InformationResponse> for InformationHandler {
-    fn pre_process(request: InformationRequest) -> Result<InformationRequest> {
+    type Error = InformationError;
+
+    fn pre_process(request: InformationRequest) -> Result<InformationRequest, InformationError> {
         Ok(request)
     }
 
-    fn handle(_: &InformationRequest) -> Result<InformationResponse> {
+    fn handle(_: &InformationRequest) -> Result<InformationResponse, InformationError> {
         let response = InformationResponse {
             package_version: env!("CARGO_PKG_VERSION").into(),
             last_commit_hash: env!("GIT_HASH").into(),
@@ -65,7 +66,10 @@ impl Handler<InformationRequest, InformationResponse> for InformationHandler {
     fn post_process(
         _: &InformationRequest,
         response: InformationResponse,
-    ) -> Result<InformationResponse> {
+    ) -> Result<InformationResponse, InformationError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct InformationError;

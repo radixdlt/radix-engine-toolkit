@@ -15,10 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::model::value::manifest_sbor::ManifestSborValue;
-use crate::model::value::scrypto_sbor::ScryptoSborValue;
+use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
+use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueConversionError};
 use crate::request::traits::Handler;
+use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
+use sbor::EncodeError;
 use scrypto::prelude::{manifest_encode, scrypto_encode};
 use toolkit_derive::serializable;
 
@@ -52,11 +53,13 @@ pub struct SborEncodeResponse {
 pub struct SborEncodeHandler;
 
 impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
-    fn pre_process(request: SborEncodeRequest) -> Result<SborEncodeRequest> {
+    type Error = SborEncodeError;
+
+    fn pre_process(request: SborEncodeRequest) -> Result<SborEncodeRequest, SborEncodeError> {
         Ok(request)
     }
 
-    fn handle(request: &SborEncodeRequest) -> Result<SborEncodeResponse> {
+    fn handle(request: &SborEncodeRequest) -> Result<SborEncodeResponse, SborEncodeError> {
         match request {
             SborEncodeRequest::ManifestSbor(value) => Ok(SborEncodeResponse {
                 encoded_value: manifest_encode(&value.to_manifest_sbor_value()?)?,
@@ -70,7 +73,35 @@ impl Handler<SborEncodeRequest, SborEncodeResponse> for SborEncodeHandler {
     fn post_process(
         _: &SborEncodeRequest,
         response: SborEncodeResponse,
-    ) -> Result<SborEncodeResponse> {
+    ) -> Result<SborEncodeResponse, SborEncodeError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum SborEncodeError {
+    ManifestSborValueConversionError(ManifestSborValueConversionError),
+    ScryptoSborValueConversionError(ScryptoSborValueConversionError),
+    EncodeError { message: String },
+}
+
+impl From<ManifestSborValueConversionError> for SborEncodeError {
+    fn from(value: ManifestSborValueConversionError) -> Self {
+        Self::ManifestSborValueConversionError(value)
+    }
+}
+
+impl From<ScryptoSborValueConversionError> for SborEncodeError {
+    fn from(value: ScryptoSborValueConversionError) -> Self {
+        Self::ScryptoSborValueConversionError(value)
+    }
+}
+
+impl From<EncodeError> for SborEncodeError {
+    fn from(value: EncodeError) -> Self {
+        Self::EncodeError {
+            message: debug_string(value),
+        }
     }
 }

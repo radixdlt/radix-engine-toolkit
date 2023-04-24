@@ -17,12 +17,12 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::Result;
+use crate::error::VisitorError;
+use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::request::convert_manifest::ConvertManifestRequest;
-use crate::utils::is_account;
 use crate::visitor::{
     traverse_instruction, AccountInteractionsInstructionVisitor, AddressAggregatorVisitor,
     ValueNetworkAggregatorVisitor,
@@ -31,6 +31,7 @@ use toolkit_derive::serializable;
 
 use super::convert_manifest::ConvertManifestHandler;
 use super::traits::Handler;
+use super::ConvertManifestError;
 
 // =================
 // Model Definition
@@ -108,7 +109,11 @@ pub struct AnalyzeManifestResponse {
 pub struct AnalyzeManifestHandler;
 
 impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifestHandler {
-    fn pre_process(mut request: AnalyzeManifestRequest) -> Result<AnalyzeManifestRequest> {
+    type Error = AnalyzeManifestError;
+
+    fn pre_process(
+        mut request: AnalyzeManifestRequest,
+    ) -> Result<AnalyzeManifestRequest, AnalyzeManifestError> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
@@ -124,7 +129,8 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         if let Some(network_id) = network_aggregator_visitor
@@ -132,7 +138,7 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             .iter()
             .find(|network_id| **network_id != request.network_id)
         {
-            return Err(crate::error::Error::NetworkMismatchError {
+            return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
                 expected: request.network_id,
             });
@@ -140,7 +146,9 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
         Ok(request)
     }
 
-    fn handle(request: &AnalyzeManifestRequest) -> Result<AnalyzeManifestResponse> {
+    fn handle(
+        request: &AnalyzeManifestRequest,
+    ) -> Result<AnalyzeManifestResponse, AnalyzeManifestError> {
         // Getting the instructions in the passed manifest as parsed instructions
         let mut instructions = {
             let manifest = ConvertManifestHandler::fulfill(ConvertManifestRequest {
@@ -151,13 +159,10 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
             .manifest;
 
             match manifest.instructions {
-                InstructionList::Parsed(instructions) => Ok(instructions),
-                InstructionList::String(..) => Err(crate::error::Error::Infallible {
-                    message: "Impossible Case! We converted to parsed but it's still a string!"
-                        .into(),
-                }),
+                InstructionList::Parsed(instructions) => instructions,
+                InstructionList::String(..) => panic!("Impossible case"),
             }
-        }?;
+        };
 
         // Setting up the visitors and traversing the instructions
         let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
@@ -171,7 +176,8 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
                     &mut [&mut account_interactions_visitor],
                 )
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::VisitorError)?;
 
         let response = AnalyzeManifestResponse {
             package_addresses: address_aggregator_visitor.package_addresses,
@@ -192,7 +198,30 @@ impl Handler<AnalyzeManifestRequest, AnalyzeManifestResponse> for AnalyzeManifes
     fn post_process(
         _: &AnalyzeManifestRequest,
         response: AnalyzeManifestResponse,
-    ) -> Result<AnalyzeManifestResponse> {
+    ) -> Result<AnalyzeManifestResponse, AnalyzeManifestError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum AnalyzeManifestError {
+    /// An error emitted during the pre processing of the invocation
+    PreProcessingError(VisitorError),
+
+    /// An error emitted if the visitors fail during the handling of the invocation.
+    VisitorError(VisitorError),
+
+    /// An error emitted when the conversion of the manifest instructions to parsed instructions
+    /// fails.
+    ConvertManifestError(ConvertManifestError),
+
+    /// An error emitted when an address is encountered in the manifest with an invalid network id
+    InvalidNetworkIdEncountered { expected: u8, found: u8 },
+}
+
+impl From<ConvertManifestError> for AnalyzeManifestError {
+    fn from(value: ConvertManifestError) -> Self {
+        Self::ConvertManifestError(value)
     }
 }

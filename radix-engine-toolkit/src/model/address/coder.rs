@@ -77,7 +77,7 @@ impl Bech32Coder {
 
     pub fn decode<S: AsRef<str>>(&self, string: S) -> Result<NodeId, AddressError> {
         let (_, full_data) = self.decoder.validate_and_decode(string.as_ref())?;
-        checked_copy_u8_slice(full_data).map(NodeId).map_or(
+        checked_copy_u8_slice(&full_data).map(NodeId).map_or(
             Err(AddressError::InvalidDataLength {
                 expected: NodeId::LENGTH,
                 actual: full_data.len(),

@@ -17,10 +17,11 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::{Error, Result};
+use crate::error::VisitorError;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
+use crate::utils::debug_string;
 use crate::visitor::{
     traverse_instruction, AccountDeposit, AccountDepositsInstructionVisitor,
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
@@ -32,7 +33,7 @@ use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
 
 use super::traits::Handler;
-use super::{ConvertManifestHandler, ConvertManifestRequest};
+use super::{ConvertManifestError, ConvertManifestHandler, ConvertManifestRequest};
 
 // =================
 // Model Definition
@@ -258,9 +259,12 @@ pub struct AnalyzeManifestWithPreviewContextHandler;
 impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPreviewContextResponse>
     for AnalyzeManifestWithPreviewContextHandler
 {
+    type Error = AnalyzeManifestWithPreviewContextError;
+
     fn pre_process(
         mut request: AnalyzeManifestWithPreviewContextRequest,
-    ) -> Result<AnalyzeManifestWithPreviewContextRequest> {
+    ) -> Result<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPreviewContextError>
+    {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
@@ -276,7 +280,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         if let Some(network_id) = network_aggregator_visitor
@@ -284,7 +289,7 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .iter()
             .find(|network_id| **network_id != request.network_id)
         {
-            return Err(crate::error::Error::NetworkMismatchError {
+            return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
                 expected: request.network_id,
             });
@@ -294,7 +299,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
 
     fn handle(
         request: &AnalyzeManifestWithPreviewContextRequest,
-    ) -> Result<AnalyzeManifestWithPreviewContextResponse> {
+    ) -> Result<AnalyzeManifestWithPreviewContextResponse, AnalyzeManifestWithPreviewContextError>
+    {
         // Getting the instructions in the passed manifest as Parsed instructions.
         let mut instructions = {
             let manifest = ConvertManifestHandler::fulfill(ConvertManifestRequest {
@@ -305,18 +311,19 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .manifest;
 
             match manifest.instructions {
-                InstructionList::Parsed(instructions) => Ok(instructions),
-                InstructionList::String(..) => Err(crate::error::Error::Infallible {
-                    message: "Impossible Case! We converted to parsed but it's still a string!"
-                        .into(),
-                }),
+                InstructionList::Parsed(instructions) => instructions,
+                InstructionList::String(..) => panic!("Impossible Case!"),
             }
-        }?;
+        };
 
-        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
+        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt).map_err(
+            |error| AnalyzeManifestWithPreviewContextError::TransactionReceiptDecodingFailed {
+                message: debug_string(error),
+            },
+        )?;
         let commit = match receipt.result {
             TransactionResult::Commit(commit) => Ok(commit),
-            _ => Err(Error::TransactionNotCommitted),
+            _ => Err(AnalyzeManifestWithPreviewContextError::TransactionNotSuccessfullyCommitted),
         }?;
 
         // Setting up the visitors that will be used on the instructions
@@ -358,7 +365,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
                     ],
                 )
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AnalyzeManifestWithPreviewContextError::VisitorError)?;
 
         Ok(AnalyzeManifestWithPreviewContextResponse {
             accounts_requiring_auth: account_interactions_visitor.auth_required,
@@ -393,7 +401,36 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
     fn post_process(
         _: &AnalyzeManifestWithPreviewContextRequest,
         response: AnalyzeManifestWithPreviewContextResponse,
-    ) -> Result<AnalyzeManifestWithPreviewContextResponse> {
+    ) -> Result<AnalyzeManifestWithPreviewContextResponse, AnalyzeManifestWithPreviewContextError>
+    {
         Ok(response)
+    }
+}
+
+#[serializable]
+pub enum AnalyzeManifestWithPreviewContextError {
+    /// An error emitted during the pre processing of the invocation
+    PreProcessingError(VisitorError),
+
+    /// An error emitted when the conversion of the manifest instructions to parsed instructions
+    /// fails.
+    ConvertManifestError(ConvertManifestError),
+
+    /// An error emitted when an address is encountered in the manifest with an invalid network id
+    InvalidNetworkIdEncountered { expected: u8, found: u8 },
+
+    /// An error emitted when the transaction is not committed successfully
+    TransactionNotSuccessfullyCommitted,
+
+    /// An error emitted when the SBOR decoding of the transaction receipt fails
+    TransactionReceiptDecodingFailed { message: String },
+
+    /// An error emitted if the visitors fail during the handling of the invocation.
+    VisitorError(VisitorError),
+}
+
+impl From<ConvertManifestError> for AnalyzeManifestWithPreviewContextError {
+    fn from(value: ConvertManifestError) -> Self {
+        Self::ConvertManifestError(value)
     }
 }

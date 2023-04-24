@@ -15,10 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::{Error, Result};
-use crate::model::value::manifest_sbor::ManifestSborValue;
+use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::ScryptoSborValue;
 use crate::request::traits::Handler;
+use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
+use sbor::DecodeError;
 use scrypto::prelude::{
     manifest_decode, scrypto_decode, ManifestValue, ScryptoValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
     SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
@@ -65,11 +66,13 @@ pub enum SborDecodeResponse {
 pub struct SborDecodeHandler;
 
 impl Handler<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
-    fn pre_process(request: SborDecodeRequest) -> Result<SborDecodeRequest> {
+    type Error = SborDecodeError;
+
+    fn pre_process(request: SborDecodeRequest) -> Result<SborDecodeRequest, SborDecodeError> {
         Ok(request)
     }
 
-    fn handle(request: &SborDecodeRequest) -> Result<SborDecodeResponse> {
+    fn handle(request: &SborDecodeRequest) -> Result<SborDecodeResponse, SborDecodeError> {
         match request.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
                 scrypto_decode::<ScryptoValue>(&request.encoded_value)
@@ -80,36 +83,67 @@ impl Handler<SborDecodeRequest, SborDecodeResponse> for SborDecodeHandler {
                         )
                     })
                     .map(SborDecodeResponse::ScryptoSbor)
-                    .map_err(Error::from)
+                    .map_err(SborDecodeError::from)
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
                 manifest_decode::<ManifestValue>(&request.encoded_value)
-                    .map_err(Error::from)
+                    .map_err(SborDecodeError::from)
                     .and_then(|manifest_value| {
                         ManifestSborValue::from_manifest_sbor_value(
                             &manifest_value,
                             request.network_id,
                         )
-                        .map_err(Error::from)
+                        .map_err(SborDecodeError::from)
                     })
                     .map(SborDecodeResponse::ManifestSbor)
-                    .map_err(Error::from)
+                    .map_err(SborDecodeError::from)
             }
-            Some(p) => Err(Error::InvalidSborPrefix {
+            Some(p) => Err(SborDecodeError::InvalidSborVariant {
                 expected: vec![
                     SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
                     MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
                 ],
-                found: p,
+                actual: p,
             }),
-            None => Err(Error::EmptyPayloadError),
+            None => Err(SborDecodeError::EmptyPayloadError),
         }
     }
 
     fn post_process(
         _: &SborDecodeRequest,
         response: SborDecodeResponse,
-    ) -> Result<SborDecodeResponse> {
+    ) -> Result<SborDecodeResponse, SborDecodeError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+pub enum SborDecodeError {
+    /// An error emitted by the SBOR upstream functions that perform the decoding.
+    DecodeError { message: String },
+
+    /// An error emitted when the passed SBOR payload is of an unknown variant and thus can not be
+    /// decoded.
+    InvalidSborVariant { expected: Vec<u8>, actual: u8 },
+
+    /// Passed payload is empty; thus can not be decoded.
+    EmptyPayloadError,
+
+    /// Emitted if the conversion from the Native manifest SBOR model to the RET manifest SBOR
+    /// model fails.
+    ManifestSborValueConversionError(ManifestSborValueConversionError),
+}
+
+impl From<DecodeError> for SborDecodeError {
+    fn from(value: DecodeError) -> Self {
+        Self::DecodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<ManifestSborValueConversionError> for SborDecodeError {
+    fn from(value: ManifestSborValueConversionError) -> Self {
+        Self::ManifestSborValueConversionError(value)
     }
 }

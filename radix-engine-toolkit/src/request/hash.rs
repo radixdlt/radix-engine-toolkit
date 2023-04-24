@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::model::constants::RADIX_ENGINE_HASH_LENGTH;
 
 use scrypto::prelude::hash;
@@ -53,18 +52,23 @@ pub struct HashResponse {
 pub struct HashHandler;
 
 impl Handler<HashRequest, HashResponse> for HashHandler {
-    fn pre_process(request: HashRequest) -> Result<HashRequest> {
+    type Error = HashError;
+
+    fn pre_process(request: HashRequest) -> Result<HashRequest, HashError> {
         Ok(request)
     }
 
-    fn handle(request: &HashRequest) -> Result<HashResponse> {
+    fn handle(request: &HashRequest) -> Result<HashResponse, HashError> {
         let response = HashResponse {
             value: hash(&request.payload).0,
         };
         Ok(response)
     }
 
-    fn post_process(_: &HashRequest, response: HashResponse) -> Result<HashResponse> {
+    fn post_process(_: &HashRequest, response: HashResponse) -> Result<HashResponse, HashError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct HashError;

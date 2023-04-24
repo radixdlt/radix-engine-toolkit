@@ -16,13 +16,11 @@
 // under the License.
 
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId,
-    NonFungibleLocalId as ScryptoNonFungibleLocalId, StringNonFungibleLocalId,
-    UUIDNonFungibleLocalId,
+    IntegerNonFungibleLocalId, NonFungibleLocalId as ScryptoNonFungibleLocalId,
 };
 use toolkit_derive::serializable;
 
-use crate::utils::debug_string;
+use crate::{impl_display_as_debug, utils::debug_string};
 
 #[serializable]
 #[serde(tag = "type", content = "value")]
@@ -65,7 +63,7 @@ pub enum NonFungibleLocalId {
 }
 
 impl TryFrom<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
-    type Error = ();
+    type Error = NonFungibleLocalIdConversionError;
 
     fn try_from(value: ScryptoNonFungibleLocalId) -> Result<Self, Self::Error> {
         match value {
@@ -97,3 +95,4 @@ impl TryFrom<NonFungibleLocalId> for ScryptoNonFungibleLocalId {
 
 #[serializable]
 pub struct NonFungibleLocalIdConversionError(String);
+impl_display_as_debug!(NonFungibleLocalIdConversionError);

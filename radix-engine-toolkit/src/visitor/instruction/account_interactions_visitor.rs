@@ -19,10 +19,10 @@ use std::collections::BTreeSet;
 
 use scrypto::blueprints::account::*;
 
-use crate::error::Result;
+use crate::error::VisitorError;
+use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
-use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
 
 /// A visitor whose main responsibility is determining the kind of interactions involved with
@@ -62,7 +62,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
         _args: &mut Option<Vec<ManifestAstValue>>,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         // Checking for methods that require auth
         match (component_address, method_name) {
             (
@@ -92,7 +92,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         entity_address: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
                 address: component_address,
@@ -109,7 +109,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         &mut self,
         component_address: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
                 address: component_address,
@@ -124,7 +124,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     fn visit_claim_component_royalty(
         &mut self,
         component_address: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
                 address: component_address,
@@ -141,7 +141,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         entity_address: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
                 address: component_address,

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use serde::Serialize;
 
 pub fn pretty_print<S: Serialize, O: std::io::Write>(obj: &S, out: &mut O) -> Result<()> {

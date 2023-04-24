@@ -16,9 +16,12 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
-use crate::model::transaction::{InstructionList, NotarizedTransaction};
+use crate::model::transaction::{
+    InstructionList, NotarizedTransaction, NotarizedTransactionConversionError,
+};
 use crate::traits::CompilableIntent;
 use crate::visitor::{traverse_instruction, ValueNetworkAggregatorVisitor};
 use toolkit_derive::serializable;
@@ -57,9 +60,11 @@ pub struct CompileNotarizedTransactionHandler;
 impl Handler<CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse>
     for CompileNotarizedTransactionHandler
 {
+    type Error = CompileNotarizedTransactionError;
+
     fn pre_process(
         mut request: CompileNotarizedTransactionRequest,
-    ) -> Result<CompileNotarizedTransactionRequest> {
+    ) -> Result<CompileNotarizedTransactionRequest, CompileNotarizedTransactionError> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
@@ -81,7 +86,8 @@ impl Handler<CompileNotarizedTransactionRequest, CompileNotarizedTransactionResp
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         let expected_network_id = request
@@ -95,7 +101,7 @@ impl Handler<CompileNotarizedTransactionRequest, CompileNotarizedTransactionResp
             .iter()
             .find(|network_id| **network_id != expected_network_id)
         {
-            return Err(crate::error::Error::NetworkMismatchError {
+            return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
                 expected: expected_network_id,
             });
@@ -105,17 +111,37 @@ impl Handler<CompileNotarizedTransactionRequest, CompileNotarizedTransactionResp
 
     fn handle(
         request: &CompileNotarizedTransactionRequest,
-    ) -> Result<CompileNotarizedTransactionResponse> {
+    ) -> Result<CompileNotarizedTransactionResponse, CompileNotarizedTransactionError> {
         request
             .notarized_intent
             .compile()
             .map(|compiled_intent| CompileNotarizedTransactionResponse { compiled_intent })
+            .map_err(CompileNotarizedTransactionError::from)
     }
 
     fn post_process(
         _: &CompileNotarizedTransactionRequest,
         response: CompileNotarizedTransactionResponse,
-    ) -> Result<CompileNotarizedTransactionResponse> {
+    ) -> Result<CompileNotarizedTransactionResponse, CompileNotarizedTransactionError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum CompileNotarizedTransactionError {
+    /// An error emitted during the pre processing of the invocation
+    PreProcessingError(VisitorError),
+
+    /// An error emitted when an address is encountered in the manifest with an invalid network id
+    InvalidNetworkIdEncountered { expected: u8, found: u8 },
+
+    /// An error emitted when the compilation of the transaction intent fails
+    CompilationError(NotarizedTransactionConversionError),
+}
+
+impl From<NotarizedTransactionConversionError> for CompileNotarizedTransactionError {
+    fn from(value: NotarizedTransactionConversionError) -> Self {
+        Self::CompilationError(value)
     }
 }

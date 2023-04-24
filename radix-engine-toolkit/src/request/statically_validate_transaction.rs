@@ -15,8 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::model::transaction::{InstructionKind, NotarizedTransaction};
+use crate::model::transaction::{
+    InstructionKind, NotarizedTransaction, NotarizedTransactionConversionError,
+};
 use crate::traits::CompilableIntent;
 use native_transaction::validation::{
     NotarizedTransactionValidator, TestIntentHashManager, TransactionValidator, ValidationConfig,
@@ -66,15 +67,17 @@ pub struct StaticallyValidateTransactionHandler;
 impl Handler<StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse>
     for StaticallyValidateTransactionHandler
 {
+    type Error = StaticallyValidateTransactionError;
+
     fn pre_process(
         request: StaticallyValidateTransactionRequest,
-    ) -> Result<StaticallyValidateTransactionRequest> {
+    ) -> Result<StaticallyValidateTransactionRequest, StaticallyValidateTransactionError> {
         Ok(request)
     }
 
     fn handle(
         request: &StaticallyValidateTransactionRequest,
-    ) -> Result<StaticallyValidateTransactionResponse> {
+    ) -> Result<StaticallyValidateTransactionResponse, StaticallyValidateTransactionError> {
         let notarized_transaction = NotarizedTransaction::decompile(
             &request.compiled_notarized_intent,
             InstructionKind::String,
@@ -100,7 +103,20 @@ impl Handler<StaticallyValidateTransactionRequest, StaticallyValidateTransaction
     fn post_process(
         _: &StaticallyValidateTransactionRequest,
         response: StaticallyValidateTransactionResponse,
-    ) -> Result<StaticallyValidateTransactionResponse> {
+    ) -> Result<StaticallyValidateTransactionResponse, StaticallyValidateTransactionError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum StaticallyValidateTransactionError {
+    /// An error emitted when the decompilation of the notarized transaction intent fails
+    FailedToDecompileNotarizedIntent(NotarizedTransactionConversionError),
+}
+
+impl From<NotarizedTransactionConversionError> for StaticallyValidateTransactionError {
+    fn from(value: NotarizedTransactionConversionError) -> Self {
+        Self::FailedToDecompileNotarizedIntent(value)
     }
 }

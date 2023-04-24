@@ -15,12 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::{Error, Result};
 use crate::model::address::Bech32Coder;
 use crate::model::transaction::{InstructionKind, InstructionList};
-use native_transaction::manifest::decompile;
+use crate::utils::debug_string;
+use native_transaction::manifest::{decompile, DecompileError};
 use native_transaction::model as native;
 use toolkit_derive::serializable;
+
+use super::InstructionListConversionError;
 
 // =================
 // Model Definition
@@ -49,19 +51,21 @@ impl TransactionManifest {
         native_manifest: &native::TransactionManifest,
         instructions_kind: InstructionKind,
         bech32_coder: &Bech32Coder,
-    ) -> Result<Self> {
+    ) -> Result<Self, TransactionManifestConversionError> {
         decompile(
             &native_manifest.instructions,
             bech32_coder.network_definition(),
         )
         .map(InstructionList::String)
-        .map_err(Error::from)
+        .map_err(TransactionManifestConversionError::from)
         .and_then(|instructions| {
-            instructions.convert_to_manifest_instructions_kind(
-                instructions_kind,
-                bech32_coder,
-                native_manifest.blobs.clone(),
-            )
+            instructions
+                .convert_to_manifest_instructions_kind(
+                    instructions_kind,
+                    bech32_coder,
+                    native_manifest.blobs.clone(),
+                )
+                .map_err(TransactionManifestConversionError::from)
         })
         .map(|instructions| TransactionManifest {
             instructions,
@@ -72,12 +76,40 @@ impl TransactionManifest {
     pub fn to_native_manifest(
         &self,
         bech32_coder: &Bech32Coder,
-    ) -> Result<native::TransactionManifest> {
+    ) -> Result<native::TransactionManifest, TransactionManifestConversionError> {
         self.instructions
             .basic_instructions(bech32_coder, self.blobs.clone())
             .map(|basic_instructions| native::TransactionManifest {
                 instructions: basic_instructions,
                 blobs: self.blobs.clone(),
             })
+            .map_err(TransactionManifestConversionError::from)
+    }
+}
+
+/// An error emitted if the conversion between the native and RET representations of the Transaction
+/// Manifest fails.
+#[serializable]
+#[serde(tag = "type")]
+pub enum TransactionManifestConversionError {
+    InstructionConversionError(InstructionListConversionError),
+
+    /// An error emitted when the decompilation of manifests fail
+    ScryptoDecompileError {
+        message: String,
+    },
+}
+
+impl From<DecompileError> for TransactionManifestConversionError {
+    fn from(value: DecompileError) -> Self {
+        Self::ScryptoDecompileError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<InstructionListConversionError> for TransactionManifestConversionError {
+    fn from(value: InstructionListConversionError) -> Self {
+        Self::InstructionConversionError(value)
     }
 }

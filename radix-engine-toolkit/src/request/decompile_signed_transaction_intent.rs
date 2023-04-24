@@ -16,9 +16,13 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
-use crate::model::transaction::{InstructionKind, InstructionList, SignedTransactionIntent};
+use crate::model::transaction::{
+    InstructionKind, InstructionList, SignedTransactionIntent,
+    SignedTransactionIntentConversionError,
+};
 use crate::traits::CompilableIntent;
 use crate::visitor::{traverse_instruction, ValueAliasingVisitor};
 use toolkit_derive::serializable;
@@ -62,26 +66,32 @@ pub struct DecompileSignedTransactionIntentHandler;
 impl Handler<DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse>
     for DecompileSignedTransactionIntentHandler
 {
+    type Error = DecompileSignedTransactionIntentError;
+
     fn pre_process(
         request: DecompileSignedTransactionIntentRequest,
-    ) -> Result<DecompileSignedTransactionIntentRequest> {
+    ) -> Result<DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentError>
+    {
         Ok(request)
     }
 
     fn handle(
         request: &DecompileSignedTransactionIntentRequest,
-    ) -> Result<DecompileSignedTransactionIntentResponse> {
+    ) -> Result<DecompileSignedTransactionIntentResponse, DecompileSignedTransactionIntentError>
+    {
         SignedTransactionIntent::decompile(
             &request.compiled_signed_intent,
             request.instructions_output_kind,
         )
         .map(|signed_intent| DecompileSignedTransactionIntentResponse { signed_intent })
+        .map_err(DecompileSignedTransactionIntentError::from)
     }
 
     fn post_process(
         _: &DecompileSignedTransactionIntentRequest,
         mut response: DecompileSignedTransactionIntentResponse,
-    ) -> Result<DecompileSignedTransactionIntentResponse> {
+    ) -> Result<DecompileSignedTransactionIntentResponse, DecompileSignedTransactionIntentError>
+    {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
@@ -98,11 +108,28 @@ impl Handler<DecompileSignedTransactionIntentRequest, DecompileSignedTransaction
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(DecompileSignedTransactionIntentError::PostProcessingError);
 
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DecompileSignedTransactionIntentError {
+    /// Emitted if the decompilation of the transaction intent fails
+    DecompilationError(SignedTransactionIntentConversionError),
+
+    /// An error emitted during the post processing of the invocation
+    PostProcessingError(VisitorError),
+}
+
+impl From<SignedTransactionIntentConversionError> for DecompileSignedTransactionIntentError {
+    fn from(value: SignedTransactionIntentConversionError) -> Self {
+        Self::DecompilationError(value)
     }
 }

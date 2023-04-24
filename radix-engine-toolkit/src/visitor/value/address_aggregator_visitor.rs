@@ -17,7 +17,7 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::{Error, Result};
+use crate::error::VisitorError;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
 use crate::visitor::ManifestAstValueVisitor;
@@ -32,7 +32,7 @@ pub struct AddressAggregatorVisitor {
 }
 
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
+    fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Address { address } = value {
             let node_id = address.node_id();
             if node_id.is_global_component() {
@@ -41,26 +41,21 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
                 self.resource_addresses.insert(*address);
             } else if node_id.is_global_package() {
                 self.package_addresses.insert(*address);
-            }
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected component address!".into(),
-            })
+            };
         }
+        Ok(())
     }
 
-    fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> Result<()> {
+    fn visit_non_fungible_global_id(
+        &mut self,
+        value: &mut ManifestAstValue,
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::NonFungibleGlobalId {
             resource_address, ..
         } = value
         {
             self.resource_addresses.insert(*resource_address);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected non-fungible global id!".into(),
-            })
         }
+        Ok(())
     }
 }
