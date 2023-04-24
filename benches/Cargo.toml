@@ -14,8 +14,8 @@ serde_json = "1.0.95"
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 
 [dev-dependencies]
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-508fa797" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-508fa797", package = "transaction" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d", package = "transaction" }
 criterion = "0.4.0"
 hex = "0.4.3"
 
