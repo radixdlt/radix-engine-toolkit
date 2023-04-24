@@ -15,9 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{Handler, SborEncodeHandler};
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{Handler, SborEncodeHandler},
+};
 
 #[derive(Parser, Debug)]
 /// Encodes a payload using SBOR.
@@ -30,7 +34,9 @@ pub struct Encode {
 impl Encode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         let request = serde_json::from_str(&self.payload)?;
-        let response = SborEncodeHandler::fulfill(request)?;
+        let response = SborEncodeHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::SborEncodeError(error))
+        })?;
         pretty_print(&response, out)
     }
 }

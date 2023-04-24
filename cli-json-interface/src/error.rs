@@ -23,7 +23,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    RadixEngineToolkitError(radix_engine_toolkit::error::Error),
+    RadixEngineToolkitError(radix_engine_toolkit::error::RETError),
     InvalidFileFormat {
         expected: Vec<String>,
         found: String,
@@ -37,8 +37,8 @@ pub enum Error {
     InvalidStringConversion,
 }
 
-impl From<radix_engine_toolkit::error::Error> for Error {
-    fn from(value: radix_engine_toolkit::error::Error) -> Self {
+impl From<radix_engine_toolkit::error::RETError> for Error {
+    fn from(value: radix_engine_toolkit::error::RETError) -> Self {
         Self::RadixEngineToolkitError(value)
     }
 }

@@ -20,6 +20,7 @@ use std::path::PathBuf;
 use clap::Parser;
 use native_transaction::manifest::decompile;
 use native_transaction::manifest::generator::generate_manifest;
+use radix_engine_toolkit::error::VisitorError;
 use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::instruction::Instruction;
 use radix_engine_toolkit::model::transaction::{InstructionKind, InstructionList};
@@ -88,7 +89,7 @@ impl ConvertManifest {
         let blob_references = match instructions {
             InstructionList::String(..) => {
                 // Parse the string manifest into a native abstract syntax tree manifest.
-                let instructions = instructions.ast_instructions(&bech32_coder)?;
+                let instructions = instructions.ast_instructions(&bech32_coder).unwrap();
 
                 // We will aggregate the blob references from the package publishing into a vector.
                 // We do not care about other blobs since they're technically unusable in Scrypto
@@ -106,8 +107,10 @@ impl ConvertManifest {
                             native_transaction::manifest::ast::Value::String(abi),
                         ) = (*code, *abi)
                         {
-                            blob_references.push(checked_copy_u8_slice(&hex::decode(code)?)?);
-                            blob_references.push(checked_copy_u8_slice(&hex::decode(abi)?)?);
+                            blob_references
+                                .push(checked_copy_u8_slice(&hex::decode(code)?).unwrap());
+                            blob_references
+                                .push(checked_copy_u8_slice(&hex::decode(abi)?).unwrap());
                         }
                     }
                 }
@@ -116,7 +119,7 @@ impl ConvertManifest {
             InstructionList::Parsed(ref mut instructions) => {
                 let mut value_visitor = BlobValueVisitor::default();
                 for instruction in instructions.iter_mut() {
-                    traverse_instruction(instruction, &mut [&mut value_visitor], &mut [])?;
+                    traverse_instruction(instruction, &mut [&mut value_visitor], &mut []).unwrap();
                 }
                 value_visitor.0
             }
@@ -126,17 +129,18 @@ impl ConvertManifest {
         let output = match input_type {
             InstructionKind::String => {
                 // Parse the string manifest into a native abstract syntax tree manifest.
-                let instructions = instructions.ast_instructions(&bech32_coder)?;
+                let instructions = instructions.ast_instructions(&bech32_coder).unwrap();
                 let instructions = instructions
                     .into_iter()
                     .map(|instruction| {
                         Instruction::from_ast_instruction(&instruction, &bech32_coder)
                     })
-                    .collect::<radix_engine_toolkit::error::Result<Vec<_>>>()?;
+                    .collect::<std::result::Result<Vec<_>, _>>()
+                    .unwrap();
                 InstructionList::Parsed(instructions)
             }
             InstructionKind::Parsed => {
-                let instructions = instructions.ast_instructions(&bech32_coder)?;
+                let instructions = instructions.ast_instructions(&bech32_coder).unwrap();
                 let manifest = generate_manifest(
                     &instructions,
                     bech32_coder.decoder(),
@@ -161,7 +165,7 @@ impl ManifestAstValueVisitor for BlobValueVisitor {
     fn visit_blob(
         &mut self,
         value: &mut radix_engine_toolkit::model::value::ast::ManifestAstValue,
-    ) -> radix_engine_toolkit::error::Result<()> {
+    ) -> std::result::Result<(), VisitorError> {
         if let ManifestAstValue::Blob { hash } = value {
             self.0.push(hash.0);
         }

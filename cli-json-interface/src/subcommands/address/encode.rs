@@ -15,9 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{EncodeAddressHandler, EncodeAddressRequest, Handler};
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{EncodeAddressHandler, EncodeAddressRequest, Handler},
+};
 
 #[derive(Parser, Debug)]
 /// Encodes a raw address into a Bech32 encoded address.
@@ -38,7 +42,9 @@ impl Encode {
             address_bytes: hex::decode(&self.raw_address)?,
             network_id: self.network_id,
         };
-        let response = EncodeAddressHandler::fulfill(request)?;
+        let response = EncodeAddressHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::EncodeAddressError(error))
+        })?;
         pretty_print(&response, out)
     }
 }

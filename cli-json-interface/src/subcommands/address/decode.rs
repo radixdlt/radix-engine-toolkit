@@ -15,9 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{DecodeAddressHandler, DecodeAddressRequest, Handler};
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{DecodeAddressHandler, DecodeAddressRequest, Handler},
+};
 
 /// Decodes the Bech32 address revealing some information on what exactly does it address.
 #[derive(Parser, Debug)]
@@ -30,9 +34,11 @@ pub struct Decode {
 impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         let request = DecodeAddressRequest {
-            address: self.address.clone(),
+            address: self.address.clone().parse().unwrap(),
         };
-        let response = DecodeAddressHandler::fulfill(request)?;
+        let response = DecodeAddressHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::DecodeAddressError(error))
+        })?;
         pretty_print(&response, out)
     }
 }

@@ -15,9 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{Handler, HashHandler, HashRequest};
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{Handler, HashHandler, HashRequest},
+};
 
 #[derive(Parser, Debug)]
 /// Hashes some data using the hashing algorithm of Scrypto and the Radix Engine. Currently, this
@@ -33,7 +37,9 @@ impl Hash {
         let request = HashRequest {
             payload: hex::decode(&self.data)?,
         };
-        let response = HashHandler::fulfill(request)?;
+        let response = HashHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::HashError(error))
+        })?;
         pretty_print(&response, out)
     }
 }

@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::fmt::Debug;
-
 use crate::model::transaction::InstructionKind;
 use scrypto::prelude::{hash, Hash};
+use std::fmt::Debug;
 
 /// A trait that defines the common interface of all compile-able intents
 pub trait CompilableIntent {

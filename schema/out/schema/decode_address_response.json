@@ -5,7 +5,6 @@
   "required": [
     "data",
     "entity_type",
-    "hrp",
     "network_id",
     "network_name"
   ],
@@ -28,15 +27,11 @@
       ]
     },
     "data": {
-      "description": "A byte array of 27 bytes (54 hex characters) serialized as a hex string which represents the data encoded in the address.",
+      "description": "A byte array of 30 bytes (60 hex characters) serialized as a hex string which represents the data encoded in the address.",
       "type": "string",
-      "maxLength": 54,
-      "minLength": 54,
+      "maxLength": 60,
+      "minLength": 60,
       "pattern": "[0-9a-fA-F]+"
-    },
-    "hrp": {
-      "description": "A string which represents the Bech32m Human Readable Part (HRP) of the passed address string",
-      "type": "string"
     }
   },
   "definitions": {
