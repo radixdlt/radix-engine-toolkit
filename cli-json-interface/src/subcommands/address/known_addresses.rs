@@ -18,8 +18,9 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{
-    Handler, KnownEntityAddressesHandler, KnownEntityAddressesRequest,
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{Handler, KnownEntityAddressesHandler, KnownEntityAddressesRequest},
 };
 
 #[derive(Parser, Debug)]
@@ -35,7 +36,11 @@ impl KnownAddresses {
         let request = KnownEntityAddressesRequest {
             network_id: self.network_id,
         };
-        let response = KnownEntityAddressesHandler::fulfill(request)?;
+        let response = KnownEntityAddressesHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::KnownEntityAddressesError(
+                error,
+            ))
+        })?;
         pretty_print(&response, out)
     }
 }

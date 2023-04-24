@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
+use crate::model::value::ast::{BucketId, ProofId, TransientIdentifier};
 
 pub fn string() -> TransientIdentifier {
     TransientIdentifier::String {

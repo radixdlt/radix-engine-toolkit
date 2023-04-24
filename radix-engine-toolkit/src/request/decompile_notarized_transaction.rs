@@ -16,9 +16,12 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
-use crate::model::transaction::{InstructionKind, InstructionList, NotarizedTransaction};
+use crate::model::transaction::{
+    InstructionKind, InstructionList, NotarizedTransaction, NotarizedTransactionConversionError,
+};
 use crate::traits::CompilableIntent;
 use crate::visitor::{traverse_instruction, ValueAliasingVisitor};
 use toolkit_derive::serializable;
@@ -62,26 +65,29 @@ pub struct DecompileNotarizedTransactionHandler;
 impl Handler<DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse>
     for DecompileNotarizedTransactionHandler
 {
+    type Error = DecompileNotarizedTransactionError;
+
     fn pre_process(
         request: DecompileNotarizedTransactionRequest,
-    ) -> Result<DecompileNotarizedTransactionRequest> {
+    ) -> Result<DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionError> {
         Ok(request)
     }
 
     fn handle(
         request: &DecompileNotarizedTransactionRequest,
-    ) -> Result<DecompileNotarizedTransactionResponse> {
+    ) -> Result<DecompileNotarizedTransactionResponse, DecompileNotarizedTransactionError> {
         NotarizedTransaction::decompile(
             &request.compiled_notarized_intent,
             request.instructions_output_kind,
         )
         .map(|notarized_intent| DecompileNotarizedTransactionResponse { notarized_intent })
+        .map_err(DecompileNotarizedTransactionError::from)
     }
 
     fn post_process(
         _: &DecompileNotarizedTransactionRequest,
         mut response: DecompileNotarizedTransactionResponse,
-    ) -> Result<DecompileNotarizedTransactionResponse> {
+    ) -> Result<DecompileNotarizedTransactionResponse, DecompileNotarizedTransactionError> {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
@@ -103,11 +109,28 @@ impl Handler<DecompileNotarizedTransactionRequest, DecompileNotarizedTransaction
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(DecompileNotarizedTransactionError::PostProcessingError)?;
 
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DecompileNotarizedTransactionError {
+    /// Emitted if the decompilation of the transaction intent fails
+    DecompilationError(NotarizedTransactionConversionError),
+
+    /// An error emitted during the post processing of the invocation
+    PostProcessingError(VisitorError),
+}
+
+impl From<NotarizedTransactionConversionError> for DecompileNotarizedTransactionError {
+    fn from(value: NotarizedTransactionConversionError) -> Self {
+        Self::DecompilationError(value)
     }
 }

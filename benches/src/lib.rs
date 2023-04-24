@@ -48,7 +48,7 @@ impl RadixEngineToolkit {
         let response = if let Ok(response) = Self::deserialize::<D, _>(&response_string) {
             Ok(response)
         } else if let Ok(response) =
-            Self::deserialize::<radix_engine_toolkit::error::Error, _>(&response_string)
+            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&response_string)
         {
             println!("{:?}", response);
             Err(Error)

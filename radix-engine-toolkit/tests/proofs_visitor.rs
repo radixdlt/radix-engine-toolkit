@@ -63,11 +63,11 @@ fn account_create_proof_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        BTreeSet::from([RADIX_TOKEN]),
+        BTreeSet::from([RADIX_TOKEN.as_node_id().0]),
         visitor
             .created_proofs
             .into_iter()
-            .map(|item| item.address)
+            .map(|item| item.0)
             .collect()
     )
 }
@@ -108,11 +108,11 @@ fn account_create_proof_by_amount_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        BTreeSet::from([RADIX_TOKEN]),
+        BTreeSet::from([RADIX_TOKEN.as_node_id().0]),
         visitor
             .created_proofs
             .into_iter()
-            .map(|item| item.address)
+            .map(|item| item.0)
             .collect()
     )
 }
@@ -160,11 +160,11 @@ fn account_create_proof_by_ids_is_captured_by_visitor() {
 
     // Assert
     assert_eq!(
-        BTreeSet::from([RADIX_TOKEN]),
+        BTreeSet::from([RADIX_TOKEN.as_node_id().0]),
         visitor
             .created_proofs
             .into_iter()
-            .map(|item| item.address)
+            .map(|item| item.0)
             .collect()
     )
 }

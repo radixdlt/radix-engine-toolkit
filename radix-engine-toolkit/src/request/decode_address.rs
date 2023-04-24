@@ -16,14 +16,14 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::{Error, Result};
+use crate::model::address::utils::network_definition_from_network_id;
 use crate::model::address::EntityType;
-use crate::model::engine_identifier::NetworkAwareNodeId;
-use crate::utils::network_definition_from_network_id;
-use scrypto::address::DecodeBech32AddressError;
+use crate::model::address::NetworkAwareNodeId;
+use crate::utils::debug_string;
+use scrypto::prelude::NodeId;
 use toolkit_derive::serializable;
 
-use bech32::{self, FromBase32, Variant};
+use bech32::{self};
 
 // =================
 // Model Definition
@@ -36,7 +36,9 @@ use bech32::{self, FromBase32, Variant};
 pub struct DecodeAddressRequest {
     /// A string of the Bech32m encoded address to decode. Decoding this address will expose its
     /// entity type, network id, network name, underlying data, as well as it's Bech32m HRP.
-    pub address: String,
+    #[schemars(with = "String")]
+    #[serde_as(as = "serde_with::DisplayFromStr")]
+    pub address: NetworkAwareNodeId,
 }
 
 #[serializable]
@@ -57,17 +59,13 @@ pub struct DecodeAddressResponse {
     /// This is derived from the entity byte on the address data.
     pub entity_type: EntityType,
 
-    /// A byte array of 27 bytes (54 hex characters) serialized as a hex string which represents
+    /// A byte array of 30 bytes (60 hex characters) serialized as a hex string which represents
     /// the data encoded in the address.
     #[schemars(with = "String")]
-    #[schemars(length(equal = 54))]
+    #[schemars(length(equal = 60))]
     #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
     #[serde_as(as = "serde_with::hex::Hex")]
-    pub data: Vec<u8>,
-
-    /// A string which represents the Bech32m Human Readable Part (HRP) of the passed address
-    /// string
-    pub hrp: String,
+    pub data: [u8; NodeId::LENGTH],
 }
 
 // ===============
@@ -77,38 +75,23 @@ pub struct DecodeAddressResponse {
 pub struct DecodeAddressHandler;
 
 impl Handler<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressHandler {
-    fn pre_process(request: DecodeAddressRequest) -> Result<DecodeAddressRequest> {
+    type Error = DecodeAddressError;
+
+    fn pre_process(
+        request: DecodeAddressRequest,
+    ) -> Result<DecodeAddressRequest, DecodeAddressError> {
         Ok(request)
     }
 
-    fn handle(request: &DecodeAddressRequest) -> Result<DecodeAddressResponse> {
-        // We need to deduce the network from the HRP of the passed address. Therefore, we need to
-        // begin by decoding the address, and getting the HRP.
-        let (hrp, data, variant) = bech32::decode(&request.address)
-            .map_err(DecodeBech32AddressError::Bech32mDecodingError)
-            .map_err(|error| Error::AddressError {
-                message: format!("{:?}", error),
-            })?;
-        let data = Vec::<u8>::from_base32(&data)
-            .map_err(DecodeBech32AddressError::Bech32mDecodingError)?;
-
-        match variant {
-            Variant::Bech32m => Ok(()),
-            variant => Err(DecodeBech32AddressError::InvalidVariant(variant)),
-        }?;
-
-        let address = request.address.parse::<NetworkAwareNodeId>()?;
-        let network_definition = network_definition_from_network_id(address.network_id());
+    fn handle(request: &DecodeAddressRequest) -> Result<DecodeAddressResponse, DecodeAddressError> {
+        let network_definition = network_definition_from_network_id(request.address.network_id());
 
         Ok(DecodeAddressResponse {
             network_id: network_definition.id,
             network_name: network_definition.logical_name,
-            hrp,
-            data,
-            entity_type: address.node_id().entity_type().map_or(
-                Err(Error::AddressError {
-                    message: "Invalid entity type".to_owned(),
-                }),
+            data: request.address.0,
+            entity_type: request.address.node_id().entity_type().map_or(
+                Err(DecodeAddressError::NoCorrespondingEntityType),
                 |entity_type| Ok(entity_type.into()),
             )?,
         })
@@ -117,7 +100,28 @@ impl Handler<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressHandl
     fn post_process(
         _: &DecodeAddressRequest,
         response: DecodeAddressResponse,
-    ) -> Result<DecodeAddressResponse> {
+    ) -> Result<DecodeAddressResponse, DecodeAddressError> {
         Ok(response)
+    }
+}
+
+#[serializable]
+pub enum DecodeAddressError {
+    /// An error emitted when a Bech32 operation fails.
+    Bech32Error { message: String },
+
+    /// An error emitted when an unexpected Bech32 variant is encountered. In this case, it means
+    /// that we expected Bech32m but encountered Bech32
+    InvalidBech32Variant,
+
+    /// An error emitted when the address does not have a corresponding entity type
+    NoCorrespondingEntityType,
+}
+
+impl From<bech32::Error> for DecodeAddressError {
+    fn from(value: bech32::Error) -> Self {
+        Self::Bech32Error {
+            message: debug_string(value),
+        }
     }
 }

@@ -17,10 +17,8 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::{Error, Result};
-use crate::model::address::{
-    NetworkAwareComponentAddress, NetworkAwarePackageAddress, NetworkAwareResourceAddress,
-};
+use crate::error::VisitorError;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
 use crate::visitor::ManifestAstValueVisitor;
 
@@ -28,41 +26,36 @@ use crate::visitor::ManifestAstValueVisitor;
 /// stored them in its state.
 #[derive(Debug, Default)]
 pub struct AddressAggregatorVisitor {
-    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub component_addresses: BTreeSet<NetworkAwareNodeId>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
-    fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<()> {
+    fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Address { address } = value {
             let node_id = address.node_id();
             if node_id.is_global_component() {
-                self.component_addresses.insert((*address).try_into()?);
+                self.component_addresses.insert(*address);
             } else if node_id.is_global_resource() {
-                self.resource_addresses.insert((*address).try_into()?);
+                self.resource_addresses.insert(*address);
             } else if node_id.is_global_package() {
-                self.package_addresses.insert((*address).try_into()?);
-            }
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected component address!".into(),
-            })
+                self.package_addresses.insert(*address);
+            };
         }
+        Ok(())
     }
 
-    fn visit_non_fungible_global_id(&mut self, value: &mut ManifestAstValue) -> Result<()> {
+    fn visit_non_fungible_global_id(
+        &mut self,
+        value: &mut ManifestAstValue,
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::NonFungibleGlobalId {
             resource_address, ..
         } = value
         {
             self.resource_addresses.insert(*resource_address);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected non-fungible global id!".into(),
-            })
         }
+        Ok(())
     }
 }

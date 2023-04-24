@@ -18,6 +18,7 @@
 use std::path::PathBuf;
 
 use clap::Parser;
+use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
 use radix_engine_toolkit::model::transaction::{
     InstructionKind, InstructionList, TransactionManifest,
 };
@@ -76,7 +77,9 @@ impl AnalyzeManifest {
             },
             network_id: self.network_id,
         };
-        let response = AnalyzeManifestHandler::fulfill(request)?;
+        let response = AnalyzeManifestHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(InvocationHandlingError::AnalyzeManifestError(error))
+        })?;
         pretty_print(&response, out)
     }
 }

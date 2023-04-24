@@ -19,8 +19,9 @@ use bech32::ToBase32;
 use scrypto::prelude::PublicKey;
 use toolkit_derive::serializable;
 
+use crate::utils::debug_string;
+
 use super::traits::Handler;
-use crate::error::{Error, Result};
 
 // =================
 // Model Definition
@@ -82,20 +83,26 @@ pub struct DeriveOlympiaAddressFromPublicKeyHandler;
 impl Handler<DeriveOlympiaAddressFromPublicKeyRequest, DeriveOlympiaAddressFromPublicKeyResponse>
     for DeriveOlympiaAddressFromPublicKeyHandler
 {
+    type Error = DeriveOlympiaAddressFromPublicKeyError;
+
     fn pre_process(
         request: DeriveOlympiaAddressFromPublicKeyRequest,
-    ) -> Result<DeriveOlympiaAddressFromPublicKeyRequest> {
+    ) -> Result<DeriveOlympiaAddressFromPublicKeyRequest, DeriveOlympiaAddressFromPublicKeyError>
+    {
         Ok(request)
     }
 
     fn handle(
         request: &DeriveOlympiaAddressFromPublicKeyRequest,
-    ) -> Result<DeriveOlympiaAddressFromPublicKeyResponse> {
+    ) -> Result<DeriveOlympiaAddressFromPublicKeyResponse, DeriveOlympiaAddressFromPublicKeyError>
+    {
         // Ensure that the passed public key is an Ecdsa Secp256k1 since this is the only public
         // key supported by Olympia.
         let mut public_key_bytes = match request.public_key {
             PublicKey::EcdsaSecp256k1(public_key) => Ok(public_key.to_vec()),
-            PublicKey::EddsaEd25519(_) => Err(Error::InvalidPublicKeyType),
+            PublicKey::EddsaEd25519(_) => {
+                Err(DeriveOlympiaAddressFromPublicKeyError::InvalidPublicKeyType)
+            }
         }?;
 
         // In Olympia, before a public key is Bech32 encoded into an Olympia account address, it has
@@ -107,8 +114,10 @@ impl Handler<DeriveOlympiaAddressFromPublicKeyRequest, DeriveOlympiaAddressFromP
             public_key_bytes.to_base32(),
             bech32::Variant::Bech32,
         )
-        .map_err(|_| Error::Infallible {
-            message: "Public key to Olympia address should not fail".to_owned(),
+        .map_err(|error| {
+            DeriveOlympiaAddressFromPublicKeyError::Bech32EncodingOfOlympiaAddressFailed {
+                message: debug_string(error),
+            }
         })
         .map(|address| DeriveOlympiaAddressFromPublicKeyResponse {
             olympia_account_address: address,
@@ -118,7 +127,20 @@ impl Handler<DeriveOlympiaAddressFromPublicKeyRequest, DeriveOlympiaAddressFromP
     fn post_process(
         _: &DeriveOlympiaAddressFromPublicKeyRequest,
         response: DeriveOlympiaAddressFromPublicKeyResponse,
-    ) -> Result<DeriveOlympiaAddressFromPublicKeyResponse> {
+    ) -> Result<DeriveOlympiaAddressFromPublicKeyResponse, DeriveOlympiaAddressFromPublicKeyError>
+    {
         Ok(response)
     }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DeriveOlympiaAddressFromPublicKeyError {
+    /// Emitted when an invalid public key is passed. This function only accepts Ecdsa Secp256k1
+    /// public keys.
+    InvalidPublicKeyType,
+
+    Bech32EncodingOfOlympiaAddressFailed {
+        message: String,
+    },
 }

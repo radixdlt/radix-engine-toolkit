@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
 use crate::visitor::{traverse_value, ManifestAstValueVisitor};
 
@@ -29,7 +29,10 @@ macro_rules! define_instruction_visitor {
         $(#[$meta])*
         $vis trait $trait_ident {
             $(
-                fn $method_ident(&mut self, $($arg_ident: $arg_type,)*) -> $crate::error::Result<()> {
+                fn $method_ident(
+                    &mut self,
+                    $($arg_ident: $arg_type,)*
+                ) -> Result<(), $crate::error::VisitorError> {
                     Ok(())
                 }
             )*
@@ -42,7 +45,7 @@ macro_rules! visit {
         $visitors
             .iter_mut()
             .map(|visitor| visitor.$method($($value,)*))
-            .collect::<$crate::error::Result<Vec<_>>>()
+            .collect::<Result<Vec<_>, _>>()
     };
 }
 
@@ -278,7 +281,7 @@ pub fn traverse_instruction(
     instruction: &mut Instruction,
     value_visitors: &mut [&mut dyn ManifestAstValueVisitor],
     instructions_visitors: &mut [&mut dyn InstructionVisitor],
-) -> Result<()> {
+) -> Result<(), VisitorError> {
     match instruction {
         Instruction::CallFunction {
             package_address,
@@ -293,7 +296,7 @@ pub fn traverse_instruction(
                 arguments
                     .iter_mut()
                     .map(|value| traverse_value(value, value_visitors))
-                    .collect::<Result<Vec<_>>>()?;
+                    .collect::<Result<Vec<_>, VisitorError>>()?;
             }
             visit!(
                 instructions_visitors,
@@ -316,7 +319,7 @@ pub fn traverse_instruction(
                 arguments
                     .iter_mut()
                     .map(|value| traverse_value(value, value_visitors))
-                    .collect::<Result<Vec<_>>>()?;
+                    .collect::<Result<Vec<_>, VisitorError>>()?;
             }
             visit!(
                 instructions_visitors,
@@ -367,7 +370,7 @@ pub fn traverse_instruction(
             traverse_value(into_bucket, value_visitors)?;
             ids.iter_mut()
                 .map(|value| traverse_value(value, value_visitors))
-                .collect::<Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, VisitorError>>()?;
             visit!(
                 instructions_visitors,
                 visit_take_from_worktop_by_ids,
@@ -412,7 +415,7 @@ pub fn traverse_instruction(
             traverse_value(resource_address, value_visitors)?;
             ids.iter_mut()
                 .map(|value| traverse_value(value, value_visitors))
-                .collect::<Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, VisitorError>>()?;
             visit!(
                 instructions_visitors,
                 visit_assert_worktop_contains_by_ids,
@@ -471,7 +474,7 @@ pub fn traverse_instruction(
             traverse_value(into_proof, value_visitors)?;
             ids.iter_mut()
                 .map(|value| traverse_value(value, value_visitors))
-                .collect::<Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>, VisitorError>>()?;
             visit!(
                 instructions_visitors,
                 visit_create_proof_from_auth_zone_by_ids,

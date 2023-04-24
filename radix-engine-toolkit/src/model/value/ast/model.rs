@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::str::FromStr;
+
 use crate::define_kind_enum;
-use crate::error::{Error, Result};
-use crate::model::address::NetworkAwareResourceAddress;
-use crate::model::engine_identifier::{BucketId, NetworkAwareNodeId, ProofId};
+use crate::model::address::NetworkAwareNodeId;
 
 use native_transaction::manifest::KNOWN_ENUM_DISCRIMINATORS;
 use scrypto::prelude::{
@@ -26,6 +26,8 @@ use scrypto::prelude::{
 };
 use serde_with::serde_as;
 use toolkit_derive::serializable;
+
+use super::ManifestAstValueConversionError;
 
 define_kind_enum! {
     /// A value model used to describe an algebraic sum type which is used to express transaction
@@ -283,7 +285,7 @@ define_kind_enum! {
         NonFungibleGlobalId {
             #[schemars(with = "ManifestAstValue")]
             #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]
-            resource_address: NetworkAwareResourceAddress,
+            resource_address: NetworkAwareNodeId,
 
             #[schemars(with = "ManifestAstValue")]
             #[serde_as(as = "serde_with::TryFromInto<ManifestAstValue>")]
@@ -345,15 +347,108 @@ pub enum EnumDiscriminator {
 
 impl EnumDiscriminator {
     /// Resolves the enum discriminator to a [`u8`] discriminator.
-    pub fn resolve_discriminator(&self) -> Result<u8> {
+    pub fn resolve_discriminator(&self) -> Result<u8, ManifestAstValueConversionError> {
         match self {
             Self::U8 { discriminator } => Ok(*discriminator),
             Self::String { discriminator } => KNOWN_ENUM_DISCRIMINATORS
                 .get(discriminator.as_str())
                 .copied()
-                .ok_or(Error::InvalidEnumDiscriminator {
-                    discriminator: discriminator.clone(),
-                }),
+                .ok_or(
+                    ManifestAstValueConversionError::FailedToResolveEnumDiscriminator {
+                        variant_name: discriminator.clone(),
+                    },
+                ),
         }
+    }
+}
+
+#[serializable]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[serde(tag = "type")]
+/// Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets
+/// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
+/// number and not a string)
+pub enum TransientIdentifier {
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::string")]
+    String {
+        /// A string identifier
+        value: String,
+    },
+
+    #[schemars(example = "crate::example::engine_identifier::transient_identifier::u32")]
+    U32 {
+        /// A 32-bit unsigned integer which is serialized and deserialized as a string.
+        #[schemars(regex(pattern = "[0-9]+"))]
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        value: u32,
+    },
+}
+
+#[serializable]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id1",
+    example = "crate::example::engine_identifier::transient_identifier::bucket_id2"
+)]
+/// Represents a BucketId which uses a transient identifier.
+pub struct BucketId(pub TransientIdentifier);
+
+#[serializable]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[schemars(
+    example = "crate::example::engine_identifier::transient_identifier::proof_id1",
+    example = "crate::example::engine_identifier::transient_identifier::proof_id2"
+)]
+/// Represents a ProofId which uses a transient identifier.
+pub struct ProofId(pub TransientIdentifier);
+
+// ============
+// Conversions
+// ============
+
+impl FromStr for TransientIdentifier {
+    type Err = ManifestAstValueConversionError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::String {
+            value: s.to_owned(),
+        })
+    }
+}
+
+impl From<String> for TransientIdentifier {
+    fn from(identifier: String) -> Self {
+        Self::String { value: identifier }
+    }
+}
+
+impl From<u32> for TransientIdentifier {
+    fn from(identifier: u32) -> Self {
+        Self::U32 { value: identifier }
+    }
+}
+
+impl From<TransientIdentifier> for BucketId {
+    fn from(identifier: TransientIdentifier) -> Self {
+        Self(identifier)
+    }
+}
+
+impl From<BucketId> for TransientIdentifier {
+    fn from(bucket_id: BucketId) -> Self {
+        bucket_id.0
+    }
+}
+
+impl From<TransientIdentifier> for ProofId {
+    fn from(identifier: TransientIdentifier) -> Self {
+        Self(identifier)
+    }
+}
+
+impl From<ProofId> for TransientIdentifier {
+    fn from(proof_id: ProofId) -> Self {
+        proof_id.0
     }
 }

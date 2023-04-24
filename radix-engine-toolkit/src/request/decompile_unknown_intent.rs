@@ -28,8 +28,8 @@ use super::decompile_transaction_intent::{
     DecompileTransactionIntentResponse,
 };
 use super::traits::Handler;
-use crate::error::Error;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::transaction::{
     InstructionList, NotarizedTransaction, SignedTransactionIntent, TransactionIntent,
     TransactionManifest,
@@ -133,15 +133,19 @@ pub struct DecompileUnknownTransactionIntentHandler;
 impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse>
     for DecompileUnknownTransactionIntentHandler
 {
+    type Error = DecompileUnknownTransactionIntentError;
+
     fn pre_process(
         request: DecompileUnknownTransactionIntentRequest,
-    ) -> Result<DecompileUnknownTransactionIntentRequest> {
+    ) -> Result<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentError>
+    {
         Ok(request)
     }
 
     fn handle(
         request: &DecompileUnknownTransactionIntentRequest,
-    ) -> Result<DecompileUnknownTransactionIntentResponse> {
+    ) -> Result<DecompileUnknownTransactionIntentResponse, DecompileUnknownTransactionIntentError>
+    {
         if let Ok(response) = DecompileTransactionIntentHandler::fulfill(request.clone().into()) {
             Ok(response.into())
         } else if let Ok(response) =
@@ -153,14 +157,15 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
         {
             Ok(response.into())
         } else {
-            Err(Error::UnrecognizedCompiledIntentFormat)
+            Err(DecompileUnknownTransactionIntentError::UnrecognizedTransactionFormat)
         }
     }
 
     fn post_process(
         _: &DecompileUnknownTransactionIntentRequest,
         mut response: DecompileUnknownTransactionIntentResponse,
-    ) -> Result<DecompileUnknownTransactionIntentResponse> {
+    ) -> Result<DecompileUnknownTransactionIntentResponse, DecompileUnknownTransactionIntentError>
+    {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
@@ -228,11 +233,23 @@ impl Handler<DecompileUnknownTransactionIntentRequest, DecompileUnknownTransacti
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(DecompileUnknownTransactionIntentError::PostProcessingError)?;
 
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
         Ok(response)
     }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DecompileUnknownTransactionIntentError {
+    /// An error emitted if the passed compiled intent is neither an unsigned, signed, or notarized
+    /// intent.
+    UnrecognizedTransactionFormat,
+
+    /// An error emitted during the post processing of the invocation
+    PostProcessingError(VisitorError),
 }

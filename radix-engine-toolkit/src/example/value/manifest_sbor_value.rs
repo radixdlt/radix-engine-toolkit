@@ -21,7 +21,7 @@ use scrypto::prelude::{
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::manifest_sbor::{ManifestSborValue, ManifestSborValueKind};
 use crate::utils::checked_copy_u8_slice;
 

@@ -18,8 +18,7 @@
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
-use crate::error::Result;
-use crate::model::address::NetworkAwareComponentAddress;
+use crate::model::address::NetworkAwareNodeId;
 use crate::request::traits::Handler;
 
 // =================
@@ -50,7 +49,7 @@ pub struct DeriveVirtualIdentityAddressResponse {
     /// model.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub virtual_identity_address: NetworkAwareComponentAddress,
+    pub virtual_identity_address: NetworkAwareNodeId,
 }
 
 // ===============
@@ -62,27 +61,34 @@ pub struct DeriveVirtualIdentityAddressHandler;
 impl Handler<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse>
     for DeriveVirtualIdentityAddressHandler
 {
+    type Error = DeriveVirtualIdentityAddressError;
+
     fn pre_process(
         request: DeriveVirtualIdentityAddressRequest,
-    ) -> Result<DeriveVirtualIdentityAddressRequest> {
+    ) -> Result<DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressError> {
         Ok(request)
     }
 
     fn handle(
         request: &DeriveVirtualIdentityAddressRequest,
-    ) -> Result<DeriveVirtualIdentityAddressResponse> {
+    ) -> Result<DeriveVirtualIdentityAddressResponse, DeriveVirtualIdentityAddressError> {
         Ok(DeriveVirtualIdentityAddressResponse {
-            virtual_identity_address: NetworkAwareComponentAddress {
-                network_id: request.network_id,
-                address: ComponentAddress::virtual_identity_from_public_key(&request.public_key),
-            },
+            virtual_identity_address: NetworkAwareNodeId(
+                ComponentAddress::virtual_identity_from_public_key(&request.public_key)
+                    .as_node_id()
+                    .0,
+                request.network_id,
+            ),
         })
     }
 
     fn post_process(
         _: &DeriveVirtualIdentityAddressRequest,
         response: DeriveVirtualIdentityAddressResponse,
-    ) -> Result<DeriveVirtualIdentityAddressResponse> {
+    ) -> Result<DeriveVirtualIdentityAddressResponse, DeriveVirtualIdentityAddressError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct DeriveVirtualIdentityAddressError;

@@ -217,9 +217,10 @@ fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> Transacti
 fn test_inversion(transaction: &NotarizedTransaction) {
     let passed_manifest = transaction.signed_intent.intent.manifest.clone();
     let inverted_manifest = {
-        let network = radix_engine_toolkit::utils::network_definition_from_network_id(
-            transaction.signed_intent.intent.header.network_id,
-        );
+        let network =
+            radix_engine_toolkit::model::address::utils::network_definition_from_network_id(
+                transaction.signed_intent.intent.header.network_id,
+            );
         let decompiled = decompile(&passed_manifest.instructions, &network).unwrap();
         compile(&decompiled, &network, vec![]).unwrap()
     };

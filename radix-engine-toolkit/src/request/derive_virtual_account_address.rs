@@ -18,8 +18,7 @@
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
-use crate::error::Result;
-use crate::model::address::NetworkAwareComponentAddress;
+use crate::model::address::NetworkAwareNodeId;
 
 use super::traits::Handler;
 
@@ -51,7 +50,7 @@ pub struct DeriveVirtualAccountAddressResponse {
     /// model.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub virtual_account_address: NetworkAwareComponentAddress,
+    pub virtual_account_address: NetworkAwareNodeId,
 }
 
 // ===============
@@ -63,27 +62,34 @@ pub struct DeriveVirtualAccountAddressHandler;
 impl Handler<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse>
     for DeriveVirtualAccountAddressHandler
 {
+    type Error = DeriveVirtualAccountAddressError;
+
     fn pre_process(
         request: DeriveVirtualAccountAddressRequest,
-    ) -> Result<DeriveVirtualAccountAddressRequest> {
+    ) -> Result<DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressError> {
         Ok(request)
     }
 
     fn handle(
         request: &DeriveVirtualAccountAddressRequest,
-    ) -> Result<DeriveVirtualAccountAddressResponse> {
+    ) -> Result<DeriveVirtualAccountAddressResponse, DeriveVirtualAccountAddressError> {
         Ok(DeriveVirtualAccountAddressResponse {
-            virtual_account_address: NetworkAwareComponentAddress {
-                network_id: request.network_id,
-                address: ComponentAddress::virtual_account_from_public_key(&request.public_key),
-            },
+            virtual_account_address: NetworkAwareNodeId(
+                ComponentAddress::virtual_account_from_public_key(&request.public_key)
+                    .as_node_id()
+                    .0,
+                request.network_id,
+            ),
         })
     }
 
     fn post_process(
         _: &DeriveVirtualAccountAddressRequest,
         response: DeriveVirtualAccountAddressResponse,
-    ) -> Result<DeriveVirtualAccountAddressResponse> {
+    ) -> Result<DeriveVirtualAccountAddressResponse, DeriveVirtualAccountAddressError> {
         Ok(response)
     }
 }
+
+#[serializable]
+pub struct DeriveVirtualAccountAddressError;

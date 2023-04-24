@@ -15,12 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::{Error, Result};
 use crate::model::transaction::{InstructionKind, TransactionIntent};
 use crate::traits::CompilableIntent;
+use crate::utils::debug_string;
 use native_transaction::model as native;
+use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
+
+use super::TransactionIntentConversionError;
 
 // =================
 // Model Definition
@@ -44,18 +47,20 @@ pub struct SignedTransactionIntent {
 // ===============
 
 impl CompilableIntent for SignedTransactionIntent {
-    fn compile(&self) -> Result<Vec<u8>> {
+    type Error = SignedTransactionIntentConversionError;
+
+    fn compile(&self) -> Result<Vec<u8>, Self::Error> {
         self.to_native_signed_transaction_intent()
-            .and_then(|intent| manifest_encode(&intent).map_err(Error::from))
+            .and_then(|intent| manifest_encode(&intent).map_err(Self::Error::from))
     }
 
-    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
+    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self, Self::Error>
     where
         Self: Sized,
         T: AsRef<[u8]>,
     {
         manifest_decode(data.as_ref())
-            .map_err(Error::from)
+            .map_err(Self::Error::from)
             .and_then(|decoded| {
                 Self::from_native_signed_transaction_intent(&decoded, instructions_kind)
             })
@@ -70,7 +75,7 @@ impl SignedTransactionIntent {
     pub fn from_native_signed_transaction_intent(
         native_signed_transaction_intent: &native::SignedTransactionIntent,
         instructions_kind: InstructionKind,
-    ) -> Result<Self> {
+    ) -> Result<Self, SignedTransactionIntentConversionError> {
         TransactionIntent::from_native_transaction_intent(
             &native_signed_transaction_intent.intent,
             instructions_kind,
@@ -79,14 +84,55 @@ impl SignedTransactionIntent {
             intent: transaction_intent,
             intent_signatures: native_signed_transaction_intent.intent_signatures.clone(),
         })
+        .map_err(SignedTransactionIntentConversionError::from)
     }
 
-    pub fn to_native_signed_transaction_intent(&self) -> Result<native::SignedTransactionIntent> {
+    pub fn to_native_signed_transaction_intent(
+        &self,
+    ) -> Result<native::SignedTransactionIntent, SignedTransactionIntentConversionError> {
         self.intent
             .to_native_transaction_intent()
             .map(|transaction_intent| native::SignedTransactionIntent {
                 intent: transaction_intent,
                 intent_signatures: self.intent_signatures.clone(),
             })
+            .map_err(SignedTransactionIntentConversionError::from)
+    }
+}
+
+/// An error emitted if the conversion between the native and RET representations of the signed
+/// transaction intent fails.
+#[serializable]
+#[serde(tag = "type")]
+pub enum SignedTransactionIntentConversionError {
+    /// Emitted when the decoding of the SBOR payload into a transaction intent fails
+    DecodeError { message: String },
+
+    /// Emitted when the encoding of the SBOR payload into a transaction intent fails
+    EncodeError { message: String },
+
+    /// Emitted when the conversion of the intent fails
+    TransactionIntentConversionError(TransactionIntentConversionError),
+}
+
+impl From<DecodeError> for SignedTransactionIntentConversionError {
+    fn from(value: DecodeError) -> Self {
+        Self::DecodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<EncodeError> for SignedTransactionIntentConversionError {
+    fn from(value: EncodeError) -> Self {
+        Self::EncodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<TransactionIntentConversionError> for SignedTransactionIntentConversionError {
+    fn from(value: TransactionIntentConversionError) -> Self {
+        Self::TransactionIntentConversionError(value)
     }
 }

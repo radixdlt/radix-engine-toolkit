@@ -19,17 +19,17 @@ use std::collections::BTreeSet;
 
 use scrypto::blueprints::account::*;
 
-use crate::error::Result;
-use crate::model::address::NetworkAwareResourceAddress;
+use crate::error::VisitorError;
+use crate::model::address::utils::is_account;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
-use crate::utils::is_account;
 use crate::visitor::InstructionVisitor;
 
 /// A visitor whose main responsibility is analyzing the call-method instructions for proof creation
 #[derive(Debug, Default)]
 pub struct AccountProofsInstructionVisitor {
     /// The resource addresses of the created proofs
-    pub created_proofs: BTreeSet<NetworkAwareResourceAddress>,
+    pub created_proofs: BTreeSet<NetworkAwareNodeId>,
 }
 
 impl InstructionVisitor for AccountProofsInstructionVisitor {
@@ -38,7 +38,7 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
         args: &mut Option<Vec<ManifestAstValue>>,
-    ) -> Result<()> {
+    ) -> Result<(), VisitorError> {
         // Checking for instructions that create proofs from accounts. Since all that is of interest
         // to us is the resource address then only the first argument needs to be analyzed.
         let args = args.clone();
@@ -63,7 +63,7 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
                     || method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT)
                 && resource_address.node_id().is_global_resource() =>
             {
-                self.created_proofs.insert((*resource_address).try_into()?);
+                self.created_proofs.insert(*resource_address);
             }
             _ => {}
         }

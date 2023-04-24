@@ -15,23 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
+use std::fmt::Debug;
+
+use crate::error::InvocationHandlingError;
 
 /// A trait describing request handlers - their main responsibility is handling request
 /// preprocessing, handling, and postprocessing.
 pub trait Handler<I, O> {
+    type Error: Debug + Into<InvocationHandlingError>;
+
     /// Performs request preprocessing - example, validation of requests to ensure that values and
     /// instructions all follow expected format.
-    fn pre_process(request: I) -> Result<I>;
+    fn pre_process(request: I) -> Result<I, Self::Error>;
 
     /// The main request handler describing how to fulfill this request
-    fn handle(request: &I) -> Result<O>;
+    fn handle(request: &I) -> Result<O, Self::Error>;
 
     /// Performs all post processing of requests - example, aliasing values.
-    fn post_process(request: &I, response: O) -> Result<O>;
+    fn post_process(request: &I, response: O) -> Result<O, Self::Error>;
 
     /// Fulfills the request by performing preprocessing, handling, and post processing
-    fn fulfill(request: I) -> Result<O> {
+    fn fulfill(request: I) -> Result<O, Self::Error> {
         // pre-process request
         let request = Self::pre_process(request)?;
 

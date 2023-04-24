@@ -17,8 +17,8 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::Error;
-use crate::model::address::NetworkAwareResourceAddress;
+use crate::error::VisitorError;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::ManifestAstValue;
 use crate::visitor::ManifestAstValueVisitor;
 
@@ -32,32 +32,24 @@ impl ManifestAstValueVisitor for ValueNetworkAggregatorVisitor {
     fn visit_non_fungible_global_id(
         &mut self,
         value: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> crate::error::Result<()> {
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::NonFungibleGlobalId {
-            resource_address: NetworkAwareResourceAddress { network_id, .. },
+            resource_address: NetworkAwareNodeId(_, network_id),
             ..
         } = value
         {
             self.0.insert(*network_id);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected non-fungible global id!".into(),
-            })
         }
+        Ok(())
     }
 
     fn visit_address(
         &mut self,
         value: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> crate::error::Result<()> {
+    ) -> Result<(), VisitorError> {
         if let ManifestAstValue::Address { address } = value {
             self.0.insert(address.1);
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Expected an address".into(),
-            })
         }
+        Ok(())
     }
 }

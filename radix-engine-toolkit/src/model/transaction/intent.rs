@@ -15,16 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
-use crate::error::Error;
-use crate::error::Result;
 use crate::model::address::Bech32Coder;
 use crate::model::transaction::InstructionKind;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
 use crate::traits::CompilableIntent;
+use crate::utils::debug_string;
 use native_transaction::model as native;
+
+use super::TransactionManifestConversionError;
 
 // =================
 // Model Definition
@@ -47,18 +49,20 @@ pub struct TransactionIntent {
 // ===============
 
 impl CompilableIntent for TransactionIntent {
-    fn compile(&self) -> Result<Vec<u8>> {
+    type Error = TransactionIntentConversionError;
+
+    fn compile(&self) -> Result<Vec<u8>, Self::Error> {
         self.to_native_transaction_intent()
-            .and_then(|intent| manifest_encode(&intent).map_err(Error::from))
+            .and_then(|intent| manifest_encode(&intent).map_err(Self::Error::from))
     }
 
-    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self>
+    fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self, Self::Error>
     where
         Self: Sized,
         T: AsRef<[u8]>,
     {
         manifest_decode(data.as_ref())
-            .map_err(Error::from)
+            .map_err(Self::Error::from)
             .and_then(|decoded| Self::from_native_transaction_intent(&decoded, instructions_kind))
     }
 }
@@ -71,7 +75,7 @@ impl TransactionIntent {
     pub fn from_native_transaction_intent(
         native_transaction_intent: &native::TransactionIntent,
         instructions_kind: InstructionKind,
-    ) -> Result<Self> {
+    ) -> Result<Self, TransactionIntentConversionError> {
         let bech32_coder = Bech32Coder::new(native_transaction_intent.header.network_id);
 
         TransactionManifest::from_native_manifest(
@@ -83,9 +87,12 @@ impl TransactionIntent {
             manifest: transaction_manifest,
             header: native_transaction_intent.header.clone().into(),
         })
+        .map_err(TransactionIntentConversionError::from)
     }
 
-    pub fn to_native_transaction_intent(&self) -> Result<native::TransactionIntent> {
+    pub fn to_native_transaction_intent(
+        &self,
+    ) -> Result<native::TransactionIntent, TransactionIntentConversionError> {
         let bech32_coder = Bech32Coder::new(self.header.network_id);
 
         self.manifest
@@ -94,5 +101,43 @@ impl TransactionIntent {
                 manifest: transaction_manifest,
                 header: self.header.clone().into(),
             })
+            .map_err(TransactionIntentConversionError::from)
+    }
+}
+
+/// An error emitted if the conversion between the native and RET representations of the Transaction
+/// Intent fails.
+#[serializable]
+#[serde(tag = "type")]
+pub enum TransactionIntentConversionError {
+    /// Emitted when the decoding of the SBOR payload into a transaction intent fails
+    DecodeError { message: String },
+
+    /// Emitted when the encoding of the SBOR payload into a transaction intent fails
+    EncodeError { message: String },
+
+    /// Emitted when the conversion of manifests fail
+    ManifestConversionError(TransactionManifestConversionError),
+}
+
+impl From<DecodeError> for TransactionIntentConversionError {
+    fn from(value: DecodeError) -> Self {
+        Self::DecodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<EncodeError> for TransactionIntentConversionError {
+    fn from(value: EncodeError) -> Self {
+        Self::EncodeError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<TransactionManifestConversionError> for TransactionIntentConversionError {
+    fn from(value: TransactionManifestConversionError) -> Self {
+        Self::ManifestConversionError(value)
     }
 }

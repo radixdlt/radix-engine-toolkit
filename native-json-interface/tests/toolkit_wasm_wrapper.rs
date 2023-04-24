@@ -24,7 +24,6 @@ use serde::Serialize;
 
 use std::path::{Path, PathBuf};
 
-use radix_engine_toolkit::error::Error;
 use radix_engine_toolkit::request::*;
 
 use wasmtime::{AsContextMut, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
@@ -224,7 +223,9 @@ impl RadixEngineToolkit {
         let response: Result<D> = if let Ok(response) = Self::deserialize::<D, _>(&response_string)
         {
             Ok(response)
-        } else if let Ok(response) = Self::deserialize::<Error, _>(&response_string) {
+        } else if let Ok(response) =
+            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&response_string)
+        {
             Err(WrapperError::LibraryError(response))
         } else {
             return Err(WrapperError::DeserializationError);
@@ -288,11 +289,7 @@ impl RadixEngineToolkit {
     /// succeeded.
     fn deserialize<D: DeserializeOwned, S: AsRef<str>>(string: S) -> Result<D> {
         let str: &str = string.as_ref();
-        serde_json::from_str(str).map_err(|error| {
-            WrapperError::RadixEngineToolkitError(Error::InvalidRequestString {
-                message: format!("{:?}", error),
-            })
-        })
+        serde_json::from_str(str).map_err(|_| WrapperError::DeserializationError)
     }
 
     /// Writes a string to the WASM's linear memory.
@@ -469,9 +466,6 @@ pub enum WrapperError {
     /// An error emitted by the WasmTime runtime.
     WasmTimeError(anyhow::Error),
 
-    /// An error emitted when a Radix Engine Toolkit operation fails
-    RadixEngineToolkitError(Error),
-
     /// An error emitted when trying to access the linear memory of a WASM instance.
     MemoryAccessError(wasmtime::MemoryAccessError),
 
@@ -491,7 +485,7 @@ pub enum WrapperError {
     DeserializationError,
 
     /// An error emitted during runtime in response to a request
-    LibraryError(Error),
+    LibraryError(radix_engine_toolkit::error::RETError),
 }
 
 impl From<std::ffi::NulError> for WrapperError {

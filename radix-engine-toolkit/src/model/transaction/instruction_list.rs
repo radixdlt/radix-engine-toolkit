@@ -15,10 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
 use crate::model::address::Bech32Coder;
 use crate::model::instruction::Instruction;
-use native_transaction::manifest::{ast, decompile};
+use crate::model::value::ast::ManifestAstValueConversionError;
+use crate::utils::debug_string;
+use native_transaction::manifest::generator::{self, GeneratorError};
+use native_transaction::manifest::lexer::{self, LexerError};
+use native_transaction::manifest::parser::{Parser, ParserError};
+use native_transaction::manifest::{ast, decompile, DecompileError};
 use native_transaction::model as transaction;
 use scrypto::prelude::hash;
 use toolkit_derive::serializable;
@@ -60,21 +64,21 @@ impl InstructionList {
         }
     }
 
-    pub fn ast_instructions(&self, bech32_coder: &Bech32Coder) -> Result<Vec<ast::Instruction>> {
+    pub fn ast_instructions(
+        &self,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<Vec<ast::Instruction>, InstructionListConversionError> {
         match self {
             Self::String(string) => {
-                let tokens = native_transaction::manifest::lexer::tokenize(string)
-                    .map_err(native_transaction::manifest::CompileError::LexerError)?;
-
-                let instructions = native_transaction::manifest::parser::Parser::new(tokens)
-                    .parse_manifest()
-                    .map_err(native_transaction::manifest::CompileError::ParserError)?;
+                let tokens = lexer::tokenize(string)?;
+                let instructions = Parser::new(tokens).parse_manifest()?;
                 Ok(instructions)
             }
             Self::Parsed(instructions) => instructions
                 .iter()
                 .map(|instruction| instruction.to_ast_instruction(bech32_coder))
-                .collect::<Result<Vec<_>>>(),
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(InstructionListConversionError::from),
         }
     }
 
@@ -84,9 +88,9 @@ impl InstructionList {
         // TODO: This is a work around for a larger issue. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Vec<transaction::Instruction>> {
+    ) -> Result<Vec<transaction::Instruction>, InstructionListConversionError> {
         let instructions = self.ast_instructions(bech32_coder)?;
-        let instructions = native_transaction::manifest::generator::generate_manifest(
+        let instructions = generator::generate_manifest(
             &instructions,
             bech32_coder.decoder(),
             blobs.iter().map(|x| (hash(x), x.clone())).collect(),
@@ -101,7 +105,7 @@ impl InstructionList {
         // TODO: This is a work around for a larger issue. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Self> {
+    ) -> Result<Self, InstructionListConversionError> {
         match self {
             Self::String(_) => Ok(self.clone()),
             Self::Parsed(_) => {
@@ -149,10 +153,9 @@ impl InstructionList {
                 let instructions = self.basic_instructions(bech32_coder, blobs)?;
 
                 // Vec<transaction::Instruction> --> String Conversion (based on above comment)
-                Ok(Self::String(decompile(
-                    &instructions,
-                    bech32_coder.network_definition(),
-                )?))
+                decompile(&instructions, bech32_coder.network_definition())
+                    .map_err(InstructionListConversionError::from)
+                    .map(Self::String)
             }
         }
     }
@@ -161,7 +164,7 @@ impl InstructionList {
         &self,
         bech32_coder: &Bech32Coder,
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Self> {
+    ) -> Result<Self, InstructionListConversionError> {
         match self {
             Self::Parsed(_) => Ok(self.clone()),
             Self::String(_) => {
@@ -181,18 +184,19 @@ impl InstructionList {
                 let instructions = ast_instruction
                     .iter()
                     .map(|instruction| Instruction::from_ast_instruction(instruction, bech32_coder))
-                    .collect::<Result<Vec<_>>>()
-                    .map(Self::Parsed);
+                    .collect::<Result<Vec<_>, _>>()
+                    .map(Self::Parsed)?;
 
                 // TODO: Remove this validation step in favor of something better.
                 // This step validates that the instruction format is correct by attempting to
                 // compile the instructions
-                match instructions
-                    .clone()
-                    .map(|instructions| instructions.convert_to_string(bech32_coder, blobs))
                 {
-                    Ok(..) => instructions,
-                    Err(error) => Err(error),
+                    if let Err(error) = instructions.clone().convert_to_string(bech32_coder, blobs)
+                    {
+                        Err(error)
+                    } else {
+                        Ok(instructions)
+                    }
                 }
             }
         }
@@ -203,12 +207,78 @@ impl InstructionList {
         manifest_instructions_kind: InstructionKind,
         bech32_coder: &Bech32Coder,
         // TODO: This is a work around for a larger problem. Should definitely be removed in the
-        // future. The problem is described in the long comment below.
+        // future. The problem is described in the long comment above.
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Self> {
+    ) -> Result<Self, InstructionListConversionError> {
         match manifest_instructions_kind {
             InstructionKind::String => self.convert_to_string(bech32_coder, blobs),
             InstructionKind::Parsed => self.convert_to_parsed(bech32_coder, blobs),
         }
+    }
+}
+
+/// An error emitted if the conversion between the native and RET representations of the Instruction
+/// list fails.
+#[serializable]
+#[serde(tag = "type")]
+pub enum InstructionListConversionError {
+    InstructionConversionError(ManifestAstValueConversionError),
+
+    /// An error emitted when lexing a string manifest fails
+    ScryptoLexerError {
+        message: String,
+    },
+
+    /// An error emitted when parsing a string manifest fails
+    ScryptoParserError {
+        message: String,
+    },
+
+    /// An error emitted when generating values from a manifest fails
+    ScryptoGeneratorError {
+        message: String,
+    },
+
+    /// An error emitted when the decompilation of manifests fail
+    ScryptoDecompileError {
+        message: String,
+    },
+}
+
+impl From<LexerError> for InstructionListConversionError {
+    fn from(value: LexerError) -> Self {
+        Self::ScryptoLexerError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<ParserError> for InstructionListConversionError {
+    fn from(value: ParserError) -> Self {
+        Self::ScryptoParserError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<GeneratorError> for InstructionListConversionError {
+    fn from(value: GeneratorError) -> Self {
+        Self::ScryptoGeneratorError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<DecompileError> for InstructionListConversionError {
+    fn from(value: DecompileError) -> Self {
+        Self::ScryptoDecompileError {
+            message: debug_string(value),
+        }
+    }
+}
+
+impl From<ManifestAstValueConversionError> for InstructionListConversionError {
+    fn from(value: ManifestAstValueConversionError) -> Self {
+        Self::InstructionConversionError(value)
     }
 }

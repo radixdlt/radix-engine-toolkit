@@ -16,7 +16,9 @@
 // under the License.
 
 pub mod bridge;
+pub mod error;
 pub mod model;
 
 pub use bridge::*;
+pub use error::*;
 pub use model::*;

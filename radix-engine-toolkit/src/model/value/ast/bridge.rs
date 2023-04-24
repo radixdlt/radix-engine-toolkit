@@ -15,14 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::model::*;
-use crate::error::{Error, Result};
+use super::{model::*, ManifestAstValueConversionError};
 use crate::model::address::*;
-use crate::model::engine_identifier::{NetworkAwareNodeId, TransientIdentifier};
 
 use native_transaction::manifest::ast;
-use native_transaction::manifest::generator::GeneratorError;
-use scrypto::prelude::ResourceAddress;
 use scrypto::prelude::{
     ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind, NodeId,
 };
@@ -210,7 +206,10 @@ impl From<ManifestAstValueKind> for ManifestValueKind {
 }
 
 impl ManifestAstValue {
-    pub fn to_ast_value(&self, bech32_coder: &Bech32Coder) -> Result<ast::Value> {
+    pub fn to_ast_value(
+        &self,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<ast::Value, ManifestAstValueConversionError> {
         let value = match self {
             ManifestAstValue::Bool { value } => ast::Value::Bool(*value),
 
@@ -235,7 +234,7 @@ impl ManifestAstValue {
                     .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
             ManifestAstValue::Some { value } => {
                 ast::Value::Some(Box::new(value.to_ast_value(bech32_coder)?))
@@ -256,7 +255,7 @@ impl ManifestAstValue {
                 elements
                     .iter()
                     .map(|id| id.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
             ManifestAstValue::Map {
                 key_value_kind,
@@ -269,13 +268,13 @@ impl ManifestAstValue {
                     .iter()
                     .flat_map(|(x, y)| [x, y])
                     .map(|value| value.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
             ManifestAstValue::Tuple { elements } => ast::Value::Tuple(
                 elements
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>>>()?,
+                    .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
 
             ManifestAstValue::Decimal { value } => {
@@ -312,12 +311,12 @@ impl ManifestAstValue {
                 ast::Value::NonFungibleLocalId(Box::new(ast::Value::String(value.to_string())))
             }
             ManifestAstValue::NonFungibleGlobalId {
-                resource_address: NetworkAwareResourceAddress { address, .. },
+                resource_address,
                 non_fungible_local_id,
             } => {
                 let nf_global_id_string = format!(
                     "{}:{}",
-                    bech32_coder.encode(*address.as_node_id())?,
+                    bech32_coder.encode(resource_address.node_id())?,
                     non_fungible_local_id
                 );
                 ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
@@ -341,7 +340,10 @@ impl ManifestAstValue {
 
     /// Converts Scrypto's tx compiler's [`ast::Value`] to a [`Value`] given a bech32 coder as
     /// context.
-    pub fn from_ast_value(value: &ast::Value, bech32_coder: &Bech32Coder) -> Result<Self> {
+    pub fn from_ast_value(
+        value: &ast::Value,
+        bech32_coder: &Bech32Coder,
+    ) -> Result<Self, ManifestAstValueConversionError> {
         let parsing = ManifestAstValueKind::from(value.value_kind());
         let value = match value {
             ast::Value::Bool(value) => Self::Bool { value: *value },
@@ -374,7 +376,7 @@ impl ManifestAstValue {
                             fields
                                 .iter()
                                 .map(|value| Self::from_ast_value(value, bech32_coder))
-                                .collect::<Result<Vec<ManifestAstValue>>>()?,
+                                .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
                         )
                     }
                 },
@@ -397,7 +399,7 @@ impl ManifestAstValue {
                 entries: {
                     // Ensure that we have enough elements for the window operation
                     if entries.len() % 2 != 0 {
-                        Err(Error::from(GeneratorError::OddNumberOfElements))
+                        Err(ManifestAstValueConversionError::MapHasOddNumberOfElements)
                     } else {
                         let mut entries_vec = Vec::new();
                         for chunk in entries.chunks(2) {
@@ -415,25 +417,25 @@ impl ManifestAstValue {
                 elements: elements
                     .iter()
                     .map(|value| Self::from_ast_value(value, bech32_coder))
-                    .collect::<Result<Vec<ManifestAstValue>>>()?,
+                    .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
             },
             ast::Value::Tuple(elements) => Self::Tuple {
                 elements: elements
                     .iter()
                     .map(|value| Self::from_ast_value(value, bech32_coder))
-                    .collect::<Result<Vec<ManifestAstValue>>>()?,
+                    .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
             },
             ast::Value::Decimal(value) => map_if_value_string(parsing, value, |string| {
                 string
                     .parse()
                     .map(|value| Self::Decimal { value })
-                    .map_err(Error::from)
+                    .map_err(ManifestAstValueConversionError::from)
             })?,
             ast::Value::PreciseDecimal(value) => map_if_value_string(parsing, value, |string| {
                 string
                     .parse()
                     .map(|value| Self::PreciseDecimal { value })
-                    .map_err(Error::from)
+                    .map_err(ManifestAstValueConversionError::from)
             })?,
             ast::Value::Address(address) => {
                 map_if_value_string(parsing, address, |address_string| {
@@ -442,6 +444,7 @@ impl ManifestAstValue {
                         .map(|node_id| ManifestAstValue::Address {
                             address: NetworkAwareNodeId(node_id.0, bech32_coder.network_id()),
                         })
+                        .map_err(ManifestAstValueConversionError::from)
                 })?
             }
 
@@ -458,10 +461,10 @@ impl ManifestAstValue {
                         .into(),
                     }
                 } else {
-                    Err(Error::UnexpectedAstContents {
+                    Err(ManifestAstValueConversionError::UnexpectedContents {
                         parsing: ManifestAstValueKind::Bucket,
                         expected: vec![ManifestAstValueKind::U32, ManifestAstValueKind::String],
-                        found: value.value_kind().into(),
+                        actual: value.value_kind().into(),
                     })?
                 }
             }
@@ -478,10 +481,10 @@ impl ManifestAstValue {
                         .into(),
                     }
                 } else {
-                    Err(Error::UnexpectedAstContents {
+                    Err(ManifestAstValueConversionError::UnexpectedContents {
                         parsing: ManifestAstValueKind::Proof,
                         expected: vec![ManifestAstValueKind::U32, ManifestAstValueKind::String],
-                        found: value.value_kind().into(),
+                        actual: value.value_kind().into(),
                     })?
                 }
             }
@@ -489,10 +492,10 @@ impl ManifestAstValue {
             ast::Value::NonFungibleLocalId(value) => Self::NonFungibleLocalId {
                 value: match &**value {
                     ast::Value::String(value) => value.parse()?,
-                    _ => Err(Error::UnexpectedAstContents {
+                    _ => Err(ManifestAstValueConversionError::UnexpectedContents {
                         parsing: ManifestAstValueKind::NonFungibleLocalId,
                         expected: vec![ManifestAstValueKind::String],
-                        found: value.value_kind().into(),
+                        actual: value.value_kind().into(),
                     })?,
                 },
             },
@@ -504,17 +507,17 @@ impl ManifestAstValue {
                             string,
                         )?;
                     Self::NonFungibleGlobalId {
-                        resource_address: NetworkAwareResourceAddress {
-                            network_id: bech32_coder.network_id(),
-                            address: native_global_id.resource_address(),
-                        },
+                        resource_address: NetworkAwareNodeId(
+                            native_global_id.resource_address().as_node_id().0,
+                            bech32_coder.network_id(),
+                        ),
                         non_fungible_local_id: native_global_id.local_id().clone(),
                     }
                 }
-                _ => Err(Error::UnexpectedAstContents {
+                _ => Err(ManifestAstValueConversionError::UnexpectedContents {
                     parsing: ManifestAstValueKind::NonFungibleGlobalId,
                     expected: vec![ManifestAstValueKind::String],
-                    found: value.value_kind().into(),
+                    actual: value.value_kind().into(),
                 })?,
             },
 
@@ -524,7 +527,7 @@ impl ManifestAstValue {
                     .map(|manifest_blob| Self::Blob {
                         hash: manifest_blob,
                     })
-                    .map_err(Error::from)
+                    .map_err(ManifestAstValueConversionError::from)
             })?,
             ast::Value::Expression(value) => map_if_value_string(
                 parsing,
@@ -536,9 +539,9 @@ impl ManifestAstValue {
                     "ENTIRE_AUTH_ZONE" => Ok(Self::Expression {
                         value: ManifestExpression::EntireAuthZone,
                     }),
-                    string => Err(Error::InvalidExpressionString {
-                        found: string.to_owned(),
-                        excepted: vec![
+                    string => Err(ManifestAstValueConversionError::InvalidExpressionString {
+                        actual: string.to_owned(),
+                        expected: vec![
                             String::from("ENTIRE_WORKTOP"),
                             String::from("ENTIRE_AUTH_ZONE"),
                         ],
@@ -548,7 +551,7 @@ impl ManifestAstValue {
 
             ast::Value::Bytes(value) => map_if_value_string(parsing, value, |string| {
                 hex::decode(string)
-                    .map_err(Error::from)
+                    .map_err(ManifestAstValueConversionError::from)
                     .map(|value| Self::Bytes { value })
             })?,
         };
@@ -560,51 +563,46 @@ fn map_if_value_string<F>(
     parsing: ManifestAstValueKind,
     value: &ast::Value,
     map: F,
-) -> Result<ManifestAstValue>
+) -> Result<ManifestAstValue, ManifestAstValueConversionError>
 where
-    F: FnOnce(&str) -> Result<ManifestAstValue>,
+    F: FnOnce(&str) -> Result<ManifestAstValue, ManifestAstValueConversionError>,
 {
     if let ast::Value::String(value) = value {
         map(value)
     } else {
-        Err(Error::UnexpectedAstContents {
+        Err(ManifestAstValueConversionError::UnexpectedContents {
             parsing,
             expected: vec![ManifestAstValueKind::String],
-            found: value.value_kind().into(),
+            actual: value.value_kind().into(),
         })
     }
 }
 
-impl TryFrom<NetworkAwareResourceAddress> for ManifestAstValue {
-    type Error = Error;
+impl TryFrom<NetworkAwareNodeId> for ManifestAstValue {
+    type Error = ManifestAstValueConversionError;
 
-    fn try_from(address: NetworkAwareResourceAddress) -> std::result::Result<Self, Self::Error> {
-        Ok(Self::Address {
-            address: address.network_aware_node_id(),
-        })
+    fn try_from(address: NetworkAwareNodeId) -> std::result::Result<Self, Self::Error> {
+        Ok(Self::Address { address })
     }
 }
 
-impl TryFrom<ManifestAstValue> for NetworkAwareResourceAddress {
-    type Error = Error;
+impl TryFrom<ManifestAstValue> for NetworkAwareNodeId {
+    type Error = ManifestAstValueConversionError;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
         if let ManifestAstValue::Address { address } = value {
-            Ok(NetworkAwareResourceAddress {
-                network_id: address.1,
-                address: ResourceAddress::new_unchecked(address.0),
-            })
+            Ok(address)
         } else {
-            Err(Error::InvalidKind {
+            Err(ManifestAstValueConversionError::InvalidKind {
                 expected: vec![ManifestAstValueKind::Address],
-                found: value.kind(),
+                actual: value.kind(),
             })
         }
     }
 }
 
 impl TryFrom<scrypto::prelude::NonFungibleLocalId> for ManifestAstValue {
-    type Error = Error;
+    type Error = ManifestAstValueConversionError;
 
     fn try_from(
         value: scrypto::prelude::NonFungibleLocalId,
@@ -614,15 +612,15 @@ impl TryFrom<scrypto::prelude::NonFungibleLocalId> for ManifestAstValue {
 }
 
 impl TryFrom<ManifestAstValue> for scrypto::prelude::NonFungibleLocalId {
-    type Error = Error;
+    type Error = ManifestAstValueConversionError;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
         if let ManifestAstValue::NonFungibleLocalId { value } = value {
             Ok(value)
         } else {
-            Err(Error::InvalidKind {
+            Err(ManifestAstValueConversionError::InvalidKind {
                 expected: vec![ManifestAstValueKind::NonFungibleLocalId],
-                found: value.kind(),
+                actual: value.kind(),
             })
         }
     }

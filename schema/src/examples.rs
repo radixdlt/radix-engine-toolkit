@@ -390,7 +390,9 @@ impl ExampleData<DecodeAddressRequest, DecodeAddressResponse> for DecodeAddressH
 
     fn example_request() -> DecodeAddressRequest {
         DecodeAddressRequest {
-            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00".into(),
+            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+                .parse()
+                .unwrap(),
         }
     }
 }

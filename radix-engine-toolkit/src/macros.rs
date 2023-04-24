@@ -15,8 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod node_identifier;
-pub mod transient_identifier;
+#[macro_export]
+macro_rules! impl_from_parse_error {
+    ($container_error: ty, $error_type: ty => $kind: ident) => {
+        impl From<$error_type> for $container_error {
+            fn from(error: $error_type) -> Self {
+                Self::ParseError {
+                    parsing: stringify!($kind).to_owned(),
+                    message: format!("{:?}", error),
+                }
+            }
+        }
+    };
+}
 
-pub use node_identifier::*;
-pub use transient_identifier::*;
+#[macro_export]
+macro_rules! impl_display_as_debug {
+    ($type: ty) => {
+        impl std::fmt::Display for $type {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Debug::fmt(self, f)
+            }
+        }
+    };
+}

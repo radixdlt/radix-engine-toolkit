@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Result;
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::request::traits::Handler;
 use crate::utils::checked_copy_u8_slice;
 
+use scrypto::prelude::NodeId;
 use toolkit_derive::serializable;
 
 // =================
@@ -64,20 +64,39 @@ pub struct EncodeAddressResponse {
 pub struct EncodeAddressHandler;
 
 impl Handler<EncodeAddressRequest, EncodeAddressResponse> for EncodeAddressHandler {
-    fn pre_process(request: EncodeAddressRequest) -> crate::error::Result<EncodeAddressRequest> {
+    type Error = EncodeAddressError;
+
+    fn pre_process(
+        request: EncodeAddressRequest,
+    ) -> Result<EncodeAddressRequest, EncodeAddressError> {
         Ok(request)
     }
 
-    fn handle(request: &EncodeAddressRequest) -> crate::error::Result<EncodeAddressResponse> {
-        checked_copy_u8_slice(&request.address_bytes).map(|address| EncodeAddressResponse {
-            address: NetworkAwareNodeId(address, request.network_id),
-        })
+    fn handle(request: &EncodeAddressRequest) -> Result<EncodeAddressResponse, EncodeAddressError> {
+        checked_copy_u8_slice(&request.address_bytes).map_or(
+            Err(EncodeAddressError::InvalidLength {
+                expected: NodeId::LENGTH,
+                actual: request.address_bytes.len(),
+            }),
+            |address| {
+                Ok(EncodeAddressResponse {
+                    address: NetworkAwareNodeId(address, request.network_id),
+                })
+            },
+        )
     }
 
     fn post_process(
         _: &EncodeAddressRequest,
         response: EncodeAddressResponse,
-    ) -> Result<EncodeAddressResponse> {
+    ) -> Result<EncodeAddressResponse, EncodeAddressError> {
         Ok(response)
     }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum EncodeAddressError {
+    /// An error emitted when the length of the passed data is invalid
+    InvalidLength { expected: usize, actual: usize },
 }

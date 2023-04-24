@@ -50,7 +50,7 @@ pub fn deriving_babylon_address_from_olympia_address_succeeds_and_produces_expec
 
     // Assert
     assert_eq!(expected_public_key, public_key);
-    assert_eq!(expected_nebunet_address, account_address.address);
+    assert_eq!(expected_nebunet_address.as_node_id().0, account_address.0);
 }
 
 #[test]

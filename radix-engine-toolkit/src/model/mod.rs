@@ -18,7 +18,6 @@
 pub mod address;
 pub mod constants;
 pub mod crypto;
-pub mod engine_identifier;
 pub mod instruction;
 pub mod resource_specifier;
 pub mod runtime;

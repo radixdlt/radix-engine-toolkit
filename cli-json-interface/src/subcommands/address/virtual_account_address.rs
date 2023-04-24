@@ -18,6 +18,7 @@
 use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 use clap::Parser;
+use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
 use radix_engine_toolkit::request::{
     DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest, Handler,
 };
@@ -40,11 +41,12 @@ impl VirtualAccountAddress {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         let public_key_bytes = hex::decode(&self.public_key)?;
         let public_key = match public_key_bytes.len() {
-            EcdsaSecp256k1PublicKey::LENGTH => {
-                Ok(EcdsaSecp256k1PublicKey(checked_copy_u8_slice(&public_key_bytes)?).into())
-            }
+            EcdsaSecp256k1PublicKey::LENGTH => Ok(EcdsaSecp256k1PublicKey(
+                checked_copy_u8_slice(&public_key_bytes).unwrap(),
+            )
+            .into()),
             EddsaEd25519PublicKey::LENGTH => {
-                Ok(EddsaEd25519PublicKey(checked_copy_u8_slice(&public_key_bytes)?).into())
+                Ok(EddsaEd25519PublicKey(checked_copy_u8_slice(&public_key_bytes).unwrap()).into())
             }
             _ => Err(Error::InvalidPublicKey),
         }?;
@@ -53,7 +55,11 @@ impl VirtualAccountAddress {
             public_key,
             network_id: self.network_id,
         };
-        let response = DeriveVirtualAccountAddressHandler::fulfill(request)?;
+        let response = DeriveVirtualAccountAddressHandler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(
+                InvocationHandlingError::DeriveVirtualAccountAddressError(error),
+            )
+        })?;
         pretty_print(&response, out)
     }
 }

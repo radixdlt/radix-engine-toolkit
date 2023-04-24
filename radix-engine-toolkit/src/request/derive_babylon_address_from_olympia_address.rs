@@ -20,9 +20,8 @@ use radix_engine_common::crypto::EcdsaSecp256k1PublicKey;
 use scrypto::prelude::{ComponentAddress, PublicKey};
 use toolkit_derive::serializable;
 
-use crate::error::{Error, Result};
-use crate::model::address::NetworkAwareComponentAddress;
-use crate::utils::checked_copy_u8_slice;
+use crate::model::address::NetworkAwareNodeId;
+use crate::utils::{checked_copy_u8_slice, debug_string};
 
 use super::traits::Handler;
 
@@ -53,7 +52,7 @@ pub struct DeriveBabylonAddressFromOlympiaAddressResponse {
     /// The Babylon account address associated with the Olympia address.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub babylon_account_address: NetworkAwareComponentAddress,
+    pub babylon_account_address: NetworkAwareNodeId,
 
     /// The public key associated with the Olympia account address.
     #[schemars(with = "crate::model::crypto::PublicKey")]
@@ -73,15 +72,23 @@ impl
         DeriveBabylonAddressFromOlympiaAddressResponse,
     > for DeriveBabylonAddressFromOlympiaAddressHandler
 {
+    type Error = DeriveBabylonAddressFromOlympiaAddressError;
+
     fn pre_process(
         request: DeriveBabylonAddressFromOlympiaAddressRequest,
-    ) -> Result<DeriveBabylonAddressFromOlympiaAddressRequest> {
+    ) -> Result<
+        DeriveBabylonAddressFromOlympiaAddressRequest,
+        DeriveBabylonAddressFromOlympiaAddressError,
+    > {
         Ok(request)
     }
 
     fn handle(
         request: &DeriveBabylonAddressFromOlympiaAddressRequest,
-    ) -> Result<DeriveBabylonAddressFromOlympiaAddressResponse> {
+    ) -> Result<
+        DeriveBabylonAddressFromOlympiaAddressResponse,
+        DeriveBabylonAddressFromOlympiaAddressError,
+    > {
         // All Olympia addresses begin with a letter and then `d` `x`. Verify that the passed string
         // is of an Olympia account address
         if let (Some('d'), Some('x')) = (
@@ -90,49 +97,45 @@ impl
         ) {
             Ok(())
         } else {
-            Err(Error::NotAnOlympiaAddress {
-                address: request.olympia_account_address.clone(),
-            })
+            Err(Self::Error::InvalidOlympiaAddress(
+                request.olympia_account_address.clone(),
+            ))
         }?;
 
         // Bech32 decode the passed address. If the Bech32 variant is not Bech32, then this is not
         // an Olympia address
-        let (_, data, variant) =
-            bech32::decode(&request.olympia_account_address).map_err(|error| {
-                Error::AddressError {
-                    message: format!("{:?}", error),
-                }
-            })?;
+        let (_, data, variant) = bech32::decode(&request.olympia_account_address)?;
         if let bech32::Variant::Bech32 = variant {
             Ok(())
         } else {
-            Err(Error::NotAnOlympiaAddress {
-                address: request.olympia_account_address.clone(),
-            })
+            Err(Self::Error::InvalidBech32Variant)
         }?;
 
         // Convert from 5 bits to 8 bits.
-        let mut data = Vec::<u8>::from_base32(&data).map_err(|error| Error::AddressError {
-            message: format!("{:?}", error),
-        })?;
+        let mut data = Vec::<u8>::from_base32(&data)?;
 
         // Check the length of the data to ensure that it's a public key. Length should be 1 + 33
         // where the added 1 byte is because of the 0x04 prefix that public keys have.
         if data.len() != 34 || data.remove(0) != 4 {
-            Err(Error::NotAnOlympiaAddress {
-                address: request.olympia_account_address.clone(),
-            })?;
+            Err(Self::Error::InvalidOlympiaAddress(
+                request.olympia_account_address.clone(),
+            ))?;
         };
 
         // At this point, the data is of a valid Ecdsa Secp256k1 public key. We can now derive the
         // virtual account address associated with this public key.
-        let public_key = EcdsaSecp256k1PublicKey(checked_copy_u8_slice(data)?);
+        let public_key = EcdsaSecp256k1PublicKey(
+            checked_copy_u8_slice(data)
+                .expect("Impossible case. We have checked address length already"),
+        );
 
         Ok(DeriveBabylonAddressFromOlympiaAddressResponse {
-            babylon_account_address: NetworkAwareComponentAddress {
-                address: ComponentAddress::virtual_account_from_public_key(&public_key),
-                network_id: request.network_id,
-            },
+            babylon_account_address: NetworkAwareNodeId(
+                ComponentAddress::virtual_account_from_public_key(&public_key)
+                    .as_node_id()
+                    .0,
+                request.network_id,
+            ),
             public_key: public_key.into(),
         })
     }
@@ -140,7 +143,33 @@ impl
     fn post_process(
         _: &DeriveBabylonAddressFromOlympiaAddressRequest,
         response: DeriveBabylonAddressFromOlympiaAddressResponse,
-    ) -> Result<DeriveBabylonAddressFromOlympiaAddressResponse> {
+    ) -> Result<
+        DeriveBabylonAddressFromOlympiaAddressResponse,
+        DeriveBabylonAddressFromOlympiaAddressError,
+    > {
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DeriveBabylonAddressFromOlympiaAddressError {
+    /// An error emitted when the passed Olympia address could not be verified to be an Olympia
+    /// address.
+    InvalidOlympiaAddress(String),
+
+    /// An error emitted when a Bech32 operation fails.
+    Bech32Error { message: String },
+
+    /// An error emitted when an unexpected Bech32 variant is encountered. In this case, it means
+    /// that we expected Bech32 but encountered Bech32m
+    InvalidBech32Variant,
+}
+
+impl From<bech32::Error> for DeriveBabylonAddressFromOlympiaAddressError {
+    fn from(value: bech32::Error) -> Self {
+        Self::Bech32Error {
+            message: debug_string(value),
+        }
     }
 }

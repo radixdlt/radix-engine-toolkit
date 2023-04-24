@@ -15,9 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::model::*;
-use crate::error::Result;
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use super::{model::*, ScryptoSborValueConversionError};
+use crate::model::address::NetworkAwareNodeId;
 
 use scrypto::prelude::{
     NodeId, Own, ScryptoCustomValue, ScryptoCustomValueKind, ScryptoValue, ScryptoValueKind,
@@ -106,7 +105,7 @@ impl From<ScryptoSborValueKind> for ScryptoValueKind {
 }
 
 impl ScryptoSborValue {
-    pub fn to_scrypto_sbor_value(&self) -> Result<ScryptoValue> {
+    pub fn to_scrypto_sbor_value(&self) -> Result<ScryptoValue, ScryptoSborValueConversionError> {
         let value = match self {
             Self::Bool { value } => ScryptoValue::Bool { value: *value },
 
@@ -132,7 +131,7 @@ impl ScryptoSborValue {
                     .unwrap_or_default()
                     .into_iter()
                     .map(|value| value.to_scrypto_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::Map {
                 key_value_kind,
@@ -159,14 +158,14 @@ impl ScryptoSborValue {
                     .clone()
                     .into_iter()
                     .map(|value| value.to_scrypto_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::Tuple { elements } => ScryptoValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
                     .map(|value| value.to_scrypto_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, _>>()?,
             },
 
             Self::Decimal { value } => ScryptoValue::Custom {

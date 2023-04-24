@@ -17,10 +17,13 @@
 
 pub mod coder;
 pub mod entity_type;
-pub mod network_aware_address;
+pub mod error;
+pub mod node_identifier;
 pub mod non_fungible_local_id;
+pub mod utils;
 
 pub use coder::*;
 pub use entity_type::*;
-pub use network_aware_address::*;
+pub use error::*;
+pub use node_identifier::*;
 pub use non_fungible_local_id::*;

@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::model::*;
-use crate::error::Result;
+use super::{model::*, ManifestSborValueConversionError};
 
-use crate::model::engine_identifier::NetworkAwareNodeId;
+use crate::model::address::NetworkAwareNodeId;
 use crate::utils::checked_copy_u8_slice;
 
 use scrypto::prelude::{
@@ -136,7 +135,9 @@ impl From<ManifestSborValueKind> for ManifestValueKind {
 }
 
 impl ManifestSborValue {
-    pub fn to_manifest_sbor_value(&self) -> Result<ManifestValue> {
+    pub fn to_manifest_sbor_value(
+        &self,
+    ) -> Result<ManifestValue, ManifestSborValueConversionError> {
         let value = match self {
             Self::Bool { value } => ManifestValue::Bool { value: *value },
 
@@ -162,7 +163,7 @@ impl ManifestSborValue {
                     .unwrap_or_default()
                     .into_iter()
                     .map(|value| value.to_manifest_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             Self::Map {
                 key_value_kind,
@@ -191,14 +192,14 @@ impl ManifestSborValue {
                     .clone()
                     .into_iter()
                     .map(|value| value.to_manifest_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             Self::Tuple { elements } => ManifestValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
                     .map(|value| value.to_manifest_sbor_value())
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
 
             Self::Address { address } => ManifestValue::Custom {
@@ -206,13 +207,25 @@ impl ManifestSborValue {
             },
 
             Self::Decimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Decimal(ManifestDecimal(checked_copy_u8_slice(
-                    value.to_vec(),
-                )?)),
+                value: ManifestCustomValue::Decimal(ManifestDecimal(
+                    checked_copy_u8_slice(value.to_vec()).map_or(
+                        Err(ManifestSborValueConversionError::InvalidLength {
+                            expected: 32,
+                            actual: value.to_vec().len(),
+                        }),
+                        Ok,
+                    )?,
+                )),
             },
             Self::PreciseDecimal { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::PreciseDecimal(ManifestPreciseDecimal(
-                    checked_copy_u8_slice(value.to_vec())?,
+                    checked_copy_u8_slice(value.to_vec()).map_or(
+                        Err(ManifestSborValueConversionError::InvalidLength {
+                            expected: 64,
+                            actual: value.to_vec().len(),
+                        }),
+                        Ok,
+                    )?,
                 )),
             },
 
@@ -248,7 +261,10 @@ impl ManifestSborValue {
         Ok(value)
     }
 
-    pub fn from_manifest_sbor_value(scrypto_value: &ManifestValue, network_id: u8) -> Result<Self> {
+    pub fn from_manifest_sbor_value(
+        scrypto_value: &ManifestValue,
+        network_id: u8,
+    ) -> Result<Self, ManifestSborValueConversionError> {
         let value = match scrypto_value {
             ManifestValue::Bool { value } => Self::Bool { value: *value },
 
@@ -281,7 +297,7 @@ impl ManifestSborValue {
                             .clone()
                             .into_iter()
                             .map(|value| Self::from_manifest_sbor_value(&value, network_id))
-                            .collect::<Result<Vec<_>>>()?,
+                            .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
                     )
                 },
             },
@@ -312,14 +328,14 @@ impl ManifestSborValue {
                     .clone()
                     .into_iter()
                     .map(|value| Self::from_manifest_sbor_value(&value, network_id))
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             ManifestValue::Tuple { fields } => Self::Tuple {
                 elements: fields
                     .clone()
                     .into_iter()
                     .map(|value| Self::from_manifest_sbor_value(&value, network_id))
-                    .collect::<Result<Vec<_>>>()?,
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
 
             ManifestValue::Custom {

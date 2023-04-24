@@ -17,11 +17,11 @@
 
 use std::collections::BTreeSet;
 
-use crate::error::{Error, Result};
-use crate::model::address::NetworkAwarePackageAddress;
-use crate::model::address::{NetworkAwareComponentAddress, NetworkAwareResourceAddress};
+use crate::error::VisitorError;
+use crate::model::address::NetworkAwareNodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
+use crate::utils::debug_string;
 use crate::visitor::{
     traverse_instruction, AccountDeposit, AccountDepositsInstructionVisitor,
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
@@ -33,7 +33,7 @@ use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
 
 use super::traits::Handler;
-use super::{ConvertManifestHandler, ConvertManifestRequest};
+use super::{ConvertManifestError, ConvertManifestHandler, ConvertManifestRequest};
 
 // =================
 // Model Definition
@@ -83,7 +83,7 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     /// auth based on that.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub accounts_requiring_auth: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts_requiring_auth: BTreeSet<NetworkAwareNodeId>,
 
     /// A set of the resource addresses of which proofs were created from accounts in this
     /// manifest.
@@ -94,7 +94,7 @@ pub struct AnalyzeManifestWithPreviewContextResponse {
     /// proof was created from.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub account_proof_resources: BTreeSet<NetworkAwareResourceAddress>,
+    pub account_proof_resources: BTreeSet<NetworkAwareNodeId>,
 
     /// A list of the account withdraws seen in the manifest.
     ///
@@ -126,12 +126,12 @@ pub struct EncounteredAddresses {
     /// The set of resource addresses encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of package addresses encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 /// The set of newly created entities
@@ -141,17 +141,17 @@ pub struct CreatedEntities {
     /// The set of addresses of newly created components.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub component_addresses: BTreeSet<NetworkAwareComponentAddress>,
+    pub component_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of addresses of newly created resources.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub resource_addresses: BTreeSet<NetworkAwareResourceAddress>,
+    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of addresses of newly created packages.
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub package_addresses: BTreeSet<NetworkAwarePackageAddress>,
+    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
 }
 
 /// The set of addresses encountered in the manifest
@@ -161,41 +161,41 @@ pub struct EncounteredComponents {
     /// The set of user application components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub user_applications: BTreeSet<NetworkAwareComponentAddress>,
+    pub user_applications: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of account components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub accounts: BTreeSet<NetworkAwareComponentAddress>,
+    pub accounts: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of identity components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub identities: BTreeSet<NetworkAwareComponentAddress>,
+    pub identities: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of clock components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub clocks: BTreeSet<NetworkAwareComponentAddress>,
+    pub clocks: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of epoch_manager components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub epoch_managers: BTreeSet<NetworkAwareComponentAddress>,
+    pub epoch_managers: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of validator components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub validators: BTreeSet<NetworkAwareComponentAddress>,
+    pub validators: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of validator components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub access_controller: BTreeSet<NetworkAwareComponentAddress>,
+    pub access_controller: BTreeSet<NetworkAwareNodeId>,
 }
 
-impl From<BTreeSet<NetworkAwareComponentAddress>> for EncounteredComponents {
-    fn from(value: BTreeSet<NetworkAwareComponentAddress>) -> Self {
+impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
+    fn from(value: BTreeSet<NetworkAwareNodeId>) -> Self {
         let mut user_applications = BTreeSet::new();
         let mut accounts = BTreeSet::new();
         let mut identities = BTreeSet::new();
@@ -205,7 +205,7 @@ impl From<BTreeSet<NetworkAwareComponentAddress>> for EncounteredComponents {
         let mut access_controller = BTreeSet::new();
 
         for address in value {
-            if let Some(entity_type) = address.address.as_node_id().entity_type() {
+            if let Some(entity_type) = address.node_id().entity_type() {
                 match entity_type {
                     EntityType::GlobalAccount
                     | EntityType::InternalAccount
@@ -259,9 +259,12 @@ pub struct AnalyzeManifestWithPreviewContextHandler;
 impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPreviewContextResponse>
     for AnalyzeManifestWithPreviewContextHandler
 {
+    type Error = AnalyzeManifestWithPreviewContextError;
+
     fn pre_process(
         mut request: AnalyzeManifestWithPreviewContextRequest,
-    ) -> Result<AnalyzeManifestWithPreviewContextRequest> {
+    ) -> Result<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPreviewContextError>
+    {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
@@ -277,7 +280,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut network_aggregator_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
         if let Some(network_id) = network_aggregator_visitor
@@ -285,7 +289,7 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .iter()
             .find(|network_id| **network_id != request.network_id)
         {
-            return Err(crate::error::Error::NetworkMismatchError {
+            return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
                 expected: request.network_id,
             });
@@ -295,7 +299,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
 
     fn handle(
         request: &AnalyzeManifestWithPreviewContextRequest,
-    ) -> Result<AnalyzeManifestWithPreviewContextResponse> {
+    ) -> Result<AnalyzeManifestWithPreviewContextResponse, AnalyzeManifestWithPreviewContextError>
+    {
         // Getting the instructions in the passed manifest as Parsed instructions.
         let mut instructions = {
             let manifest = ConvertManifestHandler::fulfill(ConvertManifestRequest {
@@ -306,18 +311,19 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
             .manifest;
 
             match manifest.instructions {
-                InstructionList::Parsed(instructions) => Ok(instructions),
-                InstructionList::String(..) => Err(crate::error::Error::Infallible {
-                    message: "Impossible Case! We converted to parsed but it's still a string!"
-                        .into(),
-                }),
+                InstructionList::Parsed(instructions) => instructions,
+                InstructionList::String(..) => panic!("Impossible Case!"),
             }
-        }?;
+        };
 
-        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt)?;
+        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt).map_err(
+            |error| AnalyzeManifestWithPreviewContextError::TransactionReceiptDecodingFailed {
+                message: debug_string(error),
+            },
+        )?;
         let commit = match receipt.result {
             TransactionResult::Commit(commit) => Ok(commit),
-            _ => Err(Error::TransactionNotCommitted),
+            _ => Err(AnalyzeManifestWithPreviewContextError::TransactionNotSuccessfullyCommitted),
         }?;
 
         // Setting up the visitors that will be used on the instructions
@@ -359,7 +365,8 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
                     ],
                 )
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(AnalyzeManifestWithPreviewContextError::VisitorError)?;
 
         Ok(AnalyzeManifestWithPreviewContextResponse {
             accounts_requiring_auth: account_interactions_visitor.auth_required,
@@ -375,26 +382,17 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
                 component_addresses: commit
                     .new_component_addresses()
                     .iter()
-                    .map(|address| NetworkAwareComponentAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
                 resource_addresses: commit
                     .new_resource_addresses()
                     .iter()
-                    .map(|address| NetworkAwareResourceAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
                 package_addresses: commit
                     .new_package_addresses()
                     .iter()
-                    .map(|address| NetworkAwarePackageAddress {
-                        address: *address,
-                        network_id: request.network_id,
-                    })
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
                     .collect(),
             },
         })
@@ -403,7 +401,36 @@ impl Handler<AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPrevie
     fn post_process(
         _: &AnalyzeManifestWithPreviewContextRequest,
         response: AnalyzeManifestWithPreviewContextResponse,
-    ) -> Result<AnalyzeManifestWithPreviewContextResponse> {
+    ) -> Result<AnalyzeManifestWithPreviewContextResponse, AnalyzeManifestWithPreviewContextError>
+    {
         Ok(response)
+    }
+}
+
+#[serializable]
+pub enum AnalyzeManifestWithPreviewContextError {
+    /// An error emitted during the pre processing of the invocation
+    PreProcessingError(VisitorError),
+
+    /// An error emitted when the conversion of the manifest instructions to parsed instructions
+    /// fails.
+    ConvertManifestError(ConvertManifestError),
+
+    /// An error emitted when an address is encountered in the manifest with an invalid network id
+    InvalidNetworkIdEncountered { expected: u8, found: u8 },
+
+    /// An error emitted when the transaction is not committed successfully
+    TransactionNotSuccessfullyCommitted,
+
+    /// An error emitted when the SBOR decoding of the transaction receipt fails
+    TransactionReceiptDecodingFailed { message: String },
+
+    /// An error emitted if the visitors fail during the handling of the invocation.
+    VisitorError(VisitorError),
+}
+
+impl From<ConvertManifestError> for AnalyzeManifestWithPreviewContextError {
+    fn from(value: ConvertManifestError) -> Self {
+        Self::ConvertManifestError(value)
     }
 }

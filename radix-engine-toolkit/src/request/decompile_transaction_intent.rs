@@ -16,9 +16,12 @@
 // under the License.
 
 use super::traits::Handler;
-use crate::error::Result;
+
+use crate::error::VisitorError;
 use crate::model::instruction::Instruction;
-use crate::model::transaction::{InstructionKind, InstructionList, TransactionIntent};
+use crate::model::transaction::{
+    InstructionKind, InstructionList, TransactionIntent, TransactionIntentConversionError,
+};
 use crate::traits::CompilableIntent;
 use crate::visitor::{traverse_instruction, ValueAliasingVisitor};
 use toolkit_derive::serializable;
@@ -61,23 +64,26 @@ pub struct DecompileTransactionIntentHandler;
 impl Handler<DecompileTransactionIntentRequest, DecompileTransactionIntentResponse>
     for DecompileTransactionIntentHandler
 {
+    type Error = DecompileTransactionIntentError;
+
     fn pre_process(
         request: DecompileTransactionIntentRequest,
-    ) -> Result<DecompileTransactionIntentRequest> {
+    ) -> Result<DecompileTransactionIntentRequest, DecompileTransactionIntentError> {
         Ok(request)
     }
 
     fn handle(
         request: &DecompileTransactionIntentRequest,
-    ) -> Result<DecompileTransactionIntentResponse> {
+    ) -> Result<DecompileTransactionIntentResponse, DecompileTransactionIntentError> {
         TransactionIntent::decompile(&request.compiled_intent, request.instructions_output_kind)
             .map(|transaction_intent| DecompileTransactionIntentResponse { transaction_intent })
+            .map_err(DecompileTransactionIntentError::from)
     }
 
     fn post_process(
         _: &DecompileTransactionIntentRequest,
         mut response: DecompileTransactionIntentResponse,
-    ) -> Result<DecompileTransactionIntentResponse> {
+    ) -> Result<DecompileTransactionIntentResponse, DecompileTransactionIntentError> {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
@@ -94,11 +100,28 @@ impl Handler<DecompileTransactionIntentRequest, DecompileTransactionIntentRespon
             .map(|instruction| {
                 traverse_instruction(instruction, &mut [&mut aliasing_visitor], &mut [])
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(DecompileTransactionIntentError::PostProcessingError)?;
 
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
         Ok(response)
+    }
+}
+
+#[serializable]
+#[serde(tag = "type")]
+pub enum DecompileTransactionIntentError {
+    /// Emitted if the decompilation of the transaction intent fails
+    DecompilationError(TransactionIntentConversionError),
+
+    /// An error emitted during the post processing of the invocation
+    PostProcessingError(VisitorError),
+}
+
+impl From<TransactionIntentConversionError> for DecompileTransactionIntentError {
+    fn from(value: TransactionIntentConversionError) -> Self {
+        Self::DecompilationError(value)
     }
 }

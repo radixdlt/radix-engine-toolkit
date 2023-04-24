@@ -16,13 +16,11 @@
 // under the License.
 
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId,
-    NonFungibleLocalId as ScryptoNonFungibleLocalId, StringNonFungibleLocalId,
-    UUIDNonFungibleLocalId,
+    IntegerNonFungibleLocalId, NonFungibleLocalId as ScryptoNonFungibleLocalId,
 };
 use toolkit_derive::serializable;
 
-use crate::error::{Error, Result};
+use crate::{impl_display_as_debug, utils::debug_string};
 
 #[serializable]
 #[serde(tag = "type", content = "value")]
@@ -65,9 +63,9 @@ pub enum NonFungibleLocalId {
 }
 
 impl TryFrom<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
-    type Error = Error;
+    type Error = NonFungibleLocalIdConversionError;
 
-    fn try_from(value: ScryptoNonFungibleLocalId) -> Result<Self> {
+    fn try_from(value: ScryptoNonFungibleLocalId) -> Result<Self, Self::Error> {
         match value {
             ScryptoNonFungibleLocalId::Integer(value) => Ok(Self::Integer(value.value())),
             ScryptoNonFungibleLocalId::UUID(value) => Ok(Self::UUID(value.value())),
@@ -78,22 +76,23 @@ impl TryFrom<ScryptoNonFungibleLocalId> for NonFungibleLocalId {
 }
 
 impl TryFrom<NonFungibleLocalId> for ScryptoNonFungibleLocalId {
-    type Error = Error;
+    type Error = NonFungibleLocalIdConversionError;
 
-    fn try_from(value: NonFungibleLocalId) -> Result<Self> {
+    fn try_from(value: NonFungibleLocalId) -> Result<Self, Self::Error> {
         match value {
             NonFungibleLocalId::Integer(value) => {
                 Ok(Self::Integer(IntegerNonFungibleLocalId::new(value)))
             }
-            NonFungibleLocalId::UUID(value) => UUIDNonFungibleLocalId::new(value)
-                .map(Self::UUID)
-                .map_err(Error::from),
-            NonFungibleLocalId::String(value) => StringNonFungibleLocalId::new(value)
-                .map(Self::String)
-                .map_err(Error::from),
-            NonFungibleLocalId::Bytes(value) => BytesNonFungibleLocalId::new(value)
-                .map(Self::Bytes)
-                .map_err(Error::from),
+            NonFungibleLocalId::UUID(value) => ScryptoNonFungibleLocalId::uuid(value)
+                .map_err(|error| NonFungibleLocalIdConversionError(debug_string(error))),
+            NonFungibleLocalId::String(value) => ScryptoNonFungibleLocalId::string(value)
+                .map_err(|error| NonFungibleLocalIdConversionError(debug_string(error))),
+            NonFungibleLocalId::Bytes(value) => ScryptoNonFungibleLocalId::bytes(value)
+                .map_err(|error| NonFungibleLocalIdConversionError(debug_string(error))),
         }
     }
 }
+
+#[serializable]
+pub struct NonFungibleLocalIdConversionError(String);
+impl_display_as_debug!(NonFungibleLocalIdConversionError);

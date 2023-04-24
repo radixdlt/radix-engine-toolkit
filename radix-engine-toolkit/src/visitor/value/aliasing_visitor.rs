@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Error;
+use crate::error::VisitorError;
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::ManifestAstValueVisitor;
 
@@ -26,7 +26,7 @@ use crate::visitor::ManifestAstValueVisitor;
 pub struct ValueAliasingVisitor;
 
 impl ManifestAstValueVisitor for ValueAliasingVisitor {
-    fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
+    fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Tuple { ref elements } = value {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
@@ -37,21 +37,17 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
                     }),
                 ) if elements.len() == 2 && address.node_id().is_global_resource() => {
                     *value = ManifestAstValue::NonFungibleGlobalId {
-                        resource_address: (*address).try_into()?,
+                        resource_address: *address,
                         non_fungible_local_id: non_fungible_local_id.clone(),
                     };
-                    Ok(())
                 }
-                _ => Ok(()),
+                _ => {}
             }
-        } else {
-            Err(Error::Infallible {
-                message: "Must be a tuple!".into(),
-            })
         }
+        Ok(())
     }
 
-    fn visit_array(&mut self, value: &mut ManifestAstValue) -> crate::error::Result<()> {
+    fn visit_array(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
         if let ManifestAstValue::Array {
             ref elements,
             element_kind: ManifestAstValueKind::U8,
@@ -68,13 +64,7 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
                 }
             }
             *value = ManifestAstValue::Bytes { value: bytes };
-            Ok(())
-        } else if let ManifestAstValue::Array { .. } = value {
-            Ok(())
-        } else {
-            Err(Error::Infallible {
-                message: "Must be an array!".into(),
-            })
         }
+        Ok(())
     }
 }

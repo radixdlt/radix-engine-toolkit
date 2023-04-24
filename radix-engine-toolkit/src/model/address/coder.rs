@@ -15,12 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::error::Error;
-use crate::error::Result;
+use super::utils::*;
+use super::AddressError;
 use crate::utils::checked_copy_u8_slice;
-use crate::utils::{
-    network_definition_from_network_id, network_id_from_address_string, network_id_from_hrp,
-};
+
 use scrypto::address::{Bech32Decoder, Bech32Encoder};
 use scrypto::network::NetworkDefinition;
 use scrypto::prelude::NodeId;
@@ -63,25 +61,28 @@ impl Bech32Coder {
         self.network_definition.id
     }
 
-    pub fn new_from_hrp<S: AsRef<str>>(hrp: S) -> Result<Self> {
+    pub fn new_from_hrp<S: AsRef<str>>(hrp: S) -> Result<Self, AddressError> {
         network_id_from_hrp(hrp).map(Self::new)
     }
 
-    pub fn new_from_address<S: AsRef<str>>(address: S) -> Result<Self> {
+    pub fn new_from_address<S: AsRef<str>>(address: S) -> Result<Self, AddressError> {
         network_id_from_address_string(address).map(Self::new)
     }
 
-    pub fn encode<T: Into<NodeId>>(&self, node_id: T) -> Result<String> {
+    pub fn encode<T: Into<NodeId>>(&self, node_id: T) -> Result<String, AddressError> {
         self.encoder
             .encode(node_id.into().0.as_ref())
-            .map_err(Error::from)
+            .map_err(AddressError::from)
     }
 
-    pub fn decode<S: AsRef<str>>(&self, string: S) -> Result<NodeId> {
-        self.decoder
-            .validate_and_decode(string.as_ref())
-            .map_err(Error::from)
-            .and_then(|(_, data)| checked_copy_u8_slice(data).map(NodeId))
-            .map_err(Error::from)
+    pub fn decode<S: AsRef<str>>(&self, string: S) -> Result<NodeId, AddressError> {
+        let (_, full_data) = self.decoder.validate_and_decode(string.as_ref())?;
+        checked_copy_u8_slice(&full_data).map(NodeId).map_or(
+            Err(AddressError::InvalidDataLength {
+                expected: NodeId::LENGTH,
+                actual: full_data.len(),
+            }),
+            Ok,
+        )
     }
 }

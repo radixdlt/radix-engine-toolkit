@@ -18,9 +18,12 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::request::{
-    DeriveBabylonAddressFromOlympiaAddressHandler, DeriveBabylonAddressFromOlympiaAddressRequest,
-    Handler,
+use radix_engine_toolkit::{
+    error::{InvocationHandlingError, RETError},
+    request::{
+        DeriveBabylonAddressFromOlympiaAddressHandler,
+        DeriveBabylonAddressFromOlympiaAddressRequest, Handler,
+    },
 };
 
 #[derive(Parser, Debug)]
@@ -41,7 +44,12 @@ impl BabylonAddressFromOlympiaAddress {
             network_id: self.network_id,
             olympia_account_address: self.olympia_account_address.clone(),
         };
-        let response = DeriveBabylonAddressFromOlympiaAddressHandler::fulfill(request)?;
+        let response =
+            DeriveBabylonAddressFromOlympiaAddressHandler::fulfill(request).map_err(|error| {
+                RETError::InvocationHandlingError(
+                    InvocationHandlingError::DeriveBabylonAddressFromOlympiaAddressError(error),
+                )
+            })?;
         pretty_print(&response, out)
     }
 }

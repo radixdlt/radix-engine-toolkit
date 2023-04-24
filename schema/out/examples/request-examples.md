@@ -1997,8 +1997,7 @@ This document contains examples and descriptions of the different requests and r
   "network_id": "242",
   "network_name": "simulator",
   "entity_type": "GlobalFungibleResource",
-  "data": "010000000000000000000000000000000000000000000000000000000000",
-  "hrp": "resource_sim"
+  "data": "010000000000000000000000000000000000000000000000000000000000"
 }
 ```
 </details>
