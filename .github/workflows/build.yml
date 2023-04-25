@@ -3,11 +3,13 @@ name: Build
 on:
   push:
     branches:
+      - update/*
       - release/rcnet-v1
       - develop
       - main
   pull_request:
     branches:
+      - update/*
       - release/rcnet-v1
       - develop
       - main
