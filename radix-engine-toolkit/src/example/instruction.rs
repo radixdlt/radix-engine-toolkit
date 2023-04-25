@@ -648,73 +648,6 @@ pub fn clone_proof() -> Instruction {
     instruction
 }
 
-pub fn publish_package() -> Instruction {
-    let instruction = Instruction::PublishPackage {
-        code: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
-                checked_copy_u8_slice(
-                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                        .unwrap(),
-                )
-                .unwrap(),
-            ),
-        },
-        schema: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
-                checked_copy_u8_slice(
-                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                        .unwrap(),
-                )
-                .unwrap(),
-            ),
-        },
-        royalty_config: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::Tuple,
-            entries: Vec::new(),
-        },
-        metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
-            entries: Vec::new(),
-        },
-        access_rules: ManifestAstValue::Tuple {
-            elements: vec![
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
-                },
-            ],
-        },
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
 pub fn burn_resource() -> Instruction {
     let instruction = Instruction::BurnResource {
         bucket: ManifestAstValue::Bucket {
@@ -1125,34 +1058,13 @@ pub fn create_access_controller() -> Instruction {
 }
 
 pub fn create_identity() -> Instruction {
-    let instruction = Instruction::CreateIdentity {
-        access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
-        },
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn assert_access_rule() -> Instruction {
-    let instruction = Instruction::AssertAccessRule {
-        access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
-        },
-    };
+    let instruction = Instruction::CreateIdentity {};
     check_instruction(&instruction);
     instruction
 }
 
 pub fn create_account() -> Instruction {
-    let instruction = Instruction::CreateAccount {
-        withdraw_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
-        },
-    };
+    let instruction = Instruction::CreateAccount {};
     check_instruction(&instruction);
     instruction
 }
@@ -1164,10 +1076,6 @@ pub fn create_validator() -> Instruction {
                 "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
             )
             .unwrap(),
-        },
-        owner_access_rule: ManifestAstValue::Enum {
-            variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
         },
     };
     check_instruction(&instruction);

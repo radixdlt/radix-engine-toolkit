@@ -16,13 +16,13 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 toolkit-derive = { path = "../toolkit-derive" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", optional = true }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af", package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af", optional = true }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
