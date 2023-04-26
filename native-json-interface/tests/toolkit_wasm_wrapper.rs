@@ -24,7 +24,7 @@ use serde::Serialize;
 
 use std::path::{Path, PathBuf};
 
-use radix_engine_toolkit::request::*;
+use radix_engine_toolkit::functions::*;
 
 use wasmtime::{AsContextMut, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
 
@@ -156,20 +156,20 @@ impl RadixEngineToolkit {
         Self::new_from_module_path(wasm_module_path)
     }
 
-    crate::define_request_function! {InformationRequest, InformationResponse, information}
-    crate::define_request_function! {ConvertManifestRequest, ConvertManifestResponse, convert_manifest}
-    crate::define_request_function! {CompileTransactionIntentRequest, CompileTransactionIntentResponse, compile_transaction_intent}
-    crate::define_request_function! {DecompileTransactionIntentRequest, DecompileTransactionIntentResponse, decompile_transaction_intent}
-    crate::define_request_function! {CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, compile_signed_transaction_intent}
-    crate::define_request_function! {DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse, decompile_signed_transaction_intent}
-    crate::define_request_function! {CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse, compile_notarized_transaction}
-    crate::define_request_function! {DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse, decompile_notarized_transaction}
-    crate::define_request_function! {DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse, decompile_unknown_transaction_intent}
-    crate::define_request_function! {DecodeAddressRequest, DecodeAddressResponse, decode_address}
-    crate::define_request_function! {EncodeAddressRequest, EncodeAddressResponse, encode_address}
-    crate::define_request_function! {SborDecodeRequest, SborDecodeResponse, sbor_decode}
-    crate::define_request_function! {SborEncodeRequest, SborEncodeResponse, sbor_encode}
-    crate::define_request_function! {DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse, derive_virtual_account_address}
+    crate::define_request_function! {information::Input, information::Output, information}
+    crate::define_request_function! {convert_manifest::Input, convert_manifest::Output, convert_manifest}
+    crate::define_request_function! {compile_transaction_intent::Input, compile_transaction_intent::Output, compile_transaction_intent}
+    crate::define_request_function! {decompile_transaction_intent::Input, decompile_transaction_intent::Output, decompile_transaction_intent}
+    crate::define_request_function! {compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output, compile_signed_transaction_intent}
+    crate::define_request_function! {decompile_signed_transaction_intent::Input, decompile_signed_transaction_intent::Output, decompile_signed_transaction_intent}
+    crate::define_request_function! {compile_notarized_transaction::Input, compile_notarized_transaction::Output, compile_notarized_transaction}
+    crate::define_request_function! {decompile_notarized_transaction::Input, decompile_notarized_transaction::Output, decompile_notarized_transaction}
+    crate::define_request_function! {decompile_unknown_intent::Input, decompile_unknown_intent::Output, decompile_unknown_transaction_intent}
+    crate::define_request_function! {decode_address::Input, decode_address::Output, decode_address}
+    crate::define_request_function! {encode_address::Input, encode_address::Output, encode_address}
+    crate::define_request_function! {sbor_decode::Input, sbor_decode::Output, sbor_decode}
+    crate::define_request_function! {sbor_encode::Input, sbor_encode::Output, sbor_encode}
+    crate::define_request_function! {derive_virtual_account_address::Input, derive_virtual_account_address::Output, derive_virtual_account_address}
 
     /// Calls a function in the WASM instance with a given request
     ///
@@ -548,7 +548,7 @@ macro_rules! define_request_function {
 
 #[cfg(test)]
 mod tests {
-    use radix_engine_toolkit::request::{InformationRequest, InformationResponse};
+    use radix_engine_toolkit::functions::information;
 
     use super::{RadixEngineToolkit, Result};
 
@@ -560,8 +560,8 @@ mod tests {
                 .expect("Failed to create a new library from source");
 
         // Act
-        let response: Result<InformationResponse> =
-            radix_engine_toolkit.information(InformationRequest {});
+        let response: Result<information::Output> =
+            radix_engine_toolkit.information(information::Input {});
 
         // Assert
         assert!(matches!(response, Ok(_)))

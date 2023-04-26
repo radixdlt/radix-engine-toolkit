@@ -19,9 +19,7 @@ use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
-use radix_engine_toolkit::request::{
-    DeriveVirtualAccountAddressHandler, DeriveVirtualAccountAddressRequest, Handler,
-};
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::prelude::{EcdsaSecp256k1PublicKey, EddsaEd25519PublicKey};
 
@@ -51,15 +49,16 @@ impl VirtualAccountAddress {
             _ => Err(Error::InvalidPublicKey),
         }?;
 
-        let request = DeriveVirtualAccountAddressRequest {
+        let request = derive_virtual_account_address::Input {
             public_key,
             network_id: self.network_id,
         };
-        let response = DeriveVirtualAccountAddressHandler::fulfill(request).map_err(|error| {
-            RETError::InvocationHandlingError(
-                InvocationHandlingError::DeriveVirtualAccountAddressError(error),
-            )
-        })?;
+        let response =
+            derive_virtual_account_address::Handler::fulfill(request).map_err(|error| {
+                RETError::InvocationHandlingError(
+                    InvocationHandlingError::DeriveVirtualAccountAddressError(error),
+                )
+            })?;
         pretty_print(&response, out)
     }
 }

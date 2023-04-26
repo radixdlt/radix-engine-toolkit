@@ -22,10 +22,8 @@ use native_transaction::model::{NotarizedTransaction, TransactionHeader};
 use native_transaction::validation::ValidationConfig;
 use radix_engine_common::ManifestSbor;
 use radix_engine_constants::DEFAULT_COST_UNIT_LIMIT;
-use radix_engine_toolkit::request::{
-    Handler, StaticallyValidateTransactionHandler, StaticallyValidateTransactionRequest,
-    StaticallyValidateTransactionResponse,
-};
+use radix_engine_toolkit::functions::statically_validate_transaction;
+use radix_engine_toolkit::functions::traits::InvocationHandler;
 use scrypto::prelude::*;
 
 #[test]
@@ -60,7 +58,7 @@ fn static_validation_of_simple_transfer_succeeds() {
     // Assert
     assert_eq!(
         validation_result,
-        StaticallyValidateTransactionResponse::Valid
+        statically_validate_transaction::Output::Valid
     );
 }
 
@@ -93,7 +91,7 @@ fn static_validation_of_creating_a_simple_fungible_resource_succeeds() {
     // Assert
     assert_eq!(
         validation_result,
-        StaticallyValidateTransactionResponse::Valid
+        statically_validate_transaction::Output::Valid
     );
 }
 
@@ -126,7 +124,7 @@ fn static_validation_of_creating_a_simple_non_fungible_resource_succeeds() {
     // Assert
     assert_eq!(
         validation_result,
-        StaticallyValidateTransactionResponse::Valid
+        statically_validate_transaction::Output::Valid
     );
 }
 
@@ -162,7 +160,7 @@ fn static_validation_of_creating_a_simple_non_fungible_resource_with_initial_sup
     // Assert
     assert_eq!(
         validation_result,
-        StaticallyValidateTransactionResponse::Valid
+        statically_validate_transaction::Output::Valid
     );
 }
 
@@ -196,7 +194,7 @@ fn static_validation_of_minting_non_fungible_tokens_succeeds() {
     // Assert
     assert_eq!(
         validation_result,
-        StaticallyValidateTransactionResponse::Valid
+        statically_validate_transaction::Output::Valid
     );
 }
 
@@ -229,15 +227,15 @@ fn test_inversion(transaction: &NotarizedTransaction) {
 
 fn statically_validate(
     transaction: &NotarizedTransaction,
-) -> StaticallyValidateTransactionResponse {
+) -> statically_validate_transaction::Output {
     let encoded_transaction = manifest_encode(&transaction).unwrap();
-    let request = StaticallyValidateTransactionRequest {
+    let request = statically_validate_transaction::Input {
         compiled_notarized_intent: encoded_transaction,
         validation_config: ValidationConfig::default(
             transaction.signed_intent.intent.header.network_id,
         ),
     };
-    StaticallyValidateTransactionHandler::fulfill(request).unwrap()
+    statically_validate_transaction::Handler::fulfill(request).unwrap()
 }
 
 #[derive(ScryptoSbor, NonFungibleData, ManifestSbor)]

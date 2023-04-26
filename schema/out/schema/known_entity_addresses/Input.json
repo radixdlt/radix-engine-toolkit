@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Input",
+  "description": "Given a network id, this function derives the Bech32m-encoded addresses of the set of known addresses. As an example, this function allows users to derive the XRD resource address, faucet component address, or account package address on any network (given that they know its network id).",
+  "type": "object",
+  "required": [
+    "network_id"
+  ],
+  "properties": {
+    "network_id": {
+      "description": "An unsigned 8 bit integer serialized as a string which represents the ID of the network that the addresses will be used on. The primary use of this is for any Bech32m encoding or decoding of addresses",
+      "type": "string",
+      "pattern": "[0-9]+"
+    }
+  }
+}

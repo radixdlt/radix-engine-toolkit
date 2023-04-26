@@ -18,10 +18,8 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::{
-    error::{InvocationHandlingError, RETError},
-    request::{Handler, SborEncodeHandler},
-};
+use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 
 #[derive(Parser, Debug)]
 /// Encodes a payload using SBOR.
@@ -34,7 +32,7 @@ pub struct Encode {
 impl Encode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         let request = serde_json::from_str(&self.payload)?;
-        let response = SborEncodeHandler::fulfill(request).map_err(|error| {
+        let response = sbor_encode::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::SborEncodeError(error))
         })?;
         pretty_print(&response, out)

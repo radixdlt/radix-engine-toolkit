@@ -19,10 +19,10 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::model::transaction::{
     InstructionKind, InstructionList, TransactionManifest,
 };
-use radix_engine_toolkit::request::{AnalyzeManifestHandler, AnalyzeManifestRequest, Handler};
 
 use crate::error::{Error, Result};
 use crate::utils::pretty_print;
@@ -70,14 +70,14 @@ impl AnalyzeManifest {
             }
         };
 
-        let request = AnalyzeManifestRequest {
+        let request = analyze_manifest::Input {
             manifest: TransactionManifest {
                 instructions,
                 blobs: vec![],
             },
             network_id: self.network_id,
         };
-        let response = AnalyzeManifestHandler::fulfill(request).map_err(|error| {
+        let response = analyze_manifest::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::AnalyzeManifestError(error))
         })?;
         pretty_print(&response, out)

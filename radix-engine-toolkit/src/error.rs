@@ -17,11 +17,11 @@
 
 use toolkit_derive::serializable;
 
+use crate::functions::*;
 use crate::model::address::NonFungibleLocalIdConversionError;
 use crate::model::value::ast::ManifestAstValueConversionError;
 use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::ScryptoSborValueConversionError;
-use crate::request::*;
 use crate::utils::debug_string;
 #[cfg(feature = "radix-engine")]
 use crate::visitor::AccountDepositsVisitorError;
@@ -64,69 +64,69 @@ impl From<std::str::Utf8Error> for InvocationInterpretationError {
     }
 }
 
-/// Errors pertaining to invocations handling. This set of errors are returned when an invocation is
+/// Errors pertaining to functions handling. This set of errors are returned when an invocation is
 /// of a correct structure, but the handling of the invocation failed (e.g., due to validation).
 #[serializable]
 #[serde(tag = "type")]
 pub enum InvocationHandlingError {
     #[cfg(feature = "radix-engine")]
-    AnalyzeManifestWithPreviewContextError(AnalyzeManifestWithPreviewContextError),
-    InformationError(InformationError),
-    ConvertManifestError(ConvertManifestError),
-    CompileTransactionIntentError(CompileTransactionIntentError),
-    DecompileTransactionIntentError(DecompileTransactionIntentError),
-    CompileSignedTransactionIntentError(CompileSignedTransactionIntentError),
-    DecompileSignedTransactionIntentError(DecompileSignedTransactionIntentError),
-    CompileNotarizedTransactionError(CompileNotarizedTransactionError),
-    DecompileNotarizedTransactionError(DecompileNotarizedTransactionError),
-    DecompileUnknownTransactionIntentError(DecompileUnknownTransactionIntentError),
-    DecodeAddressError(DecodeAddressError),
-    EncodeAddressError(EncodeAddressError),
-    SborDecodeError(SborDecodeError),
-    SborEncodeError(SborEncodeError),
-    DeriveBabylonAddressFromOlympiaAddressError(DeriveBabylonAddressFromOlympiaAddressError),
-    DeriveOlympiaAddressFromPublicKeyError(DeriveOlympiaAddressFromPublicKeyError),
-    DeriveVirtualAccountAddressError(DeriveVirtualAccountAddressError),
-    DeriveVirtualIdentityAddressError(DeriveVirtualIdentityAddressError),
-    AnalyzeManifestError(AnalyzeManifestError),
-    KnownEntityAddressesError(KnownEntityAddressesError),
-    StaticallyValidateTransactionError(StaticallyValidateTransactionError),
-    HashError(HashError),
+    AnalyzeManifestWithPreviewContextError(analyze_manifest_with_preview_context::Error),
+    InformationError(information::Error),
+    ConvertManifestError(convert_manifest::Error),
+    CompileTransactionIntentError(compile_transaction_intent::Error),
+    DecompileTransactionIntentError(decompile_transaction_intent::Error),
+    CompileSignedTransactionIntentError(compile_signed_transaction_intent::Error),
+    DecompileSignedTransactionIntentError(decompile_signed_transaction_intent::Error),
+    CompileNotarizedTransactionError(compile_notarized_transaction::Error),
+    DecompileNotarizedTransactionError(decompile_notarized_transaction::Error),
+    DecompileUnknownTransactionIntentError(decompile_unknown_intent::Error),
+    DecodeAddressError(decode_address::Error),
+    EncodeAddressError(encode_address::Error),
+    SborDecodeError(sbor_decode::Error),
+    SborEncodeError(sbor_encode::Error),
+    DeriveBabylonAddressFromOlympiaAddressError(derive_babylon_address_from_olympia_address::Error),
+    DeriveOlympiaAddressFromPublicKeyError(derive_olympia_address_from_public_key::Error),
+    DeriveVirtualAccountAddressError(derive_virtual_account_address::Error),
+    DeriveVirtualIdentityAddressError(derive_virtual_identity_address::Error),
+    AnalyzeManifestError(analyze_manifest::Error),
+    KnownEntityAddressesError(known_entity_addresses::Error),
+    StaticallyValidateTransactionError(statically_validate_transaction::Error),
+    HashError(hash::Error),
 }
 
 macro_rules! impl_from {
-    ($type: ident for $for: ident) => {
+    ($type: ty => $for: ident as $as: ident) => {
         impl From<$type> for $for {
             fn from(value: $type) -> Self {
-                Self::$type(value)
+                Self::$as(value)
             }
         }
     };
 }
 
 #[cfg(feature = "radix-engine")]
-impl_from! { AnalyzeManifestWithPreviewContextError for InvocationHandlingError }
-impl_from! { InformationError for InvocationHandlingError }
-impl_from! { ConvertManifestError for InvocationHandlingError }
-impl_from! { CompileTransactionIntentError for InvocationHandlingError }
-impl_from! { DecompileTransactionIntentError for InvocationHandlingError }
-impl_from! { CompileSignedTransactionIntentError for InvocationHandlingError }
-impl_from! { DecompileSignedTransactionIntentError for InvocationHandlingError }
-impl_from! { CompileNotarizedTransactionError for InvocationHandlingError }
-impl_from! { DecompileNotarizedTransactionError for InvocationHandlingError }
-impl_from! { DecompileUnknownTransactionIntentError for InvocationHandlingError }
-impl_from! { DecodeAddressError for InvocationHandlingError }
-impl_from! { EncodeAddressError for InvocationHandlingError }
-impl_from! { SborDecodeError for InvocationHandlingError }
-impl_from! { SborEncodeError for InvocationHandlingError }
-impl_from! { DeriveBabylonAddressFromOlympiaAddressError for InvocationHandlingError }
-impl_from! { DeriveOlympiaAddressFromPublicKeyError for InvocationHandlingError }
-impl_from! { DeriveVirtualAccountAddressError for InvocationHandlingError }
-impl_from! { DeriveVirtualIdentityAddressError for InvocationHandlingError }
-impl_from! { AnalyzeManifestError for InvocationHandlingError }
-impl_from! { KnownEntityAddressesError for InvocationHandlingError }
-impl_from! { StaticallyValidateTransactionError for InvocationHandlingError }
-impl_from! { HashError for InvocationHandlingError }
+impl_from! { analyze_manifest_with_preview_context::Error => InvocationHandlingError as AnalyzeManifestWithPreviewContextError }
+impl_from! { information::Error => InvocationHandlingError as InformationError }
+impl_from! { convert_manifest::Error => InvocationHandlingError as ConvertManifestError }
+impl_from! { compile_transaction_intent::Error => InvocationHandlingError as CompileTransactionIntentError }
+impl_from! { decompile_transaction_intent::Error => InvocationHandlingError as DecompileTransactionIntentError }
+impl_from! { compile_signed_transaction_intent::Error => InvocationHandlingError as CompileSignedTransactionIntentError }
+impl_from! { decompile_signed_transaction_intent::Error => InvocationHandlingError as DecompileSignedTransactionIntentError }
+impl_from! { compile_notarized_transaction::Error => InvocationHandlingError as CompileNotarizedTransactionError }
+impl_from! { decompile_notarized_transaction::Error => InvocationHandlingError as DecompileNotarizedTransactionError }
+impl_from! { decompile_unknown_intent::Error => InvocationHandlingError as DecompileUnknownTransactionIntentError }
+impl_from! { decode_address::Error => InvocationHandlingError as DecodeAddressError }
+impl_from! { encode_address::Error => InvocationHandlingError as EncodeAddressError }
+impl_from! { sbor_decode::Error => InvocationHandlingError as SborDecodeError }
+impl_from! { sbor_encode::Error => InvocationHandlingError as SborEncodeError }
+impl_from! { derive_babylon_address_from_olympia_address::Error => InvocationHandlingError as DeriveBabylonAddressFromOlympiaAddressError }
+impl_from! { derive_olympia_address_from_public_key::Error => InvocationHandlingError as DeriveOlympiaAddressFromPublicKeyError }
+impl_from! { derive_virtual_account_address::Error => InvocationHandlingError as DeriveVirtualAccountAddressError }
+impl_from! { derive_virtual_identity_address::Error => InvocationHandlingError as DeriveVirtualIdentityAddressError }
+impl_from! { analyze_manifest::Error => InvocationHandlingError as AnalyzeManifestError }
+impl_from! { known_entity_addresses::Error => InvocationHandlingError as KnownEntityAddressesError }
+impl_from! { statically_validate_transaction::Error => InvocationHandlingError as StaticallyValidateTransactionError }
+impl_from! { hash::Error => InvocationHandlingError as HashError }
 
 /// Errors emitted when the conversion between the native Scrypto models and the RET models fails.
 #[serializable]

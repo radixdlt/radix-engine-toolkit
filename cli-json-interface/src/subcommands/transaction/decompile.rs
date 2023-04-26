@@ -21,10 +21,8 @@ use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::model::transaction::InstructionKind;
-use radix_engine_toolkit::request::{
-    DecompileUnknownTransactionIntentHandler, DecompileUnknownTransactionIntentRequest, Handler,
-};
 
 /// Decompiles a Manifest and Scrypto SBOR encoded payloads.
 #[derive(Parser, Debug)]
@@ -40,16 +38,15 @@ pub struct Decompile {
 
 impl Decompile {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = DecompileUnknownTransactionIntentRequest {
+        let request = decompile_unknown_intent::Input {
             compiled_unknown_intent: hex::decode(&self.payload)?,
             instructions_output_kind: self.output_instructions_kind.clone().into(),
         };
-        let response =
-            DecompileUnknownTransactionIntentHandler::fulfill(request).map_err(|error| {
-                RETError::InvocationHandlingError(
-                    InvocationHandlingError::DecompileUnknownTransactionIntentError(error),
-                )
-            })?;
+        let response = decompile_unknown_intent::Handler::fulfill(request).map_err(|error| {
+            RETError::InvocationHandlingError(
+                InvocationHandlingError::DecompileUnknownTransactionIntentError(error),
+            )
+        })?;
         pretty_print(&response, out)
     }
 }

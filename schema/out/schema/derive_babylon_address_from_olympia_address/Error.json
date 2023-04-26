@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "oneOf": [
+    {
+      "description": "An error emitted when the passed Olympia address could not be verified to be an Olympia address.",
+      "type": [
+        "object",
+        "string"
+      ],
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidOlympiaAddress"
+          ]
+        }
+      }
+    },
+    {
+      "description": "An error emitted when a Bech32 operation fails.",
+      "type": "object",
+      "required": [
+        "message",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "description": "An error emitted when an unexpected Bech32 variant is encountered. In this case, it means that we expected Bech32 but encountered Bech32m",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidBech32Variant"
+          ]
+        }
+      }
+    }
+  ]
+}

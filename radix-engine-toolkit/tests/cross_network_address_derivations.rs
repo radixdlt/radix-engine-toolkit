@@ -16,12 +16,14 @@
 // under the License.
 
 use radix_engine_common::crypto::{EcdsaSecp256k1PublicKey, PublicKey};
-use radix_engine_toolkit::request::{
-    DeriveBabylonAddressFromOlympiaAddressHandler, DeriveBabylonAddressFromOlympiaAddressRequest,
-    DeriveOlympiaAddressFromPublicKeyHandler, DeriveOlympiaAddressFromPublicKeyRequest, Handler,
-    OlympiaNetwork,
+use radix_engine_toolkit::{
+    functions::{
+        derive_babylon_address_from_olympia_address,
+        derive_olympia_address_from_public_key::{self, OlympiaNetwork},
+        traits::InvocationHandler,
+    },
+    utils::checked_copy_u8_slice,
 };
-use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::prelude::ComponentAddress;
 
 #[test]
@@ -40,11 +42,12 @@ pub fn deriving_babylon_address_from_olympia_address_succeeds_and_produces_expec
 
     // Act
     let (public_key, account_address) = {
-        let request = DeriveBabylonAddressFromOlympiaAddressRequest {
+        let request = derive_babylon_address_from_olympia_address::Input {
             network_id: 0x0b,
             olympia_account_address: olympia_address.to_owned(),
         };
-        let response = DeriveBabylonAddressFromOlympiaAddressHandler::fulfill(request).unwrap();
+        let response =
+            derive_babylon_address_from_olympia_address::Handler::fulfill(request).unwrap();
         (response.public_key, response.babylon_account_address)
     };
 
@@ -68,11 +71,11 @@ pub fn deriving_olympia_mainnet_address_from_public_key_succeeds_and_produces_ex
 
     // Act
     let olympia_address = {
-        let request = DeriveOlympiaAddressFromPublicKeyRequest {
+        let request = derive_olympia_address_from_public_key::Input {
             network: OlympiaNetwork::Mainnet,
             public_key,
         };
-        let response = DeriveOlympiaAddressFromPublicKeyHandler::fulfill(request).unwrap();
+        let response = derive_olympia_address_from_public_key::Handler::fulfill(request).unwrap();
         response.olympia_account_address
     };
 

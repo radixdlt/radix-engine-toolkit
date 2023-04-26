@@ -20,10 +20,7 @@ use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::{
     error::{InvocationHandlingError, RETError},
-    request::{
-        DeriveBabylonAddressFromOlympiaAddressHandler,
-        DeriveBabylonAddressFromOlympiaAddressRequest, Handler,
-    },
+    functions::*,
 };
 
 #[derive(Parser, Debug)]
@@ -40,12 +37,12 @@ pub struct BabylonAddressFromOlympiaAddress {
 
 impl BabylonAddressFromOlympiaAddress {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = DeriveBabylonAddressFromOlympiaAddressRequest {
+        let request = derive_babylon_address_from_olympia_address::Input {
             network_id: self.network_id,
             olympia_account_address: self.olympia_account_address.clone(),
         };
-        let response =
-            DeriveBabylonAddressFromOlympiaAddressHandler::fulfill(request).map_err(|error| {
+        let response = derive_babylon_address_from_olympia_address::Handler::fulfill(request)
+            .map_err(|error| {
                 RETError::InvocationHandlingError(
                     InvocationHandlingError::DeriveBabylonAddressFromOlympiaAddressError(error),
                 )

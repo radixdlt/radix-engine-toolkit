@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "oneOf": [
+    {
+      "description": "An error emitted by the SBOR upstream functions that perform the decoding.",
+      "type": "object",
+      "required": [
+        "Error"
+      ],
+      "properties": {
+        "Error": {
+          "type": "object",
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "An error emitted when the passed SBOR payload is of an unknown variant and thus can not be decoded.",
+      "type": "object",
+      "required": [
+        "InvalidSborVariant"
+      ],
+      "properties": {
+        "InvalidSborVariant": {
+          "type": "object",
+          "required": [
+            "actual",
+            "expected"
+          ],
+          "properties": {
+            "expected": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "actual": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Passed payload is empty; thus can not be decoded.",
+      "type": "string",
+      "enum": [
+        "EmptyPayloadError"
+      ]
+    },
+    {
+      "description": "Emitted if the conversion from the Native manifest SBOR model to the RET manifest SBOR model fails.",
+      "type": "object",
+      "required": [
+        "ManifestSborValueConversionError"
+      ],
+      "properties": {
+        "ManifestSborValueConversionError": {
+          "$ref": "#/definitions/ManifestSborValueConversionError"
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "ManifestSborValueConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the Manifest Sbor fails.",
+      "oneOf": [
+        {
+          "description": "An error emitted when trying to parse a string to a type fails.",
+          "type": "object",
+          "required": [
+            "message",
+            "parsing",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ParseError"
+              ]
+            },
+            "parsing": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "An error emitted when the length of the byte array encountered is unexpected.",
+          "type": "object",
+          "required": [
+            "actual",
+            "expected",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "InvalidLength"
+              ]
+            },
+            "expected": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "actual": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "An error emitted when invalid non-fungible local ids are provided.",
+          "type": "object",
+          "required": [
+            "message",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ScryptoContentValidationError"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

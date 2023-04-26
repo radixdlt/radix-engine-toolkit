@@ -17,10 +17,11 @@
 
 use std::path::{Path, PathBuf};
 
+use radix_engine_toolkit::functions::convert_manifest;
+use radix_engine_toolkit::functions::traits::InvocationHandler;
 use radix_engine_toolkit::model::transaction::{
     InstructionKind, InstructionList, TransactionManifest,
 };
-use radix_engine_toolkit::request::{ConvertManifestHandler, ConvertManifestRequest, Handler};
 
 const MANIFESTS_PATH: &str = "./tests/test_vector/manifest";
 
@@ -37,14 +38,14 @@ pub fn common_manifests_can_be_converted_to_parsed_manifests() {
             blobs: vec![[10].into(), [10].into()],
         };
 
-        let request = ConvertManifestRequest {
+        let request = convert_manifest::Input {
             manifest,
             instructions_output_kind: InstructionKind::Parsed,
             network_id: 0xf2,
         };
 
         // Act
-        let response = ConvertManifestHandler::fulfill(request);
+        let response = convert_manifest::Handler::fulfill(request);
 
         // Assert
         assert!(matches!(response, Ok(..)));
@@ -64,21 +65,21 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
             blobs: vec![[10].into()],
         };
 
-        let request = ConvertManifestRequest {
+        let request = convert_manifest::Input {
             manifest,
             instructions_output_kind: InstructionKind::Parsed,
             network_id: 0xf2,
         };
-        let response = ConvertManifestHandler::fulfill(request).unwrap();
+        let response = convert_manifest::Handler::fulfill(request).unwrap();
 
-        let request = ConvertManifestRequest {
+        let request = convert_manifest::Input {
             manifest: response.manifest,
             instructions_output_kind: InstructionKind::String,
             network_id: 0xf2,
         };
 
         // Act
-        let response = ConvertManifestHandler::fulfill(request);
+        let response = convert_manifest::Handler::fulfill(request);
 
         // Assert
         assert!(matches!(response, Ok(..)));

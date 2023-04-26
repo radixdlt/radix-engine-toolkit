@@ -20,7 +20,7 @@ use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::{
     error::{InvocationHandlingError, RETError},
-    request::{Handler, KnownEntityAddressesHandler, KnownEntityAddressesRequest},
+    functions::*,
 };
 
 #[derive(Parser, Debug)]
@@ -33,10 +33,10 @@ pub struct KnownAddresses {
 
 impl KnownAddresses {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = KnownEntityAddressesRequest {
+        let request = known_entity_addresses::Input {
             network_id: self.network_id,
         };
-        let response = KnownEntityAddressesHandler::fulfill(request).map_err(|error| {
+        let response = known_entity_addresses::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::KnownEntityAddressesError(
                 error,
             ))
