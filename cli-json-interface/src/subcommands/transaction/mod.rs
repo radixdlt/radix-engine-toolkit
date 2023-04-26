@@ -22,7 +22,7 @@ mod extract_addresses_from_manifest;
 /// A subcommand for all transaction related commands.
 #[derive(clap::Subcommand, Debug)]
 pub enum Transaction {
-    extractAddressesFromManifest(extract_addresses_from_manifest::extractAddressesFromManifest),
+    ExtractAddressesFromManifest(extract_addresses_from_manifest::ExtractAddressesFromManifest),
     ConvertManifest(convert_manifest::ConvertManifest),
     Decompile(decompile::Decompile),
 }
@@ -30,7 +30,7 @@ pub enum Transaction {
 impl Transaction {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> crate::error::Result<()> {
         match self {
-            Self::extractAddressesFromManifest(cmd) => cmd.run(out),
+            Self::ExtractAddressesFromManifest(cmd) => cmd.run(out),
             Self::ConvertManifest(cmd) => cmd.run(out),
             Self::Decompile(cmd) => cmd.run(out),
         }

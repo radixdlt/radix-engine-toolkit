@@ -29,7 +29,7 @@ use crate::utils::pretty_print;
 
 #[derive(Parser, Debug)]
 /// Analyzes the manifest for all of the included addresses in the manifest.
-pub struct extractAddressesFromManifest {
+pub struct ExtractAddressesFromManifest {
     /// The path to a manifest file. This can either be a standard `.rtm` file of the manifest in
     /// text form or could be the path to a `.json` file of the JSON based manifest abstract syntax
     /// tree.
@@ -41,7 +41,7 @@ pub struct extractAddressesFromManifest {
     network_id: u8,
 }
 
-impl extractAddressesFromManifest {
+impl ExtractAddressesFromManifest {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         // Determine the type of input to expect from the file extension.
         let input_type = match self
@@ -80,7 +80,7 @@ impl extractAddressesFromManifest {
         let response =
             extract_addresses_from_manifest::Handler::fulfill(request).map_err(|error| {
                 RETError::InvocationHandlingError(
-                    InvocationHandlingError::extractAddressesFromManifestError(error),
+                    InvocationHandlingError::ExtractAddressesFromManifestError(error),
                 )
             })?;
         pretty_print(&response, out)
