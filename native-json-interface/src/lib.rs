@@ -99,11 +99,9 @@ pub mod native {
     export_handler!(information::Handler as information);
 
     export_handler!(convert_manifest::Handler as convert_manifest);
-    export_handler!(analyze_manifest::Handler as analyze_manifest);
+    export_handler!(extract_addresses_from_manifest::Handler as extract_addresses_from_manifest);
     #[cfg(feature = "radix-engine")]
-    export_handler!(
-        analyze_manifest_with_preview_context::Handler as analyze_manifest_with_preview_context
-    );
+    export_handler!(analyze_transaction_execution::Handler as analyze_transaction_execution);
 
     export_handler!(compile_transaction_intent::Handler as compile_transaction_intent);
     export_handler!(
@@ -217,13 +215,13 @@ pub mod jni {
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_convertManifest
     );
     export_handler!(
-        analyze_manifest::Handler
-            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifest
+        extract_addresses_from_manifest::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_extractAddressesFromManifest
     );
     #[cfg(feature = "radix-engine")]
     export_handler!(
-        analyze_manifest_with_preview_context::Handler
-            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifestWithPreviewContext
+        analyze_transaction_execution::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeTransactionExecution
     );
 
     export_handler!(

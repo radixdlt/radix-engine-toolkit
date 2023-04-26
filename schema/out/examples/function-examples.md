@@ -357,11 +357,11 @@ the payload and responses of these requests.
 ```
 </details>
 
-## Analyze Manifest
+## Extract Addresses From Manifest
 
-| Function Name     | `analyze_manifest` |
+| Function Name     | `extract_addresses_from_manifest` |
 | ----------------- | :----------------- |
-| JNI Function Name | `Java_RadixEngineToolkitFFI_analyzeManifest` |
+| JNI Function Name | `Java_RadixEngineToolkitFFI_extractAddressesFromManifest` |
 | Functionality     | Analyzes the manifest returning back all of the addresses involved in the manifest</br>alongside some useful information on whether the accounts were withdrawn from, deposited into, or</br>just used in the manifest in general.   |
 | Required Features | default   |
 

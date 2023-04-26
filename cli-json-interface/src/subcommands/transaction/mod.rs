@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod analyze_manifest;
 mod convert_manifest;
 mod decompile;
+mod extract_addresses_from_manifest;
 
 /// A subcommand for all transaction related commands.
 #[derive(clap::Subcommand, Debug)]
 pub enum Transaction {
-    AnalyzeManifest(analyze_manifest::AnalyzeManifest),
+    extractAddressesFromManifest(extract_addresses_from_manifest::extractAddressesFromManifest),
     ConvertManifest(convert_manifest::ConvertManifest),
     Decompile(decompile::Decompile),
 }
@@ -30,7 +30,7 @@ pub enum Transaction {
 impl Transaction {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> crate::error::Result<()> {
         match self {
-            Self::AnalyzeManifest(cmd) => cmd.run(out),
+            Self::extractAddressesFromManifest(cmd) => cmd.run(out),
             Self::ConvertManifest(cmd) => cmd.run(out),
             Self::Decompile(cmd) => cmd.run(out),
         }

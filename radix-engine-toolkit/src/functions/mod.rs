@@ -48,8 +48,8 @@ pub mod hash;
 
 pub mod traits;
 
-pub mod analyze_manifest;
 #[cfg(feature = "radix-engine")]
-pub mod analyze_manifest_with_preview_context;
+pub mod analyze_transaction_execution;
+pub mod extract_addresses_from_manifest;
 
 pub use traits::*;

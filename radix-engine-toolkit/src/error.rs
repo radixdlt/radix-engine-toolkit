@@ -70,7 +70,7 @@ impl From<std::str::Utf8Error> for InvocationInterpretationError {
 #[serde(tag = "type")]
 pub enum InvocationHandlingError {
     #[cfg(feature = "radix-engine")]
-    AnalyzeManifestWithPreviewContextError(analyze_manifest_with_preview_context::Error),
+    analyzeTransactionExecutionError(analyze_transaction_execution::Error),
     InformationError(information::Error),
     ConvertManifestError(convert_manifest::Error),
     CompileTransactionIntentError(compile_transaction_intent::Error),
@@ -88,7 +88,7 @@ pub enum InvocationHandlingError {
     DeriveOlympiaAddressFromPublicKeyError(derive_olympia_address_from_public_key::Error),
     DeriveVirtualAccountAddressError(derive_virtual_account_address::Error),
     DeriveVirtualIdentityAddressError(derive_virtual_identity_address::Error),
-    AnalyzeManifestError(analyze_manifest::Error),
+    extractAddressesFromManifestError(extract_addresses_from_manifest::Error),
     KnownEntityAddressesError(known_entity_addresses::Error),
     StaticallyValidateTransactionError(statically_validate_transaction::Error),
     HashError(hash::Error),
@@ -105,7 +105,7 @@ macro_rules! impl_from {
 }
 
 #[cfg(feature = "radix-engine")]
-impl_from! { analyze_manifest_with_preview_context::Error => InvocationHandlingError as AnalyzeManifestWithPreviewContextError }
+impl_from! { analyze_transaction_execution::Error => InvocationHandlingError as analyzeTransactionExecutionError }
 impl_from! { information::Error => InvocationHandlingError as InformationError }
 impl_from! { convert_manifest::Error => InvocationHandlingError as ConvertManifestError }
 impl_from! { compile_transaction_intent::Error => InvocationHandlingError as CompileTransactionIntentError }
@@ -123,7 +123,7 @@ impl_from! { derive_babylon_address_from_olympia_address::Error => InvocationHan
 impl_from! { derive_olympia_address_from_public_key::Error => InvocationHandlingError as DeriveOlympiaAddressFromPublicKeyError }
 impl_from! { derive_virtual_account_address::Error => InvocationHandlingError as DeriveVirtualAccountAddressError }
 impl_from! { derive_virtual_identity_address::Error => InvocationHandlingError as DeriveVirtualIdentityAddressError }
-impl_from! { analyze_manifest::Error => InvocationHandlingError as AnalyzeManifestError }
+impl_from! { extract_addresses_from_manifest::Error => InvocationHandlingError as extractAddressesFromManifestError }
 impl_from! { known_entity_addresses::Error => InvocationHandlingError as KnownEntityAddressesError }
 impl_from! { statically_validate_transaction::Error => InvocationHandlingError as StaticallyValidateTransactionError }
 impl_from! { hash::Error => InvocationHandlingError as HashError }

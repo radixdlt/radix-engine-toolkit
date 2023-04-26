@@ -154,15 +154,15 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
             hash::Output,
             hash::Error
         ),
-        "analyze_manifest" => generate_group_schema!(
-            analyze_manifest::Input,
-            analyze_manifest::Output,
-            analyze_manifest::Error
+        "extract_addresses_from_manifest" => generate_group_schema!(
+            extract_addresses_from_manifest::Input,
+            extract_addresses_from_manifest::Output,
+            extract_addresses_from_manifest::Error
         ),
-        "analyze_manifest_with_preview_context" => generate_group_schema!(
-            analyze_manifest_with_preview_context::Input,
-            analyze_manifest_with_preview_context::Output,
-            analyze_manifest_with_preview_context::Error
+        "analyze_transaction_execution" => generate_group_schema!(
+            analyze_transaction_execution::Input,
+            analyze_transaction_execution::Output,
+            analyze_transaction_execution::Error
         ),
     );
 
@@ -192,7 +192,7 @@ fn generate_request_examples() -> Result<(), GenerationError> {
     let examples = InMemoryExamplesBuilder::new()
         .add_example::<information::Handler, _, _>()
         .add_example::<convert_manifest::Handler, _, _>()
-        .add_example::<analyze_manifest::Handler, _, _>()
+        .add_example::<extract_addresses_from_manifest::Handler, _, _>()
         .add_example::<compile_transaction_intent::Handler, _, _>()
         .add_example::<decompile_transaction_intent::Handler, _, _>()
         .add_example::<compile_signed_transaction_intent::Handler, _, _>()

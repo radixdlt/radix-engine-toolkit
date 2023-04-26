@@ -226,15 +226,15 @@ radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manif
     }
 }
 
-impl ExampleData<analyze_manifest::Input, analyze_manifest::Output> for analyze_manifest::Handler {
+impl ExampleData<extract_addresses_from_manifest::Input, extract_addresses_from_manifest::Output> for extract_addresses_from_manifest::Handler {
     fn description() -> String {
         r#"Analyzes the manifest returning back all of the addresses involved in the manifest
 alongside some useful information on whether the accounts were withdrawn from, deposited into, or
 just used in the manifest in general."#.to_owned()     }
 
-    fn example_input() -> analyze_manifest::Input {
+    fn example_input() -> extract_addresses_from_manifest::Input {
         let bec32_coder = Bech32Coder::new(network_definition().id);
-        analyze_manifest::Input {
+        extract_addresses_from_manifest::Input {
             manifest:
                 
 radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(             
