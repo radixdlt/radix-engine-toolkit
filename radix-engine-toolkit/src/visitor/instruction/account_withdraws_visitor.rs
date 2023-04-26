@@ -22,7 +22,7 @@ use scrypto::blueprints::account::*;
 use crate::error::VisitorError;
 use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::resource_specifier::ResourceSpecifier;
+use crate::model::resource_specifier::{ResourceManagerSpecifier, ResourceSpecifier};
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::InstructionVisitor;
 use toolkit_derive::serializable;
@@ -82,7 +82,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     *component_address,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: *resource_address,
+                        resource_address: ResourceManagerSpecifier::Existing {
+                            address: *resource_address,
+                        },
                     },
                 )
             }
@@ -122,7 +124,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     *component_address,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: *resource_address,
+                        resource_address: ResourceManagerSpecifier::Existing {
+                            address: *resource_address,
+                        },
                     },
                 )
             }
@@ -150,7 +154,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     *component_address,
                     ResourceSpecifier::Amount {
                         amount: amount.to_owned(),
-                        resource_address: *resource_address,
+                        resource_address: ResourceManagerSpecifier::Existing {
+                            address: *resource_address,
+                        },
                     },
                 )
             }
@@ -191,7 +197,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                     *component_address,
                     ResourceSpecifier::Ids {
                         ids,
-                        resource_address: *resource_address,
+                        resource_address: ResourceManagerSpecifier::Existing {
+                            address: *resource_address,
+                        },
                     },
                 )
             }

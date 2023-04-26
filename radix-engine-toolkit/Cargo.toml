@@ -38,6 +38,7 @@ serde_json = "1.0.91"
 regex = "1.7.3"
 
 [dev-dependencies]
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d" }
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
 

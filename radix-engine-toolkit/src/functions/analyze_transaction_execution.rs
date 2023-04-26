@@ -16,6 +16,7 @@
 // under the License.
 
 use std::collections::BTreeSet;
+use std::fmt::Debug;
 
 use crate::error::VisitorError;
 use crate::model::address::NetworkAwareNodeId;
@@ -194,6 +195,30 @@ pub struct EncounteredComponents {
     pub access_controller: BTreeSet<NetworkAwareNodeId>,
 }
 
+#[serializable]
+#[serde(tag = "type", content = "value")]
+#[derive(PartialEq, PartialOrd, Eq, Ord)]
+pub enum Source<G, P> {
+    Guaranteed {
+        #[serde(flatten)]
+        value: G,
+    },
+    Predicted {
+        #[serde(flatten)]
+        value: P,
+    },
+}
+
+impl<G, P> Source<G, P> {
+    pub fn guaranteed(value: G) -> Self {
+        Self::Guaranteed { value }
+    }
+
+    pub fn predicted(value: P) -> Self {
+        Self::Predicted { value }
+    }
+}
+
 impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
     fn from(value: BTreeSet<NetworkAwareNodeId>) -> Self {
         let mut user_applications = BTreeSet::new();
@@ -340,6 +365,7 @@ impl InvocationHandler<Input, Output> for Handler {
                 request.network_id,
                 resource_changes,
                 worktop_changes,
+                commit.new_resource_addresses().clone(),
             )
         };
         instructions

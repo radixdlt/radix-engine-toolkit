@@ -29,10 +29,10 @@ use super::address::NetworkAwareNodeId;
 pub enum ResourceSpecifier {
     // Specifies resources using a decimal quantity.
     Amount {
-        /// The resource address associated with the resource
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        resource_address: NetworkAwareNodeId,
+        /// A specifier of the resource manager, can either be an address for already existing
+        /// resource managers or an index for newly created resource managers that can not be
+        /// queried through the network gateway.
+        resource_address: ResourceManagerSpecifier,
 
         /// The amount of resources withdrawn from the account. This is a decimal value which is
         /// serialized as a string.
@@ -43,10 +43,10 @@ pub enum ResourceSpecifier {
     },
     // Specifies resources through a set of non-fungible local id.
     Ids {
-        /// The resource address associated with the resource
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        resource_address: NetworkAwareNodeId,
+        /// A specifier of the resource manager, can either be an address for already existing
+        /// resource managers or an index for newly created resource managers that can not be
+        /// queried through the network gateway.
+        resource_address: ResourceManagerSpecifier,
 
         /// The set of non-fungible ids
         #[schemars(regex(pattern = "[+-]?([0-9]*[.])?[0-9]+"))]
@@ -55,5 +55,21 @@ pub enum ResourceSpecifier {
             as = "BTreeSet<serde_with::TryFromInto<crate::model::address::NonFungibleLocalId>>"
         )]
         ids: BTreeSet<NonFungibleLocalId>,
+    },
+}
+
+#[serializable]
+#[derive(PartialEq, PartialOrd, Eq, Ord)]
+#[serde(tag = "type")]
+pub enum ResourceManagerSpecifier {
+    Existing {
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        address: NetworkAwareNodeId,
+    },
+    NewlyCreated {
+        #[schemars(with = "String")]
+        #[serde_as(as = "serde_with::DisplayFromStr")]
+        index: u32,
     },
 }

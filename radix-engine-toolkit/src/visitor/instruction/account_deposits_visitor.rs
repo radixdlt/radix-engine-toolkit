@@ -17,17 +17,18 @@
 
 #![allow(clippy::map_entry)]
 
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use crate::error::{InstructionVisitorError, VisitorError};
 use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::resource_specifier::ResourceSpecifier;
+use crate::model::resource_specifier::{ResourceManagerSpecifier, ResourceSpecifier};
 use crate::model::value::ast::{BucketId, ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
 use radix_engine::system::system_modules::execution_trace::{
     ResourceChange, ResourceSpecifier as NativeResourceSpecifier, WorktopChange,
 };
+use radix_engine::types::ResourceAddress;
 use scrypto::blueprints::account::{ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT};
 use scrypto::prelude::ManifestExpression;
 use toolkit_derive::serializable;
@@ -38,6 +39,7 @@ pub struct AccountDepositsInstructionVisitor {
     pub deposits: Vec<AccountDeposit>,
     pub resource_changes: HashMap<u32, Vec<ResourceChange>>,
     pub worktop_changes: HashMap<u32, Vec<WorktopChange>>,
+    newly_created_resources: Vec<ResourceAddress>,
     buckets: BTreeMap<BucketId, ExactnessSpecifier>,
     instruction_index: u32,
     network_id: u8,
@@ -48,6 +50,7 @@ impl AccountDepositsInstructionVisitor {
         network_id: u8,
         resource_changes: HashMap<u32, Vec<ResourceChange>>,
         worktop_changes: HashMap<u32, Vec<WorktopChange>>,
+        newly_created_resources: Vec<ResourceAddress>,
     ) -> Self {
         Self {
             resource_changes,
@@ -56,6 +59,7 @@ impl AccountDepositsInstructionVisitor {
             buckets: Default::default(),
             instruction_index: Default::default(),
             network_id,
+            newly_created_resources,
         }
     }
 }
@@ -197,10 +201,26 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                                 deposited: ExactnessSpecifier::Estimate {
                                     instruction_index: self.instruction_index,
                                     resource_specifier: ResourceSpecifier::Amount {
-                                        resource_address: NetworkAwareNodeId(
-                                            resource_change.resource_address.as_node_id().0,
-                                            self.network_id,
-                                        ),
+                                        resource_address: self
+                                            .newly_created_resources
+                                            .iter()
+                                            .position(|address| {
+                                                *address == resource_change.resource_address
+                                            })
+                                            .map_or(
+                                                ResourceManagerSpecifier::Existing {
+                                                    address: NetworkAwareNodeId(
+                                                        resource_change
+                                                            .resource_address
+                                                            .as_node_id()
+                                                            .0,
+                                                        self.network_id,
+                                                    ),
+                                                },
+                                                |index| ResourceManagerSpecifier::NewlyCreated {
+                                                    index: index as u32,
+                                                },
+                                            ),
                                         amount: resource_change.amount,
                                     },
                                 },
@@ -286,13 +306,17 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                                 resource_specifier: match resource_specifier {
                                     NativeResourceSpecifier::Amount(_, amount) => {
                                         ResourceSpecifier::Amount {
-                                            resource_address: *resource_address,
+                                            resource_address: ResourceManagerSpecifier::Existing {
+                                                address: *resource_address,
+                                            },
                                             amount: *amount,
                                         }
                                     }
                                     NativeResourceSpecifier::Ids(_, ids) => {
                                         ResourceSpecifier::Ids {
-                                            resource_address: *resource_address,
+                                            resource_address: ResourceManagerSpecifier::Existing {
+                                                address: *resource_address,
+                                            },
                                             ids: ids.clone(),
                                         }
                                     }
@@ -327,7 +351,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                     bucket_id.clone(),
                     ExactnessSpecifier::Exact {
                         resource_specifier: ResourceSpecifier::Amount {
-                            resource_address: *resource_address,
+                            resource_address: ResourceManagerSpecifier::Existing {
+                                address: *resource_address,
+                            },
                             amount: *amount,
                         },
                     },
@@ -369,7 +395,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                     ExactnessSpecifier::Exact {
                         resource_specifier: ResourceSpecifier::Ids {
                             ids,
-                            resource_address: *resource_address,
+                            resource_address: ResourceManagerSpecifier::Existing {
+                                address: *resource_address,
+                            },
                         },
                     },
                 )?;
