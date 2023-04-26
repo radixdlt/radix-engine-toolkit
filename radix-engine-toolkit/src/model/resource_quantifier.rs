@@ -26,7 +26,7 @@ use super::address::NetworkAwareNodeId;
 #[serializable]
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 #[serde(tag = "type")]
-pub enum ResourceSpecifier {
+pub enum ResourceQuantifier {
     // Specifies resources using a decimal quantity.
     Amount {
         /// A specifier of the resource manager, can either be an address for already existing

@@ -22,7 +22,7 @@ use radix_engine::types::NetworkDefinition;
 use radix_engine_toolkit::{
     functions::{analyze_transaction_execution, InvocationHandler},
     model::{
-        resource_specifier::{ResourceManagerSpecifier, ResourceSpecifier},
+        resource_quantifier::{ResourceManagerSpecifier, ResourceQuantifier},
         transaction::{InstructionList, TransactionManifest},
     },
     visitor::{AccountDeposit, ExactnessSpecifier},
@@ -92,7 +92,7 @@ pub fn analyze_create_resources_transaction() {
             // TODO: This should be exact and not an estimate.
             deposited: ExactnessSpecifier::Estimate {
                 instruction_index: 3,
-                resource_specifier: ResourceSpecifier::Amount {
+                resource_quantifier: ResourceQuantifier::Amount {
                     resource_address: ResourceManagerSpecifier::NewlyCreated { index: 1 },
                     amount: 2.into()
                 }
@@ -106,7 +106,7 @@ pub fn analyze_create_resources_transaction() {
             // TODO: This should be exact and not an estimate.
             deposited: ExactnessSpecifier::Estimate {
                 instruction_index: 3,
-                resource_specifier: ResourceSpecifier::Amount {
+                resource_quantifier: ResourceQuantifier::Amount {
                     resource_address: ResourceManagerSpecifier::NewlyCreated { index: 0 },
                     amount: 1.into()
                 }

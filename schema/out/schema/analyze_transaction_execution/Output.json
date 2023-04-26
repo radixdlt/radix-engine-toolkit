@@ -170,24 +170,24 @@
       "type": "object",
       "required": [
         "component_address",
-        "resource_specifier"
+        "resource_quantifier"
       ],
       "properties": {
         "component_address": {
           "description": "The component address of the account that the resources were withdrawn from.",
           "type": "string"
         },
-        "resource_specifier": {
+        "resource_quantifier": {
           "description": "A specifier used to specify what was withdrawn from the account - this could either be an amount or a set of non-fungible local ids.\n\nWhen this vector has more than one item, it means that multiple instructions performed a withdraw from the same account of the same resource.",
           "allOf": [
             {
-              "$ref": "#/definitions/ResourceSpecifier"
+              "$ref": "#/definitions/ResourceQuantifier"
             }
           ]
         }
       }
     },
-    "ResourceSpecifier": {
+    "ResourceQuantifier": {
       "description": "Specifies resources either through amounts for fungible and non-fungible resources or through ids for non-fungible resources.",
       "oneOf": [
         {
@@ -205,8 +205,12 @@
               ]
             },
             "resource_address": {
-              "description": "The resource address associated with the resource",
-              "type": "string"
+              "description": "A specifier of the resource manager, can either be an address for already existing resource managers or an index for newly created resource managers that can not be queried through the network gateway.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ResourceManagerSpecifier"
+                }
+              ]
             },
             "amount": {
               "description": "The amount of resources withdrawn from the account. This is a decimal value which is serialized as a string.",
@@ -230,8 +234,12 @@
               ]
             },
             "resource_address": {
-              "description": "The resource address associated with the resource",
-              "type": "string"
+              "description": "A specifier of the resource manager, can either be an address for already existing resource managers or an index for newly created resource managers that can not be queried through the network gateway.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ResourceManagerSpecifier"
+                }
+              ]
             },
             "ids": {
               "description": "The set of non-fungible ids",
@@ -240,6 +248,46 @@
                 "$ref": "#/definitions/NonFungibleLocalId"
               },
               "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "ResourceManagerSpecifier": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Existing"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NewlyCreated"
+              ]
+            },
+            "index": {
+              "type": "string"
             }
           }
         }
@@ -363,7 +411,7 @@
         {
           "type": "object",
           "required": [
-            "resource_specifier",
+            "resource_quantifier",
             "type"
           ],
           "properties": {
@@ -373,11 +421,11 @@
                 "Exact"
               ]
             },
-            "resource_specifier": {
+            "resource_quantifier": {
               "description": "A specifier of the amount or ids of resources.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ResourceSpecifier"
+                  "$ref": "#/definitions/ResourceQuantifier"
                 }
               ]
             }
@@ -387,7 +435,7 @@
           "type": "object",
           "required": [
             "instruction_index",
-            "resource_specifier",
+            "resource_quantifier",
             "type"
           ],
           "properties": {
@@ -402,11 +450,11 @@
               "type": "string",
               "pattern": "[0-9]+"
             },
-            "resource_specifier": {
+            "resource_quantifier": {
               "description": "A specifier of the amount or ids of resources.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ResourceSpecifier"
+                  "$ref": "#/definitions/ResourceQuantifier"
                 }
               ]
             }

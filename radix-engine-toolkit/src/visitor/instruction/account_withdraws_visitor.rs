@@ -22,7 +22,7 @@ use scrypto::blueprints::account::*;
 use crate::error::VisitorError;
 use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::resource_specifier::{ResourceManagerSpecifier, ResourceSpecifier};
+use crate::model::resource_quantifier::{ResourceManagerSpecifier, ResourceQuantifier};
 use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::InstructionVisitor;
 use toolkit_derive::serializable;
@@ -35,11 +35,11 @@ impl AccountWithdrawsInstructionVisitor {
     pub fn add(
         &mut self,
         component_address: NetworkAwareNodeId,
-        resource_specifier: ResourceSpecifier,
+        resource_quantifier: ResourceQuantifier,
     ) {
         self.0.push(AccountWithdraw {
             component_address,
-            resource_specifier,
+            resource_quantifier,
         });
     }
 }
@@ -80,7 +80,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             {
                 self.add(
                     *component_address,
-                    ResourceSpecifier::Amount {
+                    ResourceQuantifier::Amount {
                         amount: amount.to_owned(),
                         resource_address: ResourceManagerSpecifier::Existing {
                             address: *resource_address,
@@ -122,7 +122,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 };
                 self.add(
                     *component_address,
-                    ResourceSpecifier::Ids {
+                    ResourceQuantifier::Ids {
                         ids,
                         resource_address: ResourceManagerSpecifier::Existing {
                             address: *resource_address,
@@ -152,7 +152,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             {
                 self.add(
                     *component_address,
-                    ResourceSpecifier::Amount {
+                    ResourceQuantifier::Amount {
                         amount: amount.to_owned(),
                         resource_address: ResourceManagerSpecifier::Existing {
                             address: *resource_address,
@@ -195,7 +195,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 };
                 self.add(
                     *component_address,
-                    ResourceSpecifier::Ids {
+                    ResourceQuantifier::Ids {
                         ids,
                         resource_address: ResourceManagerSpecifier::Existing {
                             address: *resource_address,
@@ -222,5 +222,5 @@ pub struct AccountWithdraw {
     ///
     /// When this vector has more than one item, it means that multiple instructions performed a
     /// withdraw from the same account of the same resource.
-    resource_specifier: ResourceSpecifier,
+    resource_quantifier: ResourceQuantifier,
 }
