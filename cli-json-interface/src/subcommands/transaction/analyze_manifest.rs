@@ -19,17 +19,17 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::model::transaction::{
     InstructionKind, InstructionList, TransactionManifest,
 };
-use radix_engine_toolkit::request::{AnalyzeManifestHandler, AnalyzeManifestRequest, Handler};
 
 use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 
 #[derive(Parser, Debug)]
 /// Analyzes the manifest for all of the included addresses in the manifest.
-pub struct AnalyzeManifest {
+pub struct extractAddressesFromManifest {
     /// The path to a manifest file. This can either be a standard `.rtm` file of the manifest in
     /// text form or could be the path to a `.json` file of the JSON based manifest abstract syntax
     /// tree.
@@ -41,7 +41,7 @@ pub struct AnalyzeManifest {
     network_id: u8,
 }
 
-impl AnalyzeManifest {
+impl extractAddressesFromManifest {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
         // Determine the type of input to expect from the file extension.
         let input_type = match self
@@ -70,16 +70,19 @@ impl AnalyzeManifest {
             }
         };
 
-        let request = AnalyzeManifestRequest {
+        let request = extract_addresses_from_manifest::Input {
             manifest: TransactionManifest {
                 instructions,
                 blobs: vec![],
             },
             network_id: self.network_id,
         };
-        let response = AnalyzeManifestHandler::fulfill(request).map_err(|error| {
-            RETError::InvocationHandlingError(InvocationHandlingError::AnalyzeManifestError(error))
-        })?;
+        let response =
+            extract_addresses_from_manifest::Handler::fulfill(request).map_err(|error| {
+                RETError::InvocationHandlingError(
+                    InvocationHandlingError::extractAddressesFromManifestError(error),
+                )
+            })?;
         pretty_print(&response, out)
     }
 }

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Output",
+  "description": "The response form [`Input`] requests",
+  "type": "object",
+  "required": [
+    "virtual_account_address"
+  ],
+  "properties": {
+    "virtual_account_address": {
+      "description": "The virtual account component address serialized as an `Address` from the `Value` model.",
+      "type": "string"
+    }
+  }
+}

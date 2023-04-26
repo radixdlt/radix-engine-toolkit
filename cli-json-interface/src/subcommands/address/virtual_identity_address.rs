@@ -19,9 +19,7 @@ use crate::error::{Error, Result};
 use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
-use radix_engine_toolkit::request::{
-    DeriveVirtualIdentityAddressHandler, DeriveVirtualIdentityAddressRequest, Handler,
-};
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::prelude::{EcdsaSecp256k1PublicKey, EddsaEd25519PublicKey};
 
@@ -51,15 +49,16 @@ impl VirtualIdentityAddress {
             _ => Err(Error::InvalidPublicKey),
         }?;
 
-        let request = DeriveVirtualIdentityAddressRequest {
+        let request = derive_virtual_identity_address::Input {
             public_key,
             network_id: self.network_id,
         };
-        let response = DeriveVirtualIdentityAddressHandler::fulfill(request).map_err(|error| {
-            RETError::InvocationHandlingError(
-                InvocationHandlingError::DeriveVirtualIdentityAddressError(error),
-            )
-        })?;
+        let response =
+            derive_virtual_identity_address::Handler::fulfill(request).map_err(|error| {
+                RETError::InvocationHandlingError(
+                    InvocationHandlingError::DeriveVirtualIdentityAddressError(error),
+                )
+            })?;
         pretty_print(&response, out)
     }
 }

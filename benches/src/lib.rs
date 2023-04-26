@@ -7,8 +7,8 @@ mod ffi {
     extern "C" {
         pub fn information(pointer: Pointer) -> Pointer;
         pub fn convert_manifest(pointer: Pointer) -> Pointer;
-        pub fn analyze_manifest(pointer: Pointer) -> Pointer;
-        pub fn analyze_manifest_with_preview_context(pointer: Pointer) -> Pointer;
+        pub fn extract_addresses_from_manifest(pointer: Pointer) -> Pointer;
+        pub fn analyze_transaction_execution(pointer: Pointer) -> Pointer;
         pub fn compile_transaction_intent(pointer: Pointer) -> Pointer;
         pub fn compile_signed_transaction_intent(pointer: Pointer) -> Pointer;
         pub fn compile_notarized_transaction(pointer: Pointer) -> Pointer;
@@ -135,8 +135,8 @@ macro_rules! impl_invoke {
 
 impl_invoke! { InformationRequest, InformationResponse, ffi::information }
 impl_invoke! { ConvertManifestRequest, ConvertManifestResponse, ffi::convert_manifest }
-impl_invoke! { AnalyzeManifestRequest, AnalyzeManifestResponse, ffi::analyze_manifest }
-impl_invoke! { AnalyzeManifestWithPreviewContextRequest, AnalyzeManifestWithPreviewContextResponse, ffi::analyze_manifest_with_preview_context }
+impl_invoke! { extractAddressesFromManifestRequest, extractAddressesFromManifestResponse, ffi::extract_addresses_from_manifest }
+impl_invoke! { analyzeTransactionExecutionRequest, analyzeTransactionExecutionResponse, ffi::analyze_transaction_execution }
 impl_invoke! { CompileTransactionIntentRequest, CompileTransactionIntentResponse, ffi::compile_transaction_intent }
 impl_invoke! { CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, ffi::compile_signed_transaction_intent }
 impl_invoke! { CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse, ffi::compile_notarized_transaction }

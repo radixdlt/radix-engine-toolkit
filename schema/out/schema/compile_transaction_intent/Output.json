@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Output",
+  "description": "The response from [`Input`].",
+  "type": "object",
+  "required": [
+    "compiled_intent"
+  ],
+  "properties": {
+    "compiled_intent": {
+      "description": "A byte array serialized as a hex string which represents the compiled transaction intent.",
+      "type": "string",
+      "pattern": "[0-9a-fA-F]+"
+    }
+  }
+}

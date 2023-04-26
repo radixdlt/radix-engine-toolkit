@@ -52,7 +52,7 @@ pub enum Instruction {
     )]
     CallFunction {
         /// The address of the package containing the blueprint that contains the desired function.
-        /// This package address is serialized as the `PackageAddress` variant of the
+        /// This package address is serialized as the `Address` variant of the
         /// `ManifestAstValue` model.
         package_address: ManifestAstValue,
 
@@ -80,7 +80,7 @@ pub enum Instruction {
     )]
     CallMethod {
         /// The address of the component which contains the method to be invoked. This field is
-        /// serialized as a `ComponentAddress` from the ManifestAstValue model.
+        /// serialized as an `Address` from the ManifestAstValue model.
         component_address: ManifestAstValue,
 
         /// A string of the name of the method to call. his field is serialized as a `String` from
@@ -100,7 +100,7 @@ pub enum Instruction {
     )]
     TakeFromWorktop {
         /// The address of the resource to take from the worktop. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// A bucket to put the taken resources into. This field is serialized as a `Bucket` from
@@ -116,7 +116,7 @@ pub enum Instruction {
     )]
     TakeFromWorktopByAmount {
         /// The address of the resource to take from the worktop. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The amount of the resource to take from the worktop. This field is serialized as a
@@ -136,7 +136,7 @@ pub enum Instruction {
     )]
     TakeFromWorktopByIds {
         /// The address of the resource to take from the worktop. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The non-fungible ids to take from the worktop. This is a set (serialized as a JSON
@@ -163,7 +163,7 @@ pub enum Instruction {
     )]
     AssertWorktopContains {
         /// The address of the resource to perform the assertion on. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
     },
 
@@ -175,7 +175,7 @@ pub enum Instruction {
     )]
     AssertWorktopContainsByAmount {
         /// The address of the resource to perform the assertion on. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The amount of the resource to assert their existence in the worktop. This field is
@@ -191,7 +191,7 @@ pub enum Instruction {
     )]
     AssertWorktopContainsByIds {
         /// The address of the resource to perform the assertion on. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The non-fungible ids of the resource to assert their existence in the worktop. This is
@@ -234,7 +234,7 @@ pub enum Instruction {
     )]
     CreateProofFromAuthZone {
         /// The address of the resource to create a proof of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
@@ -250,7 +250,7 @@ pub enum Instruction {
     )]
     CreateProofFromAuthZoneByAmount {
         /// The address of the resource to create a proof of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The amount of the resource to create a proof of. This field is serialized as a
@@ -270,7 +270,7 @@ pub enum Instruction {
     )]
     CreateProofFromAuthZoneByIds {
         /// The address of the resource to create a proof of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The non-fungible ids to create a proof of. This is a set (serialized as a JSON array)
@@ -390,8 +390,8 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::set_metadata")]
     SetMetadata {
         /// The address of the entity to set metadata on. This is a discriminated union of types
-        /// where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or
-        /// a `ComponentAddress`.
+        /// where it can either be an `Address`, `Address`, `Address` or
+        /// an `Address`.
         entity_address: ManifestAstValue,
 
         /// A string of the key to set the metadata for. This field is serialized as a `String`
@@ -407,8 +407,8 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::remove_metadata")]
     RemoveMetadata {
         /// The address of the entity to set metadata on. This is a discriminated union of types
-        /// where it can either be a `ResourceAddress`, `ComponentAddress`, `PackageAddress` or
-        /// a `ComponentAddress`.
+        /// where it can either be an `Address`, `Address`, `Address` or
+        /// an `Address`.
         entity_address: ManifestAstValue,
 
         /// A string of the key to remove the metadata for. This field is serialized as a `String`
@@ -420,7 +420,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::set_package_royalty_config")]
     SetPackageRoyaltyConfig {
         /// The address of the package to set the royalty on. This is serialized as a
-        /// `PackageAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         package_address: ManifestAstValue,
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map
@@ -433,7 +433,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::set_component_royalty_config")]
     SetComponentRoyaltyConfig {
         /// The component address of the component to modify royalties for. This field is
-        /// serialized as a `ComponentAddress` from the ManifestAstValue model.
+        /// serialized as an `Address` from the ManifestAstValue model.
         component_address: ManifestAstValue,
 
         /// The royalty config to set on the component. This is an `Enum` from the
@@ -445,7 +445,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::claim_package_royalty")]
     ClaimPackageRoyalty {
         /// The package address of the package to claim royalties for. This field is serialized as
-        /// a `PackageAddress` from the ManifestAstValue model.
+        /// an `Address` from the ManifestAstValue model.
         package_address: ManifestAstValue,
     },
 
@@ -453,7 +453,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::claim_component_royalty")]
     ClaimComponentRoyalty {
         /// The component address of the component to claim royalties for. This field is serialized
-        /// as a `ComponentAddress` from the ManifestAstValue model.
+        /// as an `Address` from the ManifestAstValue model.
         component_address: ManifestAstValue,
     },
 
@@ -476,7 +476,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::mint_fungible")]
     MintFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The amount of fungible tokens to mint of this resource. This field is serialized as a
@@ -488,7 +488,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::mint_non_fungible")]
     MintNonFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The non-fungible tokens to mint. The underlying type of this is a map which maps a
@@ -502,7 +502,7 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::mint_uuid_non_fungible")]
     MintUuidNonFungible {
         /// The address of the resource to mint tokens of. This field is serialized as a
-        /// `ResourceAddress` from the ManifestAstValue model.
+        /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
 
         /// The non-fungible tokens to mint. The underlying type is a vector of tuples of two

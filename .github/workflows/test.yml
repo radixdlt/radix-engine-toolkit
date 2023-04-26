@@ -43,7 +43,7 @@ jobs:
       - name: Comparing old examples to newly generated
         run: |
           cd schema
-          cmp --quiet ./out/examples/request-examples.md ./old-out/examples/request-examples.md && exit 0 || exit 1
+          cmp --quiet ./out/examples/function-examples.md ./old-out/examples/function-examples.md && exit 0 || exit 1
       - name: Comparing old schema to newly generated
         run: |
           cd schema

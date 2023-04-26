@@ -20,7 +20,7 @@ use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::{
     error::{InvocationHandlingError, RETError},
-    request::{EncodeAddressHandler, EncodeAddressRequest, Handler},
+    functions::*,
 };
 
 #[derive(Parser, Debug)]
@@ -38,11 +38,11 @@ pub struct Encode {
 
 impl Encode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = EncodeAddressRequest {
+        let request = encode_address::Input {
             address_bytes: hex::decode(&self.raw_address)?,
             network_id: self.network_id,
         };
-        let response = EncodeAddressHandler::fulfill(request).map_err(|error| {
+        let response = encode_address::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::EncodeAddressError(error))
         })?;
         pretty_print(&response, out)

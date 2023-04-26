@@ -54,7 +54,7 @@ With the above in mind, this means that if you were to build the toolkit from so
 
 ## Exposed Functionality
 
-A full document of the functionality exposed by the Radix Engine Toolkit can be found in the [request examples](./docs-examples-generator/request-examples.md) document. This has a full list of the different functions exposed, what their functionality is, and what a sample request and response looks like for a given request type.
+A full document of the functionality exposed by the Radix Engine Toolkit can be found in the [request examples](./docs-examples-generator/function-examples.md) document. This has a full list of the different functions exposed, what their functionality is, and what a sample request and response looks like for a given request type.
 
 ## Schema and Specification
 

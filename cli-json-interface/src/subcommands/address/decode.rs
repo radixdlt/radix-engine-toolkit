@@ -20,7 +20,7 @@ use crate::utils::pretty_print;
 use clap::Parser;
 use radix_engine_toolkit::{
     error::{InvocationHandlingError, RETError},
-    request::{DecodeAddressHandler, DecodeAddressRequest, Handler},
+    functions::*,
 };
 
 /// Decodes the Bech32 address revealing some information on what exactly does it address.
@@ -33,10 +33,10 @@ pub struct Decode {
 
 impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = DecodeAddressRequest {
+        let request = decode_address::Input {
             address: self.address.clone().parse().unwrap(),
         };
-        let response = DecodeAddressHandler::fulfill(request).map_err(|error| {
+        let response = decode_address::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::DecodeAddressError(error))
         })?;
         pretty_print(&response, out)

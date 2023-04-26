@@ -20,9 +20,9 @@ use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
 use native_transaction::model::{NotarizedTransaction, TransactionHeader};
 use radix_engine_common::ManifestSbor;
 use radix_engine_constants::DEFAULT_COST_UNIT_LIMIT;
-use radix_engine_toolkit::request::{
-    CompileNotarizedTransactionHandler, CompileNotarizedTransactionRequest,
-    DecompileNotarizedTransactionHandler, DecompileNotarizedTransactionRequest, Handler,
+use radix_engine_toolkit::functions::traits::InvocationHandler;
+use radix_engine_toolkit::functions::{
+    compile_notarized_transaction, decompile_notarized_transaction,
 };
 use scrypto::prelude::*;
 
@@ -181,17 +181,17 @@ fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> Transacti
 fn test_inversion(transaction: &NotarizedTransaction) {
     let native_compiled = manifest_encode(&transaction).unwrap();
     let compiled_from_decompiled = {
-        let request = DecompileNotarizedTransactionRequest {
+        let request = decompile_notarized_transaction::Input {
             compiled_notarized_intent: native_compiled.clone(),
             instructions_output_kind:
                 radix_engine_toolkit::model::transaction::InstructionKind::String,
         };
-        let response = DecompileNotarizedTransactionHandler::fulfill(request).unwrap();
+        let response = decompile_notarized_transaction::Handler::fulfill(request).unwrap();
 
-        let request = CompileNotarizedTransactionRequest {
+        let request = compile_notarized_transaction::Input {
             notarized_intent: response.notarized_intent,
         };
-        let response = CompileNotarizedTransactionHandler::fulfill(request).unwrap();
+        let response = compile_notarized_transaction::Handler::fulfill(request).unwrap();
         response.compiled_intent
     };
     assert_eq!(native_compiled, compiled_from_decompiled)

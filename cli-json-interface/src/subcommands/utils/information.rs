@@ -17,7 +17,7 @@
 
 use clap::Parser;
 use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
-use radix_engine_toolkit::request::{Handler, InformationHandler, InformationRequest};
+use radix_engine_toolkit::functions::*;
 
 use crate::error::Result;
 use crate::utils::pretty_print;
@@ -29,8 +29,8 @@ pub struct Information;
 
 impl Information {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = InformationRequest {};
-        let response = InformationHandler::fulfill(request).map_err(|error| {
+        let request = information::Input {};
+        let response = information::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::InformationError(error))
         })?;
         pretty_print(&response, out)

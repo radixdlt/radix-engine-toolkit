@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Error",
+  "oneOf": [
+    {
+      "description": "An error emitted if the conversion between the native and RET representations of the Manifest Sbor fails.",
+      "type": "object",
+      "oneOf": [
+        {
+          "description": "An error emitted when trying to parse a string to a type fails.",
+          "type": "object",
+          "required": [
+            "message",
+            "parsing",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ParseError"
+              ]
+            },
+            "parsing": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "An error emitted when the length of the byte array encountered is unexpected.",
+          "type": "object",
+          "required": [
+            "actual",
+            "expected",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "InvalidLength"
+              ]
+            },
+            "expected": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "actual": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
+        },
+        {
+          "description": "An error emitted when invalid non-fungible local ids are provided.",
+          "type": "object",
+          "required": [
+            "message",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ScryptoContentValidationError"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ManifestSborValueConversionError"
+          ]
+        }
+      }
+    },
+    {
+      "description": "An error emitted if the conversion between the native and RET representations of the Scrypto Sbor fails.",
+      "type": "object",
+      "oneOf": [
+        {
+          "description": "An error emitted when trying to parse a string to a type fails.",
+          "type": "object",
+          "required": [
+            "message",
+            "parsing",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ParseError"
+              ]
+            },
+            "parsing": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ScryptoSborValueConversionError"
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "message",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

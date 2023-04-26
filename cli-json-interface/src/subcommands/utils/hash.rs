@@ -18,10 +18,8 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::{
-    error::{InvocationHandlingError, RETError},
-    request::{Handler, HashHandler, HashRequest},
-};
+use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 
 #[derive(Parser, Debug)]
 /// Hashes some data using the hashing algorithm of Scrypto and the Radix Engine. Currently, this
@@ -34,10 +32,10 @@ pub struct Hash {
 
 impl Hash {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = HashRequest {
+        let request = hash::Input {
             payload: hex::decode(&self.data)?,
         };
-        let response = HashHandler::fulfill(request).map_err(|error| {
+        let response = hash::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::HashError(error))
         })?;
         pretty_print(&response, out)

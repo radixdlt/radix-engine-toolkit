@@ -18,9 +18,9 @@
 pub mod buffer;
 pub mod error;
 pub mod example;
+pub mod functions;
 pub mod macros;
 pub mod model;
-pub mod request;
 pub mod traits;
 pub mod utils;
 pub mod visitor;

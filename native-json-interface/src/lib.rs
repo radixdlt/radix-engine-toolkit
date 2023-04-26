@@ -19,7 +19,7 @@
 #![allow(non_snake_case)]
 
 pub mod native {
-    use radix_engine_toolkit::request::*;
+    use radix_engine_toolkit::functions::*;
     use radix_engine_toolkit::utils::debug_string;
     use radix_engine_toolkit::{buffer::Pointer, error::InvocationInterpretationError};
     use serde::{Deserialize, Serialize};
@@ -61,7 +61,7 @@ pub mod native {
     }
 
     macro_rules! export_handler {
-        ($handler: ident as $handler_ident: ident) => {
+        ($handler: ty as $handler_ident: ident) => {
             #[no_mangle]
             pub unsafe extern "C" fn $handler_ident(
                 string_pointer: radix_engine_toolkit::buffer::Pointer,
@@ -71,7 +71,7 @@ pub mod native {
                         radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
                     })
                     .and_then(|request| {
-                        $handler::fulfill(request).map_err(|error| {
+                        <$handler>::fulfill(request).map_err(|error| {
                             radix_engine_toolkit::error::RETError::InvocationHandlingError(
                                 error.into(),
                             )
@@ -96,52 +96,52 @@ pub mod native {
         };
     }
 
-    export_handler!(InformationHandler as information);
+    export_handler!(information::Handler as information);
 
-    export_handler!(ConvertManifestHandler as convert_manifest);
-    export_handler!(AnalyzeManifestHandler as analyze_manifest);
+    export_handler!(convert_manifest::Handler as convert_manifest);
+    export_handler!(extract_addresses_from_manifest::Handler as extract_addresses_from_manifest);
     #[cfg(feature = "radix-engine")]
+    export_handler!(analyze_transaction_execution::Handler as analyze_transaction_execution);
+
+    export_handler!(compile_transaction_intent::Handler as compile_transaction_intent);
     export_handler!(
-        AnalyzeManifestWithPreviewContextHandler as analyze_manifest_with_preview_context
+        compile_signed_transaction_intent::Handler as compile_signed_transaction_intent
     );
+    export_handler!(compile_notarized_transaction::Handler as compile_notarized_transaction);
 
-    export_handler!(CompileTransactionIntentHandler as compile_transaction_intent);
-    export_handler!(CompileSignedTransactionIntentHandler as compile_signed_transaction_intent);
-    export_handler!(CompileNotarizedTransactionHandler as compile_notarized_transaction);
-
-    export_handler!(DecompileTransactionIntentHandler as decompile_transaction_intent);
-    export_handler!(DecompileSignedTransactionIntentHandler as decompile_signed_transaction_intent);
-    export_handler!(DecompileNotarizedTransactionHandler as decompile_notarized_transaction);
+    export_handler!(decompile_transaction_intent::Handler as decompile_transaction_intent);
     export_handler!(
-        DecompileUnknownTransactionIntentHandler as decompile_unknown_transaction_intent
+        decompile_signed_transaction_intent::Handler as decompile_signed_transaction_intent
     );
+    export_handler!(decompile_notarized_transaction::Handler as decompile_notarized_transaction);
+    export_handler!(decompile_unknown_intent::Handler as decompile_unknown_transaction_intent);
 
     export_handler!(
-        DeriveBabylonAddressFromOlympiaAddressHandler
+        derive_babylon_address_from_olympia_address::Handler
             as derive_babylon_address_from_olympia_address
     );
     export_handler!(
-        DeriveOlympiaAddressFromPublicKeyHandler as derive_olympia_address_from_public_key
+        derive_olympia_address_from_public_key::Handler as derive_olympia_address_from_public_key
     );
-    export_handler!(DeriveVirtualAccountAddressHandler as derive_virtual_account_address);
-    export_handler!(DeriveVirtualIdentityAddressHandler as derive_virtual_identity_address);
+    export_handler!(derive_virtual_account_address::Handler as derive_virtual_account_address);
+    export_handler!(derive_virtual_identity_address::Handler as derive_virtual_identity_address);
 
-    export_handler!(EncodeAddressHandler as encode_address);
-    export_handler!(DecodeAddressHandler as decode_address);
+    export_handler!(encode_address::Handler as encode_address);
+    export_handler!(decode_address::Handler as decode_address);
 
-    export_handler!(SborEncodeHandler as sbor_encode);
-    export_handler!(SborDecodeHandler as sbor_decode);
+    export_handler!(sbor_encode::Handler as sbor_encode);
+    export_handler!(sbor_decode::Handler as sbor_decode);
 
-    export_handler!(KnownEntityAddressesHandler as known_entity_addresses);
-    export_handler!(StaticallyValidateTransactionHandler as statically_validate_transaction);
+    export_handler!(known_entity_addresses::Handler as known_entity_addresses);
+    export_handler!(statically_validate_transaction::Handler as statically_validate_transaction);
 
-    export_handler!(HashHandler as hash);
+    export_handler!(hash::Handler as hash);
 }
 
 #[cfg(feature = "jni")]
 pub mod jni {
     use radix_engine_toolkit::{
-        error::InvocationInterpretationError, request::*, utils::debug_string,
+        error::InvocationInterpretationError, functions::*, utils::debug_string,
     };
     use serde::Serialize;
 
@@ -161,7 +161,7 @@ pub mod jni {
     }
 
     macro_rules! export_handler {
-        ($handler: ident as $handler_ident: ident) => {
+        ($handler: ty as $handler_ident: ident) => {
             #[no_mangle]
             pub unsafe extern "system" fn $handler_ident(
                 env: jni::JNIEnv,
@@ -184,7 +184,7 @@ pub mod jni {
                         radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
                     })
                     .and_then(|request| {
-                        $handler::fulfill(request).map_err(|error| {
+                        <$handler>::fulfill(request).map_err(|error| {
                             radix_engine_toolkit::error::RETError::InvocationHandlingError(
                                 error.into(),
                             )
@@ -207,90 +207,92 @@ pub mod jni {
     }
 
     export_handler!(
-        InformationHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_information
+        information::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_information
     );
 
     export_handler!(
-        ConvertManifestHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_convertManifest
+        convert_manifest::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_convertManifest
     );
     export_handler!(
-        AnalyzeManifestHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifest
+        extract_addresses_from_manifest::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_extractAddressesFromManifest
     );
     #[cfg(feature = "radix-engine")]
     export_handler!(
-        AnalyzeManifestWithPreviewContextHandler
-            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeManifestWithPreviewContext
+        analyze_transaction_execution::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_analyzeTransactionExecution
     );
 
     export_handler!(
-        CompileTransactionIntentHandler
+        compile_transaction_intent::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileTransactionIntent
     );
     export_handler!(
-        CompileSignedTransactionIntentHandler
+        compile_signed_transaction_intent::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileSignedTransactionIntent
     );
     export_handler!(
-        CompileNotarizedTransactionHandler
+        compile_notarized_transaction::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileNotarizedTransaction
     );
 
     export_handler!(
-        DecompileTransactionIntentHandler
+        decompile_transaction_intent::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileTransactionIntent
     );
     export_handler!(
-        DecompileSignedTransactionIntentHandler
+        decompile_signed_transaction_intent::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileSignedTransactionIntent
     );
     export_handler!(
-        DecompileNotarizedTransactionHandler
+        decompile_notarized_transaction::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileNotarizedTransaction
     );
     export_handler!(
-        DecompileUnknownTransactionIntentHandler
+        decompile_unknown_intent::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decompileUnknownTransactionIntent
     );
 
     export_handler!(
-        DeriveBabylonAddressFromOlympiaAddressHandler
+        derive_babylon_address_from_olympia_address::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveBabylonAddressFromOlympiaAddress
     );
     export_handler!(
-        DeriveOlympiaAddressFromPublicKeyHandler
+        derive_olympia_address_from_public_key::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveOlympiaAddressFromPublicKey
     );
     export_handler!(
-        DeriveVirtualAccountAddressHandler
+        derive_virtual_account_address::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualAccountAddress
     );
     export_handler!(
-        DeriveVirtualIdentityAddressHandler
+        derive_virtual_identity_address::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveVirtualIdentityAddress
     );
 
     export_handler!(
-        EncodeAddressHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_encodeAddress
+        encode_address::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_encodeAddress
     );
     export_handler!(
-        DecodeAddressHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decodeAddress
-    );
-
-    export_handler!(
-        SborEncodeHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborEncode
-    );
-    export_handler!(
-        SborDecodeHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborDecode
+        decode_address::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_decodeAddress
     );
 
     export_handler!(
-        KnownEntityAddressesHandler
+        sbor_encode::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborEncode
+    );
+    export_handler!(
+        sbor_decode::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_sborDecode
+    );
+
+    export_handler!(
+        known_entity_addresses::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_knownEntityAddresses
     );
     export_handler!(
-        StaticallyValidateTransactionHandler
+        statically_validate_transaction::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction
     );
 
-    export_handler!(HashHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hash);
+    export_handler!(hash::Handler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hash);
 }

@@ -18,10 +18,8 @@
 use crate::error::Result;
 use crate::utils::pretty_print;
 use clap::Parser;
-use radix_engine_toolkit::{
-    error::{InvocationHandlingError, RETError},
-    request::{Handler, SborDecodeHandler, SborDecodeRequest},
-};
+use radix_engine_toolkit::error::{InvocationHandlingError, RETError};
+use radix_engine_toolkit::functions::*;
 
 /// Decodes a Manifest and Scrypto SBOR encoded payloads.
 #[derive(Parser, Debug)]
@@ -37,11 +35,11 @@ pub struct Decode {
 
 impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = SborDecodeRequest {
+        let request = sbor_decode::Input {
             encoded_value: hex::decode(&self.payload)?,
             network_id: self.network_id,
         };
-        let response = SborDecodeHandler::fulfill(request).map_err(|error| {
+        let response = sbor_decode::Handler::fulfill(request).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::SborDecodeError(error))
         })?;
         pretty_print(&response, out)
