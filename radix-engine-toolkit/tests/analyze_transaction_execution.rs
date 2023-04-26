@@ -25,7 +25,7 @@ use radix_engine_toolkit::{
         resource_quantifier::{ResourceManagerSpecifier, ResourceQuantifier},
         transaction::{InstructionList, TransactionManifest},
     },
-    visitor::{AccountDeposit, ExactnessSpecifier},
+    visitor::{AccountDeposit, ResourceSpecifier},
 };
 use scrypto::prelude::*;
 use scrypto_unit::TestRunner;
@@ -90,7 +90,7 @@ pub fn analyze_create_resources_transaction() {
         AccountDeposit {
             component_address: as_network_aware_node_id!(account),
             // TODO: This should be exact and not an estimate.
-            deposited: ExactnessSpecifier::Estimate {
+            deposited: ResourceSpecifier::Predicted {
                 instruction_index: 3,
                 resource_quantifier: ResourceQuantifier::Amount {
                     resource_address: ResourceManagerSpecifier::NewlyCreated { index: 1 },
@@ -104,7 +104,7 @@ pub fn analyze_create_resources_transaction() {
         AccountDeposit {
             component_address: as_network_aware_node_id!(account),
             // TODO: This should be exact and not an estimate.
-            deposited: ExactnessSpecifier::Estimate {
+            deposited: ResourceSpecifier::Predicted {
                 instruction_index: 3,
                 resource_quantifier: ResourceQuantifier::Amount {
                     resource_address: ResourceManagerSpecifier::NewlyCreated { index: 0 },

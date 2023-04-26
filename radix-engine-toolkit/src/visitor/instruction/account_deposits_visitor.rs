@@ -40,7 +40,7 @@ pub struct AccountDepositsInstructionVisitor {
     pub resource_changes: HashMap<u32, Vec<ResourceChange>>,
     pub worktop_changes: HashMap<u32, Vec<WorktopChange>>,
     newly_created_resources: Vec<ResourceAddress>,
-    buckets: BTreeMap<BucketId, ExactnessSpecifier>,
+    buckets: BTreeMap<BucketId, ResourceSpecifier>,
     instruction_index: u32,
     network_id: u8,
 }
@@ -72,18 +72,18 @@ pub struct AccountDeposit {
     pub component_address: NetworkAwareNodeId,
 
     #[serde(flatten)]
-    pub deposited: ExactnessSpecifier,
+    pub deposited: ResourceSpecifier,
 }
 
 #[serializable]
 #[derive(PartialEq, PartialOrd, Eq, Ord)]
 #[serde(tag = "type")]
-pub enum ExactnessSpecifier {
-    Exact {
+pub enum ResourceSpecifier {
+    Guaranteed {
         /// A specifier of the amount or ids of resources.
         resource_quantifier: ResourceQuantifier,
     },
-    Estimate {
+    Predicted {
         /// The instruction index that that this amount originates from. This might either be an
         /// instruction where a bucket is created of all worktop resources or an instruction where
         /// a deposit is performed of an estimated amount.
@@ -198,7 +198,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                         for resource_change in resource_changes {
                             self.deposits.push(AccountDeposit {
                                 component_address: *component_address,
-                                deposited: ExactnessSpecifier::Estimate {
+                                deposited: ResourceSpecifier::Predicted {
                                     instruction_index: self.instruction_index,
                                     resource_quantifier: ResourceQuantifier::Amount {
                                         resource_address: self
@@ -301,7 +301,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                     if let Some(WorktopChange::Take(resource_quantifier)) = worktop_changes.get(0) {
                         self.add_bucket(
                             bucket_id.clone(),
-                            ExactnessSpecifier::Estimate {
+                            ResourceSpecifier::Predicted {
                                 instruction_index: self.instruction_index,
                                 resource_quantifier: match resource_quantifier {
                                     NativeResourceQuantifier::Amount(_, amount) => {
@@ -349,7 +349,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
             ) if resource_address.node_id().is_global_resource() => {
                 self.add_bucket(
                     bucket_id.clone(),
-                    ExactnessSpecifier::Exact {
+                    ResourceSpecifier::Guaranteed {
                         resource_quantifier: ResourceQuantifier::Amount {
                             resource_address: ResourceManagerSpecifier::Existing {
                                 address: *resource_address,
@@ -392,7 +392,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 };
                 self.add_bucket(
                     bucket_id.clone(),
-                    ExactnessSpecifier::Exact {
+                    ResourceSpecifier::Guaranteed {
                         resource_quantifier: ResourceQuantifier::Ids {
                             ids,
                             resource_address: ResourceManagerSpecifier::Existing {
@@ -484,7 +484,7 @@ impl AccountDepositsInstructionVisitor {
     pub fn add_bucket(
         &mut self,
         bucket_id: BucketId,
-        specifier: ExactnessSpecifier,
+        specifier: ResourceSpecifier,
     ) -> Result<(), VisitorError> {
         if !self.buckets.contains_key(&bucket_id) {
             self.buckets.insert(bucket_id, specifier);
