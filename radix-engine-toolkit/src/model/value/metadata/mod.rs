@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod ast;
-pub mod macros;
-pub mod manifest_sbor;
-pub mod metadata;
-pub mod scrypto_sbor;
+pub mod bridge;
+pub mod error;
+pub mod model;
+
+pub use bridge::*;
+pub use error::*;
+pub use model::*;

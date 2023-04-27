@@ -23,6 +23,7 @@ use crate::model::address::{Bech32Coder, NetworkAwareNodeId};
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::model::value::ast::ManifestAstValue;
+use crate::model::value::metadata::MetadataEntry;
 use crate::utils::debug_string;
 use crate::visitor::{
     traverse_instruction, AccountDeposit, AccountDepositsInstructionVisitor,
@@ -35,7 +36,7 @@ use native_transaction::manifest::parser::Parser;
 use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionResult};
 use radix_engine::types::{ManifestEncode, ModuleId, SysModuleId};
 use radix_engine_stores::interface::StateUpdate;
-use scrypto::api::node_modules::metadata::MetadataEntry;
+use scrypto::api::node_modules::metadata::MetadataEntry as NativeMetadataEntry;
 use scrypto::prelude::scrypto_decode;
 use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
@@ -152,14 +153,14 @@ pub struct NewlyCreated {
 #[serializable]
 #[derive(PartialEq, Eq)]
 pub struct NewlyCreatedResource {
-    pub metadata: Vec<ResourceMetadataEntry>,
+    pub metadata: Vec<MetadataKeyValue>,
 }
 
 #[serializable]
 #[derive(PartialEq, Eq)]
-pub struct ResourceMetadataEntry {
+pub struct MetadataKeyValue {
     pub key: String,
-    pub value: ManifestAstValue,
+    pub value: MetadataEntry,
 }
 
 /// The set of addresses encountered in the manifest
@@ -450,7 +451,7 @@ impl From<convert_manifest::Error> for Error {
 fn get_resource_metadata(
     commit: &CommitResult,
     bech32_coder: &Bech32Coder,
-) -> Vec<Vec<ResourceMetadataEntry>> {
+) -> Vec<Vec<MetadataKeyValue>> {
     let metadata_module_id: ModuleId = SysModuleId::Metadata.into();
 
     let mut metadata = Vec::new();
@@ -467,13 +468,13 @@ fn get_resource_metadata(
 
                     let key =
                         scrypto_decode::<String>(&Into::<Vec<u8>>::into(key.clone())).unwrap();
-                    let value = scrypto_decode::<Option<MetadataEntry>>(value)
+                    let value = scrypto_decode::<Option<NativeMetadataEntry>>(value)
                         .unwrap()
                         .unwrap();
 
-                    resource_metadata.push(ResourceMetadataEntry {
+                    resource_metadata.push(MetadataKeyValue {
                         key,
-                        value: manifest_sbor_to_manifest_ast_value(&value, bech32_coder),
+                        value: MetadataEntry::from_metadata_entry(&value, bech32_coder),
                     });
                 }
             }
@@ -485,6 +486,7 @@ fn get_resource_metadata(
     metadata
 }
 
+// TODO: Remove
 fn manifest_sbor_to_manifest_ast_value<T: ManifestEncode>(
     value: &T,
     bech32_coder: &Bech32Coder,
