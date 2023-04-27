@@ -84,7 +84,7 @@ pub fn analyze_create_resources_transaction() {
 
     // Assert
     let output = output.expect("Should not fail");
-    assert_eq!(output.created_entities.resource_addresses.len(), 2);
+    assert_eq!(output.newly_created.resources.len(), 2);
     assert_eq!(
         output.account_deposits[0],
         AccountDeposit {

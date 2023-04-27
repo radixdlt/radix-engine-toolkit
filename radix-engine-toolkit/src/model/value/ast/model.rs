@@ -35,7 +35,7 @@ define_kind_enum! {
     #[serializable]
     #[serde(tag = "type")]
     #[schemars(example = "crate::example::value::ast_value::value")]
-    #[derive(Hash, Eq, PartialEq)]
+    #[derive(PartialEq, Eq, Hash)]
     pub enum ManifestAstValue {
         /// A boolean value which can either be true or false
         #[schemars(

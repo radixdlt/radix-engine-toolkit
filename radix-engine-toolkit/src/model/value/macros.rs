@@ -49,7 +49,7 @@ macro_rules! define_kind_enum {
             }
 
             #[toolkit_derive::serializable]
-            #[derive(Hash, Eq, PartialEq, Copy)]
+            #[derive(PartialEq, PartialOrd, Eq, Ord, Hash, Copy)]
             $vis enum [< $enum_ident Kind >] {
                 $(
                     $(#[$variant_metadata])*

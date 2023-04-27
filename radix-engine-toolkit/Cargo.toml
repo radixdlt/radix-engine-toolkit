@@ -22,6 +22,7 @@ scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "d
 native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d", package = "transaction" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d", optional = true }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d" }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d", optional = true }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-624a696d" }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
@@ -44,4 +45,4 @@ serde_json = { version = "1.0.91" }
 
 [features]
 default = ["radix-engine"]
-radix-engine = ["dep:radix-engine"]
+radix-engine = ["dep:radix-engine", "dep:radix-engine-stores"]
