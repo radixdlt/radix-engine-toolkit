@@ -1379,11 +1379,78 @@
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
           "examples": [
             {
+              "access_rules": {
+                "elements": [
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "Tuple",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "entries": [],
+                    "key_value_kind": "String",
+                    "type": "Map",
+                    "value_value_kind": "Enum"
+                  },
+                  {
+                    "fields": [
+                      {
+                        "type": "Enum",
+                        "variant": {
+                          "discriminator": "0",
+                          "type": "U8"
+                        }
+                      }
+                    ],
+                    "type": "Enum",
+                    "variant": {
+                      "discriminator": "0",
+                      "type": "U8"
+                    }
+                  }
+                ],
+                "type": "Tuple"
+              },
               "code": {
                 "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
                 "type": "Blob"
               },
-              "instruction": "PUBLISH_PACKAGE",
+              "instruction": "PUBLISH_PACKAGE_ADVANCED",
               "metadata": {
                 "entries": [],
                 "key_value_kind": "String",

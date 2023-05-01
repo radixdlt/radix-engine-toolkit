@@ -343,7 +343,7 @@ pub enum Instruction {
 
     /// An instruction to publish a package and set it's associated royalty configs, metadata,
     /// and access rules.
-    #[schemars(example = "crate::example::instruction::publish_package")]
+    #[schemars(example = "crate::example::instruction::publish_package_advanced")]
     PublishPackageAdvanced {
         /// The blob of the package code. This field is serialized as a `Blob` from the
         /// ManifestAstValue model.

@@ -1195,6 +1195,11 @@ fn check_instruction(instruction: &Instruction) {
             code: ManifestAstValue::Blob { hash: code },
             schema: ManifestAstValue::Blob { hash: abi },
             ..
+        }
+        | Instruction::PublishPackageAdvanced {
+            code: ManifestAstValue::Blob { hash: code },
+            schema: ManifestAstValue::Blob { hash: abi },
+            ..
         } => {
             blobs.push(Hash(code.0));
             blobs.push(Hash(abi.0));
