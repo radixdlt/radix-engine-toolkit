@@ -16,18 +16,24 @@
 // under the License.
 
 use std::collections::BTreeSet;
+use std::fmt::Debug;
 
 use crate::error::VisitorError;
-use crate::model::address::NetworkAwareNodeId;
+use crate::model::address::{Bech32Coder, NetworkAwareNodeId};
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
+use crate::model::value::metadata::MetadataEntry;
 use crate::utils::debug_string;
 use crate::visitor::{
     traverse_instruction, AccountDeposit, AccountDepositsInstructionVisitor,
     AccountInteractionsInstructionVisitor, AccountProofsInstructionVisitor, AccountWithdraw,
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
-use radix_engine::transaction::{TransactionReceipt, TransactionResult};
+use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionResult};
+use radix_engine::types::{ModuleId, SysModuleId};
+use radix_engine_common::types::SubstateKey;
+use radix_engine_store_interface::interface::DatabaseUpdate;
+use scrypto::api::node_modules::metadata::MetadataEntry as NativeMetadataEntry;
 use scrypto::prelude::scrypto_decode;
 use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
@@ -113,12 +119,12 @@ pub struct Output {
     pub account_deposits: Vec<AccountDeposit>,
 
     /// The set of entities which were newly created in this transaction.
-    pub created_entities: CreatedEntities,
+    pub newly_created: NewlyCreated,
 }
 
 /// The set of addresses encountered in the manifest
 #[serializable]
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
+#[derive(PartialEq, Eq)]
 pub struct EncounteredAddresses {
     /// The set of component addresses encountered in the manifest
     pub component_addresses: EncounteredComponents,
@@ -136,27 +142,27 @@ pub struct EncounteredAddresses {
 
 /// The set of newly created entities
 #[serializable]
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
-pub struct CreatedEntities {
-    /// The set of addresses of newly created components.
-    #[schemars(with = "BTreeSet<String>")]
-    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub component_addresses: BTreeSet<NetworkAwareNodeId>,
+#[derive(PartialEq, Eq)]
+pub struct NewlyCreated {
+    pub resources: Vec<NewlyCreatedResource>,
+}
 
-    /// The set of addresses of newly created resources.
-    #[schemars(with = "BTreeSet<String>")]
-    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub resource_addresses: BTreeSet<NetworkAwareNodeId>,
+#[serializable]
+#[derive(PartialEq, Eq)]
+pub struct NewlyCreatedResource {
+    pub metadata: Vec<MetadataKeyValue>,
+}
 
-    /// The set of addresses of newly created packages.
-    #[schemars(with = "BTreeSet<String>")]
-    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub package_addresses: BTreeSet<NetworkAwareNodeId>,
+#[serializable]
+#[derive(PartialEq, Eq)]
+pub struct MetadataKeyValue {
+    pub key: String,
+    pub value: MetadataEntry,
 }
 
 /// The set of addresses encountered in the manifest
 #[serializable]
-#[derive(PartialEq, PartialOrd, Eq, Ord)]
+#[derive(PartialEq, Eq)]
 pub struct EncounteredComponents {
     /// The set of user application components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
@@ -192,6 +198,30 @@ pub struct EncounteredComponents {
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
     pub access_controller: BTreeSet<NetworkAwareNodeId>,
+}
+
+#[serializable]
+#[serde(tag = "type", content = "value")]
+#[derive(PartialEq, Eq)]
+pub enum Source<T> {
+    Guaranteed {
+        #[serde(flatten)]
+        value: T,
+    },
+    Predicted {
+        #[serde(flatten)]
+        value: T,
+    },
+}
+
+impl<T> Source<T> {
+    pub fn guaranteed(value: T) -> Self {
+        Self::Guaranteed { value }
+    }
+
+    pub fn predicted(value: T) -> Self {
+        Self::Predicted { value }
+    }
 }
 
 impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
@@ -255,6 +285,7 @@ impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
 // ===============
 
 pub struct Handler;
+
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
@@ -292,6 +323,8 @@ impl InvocationHandler<Input, Output> for Handler {
     }
 
     fn handle(input: &Input) -> Result<Output, Error> {
+        let bech32_coder = Bech32Coder::new(input.network_id);
+
         // Getting the instructions in the passed manifest as Parsed instructions.
         let mut instructions = {
             let manifest = convert_manifest::Handler::fulfill(convert_manifest::Input {
@@ -341,6 +374,7 @@ impl InvocationHandler<Input, Output> for Handler {
                 input.network_id,
                 resource_changes,
                 worktop_changes,
+                commit.new_resource_addresses().clone(),
             )
         };
         instructions
@@ -370,21 +404,10 @@ impl InvocationHandler<Input, Output> for Handler {
             },
             account_withdraws: account_withdraws_visitor.0,
             account_deposits: account_deposits_visitor.deposits,
-            created_entities: CreatedEntities {
-                component_addresses: commit
-                    .new_component_addresses()
-                    .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
-                    .collect(),
-                resource_addresses: commit
-                    .new_resource_addresses()
-                    .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
-                    .collect(),
-                package_addresses: commit
-                    .new_package_addresses()
-                    .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
+            newly_created: NewlyCreated {
+                resources: get_resource_metadata(&commit, &bech32_coder)
+                    .into_iter()
+                    .map(|metadata| NewlyCreatedResource { metadata })
                     .collect(),
             },
         })
@@ -421,4 +444,41 @@ impl From<convert_manifest::Error> for Error {
     fn from(value: convert_manifest::Error) -> Self {
         Self::ConvertManifestError(value)
     }
+}
+
+fn get_resource_metadata(
+    commit: &CommitResult,
+    bech32_coder: &Bech32Coder,
+) -> Vec<Vec<MetadataKeyValue>> {
+    let metadata_module_id: ModuleId = SysModuleId::Metadata.into();
+
+    let mut metadata = Vec::new();
+    for resource_address in commit.new_resource_addresses() {
+        let mut resource_metadata = Vec::new();
+
+        for ((node_id, module_id), substate_updates) in commit.state_updates.system_updates.iter() {
+            for (substate_key, substate_update) in substate_updates.iter() {
+                if *node_id == *resource_address.as_node_id() && *module_id == metadata_module_id {
+                    if let (SubstateKey::Map(key), DatabaseUpdate::Set(value)) =
+                        (substate_key, substate_update)
+                    {
+                        let key =
+                            scrypto_decode::<String>(&Into::<Vec<u8>>::into(key.clone())).unwrap();
+                        let value = scrypto_decode::<Option<NativeMetadataEntry>>(value)
+                            .unwrap()
+                            .unwrap();
+
+                        resource_metadata.push(MetadataKeyValue {
+                            key,
+                            value: MetadataEntry::from_metadata_entry(&value, bech32_coder),
+                        });
+                    };
+                }
+            }
+        }
+
+        metadata.push(resource_metadata)
+    }
+
+    metadata
 }

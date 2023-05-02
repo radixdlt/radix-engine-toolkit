@@ -2354,7 +2354,6 @@ the payload and responses of these requests.
 
 ```json
 {
-  "faucet_package_address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzq07s3y8",
   "account_package_address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq9r3clqr",
   "xrd_resource_address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq09z0ln",
   "system_token_resource_address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzreev97",

@@ -8,8 +8,8 @@
     "account_proof_resources",
     "account_withdraws",
     "accounts_requiring_auth",
-    "created_entities",
-    "encountered_addresses"
+    "encountered_addresses",
+    "newly_created"
   ],
   "properties": {
     "encountered_addresses": {
@@ -50,11 +50,11 @@
         "$ref": "#/definitions/AccountDeposit"
       }
     },
-    "created_entities": {
+    "newly_created": {
       "description": "The set of entities which were newly created in this transaction.",
       "allOf": [
         {
-          "$ref": "#/definitions/CreatedEntities"
+          "$ref": "#/definitions/NewlyCreated"
         }
       ]
     }
@@ -170,24 +170,24 @@
       "type": "object",
       "required": [
         "component_address",
-        "resource_specifier"
+        "resource_quantifier"
       ],
       "properties": {
         "component_address": {
           "description": "The component address of the account that the resources were withdrawn from.",
           "type": "string"
         },
-        "resource_specifier": {
+        "resource_quantifier": {
           "description": "A specifier used to specify what was withdrawn from the account - this could either be an amount or a set of non-fungible local ids.\n\nWhen this vector has more than one item, it means that multiple instructions performed a withdraw from the same account of the same resource.",
           "allOf": [
             {
-              "$ref": "#/definitions/ResourceSpecifier"
+              "$ref": "#/definitions/ResourceQuantifier"
             }
           ]
         }
       }
     },
-    "ResourceSpecifier": {
+    "ResourceQuantifier": {
       "description": "Specifies resources either through amounts for fungible and non-fungible resources or through ids for non-fungible resources.",
       "oneOf": [
         {
@@ -205,8 +205,12 @@
               ]
             },
             "resource_address": {
-              "description": "The resource address associated with the resource",
-              "type": "string"
+              "description": "A specifier of the resource manager, can either be an address for already existing resource managers or an index for newly created resource managers that can not be queried through the network gateway.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ResourceManagerSpecifier"
+                }
+              ]
             },
             "amount": {
               "description": "The amount of resources withdrawn from the account. This is a decimal value which is serialized as a string.",
@@ -230,8 +234,12 @@
               ]
             },
             "resource_address": {
-              "description": "The resource address associated with the resource",
-              "type": "string"
+              "description": "A specifier of the resource manager, can either be an address for already existing resource managers or an index for newly created resource managers that can not be queried through the network gateway.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ResourceManagerSpecifier"
+                }
+              ]
             },
             "ids": {
               "description": "The set of non-fungible ids",
@@ -240,6 +248,46 @@
                 "$ref": "#/definitions/NonFungibleLocalId"
               },
               "uniqueItems": true
+            }
+          }
+        }
+      ]
+    },
+    "ResourceManagerSpecifier": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "address",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Existing"
+              ]
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "index",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NewlyCreated"
+              ]
+            },
+            "index": {
+              "type": "string"
             }
           }
         }
@@ -363,21 +411,21 @@
         {
           "type": "object",
           "required": [
-            "resource_specifier",
+            "resource_quantifier",
             "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "Exact"
+                "Guaranteed"
               ]
             },
-            "resource_specifier": {
+            "resource_quantifier": {
               "description": "A specifier of the amount or ids of resources.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ResourceSpecifier"
+                  "$ref": "#/definitions/ResourceQuantifier"
                 }
               ]
             }
@@ -387,14 +435,14 @@
           "type": "object",
           "required": [
             "instruction_index",
-            "resource_specifier",
+            "resource_quantifier",
             "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "Estimate"
+                "Predicted"
               ]
             },
             "instruction_index": {
@@ -402,11 +450,11 @@
               "type": "string",
               "pattern": "[0-9]+"
             },
-            "resource_specifier": {
+            "resource_quantifier": {
               "description": "A specifier of the amount or ids of resources.",
               "allOf": [
                 {
-                  "$ref": "#/definitions/ResourceSpecifier"
+                  "$ref": "#/definitions/ResourceQuantifier"
                 }
               ]
             }
@@ -422,40 +470,415 @@
         }
       }
     },
-    "CreatedEntities": {
+    "NewlyCreated": {
       "description": "The set of newly created entities",
       "type": "object",
       "required": [
-        "component_addresses",
-        "package_addresses",
-        "resource_addresses"
+        "resources"
       ],
       "properties": {
-        "component_addresses": {
-          "description": "The set of addresses of newly created components.",
+        "resources": {
           "type": "array",
           "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
-        },
-        "resource_addresses": {
-          "description": "The set of addresses of newly created resources.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
-        },
-        "package_addresses": {
-          "description": "The set of addresses of newly created packages.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
+            "$ref": "#/definitions/NewlyCreatedResource"
+          }
         }
       }
+    },
+    "NewlyCreatedResource": {
+      "type": "object",
+      "required": [
+        "metadata"
+      ],
+      "properties": {
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MetadataKeyValue"
+          }
+        }
+      }
+    },
+    "MetadataKeyValue": {
+      "type": "object",
+      "required": [
+        "key",
+        "value"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/definitions/MetadataEntry"
+        }
+      }
+    },
+    "MetadataEntry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Value"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/MetadataValue"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "List"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MetadataValue"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "MetadataValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "String"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Bool"
+              ]
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U8"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Decimal"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Address"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PublicKey"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/PublicKey"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NonFungibleGlobalId"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NonFungibleLocalId"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Instant"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Url"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "PublicKey": {
+      "description": "A discriminated union of the possible public keys used by Scrypto and the Radix Engine.",
+      "oneOf": [
+        {
+          "description": "A byte array of 33 bytes which are serialized as a 66 character long hex-encoded string representing a public key from the ECDSA Secp256k1 elliptic curve.",
+          "examples": [
+            {
+              "curve": "EcdsaSecp256k1",
+              "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "curve",
+            "public_key"
+          ],
+          "properties": {
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EcdsaSecp256k1"
+              ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        },
+        {
+          "description": "A byte array of 32 bytes which are serialized as a 64 character long hex-encoded string representing a public key from the EDDSA Ed25519 edwards curve.",
+          "examples": [
+            {
+              "curve": "EddsaEd25519",
+              "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "curve",
+            "public_key"
+          ],
+          "properties": {
+            "curve": {
+              "type": "string",
+              "enum": [
+                "EddsaEd25519"
+              ]
+            },
+            "public_key": {
+              "type": "string",
+              "maxLength": 66,
+              "minLength": 66,
+              "pattern": "[0-9a-fA-F]+"
+            }
+          }
+        }
+      ]
     }
   }
 }

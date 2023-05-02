@@ -17,6 +17,7 @@
 
 use crate::functions::traits::InvocationHandler;
 use crate::model::address::NetworkAwareNodeId;
+use scrypto::prelude::FAUCET;
 use scrypto::prelude::{
     ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_TOKEN, EDDSA_ED25519_TOKEN, EPOCH_MANAGER,
     FAUCET_PACKAGE, PACKAGE_TOKEN, RADIX_TOKEN, SYSTEM_TOKEN,
@@ -45,11 +46,19 @@ pub struct Input {
 /// The response from [`Input`] requests
 #[serializable]
 pub struct Output {
+    /// A component address serialized as an `Address` from the `Value` model which represents
+    /// the address of the faucet component on the requested network.
+    #[schemars(with = "Option<String>")]
+    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub faucet_component_address: Option<NetworkAwareNodeId>,
+
     /// A package address serialized as an `Address` from the `Value` model which represents
     /// the address of the faucet package on the requested network.
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub faucet_package_address: NetworkAwareNodeId,
+    #[schemars(with = "Option<String>")]
+    #[serde_as(as = "Option<serde_with::DisplayFromStr>")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub faucet_package_address: Option<NetworkAwareNodeId>,
 
     /// A package address serialized as an `Address` from the `Value` model which represents
     /// the address of the account package on the requested network.
@@ -115,7 +124,19 @@ impl InvocationHandler<Input, Output> for Handler {
     fn handle(input: &Input) -> Result<Output, Error> {
         let network_id = input.network_id;
         Ok(Output {
-            faucet_package_address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, network_id),
+            faucet_component_address: if network_id == 1 {
+                None
+            } else {
+                Some(NetworkAwareNodeId(FAUCET.as_node_id().0, network_id))
+            },
+            faucet_package_address: if network_id == 1 {
+                None
+            } else {
+                Some(NetworkAwareNodeId(
+                    FAUCET_PACKAGE.as_node_id().0,
+                    network_id,
+                ))
+            },
             account_package_address: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, network_id),
             xrd_resource_address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, network_id),
             system_token_resource_address: NetworkAwareNodeId(

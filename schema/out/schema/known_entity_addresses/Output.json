@@ -9,15 +9,24 @@
     "ecdsa_secp256k1_token_resource_address",
     "eddsa_ed25519_token_resource_address",
     "epoch_manager_system_address",
-    "faucet_package_address",
     "package_token_resource_address",
     "system_token_resource_address",
     "xrd_resource_address"
   ],
   "properties": {
+    "faucet_component_address": {
+      "description": "A component address serialized as an `Address` from the `Value` model which represents the address of the faucet component on the requested network.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "faucet_package_address": {
       "description": "A package address serialized as an `Address` from the `Value` model which represents the address of the faucet package on the requested network.",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "account_package_address": {
       "description": "A package address serialized as an `Address` from the `Value` model which represents the address of the account package on the requested network.",

@@ -15,8 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod ast;
-pub mod macros;
-pub mod manifest_sbor;
-pub mod metadata;
-pub mod scrypto_sbor;
+use crate::impl_from_parse_error;
+
+pub enum MetadataValueConversionError {
+    /// An error emitted when trying to parse a string to a type fails.
+    ParseError { parsing: String, message: String },
+}
+
+impl_from_parse_error! {
+    MetadataValueConversionError,
+    scrypto::prelude::ParseNonFungibleLocalIdError => NonFungibleLocalId
+}
+impl_from_parse_error! {
+    MetadataValueConversionError,
+    scrypto::prelude::ParseNonFungibleGlobalIdError => NonFungibleGlobalId
+}

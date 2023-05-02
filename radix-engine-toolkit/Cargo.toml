@@ -23,6 +23,7 @@ native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d", optional = true }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d", optional = true }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
@@ -38,9 +39,10 @@ serde_json = "1.0.91"
 regex = "1.7.3"
 
 [dev-dependencies]
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
 
 [features]
 default = ["radix-engine"]
-radix-engine = ["dep:radix-engine"]
+radix-engine = ["dep:radix-engine", "dep:radix-engine-store-interface"]

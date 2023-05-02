@@ -19,7 +19,7 @@ pub mod address;
 pub mod constants;
 pub mod crypto;
 pub mod instruction;
-pub mod resource_specifier;
+pub mod resource_quantifier;
 pub mod runtime;
 pub mod transaction;
 pub mod value;
