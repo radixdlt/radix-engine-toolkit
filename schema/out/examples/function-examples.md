@@ -2120,6 +2120,7 @@ the payload and responses of these requests.
 ```json
 {
   "type": "ManifestSbor",
+  "manifest_string": "Tuple(Address(\"package_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq0x3dzh\"), Bucket(4u32), Proof(5u32), Expression(\"ENTIRE_AUTH_ZONE\"), Blob(\"0606060606060606060606060606060606060606060606060606060606060606\"), Decimal(\"3178606371220444580254889784552217078325058402586211561867.463090413301597959\"), PreciseDecimal(\"42063711152761088939840078425743830988170559437152606675211173156774161662975833652711762.5040530303613804921041144660418941298284296362978711643890386952\"), NonFungibleLocalId(\"<abc>\"))",
   "value": {
     "type": "Tuple",
     "elements": [
