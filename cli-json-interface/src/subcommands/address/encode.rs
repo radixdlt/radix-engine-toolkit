@@ -38,13 +38,13 @@ pub struct Encode {
 
 impl Encode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = encode_address::Input {
+        let input = encode_address::Input {
             address_bytes: hex::decode(&self.raw_address)?,
             network_id: self.network_id,
         };
-        let response = encode_address::Handler::fulfill(request).map_err(|error| {
+        let output = encode_address::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::EncodeAddressError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

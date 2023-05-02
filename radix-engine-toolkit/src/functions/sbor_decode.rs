@@ -67,30 +67,27 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        match request.encoded_value.first().copied() {
+    fn handle(input: &Input) -> Result<Output, Error> {
+        match input.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                scrypto_decode::<ScryptoValue>(&request.encoded_value)
+                scrypto_decode::<ScryptoValue>(&input.encoded_value)
                     .map(|scrypto_value| {
-                        ScryptoSborValue::from_scrypto_sbor_value(
-                            &scrypto_value,
-                            request.network_id,
-                        )
+                        ScryptoSborValue::from_scrypto_sbor_value(&scrypto_value, input.network_id)
                     })
                     .map(Output::ScryptoSbor)
                     .map_err(Error::from)
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-                manifest_decode::<ManifestValue>(&request.encoded_value)
+                manifest_decode::<ManifestValue>(&input.encoded_value)
                     .map_err(Error::from)
                     .and_then(|manifest_value| {
                         ManifestSborValue::from_manifest_sbor_value(
                             &manifest_value,
-                            request.network_id,
+                            input.network_id,
                         )
                         .map_err(Error::from)
                     })
@@ -108,8 +105,8 @@ impl InvocationHandler<Input, Output> for Handler {
         }
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

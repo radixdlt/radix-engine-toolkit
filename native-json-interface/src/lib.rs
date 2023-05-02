@@ -70,8 +70,8 @@ pub mod native {
                     .map_err(|error| {
                         radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
                     })
-                    .and_then(|request| {
-                        <$handler>::fulfill(request).map_err(|error| {
+                    .and_then(|input| {
+                        <$handler>::fulfill(input).map_err(|error| {
                             radix_engine_toolkit::error::RETError::InvocationHandlingError(
                                 error.into(),
                             )
@@ -183,8 +183,8 @@ pub mod jni {
                     .map_err(|error| {
                         radix_engine_toolkit::error::RETError::InvocationInterpretationError(error)
                     })
-                    .and_then(|request| {
-                        <$handler>::fulfill(request).map_err(|error| {
+                    .and_then(|input| {
+                        <$handler>::fulfill(input).map_err(|error| {
                             radix_engine_toolkit::error::RETError::InvocationHandlingError(
                                 error.into(),
                             )

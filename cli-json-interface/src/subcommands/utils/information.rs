@@ -29,10 +29,10 @@ pub struct Information;
 
 impl Information {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = information::Input {};
-        let response = information::Handler::fulfill(request).map_err(|error| {
+        let input = information::Input {};
+        let output = information::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::InformationError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

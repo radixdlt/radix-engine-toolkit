@@ -33,14 +33,14 @@ pub struct KnownAddresses {
 
 impl KnownAddresses {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = known_entity_addresses::Input {
+        let input = known_entity_addresses::Input {
             network_id: self.network_id,
         };
-        let response = known_entity_addresses::Handler::fulfill(request).map_err(|error| {
+        let output = known_entity_addresses::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::KnownEntityAddressesError(
                 error,
             ))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

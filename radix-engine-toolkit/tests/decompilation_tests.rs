@@ -181,18 +181,18 @@ fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> Transacti
 fn test_inversion(transaction: &NotarizedTransaction) {
     let native_compiled = manifest_encode(&transaction).unwrap();
     let compiled_from_decompiled = {
-        let request = decompile_notarized_transaction::Input {
+        let input = decompile_notarized_transaction::Input {
             compiled_notarized_intent: native_compiled.clone(),
             instructions_output_kind:
                 radix_engine_toolkit::model::transaction::InstructionKind::String,
         };
-        let response = decompile_notarized_transaction::Handler::fulfill(request).unwrap();
+        let output = decompile_notarized_transaction::Handler::fulfill(input).unwrap();
 
-        let request = compile_notarized_transaction::Input {
-            notarized_intent: response.notarized_intent,
+        let input = compile_notarized_transaction::Input {
+            notarized_intent: output.notarized_intent,
         };
-        let response = compile_notarized_transaction::Handler::fulfill(request).unwrap();
-        response.compiled_intent
+        let output = compile_notarized_transaction::Handler::fulfill(input).unwrap();
+        output.compiled_intent
     };
     assert_eq!(native_compiled, compiled_from_decompiled)
 }

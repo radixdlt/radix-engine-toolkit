@@ -70,19 +70,18 @@ impl ExtractAddressesFromManifest {
             }
         };
 
-        let request = extract_addresses_from_manifest::Input {
+        let input = extract_addresses_from_manifest::Input {
             manifest: TransactionManifest {
                 instructions,
                 blobs: vec![],
             },
             network_id: self.network_id,
         };
-        let response =
-            extract_addresses_from_manifest::Handler::fulfill(request).map_err(|error| {
-                RETError::InvocationHandlingError(
-                    InvocationHandlingError::ExtractAddressesFromManifestError(error),
-                )
-            })?;
-        pretty_print(&response, out)
+        let output = extract_addresses_from_manifest::Handler::fulfill(input).map_err(|error| {
+            RETError::InvocationHandlingError(
+                InvocationHandlingError::ExtractAddressesFromManifestError(error),
+            )
+        })?;
+        pretty_print(&output, out)
     }
 }

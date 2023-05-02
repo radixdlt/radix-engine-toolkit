@@ -47,13 +47,13 @@ impl InMemoryExamplesBuilder {
     pub fn build(&self) -> String {
         let mut examples_markdown = Vec::<String>::new();
         for example in self.examples.iter() {
-            let request_cleaned_name = example.function_name.clone();
+            let input_cleaned_name = example.function_name.clone();
 
-            let title = request_cleaned_name.to_case(Case::Title);
-            let function_name = request_cleaned_name.to_case(Case::Snake);
+            let title = input_cleaned_name.to_case(Case::Title);
+            let function_name = input_cleaned_name.to_case(Case::Snake);
             let jni_function_name = format!(
                 "Java_RadixEngineToolkitFFI_{}",
-                request_cleaned_name.to_case(Case::Camel)
+                input_cleaned_name.to_case(Case::Camel)
             );
 
             let example_string = format!(

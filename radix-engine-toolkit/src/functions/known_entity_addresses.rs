@@ -108,12 +108,12 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        let network_id = request.network_id;
+    fn handle(input: &Input) -> Result<Output, Error> {
+        let network_id = input.network_id;
         Ok(Output {
             faucet_package_address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, network_id),
             account_package_address: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, network_id),
@@ -142,8 +142,8 @@ impl InvocationHandler<Input, Output> for Handler {
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

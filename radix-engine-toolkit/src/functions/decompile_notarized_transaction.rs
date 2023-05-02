@@ -51,7 +51,7 @@ pub struct Input {
 #[serializable]
 pub struct Output {
     /// The decompiled notarized transaction intent where the instructions are in the format
-    /// specified in the request.
+    /// specified in the input.
     #[serde(flatten)]
     pub notarized_intent: NotarizedTransaction,
 }
@@ -64,25 +64,25 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         NotarizedTransaction::decompile(
-            &request.compiled_notarized_intent,
-            request.instructions_output_kind,
+            &input.compiled_notarized_intent,
+            input.instructions_output_kind,
         )
         .map(|notarized_intent| Output { notarized_intent })
         .map_err(Error::from)
     }
 
-    fn post_process(_: &Input, mut response: Output) -> Result<Output, Error> {
+    fn post_process(_: &Input, mut output: Output) -> Result<Output, Error> {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match response
+        let instructions: &mut [Instruction] = match output
             .notarized_intent
             .signed_intent
             .intent
@@ -105,7 +105,7 @@ impl InvocationHandler<Input, Output> for Handler {
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
-        Ok(response)
+        Ok(output)
     }
 }
 

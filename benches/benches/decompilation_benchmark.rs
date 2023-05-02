@@ -60,48 +60,48 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Unknown Intent to String", |b| {
         b.iter(|| {
             black_box({
-                let request = decompile_unknown_intent::Input {
+                let input = decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 };
-                let response = decompile_unknown_intent::Handler::fulfill(request);
-                response.unwrap()
+                let output = decompile_unknown_intent::Handler::fulfill(input);
+                output.unwrap()
             })
         })
     });
     group.bench_function("Decompile Unknown Intent to Parsed", |b| {
         b.iter(|| {
             black_box({
-                let request = decompile_unknown_intent::Input {
+                let input = decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 };
-                let response = decompile_unknown_intent::Handler::fulfill(request);
-                response.unwrap()
+                let output = decompile_unknown_intent::Handler::fulfill(input);
+                output.unwrap()
             })
         })
     });
     group.bench_function("Decompile Notarized Intent to String", |b| {
         b.iter(|| {
             black_box({
-                let request = decompile_notarized_transaction::Input {
+                let input = decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 };
-                let response = decompile_notarized_transaction::Handler::fulfill(request);
-                response.unwrap()
+                let output = decompile_notarized_transaction::Handler::fulfill(input);
+                output.unwrap()
             })
         })
     });
     group.bench_function("Decompile Notarized Intent to Parsed", |b| {
         b.iter(|| {
             black_box({
-                let request = decompile_notarized_transaction::Input {
+                let input = decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 };
-                let response = decompile_notarized_transaction::Handler::fulfill(request);
-                response.unwrap()
+                let output = decompile_notarized_transaction::Handler::fulfill(input);
+                output.unwrap()
             })
         })
     });

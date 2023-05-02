@@ -37,29 +37,29 @@ pub struct Error;
 
 pub struct RadixEngineToolkit;
 impl RadixEngineToolkit {
-    fn invoke_fn<S: Serialize, D: DeserializeOwned, F>(function: F, request: S) -> Result<D, Error>
+    fn invoke_fn<S: Serialize, D: DeserializeOwned, F>(function: F, input: S) -> Result<D, Error>
     where
         F: Fn(ffi::Pointer) -> ffi::Pointer,
     {
-        let request_pointer = Self::write_object_to_memory(request);
-        let response_pointer = function(request_pointer);
+        let input_pointer = Self::write_object_to_memory(input);
+        let output_pointer = function(input_pointer);
 
-        let response_string = Self::read_string(response_pointer)?;
-        let response = if let Ok(response) = Self::deserialize::<D, _>(&response_string) {
-            Ok(response)
-        } else if let Ok(response) =
-            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&response_string)
+        let output_string = Self::read_string(output_pointer)?;
+        let output = if let Ok(output) = Self::deserialize::<D, _>(&output_string) {
+            Ok(output)
+        } else if let Ok(output) =
+            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&output_string)
         {
-            println!("{:?}", response);
+            println!("{:?}", output);
             Err(Error)
         } else {
             return Err(Error);
         };
 
-        Self::free_memory(request_pointer);
-        Self::free_memory(response_pointer);
+        Self::free_memory(input_pointer);
+        Self::free_memory(output_pointer);
 
-        response
+        output
     }
 
     fn write_object_to_memory<S: Serialize>(object: S) -> ffi::Pointer {
@@ -118,16 +118,16 @@ impl RadixEngineToolkit {
 pub trait Invoke<T: Serialize> {
     type Output: DeserializeOwned;
 
-    fn invoke(request: T) -> Result<Self::Output, Error>;
+    fn invoke(input: T) -> Result<Self::Output, Error>;
 }
 
 macro_rules! impl_invoke {
-    ($request: path, $response: path, $fn_ident: path) => {
-        impl Invoke<$request> for RadixEngineToolkit {
-            type Output = $response;
+    ($input:path, $output:path, $fn_ident: path) => {
+        impl Invoke<$input> for RadixEngineToolkit {
+            type Output = $output;
 
-            fn invoke(request: $request) -> Result<Self::Output, Error> {
-                Self::invoke_fn(|pointer| unsafe { $fn_ident(pointer) }, request)
+            fn invoke(input: $input) -> Result<Self::Output, Error> {
+                Self::invoke_fn(|pointer| unsafe { $fn_ident(pointer) }, input)
             }
         }
     };

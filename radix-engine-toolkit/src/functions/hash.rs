@@ -53,19 +53,19 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        let response = Output {
-            value: hash(&request.payload).0,
+    fn handle(input: &Input) -> Result<Output, Error> {
+        let output = Output {
+            value: hash(&input.payload).0,
         };
-        Ok(response)
+        Ok(output)
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

@@ -49,7 +49,7 @@ macro_rules! generate_group_schema {
 
 fn main() {
     generate_json_schema().expect("Failed to generate schema");
-    generate_request_examples().expect("Failed to generate request examples");
+    generate_function_examples().expect("Failed to generate request examples");
 }
 
 pub fn generate_json_schema() -> Result<(), GenerationError> {
@@ -188,7 +188,7 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
     Ok(())
 }
 
-fn generate_request_examples() -> Result<(), GenerationError> {
+fn generate_function_examples() -> Result<(), GenerationError> {
     let examples = InMemoryExamplesBuilder::new()
         .add_example::<information::Handler, _, _>()
         .add_example::<convert_manifest::Handler, _, _>()

@@ -66,22 +66,22 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         let notarized_transaction = NotarizedTransaction::decompile(
-            &request.compiled_notarized_intent,
+            &input.compiled_notarized_intent,
             InstructionKind::String,
         )?;
 
         let intent_hash_manager = TestIntentHashManager::new();
 
-        if let Err(ref error) = NotarizedTransactionValidator::new(request.validation_config)
+        if let Err(ref error) = NotarizedTransactionValidator::new(input.validation_config)
             .validate(
                 &notarized_transaction.to_native_notarized_transaction_intent()?,
-                request.compiled_notarized_intent.len(),
+                input.compiled_notarized_intent.len(),
                 &intent_hash_manager,
             )
         {
@@ -93,8 +93,8 @@ impl InvocationHandler<Input, Output> for Handler {
         }
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

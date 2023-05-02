@@ -76,18 +76,18 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        let network_definition = network_definition_from_network_id(request.address.network_id());
+    fn handle(input: &Input) -> Result<Output, Error> {
+        let network_definition = network_definition_from_network_id(input.address.network_id());
 
         Ok(Output {
             network_id: network_definition.id,
             network_name: network_definition.logical_name,
-            data: request.address.0,
-            entity_type: request
+            data: input.address.0,
+            entity_type: input
                 .address
                 .node_id()
                 .entity_type()
@@ -97,8 +97,8 @@ impl InvocationHandler<Input, Output> for Handler {
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

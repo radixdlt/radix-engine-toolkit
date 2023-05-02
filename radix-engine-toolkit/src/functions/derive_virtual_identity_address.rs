@@ -60,23 +60,23 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         Ok(Output {
             virtual_identity_address: NetworkAwareNodeId(
-                ComponentAddress::virtual_identity_from_public_key(&request.public_key)
+                ComponentAddress::virtual_identity_from_public_key(&input.public_key)
                     .as_node_id()
                     .0,
-                request.network_id,
+                input.network_id,
             ),
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

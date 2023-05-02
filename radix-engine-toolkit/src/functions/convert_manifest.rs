@@ -81,12 +81,12 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(mut request: Input) -> Result<Input, Error> {
+    fn pre_process(mut input: Input) -> Result<Input, Error> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match request.manifest.instructions {
+        let instructions: &mut [Instruction] = match input.manifest.instructions {
             InstructionList::Parsed(ref mut instructions) => instructions,
             InstructionList::String(..) => &mut [],
         };
@@ -104,40 +104,40 @@ impl InvocationHandler<Input, Output> for Handler {
         if let Some(network_id) = network_aggregator_visitor
             .0
             .iter()
-            .find(|network_id| **network_id != request.network_id)
+            .find(|network_id| **network_id != input.network_id)
         {
             return Err(Error::InvalidNetworkIdEncountered {
                 found: *network_id,
-                expected: request.network_id,
+                expected: input.network_id,
             });
         }
-        Ok(request)
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        request
+    fn handle(input: &Input) -> Result<Output, Error> {
+        input
             .manifest
             .instructions
             .convert_to_manifest_instructions_kind(
-                request.instructions_output_kind,
-                &Bech32Coder::new(request.network_id),
-                request.manifest.blobs.clone(),
+                input.instructions_output_kind,
+                &Bech32Coder::new(input.network_id),
+                input.manifest.blobs.clone(),
             )
             .map(|instructions| Output {
                 manifest: TransactionManifest {
                     instructions,
-                    blobs: request.manifest.blobs.clone(),
+                    blobs: input.manifest.blobs.clone(),
                 },
             })
             .map_err(Self::Error::from)
     }
 
-    fn post_process(_: &Input, mut response: Output) -> Result<Output, Error> {
+    fn post_process(_: &Input, mut output: Output) -> Result<Output, Error> {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match response.manifest.instructions {
+        let instructions: &mut [Instruction] = match output.manifest.instructions {
             InstructionList::Parsed(ref mut instructions) => instructions,
             InstructionList::String(..) => &mut [],
         };
@@ -154,7 +154,7 @@ impl InvocationHandler<Input, Output> for Handler {
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
-        Ok(response)
+        Ok(output)
     }
 }
 

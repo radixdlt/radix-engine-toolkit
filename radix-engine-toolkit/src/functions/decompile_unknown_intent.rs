@@ -99,20 +99,20 @@ impl From<Input> for decompile_notarized_transaction::Input {
 }
 
 impl From<decompile_transaction_intent::Output> for Output {
-    fn from(response: decompile_transaction_intent::Output) -> Self {
-        Self::TransactionIntent(response)
+    fn from(output: decompile_transaction_intent::Output) -> Self {
+        Self::TransactionIntent(output)
     }
 }
 
 impl From<decompile_signed_transaction_intent::Output> for Output {
-    fn from(response: decompile_signed_transaction_intent::Output) -> Self {
-        Self::SignedTransactionIntent(response)
+    fn from(output: decompile_signed_transaction_intent::Output) -> Self {
+        Self::SignedTransactionIntent(output)
     }
 }
 
 impl From<decompile_notarized_transaction::Output> for Output {
-    fn from(response: decompile_notarized_transaction::Output) -> Self {
-        Self::NotarizedTransactionIntent(response)
+    fn from(output: decompile_notarized_transaction::Output) -> Self {
+        Self::NotarizedTransactionIntent(output)
     }
 }
 
@@ -129,27 +129,27 @@ impl InvocationHandler<Input, Output> for Handler {
     }
 
     fn handle(input: &Input) -> Result<Output, Error> {
-        if let Ok(response) = decompile_transaction_intent::Handler::fulfill(input.clone().into()) {
-            Ok(response.into())
-        } else if let Ok(response) =
+        if let Ok(output) = decompile_transaction_intent::Handler::fulfill(input.clone().into()) {
+            Ok(output.into())
+        } else if let Ok(output) =
             decompile_signed_transaction_intent::Handler::fulfill(input.clone().into())
         {
-            Ok(response.into())
-        } else if let Ok(response) =
+            Ok(output.into())
+        } else if let Ok(output) =
             decompile_notarized_transaction::Handler::fulfill(input.clone().into())
         {
-            Ok(response.into())
+            Ok(output.into())
         } else {
             Err(Error::UnrecognizedTransactionFormat)
         }
     }
 
-    fn post_process(_: &Input, mut response: Output) -> Result<Output, Error> {
+    fn post_process(_: &Input, mut output: Output) -> Result<Output, Error> {
         // Visitors
         let mut aliasing_visitor = ValueAliasingVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match response {
+        let instructions: &mut [Instruction] = match output {
             Output::NotarizedTransactionIntent(decompile_notarized_transaction::Output {
                 notarized_intent:
                     NotarizedTransaction {
@@ -211,7 +211,7 @@ impl InvocationHandler<Input, Output> for Handler {
         // The aliasing visitor performs all of the modifications in place as it meets them. Nothing
         // else needs to be done here.
 
-        Ok(response)
+        Ok(output)
     }
 }
 

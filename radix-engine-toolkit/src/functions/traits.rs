@@ -31,7 +31,7 @@ pub trait InvocationHandler<I, O> {
     fn handle(invocation: &I) -> Result<O, Self::Error>;
 
     /// Performs all post processing of invocation output - example, aliasing values.
-    fn post_process(invocation: &I, response: O) -> Result<O, Self::Error>;
+    fn post_process(invocation: &I, output: O) -> Result<O, Self::Error>;
 
     /// Fulfills the invocation by performing preprocessing, handling, and post processing
     fn fulfill(invocation: I) -> Result<O, Self::Error> {

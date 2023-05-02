@@ -32,12 +32,12 @@ pub struct Hash {
 
 impl Hash {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = hash::Input {
+        let input = hash::Input {
             payload: hex::decode(&self.data)?,
         };
-        let response = hash::Handler::fulfill(request).map_err(|error| {
+        let output = hash::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::HashError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

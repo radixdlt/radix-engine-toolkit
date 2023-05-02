@@ -258,12 +258,12 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(mut request: Input) -> Result<Input, Error> {
+    fn pre_process(mut input: Input) -> Result<Input, Error> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match request.manifest.instructions {
+        let instructions: &mut [Instruction] = match input.manifest.instructions {
             InstructionList::Parsed(ref mut instructions) => instructions,
             InstructionList::String(..) => &mut [],
         };
@@ -281,23 +281,23 @@ impl InvocationHandler<Input, Output> for Handler {
         if let Some(network_id) = network_aggregator_visitor
             .0
             .iter()
-            .find(|network_id| **network_id != request.network_id)
+            .find(|network_id| **network_id != input.network_id)
         {
             return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
-                expected: request.network_id,
+                expected: input.network_id,
             });
         }
-        Ok(request)
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         // Getting the instructions in the passed manifest as Parsed instructions.
         let mut instructions = {
             let manifest = convert_manifest::Handler::fulfill(convert_manifest::Input {
-                network_id: request.network_id,
+                network_id: input.network_id,
                 instructions_output_kind: InstructionKind::Parsed,
-                manifest: request.manifest.clone(),
+                manifest: input.manifest.clone(),
             })?
             .manifest;
 
@@ -307,11 +307,12 @@ impl InvocationHandler<Input, Output> for Handler {
             }
         };
 
-        let receipt = scrypto_decode::<TransactionReceipt>(&request.transaction_receipt).map_err(
-            |error| Error::TransactionReceiptDecodingFailed {
-                message: debug_string(error),
-            },
-        )?;
+        let receipt =
+            scrypto_decode::<TransactionReceipt>(&input.transaction_receipt).map_err(|error| {
+                Error::TransactionReceiptDecodingFailed {
+                    message: debug_string(error),
+                }
+            })?;
         let commit = match receipt.result {
             TransactionResult::Commit(commit) => Ok(commit),
             _ => Err(Error::TransactionNotSuccessfullyCommitted),
@@ -337,7 +338,7 @@ impl InvocationHandler<Input, Output> for Handler {
                 .map(|(k, v)| (k as u32, v))
                 .collect();
             AccountDepositsInstructionVisitor::new(
-                request.network_id,
+                input.network_id,
                 resource_changes,
                 worktop_changes,
             )
@@ -373,24 +374,24 @@ impl InvocationHandler<Input, Output> for Handler {
                 component_addresses: commit
                     .new_component_addresses()
                     .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
                     .collect(),
                 resource_addresses: commit
                     .new_resource_addresses()
                     .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
                     .collect(),
                 package_addresses: commit
                     .new_package_addresses()
                     .iter()
-                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, request.network_id))
+                    .map(|address| NetworkAwareNodeId(address.as_node_id().0, input.network_id))
                     .collect(),
             },
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

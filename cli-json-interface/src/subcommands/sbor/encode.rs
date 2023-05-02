@@ -31,10 +31,10 @@ pub struct Encode {
 
 impl Encode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = serde_json::from_str(&self.payload)?;
-        let response = sbor_encode::Handler::fulfill(request).map_err(|error| {
+        let input = serde_json::from_str(&self.payload)?;
+        let output = sbor_encode::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::SborEncodeError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

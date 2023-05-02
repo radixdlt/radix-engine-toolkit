@@ -50,20 +50,20 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
     fn handle(_: &Input) -> Result<Output, Error> {
-        let response = Output {
+        let output = Output {
             package_version: env!("CARGO_PKG_VERSION").into(),
             last_commit_hash: env!("GIT_HASH").into(),
         };
-        Ok(response)
+        Ok(output)
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

@@ -68,27 +68,27 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         // All Olympia addresses begin with a letter and then `d` `x`. Verify that the passed string
         // is of an Olympia account address
         if let (Some('d'), Some('x')) = (
-            request.olympia_account_address.chars().nth(1),
-            request.olympia_account_address.chars().nth(2),
+            input.olympia_account_address.chars().nth(1),
+            input.olympia_account_address.chars().nth(2),
         ) {
             Ok(())
         } else {
             Err(Self::Error::InvalidOlympiaAddress(
-                request.olympia_account_address.clone(),
+                input.olympia_account_address.clone(),
             ))
         }?;
 
         // Bech32 decode the passed address. If the Bech32 variant is not Bech32, then this is not
         // an Olympia address
-        let (_, data, variant) = bech32::decode(&request.olympia_account_address)?;
+        let (_, data, variant) = bech32::decode(&input.olympia_account_address)?;
         if let bech32::Variant::Bech32 = variant {
             Ok(())
         } else {
@@ -102,7 +102,7 @@ impl InvocationHandler<Input, Output> for Handler {
         // where the added 1 byte is because of the 0x04 prefix that public keys have.
         if data.len() != 34 || data.remove(0) != 4 {
             Err(Self::Error::InvalidOlympiaAddress(
-                request.olympia_account_address.clone(),
+                input.olympia_account_address.clone(),
             ))?;
         };
 
@@ -118,14 +118,14 @@ impl InvocationHandler<Input, Output> for Handler {
                 ComponentAddress::virtual_account_from_public_key(&public_key)
                     .as_node_id()
                     .0,
-                request.network_id,
+                input.network_id,
             ),
             public_key: public_key.into(),
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

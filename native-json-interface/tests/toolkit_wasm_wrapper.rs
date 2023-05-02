@@ -156,20 +156,20 @@ impl RadixEngineToolkit {
         Self::new_from_module_path(wasm_module_path)
     }
 
-    crate::define_request_function! {information::Input, information::Output, information}
-    crate::define_request_function! {convert_manifest::Input, convert_manifest::Output, convert_manifest}
-    crate::define_request_function! {compile_transaction_intent::Input, compile_transaction_intent::Output, compile_transaction_intent}
-    crate::define_request_function! {decompile_transaction_intent::Input, decompile_transaction_intent::Output, decompile_transaction_intent}
-    crate::define_request_function! {compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output, compile_signed_transaction_intent}
-    crate::define_request_function! {decompile_signed_transaction_intent::Input, decompile_signed_transaction_intent::Output, decompile_signed_transaction_intent}
-    crate::define_request_function! {compile_notarized_transaction::Input, compile_notarized_transaction::Output, compile_notarized_transaction}
-    crate::define_request_function! {decompile_notarized_transaction::Input, decompile_notarized_transaction::Output, decompile_notarized_transaction}
-    crate::define_request_function! {decompile_unknown_intent::Input, decompile_unknown_intent::Output, decompile_unknown_transaction_intent}
-    crate::define_request_function! {decode_address::Input, decode_address::Output, decode_address}
-    crate::define_request_function! {encode_address::Input, encode_address::Output, encode_address}
-    crate::define_request_function! {sbor_decode::Input, sbor_decode::Output, sbor_decode}
-    crate::define_request_function! {sbor_encode::Input, sbor_encode::Output, sbor_encode}
-    crate::define_request_function! {derive_virtual_account_address::Input, derive_virtual_account_address::Output, derive_virtual_account_address}
+    crate::define_ret_function! {information::Input, information::Output, information}
+    crate::define_ret_function! {convert_manifest::Input, convert_manifest::Output, convert_manifest}
+    crate::define_ret_function! {compile_transaction_intent::Input, compile_transaction_intent::Output, compile_transaction_intent}
+    crate::define_ret_function! {decompile_transaction_intent::Input, decompile_transaction_intent::Output, decompile_transaction_intent}
+    crate::define_ret_function! {compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output, compile_signed_transaction_intent}
+    crate::define_ret_function! {decompile_signed_transaction_intent::Input, decompile_signed_transaction_intent::Output, decompile_signed_transaction_intent}
+    crate::define_ret_function! {compile_notarized_transaction::Input, compile_notarized_transaction::Output, compile_notarized_transaction}
+    crate::define_ret_function! {decompile_notarized_transaction::Input, decompile_notarized_transaction::Output, decompile_notarized_transaction}
+    crate::define_ret_function! {decompile_unknown_intent::Input, decompile_unknown_intent::Output, decompile_unknown_transaction_intent}
+    crate::define_ret_function! {decode_address::Input, decode_address::Output, decode_address}
+    crate::define_ret_function! {encode_address::Input, encode_address::Output, encode_address}
+    crate::define_ret_function! {sbor_decode::Input, sbor_decode::Output, sbor_decode}
+    crate::define_ret_function! {sbor_encode::Input, sbor_encode::Output, sbor_encode}
+    crate::define_ret_function! {derive_virtual_account_address::Input, derive_virtual_account_address::Output, derive_virtual_account_address}
 
     /// Calls a function in the WASM instance with a given request
     ///
@@ -180,8 +180,8 @@ impl RadixEngineToolkit {
     ///
     /// At a high level, this function does the following:
     ///
-    /// 1. Serializes the request.
-    /// 2. Allocates enough memory for the C-String representation of the serialized request.
+    /// 1. Serializes the input.
+    /// 2. Allocates enough memory for the C-String representation of the serialized input.
     /// 3. Writes this request to linear memory.
     /// 4. Invokes the WASM function.
     /// 5. Reads the response string at the pointer returned by the WASM function
@@ -207,35 +207,34 @@ impl RadixEngineToolkit {
     fn call_wasm_function<S: Serialize, D: DeserializeOwned>(
         &mut self,
         function: TypedFunc<i32, i32>,
-        request: S,
+        input: S,
     ) -> Result<D> {
         // Write the request to the WASM's linear memory
-        let request_memory_offset: i32 = self.write_object_to_memory(request)?;
+        let input_memory_offset: i32 = self.write_object_to_memory(input)?;
 
         // Call the function using the provided request memory offset
-        let response_memory_offset: i32 = function
-            .call(&mut self.store, request_memory_offset)
+        let output_memory_offset: i32 = function
+            .call(&mut self.store, input_memory_offset)
             .map_err(WrapperError::WasmTimeTrapError)?;
 
         // The response is either of type `D` or of type `Error`. So, we attempt to decode it as
         // both
-        let response_string: String = self.read_string(response_memory_offset)?;
-        let response: Result<D> = if let Ok(response) = Self::deserialize::<D, _>(&response_string)
+        let output_string: String = self.read_string(output_memory_offset)?;
+        let output: Result<D> = if let Ok(output) = Self::deserialize::<D, _>(&output_string) {
+            Ok(output)
+        } else if let Ok(output) =
+            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&output_string)
         {
-            Ok(response)
-        } else if let Ok(response) =
-            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&response_string)
-        {
-            Err(WrapperError::LibraryError(response))
+            Err(WrapperError::LibraryError(output))
         } else {
             return Err(WrapperError::DeserializationError);
         };
 
         // Free up the allocated memory for the request and the response
-        self.free_memory(request_memory_offset)?;
-        self.free_memory(response_memory_offset)?;
+        self.free_memory(input_memory_offset)?;
+        self.free_memory(output_memory_offset)?;
 
-        response
+        output
     }
 
     /// Writes an object to linear memory
@@ -534,10 +533,10 @@ macro_rules! define_function_store{
 }
 
 #[macro_export]
-macro_rules! define_request_function {
-    ($request_type: ty, $response_type: ty, $function_ident: ident) => {
-        pub fn $function_ident(&mut self, request: $request_type) -> Result<$response_type> {
-            self.call_wasm_function(self.function_store.$function_ident, request)
+macro_rules! define_ret_function {
+    ($input: ty, $output: ty, $function_ident: ident) => {
+        pub fn $function_ident(&mut self, input: $input) -> Result<$output> {
+            self.call_wasm_function(self.function_store.$function_ident, input)
         }
     };
 }
@@ -553,17 +552,17 @@ mod tests {
     use super::{RadixEngineToolkit, Result};
 
     #[test]
-    pub fn test_information_request_succeeds() {
+    pub fn test_information_function_succeeds() {
         // Arrange
         let mut radix_engine_toolkit: RadixEngineToolkit =
             RadixEngineToolkit::new_compile_from_source()
                 .expect("Failed to create a new library from source");
 
         // Act
-        let response: Result<information::Output> =
+        let output: Result<information::Output> =
             radix_engine_toolkit.information(information::Input {});
 
         // Assert
-        assert!(matches!(response, Ok(_)))
+        assert!(matches!(output, Ok(_)))
     }
 }
