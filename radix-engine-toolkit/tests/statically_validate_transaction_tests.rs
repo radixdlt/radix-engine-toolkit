@@ -229,13 +229,13 @@ fn statically_validate(
     transaction: &NotarizedTransaction,
 ) -> statically_validate_transaction::Output {
     let encoded_transaction = manifest_encode(&transaction).unwrap();
-    let request = statically_validate_transaction::Input {
+    let input = statically_validate_transaction::Input {
         compiled_notarized_intent: encoded_transaction,
         validation_config: ValidationConfig::default(
             transaction.signed_intent.intent.header.network_id,
         ),
     };
-    statically_validate_transaction::Handler::fulfill(request).unwrap()
+    statically_validate_transaction::Handler::fulfill(input).unwrap()
 }
 
 #[derive(ScryptoSbor, NonFungibleData, ManifestSbor)]

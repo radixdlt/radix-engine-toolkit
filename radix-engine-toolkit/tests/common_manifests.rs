@@ -38,17 +38,17 @@ pub fn common_manifests_can_be_converted_to_parsed_manifests() {
             blobs: vec![[10].into(), [10].into()],
         };
 
-        let request = convert_manifest::Input {
+        let input = convert_manifest::Input {
             manifest,
             instructions_output_kind: InstructionKind::Parsed,
             network_id: 0xf2,
         };
 
         // Act
-        let response = convert_manifest::Handler::fulfill(request);
+        let output = convert_manifest::Handler::fulfill(input);
 
         // Assert
-        assert!(matches!(response, Ok(..)));
+        assert!(matches!(output, Ok(..)));
     }
 }
 
@@ -65,24 +65,24 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
             blobs: vec![[10].into()],
         };
 
-        let request = convert_manifest::Input {
+        let input = convert_manifest::Input {
             manifest,
             instructions_output_kind: InstructionKind::Parsed,
             network_id: 0xf2,
         };
-        let response = convert_manifest::Handler::fulfill(request).unwrap();
+        let output = convert_manifest::Handler::fulfill(input).unwrap();
 
-        let request = convert_manifest::Input {
-            manifest: response.manifest,
+        let input = convert_manifest::Input {
+            manifest: output.manifest,
             instructions_output_kind: InstructionKind::String,
             network_id: 0xf2,
         };
 
         // Act
-        let response = convert_manifest::Handler::fulfill(request);
+        let output = convert_manifest::Handler::fulfill(input);
 
         // Assert
-        assert!(matches!(response, Ok(..)));
+        assert!(matches!(output, Ok(..)));
     }
 }
 

@@ -24,6 +24,7 @@
     {
       "type": "object",
       "required": [
+        "manifest_string",
         "type",
         "value"
       ],
@@ -33,6 +34,9 @@
           "enum": [
             "ManifestSbor"
           ]
+        },
+        "manifest_string": {
+          "type": "string"
         },
         "value": {
           "$ref": "#/definitions/ManifestSborValue"

@@ -42,13 +42,12 @@ pub fn deriving_babylon_address_from_olympia_address_succeeds_and_produces_expec
 
     // Act
     let (public_key, account_address) = {
-        let request = derive_babylon_address_from_olympia_address::Input {
+        let input = derive_babylon_address_from_olympia_address::Input {
             network_id: 0x0b,
             olympia_account_address: olympia_address.to_owned(),
         };
-        let response =
-            derive_babylon_address_from_olympia_address::Handler::fulfill(request).unwrap();
-        (response.public_key, response.babylon_account_address)
+        let output = derive_babylon_address_from_olympia_address::Handler::fulfill(input).unwrap();
+        (output.public_key, output.babylon_account_address)
     };
 
     // Assert
@@ -71,12 +70,12 @@ pub fn deriving_olympia_mainnet_address_from_public_key_succeeds_and_produces_ex
 
     // Act
     let olympia_address = {
-        let request = derive_olympia_address_from_public_key::Input {
+        let input = derive_olympia_address_from_public_key::Input {
             network: OlympiaNetwork::Mainnet,
             public_key,
         };
-        let response = derive_olympia_address_from_public_key::Handler::fulfill(request).unwrap();
-        response.olympia_account_address
+        let output = derive_olympia_address_from_public_key::Handler::fulfill(input).unwrap();
+        output.olympia_account_address
     };
 
     // Assert

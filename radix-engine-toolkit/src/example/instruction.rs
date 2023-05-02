@@ -18,9 +18,11 @@
 use native_transaction::manifest::generator::{generate_instruction, NameResolver};
 use native_transaction::validation::ManifestValidator;
 use scrypto::address::Bech32Decoder;
+use scrypto::prelude::manifest_encode;
 use scrypto::prelude::{
     ComponentAddress, Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_PACKAGE, RADIX_TOKEN,
 };
+use scrypto::schema::PackageSchema;
 
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::ast::{
@@ -535,14 +537,8 @@ pub fn publish_package() -> Instruction {
                 .unwrap(),
             ),
         },
-        schema: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
-                checked_copy_u8_slice(
-                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                        .unwrap(),
-                )
-                .unwrap(),
-            ),
+        schema: ManifestAstValue::Bytes {
+            value: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
             key_value_kind: ManifestAstValueKind::String,
@@ -570,14 +566,8 @@ pub fn publish_package_advanced() -> Instruction {
                 .unwrap(),
             ),
         },
-        schema: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
-                checked_copy_u8_slice(
-                    hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
-                        .unwrap(),
-                )
-                .unwrap(),
-            ),
+        schema: ManifestAstValue::Bytes {
+            value: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
             key_value_kind: ManifestAstValueKind::String,
@@ -1193,16 +1183,13 @@ fn check_instruction(instruction: &Instruction) {
             .unwrap(),
         Instruction::PublishPackage {
             code: ManifestAstValue::Blob { hash: code },
-            schema: ManifestAstValue::Blob { hash: abi },
             ..
         }
         | Instruction::PublishPackageAdvanced {
             code: ManifestAstValue::Blob { hash: code },
-            schema: ManifestAstValue::Blob { hash: abi },
             ..
         } => {
             blobs.push(Hash(code.0));
-            blobs.push(Hash(abi.0));
         }
         _ => {}
     }

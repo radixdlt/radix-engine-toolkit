@@ -65,26 +65,26 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        checked_copy_u8_slice(&request.address_bytes).map_or(
+    fn handle(input: &Input) -> Result<Output, Error> {
+        checked_copy_u8_slice(&input.address_bytes).map_or(
             Err(Error::InvalidLength {
                 expected: NodeId::LENGTH,
-                actual: request.address_bytes.len(),
+                actual: input.address_bytes.len(),
             }),
             |address| {
                 Ok(Output {
-                    address: NetworkAwareNodeId(address, request.network_id),
+                    address: NetworkAwareNodeId(address, input.network_id),
                 })
             },
         )
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

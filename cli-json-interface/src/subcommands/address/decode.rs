@@ -33,12 +33,12 @@ pub struct Decode {
 
 impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = decode_address::Input {
+        let input = decode_address::Input {
             address: self.address.clone().parse().unwrap(),
         };
-        let response = decode_address::Handler::fulfill(request).map_err(|error| {
+        let output = decode_address::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::DecodeAddressError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }

@@ -38,16 +38,16 @@ pub struct Decompile {
 
 impl Decompile {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = decompile_unknown_intent::Input {
+        let input = decompile_unknown_intent::Input {
             compiled_unknown_intent: hex::decode(&self.payload)?,
             instructions_output_kind: self.output_instructions_kind.clone().into(),
         };
-        let response = decompile_unknown_intent::Handler::fulfill(request).map_err(|error| {
+        let output = decompile_unknown_intent::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(
                 InvocationHandlingError::DecompileUnknownTransactionIntentError(error),
             )
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }
 

@@ -176,7 +176,9 @@ impl ExampleData<information::Input, information::Output> for information::Handl
         r#"The function provides information information on the currently in-use radix engine
 toolkit such as the version of the radix engine toolkit. In most cases, this is the first
 function written when integrating new clients; so, this function is often times seen as the
-"Hello World" example of the radix engine toolkit."#.to_owned()     }
+"Hello World" example of the radix engine toolkit."#
+            .to_owned()
+    }
 
     fn example_input() -> information::Input {
         information::Input {}
@@ -207,15 +209,17 @@ that anything which can be done in the string format of transaction manifests, c
 Parsed format as well.
 
 This function allows the client the convert their manifest between the two supported manifest
-types: string and Parsed."#.to_owned()     }
+types: string and Parsed."#
+            .to_owned()
+    }
 
     fn example_input() -> convert_manifest::Input {
         let bec32_coder = Bech32Coder::new(network_definition().id);
         convert_manifest::Input {
             manifest:
-                
-radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(             
-&notarized_intent().signed_intent.intent.manifest,                     InstructionKind::Parsed,
+                radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
+                    &notarized_intent().signed_intent.intent.manifest,
+                    InstructionKind::Parsed,
                     &bec32_coder,
                 )
                 .unwrap(),
@@ -226,19 +230,23 @@ radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manif
     }
 }
 
-impl ExampleData<extract_addresses_from_manifest::Input, extract_addresses_from_manifest::Output> for extract_addresses_from_manifest::Handler {
+impl ExampleData<extract_addresses_from_manifest::Input, extract_addresses_from_manifest::Output>
+    for extract_addresses_from_manifest::Handler
+{
     fn description() -> String {
         r#"Analyzes the manifest returning back all of the addresses involved in the manifest
 alongside some useful information on whether the accounts were withdrawn from, deposited into, or
-just used in the manifest in general."#.to_owned()     }
+just used in the manifest in general."#
+            .to_owned()
+    }
 
     fn example_input() -> extract_addresses_from_manifest::Input {
         let bec32_coder = Bech32Coder::new(network_definition().id);
         extract_addresses_from_manifest::Input {
             manifest:
-                
-radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(             
-&notarized_intent().signed_intent.intent.manifest,                     InstructionKind::String,
+                radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
+                    &notarized_intent().signed_intent.intent.manifest,
+                    InstructionKind::String,
                     &bec32_coder,
                 )
                 .unwrap(),
@@ -252,13 +260,13 @@ impl ExampleData<compile_transaction_intent::Input, compile_transaction_intent::
 {
     fn description() -> String {
         r#"Takes a transaction intent and compiles it by SBOR encoding it and returning it back
-to the caller. This is mainly useful when creating a transaction."#.to_owned()     }
+to the caller. This is mainly useful when creating a transaction."#
+            .to_owned()
+    }
 
     fn example_input() -> compile_transaction_intent::Input {
         compile_transaction_intent::Input {
-            transaction_intent:
-                
-radix_engine_toolkit::model::transaction::TransactionIntent::from_native_transaction_intent(
+            transaction_intent: radix_engine_toolkit::model::transaction::TransactionIntent::from_native_transaction_intent(
                     &notarized_intent().signed_intent.intent,
                     InstructionKind::Parsed,
                 )
@@ -273,7 +281,9 @@ impl ExampleData<decompile_transaction_intent::Input, decompile_transaction_inte
     fn description() -> String {
         r#"This function does the opposite of the compile_transaction_intent function. It takes
 in a compiled transaction intent and decompiles it into its human-readable / machine-readable
-format."#.to_owned()     }
+format."#
+            .to_owned()
+    }
 
     fn example_input() -> decompile_transaction_intent::Input {
         let compiled_transaction_intent =
@@ -286,12 +296,14 @@ format."#.to_owned()     }
     }
 }
 
-impl ExampleData<compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output>
+impl
+    ExampleData<compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output>
     for compile_signed_transaction_intent::Handler
 {
     fn description() -> String {
         r#"This function takes in a raw transaction intent as well as its signatures and compiles
-it. This is useful when a notary wishes to notarize a signed transaction intent."#.to_owned()
+it. This is useful when a notary wishes to notarize a signed transaction intent."#
+            .to_owned()
     }
 
     fn example_input() -> compile_signed_transaction_intent::Input {
@@ -305,13 +317,18 @@ notarized_intent()             .signed_intent
     }
 }
 
-impl ExampleData<decompile_signed_transaction_intent::Input,
-decompile_signed_transaction_intent::Output>     for decompile_signed_transaction_intent::Handler
+impl
+    ExampleData<
+        decompile_signed_transaction_intent::Input,
+        decompile_signed_transaction_intent::Output,
+    > for decompile_signed_transaction_intent::Handler
 {
     fn description() -> String {
         r#"This function does the opposite of the compile_signed_transaction_intent function.
 This function takes in a compiled signed transaction intent and decompiles it into its
-transaction intent and signatures."#.to_owned()     }
+transaction intent and signatures."#
+            .to_owned()
+    }
 
     fn example_input() -> decompile_signed_transaction_intent::Input {
         let compiled_transaction_intent =
@@ -330,7 +347,9 @@ impl ExampleData<compile_notarized_transaction::Input, compile_notarized_transac
     fn description() -> String {
         r#"This function takes in a raw signed transaction intent as well as the notary signature
 and compiles it. This is useful when we wish to submit a transaction to the Gateway
-API"#.to_owned()     }
+API"#
+            .to_owned()
+    }
 
     fn example_input() -> compile_notarized_transaction::Input {
         compile_notarized_transaction::Input {
@@ -348,7 +367,9 @@ impl ExampleData<decompile_notarized_transaction::Input, decompile_notarized_tra
     fn description() -> String {
         r#"This function does the opposite of the compile_notarized_intent()_intent function.
 This function takes in a compiled notarized transaction intent and decompiles it into its signed
-transaction intent and notary signature."#.to_owned()     }
+transaction intent and notary signature."#
+            .to_owned()
+    }
 
     fn example_input() -> decompile_notarized_transaction::Input {
         let compiled_transaction_intent = manifest_encode(&notarized_intent()).unwrap();
@@ -360,16 +381,17 @@ transaction intent and notary signature."#.to_owned()     }
     }
 }
 
-impl
-    ExampleData<decompile_unknown_intent::Input,
-decompile_unknown_intent::Output>     for decompile_unknown_intent::Handler
+impl ExampleData<decompile_unknown_intent::Input, decompile_unknown_intent::Output>
+    for decompile_unknown_intent::Handler
 {
     fn description() -> String {
         r#"There are certain cases where we might have some blob which we suspect is a
 transaction intent but we have no way of verifying whether that is true or not. Looking at the
 type id byte of the blob does not help either as it's a generic Struct type which is not too
 telling. For this specific use case, this library provides this function which attempts to
-decompile a transaction intent of an unknown type."#.to_owned()     }
+decompile a transaction intent of an unknown type."#
+            .to_owned()
+    }
 
     fn example_input() -> decompile_unknown_intent::Input {
         let compiled_transaction_intent = manifest_encode(&notarized_intent()).unwrap();
@@ -385,13 +407,15 @@ impl ExampleData<encode_address::Input, encode_address::Output> for encode_addre
     fn description() -> String {
         r#"This function can be used when we have a byte array which we wish to do Bech32m
 encoding on. In this case, the HRP to use will be determined through the entity byte of the
-passed address hex string."#.to_owned()     }
+passed address hex string."#
+            .to_owned()
+    }
 
     fn example_input() -> encode_address::Input {
         encode_address::Input {
             address_bytes: vec![
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0,                 0, 2,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 2,
             ],
             network_id: 0xf2,
         }
@@ -403,7 +427,9 @@ impl ExampleData<decode_address::Input, decode_address::Output> for decode_addre
         r#"This function can be used to decode a Bech32m encoded address string into its
 equivalent hrp and data. In addition to that, this function provides other useful information on
 the address such as the network id and name that it is used for, and the entity type of the
-address."#.to_owned()     }
+address."#
+            .to_owned()
+    }
 
     fn example_input() -> decode_address::Input {
         decode_address::Input {
@@ -427,7 +453,8 @@ impl ExampleData<sbor_encode::Input, sbor_encode::Output> for sbor_encode::Handl
 impl ExampleData<sbor_decode::Input, sbor_decode::Output> for sbor_decode::Handler {
     fn description() -> String {
         r#"This function takes in a hex string and attempts to decode it into a
-ScryptoSborValue."#             .to_owned()
+ScryptoSborValue."#
+            .to_owned()
     }
 
     fn example_input() -> sbor_decode::Input {
@@ -436,18 +463,18 @@ ScryptoSborValue."#             .to_owned()
                 77, // prefix
                 33, // struct
                 8,  // field length
-                128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0,                 0, 0, 0, 0, // address
+                128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, // address
                 129, 4, 0, 0, 0, // bucket
                 130, 5, 0, 0, 0, // proof
                 131, 1, // expression
-                132, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-6,                 6, 6, 6, 6, 6, 6, // blob
-                133, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-7,                 7, 7, 7, 7, 7, 7, // decimal
-                134, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-8,                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-8, 8,                 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, // precise decimal
+                132, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+                6, 6, 6, 6, 6, 6, // blob
+                133, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+                7, 7, 7, 7, 7, 7, // decimal
+                134, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, // precise decimal
                 135, 0, 3, 97, 98, 99, // non-fungible local id
             ],
             network_id: 0xf2,
@@ -495,7 +522,8 @@ impl
 {
     fn description() -> String {
         r#"Derives the Babylon account address associated with the given Olympia account
-address"#             .to_owned()
+address"#
+            .to_owned()
     }
 
     fn example_input() -> derive_babylon_address_from_olympia_address::Input {
@@ -508,12 +536,15 @@ address"#             .to_owned()
 }
 
 impl
-    ExampleData<derive_olympia_address_from_public_key::Input,
-derive_olympia_address_from_public_key::Output>     for derive_olympia_address_from_public_key::Handler
+    ExampleData<
+        derive_olympia_address_from_public_key::Input,
+        derive_olympia_address_from_public_key::Output,
+    > for derive_olympia_address_from_public_key::Handler
 {
     fn description() -> String {
         r#"Given an ECDSA Secp256k1 Public Key and Olympia network, this function derives the
-Olympia account address associated with the public key on that network."#             .to_owned()
+Olympia account address associated with the public key on that network."#
+            .to_owned()
     }
 
     fn example_input() -> derive_olympia_address_from_public_key::Input {
@@ -541,7 +572,8 @@ known addresses.
 
         As an example, this function allows users to derive the XRD resource address, faucet
 component address, or account package address on any network (given that they know its network
-id)."#             .to_owned()
+id)."#
+            .to_owned()
     }
 
     fn example_input() -> known_entity_addresses::Input {
@@ -577,7 +609,8 @@ impl ExampleData<statically_validate_transaction::Input, statically_validate_tra
 impl ExampleData<hash::Input, hash::Output> for hash::Handler {
     fn description() -> String {
         r#"Hashes some payload through the hashing algorithm used in Scrypto and the Radix
-Engine."#             .to_owned()
+Engine."#
+            .to_owned()
     }
 
     fn example_input() -> hash::Input {

@@ -16,8 +16,7 @@
 // under the License.
 
 use crate::model::address::Bech32Coder;
-use crate::model::instruction::Instruction;
-use crate::model::value::ast::ManifestAstValueConversionError;
+use crate::model::instruction::{Instruction, InstructionConversionError};
 use crate::utils::debug_string;
 use native_transaction::manifest::generator::{self, GeneratorError};
 use native_transaction::manifest::lexer::{self, LexerError};
@@ -222,7 +221,7 @@ impl InstructionList {
 #[serializable]
 #[serde(tag = "type")]
 pub enum InstructionListConversionError {
-    InstructionConversionError(ManifestAstValueConversionError),
+    InstructionConversionError(InstructionConversionError),
 
     /// An error emitted when lexing a string manifest fails
     ScryptoLexerError {
@@ -277,8 +276,8 @@ impl From<DecompileError> for InstructionListConversionError {
     }
 }
 
-impl From<ManifestAstValueConversionError> for InstructionListConversionError {
-    fn from(value: ManifestAstValueConversionError) -> Self {
+impl From<InstructionConversionError> for InstructionListConversionError {
+    fn from(value: InstructionConversionError) -> Self {
         Self::InstructionConversionError(value)
     }
 }

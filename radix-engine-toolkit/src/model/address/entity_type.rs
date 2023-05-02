@@ -45,7 +45,8 @@ pub enum EntityType {
     InternalNonFungibleVault,
     InternalAccount,
     InternalKeyValueStore,
-    InternalSortedStore,
+    InternalIndex,
+    InternalSortedIndex,
     InternalGenericComponent, // generic
 }
 
@@ -74,7 +75,8 @@ impl From<EntityType> for NativeEntityType {
             EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             EntityType::InternalAccount => Self::InternalAccount,
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
-            EntityType::InternalSortedStore => Self::InternalSortedStore,
+            EntityType::InternalIndex => Self::InternalIndex,
+            EntityType::InternalSortedIndex => Self::InternalSortedIndex,
             EntityType::InternalGenericComponent => Self::InternalGenericComponent,
         }
     }
@@ -101,7 +103,8 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             NativeEntityType::InternalAccount => Self::InternalAccount,
             NativeEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
-            NativeEntityType::InternalSortedStore => Self::InternalSortedStore,
+            NativeEntityType::InternalIndex => Self::InternalIndex,
+            NativeEntityType::InternalSortedIndex => Self::InternalSortedIndex,
             NativeEntityType::InternalGenericComponent => Self::InternalGenericComponent,
         }
     }

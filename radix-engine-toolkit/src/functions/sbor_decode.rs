@@ -16,9 +16,11 @@
 // under the License.
 
 use crate::functions::traits::InvocationHandler;
+use crate::model::address::Bech32Coder;
 use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::ScryptoSborValue;
 use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
+use native_transaction::manifest::decompiler::{format_typed_value, DecompilationContext};
 use sbor::DecodeError;
 use scrypto::prelude::{
     manifest_decode, scrypto_decode, ManifestValue, ScryptoValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
@@ -53,10 +55,15 @@ pub struct Input {
 
 /// The response from the [`Input`].
 #[serializable]
-#[serde(tag = "type", content = "value")]
+#[serde(tag = "type")]
 pub enum Output {
-    ScryptoSbor(ScryptoSborValue),
-    ManifestSbor(ManifestSborValue),
+    ScryptoSbor {
+        value: ScryptoSborValue,
+    },
+    ManifestSbor {
+        manifest_string: String,
+        value: ManifestSborValue,
+    },
 }
 
 // ===============
@@ -67,34 +74,44 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        match request.encoded_value.first().copied() {
+    fn handle(input: &Input) -> Result<Output, Error> {
+        let bech32_coder = Bech32Coder::new(input.network_id);
+        match input.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                scrypto_decode::<ScryptoValue>(&request.encoded_value)
+                scrypto_decode::<ScryptoValue>(&input.encoded_value)
                     .map(|scrypto_value| {
-                        ScryptoSborValue::from_scrypto_sbor_value(
-                            &scrypto_value,
-                            request.network_id,
-                        )
+                        ScryptoSborValue::from_scrypto_sbor_value(&scrypto_value, input.network_id)
                     })
-                    .map(Output::ScryptoSbor)
+                    .map(|value| Output::ScryptoSbor { value })
                     .map_err(Error::from)
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-                manifest_decode::<ManifestValue>(&request.encoded_value)
+                manifest_decode::<ManifestValue>(&input.encoded_value)
                     .map_err(Error::from)
                     .and_then(|manifest_value| {
                         ManifestSborValue::from_manifest_sbor_value(
                             &manifest_value,
-                            request.network_id,
+                            input.network_id,
                         )
                         .map_err(Error::from)
+                        .map(|value| (value, manifest_value))
                     })
-                    .map(Output::ManifestSbor)
+                    .map(|(value, manifest_value)| Output::ManifestSbor {
+                        value,
+                        manifest_string: {
+                            let mut string = String::new();
+                            let mut context = DecompilationContext::new_with_optional_network(
+                                Some(bech32_coder.encoder()),
+                            );
+                            format_typed_value(&mut string, &mut context, &manifest_value)
+                                .expect("Impossible case! Valid SBOR can't fail here");
+                            string.trim().to_owned()
+                        },
+                    })
                     .map_err(Error::from)
             }
             Some(p) => Err(Error::InvalidSborVariant {
@@ -108,8 +125,8 @@ impl InvocationHandler<Input, Output> for Handler {
         }
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

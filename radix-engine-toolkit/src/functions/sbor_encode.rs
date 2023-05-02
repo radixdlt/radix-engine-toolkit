@@ -54,12 +54,12 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        match request {
+    fn handle(input: &Input) -> Result<Output, Error> {
+        match input {
             Input::ManifestSbor(value) => Ok(Output {
                 encoded_value: manifest_encode(&value.to_manifest_sbor_value()?)?,
             }),
@@ -69,8 +69,8 @@ impl InvocationHandler<Input, Output> for Handler {
         }
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

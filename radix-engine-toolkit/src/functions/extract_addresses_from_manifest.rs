@@ -108,12 +108,12 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(mut request: Input) -> Result<Input, Error> {
+    fn pre_process(mut input: Input) -> Result<Input, Error> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] = match request.manifest.instructions {
+        let instructions: &mut [Instruction] = match input.manifest.instructions {
             InstructionList::Parsed(ref mut instructions) => instructions,
             InstructionList::String(..) => &mut [],
         };
@@ -131,23 +131,23 @@ impl InvocationHandler<Input, Output> for Handler {
         if let Some(network_id) = network_aggregator_visitor
             .0
             .iter()
-            .find(|network_id| **network_id != request.network_id)
+            .find(|network_id| **network_id != input.network_id)
         {
             return Err(Self::Error::InvalidNetworkIdEncountered {
                 found: *network_id,
-                expected: request.network_id,
+                expected: input.network_id,
             });
         }
-        Ok(request)
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         // Getting the instructions in the passed manifest as parsed instructions
         let mut instructions = {
             let manifest = convert_manifest::Handler::fulfill(convert_manifest::Input {
-                network_id: request.network_id,
+                network_id: input.network_id,
                 instructions_output_kind: InstructionKind::Parsed,
-                manifest: request.manifest.clone(),
+                manifest: input.manifest.clone(),
             })?
             .manifest;
 
@@ -172,7 +172,7 @@ impl InvocationHandler<Input, Output> for Handler {
             .collect::<Result<Vec<_>, _>>()
             .map_err(Self::Error::VisitorError)?;
 
-        let response = Output {
+        let output = Output {
             package_addresses: address_aggregator_visitor.package_addresses,
             resource_addresses: address_aggregator_visitor.resource_addresses,
             component_addresses: address_aggregator_visitor.component_addresses.clone(),
@@ -185,11 +185,11 @@ impl InvocationHandler<Input, Output> for Handler {
             accounts_withdrawn_from: account_interactions_visitor.accounts_withdrawn_from,
             accounts_deposited_into: account_interactions_visitor.accounts_deposited_into,
         };
-        Ok(response)
+        Ok(output)
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

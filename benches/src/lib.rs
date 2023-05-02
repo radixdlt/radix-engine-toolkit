@@ -1,4 +1,4 @@
-use radix_engine_toolkit::request::*;
+use radix_engine_toolkit::functions::*;
 use serde::{de::DeserializeOwned, Serialize};
 
 mod ffi {
@@ -37,29 +37,29 @@ pub struct Error;
 
 pub struct RadixEngineToolkit;
 impl RadixEngineToolkit {
-    fn invoke_fn<S: Serialize, D: DeserializeOwned, F>(function: F, request: S) -> Result<D, Error>
+    fn invoke_fn<S: Serialize, D: DeserializeOwned, F>(function: F, input: S) -> Result<D, Error>
     where
         F: Fn(ffi::Pointer) -> ffi::Pointer,
     {
-        let request_pointer = Self::write_object_to_memory(request);
-        let response_pointer = function(request_pointer);
+        let input_pointer = Self::write_object_to_memory(input);
+        let output_pointer = function(input_pointer);
 
-        let response_string = Self::read_string(response_pointer)?;
-        let response = if let Ok(response) = Self::deserialize::<D, _>(&response_string) {
-            Ok(response)
-        } else if let Ok(response) =
-            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&response_string)
+        let output_string = Self::read_string(output_pointer)?;
+        let output = if let Ok(output) = Self::deserialize::<D, _>(&output_string) {
+            Ok(output)
+        } else if let Ok(output) =
+            Self::deserialize::<radix_engine_toolkit::error::RETError, _>(&output_string)
         {
-            println!("{:?}", response);
+            println!("{:?}", output);
             Err(Error)
         } else {
             return Err(Error);
         };
 
-        Self::free_memory(request_pointer);
-        Self::free_memory(response_pointer);
+        Self::free_memory(input_pointer);
+        Self::free_memory(output_pointer);
 
-        response
+        output
     }
 
     fn write_object_to_memory<S: Serialize>(object: S) -> ffi::Pointer {
@@ -118,39 +118,39 @@ impl RadixEngineToolkit {
 pub trait Invoke<T: Serialize> {
     type Output: DeserializeOwned;
 
-    fn invoke(request: T) -> Result<Self::Output, Error>;
+    fn invoke(input: T) -> Result<Self::Output, Error>;
 }
 
 macro_rules! impl_invoke {
-    ($request: path, $response: path, $fn_ident: path) => {
-        impl Invoke<$request> for RadixEngineToolkit {
-            type Output = $response;
+    ($input:path, $output:path, $fn_ident: path) => {
+        impl Invoke<$input> for RadixEngineToolkit {
+            type Output = $output;
 
-            fn invoke(request: $request) -> Result<Self::Output, Error> {
-                Self::invoke_fn(|pointer| unsafe { $fn_ident(pointer) }, request)
+            fn invoke(input: $input) -> Result<Self::Output, Error> {
+                Self::invoke_fn(|pointer| unsafe { $fn_ident(pointer) }, input)
             }
         }
     };
 }
 
-impl_invoke! { InformationRequest, InformationResponse, ffi::information }
-impl_invoke! { ConvertManifestRequest, ConvertManifestResponse, ffi::convert_manifest }
-impl_invoke! { extractAddressesFromManifestRequest, extractAddressesFromManifestResponse, ffi::extract_addresses_from_manifest }
-impl_invoke! { analyzeTransactionExecutionRequest, analyzeTransactionExecutionResponse, ffi::analyze_transaction_execution }
-impl_invoke! { CompileTransactionIntentRequest, CompileTransactionIntentResponse, ffi::compile_transaction_intent }
-impl_invoke! { CompileSignedTransactionIntentRequest, CompileSignedTransactionIntentResponse, ffi::compile_signed_transaction_intent }
-impl_invoke! { CompileNotarizedTransactionRequest, CompileNotarizedTransactionResponse, ffi::compile_notarized_transaction }
-impl_invoke! { DecompileTransactionIntentRequest, DecompileTransactionIntentResponse, ffi::decompile_transaction_intent }
-impl_invoke! { DecompileSignedTransactionIntentRequest, DecompileSignedTransactionIntentResponse, ffi::decompile_signed_transaction_intent }
-impl_invoke! { DecompileNotarizedTransactionRequest, DecompileNotarizedTransactionResponse, ffi::decompile_notarized_transaction }
-impl_invoke! { DecompileUnknownTransactionIntentRequest, DecompileUnknownTransactionIntentResponse, ffi::decompile_unknown_transaction_intent }
-impl_invoke! { DeriveBabylonAddressFromOlympiaAddressRequest, DeriveBabylonAddressFromOlympiaAddressResponse, ffi::derive_babylon_address_from_olympia_address }
-impl_invoke! { DeriveVirtualAccountAddressRequest, DeriveVirtualAccountAddressResponse, ffi::derive_virtual_account_address }
-impl_invoke! { DeriveVirtualIdentityAddressRequest, DeriveVirtualIdentityAddressResponse, ffi::derive_virtual_identity_address }
-impl_invoke! { EncodeAddressRequest, EncodeAddressResponse, ffi::encode_address }
-impl_invoke! { DecodeAddressRequest, DecodeAddressResponse, ffi::decode_address }
-impl_invoke! { SborEncodeRequest, SborEncodeResponse, ffi::sbor_encode }
-impl_invoke! { SborDecodeRequest, SborDecodeResponse, ffi::sbor_decode }
-impl_invoke! { KnownEntityAddressesRequest, KnownEntityAddressesResponse, ffi::known_entity_addresses }
-impl_invoke! { StaticallyValidateTransactionRequest, StaticallyValidateTransactionResponse, ffi::statically_validate_transaction }
-impl_invoke! { HashRequest, HashResponse, ffi::hash }
+impl_invoke! { information::Input, information::Output, ffi::information }
+impl_invoke! { convert_manifest::Input, convert_manifest::Output, ffi::convert_manifest }
+impl_invoke! { extract_addresses_from_manifest::Input, extract_addresses_from_manifest::Output, ffi::extract_addresses_from_manifest }
+impl_invoke! { analyze_transaction_execution::Input, analyze_transaction_execution::Output, ffi::analyze_transaction_execution }
+impl_invoke! { compile_transaction_intent::Input, compile_transaction_intent::Output, ffi::compile_transaction_intent }
+impl_invoke! { compile_signed_transaction_intent::Input, compile_signed_transaction_intent::Output, ffi::compile_signed_transaction_intent }
+impl_invoke! { compile_notarized_transaction::Input, compile_notarized_transaction::Output, ffi::compile_notarized_transaction }
+impl_invoke! { decompile_transaction_intent::Input, decompile_transaction_intent::Output, ffi::decompile_transaction_intent }
+impl_invoke! { decompile_signed_transaction_intent::Input, decompile_signed_transaction_intent::Output, ffi::decompile_signed_transaction_intent }
+impl_invoke! { decompile_notarized_transaction::Input, decompile_notarized_transaction::Output, ffi::decompile_notarized_transaction }
+impl_invoke! { decompile_unknown_intent::Input, decompile_unknown_intent::Output, ffi::decompile_unknown_transaction_intent }
+impl_invoke! { derive_babylon_address_from_olympia_address::Input, derive_babylon_address_from_olympia_address::Output, ffi::derive_babylon_address_from_olympia_address }
+impl_invoke! { derive_virtual_account_address::Input, derive_virtual_account_address::Output, ffi::derive_virtual_account_address }
+impl_invoke! { derive_virtual_identity_address::Input, derive_virtual_identity_address::Output, ffi::derive_virtual_identity_address }
+impl_invoke! { encode_address::Input, encode_address::Output, ffi::encode_address }
+impl_invoke! { decode_address::Input, decode_address::Output, ffi::decode_address }
+impl_invoke! { sbor_encode::Input, sbor_encode::Output, ffi::sbor_encode }
+impl_invoke! { sbor_decode::Input, sbor_decode::Output, ffi::sbor_decode }
+impl_invoke! { known_entity_addresses::Input, known_entity_addresses::Output, ffi::known_entity_addresses }
+impl_invoke! { statically_validate_transaction::Input, statically_validate_transaction::Output, ffi::statically_validate_transaction }
+impl_invoke! { hash::Input, hash::Output, ffi::hash }

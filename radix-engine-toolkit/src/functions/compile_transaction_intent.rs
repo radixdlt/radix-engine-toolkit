@@ -57,16 +57,16 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(mut request: Input) -> Result<Input, Error> {
+    fn pre_process(mut input: Input) -> Result<Input, Error> {
         // Visitors
         let mut network_aggregator_visitor = ValueNetworkAggregatorVisitor::default();
 
         // Instructions
-        let instructions: &mut [Instruction] =
-            match request.transaction_intent.manifest.instructions {
-                InstructionList::Parsed(ref mut instructions) => instructions,
-                InstructionList::String(..) => &mut [],
-            };
+        let instructions: &mut [Instruction] = match input.transaction_intent.manifest.instructions
+        {
+            InstructionList::Parsed(ref mut instructions) => instructions,
+            InstructionList::String(..) => &mut [],
+        };
 
         // Traverse instructions with visitors
         instructions
@@ -78,7 +78,7 @@ impl InvocationHandler<Input, Output> for Handler {
             .map_err(Self::Error::PreProcessingError)?;
 
         // Check for network mismatches
-        let expected_network_id = request.transaction_intent.header.network_id;
+        let expected_network_id = input.transaction_intent.header.network_id;
         if let Some(network_id) = network_aggregator_visitor
             .0
             .iter()
@@ -89,19 +89,19 @@ impl InvocationHandler<Input, Output> for Handler {
                 expected: expected_network_id,
             });
         }
-        Ok(request)
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
-        request
+    fn handle(input: &Input) -> Result<Output, Error> {
+        input
             .transaction_intent
             .compile()
             .map(|compiled_intent| Output { compiled_intent })
             .map_err(Self::Error::from)
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

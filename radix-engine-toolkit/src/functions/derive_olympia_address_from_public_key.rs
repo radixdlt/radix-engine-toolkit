@@ -82,14 +82,14 @@ pub struct Handler;
 impl InvocationHandler<Input, Output> for Handler {
     type Error = Error;
 
-    fn pre_process(request: Input) -> Result<Input, Error> {
-        Ok(request)
+    fn pre_process(input: Input) -> Result<Input, Error> {
+        Ok(input)
     }
 
-    fn handle(request: &Input) -> Result<Output, Error> {
+    fn handle(input: &Input) -> Result<Output, Error> {
         // Ensure that the passed public key is an Ecdsa Secp256k1 since this is the only public
         // key supported by Olympia.
-        let mut public_key_bytes = match request.public_key {
+        let mut public_key_bytes = match input.public_key {
             PublicKey::EcdsaSecp256k1(public_key) => Ok(public_key.to_vec()),
             PublicKey::EddsaEd25519(_) => Err(Error::InvalidPublicKeyType),
         }?;
@@ -99,7 +99,7 @@ impl InvocationHandler<Input, Output> for Handler {
         public_key_bytes.insert(0, 0x04);
 
         bech32::encode(
-            request.network.hrp(),
+            input.network.hrp(),
             public_key_bytes.to_base32(),
             bech32::Variant::Bech32,
         )
@@ -111,8 +111,8 @@ impl InvocationHandler<Input, Output> for Handler {
         })
     }
 
-    fn post_process(_: &Input, response: Output) -> Result<Output, Error> {
-        Ok(response)
+    fn post_process(_: &Input, output: Output) -> Result<Output, Error> {
+        Ok(output)
     }
 }
 

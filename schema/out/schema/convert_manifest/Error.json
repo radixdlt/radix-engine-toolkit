@@ -244,259 +244,79 @@
       "type": "object",
       "oneOf": [
         {
-          "description": "An error emitted if the conversion between the native and RET representations of the Manifest AST fails.",
+          "description": "Errors emitted during the conversion of instructions form the RET format to the native format used in Scrypto.",
           "type": "object",
           "oneOf": [
             {
-              "description": "Enum discriminators could either be a `u8` or a `String` with a well-known mapping back to the numeric discriminator. This error is emitted when the mapping of a string variant name to `u8` discriminator fails.",
-              "type": "object",
-              "required": [
-                "type",
-                "variant_name"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "FailedToResolveEnumDiscriminator"
-                  ]
-                },
-                "variant_name": {
-                  "type": "string"
-                }
-              }
-            },
-            {
-              "description": "This error is emitted during the conversion from the native AST models to the RET AST models if the number of elements in a map is odd (thus it's not a valid key value map).",
-              "type": "object",
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "MapHasOddNumberOfElements"
-                  ]
-                }
-              }
-            },
-            {
-              "description": "An error emitted when unexpected contents of an element is encountered while performing the conversion.",
-              "type": "object",
-              "required": [
-                "actual",
-                "expected",
-                "parsing",
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "UnexpectedContents"
-                  ]
-                },
-                "parsing": {
-                  "$ref": "#/definitions/ManifestAstValueKind"
-                },
-                "expected": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/ManifestAstValueKind"
-                  }
-                },
-                "actual": {
-                  "$ref": "#/definitions/ManifestAstValueKind"
-                }
-              }
-            },
-            {
-              "description": "Emitted when an unexpected expression string is encountered which can not be mapped to the expression enum.",
-              "type": "object",
-              "required": [
-                "actual",
-                "expected",
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "InvalidExpressionString"
-                  ]
-                },
-                "expected": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "actual": {
-                  "type": "string"
-                }
-              }
-            },
-            {
-              "description": "An error emitted when a value of an expected kind is encountered. Typically, this error is emitted when converting a ManifestAstValue to its underlying type.",
-              "type": "object",
-              "required": [
-                "actual",
-                "expected",
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "InvalidKind"
-                  ]
-                },
-                "expected": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/ManifestAstValueKind"
-                  }
-                },
-                "actual": {
-                  "$ref": "#/definitions/ManifestAstValueKind"
-                }
-              }
-            },
-            {
-              "description": "An error emitted when trying to parse a string to a type fails.",
-              "type": "object",
-              "required": [
-                "message",
-                "parsing",
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "ParseError"
-                  ]
-                },
-                "parsing": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            },
-            {
-              "description": "An error emitted when address encoding or decoding fails.",
+              "description": "An error emitted if the conversion between the native and RET representations of the Manifest AST fails.",
               "type": "object",
               "oneOf": [
                 {
-                  "description": "Attempted to perform a Regex capture of the network specifier in the HRP. However, a network specifier could not be found for the given HRP.",
+                  "description": "Enum discriminators could either be a `u8` or a `String` with a well-known mapping back to the numeric discriminator. This error is emitted when the mapping of a string variant name to `u8` discriminator fails.",
                   "type": "object",
                   "required": [
-                    "hrp",
+                    "type",
+                    "variant_name"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "FailedToResolveEnumDiscriminator"
+                      ]
+                    },
+                    "variant_name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "description": "This error is emitted during the conversion from the native AST models to the RET AST models if the number of elements in a map is odd (thus it's not a valid key value map).",
+                  "type": "object",
+                  "required": [
                     "type"
                   ],
                   "properties": {
                     "type": {
                       "type": "string",
                       "enum": [
-                        "NoNetworkSpecifierMatchesFoundInHrp"
+                        "MapHasOddNumberOfElements"
                       ]
-                    },
-                    "hrp": {
-                      "type": "string"
                     }
                   }
                 },
                 {
-                  "description": "While attempting to extract the network id from the HRP we failed to extract the network id. This could mean that the logic itself is flawed, the network id could not be decoded to a u8 or due to other issues.",
+                  "description": "An error emitted when unexpected contents of an element is encountered while performing the conversion.",
                   "type": "object",
                   "required": [
-                    "hrp",
-                    "network_specifier",
+                    "actual",
+                    "expected",
+                    "parsing",
                     "type"
                   ],
                   "properties": {
                     "type": {
                       "type": "string",
                       "enum": [
-                        "FailedToExtractNetworkId"
+                        "UnexpectedContents"
                       ]
                     },
-                    "hrp": {
-                      "type": "string"
+                    "parsing": {
+                      "$ref": "#/definitions/ManifestAstValueKind"
                     },
-                    "network_specifier": {
-                      "type": "string"
+                    "expected": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/ManifestAstValueKind"
+                      }
                     },
-                    "network_id_string": {
-                      "type": [
-                        "string",
-                        "null"
-                      ]
+                    "actual": {
+                      "$ref": "#/definitions/ManifestAstValueKind"
                     }
                   }
                 },
                 {
-                  "description": "Represents an error emitted when the Bech32 decoding fails and an error is returned by the Bech32 library used.",
-                  "type": "object",
-                  "required": [
-                    "address",
-                    "type"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "Bech32DecodeError"
-                      ]
-                    },
-                    "address": {
-                      "type": "string"
-                    }
-                  }
-                },
-                {
-                  "description": "A wrapper around the decode errors defined in Scrypto.",
-                  "type": "object",
-                  "required": [
-                    "message",
-                    "type"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "ScryptoBech32DecodeError"
-                      ]
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                {
-                  "description": "A wrapper around the encode errors defined in Scrypto.",
-                  "type": "object",
-                  "required": [
-                    "message",
-                    "type"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "ScryptoBech32EncodeError"
-                      ]
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                },
-                {
-                  "description": "This error is emitted when constructing a new address if the data section of the address is not of the length expected for addresses.",
+                  "description": "Emitted when an unexpected expression string is encountered which can not be mapped to the expression enum.",
                   "type": "object",
                   "required": [
                     "actual",
@@ -507,18 +327,234 @@
                     "type": {
                       "type": "string",
                       "enum": [
-                        "InvalidDataLength"
+                        "InvalidExpressionString"
                       ]
                     },
                     "expected": {
-                      "type": "integer",
-                      "format": "uint",
-                      "minimum": 0.0
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     },
                     "actual": {
-                      "type": "integer",
-                      "format": "uint",
-                      "minimum": 0.0
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "description": "An error emitted when a value of an expected kind is encountered. Typically, this error is emitted when converting a ManifestAstValue to its underlying type.",
+                  "type": "object",
+                  "required": [
+                    "actual",
+                    "expected",
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "InvalidKind"
+                      ]
+                    },
+                    "expected": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/ManifestAstValueKind"
+                      }
+                    },
+                    "actual": {
+                      "$ref": "#/definitions/ManifestAstValueKind"
+                    }
+                  }
+                },
+                {
+                  "description": "An error emitted when trying to parse a string to a type fails.",
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "parsing",
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "ParseError"
+                      ]
+                    },
+                    "parsing": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "description": "An error emitted when address encoding or decoding fails.",
+                  "type": "object",
+                  "oneOf": [
+                    {
+                      "description": "Attempted to perform a Regex capture of the network specifier in the HRP. However, a network specifier could not be found for the given HRP.",
+                      "type": "object",
+                      "required": [
+                        "hrp",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "NoNetworkSpecifierMatchesFoundInHrp"
+                          ]
+                        },
+                        "hrp": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "description": "While attempting to extract the network id from the HRP we failed to extract the network id. This could mean that the logic itself is flawed, the network id could not be decoded to a u8 or due to other issues.",
+                      "type": "object",
+                      "required": [
+                        "hrp",
+                        "network_specifier",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "FailedToExtractNetworkId"
+                          ]
+                        },
+                        "hrp": {
+                          "type": "string"
+                        },
+                        "network_specifier": {
+                          "type": "string"
+                        },
+                        "network_id_string": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "description": "Represents an error emitted when the Bech32 decoding fails and an error is returned by the Bech32 library used.",
+                      "type": "object",
+                      "required": [
+                        "address",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Bech32DecodeError"
+                          ]
+                        },
+                        "address": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "description": "A wrapper around the decode errors defined in Scrypto.",
+                      "type": "object",
+                      "required": [
+                        "message",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "ScryptoBech32DecodeError"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "description": "A wrapper around the encode errors defined in Scrypto.",
+                      "type": "object",
+                      "required": [
+                        "message",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "ScryptoBech32EncodeError"
+                          ]
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "description": "This error is emitted when constructing a new address if the data section of the address is not of the length expected for addresses.",
+                      "type": "object",
+                      "required": [
+                        "actual",
+                        "expected",
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "InvalidDataLength"
+                          ]
+                        },
+                        "expected": {
+                          "type": "integer",
+                          "format": "uint",
+                          "minimum": 0.0
+                        },
+                        "actual": {
+                          "type": "integer",
+                          "format": "uint",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  ],
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "AddressError"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "An error emitted when the decoding of hex strings fail",
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "HexDecodeError"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
                     }
                   }
                 }
@@ -530,27 +566,88 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "AddressError"
+                    "ManifestAstValueConversionError"
                   ]
                 }
               }
             },
             {
-              "description": "An error emitted when the decoding of hex strings fail",
               "type": "object",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "actual",
+                    "expected",
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "InvalidValueKind"
+                      ]
+                    },
+                    "expected": {
+                      "$ref": "#/definitions/ManifestAstValueKind"
+                    },
+                    "actual": {
+                      "$ref": "#/definitions/ManifestAstValueKind"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "FailedToSborDecode"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "FailedToSborEncode"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "type"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "FailedToGenerateValue"
+                      ]
+                    }
+                  }
+                }
+              ],
               "required": [
-                "message",
                 "type"
               ],
               "properties": {
                 "type": {
                   "type": "string",
                   "enum": [
-                    "HexDecodeError"
+                    "PackageSchemaResolutionError"
                   ]
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }

@@ -37,16 +37,17 @@ pub struct BabylonAddressFromOlympiaAddress {
 
 impl BabylonAddressFromOlympiaAddress {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = derive_babylon_address_from_olympia_address::Input {
+        let input = derive_babylon_address_from_olympia_address::Input {
             network_id: self.network_id,
             olympia_account_address: self.olympia_account_address.clone(),
         };
-        let response = derive_babylon_address_from_olympia_address::Handler::fulfill(request)
-            .map_err(|error| {
+        let output = derive_babylon_address_from_olympia_address::Handler::fulfill(input).map_err(
+            |error| {
                 RETError::InvocationHandlingError(
                     InvocationHandlingError::DeriveBabylonAddressFromOlympiaAddressError(error),
                 )
-            })?;
-        pretty_print(&response, out)
+            },
+        )?;
+        pretty_print(&output, out)
     }
 }

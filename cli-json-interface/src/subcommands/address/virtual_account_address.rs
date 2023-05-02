@@ -49,16 +49,15 @@ impl VirtualAccountAddress {
             _ => Err(Error::InvalidPublicKey),
         }?;
 
-        let request = derive_virtual_account_address::Input {
+        let input = derive_virtual_account_address::Input {
             public_key,
             network_id: self.network_id,
         };
-        let response =
-            derive_virtual_account_address::Handler::fulfill(request).map_err(|error| {
-                RETError::InvocationHandlingError(
-                    InvocationHandlingError::DeriveVirtualAccountAddressError(error),
-                )
-            })?;
-        pretty_print(&response, out)
+        let output = derive_virtual_account_address::Handler::fulfill(input).map_err(|error| {
+            RETError::InvocationHandlingError(
+                InvocationHandlingError::DeriveVirtualAccountAddressError(error),
+            )
+        })?;
+        pretty_print(&output, out)
     }
 }

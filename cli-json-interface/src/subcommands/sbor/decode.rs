@@ -35,13 +35,13 @@ pub struct Decode {
 
 impl Decode {
     pub fn run<O: std::io::Write>(&self, out: &mut O) -> Result<()> {
-        let request = sbor_decode::Input {
+        let input = sbor_decode::Input {
             encoded_value: hex::decode(&self.payload)?,
             network_id: self.network_id,
         };
-        let response = sbor_decode::Handler::fulfill(request).map_err(|error| {
+        let output = sbor_decode::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::SborDecodeError(error))
         })?;
-        pretty_print(&response, out)
+        pretty_print(&output, out)
     }
 }
