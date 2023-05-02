@@ -17,8 +17,8 @@
 
 use native_transaction::manifest::generator::{generate_instruction, NameResolver};
 use native_transaction::validation::ManifestValidator;
-use radix_engine::types::manifest_encode;
 use scrypto::address::Bech32Decoder;
+use scrypto::prelude::manifest_encode;
 use scrypto::prelude::{
     ComponentAddress, Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_PACKAGE, RADIX_TOKEN,
 };
