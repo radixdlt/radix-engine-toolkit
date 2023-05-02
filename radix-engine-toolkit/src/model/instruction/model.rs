@@ -310,8 +310,8 @@ pub enum Instruction {
         /// ManifestAstValue model.
         code: ManifestAstValue,
 
-        /// The blob of the package ABI. This field is serialized as a `Blob` from the
-        /// ManifestAstValue model.
+        /// The blob of the package Schema. This is serialized as `Bytes` from the ManifestAstValue
+        /// model.
         schema: ManifestAstValue,
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map
@@ -332,8 +332,8 @@ pub enum Instruction {
         /// ManifestAstValue model.
         code: ManifestAstValue,
 
-        /// The blob of the package ABI. This field is serialized as a `Blob` from the
-        /// ManifestAstValue model.
+        /// The blob of the package Schema. This is serialized as `Bytes` from the ManifestAstValue
+        /// model.
         schema: ManifestAstValue,
 
         /// The configurations of the royalty for the package. The underlying type of this is a Map

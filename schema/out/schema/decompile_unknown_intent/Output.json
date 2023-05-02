@@ -1556,8 +1556,8 @@
                 "value_value_kind": "Tuple"
               },
               "schema": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
+                "type": "Bytes",
+                "value": "4d2101230c2100"
               }
             }
           ],
@@ -1585,7 +1585,7 @@
               ]
             },
             "schema": {
-              "description": "The blob of the package ABI. This field is serialized as a `Blob` from the ManifestAstValue model.",
+              "description": "The blob of the package Schema. This is serialized as `Bytes` from the ManifestAstValue model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"
@@ -1699,8 +1699,8 @@
                 "value_value_kind": "Tuple"
               },
               "schema": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
+                "type": "Bytes",
+                "value": "4d2101230c2100"
               }
             }
           ],
@@ -1729,7 +1729,7 @@
               ]
             },
             "schema": {
-              "description": "The blob of the package ABI. This field is serialized as a `Blob` from the ManifestAstValue model.",
+              "description": "The blob of the package Schema. This is serialized as `Bytes` from the ManifestAstValue model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"

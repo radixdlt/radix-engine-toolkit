@@ -16,16 +16,26 @@
 // under the License.
 
 use super::Instruction;
+use super::InstructionConversionError;
+use super::PackageSchemaResolutionError;
 use crate::model::address::Bech32Coder;
 use crate::model::value::ast::ManifestAstValue;
-use crate::model::value::ast::ManifestAstValueConversionError;
+use crate::model::value::ast::ManifestAstValueKind;
 use native_transaction::manifest::ast;
+use native_transaction::manifest::decompiler::format_typed_value;
+use native_transaction::manifest::decompiler::DecompilationContext;
+use native_transaction::manifest::generator::generate_value;
+use native_transaction::manifest::generator::NameResolver;
+use native_transaction::manifest::lexer;
+use native_transaction::manifest::parser::Parser;
+use scrypto::prelude::{manifest_decode, manifest_encode};
+use scrypto::schema::PackageSchema;
 
 impl Instruction {
     pub fn to_ast_instruction(
         &self,
         bech32_coder: &Bech32Coder,
-    ) -> Result<ast::Instruction, ManifestAstValueConversionError> {
+    ) -> Result<ast::Instruction, InstructionConversionError> {
         let ast_instruction = match self {
             Self::CallFunction {
                 package_address,
@@ -79,8 +89,7 @@ impl Instruction {
                 into_bucket,
             } => ast::Instruction::TakeFromWorktopByIds {
                 ids: ManifestAstValue::Array {
-                    element_kind:
-                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -110,8 +119,7 @@ impl Instruction {
                 ids: ManifestAstValue::Array {
                     // TODO: This was `ManifestAstValueKind::Bucket` by mistake. What kind of test
                     // can we introduce to catch this?
-                    element_kind:
-                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -148,8 +156,7 @@ impl Instruction {
                 into_proof,
             } => ast::Instruction::CreateProofFromAuthZoneByIds {
                 ids: ManifestAstValue::Array {
-                    element_kind:
-                        crate::model::value::ast::ManifestAstValueKind::NonFungibleLocalId,
+                    element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.clone().into_iter().collect::<Vec<_>>(),
                 }
                 .to_ast_value(bech32_coder)?,
@@ -183,7 +190,7 @@ impl Instruction {
                 metadata,
             } => ast::Instruction::PublishPackage {
                 code: code.to_ast_value(bech32_coder)?,
-                schema: schema.to_ast_value(bech32_coder)?,
+                schema: package_schema_bytes_to_native_ast(schema, bech32_coder)?,
                 royalty_config: royalty_config.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
             },
@@ -195,7 +202,7 @@ impl Instruction {
                 access_rules,
             } => ast::Instruction::PublishPackageAdvanced {
                 code: code.to_ast_value(bech32_coder)?,
-                schema: schema.to_ast_value(bech32_coder)?,
+                schema: package_schema_bytes_to_native_ast(schema, bech32_coder)?,
                 royalty_config: royalty_config.to_ast_value(bech32_coder)?,
                 metadata: metadata.to_ast_value(bech32_coder)?,
                 access_rules: access_rules.to_ast_value(bech32_coder)?,
@@ -355,7 +362,7 @@ impl Instruction {
     pub fn from_ast_instruction(
         ast_instruction: &ast::Instruction,
         bech32_coder: &Bech32Coder,
-    ) -> Result<Self, ManifestAstValueConversionError> {
+    ) -> Result<Self, InstructionConversionError> {
         let instruction = match ast_instruction {
             ast::Instruction::CallFunction {
                 package_address,
@@ -534,7 +541,7 @@ impl Instruction {
                 metadata,
             } => Self::PublishPackage {
                 code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
-                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
                 royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
             },
@@ -546,7 +553,7 @@ impl Instruction {
                 access_rules,
             } => Self::PublishPackageAdvanced {
                 code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
-                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
                 royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
                 access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
@@ -713,4 +720,75 @@ impl Instruction {
         };
         Ok(instruction)
     }
+}
+
+// Called using Instruction::to_ast_instruction
+fn package_schema_bytes_to_native_ast(
+    value: &ManifestAstValue,
+    bech32_coder: &Bech32Coder,
+) -> Result<native_transaction::manifest::ast::Value, PackageSchemaResolutionError> {
+    // Extract the encoded package schema from the Bytes object
+    let encoded_package_schema = if let ManifestAstValue::Bytes { value } = value {
+        Ok(value)
+    } else {
+        Err(PackageSchemaResolutionError::InvalidValueKind {
+            expected: ManifestAstValueKind::Bytes,
+            actual: value.kind(),
+        })
+    }?;
+
+    // Decode the bytes as package schema
+    let package_schema = manifest_decode::<PackageSchema>(encoded_package_schema)
+        .map_err(|_| PackageSchemaResolutionError::FailedToSborDecode)?;
+
+    // Convert the PackageSchema object to a manifest string
+    let package_schema_manifest_string = {
+        let mut string = String::new();
+        let mut context =
+            DecompilationContext::new_with_optional_network(Some(bech32_coder.encoder()));
+        format_typed_value(&mut string, &mut context, &package_schema)
+            .expect("Impossible case! Valid SBOR can't fail here");
+        string
+    };
+
+    // Convert the package schema manifest string to the AST value model
+    let ast = {
+        let tokens = lexer::tokenize(&package_schema_manifest_string)
+            .expect("Impossible case! String created by Scrypto's formatter");
+        Parser::new(tokens)
+            .parse_value()
+            .expect("Impossible case! String created by Scrypto's formatter")
+    };
+    Ok(ast)
+}
+
+// Used during Instruction::from_ast_instruction
+fn package_schema_tuple_to_ret_ast(
+    value: &native_transaction::manifest::ast::Value,
+    bech32_coder: &Bech32Coder,
+) -> Result<ManifestAstValue, PackageSchemaResolutionError> {
+    let package_schema = {
+        let mut resolver = NameResolver::new();
+
+        let manifest_value = generate_value(
+            value,
+            None,
+            &mut resolver,
+            bech32_coder.decoder(),
+            &Default::default(),
+        )
+        .map_err(|_| PackageSchemaResolutionError::FailedToGenerateValue)?;
+
+        let encoded = manifest_encode(&manifest_value)
+            .map_err(|_| PackageSchemaResolutionError::FailedToSborEncode)?;
+        manifest_decode::<PackageSchema>(&encoded)
+            .map_err(|_| PackageSchemaResolutionError::FailedToSborDecode)?
+    };
+
+    let encoded_package_schema =
+        manifest_encode(&package_schema).expect("Impossible case! Decoding succeeded");
+
+    Ok(ManifestAstValue::Bytes {
+        value: encoded_package_schema,
+    })
 }
