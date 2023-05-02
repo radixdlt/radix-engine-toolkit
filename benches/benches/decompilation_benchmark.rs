@@ -4,8 +4,8 @@ use native_transaction::{
     manifest::{compile, decompile},
     model::NotarizedTransaction,
 };
+use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::model::transaction::InstructionKind;
-use radix_engine_toolkit::request::*;
 use scrypto::{network::NetworkDefinition, prelude::manifest_decode};
 
 fn decompile_intent_natively_benchmarks(c: &mut Criterion) {
@@ -60,11 +60,11 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Unknown Intent to String", |b| {
         b.iter(|| {
             black_box({
-                let request = DecompileUnknownTransactionIntentRequest {
+                let request = decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 };
-                let response = DecompileUnknownTransactionIntentHandler::fulfill(request);
+                let response = decompile_unknown_intent::Handler::fulfill(request);
                 response.unwrap()
             })
         })
@@ -72,11 +72,11 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Unknown Intent to Parsed", |b| {
         b.iter(|| {
             black_box({
-                let request = DecompileUnknownTransactionIntentRequest {
+                let request = decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 };
-                let response = DecompileUnknownTransactionIntentHandler::fulfill(request);
+                let response = decompile_unknown_intent::Handler::fulfill(request);
                 response.unwrap()
             })
         })
@@ -84,11 +84,11 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Notarized Intent to String", |b| {
         b.iter(|| {
             black_box({
-                let request = DecompileNotarizedTransactionRequest {
+                let request = decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 };
-                let response = DecompileNotarizedTransactionHandler::fulfill(request);
+                let response = decompile_notarized_transaction::Handler::fulfill(request);
                 response.unwrap()
             })
         })
@@ -96,11 +96,11 @@ fn decompile_intent_with_core_toolkit_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Notarized Intent to Parsed", |b| {
         b.iter(|| {
             black_box({
-                let request = DecompileNotarizedTransactionRequest {
+                let request = decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 };
-                let response = DecompileNotarizedTransactionHandler::fulfill(request);
+                let response = decompile_notarized_transaction::Handler::fulfill(request);
                 response.unwrap()
             })
         })
@@ -118,7 +118,7 @@ fn decompile_intent_with_toolkit_wrapper_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Unknown Intent to String", |b| {
         b.iter(|| {
             black_box(
-                RadixEngineToolkit::invoke(DecompileUnknownTransactionIntentRequest {
+                RadixEngineToolkit::invoke(decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 })
@@ -129,7 +129,7 @@ fn decompile_intent_with_toolkit_wrapper_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Unknown Intent to Parsed", |b| {
         b.iter(|| {
             black_box(
-                RadixEngineToolkit::invoke(DecompileUnknownTransactionIntentRequest {
+                RadixEngineToolkit::invoke(decompile_unknown_intent::Input {
                     compiled_unknown_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 })
@@ -140,7 +140,7 @@ fn decompile_intent_with_toolkit_wrapper_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Notarized Intent to String", |b| {
         b.iter(|| {
             black_box(
-                RadixEngineToolkit::invoke(DecompileNotarizedTransactionRequest {
+                RadixEngineToolkit::invoke(decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::String,
                 })
@@ -151,7 +151,7 @@ fn decompile_intent_with_toolkit_wrapper_benchmarks(c: &mut Criterion) {
     group.bench_function("Decompile Notarized Intent to Parsed", |b| {
         b.iter(|| {
             black_box(
-                RadixEngineToolkit::invoke(DecompileNotarizedTransactionRequest {
+                RadixEngineToolkit::invoke(decompile_notarized_transaction::Input {
                     compiled_notarized_intent: compiled_transaction.clone(),
                     instructions_output_kind: InstructionKind::Parsed,
                 })
