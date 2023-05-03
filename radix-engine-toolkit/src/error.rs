@@ -204,6 +204,8 @@ pub enum Error {
 
     /// Transaction was not committed.
     TransactionNotCommitted,
+
+    InvalidPublicKeyType,
 }
 
 impl Display for Error {

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeriveOlympiaAddressFromPublicKeyResponse",
+  "description": "The response form [`DeriveOlympiaAddressFromPublicKeyRequest`] requests",
+  "type": "object",
+  "required": [
+    "olympia_account_address"
+  ],
+  "properties": {
+    "olympia_account_address": {
+      "description": "The Olympia account address associated with the given public key on the desired network",
+      "type": "string"
+    }
+  }
+}

@@ -112,6 +112,9 @@ pub mod native {
         DeriveNonFungibleGlobalIdFromPublicKeyHandler
             as derive_non_fungible_global_id_from_public_key
     );
+    export_handler!(
+        DeriveOlympiaAddressFromPublicKeyHandler as derive_olympia_address_from_public_key
+    );
 
     export_handler!(EncodeAddressHandler as encode_address);
     export_handler!(DecodeAddressHandler as decode_address);
@@ -269,6 +272,10 @@ pub mod jni {
     export_handler!(
         StaticallyValidateTransactionHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_staticallyValidateTransaction
+    );
+    export_handler!(
+        DeriveOlympiaAddressFromPublicKeyHandler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveOlympiaAddressFromPublicKey
     );
 
     export_handler!(HashHandler as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hash);

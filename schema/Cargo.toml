@@ -20,3 +20,4 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop
 scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af", package = "utils" }
 native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af", package = "transaction" }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-51c6a43af" }
+hex = "0.4.3"
