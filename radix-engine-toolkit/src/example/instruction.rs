@@ -18,7 +18,7 @@
 use native_transaction::manifest::generator::{generate_instruction, NameResolver};
 use native_transaction::validation::ManifestValidator;
 use scrypto::prelude::{
-    Hash, IntegerNonFungibleLocalId, ManifestBlobRef, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
+    Hash, IntegerNonFungibleLocalId, FAUCET_COMPONENT, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 
 use crate::model::address::{
@@ -28,7 +28,6 @@ use crate::model::address::{
 use crate::model::engine_identifier::{BucketId, ProofId, TransientIdentifier};
 use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
-use crate::utils::checked_copy_u8_slice;
 
 pub fn call_function1() -> Instruction {
     let instruction = Instruction::CallFunction {

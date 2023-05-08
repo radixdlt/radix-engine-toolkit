@@ -140,6 +140,15 @@ pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
     )
 }
 
+pub fn is_identity<A: Borrow<ComponentAddress>>(address: A) -> bool {
+    matches!(
+        address.borrow(),
+        ComponentAddress::Identity(..)
+            | ComponentAddress::EcdsaSecp256k1VirtualIdentity(..)
+            | ComponentAddress::EddsaEd25519VirtualIdentity(..)
+    )
+}
+
 pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Result<[u8; N]> {
     let slice = slice.as_ref();
     if slice.len() != N {

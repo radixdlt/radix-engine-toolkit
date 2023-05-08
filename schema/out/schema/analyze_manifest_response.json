@@ -9,6 +9,8 @@
     "accounts_requiring_auth",
     "accounts_withdrawn_from",
     "component_addresses",
+    "identities_requiring_auth",
+    "identity_addresses",
     "package_addresses",
     "resource_addresses"
   ],
@@ -63,6 +65,22 @@
     },
     "accounts_deposited_into": {
       "description": "A set of all of the account component addresses in the manifest which were deposited into. This is a subset of the addresses seen in `account_addresses`. The underlying type  of this is an array of `ComponentAddress`es from the `Value` model.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EntityAddress"
+      },
+      "uniqueItems": true
+    },
+    "identity_addresses": {
+      "description": "A set of all of the identity component addresses seen in the manifest. The underlying type of this is an array of `ComponentAddress`es from the `Value` model.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/EntityAddress"
+      },
+      "uniqueItems": true
+    },
+    "identities_requiring_auth": {
+      "description": "A set of all of the identity component addresses in the manifest which had methods invoked on them that would typically require auth (or a signature) to be called successfully. This is a subset of the addresses seen in `identity_addresses`. The underlying type of this  is an array of `ComponentAddress`es from the `Value` model.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/EntityAddress"

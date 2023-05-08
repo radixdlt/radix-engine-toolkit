@@ -434,7 +434,9 @@ This document contains examples and descriptions of the different requests and r
       "type": "ComponentAddress",
       "address": "account_sim1qjy5fakwygc45fkyhyxxulsf5zfae0ycez0x05et9hqs7d0gtn"
     }
-  ]
+  ],
+  "identity_addresses": [],
+  "identities_requiring_auth": []
 }
 ```
 </details>
