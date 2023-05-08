@@ -158,3 +158,14 @@ pub fn is_account<A: Into<NodeId>>(node_id: A) -> bool {
         )
     })
 }
+
+pub fn is_identity<A: Into<NodeId>>(node_id: A) -> bool {
+    node_id.into().entity_type().map_or(false, |entity_type| {
+        matches!(
+            entity_type,
+            EntityType::GlobalIdentity
+                | EntityType::GlobalVirtualEcdsaIdentity
+                | EntityType::GlobalVirtualEddsaIdentity
+        )
+    })
+}

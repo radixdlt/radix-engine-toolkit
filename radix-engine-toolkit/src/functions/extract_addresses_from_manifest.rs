@@ -18,13 +18,13 @@
 use std::collections::BTreeSet;
 
 use crate::error::VisitorError;
-use crate::model::address::utils::is_account;
+use crate::model::address::utils::{is_account, is_identity};
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
 use crate::visitor::{
     traverse_instruction, AccountInteractionsInstructionVisitor, AddressAggregatorVisitor,
-    ValueNetworkAggregatorVisitor,
+    IdentityInteractionsInstructionVisitor, ValueNetworkAggregatorVisitor,
 };
 use toolkit_derive::serializable;
 
@@ -98,6 +98,20 @@ pub struct Output {
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
     pub accounts_deposited_into: BTreeSet<NetworkAwareNodeId>,
+
+    /// A set of all of the identity component addresses seen in the manifest. The underlying type
+    /// of this is an array of `ComponentAddress`es from the `Value` model.
+    #[schemars(with = "BTreeSet<String>")]
+    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
+    pub identity_addresses: BTreeSet<NetworkAwareNodeId>,
+
+    /// A set of all of the identity component addresses in the manifest which had methods invoked
+    /// on them that would typically require auth (or a signature) to be called successfully.
+    /// This is a subset of the addresses seen in `identity_addresses`. The underlying type of
+    /// this  is an array of `ComponentAddress`es from the `Value` model.
+    #[schemars(with = "BTreeSet<String>")]
+    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
+    pub identities_requiring_auth: BTreeSet<NetworkAwareNodeId>,
 }
 
 // ===============
@@ -160,13 +174,17 @@ impl InvocationHandler<Input, Output> for Handler {
         // Setting up the visitors and traversing the instructions
         let mut address_aggregator_visitor = AddressAggregatorVisitor::default();
         let mut account_interactions_visitor = AccountInteractionsInstructionVisitor::default();
+        let mut identity_interactions_visitor = IdentityInteractionsInstructionVisitor::default();
         instructions
             .iter_mut()
             .map(|instruction| {
                 traverse_instruction(
                     instruction,
                     &mut [&mut address_aggregator_visitor],
-                    &mut [&mut account_interactions_visitor],
+                    &mut [
+                        &mut account_interactions_visitor,
+                        &mut identity_interactions_visitor,
+                    ],
                 )
             })
             .collect::<Result<Vec<_>, _>>()
@@ -178,12 +196,19 @@ impl InvocationHandler<Input, Output> for Handler {
             component_addresses: address_aggregator_visitor.component_addresses.clone(),
             account_addresses: address_aggregator_visitor
                 .component_addresses
-                .into_iter()
-                .filter(|address| is_account(address))
+                .iter()
+                .filter(|address| is_account(*address))
+                .cloned()
                 .collect(),
             accounts_requiring_auth: account_interactions_visitor.auth_required,
             accounts_withdrawn_from: account_interactions_visitor.accounts_withdrawn_from,
             accounts_deposited_into: account_interactions_visitor.accounts_deposited_into,
+            identity_addresses: address_aggregator_visitor
+                .component_addresses
+                .into_iter()
+                .filter(|address| is_identity(address))
+                .collect(),
+            identities_requiring_auth: identity_interactions_visitor.0,
         };
         Ok(output)
     }

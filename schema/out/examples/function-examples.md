@@ -406,7 +406,9 @@ the payload and responses of these requests.
   ],
   "accounts_deposited_into": [
     "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-  ]
+  ],
+  "identity_addresses": [],
+  "identities_requiring_auth": []
 }
 ```
 </details>
