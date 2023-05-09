@@ -68,14 +68,14 @@ macro_rules! test_schemaless_serialization {
         }
     };
     (
-        $function_ident: ident, 
-        $value: ty, 
-        $raw_payload_type: ty, 
-        $encode: path, 
-        $decode: path, 
+        $function_ident: ident,
+        $value: ty,
+        $raw_payload_type: ty,
+        $encode: path,
+        $decode: path,
         $context: path,
-        $from_fn: ident, 
-        $type: ty, 
+        $from_fn: ident,
+        $type: ty,
         $new: expr
     ) => {
         #[test]
@@ -100,16 +100,13 @@ macro_rules! test_schemaless_serialization {
                 );
                 let serializable = payload.serializable(SerializationParameters::Schemaless {
                     mode: sbor::representations::SerializationMode::Programmatic,
-                    custom_context: <$context>::with_optional_bech32(Some(
-                        coder.encoder(),
-                    )),
+                    custom_context: <$context>::with_optional_bech32(Some(coder.encoder())),
                 });
                 serde_json::to_value(&serializable).unwrap()
             })
         }
     };
 }
-
 
 #[derive(ScryptoSbor, ManifestSbor)]
 enum SimpleEnum {
@@ -162,9 +159,23 @@ mod scrypto_schemaless {
     test_schemaless_serialization!(Scrypto, Own, Own(*FAUCET_COMPONENT.as_node_id()));
     test_schemaless_serialization!(Scrypto, Decimal, dec!("1"));
     test_schemaless_serialization!(Scrypto, PreciseDecimal, pdec!("1"));
-    test_schemaless_serialization!(Scrypto, NonFungibleLocalId, NonFungibleLocalId::Integer(1.into()));
-    test_schemaless_serialization!(Scrypto, NonFungibleGlobalId, NonFungibleGlobalId::from_public_key(&EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key()));
-    test_schemaless_serialization!(Scrypto, Reference, Reference(*FAUCET_COMPONENT.as_node_id()));
+    test_schemaless_serialization!(
+        Scrypto,
+        NonFungibleLocalId,
+        NonFungibleLocalId::Integer(1.into())
+    );
+    test_schemaless_serialization!(
+        Scrypto,
+        NonFungibleGlobalId,
+        NonFungibleGlobalId::from_public_key(
+            &EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key()
+        )
+    );
+    test_schemaless_serialization!(
+        Scrypto,
+        Reference,
+        Reference(*FAUCET_COMPONENT.as_node_id())
+    );
 }
 
 mod manifest_schemaless {
@@ -200,7 +211,15 @@ mod manifest_schemaless {
     test_schemaless_serialization!(Manifest, ManifestProof, ManifestProof(1));
     test_schemaless_serialization!(Manifest, Decimal, dec!("1"));
     test_schemaless_serialization!(Manifest, PreciseDecimal, pdec!("1"));
-    test_schemaless_serialization!(Manifest, NonFungibleLocalId, NonFungibleLocalId::Integer(1.into()));
-    test_schemaless_serialization!(Manifest, ManifestExpression, ManifestExpression::EntireAuthZone);
+    test_schemaless_serialization!(
+        Manifest,
+        NonFungibleLocalId,
+        NonFungibleLocalId::Integer(1.into())
+    );
+    test_schemaless_serialization!(
+        Manifest,
+        ManifestExpression,
+        ManifestExpression::EntireAuthZone
+    );
     test_schemaless_serialization!(Manifest, ManifestBlobRef, ManifestBlobRef([0; 32]));
 }
