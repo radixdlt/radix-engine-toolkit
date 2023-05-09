@@ -16,9 +16,11 @@
 // under the License.
 
 pub mod public_key;
+pub mod public_key_hash;
 pub mod signature;
 pub mod signature_with_public_key;
 
 pub use public_key::*;
+pub use public_key_hash::*;
 pub use signature::*;
 pub use signature_with_public_key::*;

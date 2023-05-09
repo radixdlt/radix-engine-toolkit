@@ -110,4 +110,14 @@ pub enum MetadataValue {
     Url {
         value: String,
     },
+
+    Origin {
+        value: String,
+    },
+
+    PublicKeyHash {
+        #[schemars(with = "crate::model::crypto::PublicKeyHash")]
+        #[serde_as(as = "serde_with::FromInto<crate::model::crypto::PublicKeyHash>")]
+        value: PublicKeyHash,
+    },
 }

@@ -152,8 +152,8 @@ pub fn is_account<A: Into<NodeId>>(node_id: A) -> bool {
         matches!(
             entity_type,
             EntityType::GlobalAccount
-                | EntityType::GlobalVirtualEcdsaAccount
-                | EntityType::GlobalVirtualEddsaAccount
+                | EntityType::GlobalVirtualSecp256k1Account
+                | EntityType::GlobalVirtualEd25519Account
                 | EntityType::InternalAccount
         )
     })
@@ -164,8 +164,8 @@ pub fn is_identity<A: Into<NodeId>>(node_id: A) -> bool {
         matches!(
             entity_type,
             EntityType::GlobalIdentity
-                | EntityType::GlobalVirtualEcdsaIdentity
-                | EntityType::GlobalVirtualEddsaIdentity
+                | EntityType::GlobalVirtualSecp256k1Identity
+                | EntityType::GlobalVirtualEd25519Identity
         )
     })
 }

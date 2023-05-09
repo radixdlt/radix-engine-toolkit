@@ -41,7 +41,7 @@ pub enum PublicKey {
     /// representing a public key from the EDDSA Ed25519 edwards curve.
     #[schemars(example = "crate::example::crypto::public_key2")]
     EddsaEd25519 {
-        #[schemars(length(equal = 66))]
+        #[schemars(length(equal = 64))]
         #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::DisplayFromStr")]

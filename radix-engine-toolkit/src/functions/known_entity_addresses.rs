@@ -19,8 +19,9 @@ use crate::functions::traits::InvocationHandler;
 use crate::model::address::NetworkAwareNodeId;
 use scrypto::prelude::FAUCET;
 use scrypto::prelude::{
-    ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_TOKEN, EDDSA_ED25519_TOKEN, EPOCH_MANAGER,
-    FAUCET_PACKAGE, PACKAGE_TOKEN, RADIX_TOKEN, SYSTEM_TOKEN,
+    ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
+    EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE, EPOCH_MANAGER, FAUCET_PACKAGE,
+    PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE, RADIX_TOKEN, SYSTEM_TRANSACTION_BADGE,
 };
 use toolkit_derive::serializable;
 
@@ -140,19 +141,19 @@ impl InvocationHandler<Input, Output> for Handler {
             account_package_address: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, network_id),
             xrd_resource_address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, network_id),
             system_token_resource_address: NetworkAwareNodeId(
-                SYSTEM_TOKEN.as_node_id().0,
+                SYSTEM_TRANSACTION_BADGE.as_node_id().0,
                 network_id,
             ),
             ecdsa_secp256k1_token_resource_address: NetworkAwareNodeId(
-                ECDSA_SECP256K1_TOKEN.as_node_id().0,
+                ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
                 network_id,
             ),
             eddsa_ed25519_token_resource_address: NetworkAwareNodeId(
-                EDDSA_ED25519_TOKEN.as_node_id().0,
+                EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
                 network_id,
             ),
             package_token_resource_address: NetworkAwareNodeId(
-                PACKAGE_TOKEN.as_node_id().0,
+                PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.as_node_id().0,
                 network_id,
             ),
             epoch_manager_system_address: NetworkAwareNodeId(

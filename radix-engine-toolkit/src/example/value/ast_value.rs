@@ -17,8 +17,8 @@
 
 use scrypto::prelude::{
     BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId, CLOCK, ECDSA_SECP256K1_TOKEN, FAUCET_PACKAGE,
-    RADIX_TOKEN,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId, CLOCK,
+    ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
@@ -276,7 +276,10 @@ pub fn non_fungible_local_id4() -> ManifestAstValue {
 
 pub fn non_fungible_global_id1() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        resource_address: NetworkAwareNodeId(ECDSA_SECP256K1_TOKEN.as_node_id().0, 0x01),
+        resource_address: NetworkAwareNodeId(
+            ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
+            0x01,
+        ),
         non_fungible_local_id: NonFungibleLocalId::UUID(
             UUIDNonFungibleLocalId::new(241008287272164729465721528295504357972).unwrap(),
         ),
@@ -285,14 +288,20 @@ pub fn non_fungible_global_id1() -> ManifestAstValue {
 
 pub fn non_fungible_global_id2() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        resource_address: NetworkAwareNodeId(ECDSA_SECP256K1_TOKEN.as_node_id().0, 0x01),
+        resource_address: NetworkAwareNodeId(
+            ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
+            0x01,
+        ),
         non_fungible_local_id: NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
     }
 }
 
 pub fn non_fungible_global_id3() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        resource_address: NetworkAwareNodeId(ECDSA_SECP256K1_TOKEN.as_node_id().0, 0x01),
+        resource_address: NetworkAwareNodeId(
+            ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
+            0x01,
+        ),
         non_fungible_local_id: NonFungibleLocalId::String(
             StringNonFungibleLocalId::new("Scrypto".to_owned()).unwrap(),
         ),
@@ -301,7 +310,10 @@ pub fn non_fungible_global_id3() -> ManifestAstValue {
 
 pub fn non_fungible_global_id4() -> ManifestAstValue {
     ManifestAstValue::NonFungibleGlobalId {
-        resource_address: NetworkAwareNodeId(ECDSA_SECP256K1_TOKEN.as_node_id().0, 0x01),
+        resource_address: NetworkAwareNodeId(
+            ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id().0,
+            0x01,
+        ),
         non_fungible_local_id: NonFungibleLocalId::Bytes(
             BytesNonFungibleLocalId::new(vec![0x01, 0x02, 0x03, 0x04]).unwrap(),
         ),

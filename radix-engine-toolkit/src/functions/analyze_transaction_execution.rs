@@ -30,7 +30,7 @@ use crate::visitor::{
     AccountWithdrawsInstructionVisitor, AddressAggregatorVisitor, ValueNetworkAggregatorVisitor,
 };
 use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionResult};
-use radix_engine::types::{ModuleId, SysModuleId};
+use radix_engine::types::METADATA_KV_STORE_PARTITION;
 use radix_engine_common::types::SubstateKey;
 use radix_engine_store_interface::interface::DatabaseUpdate;
 use scrypto::api::node_modules::metadata::MetadataEntry as NativeMetadataEntry;
@@ -239,13 +239,13 @@ impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
                 match entity_type {
                     EntityType::GlobalAccount
                     | EntityType::InternalAccount
-                    | EntityType::GlobalVirtualEcdsaAccount
-                    | EntityType::GlobalVirtualEddsaAccount => {
+                    | EntityType::GlobalVirtualEd25519Account
+                    | EntityType::GlobalVirtualSecp256k1Account => {
                         accounts.insert(address);
                     }
                     EntityType::GlobalIdentity
-                    | EntityType::GlobalVirtualEcdsaIdentity
-                    | EntityType::GlobalVirtualEddsaIdentity => {
+                    | EntityType::GlobalVirtualSecp256k1Identity
+                    | EntityType::GlobalVirtualEd25519Identity => {
                         identities.insert(address);
                     }
                     EntityType::GlobalClock => {
@@ -450,15 +450,19 @@ fn get_resource_metadata(
     commit: &CommitResult,
     bech32_coder: &Bech32Coder,
 ) -> Vec<Vec<MetadataKeyValue>> {
-    let metadata_module_id: ModuleId = SysModuleId::Metadata.into();
+    // let metadata_module_id: ModuleId = SysModuleId::Metadata.into();
 
     let mut metadata = Vec::new();
     for resource_address in commit.new_resource_addresses() {
         let mut resource_metadata = Vec::new();
 
-        for ((node_id, module_id), substate_updates) in commit.state_updates.system_updates.iter() {
+        for ((node_id, partition_number), substate_updates) in
+            commit.state_updates.system_updates.iter()
+        {
             for (substate_key, substate_update) in substate_updates.iter() {
-                if *node_id == *resource_address.as_node_id() && *module_id == metadata_module_id {
+                if *node_id == *resource_address.as_node_id()
+                    && *partition_number == METADATA_KV_STORE_PARTITION
+                {
                     if let (SubstateKey::Map(key), DatabaseUpdate::Set(value)) =
                         (substate_key, substate_update)
                     {

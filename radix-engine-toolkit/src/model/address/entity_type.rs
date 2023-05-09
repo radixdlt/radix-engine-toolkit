@@ -34,20 +34,18 @@ pub enum EntityType {
     GlobalAccessController,
     GlobalAccount,
     GlobalIdentity,
-    GlobalGenericComponent, // generic
-
-    GlobalVirtualEcdsaAccount,
-    GlobalVirtualEddsaAccount,
-    GlobalVirtualEcdsaIdentity,
-    GlobalVirtualEddsaIdentity,
-
+    GlobalGenericComponent,
+    GlobalVirtualSecp256k1Account,
+    GlobalVirtualEd25519Account,
+    GlobalVirtualSecp256k1Identity,
+    GlobalVirtualEd25519Identity,
     InternalFungibleVault,
     InternalNonFungibleVault,
     InternalAccount,
+    InternalGenericComponent,
     InternalKeyValueStore,
     InternalIndex,
     InternalSortedIndex,
-    InternalGenericComponent, // generic
 }
 
 // ============
@@ -67,10 +65,10 @@ impl From<EntityType> for NativeEntityType {
             EntityType::GlobalAccount => Self::GlobalAccount,
             EntityType::GlobalIdentity => Self::GlobalIdentity,
             EntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
-            EntityType::GlobalVirtualEcdsaAccount => Self::GlobalVirtualEcdsaAccount,
-            EntityType::GlobalVirtualEddsaAccount => Self::GlobalVirtualEddsaAccount,
-            EntityType::GlobalVirtualEcdsaIdentity => Self::GlobalVirtualEcdsaIdentity,
-            EntityType::GlobalVirtualEddsaIdentity => Self::GlobalVirtualEddsaIdentity,
+            EntityType::GlobalVirtualSecp256k1Account => Self::GlobalVirtualSecp256k1Account,
+            EntityType::GlobalVirtualEd25519Account => Self::GlobalVirtualEd25519Account,
+            EntityType::GlobalVirtualSecp256k1Identity => Self::GlobalVirtualSecp256k1Identity,
+            EntityType::GlobalVirtualEd25519Identity => Self::GlobalVirtualEd25519Identity,
             EntityType::InternalFungibleVault => Self::InternalFungibleVault,
             EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             EntityType::InternalAccount => Self::InternalAccount,
@@ -95,10 +93,12 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::GlobalAccount => Self::GlobalAccount,
             NativeEntityType::GlobalIdentity => Self::GlobalIdentity,
             NativeEntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
-            NativeEntityType::GlobalVirtualEcdsaAccount => Self::GlobalVirtualEcdsaAccount,
-            NativeEntityType::GlobalVirtualEddsaAccount => Self::GlobalVirtualEddsaAccount,
-            NativeEntityType::GlobalVirtualEcdsaIdentity => Self::GlobalVirtualEcdsaIdentity,
-            NativeEntityType::GlobalVirtualEddsaIdentity => Self::GlobalVirtualEddsaIdentity,
+            NativeEntityType::GlobalVirtualSecp256k1Account => Self::GlobalVirtualSecp256k1Account,
+            NativeEntityType::GlobalVirtualEd25519Account => Self::GlobalVirtualEd25519Account,
+            NativeEntityType::GlobalVirtualSecp256k1Identity => {
+                Self::GlobalVirtualSecp256k1Identity
+            }
+            NativeEntityType::GlobalVirtualEd25519Identity => Self::GlobalVirtualEd25519Identity,
             NativeEntityType::InternalFungibleVault => Self::InternalFungibleVault,
             NativeEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             NativeEntityType::InternalAccount => Self::InternalAccount,

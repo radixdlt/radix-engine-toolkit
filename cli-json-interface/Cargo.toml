@@ -14,13 +14,13 @@ radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 serde_json = "1.0.93"
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d", package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-97547f7d" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash", package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
 hex = "0.4.3"
 
 [[bin]]

@@ -1965,7 +1965,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "address": "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+  "address": "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3"
 }
 ```
 </details>

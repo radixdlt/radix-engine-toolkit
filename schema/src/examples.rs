@@ -433,7 +433,7 @@ address."#
 
     fn example_input() -> decode_address::Input {
         decode_address::Input {
-            address: "resource_sim1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3waw00"
+            address: "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3"
                 .parse()
                 .unwrap(),
         }

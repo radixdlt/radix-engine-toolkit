@@ -48,6 +48,10 @@ pub fn common_manifests_can_be_converted_to_parsed_manifests() {
         let output = convert_manifest::Handler::fulfill(input);
 
         // Assert
+        if output.is_err() {
+            println!("{:?}", output);
+            println!("{:?}", file_path);
+        }
         assert!(matches!(output, Ok(..)));
     }
 }
@@ -88,72 +92,111 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
 
 fn manifest_replace(string: String) -> String {
     string
-        .replace("${", "{")
         .replace(
-            "{xrd_resource_address}",
-            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
+            "${xrd_resource_address}",
+            "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3",
         )
         .replace(
-            "{faucet_component_address}",
-            "component_sim1pyakxvzls3cwkfp25xz7dufp9jnw6wzxe3cxaku2ju7tlyuvusk6y9",
+            "${fungible_resource_address}",
+            "resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez",
         )
         .replace(
-            "{account_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${resource_address}",
+            "resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez",
         )
         .replace(
-            "{this_account_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${gumball_resource_address}",
+            "resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez",
         )
         .replace(
-            "{account_component_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${non_fungible_resource_address}",
+            "resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha",
         )
         .replace(
-            "{other_account_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${badge_resource_address}",
+            "resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha",
         )
         .replace(
-            "{account_a_component_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${account_address}",
+            "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q",
         )
         .replace(
-            "{account_b_component_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${this_account_address}",
+            "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q",
         )
         .replace(
-            "{account_c_component_address}",
-            "account_sim1quft09whj3nzlsd80n28fasr92pup8z4hkflrkqtagelu3g4ywxhjl",
+            "${account_a_component_address}",
+            "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q",
         )
         .replace(
-            "{owner_badge_resource_address}",
-            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
+            "${account_b_component_address}",
+            "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q",
         )
         .replace(
-            "{minter_badge_resource_address}",
-            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
+            "${account_c_component_address}",
+            "account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q",
         )
         .replace(
-            "{auth_badge_resource_address}",
-            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
+            "${other_account_address}",
+            "account_sim1cyzfj6p254jy6lhr237s7pcp8qqz6c8ahq9mn6nkdjxxxat5syrgz9",
         )
         .replace(
-            "{mintable_resource_address}",
-            "resource_sim1q2k2fa4x7rjy9e57wff58dr3uydvypdgf2m3kvec2uv5uxwhjta2dm",
+            "${component_address}",
+            "component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu",
         )
-        .replace("{owner_badge_non_fungible_local_id}", "#1#")
-        .replace("{auth_badge_non_fungible_local_id}", "#1#")
         .replace(
-            "{code_blob_hash}",
+            "${faucet_component_address}",
+            "component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu",
+        )
+        .replace(
+            "${package_address}",
+            "package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk",
+        )
+        .replace(
+            "${minter_badge_resource_address}",
+            "resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha",
+        )
+        .replace(
+            "${mintable_resource_address}",
+            "resource_sim1nfhtg7ttszgjwysfglx8jcjtvv8q02fg9s2y6qpnvtw5jsy3wvlhj6",
+        )
+        .replace(
+            "${vault_address}",
+            "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff",
+        )
+        .replace("${owner_badge_non_fungible_local_id}", "#1#")
+        .replace(
+            "${code_blob_hash}",
             "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
         )
+        .replace("${initial_supply}", "12")
+        .replace("${mint_amount}", "12")
+        .replace("${non_fungible_local_id}", "#12#")
         .replace(
-            "{schema_blob_hash}",
-            "5b4b01a4a3892ea3751793da57f072ae08eec694ddcda872239fc8239e4bcd1b",
+            "${auth_badge_resource_address}",
+            "resource_sim1n24hvnrgmhj6j8dpjuu85vfsagdjafcl5x4ewc9yh436jh2hpu4qdj",
         )
-        .replace("{initial_supply}", "12")
-        .replace("{mint_amount}", "12")
-        .replace("{non_fungible_local_id}", "#1#")
+        .replace("${auth_badge_non_fungible_local_id}", "#1#")
+        .replace(
+            "${package_address}",
+            "package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk",
+        )
+        .replace(
+            "${epochmanager_address}",
+            "epochmanager_sim1sexxxxxxxxxxephmgrxxxxxxxxx009352500589xxxxxxxxx82g6cl",
+        )
+        .replace(
+            "${clock_address}",
+            "clock_sim1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxx58hk6",
+        )
+        .replace(
+            "${validator_address}",
+            "validator_sim1sgvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvedzgr3l",
+        )
+        .replace(
+            "${accesscontroller_address}",
+            "accesscontroller_sim1cvvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvexaj7at",
+        )
 }
 
 fn rtm_file_paths<P: AsRef<Path>>(path: P) -> Vec<PathBuf> {

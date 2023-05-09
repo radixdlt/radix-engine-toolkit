@@ -19,7 +19,7 @@ use crate::model::address::{Bech32Coder, NetworkAwareNodeId};
 
 use super::{MetadataEntry, MetadataValue, MetadataValueConversionError};
 use scrypto::api::node_modules::metadata::{
-    MetadataEntry as NativeMetadataEntry, MetadataValue as NativeMetadataValue, Url,
+    MetadataEntry as NativeMetadataEntry, MetadataValue as NativeMetadataValue, Origin, Url,
 };
 use scrypto::prelude::*;
 
@@ -84,6 +84,8 @@ impl MetadataValue {
                 seconds_since_unix_epoch: *value,
             }),
             Self::Url { value } => NativeMetadataValue::Url(Url(value.to_owned())),
+            Self::Origin { value } => NativeMetadataValue::Origin(Origin(value.to_owned())),
+            Self::PublicKeyHash { value } => NativeMetadataValue::PublicKeyHash(value.to_owned()),
         };
         Ok(value)
     }
@@ -119,6 +121,12 @@ impl MetadataValue {
             },
             NativeMetadataValue::Url(value) => Self::Url {
                 value: value.0.to_owned(),
+            },
+            NativeMetadataValue::Origin(value) => Self::Origin {
+                value: value.0.to_owned(),
+            },
+            NativeMetadataValue::PublicKeyHash(value) => Self::PublicKeyHash {
+                value: value.to_owned(),
             },
         }
     }
