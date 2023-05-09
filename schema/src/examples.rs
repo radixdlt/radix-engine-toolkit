@@ -39,16 +39,7 @@ pub fn network_definition() -> NetworkDefinition {
 
 pub fn notarized_intent() -> NotarizedTransaction {
     TransactionBuilder::new()
-        .manifest(
-            compile(
-                include_str!(
-                    "../../radix-engine-toolkit/tests/test_vector/manifest/resources/worktop.rtm"
-                ),
-                &network_definition(),
-                vec![],
-            )
-            .unwrap(),
-        )
+        .manifest(compile("DROP_ALL_PROOFS;", &network_definition(), vec![]).unwrap())
         .header(TransactionHeader {
             version: 0x01,
             network_id: network_definition().id,
@@ -76,28 +67,28 @@ pub fn notary_private_key() -> EcdsaSecp256k1PrivateKey {
 
 pub fn value() -> ScryptoSborValue {
     ScryptoSborValue::Tuple {
-        elements: vec![
+        fields: vec![
             ScryptoSborValue::Decimal { value: dec!("10") },
             ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
             ScryptoSborValue::String {
                 value: "Hello World!".into(),
             },
             ScryptoSborValue::Tuple {
-                elements: vec![
+                fields: vec![
                     ScryptoSborValue::Decimal { value: dec!("10") },
                     ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
                     ScryptoSborValue::String {
                         value: "Hello World!".into(),
                     },
                     ScryptoSborValue::Tuple {
-                        elements: vec![
+                        fields: vec![
                             ScryptoSborValue::Decimal { value: dec!("10") },
                             ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
                             ScryptoSborValue::String {
                                 value: "Hello World!".into(),
                             },
                             ScryptoSborValue::Tuple {
-                                elements: vec![
+                                fields: vec![
                                     ScryptoSborValue::Decimal { value: dec!("10") },
                                     ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
                                     ScryptoSborValue::String {
@@ -142,8 +133,9 @@ where
     fn example_input() -> I;
 
     fn example_output() -> O {
-        Self::fulfill(Self::example_input())
-            .unwrap_or_else(|_| panic!("Failed. input: {:?}", Self::example_input()))
+        Self::fulfill(Self::example_input()).unwrap_or_else(|error| {
+            panic!("Failed. input: {:?}, {:?}", Self::example_input(), error)
+        })
     }
 
     fn required_features() -> String {
@@ -413,10 +405,7 @@ passed address hex string."#
 
     fn example_input() -> encode_address::Input {
         encode_address::Input {
-            address_bytes: vec![
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 2,
-            ],
+            address_bytes: ACCESS_CONTROLLER_PACKAGE.to_vec(),
             network_id: 0xf2,
         }
     }
@@ -460,22 +449,17 @@ ScryptoSborValue."#
     fn example_input() -> sbor_decode::Input {
         sbor_decode::Input {
             encoded_value: vec![
-                77, // prefix
-                33, // struct
-                8,  // field length
-                128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, // address
-                129, 4, 0, 0, 0, // bucket
-                130, 5, 0, 0, 0, // proof
-                131, 1, // expression
-                132, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-                6, 6, 6, 6, 6, 6, // blob
-                133, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-                7, 7, 7, 7, 7, 7, // decimal
-                134, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-                8, 8, 8, 8, 8, 8, 8, 8, 8, 8, // precise decimal
-                135, 0, 3, 97, 98, 99, // non-fungible local id
+                92, // prefix
+                33, // tuple
+                4,  // length
+                160, 0, 0, 100, 167, 179, 182, 224, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // decimal
+                176, 0, 0, 0, 0, 0, 0, 0, 0, 1, 31, 106, 191, 100, 237, 56, 110, 237, 151, 167,
+                218, 244, 249, 63, 233, 3, 79, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, // precise decimal
+                192, 1, 0, 0, 0, 0, 0, 0, 0, 1, // non-fungible local id
+                192, 2, 2, 2, 3, // non-fungible local id
             ],
             network_id: 0xf2,
         }

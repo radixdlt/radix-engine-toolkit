@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Input",
+  "description": "This request can be used when we have a byte array which we wish to do Bech32m encoding on. In this case, the HRP to use will be determined through the entity byte of the passed address hex string.",
+  "type": "object",
+  "required": [
+    "address_bytes",
+    "network_id"
+  ],
+  "properties": {
+    "address_bytes": {
+      "description": "A byte array of 27 bytes (54 hex characters) serialized as a hex string of the data part of the address.",
+      "type": "string",
+      "maxLength": 54,
+      "minLength": 54,
+      "pattern": "[0-9a-fA-F]+"
+    },
+    "network_id": {
+      "description": "An 8 bit unsigned integer serialized as a string which represents the id of the network that this address exists on.",
+      "type": "string",
+      "pattern": "[0-9]+"
+    }
+  }
+}

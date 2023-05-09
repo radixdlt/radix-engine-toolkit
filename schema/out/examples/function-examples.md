@@ -53,145 +53,7 @@ the payload and responses of these requests.
       "type": "Parsed",
       "value": [
         {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "withdraw"
-          },
-          "arguments": [
-            {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            {
-              "type": "Decimal",
-              "value": "5"
-            }
-          ]
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "2"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket1"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "buy_gumball"
-          },
-          "arguments": [
-            {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          ]
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "3"
-          }
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "RETURN_TO_WORKTOP",
-          "bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "ids": [
-            {
-              "type": "NonFungibleLocalId",
-              "value": {
-                "type": "Integer",
-                "value": "1"
-              }
-            }
-          ],
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket3"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "deposit_batch"
-          },
-          "arguments": [
-            {
-              "type": "Expression",
-              "value": "ENTIRE_WORKTOP"
-            }
-          ]
+          "instruction": "DROP_ALL_PROOFS"
         }
       ]
     },
@@ -210,145 +72,7 @@ the payload and responses of these requests.
     "type": "Parsed",
     "value": [
       {
-        "instruction": "CALL_METHOD",
-        "component_address": {
-          "type": "Address",
-          "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-        },
-        "method_name": {
-          "type": "String",
-          "value": "withdraw"
-        },
-        "arguments": [
-          {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          {
-            "type": "Decimal",
-            "value": "5"
-          }
-        ]
-      },
-      {
-        "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-        "resource_address": {
-          "type": "Address",
-          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-        },
-        "amount": {
-          "type": "Decimal",
-          "value": "2"
-        },
-        "into_bucket": {
-          "type": "Bucket",
-          "identifier": {
-            "type": "String",
-            "value": "bucket1"
-          }
-        }
-      },
-      {
-        "instruction": "CALL_METHOD",
-        "component_address": {
-          "type": "Address",
-          "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-        },
-        "method_name": {
-          "type": "String",
-          "value": "buy_gumball"
-        },
-        "arguments": [
-          {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket1"
-            }
-          }
-        ]
-      },
-      {
-        "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-        "resource_address": {
-          "type": "Address",
-          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-        },
-        "amount": {
-          "type": "Decimal",
-          "value": "3"
-        }
-      },
-      {
-        "instruction": "ASSERT_WORKTOP_CONTAINS",
-        "resource_address": {
-          "type": "Address",
-          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-        }
-      },
-      {
-        "instruction": "TAKE_FROM_WORKTOP",
-        "resource_address": {
-          "type": "Address",
-          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-        },
-        "into_bucket": {
-          "type": "Bucket",
-          "identifier": {
-            "type": "String",
-            "value": "bucket2"
-          }
-        }
-      },
-      {
-        "instruction": "RETURN_TO_WORKTOP",
-        "bucket": {
-          "type": "Bucket",
-          "identifier": {
-            "type": "String",
-            "value": "bucket2"
-          }
-        }
-      },
-      {
-        "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-        "resource_address": {
-          "type": "Address",
-          "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-        },
-        "ids": [
-          {
-            "type": "NonFungibleLocalId",
-            "value": {
-              "type": "Integer",
-              "value": "1"
-            }
-          }
-        ],
-        "into_bucket": {
-          "type": "Bucket",
-          "identifier": {
-            "type": "String",
-            "value": "bucket3"
-          }
-        }
-      },
-      {
-        "instruction": "CALL_METHOD",
-        "component_address": {
-          "type": "Address",
-          "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-        },
-        "method_name": {
-          "type": "String",
-          "value": "deposit_batch"
-        },
-        "arguments": [
-          {
-            "type": "Expression",
-            "value": "ENTIRE_WORKTOP"
-          }
-        ]
+        "instruction": "DROP_ALL_PROOFS"
       }
     ]
   },
@@ -374,7 +98,7 @@ the payload and responses of these requests.
   "manifest": {
     "instructions": {
       "type": "String",
-      "value": "CALL_METHOD\n    Address(\"account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt\")\n    \"withdraw\"\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Decimal(\"5\");\nTAKE_FROM_WORKTOP_BY_AMOUNT\n    Decimal(\"2\")\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket1\");\nCALL_METHOD\n    Address(\"component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44\")\n    \"buy_gumball\"\n    Bucket(\"bucket1\");\nASSERT_WORKTOP_CONTAINS_BY_AMOUNT\n    Decimal(\"3\")\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\");\nASSERT_WORKTOP_CONTAINS\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\");\nTAKE_FROM_WORKTOP\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket2\");\nRETURN_TO_WORKTOP\n    Bucket(\"bucket2\");\nTAKE_FROM_WORKTOP_BY_IDS\n    Array<NonFungibleLocalId>(NonFungibleLocalId(\"#1#\"))\n    Address(\"resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp\")\n    Bucket(\"bucket3\");\nCALL_METHOD\n    Address(\"account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt\")\n    \"deposit_batch\"\n    Expression(\"ENTIRE_WORKTOP\");\n"
+      "value": "DROP_ALL_PROOFS;\n"
     },
     "blobs": []
   }
@@ -388,25 +112,12 @@ the payload and responses of these requests.
 ```json
 {
   "package_addresses": [],
-  "component_addresses": [
-    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt",
-    "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-  ],
-  "resource_addresses": [
-    "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-  ],
-  "account_addresses": [
-    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-  ],
-  "accounts_requiring_auth": [
-    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-  ],
-  "accounts_withdrawn_from": [
-    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-  ],
-  "accounts_deposited_into": [
-    "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-  ],
+  "component_addresses": [],
+  "resource_addresses": [],
+  "account_addresses": [],
+  "accounts_requiring_auth": [],
+  "accounts_withdrawn_from": [],
+  "accounts_deposited_into": [],
   "identity_addresses": [],
   "identities_requiring_auth": []
 }
@@ -445,145 +156,7 @@ the payload and responses of these requests.
       "type": "Parsed",
       "value": [
         {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "withdraw"
-          },
-          "arguments": [
-            {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            {
-              "type": "Decimal",
-              "value": "5"
-            }
-          ]
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "2"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket1"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "buy_gumball"
-          },
-          "arguments": [
-            {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          ]
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "3"
-          }
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "RETURN_TO_WORKTOP",
-          "bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "ids": [
-            {
-              "type": "NonFungibleLocalId",
-              "value": {
-                "type": "Integer",
-                "value": "1"
-              }
-            }
-          ],
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket3"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "deposit_batch"
-          },
-          "arguments": [
-            {
-              "type": "Expression",
-              "value": "ENTIRE_WORKTOP"
-            }
-          ]
+          "instruction": "DROP_ALL_PROOFS"
         }
       ]
     },
@@ -598,7 +171,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000"
+  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f50508000021022022011000202000"
 }
 ```
 </details>
@@ -617,7 +190,7 @@ the payload and responses of these requests.
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000"
+  "compiled_intent": "4d21022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f50508000021022022011000202000"
 }
 ```
 </details>
@@ -646,145 +219,7 @@ the payload and responses of these requests.
       "type": "Parsed",
       "value": [
         {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "withdraw"
-          },
-          "arguments": [
-            {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            {
-              "type": "Decimal",
-              "value": "5"
-            }
-          ]
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "2"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket1"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "buy_gumball"
-          },
-          "arguments": [
-            {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          ]
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "amount": {
-            "type": "Decimal",
-            "value": "3"
-          }
-        },
-        {
-          "instruction": "ASSERT_WORKTOP_CONTAINS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "RETURN_TO_WORKTOP",
-          "bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket2"
-            }
-          }
-        },
-        {
-          "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-          "resource_address": {
-            "type": "Address",
-            "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-          },
-          "ids": [
-            {
-              "type": "NonFungibleLocalId",
-              "value": {
-                "type": "Integer",
-                "value": "1"
-              }
-            }
-          ],
-          "into_bucket": {
-            "type": "Bucket",
-            "identifier": {
-              "type": "String",
-              "value": "bucket3"
-            }
-          }
-        },
-        {
-          "instruction": "CALL_METHOD",
-          "component_address": {
-            "type": "Address",
-            "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-          },
-          "method_name": {
-            "type": "String",
-            "value": "deposit_batch"
-          },
-          "arguments": [
-            {
-              "type": "Expression",
-              "value": "ENTIRE_WORKTOP"
-            }
-          ]
+          "instruction": "DROP_ALL_PROOFS"
         }
       ]
     },
@@ -827,145 +262,7 @@ the payload and responses of these requests.
         "type": "Parsed",
         "value": [
           {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "withdraw"
-            },
-            "arguments": [
-              {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              {
-                "type": "Decimal",
-                "value": "5"
-              }
-            ]
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "amount": {
-              "type": "Decimal",
-              "value": "2"
-            },
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          },
-          {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "buy_gumball"
-            },
-            "arguments": [
-              {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket1"
-                }
-              }
-            ]
-          },
-          {
-            "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "amount": {
-              "type": "Decimal",
-              "value": "3"
-            }
-          },
-          {
-            "instruction": "ASSERT_WORKTOP_CONTAINS",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            }
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket2"
-              }
-            }
-          },
-          {
-            "instruction": "RETURN_TO_WORKTOP",
-            "bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket2"
-              }
-            }
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "ids": [
-              {
-                "type": "NonFungibleLocalId",
-                "value": {
-                  "type": "Integer",
-                  "value": "1"
-                }
-              }
-            ],
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket3"
-              }
-            }
-          },
-          {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "deposit_batch"
-            },
-            "arguments": [
-              {
-                "type": "Expression",
-                "value": "ENTIRE_WORKTOP"
-              }
-            ]
+            "instruction": "DROP_ALL_PROOFS"
           }
         ]
       },
@@ -975,30 +272,30 @@ the payload and responses of these requests.
   "intent_signatures": [
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+      "signature": "01af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
+      "signature": "01a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d271446539599"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
+      "signature": "000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-      "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
+      "signature": "bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e68706"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-      "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
+      "signature": "eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf896200"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-      "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+      "signature": "37cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
     }
   ]
 }
@@ -1010,7 +307,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "compiled_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+  "compiled_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
 }
 ```
 </details>
@@ -1029,7 +326,7 @@ the payload and responses of these requests.
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_signed_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+  "compiled_signed_intent": "4d210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
 }
 ```
 </details>
@@ -1059,145 +356,7 @@ the payload and responses of these requests.
         "type": "Parsed",
         "value": [
           {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "withdraw"
-            },
-            "arguments": [
-              {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              {
-                "type": "Decimal",
-                "value": "5"
-              }
-            ]
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "amount": {
-              "type": "Decimal",
-              "value": "2"
-            },
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket1"
-              }
-            }
-          },
-          {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "buy_gumball"
-            },
-            "arguments": [
-              {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket1"
-                }
-              }
-            ]
-          },
-          {
-            "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "amount": {
-              "type": "Decimal",
-              "value": "3"
-            }
-          },
-          {
-            "instruction": "ASSERT_WORKTOP_CONTAINS",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            }
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket2"
-              }
-            }
-          },
-          {
-            "instruction": "RETURN_TO_WORKTOP",
-            "bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket2"
-              }
-            }
-          },
-          {
-            "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-            "resource_address": {
-              "type": "Address",
-              "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-            },
-            "ids": [
-              {
-                "type": "NonFungibleLocalId",
-                "value": {
-                  "type": "Integer",
-                  "value": "1"
-                }
-              }
-            ],
-            "into_bucket": {
-              "type": "Bucket",
-              "identifier": {
-                "type": "String",
-                "value": "bucket3"
-              }
-            }
-          },
-          {
-            "instruction": "CALL_METHOD",
-            "component_address": {
-              "type": "Address",
-              "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-            },
-            "method_name": {
-              "type": "String",
-              "value": "deposit_batch"
-            },
-            "arguments": [
-              {
-                "type": "Expression",
-                "value": "ENTIRE_WORKTOP"
-              }
-            ]
+            "instruction": "DROP_ALL_PROOFS"
           }
         ]
       },
@@ -1207,30 +366,30 @@ the payload and responses of these requests.
   "intent_signatures": [
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+      "signature": "01af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
+      "signature": "01a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d271446539599"
     },
     {
       "curve": "EcdsaSecp256k1",
-      "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
+      "signature": "000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-      "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
+      "signature": "bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e68706"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-      "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
+      "signature": "eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf896200"
     },
     {
       "curve": "EddsaEd25519",
       "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-      "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+      "signature": "37cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
     }
   ]
 }
@@ -1271,145 +430,7 @@ the payload and responses of these requests.
           "type": "Parsed",
           "value": [
             {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "withdraw"
-              },
-              "arguments": [
-                {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                {
-                  "type": "Decimal",
-                  "value": "5"
-                }
-              ]
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "amount": {
-                "type": "Decimal",
-                "value": "2"
-              },
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket1"
-                }
-              }
-            },
-            {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "buy_gumball"
-              },
-              "arguments": [
-                {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket1"
-                  }
-                }
-              ]
-            },
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "amount": {
-                "type": "Decimal",
-                "value": "3"
-              }
-            },
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              }
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket2"
-                }
-              }
-            },
-            {
-              "instruction": "RETURN_TO_WORKTOP",
-              "bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket2"
-                }
-              }
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "ids": [
-                {
-                  "type": "NonFungibleLocalId",
-                  "value": {
-                    "type": "Integer",
-                    "value": "1"
-                  }
-                }
-              ],
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket3"
-                }
-              }
-            },
-            {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "deposit_batch"
-              },
-              "arguments": [
-                {
-                  "type": "Expression",
-                  "value": "ENTIRE_WORKTOP"
-                }
-              ]
+              "instruction": "DROP_ALL_PROOFS"
             }
           ]
         },
@@ -1419,36 +440,36 @@ the payload and responses of these requests.
     "intent_signatures": [
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+        "signature": "01af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
+        "signature": "01a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d271446539599"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
+        "signature": "000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
+        "signature": "bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e68706"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
+        "signature": "eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf896200"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+        "signature": "37cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
       }
     ]
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+    "signature": "00467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
   }
 }
 ```
@@ -1459,7 +480,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "compiled_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+  "compiled_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00220001210120074100467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
 }
 ```
 </details>
@@ -1478,7 +499,7 @@ the payload and responses of these requests.
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00220001210120074100467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
 }
 ```
 </details>
@@ -1509,145 +530,7 @@ the payload and responses of these requests.
           "type": "Parsed",
           "value": [
             {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "withdraw"
-              },
-              "arguments": [
-                {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                {
-                  "type": "Decimal",
-                  "value": "5"
-                }
-              ]
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "amount": {
-                "type": "Decimal",
-                "value": "2"
-              },
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket1"
-                }
-              }
-            },
-            {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "buy_gumball"
-              },
-              "arguments": [
-                {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket1"
-                  }
-                }
-              ]
-            },
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "amount": {
-                "type": "Decimal",
-                "value": "3"
-              }
-            },
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              }
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket2"
-                }
-              }
-            },
-            {
-              "instruction": "RETURN_TO_WORKTOP",
-              "bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket2"
-                }
-              }
-            },
-            {
-              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-              "resource_address": {
-                "type": "Address",
-                "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-              },
-              "ids": [
-                {
-                  "type": "NonFungibleLocalId",
-                  "value": {
-                    "type": "Integer",
-                    "value": "1"
-                  }
-                }
-              ],
-              "into_bucket": {
-                "type": "Bucket",
-                "identifier": {
-                  "type": "String",
-                  "value": "bucket3"
-                }
-              }
-            },
-            {
-              "instruction": "CALL_METHOD",
-              "component_address": {
-                "type": "Address",
-                "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-              },
-              "method_name": {
-                "type": "String",
-                "value": "deposit_batch"
-              },
-              "arguments": [
-                {
-                  "type": "Expression",
-                  "value": "ENTIRE_WORKTOP"
-                }
-              ]
+              "instruction": "DROP_ALL_PROOFS"
             }
           ]
         },
@@ -1657,36 +540,36 @@ the payload and responses of these requests.
     "intent_signatures": [
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+        "signature": "01af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
+        "signature": "01a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d271446539599"
       },
       {
         "curve": "EcdsaSecp256k1",
-        "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
+        "signature": "000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-        "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
+        "signature": "bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e68706"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-        "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
+        "signature": "eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf896200"
       },
       {
         "curve": "EddsaEd25519",
         "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-        "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+        "signature": "37cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
       }
     ]
   },
   "notary_signature": {
     "curve": "EcdsaSecp256k1",
-    "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+    "signature": "00467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
   }
 }
 ```
@@ -1706,7 +589,7 @@ the payload and responses of these requests.
 ```json
 {
   "instructions_output_kind": "Parsed",
-  "compiled_unknown_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+  "compiled_unknown_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00220001210120074100467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
 }
 ```
 </details>
@@ -1739,145 +622,7 @@ the payload and responses of these requests.
             "type": "Parsed",
             "value": [
               {
-                "instruction": "CALL_METHOD",
-                "component_address": {
-                  "type": "Address",
-                  "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-                },
-                "method_name": {
-                  "type": "String",
-                  "value": "withdraw"
-                },
-                "arguments": [
-                  {
-                    "type": "Address",
-                    "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                  },
-                  {
-                    "type": "Decimal",
-                    "value": "5"
-                  }
-                ]
-              },
-              {
-                "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
-                "resource_address": {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                "amount": {
-                  "type": "Decimal",
-                  "value": "2"
-                },
-                "into_bucket": {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket1"
-                  }
-                }
-              },
-              {
-                "instruction": "CALL_METHOD",
-                "component_address": {
-                  "type": "Address",
-                  "address": "component_sim1pyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdxh44"
-                },
-                "method_name": {
-                  "type": "String",
-                  "value": "buy_gumball"
-                },
-                "arguments": [
-                  {
-                    "type": "Bucket",
-                    "identifier": {
-                      "type": "String",
-                      "value": "bucket1"
-                    }
-                  }
-                ]
-              },
-              {
-                "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-                "resource_address": {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                "amount": {
-                  "type": "Decimal",
-                  "value": "3"
-                }
-              },
-              {
-                "instruction": "ASSERT_WORKTOP_CONTAINS",
-                "resource_address": {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                }
-              },
-              {
-                "instruction": "TAKE_FROM_WORKTOP",
-                "resource_address": {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                "into_bucket": {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket2"
-                  }
-                }
-              },
-              {
-                "instruction": "RETURN_TO_WORKTOP",
-                "bucket": {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket2"
-                  }
-                }
-              },
-              {
-                "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
-                "resource_address": {
-                  "type": "Address",
-                  "address": "resource_sim1q2atsr8kvzrkdpqe7h94jp9vleraasdw348gn8zg9g6n6g50t6hwlp"
-                },
-                "ids": [
-                  {
-                    "type": "NonFungibleLocalId",
-                    "value": {
-                      "type": "Integer",
-                      "value": "1"
-                    }
-                  }
-                ],
-                "into_bucket": {
-                  "type": "Bucket",
-                  "identifier": {
-                    "type": "String",
-                    "value": "bucket3"
-                  }
-                }
-              },
-              {
-                "instruction": "CALL_METHOD",
-                "component_address": {
-                  "type": "Address",
-                  "address": "account_sim1ql02qtc2tm73h5dyl8grh2p8xfncgrfltagjm7adlg3edr0ejjmpvt"
-                },
-                "method_name": {
-                  "type": "String",
-                  "value": "deposit_batch"
-                },
-                "arguments": [
-                  {
-                    "type": "Expression",
-                    "value": "ENTIRE_WORKTOP"
-                  }
-                ]
+                "instruction": "DROP_ALL_PROOFS"
               }
             ]
           },
@@ -1887,36 +632,36 @@ the payload and responses of these requests.
       "intent_signatures": [
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "0001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+          "signature": "01af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
         },
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "00762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d5"
+          "signature": "01a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d271446539599"
         },
         {
           "curve": "EcdsaSecp256k1",
-          "signature": "01b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee2"
+          "signature": "000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29",
-          "signature": "48587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e03"
+          "signature": "bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e68706"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "7422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674",
-          "signature": "29df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f"
+          "signature": "eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf896200"
         },
         {
           "curve": "EddsaEd25519",
           "public_key": "f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b",
-          "signature": "b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b9787908"
+          "signature": "37cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00"
         }
       ]
     },
     "notary_signature": {
       "curve": "EcdsaSecp256k1",
-      "signature": "0118da0031ad49dff51696bbd49d5edf782cfdb79b9f7b51c8cb9b398d0c87caf753c96e4dd53db7bd0f6c059eb5a7eaf77a628515fd6affb819073fefda2e7323"
+      "signature": "00467b443fca6e4c6b966ea8f8b7a9a35f1195450cae7167398988a87415e9121e56cca9627aacae1f4cca4298c19f99456b5cc2514c9f5411d8bad5088f9fdf68"
     }
   }
 }
@@ -1936,7 +681,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "address_bytes": "000000000000000000000000000000000000000000000000000000000002",
+  "address_bytes": "0d906318c6318c6c4d63f8cc6318c6318cf7bf553d3ca51686318c6318c6",
   "network_id": "242"
 }
 ```
@@ -1947,7 +692,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "address": "package_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzursw36"
+  "address": "package_sim1pkgxxxxxxxxxcntrlrxxxxxxxxx000648572295xxxxxxxxxxc5z0l"
 }
 ```
 </details>
@@ -1978,7 +723,7 @@ the payload and responses of these requests.
   "network_id": "242",
   "network_name": "simulator",
   "entity_type": "GlobalFungibleResource",
-  "data": "010000000000000000000000000000000000000000000000000000000000"
+  "data": "5da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6"
 }
 ```
 </details>
@@ -1998,79 +743,79 @@ the payload and responses of these requests.
 {
   "type": "ScryptoSbor",
   "value": {
-    "type": "Tuple",
-    "elements": [
+    "kind": "Tuple",
+    "fields": [
       {
-        "type": "Decimal",
+        "kind": "Decimal",
         "value": "10"
       },
       {
-        "type": "PreciseDecimal",
+        "kind": "PreciseDecimal",
         "value": "10"
       },
       {
-        "type": "String",
+        "kind": "String",
         "value": "Hello World!"
       },
       {
-        "type": "Tuple",
-        "elements": [
+        "kind": "Tuple",
+        "fields": [
           {
-            "type": "Decimal",
+            "kind": "Decimal",
             "value": "10"
           },
           {
-            "type": "PreciseDecimal",
+            "kind": "PreciseDecimal",
             "value": "10"
           },
           {
-            "type": "String",
+            "kind": "String",
             "value": "Hello World!"
           },
           {
-            "type": "Tuple",
-            "elements": [
+            "kind": "Tuple",
+            "fields": [
               {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "10"
               },
               {
-                "type": "PreciseDecimal",
+                "kind": "PreciseDecimal",
                 "value": "10"
               },
               {
-                "type": "String",
+                "kind": "String",
                 "value": "Hello World!"
               },
               {
-                "type": "Tuple",
-                "elements": [
+                "kind": "Tuple",
+                "fields": [
                   {
-                    "type": "Decimal",
+                    "kind": "Decimal",
                     "value": "10"
                   },
                   {
-                    "type": "PreciseDecimal",
+                    "kind": "PreciseDecimal",
                     "value": "10"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "Hello World!"
                   },
                   {
-                    "type": "Array",
+                    "kind": "Array",
                     "element_kind": "Decimal",
                     "elements": [
                       {
-                        "type": "Decimal",
+                        "kind": "Decimal",
                         "value": "20"
                       },
                       {
-                        "type": "Decimal",
+                        "kind": "Decimal",
                         "value": "100"
                       },
                       {
-                        "type": "Decimal",
+                        "kind": "Decimal",
                         "value": "192.31"
                       }
                     ]
@@ -2110,7 +855,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "encoded_value": "4d2108800000000000000000000000000000000000000000000000000000000000008104000000820500000083018406060606060606060606060606060606060606060606060606060606060606068507070707070707070707070707070707070707070707070707070707070707078608080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808080808870003616263",
+  "encoded_value": "5c2104a0000064a7b3b6e00d000000000000000000000000000000000000000000000000b00000000000000000011f6abf64ed386eed97a7daf4f93fe9034f1800000000000000000000000000000000000000000000000000000000000000000000000000c0010000000000000001c002020203",
   "network_id": "242"
 }
 ```
@@ -2121,45 +866,25 @@ the payload and responses of these requests.
 
 ```json
 {
-  "type": "ManifestSbor",
-  "manifest_string": "Tuple(Address(\"package_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq0x3dzh\"), Bucket(4u32), Proof(5u32), Expression(\"ENTIRE_AUTH_ZONE\"), Blob(\"0606060606060606060606060606060606060606060606060606060606060606\"), Decimal(\"3178606371220444580254889784552217078325058402586211561867.463090413301597959\"), PreciseDecimal(\"42063711152761088939840078425743830988170559437152606675211173156774161662975833652711762.5040530303613804921041144660418941298284296362978711643890386952\"), NonFungibleLocalId(\"<abc>\"))",
+  "type": "ScryptoSbor",
   "value": {
-    "type": "Tuple",
-    "elements": [
+    "kind": "Tuple",
+    "fields": [
       {
-        "type": "Address",
-        "address": "package_sim1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq0x3dzh"
+        "kind": "Decimal",
+        "value": "1"
       },
       {
-        "type": "Bucket",
-        "identifier": "4"
+        "kind": "PreciseDecimal",
+        "value": "1"
       },
       {
-        "type": "Proof",
-        "identifier": "5"
+        "kind": "NonFungibleLocalId",
+        "value": "#1#"
       },
       {
-        "type": "Expression",
-        "value": "ENTIRE_AUTH_ZONE"
-      },
-      {
-        "type": "Blob",
-        "hash": "0606060606060606060606060606060606060606060606060606060606060606"
-      },
-      {
-        "type": "Decimal",
-        "value": "3178606371220444580254889784552217078325058402586211561867.463090413301597959"
-      },
-      {
-        "type": "PreciseDecimal",
-        "value": "42063711152761088939840078425743830988170559437152606675211173156774161662975833652711762.5040530303613804921041144660418941298284296362978711643890386952"
-      },
-      {
-        "type": "NonFungibleLocalId",
-        "value": {
-          "type": "String",
-          "value": "abc"
-        }
+        "kind": "NonFungibleLocalId",
+        "value": "[0203]"
       }
     ]
   }
@@ -2194,7 +919,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "virtual_account_address": "account_sim1ptgge5mvjmkc7q4suyt3yddgk0c7yd5z6g662z4yc548cumwd7lcna"
+  "virtual_account_address": "account_sim168gge5mvjmkc7q4suyt3yddgk0c7yd5z6g662z4yc548cumw8nztch"
 }
 ```
 </details>
@@ -2226,7 +951,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "virtual_identity_address": "identity_sim1pngge5mvjmkc7q4suyt3yddgk0c7yd5z6g662z4yc548cumw05fhdf"
+  "virtual_identity_address": "identity_sim16tgge5mvjmkc7q4suyt3yddgk0c7yd5z6g662z4yc548cumwdmnyar"
 }
 ```
 </details>
@@ -2255,7 +980,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "babylon_account_address": "account_rdx1pte8u653alt59xm8ple6khu6cgce9cfx9mlza6wxf7qs3wwdazuagr",
+  "babylon_account_address": "account_rdx168e8u653alt59xm8ple6khu6cgce9cfx9mlza6wxf7qs3wwdh0pwrf",
   "public_key": {
     "curve": "EcdsaSecp256k1",
     "public_key": "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c"
@@ -2309,7 +1034,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126",
+  "compiled_notarized_intent": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00220001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef",
   "validation_config": {
     "network_id": "242",
     "min_cost_unit_limit": "1000000",
@@ -2356,14 +1081,14 @@ the payload and responses of these requests.
 
 ```json
 {
-  "account_package_address": "package_rdx1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq9r3clqr",
-  "xrd_resource_address": "resource_rdx1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq09z0ln",
-  "system_token_resource_address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqzreev97",
-  "ecdsa_secp256k1_token_resource_address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsuc0kn",
-  "eddsa_ed25519_token_resource_address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpd2v6tp",
-  "package_token_resource_address": "resource_rdx1qgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr70decv",
-  "epoch_manager_system_address": "epochmanager_rdx1qvqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsu426p",
-  "clock_system_address": "clock_rdx1q5qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsxvvv0"
+  "account_package_address": "package_rdx1pkgxxxxxxxxxaccntxxxxxxxxxx000929625493xxxxxxxxxaccntx",
+  "xrd_resource_address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+  "system_token_resource_address": "resource_rdx1nfxxxxxxxxxxsystxnxxxxxxxxx002683325037xxxxxxxxxsystxn",
+  "ecdsa_secp256k1_token_resource_address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
+  "eddsa_ed25519_token_resource_address": "resource_rdx1nfxxxxxxxxxxed25sgxxxxxxxxx002236757237xxxxxxxxxed25sg",
+  "package_token_resource_address": "resource_rdx1nfxxxxxxxxxxpkcllrxxxxxxxxx003652646977xxxxxxxxxpkcllr",
+  "epoch_manager_system_address": "epochmanager_rdx1sexxxxxxxxxxephmgrxxxxxxxxx009352500589xxxxxxxxxephmgr",
+  "clock_system_address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
 }
 ```
 </details>
@@ -2381,7 +1106,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "payload": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220921038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c08776974686472617721028002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f850000f444829163450000000000000000000000000000000000000000000000000102850000c84e676dc11b0000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f2103800900000000000000000000000000000000000000000000000000000000000c0b6275795f67756d62616c6c2101810000000005028500002cf61a24a2290000000000000000000000000000000000000000000000008002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f04018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f00018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f0301810100000002022087010100000000000000018002bab80cf66087668419f5cb5904acfe47dec1ae8d4e899c482a353d228f21038007dea02f0a5efd1bd1a4f9d03ba8273267840d3f5f512dfbadfa23968df90c0d6465706f7369745f626174636821018300202000202206000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c61260001210120074100762da58eee9bce70ae534c5fffdf0b9e7d480bbe86ec4e54143936010d4e1d241e78598d1db1a76e47519b1482bce849efce6ed5e1b5e626ce2ef70bd58b36d50001210120074101b9b898f8cf80c879ccf0b77a1a4ddf2abbd7294ecce10868ca75ec1a067df8081e80afc4d1543325d5e6e7810e908443fccd0a6447782ec228b835756feb7ee201022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29210120074048587e7b41231f7a1740d010038e4f66ad09124f3be2aa94abe528a05bec9d58089a7e24505b7ce027877748e2e3c52a08b15c9b84bb59509ae81212ef375e0301022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe2674210120074029df463d52222cb7a3aba84ab7718451cacf9a827e9eef8aa15d044b79bd2853d9fe2e8bc4b639ec3f479b4729c39cf34e2f526e082d495dfbf2b2c174c3eb0f0102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b2101200740b10242b96e9218e0921fc85f1ee66098092747d53cefff4a9839f9d2824d59f1ba504a52fd14f9d34a0e908e8501cb8c2d3325fa152bb954746d69b0b978790822000121012007410001262622d14f533bc2a0ad79852080db6dc12ad1e6aee5d96e29d2ee8443d36649dad839ffa7682bf018ade1bdca6cdc65b5050a7a8fcaa78d0d8d3b4c4c6126"
+  "payload": "4d2102210221022109070107f20a00020000000000000a10020000000000000a220000000000000022000120072103c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa2101010900e1f505080000210220220110002020002022060001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef0001210120074101a9b5ae285055f7195d2d60099c42ea7b2b60dbe36e71ec52dc1665de57f4eba23a53bad977282029e2b5a549cd33de3fbb10983023a73d5fc92d27144653959900012101200741000e54aafd2b9f28d03875ad264ede827060baac5ac82bd47036e5aeb44365b2e8136d525e084098b3df278fdf9135ab69f1809ddfdad9a71b0a02bdd81bde606c01022007204cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba292101200740bb0de50890160d05b23c926319727dbcd4ec258ba2c06d8490cbd3df45c6a2c172f6892b105a2a7f073bf09956600a8b8ea132c3a61be522bda48177d7e6870601022007207422b9887598068e32c4448a949adb290d0f4e35b9e01b0ee5f1a1e600fe26742101200740eb13f90a3afb5865767534153d111b3b8c4a111322e2bbc32c56c4d339c3254c50aaf0749d159ceca465db7d6a93be869ca08def07c5a498816d7c8cbf8962000102200720f381626e41e7027ea431bfe3009e94bdd25a746beec468948d6c3c7c5dc9a54b210120074037cb4ad6a41f5c00dec197d3d437a4b926853156dfcd6169f2aaebd89db42992149fff66b38f57792aba4c3b16497585a284981ff851abb91292665be8c97d00220001210120074101af8f9d8e94529600370aa46a285e54a4fdcb231ba0788646ec403b4eec4639bf6231590164c6514f9df7c78dba5924e13e0c625cf1ce8d76c7996c3fb31af1ef"
 }
 ```
 </details>
@@ -2391,7 +1116,7 @@ the payload and responses of these requests.
 
 ```json
 {
-  "value": "71d77b068a408d49747eb2f44216a7fa4dc953c6d61b1d41adbb93ad3f4a7baa"
+  "value": "7f626ef483cac790852a8e79e22a0577b66059d1e30da317f0a6c460bc98cdb9"
 }
 ```
 </details>

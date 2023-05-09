@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::prelude::{
-    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NodeId, NonFungibleLocalId,
+    BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
     StringNonFungibleLocalId, UUIDNonFungibleLocalId, ACCOUNT_PACKAGE,
 };
 
@@ -192,7 +192,7 @@ pub fn non_fungible_local_id4() -> ScryptoSborValue {
 
 pub fn reference() -> ScryptoSborValue {
     ScryptoSborValue::Reference {
-        value: NetworkAwareNodeId([0; NodeId::LENGTH], 1),
+        value: NetworkAwareNodeId(ACCOUNT_PACKAGE.as_node_id().0, 1),
     }
 }
 

@@ -3,6 +3,7 @@ use paste::paste;
 use radix_engine_common::ManifestSbor;
 use radix_engine_toolkit::model::address::Bech32Coder;
 use sbor::representations::SerializationParameters;
+use schemars::schema_for;
 use scrypto::prelude::*;
 use scrypto_utils::ContextualSerialize;
 
