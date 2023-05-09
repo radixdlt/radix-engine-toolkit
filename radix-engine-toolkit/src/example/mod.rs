@@ -18,7 +18,6 @@
 //! A module for model examples which provides them to the Schemars crate for inclusion in the JSON
 //! Schema generated.
 
-pub mod address;
 pub mod crypto;
 pub mod engine_identifier;
 pub mod instruction;

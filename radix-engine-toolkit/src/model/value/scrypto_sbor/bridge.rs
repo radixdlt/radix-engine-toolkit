@@ -84,7 +84,7 @@ impl From<ScryptoSborValueKind> for ScryptoValueKind {
 
             ScryptoSborValueKind::Enum => ScryptoValueKind::Enum,
             ScryptoSborValueKind::Map => ScryptoValueKind::Map,
-            ScryptoSborValueKind::Array => ScryptoValueKind::Array,
+            ScryptoSborValueKind::Array | ScryptoSborValueKind::Bytes => ScryptoValueKind::Array,
             ScryptoSborValueKind::Tuple => ScryptoValueKind::Tuple,
 
             ScryptoSborValueKind::Decimal => {
@@ -124,30 +124,25 @@ impl ScryptoSborValue {
             Self::String { value } => ScryptoValue::String {
                 value: value.clone(),
             },
-            Self::Enum { variant, fields } => ScryptoValue::Enum {
-                discriminator: *variant,
+            Self::Enum { variant_id, fields } => ScryptoValue::Enum {
+                discriminator: *variant_id,
                 fields: fields
                     .clone()
-                    .unwrap_or_default()
                     .into_iter()
                     .map(|value| value.to_scrypto_sbor_value())
                     .collect::<Result<Vec<_>, _>>()?,
             },
             Self::Map {
-                key_value_kind,
-                value_value_kind,
+                key_kind: key_value_kind,
+                value_kind: value_value_kind,
                 entries,
             } => ScryptoValue::Map {
                 key_value_kind: (*key_value_kind).into(),
                 value_value_kind: (*value_value_kind).into(),
-                entries: {
-                    let mut scrypto_entries = Vec::new();
-                    for (key, value) in entries {
-                        scrypto_entries
-                            .push((key.to_scrypto_sbor_value()?, value.to_scrypto_sbor_value()?))
-                    }
-                    scrypto_entries
-                },
+                entries: entries
+                    .iter()
+                    .map(|map_entry| map_entry.to_scrypto_value_tuple())
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::Array {
                 element_kind,
@@ -160,7 +155,7 @@ impl ScryptoSborValue {
                     .map(|value| value.to_scrypto_sbor_value())
                     .collect::<Result<Vec<_>, _>>()?,
             },
-            Self::Tuple { elements } => ScryptoValue::Tuple {
+            Self::Tuple { fields: elements } => ScryptoValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
@@ -187,12 +182,22 @@ impl ScryptoSborValue {
                     radix_engine_common::data::scrypto::model::Reference(value.0.into()),
                 ),
             },
+            Self::Bytes { hex, .. } => ScryptoValue::Array {
+                element_value_kind: ScryptoValueKind::U8,
+                elements: hex
+                    .iter()
+                    .map(|value| ScryptoValue::U8 { value: *value })
+                    .collect(),
+            },
         };
         Ok(value)
     }
 
-    pub fn from_scrypto_sbor_value(scrypto_value: &ScryptoValue, network_id: u8) -> Self {
-        match scrypto_value {
+    pub fn from_scrypto_sbor_value(
+        scrypto_value: &ScryptoValue,
+        network_id: u8,
+    ) -> Result<Self, ScryptoSborValueConversionError> {
+        let value = match scrypto_value {
             ScryptoValue::Bool { value } => Self::Bool { value: *value },
 
             ScryptoValue::U8 { value } => Self::U8 { value: *value },
@@ -215,37 +220,47 @@ impl ScryptoSborValue {
                 discriminator,
                 fields,
             } => Self::Enum {
-                variant: *discriminator,
-                fields: if fields.is_empty() {
-                    None
-                } else {
-                    Some(
-                        fields
-                            .clone()
-                            .into_iter()
-                            .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
-                            .collect(),
-                    )
-                },
+                variant_id: *discriminator,
+                fields: fields
+                    .clone()
+                    .into_iter()
+                    .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             ScryptoValue::Map {
                 key_value_kind,
                 value_value_kind,
                 entries,
             } => Self::Map {
-                key_value_kind: (*key_value_kind).into(),
-                value_value_kind: (*value_value_kind).into(),
-                entries: {
-                    let mut scrypto_entries = Vec::new();
-                    for (key, value) in entries {
-                        scrypto_entries.push((
-                            Self::from_scrypto_sbor_value(key, network_id),
-                            Self::from_scrypto_sbor_value(value, network_id),
-                        ))
-                    }
-                    scrypto_entries
-                },
+                key_kind: (*key_value_kind).into(),
+                value_kind: (*value_value_kind).into(),
+                entries: entries
+                    .clone()
+                    .into_iter()
+                    .map(|(key, value)| MapEntry::from_scrypto_value(network_id, key, value))
+                    .collect::<Result<Vec<_>, _>>()?,
             },
+            ScryptoValue::Array {
+                element_value_kind: ScryptoValueKind::U8,
+                elements,
+            } => {
+                let bytes = elements
+                    .iter()
+                    .map(|element| {
+                        if let ScryptoValue::U8 { value } = element {
+                            Ok(*value)
+                        } else {
+                            Err(ScryptoSborValueConversionError::InvalidType {
+                                expected: ScryptoSborValueKind::U8,
+                            })
+                        }
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                Self::Bytes {
+                    hex: bytes,
+                    element_kind: ScryptoSborValueKind::U8,
+                }
+            }
             ScryptoValue::Array {
                 element_value_kind,
                 elements,
@@ -255,14 +270,14 @@ impl ScryptoSborValue {
                     .clone()
                     .into_iter()
                     .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
-                    .collect(),
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             ScryptoValue::Tuple { fields } => Self::Tuple {
-                elements: fields
+                fields: fields
                     .clone()
                     .into_iter()
                     .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
-                    .collect(),
+                    .collect::<Result<Vec<_>, _>>()?,
             },
 
             ScryptoValue::Custom {
@@ -288,6 +303,7 @@ impl ScryptoSborValue {
             } => Self::Reference {
                 value: NetworkAwareNodeId(value.0 .0, network_id),
             },
-        }
+        };
+        Ok(value)
     }
 }

@@ -42,6 +42,7 @@ regex = "1.7.3"
 scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "release/ash" }
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
+paste = { version = "1.0.11" }
 
 [features]
 default = ["radix-engine"]

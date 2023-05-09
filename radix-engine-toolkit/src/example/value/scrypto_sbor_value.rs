@@ -21,7 +21,7 @@ use scrypto::prelude::{
 };
 
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
+use crate::model::value::scrypto_sbor::{MapEntry, ScryptoSborValue, ScryptoSborValueKind};
 
 pub fn value() -> ScryptoSborValue {
     ScryptoSborValue::Bool { value: false }
@@ -83,15 +83,15 @@ pub fn string() -> ScryptoSborValue {
 
 pub fn enum1() -> ScryptoSborValue {
     ScryptoSborValue::Enum {
-        variant: 1u8,
-        fields: None,
+        variant_id: 1u8,
+        fields: vec![],
     }
 }
 
 pub fn enum2() -> ScryptoSborValue {
     ScryptoSborValue::Enum {
-        variant: 1u8,
-        fields: Some(vec![ScryptoSborValue::U8 { value: 1 }]),
+        variant_id: 1u8,
+        fields: vec![ScryptoSborValue::U8 { value: 1 }],
     }
 }
 
@@ -108,29 +108,29 @@ pub fn array() -> ScryptoSborValue {
 
 pub fn map() -> ScryptoSborValue {
     ScryptoSborValue::Map {
-        key_value_kind: ScryptoSborValueKind::U8,
-        value_value_kind: ScryptoSborValueKind::String,
+        key_kind: ScryptoSborValueKind::U8,
+        value_kind: ScryptoSborValueKind::String,
         entries: vec![
-            (
-                ScryptoSborValue::U8 { value: 65 },
-                ScryptoSborValue::String {
+            MapEntry {
+                key: ScryptoSborValue::U8 { value: 65 },
+                value: ScryptoSborValue::String {
                     value: "A".to_owned(),
                 },
-            ),
-            (
-                ScryptoSborValue::U8 { value: 66 },
-                ScryptoSborValue::String {
+            },
+            MapEntry {
+                key: ScryptoSborValue::U8 { value: 66 },
+                value: ScryptoSborValue::String {
                     value: "B".to_owned(),
                 },
-            ),
+            },
         ],
     }
 }
 
 pub fn tuple() -> ScryptoSborValue {
     ScryptoSborValue::Tuple {
-        elements: vec![ScryptoSborValue::Tuple {
-            elements: vec![
+        fields: vec![ScryptoSborValue::Tuple {
+            fields: vec![
                 ScryptoSborValue::U8 { value: 1 },
                 ScryptoSborValue::String {
                     value: "Something".to_owned(),
@@ -193,5 +193,13 @@ pub fn non_fungible_local_id4() -> ScryptoSborValue {
 pub fn reference() -> ScryptoSborValue {
     ScryptoSborValue::Reference {
         value: NetworkAwareNodeId([0; NodeId::LENGTH], 1),
+    }
+}
+
+pub fn bytes() -> ScryptoSborValue {
+    ScryptoSborValue::Bytes {
+        element_kind: ScryptoSborValueKind::U8,
+        hex: hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
+            .unwrap(),
     }
 }

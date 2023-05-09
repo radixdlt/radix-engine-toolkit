@@ -18,12 +18,12 @@
 use crate::functions::traits::InvocationHandler;
 use crate::model::address::Bech32Coder;
 use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
-use crate::model::value::scrypto_sbor::ScryptoSborValue;
+use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueConversionError};
 use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
 use native_transaction::manifest::decompiler::{format_typed_value, DecompilationContext};
 use sbor::DecodeError;
 use scrypto::prelude::{
-    manifest_decode, scrypto_decode, ManifestValue, ScryptoValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
+    manifest_decode, scrypto_decode, ManifestValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
     SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
 };
 use toolkit_derive::serializable;
@@ -82,12 +82,12 @@ impl InvocationHandler<Input, Output> for Handler {
         let bech32_coder = Bech32Coder::new(input.network_id);
         match input.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                scrypto_decode::<ScryptoValue>(&input.encoded_value)
-                    .map(|scrypto_value| {
-                        ScryptoSborValue::from_scrypto_sbor_value(&scrypto_value, input.network_id)
-                    })
-                    .map(|value| Output::ScryptoSbor { value })
-                    .map_err(Error::from)
+                let decoded = scrypto_decode(&input.encoded_value)?;
+                let scrypto_value =
+                    ScryptoSborValue::from_scrypto_sbor_value(&decoded, input.network_id)?;
+                Ok(Output::ScryptoSbor {
+                    value: scrypto_value,
+                })
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
                 manifest_decode::<ManifestValue>(&input.encoded_value)
@@ -145,6 +145,10 @@ pub enum Error {
     /// Emitted if the conversion from the Native manifest SBOR model to the RET manifest SBOR
     /// model fails.
     ManifestSborValueConversionError(ManifestSborValueConversionError),
+
+    /// Emitted if the conversion from the Native scrypto SBOR model to the RET manifest SBOR
+    /// model fails.
+    ScryptoSborValueConversionError(ScryptoSborValueConversionError),
 }
 
 impl From<DecodeError> for Error {
@@ -158,5 +162,11 @@ impl From<DecodeError> for Error {
 impl From<ManifestSborValueConversionError> for Error {
     fn from(value: ManifestSborValueConversionError) -> Self {
         Self::ManifestSborValueConversionError(value)
+    }
+}
+
+impl From<ScryptoSborValueConversionError> for Error {
+    fn from(value: ScryptoSborValueConversionError) -> Self {
+        Self::ScryptoSborValueConversionError(value)
     }
 }

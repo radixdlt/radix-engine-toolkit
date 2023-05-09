@@ -18,16 +18,18 @@
 use crate::define_kind_enum;
 use crate::model::address::NetworkAwareNodeId;
 
-use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal};
+use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal, ScryptoValue};
 
 use serde_with::serde_as;
 use toolkit_derive::serializable;
+
+use super::ScryptoSborValueConversionError;
 
 define_kind_enum! {
     /// A value model used to describe an algebraic sum type which is used to express Scrypto SBOR
     /// values. This is serialized as a discriminated union of types.
     #[serializable]
-    #[serde(tag = "type")]
+    #[serde(tag = "kind")]
     #[derive(Hash, Eq, PartialEq)]
     pub enum ScryptoSborValue {
         /// A boolean value which can either be true or false
@@ -142,11 +144,10 @@ define_kind_enum! {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            variant: u8,
+            variant_id: u8,
 
             /// Optional fields that the enum may have
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            fields: Option<Vec<Self>>,
+            fields: Vec<Self>,
         },
 
         /// An array values of a single value kind
@@ -166,20 +167,20 @@ define_kind_enum! {
         Map {
             /// The kind of the keys used for the map. A map will be validated to ensure that its keys
             /// are all of a single kind.
-            key_value_kind: ScryptoSborValueKind,
+            key_kind: ScryptoSborValueKind,
 
             /// The kind of the values used for the map. A map will be validated to ensure that its
             /// values are all of a single kind.
-            value_value_kind: ScryptoSborValueKind,
+            value_kind: ScryptoSborValueKind,
 
             /// A vector of tuples representing the entires in the map where each tuple is made up of
             /// two elements: a key and a value.
-            entries: Vec<(Self, Self)>,
+            entries: Vec<MapEntry<Self>>,
         },
 
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::tuple")]
-        Tuple { elements: Vec<Self> },
+        Tuple { fields: Vec<Self> },
 
         /// Represents a tagged enum of owned Radix Engine Nodes.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::own")]
@@ -235,6 +236,43 @@ define_kind_enum! {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
             value: NetworkAwareNodeId,
-        }
+        },
+
+        /// Represents a byte array of an unknown size which is serialized as a hex string
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::bytes")]
+        Bytes {
+            element_kind: ScryptoSborValueKind,
+
+            #[serde_as(as = "serde_with::hex::Hex")]
+            #[schemars(with = "String")]
+            hex: Vec<u8>,
+        },
+    }
+}
+
+#[serializable]
+#[derive(Hash, Eq, PartialEq)]
+pub struct MapEntry<T> {
+    pub key: T,
+    pub value: T,
+}
+
+impl MapEntry<ScryptoSborValue> {
+    pub fn from_scrypto_value(
+        network_id: u8,
+        key: ScryptoValue,
+        value: ScryptoValue,
+    ) -> Result<Self, ScryptoSborValueConversionError> {
+        let key = ScryptoSborValue::from_scrypto_sbor_value(&key, network_id)?;
+        let value = ScryptoSborValue::from_scrypto_sbor_value(&value, network_id)?;
+        Ok(Self { key, value })
+    }
+
+    pub fn to_scrypto_value_tuple(
+        &self,
+    ) -> Result<(ScryptoValue, ScryptoValue), ScryptoSborValueConversionError> {
+        let key = self.key.to_scrypto_sbor_value()?;
+        let value = self.key.to_scrypto_sbor_value()?;
+        Ok((key, value))
     }
 }

@@ -18,6 +18,8 @@
 use crate::impl_from_parse_error;
 use toolkit_derive::serializable;
 
+use super::ScryptoSborValueKind;
+
 /// An error emitted if the conversion between the native and RET representations of the Scrypto
 /// Sbor fails.
 #[serializable]
@@ -25,6 +27,9 @@ use toolkit_derive::serializable;
 pub enum ScryptoSborValueConversionError {
     /// An error emitted when trying to parse a string to a type fails.
     ParseError { parsing: String, message: String },
+
+    /// An error emitted when a value of an unexpected kind is encountered.
+    InvalidType { expected: ScryptoSborValueKind },
 }
 
 impl_from_parse_error! {
