@@ -18,6 +18,7 @@
 use super::{model::*, ManifestSborValueConversionError};
 
 use crate::model::address::NetworkAwareNodeId;
+use crate::model::value::scrypto_sbor::MapEntry;
 use crate::utils::checked_copy_u8_slice;
 
 use scrypto::prelude::{
@@ -104,7 +105,7 @@ impl From<ManifestSborValueKind> for ManifestValueKind {
 
             ManifestSborValueKind::Enum => ManifestValueKind::Enum,
             ManifestSborValueKind::Map => ManifestValueKind::Map,
-            ManifestSborValueKind::Array => ManifestValueKind::Array,
+            ManifestSborValueKind::Array | ManifestSborValueKind::Bytes => ManifestValueKind::Array,
             ManifestSborValueKind::Tuple => ManifestValueKind::Tuple,
 
             ManifestSborValueKind::Address => {
@@ -156,32 +157,28 @@ impl ManifestSborValue {
             Self::String { value } => ManifestValue::String {
                 value: value.clone(),
             },
-            Self::Enum { variant, fields } => ManifestValue::Enum {
+            Self::Enum {
+                variant_id: variant,
+                fields,
+            } => ManifestValue::Enum {
                 discriminator: *variant,
                 fields: fields
                     .clone()
-                    .unwrap_or_default()
                     .into_iter()
                     .map(|value| value.to_manifest_sbor_value())
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             Self::Map {
-                key_value_kind,
-                value_value_kind,
+                key_kind: key_value_kind,
+                value_kind: value_value_kind,
                 entries,
             } => ManifestValue::Map {
                 key_value_kind: (*key_value_kind).into(),
                 value_value_kind: (*value_value_kind).into(),
-                entries: {
-                    let mut scrypto_entries = Vec::new();
-                    for (key, value) in entries {
-                        scrypto_entries.push((
-                            key.to_manifest_sbor_value()?,
-                            value.to_manifest_sbor_value()?,
-                        ))
-                    }
-                    scrypto_entries
-                },
+                entries: entries
+                    .iter()
+                    .map(|map_entry| map_entry.to_manifest_value_tuple())
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             Self::Array {
                 element_kind,
@@ -194,7 +191,7 @@ impl ManifestSborValue {
                     .map(|value| value.to_manifest_sbor_value())
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
-            Self::Tuple { elements } => ManifestValue::Tuple {
+            Self::Tuple { fields: elements } => ManifestValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
@@ -202,7 +199,7 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
 
-            Self::Address { address } => ManifestValue::Custom {
+            Self::Address { value: address } => ManifestValue::Custom {
                 value: ManifestCustomValue::Address(ManifestAddress((*address).into())),
             },
 
@@ -229,17 +226,17 @@ impl ManifestSborValue {
                 )),
             },
 
-            Self::Bucket { identifier } => ManifestValue::Custom {
+            Self::Bucket { value: identifier } => ManifestValue::Custom {
                 value: ManifestCustomValue::Bucket(ManifestBucket(*identifier)),
             },
-            Self::Proof { identifier } => ManifestValue::Custom {
+            Self::Proof { value: identifier } => ManifestValue::Custom {
                 value: ManifestCustomValue::Proof(ManifestProof(*identifier)),
             },
 
             Self::Expression { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(*value),
             },
-            Self::Blob { hash } => ManifestValue::Custom {
+            Self::Blob { value: hash } => ManifestValue::Custom {
                 value: ManifestCustomValue::Blob(ManifestBlobRef(hash.0)),
             },
 
@@ -256,6 +253,13 @@ impl ManifestSborValue {
                         ManifestNonFungibleLocalId::Bytes(v.value().to_owned())
                     }
                 }),
+            },
+            Self::Bytes { hex, .. } => ManifestValue::Array {
+                element_value_kind: ManifestValueKind::U8,
+                elements: hex
+                    .iter()
+                    .map(|value| ManifestValue::U8 { value: *value })
+                    .collect(),
             },
         };
         Ok(value)
@@ -288,37 +292,47 @@ impl ManifestSborValue {
                 discriminator,
                 fields,
             } => Self::Enum {
-                variant: *discriminator,
-                fields: if fields.is_empty() {
-                    None
-                } else {
-                    Some(
-                        fields
-                            .clone()
-                            .into_iter()
-                            .map(|value| Self::from_manifest_sbor_value(&value, network_id))
-                            .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
-                    )
-                },
+                variant_id: *discriminator,
+                fields: fields
+                    .clone()
+                    .into_iter()
+                    .map(|value| Self::from_manifest_sbor_value(&value, network_id))
+                    .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             ManifestValue::Map {
                 key_value_kind,
                 value_value_kind,
                 entries,
             } => Self::Map {
-                key_value_kind: (*key_value_kind).into(),
-                value_value_kind: (*value_value_kind).into(),
-                entries: {
-                    let mut scrypto_entries = Vec::new();
-                    for (key, value) in entries {
-                        scrypto_entries.push((
-                            Self::from_manifest_sbor_value(key, network_id)?,
-                            Self::from_manifest_sbor_value(value, network_id)?,
-                        ))
-                    }
-                    scrypto_entries
-                },
+                key_kind: (*key_value_kind).into(),
+                value_kind: (*value_value_kind).into(),
+                entries: entries
+                    .clone()
+                    .into_iter()
+                    .map(|(key, value)| MapEntry::from_manifest_value(network_id, key, value))
+                    .collect::<Result<Vec<_>, _>>()?,
             },
+            ManifestValue::Array {
+                element_value_kind: ManifestValueKind::U8,
+                elements,
+            } => {
+                let bytes = elements
+                    .iter()
+                    .map(|element| {
+                        if let ManifestValue::U8 { value } = element {
+                            Ok(*value)
+                        } else {
+                            Err(ManifestSborValueConversionError::InvalidType {
+                                expected: ManifestSborValueKind::U8,
+                            })
+                        }
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                Self::Bytes {
+                    hex: bytes,
+                    element_kind: ManifestSborValueKind::U8,
+                }
+            }
             ManifestValue::Array {
                 element_value_kind,
                 elements,
@@ -331,7 +345,7 @@ impl ManifestSborValue {
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
             ManifestValue::Tuple { fields } => Self::Tuple {
-                elements: fields
+                fields: fields
                     .clone()
                     .into_iter()
                     .map(|value| Self::from_manifest_sbor_value(&value, network_id))
@@ -341,24 +355,20 @@ impl ManifestSborValue {
             ManifestValue::Custom {
                 value: ManifestCustomValue::Address(value),
             } => Self::Address {
-                address: NetworkAwareNodeId(value.0 .0, network_id),
+                value: NetworkAwareNodeId(value.0 .0, network_id),
             },
 
             ManifestValue::Custom {
                 value: ManifestCustomValue::Bucket(bucket),
-            } => Self::Bucket {
-                identifier: bucket.0,
-            },
+            } => Self::Bucket { value: bucket.0 },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Proof(proof),
-            } => Self::Proof {
-                identifier: proof.0,
-            },
+            } => Self::Proof { value: proof.0 },
 
             ManifestValue::Custom {
                 value: ManifestCustomValue::Blob(blob),
             } => Self::Blob {
-                hash: ManifestBlobRef(blob.0),
+                value: ManifestBlobRef(blob.0),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(expression),

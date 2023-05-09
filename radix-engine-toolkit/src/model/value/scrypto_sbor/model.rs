@@ -15,10 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::define_kind_enum;
 use crate::model::address::NetworkAwareNodeId;
+use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
+use crate::{define_kind_enum, model::value::manifest_sbor::ManifestSborValue};
 
-use scrypto::prelude::{Decimal, NonFungibleLocalId, PreciseDecimal, ScryptoValue};
+use scrypto::prelude::{Decimal, ManifestValue, NonFungibleLocalId, PreciseDecimal, ScryptoValue};
 
 use serde_with::serde_as;
 use toolkit_derive::serializable;
@@ -273,6 +274,26 @@ impl MapEntry<ScryptoSborValue> {
     ) -> Result<(ScryptoValue, ScryptoValue), ScryptoSborValueConversionError> {
         let key = self.key.to_scrypto_sbor_value()?;
         let value = self.key.to_scrypto_sbor_value()?;
+        Ok((key, value))
+    }
+}
+
+impl MapEntry<ManifestSborValue> {
+    pub fn from_manifest_value(
+        network_id: u8,
+        key: ManifestValue,
+        value: ManifestValue,
+    ) -> Result<Self, ManifestSborValueConversionError> {
+        let key = ManifestSborValue::from_manifest_sbor_value(&key, network_id)?;
+        let value = ManifestSborValue::from_manifest_sbor_value(&value, network_id)?;
+        Ok(Self { key, value })
+    }
+
+    pub fn to_manifest_value_tuple(
+        &self,
+    ) -> Result<(ManifestValue, ManifestValue), ManifestSborValueConversionError> {
+        let key = self.key.to_manifest_sbor_value()?;
+        let value = self.key.to_manifest_sbor_value()?;
         Ok((key, value))
     }
 }

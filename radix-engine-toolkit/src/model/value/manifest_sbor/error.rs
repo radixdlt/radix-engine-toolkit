@@ -19,6 +19,8 @@ use crate::{impl_from_parse_error, utils::debug_string};
 use scrypto::runtime::ContentValidationError;
 use toolkit_derive::serializable;
 
+use super::ManifestSborValueKind;
+
 /// An error emitted if the conversion between the native and RET representations of the Manifest
 /// Sbor fails.
 #[serializable]
@@ -32,6 +34,9 @@ pub enum ManifestSborValueConversionError {
 
     /// An error emitted when invalid non-fungible local ids are provided.
     ScryptoContentValidationError { message: String },
+
+    /// An error emitted when a value of an unexpected kind is encountered.
+    InvalidType { expected: ManifestSborValueKind },
 }
 
 impl_from_parse_error! {

@@ -23,6 +23,7 @@ use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::value::manifest_sbor::{ManifestSborValue, ManifestSborValueKind};
+use crate::model::value::scrypto_sbor::MapEntry;
 use crate::utils::checked_copy_u8_slice;
 
 pub fn value() -> ManifestSborValue {
@@ -85,15 +86,15 @@ pub fn string() -> ManifestSborValue {
 
 pub fn enum1() -> ManifestSborValue {
     ManifestSborValue::Enum {
-        variant: 1,
-        fields: None,
+        variant_id: 1,
+        fields: vec![],
     }
 }
 
 pub fn enum2() -> ManifestSborValue {
     ManifestSborValue::Enum {
-        variant: 1,
-        fields: Some(vec![ManifestSborValue::U8 { value: 1 }]),
+        variant_id: 1,
+        fields: vec![ManifestSborValue::U8 { value: 1 }],
     }
 }
 
@@ -110,29 +111,29 @@ pub fn array() -> ManifestSborValue {
 
 pub fn map() -> ManifestSborValue {
     ManifestSborValue::Map {
-        key_value_kind: ManifestSborValueKind::U8,
-        value_value_kind: ManifestSborValueKind::String,
+        key_kind: ManifestSborValueKind::U8,
+        value_kind: ManifestSborValueKind::String,
         entries: vec![
-            (
-                ManifestSborValue::U8 { value: 65 },
-                ManifestSborValue::String {
+            MapEntry {
+                key: ManifestSborValue::U8 { value: 65 },
+                value: ManifestSborValue::String {
                     value: "A".to_owned(),
                 },
-            ),
-            (
-                ManifestSborValue::U8 { value: 66 },
-                ManifestSborValue::String {
+            },
+            MapEntry {
+                key: ManifestSborValue::U8 { value: 66 },
+                value: ManifestSborValue::String {
                     value: "B".to_owned(),
                 },
-            ),
+            },
         ],
     }
 }
 
 pub fn tuple() -> ManifestSborValue {
     ManifestSborValue::Tuple {
-        elements: vec![ManifestSborValue::Tuple {
-            elements: vec![
+        fields: vec![ManifestSborValue::Tuple {
+            fields: vec![
                 ManifestSborValue::U8 { value: 1 },
                 ManifestSborValue::String {
                     value: "Something".to_owned(),
@@ -156,28 +157,28 @@ pub fn precise_decimal() -> ManifestSborValue {
 
 pub fn address1() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+        value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
     }
 }
 
 pub fn address2() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+        value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
     }
 }
 
 pub fn address3() -> ManifestSborValue {
     ManifestSborValue::Address {
-        address: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
+        value: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
     }
 }
 
 pub fn bucket() -> ManifestSborValue {
-    ManifestSborValue::Bucket { identifier: 1 }
+    ManifestSborValue::Bucket { value: 1 }
 }
 
 pub fn proof() -> ManifestSborValue {
-    ManifestSborValue::Proof { identifier: 1 }
+    ManifestSborValue::Proof { value: 1 }
 }
 
 pub fn non_fungible_local_id1() -> ManifestSborValue {
@@ -224,7 +225,7 @@ pub fn expression2() -> ManifestSborValue {
 
 pub fn blob() -> ManifestSborValue {
     ManifestSborValue::Blob {
-        hash: ManifestBlobRef(
+        value: ManifestBlobRef(
             checked_copy_u8_slice(
                 hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
                     .unwrap(),

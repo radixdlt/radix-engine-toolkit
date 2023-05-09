@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::define_kind_enum;
 use crate::model::address::NetworkAwareNodeId;
+use crate::{define_kind_enum, model::value::scrypto_sbor::MapEntry};
 
 use scrypto::prelude::{
     Decimal, ManifestBlobRef, ManifestExpression, NonFungibleLocalId, PreciseDecimal,
@@ -28,7 +28,7 @@ define_kind_enum! {
     /// A value model used to describe an algebraic sum type which is used to express Manifest SBOR
     /// values. This is serialized as a discriminated union of types.
     #[serializable]
-    #[serde(tag = "type")]
+    #[serde(tag = "kind")]
     #[derive(Hash, Eq, PartialEq)]
     pub enum ManifestSborValue {
         /// A boolean value which can either be true or false
@@ -143,11 +143,10 @@ define_kind_enum! {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            variant: u8,
+            variant_id: u8,
 
             /// Optional fields that the enum may have
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            fields: Option<Vec<Self>>,
+            fields: Vec<Self>,
         },
 
         /// An array values of a single value kind
@@ -167,20 +166,20 @@ define_kind_enum! {
         Map {
             /// The kind of the keys used for the map. A map will be validated to ensure that its keys
             /// are all of a single kind.
-            key_value_kind: ManifestSborValueKind,
+            key_kind: ManifestSborValueKind,
 
             /// The kind of the values used for the map. A map will be validated to ensure that its
             /// values are all of a single kind.
-            value_value_kind: ManifestSborValueKind,
+            value_kind: ManifestSborValueKind,
 
             /// A vector of tuples representing the entires in the map where each tuple is made up of
             /// two elements: a key and a value.
-            entries: Vec<(Self, Self)>,
+            entries: Vec<MapEntry<Self>>,
         },
 
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::manifest_sbor_value::tuple")]
-        Tuple { elements: Vec<Self> },
+        Tuple { fields: Vec<Self> },
 
         /// Represents a Bech32m encoded human-readable address which may be used to address a package,
         /// component, or resource. This address is serialized as a human-readable bech32m encoded
@@ -193,7 +192,7 @@ define_kind_enum! {
         Address {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: NetworkAwareNodeId,
+            value: NetworkAwareNodeId,
         },
 
         /// Represents a Scrypto bucket which is identified through a transient identifier which is
@@ -203,7 +202,7 @@ define_kind_enum! {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            identifier: u32
+            value: u32
         },
 
         /// Represents a Scrypto proof which is identified through a transient identifier which is
@@ -213,7 +212,7 @@ define_kind_enum! {
             #[schemars(regex(pattern = "[0-9]+"))]
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            identifier: u32
+            value: u32
         },
 
         /// A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum
@@ -273,7 +272,17 @@ define_kind_enum! {
         Blob {
             #[schemars(with = "crate::model::runtime::Blob")]
             #[serde_as(as = "serde_with::FromInto<crate::model::runtime::Blob>")]
-            hash: ManifestBlobRef,
+            value: ManifestBlobRef,
+        },
+
+        /// Represents a byte array of an unknown size which is serialized as a hex string
+        #[schemars(example = "crate::example::value::scrypto_sbor_value::bytes")]
+        Bytes {
+            element_kind: ManifestSborValueKind,
+
+            #[serde_as(as = "serde_with::hex::Hex")]
+            #[schemars(with = "String")]
+            hex: Vec<u8>,
         },
     }
 }
