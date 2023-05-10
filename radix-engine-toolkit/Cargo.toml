@@ -21,7 +21,7 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6
 scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d", package = "utils", features = ["serde"] }
 native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d", package = "transaction", features = ["serde"] }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d", optional = true }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d", features = ["serde"] }
 radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d" }
 radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "ash-8b6530b5d", optional = true }
 
