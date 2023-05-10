@@ -124,7 +124,9 @@ impl ScryptoSborValue {
             Self::String { value } => ScryptoValue::String {
                 value: value.clone(),
             },
-            Self::Enum { variant_id, fields } => ScryptoValue::Enum {
+            Self::Enum {
+                variant_id, fields, ..
+            } => ScryptoValue::Enum {
                 discriminator: *variant_id,
                 fields: fields
                     .clone()
@@ -155,7 +157,9 @@ impl ScryptoSborValue {
                     .map(|value| value.to_scrypto_sbor_value())
                     .collect::<Result<Vec<_>, _>>()?,
             },
-            Self::Tuple { fields: elements } => ScryptoValue::Tuple {
+            Self::Tuple {
+                fields: elements, ..
+            } => ScryptoValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
@@ -224,8 +228,12 @@ impl ScryptoSborValue {
                 fields: fields
                     .clone()
                     .into_iter()
-                    .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
+                    .map(|value| {
+                        Self::from_scrypto_sbor_value(&value, network_id).map(|item| item.into())
+                    })
                     .collect::<Result<Vec<_>, _>>()?,
+                variant_name: None,
+                type_name: None,
             },
             ScryptoValue::Map {
                 key_value_kind,
@@ -276,8 +284,11 @@ impl ScryptoSborValue {
                 fields: fields
                     .clone()
                     .into_iter()
-                    .map(|value| Self::from_scrypto_sbor_value(&value, network_id))
+                    .map(|value| {
+                        Self::from_scrypto_sbor_value(&value, network_id).map(|value| value.into())
+                    })
                     .collect::<Result<Vec<_>, _>>()?,
+                type_name: None,
             },
 
             ScryptoValue::Custom {

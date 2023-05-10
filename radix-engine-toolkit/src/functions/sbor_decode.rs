@@ -21,11 +21,10 @@ use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueConversionError};
 use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
 use native_transaction::manifest::decompiler::{format_typed_value, DecompilationContext};
-use sbor::DecodeError;
-use scrypto::prelude::{
-    manifest_decode, scrypto_decode, ManifestValue, MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
-    SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
-};
+use sbor::representations::{SerializationMode, SerializationParameters};
+use sbor::{DecodeError, LocalTypeIndex, Schema};
+use scrypto::prelude::*;
+use scrypto_utils::ContextualSerialize;
 use toolkit_derive::serializable;
 
 // =================
@@ -51,6 +50,11 @@ pub struct Input {
     #[schemars(regex(pattern = "[0-9]+"))]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
+
+    #[schemars(with = "Option<String>")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+    #[serde_as(as = "Option<serde_with::hex::Hex>")]
+    pub schema: Option<Vec<u8>>,
 }
 
 /// The response from the [`Input`].
@@ -79,14 +83,42 @@ impl InvocationHandler<Input, Output> for Handler {
     }
 
     fn handle(input: &Input) -> Result<Output, Error> {
+        // The Bech32 coder used for the decoding.
         let bech32_coder = Bech32Coder::new(input.network_id);
+
         match input.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                let decoded = scrypto_decode(&input.encoded_value)?;
-                let scrypto_value =
-                    ScryptoSborValue::from_scrypto_sbor_value(&decoded, input.network_id)?;
+                // If Schema was passed then attempt to decode it as Scrypto Schema
+                let schema = if let Some(ref schema) = input.schema {
+                    let (local_type_index, schema) =
+                        scrypto_decode::<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>(schema)
+                            .map_err(|_| Error::FailedToDecodeSchema)?;
+                    Some((local_type_index, schema))
+                } else {
+                    None
+                };
+
+                let payload = ScryptoRawPayload::new_from_valid_slice(&input.encoded_value);
+                let serialization_context =
+                    ScryptoValueDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
+                let serialized = if let Some((local_type_index, schema)) = schema {
+                    let serializable = payload.serializable(SerializationParameters::WithSchema {
+                        mode: SerializationMode::Programmatic,
+                        custom_context: serialization_context,
+                        schema: &schema,
+                        type_index: local_type_index,
+                    });
+                    serde_json::to_value(serializable).unwrap()
+                } else {
+                    let serializable = payload.serializable(SerializationParameters::Schemaless {
+                        mode: SerializationMode::Programmatic,
+                        custom_context: serialization_context,
+                    });
+                    serde_json::to_value(serializable).unwrap()
+                };
+
                 Ok(Output::ScryptoSbor {
-                    value: scrypto_value,
+                    value: serde_json::from_value(serialized).unwrap(),
                 })
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
@@ -149,6 +181,9 @@ pub enum Error {
     /// Emitted if the conversion from the Native scrypto SBOR model to the RET manifest SBOR
     /// model fails.
     ScryptoSborValueConversionError(ScryptoSborValueConversionError),
+
+    /// Emitted when the schema fails to be decoded
+    FailedToDecodeSchema,
 }
 
 impl From<DecodeError> for Error {

@@ -462,6 +462,7 @@ ScryptoSborValue."#
                 192, 2, 2, 2, 3, // non-fungible local id
             ],
             network_id: 0xf2,
+            schema: None,
         }
     }
 }

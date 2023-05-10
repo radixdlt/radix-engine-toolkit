@@ -147,8 +147,14 @@ define_kind_enum! {
             #[serde_as(as = "serde_with::DisplayFromStr")]
             variant_id: u8,
 
+            #[serde(skip_serializing_if = "Option::is_none")]
+            variant_name: Option<String>,
+
+            #[serde(skip_serializing_if = "Option::is_none")]
+            type_name: Option<String>,
+
             /// Optional fields that the enum may have
-            fields: Vec<Self>,
+            fields: Vec<Field<Self>>,
         },
 
         /// An array values of a single value kind
@@ -181,7 +187,15 @@ define_kind_enum! {
 
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::tuple")]
-        Tuple { fields: Vec<Self> },
+        Tuple {
+            /// An optional string field which is not serialized if no schema is provided. This is
+            /// the name of the type if it's a struct and not actually a tuple.
+            #[serde(skip_serializing_if = "Option::is_none")]
+            type_name: Option<String>,
+
+            /// The fields of the tuple which may contain 0 or more fields.
+            fields: Vec<Field<Self>>,
+        },
 
         /// Represents a tagged enum of owned Radix Engine Nodes.
         #[schemars(example = "crate::example::value::scrypto_sbor_value::own")]
@@ -295,5 +309,29 @@ impl MapEntry<ManifestSborValue> {
         let key = self.key.to_manifest_sbor_value()?;
         let value = self.key.to_manifest_sbor_value()?;
         Ok((key, value))
+    }
+}
+
+#[serializable]
+#[derive(Hash, Eq, PartialEq)]
+pub struct Field<T> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    field_name: Option<String>,
+    #[serde(flatten)]
+    value: T,
+}
+
+impl From<ScryptoSborValue> for Field<ScryptoSborValue> {
+    fn from(value: ScryptoSborValue) -> Self {
+        Self {
+            field_name: None,
+            value,
+        }
+    }
+}
+
+impl Field<ScryptoSborValue> {
+    pub fn to_scrypto_sbor_value(&self) -> Result<ScryptoValue, ScryptoSborValueConversionError> {
+        self.value.to_scrypto_sbor_value()
     }
 }

@@ -85,13 +85,17 @@ pub fn enum1() -> ScryptoSborValue {
     ScryptoSborValue::Enum {
         variant_id: 1u8,
         fields: vec![],
+        type_name: None,
+        variant_name: None,
     }
 }
 
 pub fn enum2() -> ScryptoSborValue {
     ScryptoSborValue::Enum {
         variant_id: 1u8,
-        fields: vec![ScryptoSborValue::U8 { value: 1 }],
+        fields: vec![ScryptoSborValue::U8 { value: 1 }.into()],
+        type_name: None,
+        variant_name: None,
     }
 }
 
@@ -131,12 +135,16 @@ pub fn tuple() -> ScryptoSborValue {
     ScryptoSborValue::Tuple {
         fields: vec![ScryptoSborValue::Tuple {
             fields: vec![
-                ScryptoSborValue::U8 { value: 1 },
+                ScryptoSborValue::U8 { value: 1 }.into(),
                 ScryptoSborValue::String {
                     value: "Something".to_owned(),
-                },
+                }
+                .into(),
             ],
-        }],
+            type_name: None,
+        }
+        .into()],
+        type_name: None,
     }
 }
 
