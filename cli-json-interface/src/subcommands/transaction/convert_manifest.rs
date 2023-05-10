@@ -166,8 +166,8 @@ impl ManifestAstValueVisitor for BlobValueVisitor {
         &mut self,
         value: &mut radix_engine_toolkit::model::value::ast::ManifestAstValue,
     ) -> std::result::Result<(), VisitorError> {
-        if let ManifestAstValue::Blob { hash } = value {
-            self.0.push(hash.0);
+        if let ManifestAstValue::Blob { value } = value {
+            self.0.push(value.0);
         }
         Ok(())
     }

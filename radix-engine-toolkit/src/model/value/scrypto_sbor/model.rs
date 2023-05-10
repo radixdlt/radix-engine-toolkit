@@ -335,3 +335,20 @@ impl Field<ScryptoSborValue> {
         self.value.to_scrypto_sbor_value()
     }
 }
+
+impl From<ManifestSborValue> for Field<ManifestSborValue> {
+    fn from(value: ManifestSborValue) -> Self {
+        Self {
+            field_name: None,
+            value,
+        }
+    }
+}
+
+impl Field<ManifestSborValue> {
+    pub fn to_manifest_sbor_value(
+        &self,
+    ) -> Result<ManifestValue, ManifestSborValueConversionError> {
+        self.value.to_manifest_sbor_value()
+    }
+}

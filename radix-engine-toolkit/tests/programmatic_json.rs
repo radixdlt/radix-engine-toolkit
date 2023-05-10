@@ -117,7 +117,7 @@ macro_rules! test_schema_serialization {
                 scrypto::prelude::ScryptoRawPayload,
                 scrypto::prelude::scrypto_encode,
                 scrypto::prelude::scrypto_decode,
-                scrypto::prelude::ScryptoSbor,
+                [scrypto::prelude::ScryptoSbor],
                 ScryptoValueDisplayContext,
                 from_scrypto_sbor_value,
                 $type,
@@ -133,7 +133,7 @@ macro_rules! test_schema_serialization {
                 scrypto::prelude::ScryptoRawPayload,
                 scrypto::prelude::scrypto_encode,
                 scrypto::prelude::scrypto_decode,
-                scrypto::prelude::ScryptoSbor,
+                [scrypto::prelude::ScryptoSbor],
                 ScryptoValueDisplayContext,
                 from_scrypto_sbor_value,
                 $type,
@@ -149,7 +149,7 @@ macro_rules! test_schema_serialization {
                 scrypto::prelude::ManifestRawPayload,
                 scrypto::prelude::manifest_encode,
                 scrypto::prelude::manifest_decode,
-                scrypto::prelude::ManifestSbor,
+                [ManifestSbor, radix_engine_derive::ScryptoDescribe],
                 ManifestValueDisplayContext,
                 from_manifest_sbor_value,
                 $type,
@@ -165,7 +165,7 @@ macro_rules! test_schema_serialization {
                 scrypto::prelude::ManifestRawPayload,
                 scrypto::prelude::manifest_encode,
                 scrypto::prelude::manifest_decode,
-                scrypto::prelude::ManifestSbor,
+                [ManifestSbor, radix_engine_derive::ScryptoDescribe],
                 ManifestValueDisplayContext,
                 from_manifest_sbor_value,
                 $type,
@@ -179,7 +179,7 @@ macro_rules! test_schema_serialization {
         $raw_payload_type: ty,
         $encode: path,
         $decode: path,
-        $derive: path,
+        [$($derive: path),*],
         $context: path,
         $from_fn: ident,
         $type: ty,
@@ -191,7 +191,7 @@ macro_rules! test_schema_serialization {
                 // Arrange
                 use radix_engine_toolkit::functions::traits::*;
 
-                #[derive($derive)]
+                #[derive($($derive,)*)]
                 struct Wrapper {
                     item: $type,
                 }
@@ -204,10 +204,7 @@ macro_rules! test_schema_serialization {
                     let input = radix_engine_toolkit::functions::sbor_decode::Input {
                         encoded_value: $encode(&value).unwrap(),
                         network_id: 0xf2,
-                        schema: Some(
-                            scrypto::prelude::scrypto_encode(&(local_type_index, schema.clone()))
-                                .unwrap(),
-                        ),
+                        schema: Some((local_type_index, schema.clone()).into()),
                     };
                     let output =
                         radix_engine_toolkit::functions::sbor_decode::Handler::fulfill(input).unwrap();
@@ -238,7 +235,7 @@ macro_rules! test_schema_serialization {
                 // Arrange
                 use radix_engine_toolkit::functions::traits::*;
 
-                #[derive($derive)]
+                #[derive($($derive,)*)]
                 struct Wrapper($type);
                 let value = Wrapper($new);
                 let (local_type_index, schema) =
@@ -249,10 +246,7 @@ macro_rules! test_schema_serialization {
                     let input = radix_engine_toolkit::functions::sbor_decode::Input {
                         encoded_value: $encode(&value).unwrap(),
                         network_id: 0xf2,
-                        schema: Some(
-                            scrypto::prelude::scrypto_encode(&(local_type_index, schema.clone()))
-                                .unwrap(),
-                        ),
+                        schema: Some((local_type_index, schema.clone()).into()),
                     };
                     let output =
                         radix_engine_toolkit::functions::sbor_decode::Handler::fulfill(input).unwrap();
@@ -263,10 +257,6 @@ macro_rules! test_schema_serialization {
                     .get("value")
                     .unwrap()
                     .clone();
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&serialized_value).unwrap()
-                );
 
                 // Assert
                 assert_eq!(serialized_value, {
@@ -278,7 +268,6 @@ macro_rules! test_schema_serialization {
                         schema: &schema,
                         type_index: local_type_index,
                     });
-                    println!("{}", serde_json::to_string_pretty(&serializable).unwrap());
                     serde_json::to_value(&serializable).unwrap()
                 })
             }
@@ -455,4 +444,52 @@ mod scrypto_with_schema {
         Reference(*FAUCET_COMPONENT.as_node_id())
     );
     test_schema_serialization!(Scrypto, MySimpleWrapper, MySimpleWrapper(1));
+}
+
+// TODO: Something is off about Schemas and Manifest SBOR. Re-enable the tests below when figured
+// out.
+mod manifest_with_schema {
+    use super::*;
+
+    test_schema_serialization!(Manifest, bool, true);
+    test_schema_serialization!(Manifest, u8, 1);
+    test_schema_serialization!(Manifest, u16, 1);
+    test_schema_serialization!(Manifest, u32, 1);
+    test_schema_serialization!(Manifest, u64, 1);
+    test_schema_serialization!(Manifest, u128, 1);
+    test_schema_serialization!(Manifest, i8, 1);
+    test_schema_serialization!(Manifest, i16, 1);
+    test_schema_serialization!(Manifest, i32, 1);
+    test_schema_serialization!(Manifest, i64, 1);
+    test_schema_serialization!(Manifest, i128, 1);
+    test_schema_serialization!(Manifest, SimpleEnum, SimpleEnum::Variant1 { field: 1 }, 1);
+    test_schema_serialization!(Manifest, SimpleEnum, SimpleEnum::Variant2(1), 2);
+    test_schema_serialization!(Manifest, SimpleEnum, SimpleEnum::Variant3, 3);
+    test_schema_serialization!(Manifest, SimpleStruct1, SimpleStruct1);
+    test_schema_serialization!(Manifest, SimpleStruct2, SimpleStruct2(1));
+    test_schema_serialization!(Manifest, SimpleStruct3, SimpleStruct3 { field: 1 });
+    // test_schema_serialization!(Manifest, U8FiveElementsArray, [1, 2, 3, 4, 5]);
+    // test_schema_serialization!(Manifest, U16FiveElementsArray, [1, 2, 3, 4, 5]);
+    test_schema_serialization!(Manifest, MapStringU8, {
+        let mut map = BTreeMap::new();
+        map.insert("x".to_owned(), 1u8);
+        map.insert("y".to_owned(), 2u8);
+        map
+    });
+    test_schema_serialization!(Manifest, ComponentAddress, FAUCET_COMPONENT);
+    // test_schema_serialization!(Manifest, ManifestBucket, ManifestBucket(1));
+    // test_schema_serialization!(Manifest, ManifestProof, ManifestProof(1));
+    test_schema_serialization!(Manifest, Decimal, dec!("1"));
+    test_schema_serialization!(Manifest, PreciseDecimal, pdec!("1"));
+    test_schema_serialization!(
+        Manifest,
+        NonFungibleLocalId,
+        NonFungibleLocalId::Integer(1.into())
+    );
+    // test_schema_serialization!(
+    //     Manifest,
+    //     ManifestExpression,
+    //     ManifestExpression::EntireAuthZone
+    // );
+    // test_schema_serialization!(Manifest, ManifestBlobRef, ManifestBlobRef([0; 32]));
 }

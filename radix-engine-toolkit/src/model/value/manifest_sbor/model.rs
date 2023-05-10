@@ -16,6 +16,7 @@
 // under the License.
 
 use crate::model::address::NetworkAwareNodeId;
+use crate::model::value::scrypto_sbor::Field;
 use crate::{define_kind_enum, model::value::scrypto_sbor::MapEntry};
 
 use scrypto::prelude::{
@@ -145,8 +146,14 @@ define_kind_enum! {
             #[serde_as(as = "serde_with::DisplayFromStr")]
             variant_id: u8,
 
+            #[serde(skip_serializing_if = "Option::is_none")]
+            variant_name: Option<String>,
+
+            #[serde(skip_serializing_if = "Option::is_none")]
+            type_name: Option<String>,
+
             /// Optional fields that the enum may have
-            fields: Vec<Self>,
+            fields: Vec<Field<Self>>,
         },
 
         /// An array values of a single value kind
@@ -179,7 +186,11 @@ define_kind_enum! {
 
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::manifest_sbor_value::tuple")]
-        Tuple { fields: Vec<Self> },
+        Tuple {
+            #[serde(skip_serializing_if = "Option::is_none")]
+            type_name: Option<String>,
+            fields: Vec<Field<Self>>
+        },
 
         /// Represents a Bech32m encoded human-readable address which may be used to address a package,
         /// component, or resource. This address is serialized as a human-readable bech32m encoded

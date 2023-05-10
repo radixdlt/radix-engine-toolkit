@@ -51,10 +51,7 @@ pub struct Input {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub network_id: u8,
 
-    #[schemars(with = "Option<String>")]
-    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
-    #[serde_as(as = "Option<serde_with::hex::Hex>")]
-    pub schema: Option<Vec<u8>>,
+    pub schema: Option<TypeSchema>,
 }
 
 /// The response from the [`Input`].
@@ -68,6 +65,39 @@ pub enum Output {
         manifest_string: String,
         value: ManifestSborValue,
     },
+}
+
+#[serializable]
+pub struct TypeSchema {
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+    #[serde_as(as = "serde_with::hex::Hex")]
+    local_type_index: Vec<u8>,
+
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9a-fA-F]+"))]
+    #[serde_as(as = "serde_with::hex::Hex")]
+    schema: Vec<u8>,
+}
+
+impl TypeSchema {
+    pub fn local_index_and_schema(
+        &self,
+    ) -> Result<(LocalTypeIndex, Schema<ScryptoCustomSchema>), Error> {
+        let local_type_index =
+            scrypto_decode(&self.local_type_index).map_err(|_| Error::FailedToDecodeSchema)?;
+        let schema = scrypto_decode(&self.schema).map_err(|_| Error::FailedToDecodeSchema)?;
+        Ok((local_type_index, schema))
+    }
+}
+
+impl From<(LocalTypeIndex, Schema<ScryptoCustomSchema>)> for TypeSchema {
+    fn from((local_type_index, schema): (LocalTypeIndex, Schema<ScryptoCustomSchema>)) -> Self {
+        Self {
+            local_type_index: scrypto_encode(&local_type_index).unwrap(),
+            schema: scrypto_encode(&schema).unwrap(),
+        }
+    }
 }
 
 // ===============
@@ -86,18 +116,15 @@ impl InvocationHandler<Input, Output> for Handler {
         // The Bech32 coder used for the decoding.
         let bech32_coder = Bech32Coder::new(input.network_id);
 
+        // If Schema was passed then attempt to decode it as Scrypto Schema
+        let schema = if let Some(ref type_schema) = input.schema {
+            Some(type_schema.local_index_and_schema()?)
+        } else {
+            None
+        };
+
         match input.encoded_value.first().copied() {
             Some(SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-                // If Schema was passed then attempt to decode it as Scrypto Schema
-                let schema = if let Some(ref schema) = input.schema {
-                    let (local_type_index, schema) =
-                        scrypto_decode::<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>(schema)
-                            .map_err(|_| Error::FailedToDecodeSchema)?;
-                    Some((local_type_index, schema))
-                } else {
-                    None
-                };
-
                 let payload = ScryptoRawPayload::new_from_valid_slice(&input.encoded_value);
                 let serialization_context =
                     ScryptoValueDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
@@ -122,29 +149,43 @@ impl InvocationHandler<Input, Output> for Handler {
                 })
             }
             Some(MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
-                manifest_decode::<ManifestValue>(&input.encoded_value)
-                    .map_err(Error::from)
-                    .and_then(|manifest_value| {
-                        ManifestSborValue::from_manifest_sbor_value(
-                            &manifest_value,
-                            input.network_id,
-                        )
-                        .map_err(Error::from)
-                        .map(|value| (value, manifest_value))
-                    })
-                    .map(|(value, manifest_value)| Output::ManifestSbor {
-                        value,
-                        manifest_string: {
-                            let mut string = String::new();
-                            let mut context = DecompilationContext::new_with_optional_network(
-                                Some(bech32_coder.encoder()),
-                            );
-                            format_typed_value(&mut string, &mut context, &manifest_value)
-                                .expect("Impossible case! Valid SBOR can't fail here");
-                            string.trim().to_owned()
-                        },
-                    })
-                    .map_err(Error::from)
+                let payload = ManifestRawPayload::new_from_valid_slice(&input.encoded_value);
+                let serialization_context =
+                    ManifestValueDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
+                let serialized = if let Some((local_type_index, schema)) = schema {
+                    let serializable = payload.serializable(SerializationParameters::WithSchema {
+                        mode: SerializationMode::Programmatic,
+                        custom_context: serialization_context,
+                        schema: &schema,
+                        type_index: local_type_index,
+                    });
+                    serde_json::to_value(serializable).unwrap()
+                } else {
+                    let serializable = payload.serializable(SerializationParameters::Schemaless {
+                        mode: SerializationMode::Programmatic,
+                        custom_context: serialization_context,
+                    });
+                    serde_json::to_value(serializable).unwrap()
+                };
+
+                let manifest_string = {
+                    let mut string = String::new();
+                    let mut context = DecompilationContext::new_with_optional_network(Some(
+                        bech32_coder.encoder(),
+                    ));
+                    format_typed_value(
+                        &mut string,
+                        &mut context,
+                        &manifest_decode::<ManifestValue>(&input.encoded_value).unwrap(),
+                    )
+                    .expect("Impossible case! Valid SBOR can't fail here");
+                    string.trim().to_owned()
+                };
+
+                Ok(Output::ManifestSbor {
+                    manifest_string,
+                    value: serde_json::from_value(serialized).unwrap(),
+                })
             }
             Some(p) => Err(Error::InvalidSborVariant {
                 expected: vec![

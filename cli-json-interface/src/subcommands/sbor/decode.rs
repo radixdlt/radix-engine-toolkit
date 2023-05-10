@@ -38,6 +38,7 @@ impl Decode {
         let input = sbor_decode::Input {
             encoded_value: hex::decode(&self.payload)?,
             network_id: self.network_id,
+            schema: None,
         };
         let output = sbor_decode::Handler::fulfill(input).map_err(|error| {
             RETError::InvocationHandlingError(InvocationHandlingError::SborDecodeError(error))

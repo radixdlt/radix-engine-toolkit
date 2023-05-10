@@ -19,11 +19,33 @@
       "pattern": "[0-9]+"
     },
     "schema": {
-      "type": [
-        "string",
-        "null"
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TypeSchema"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "TypeSchema": {
+      "type": "object",
+      "required": [
+        "local_type_index",
+        "schema"
       ],
-      "pattern": "[0-9a-fA-F]+"
+      "properties": {
+        "local_type_index": {
+          "type": "string",
+          "pattern": "[0-9a-fA-F]+"
+        },
+        "schema": {
+          "type": "string",
+          "pattern": "[0-9a-fA-F]+"
+        }
+      }
     }
   }
 }

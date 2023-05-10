@@ -88,13 +88,17 @@ pub fn enum1() -> ManifestSborValue {
     ManifestSborValue::Enum {
         variant_id: 1,
         fields: vec![],
+        type_name: None,
+        variant_name: None,
     }
 }
 
 pub fn enum2() -> ManifestSborValue {
     ManifestSborValue::Enum {
         variant_id: 1,
-        fields: vec![ManifestSborValue::U8 { value: 1 }],
+        fields: vec![ManifestSborValue::U8 { value: 1 }.into()],
+        type_name: None,
+        variant_name: None,
     }
 }
 
@@ -132,14 +136,18 @@ pub fn map() -> ManifestSborValue {
 
 pub fn tuple() -> ManifestSborValue {
     ManifestSborValue::Tuple {
+        type_name: None,
         fields: vec![ManifestSborValue::Tuple {
+            type_name: None,
             fields: vec![
-                ManifestSborValue::U8 { value: 1 },
+                ManifestSborValue::U8 { value: 1 }.into(),
                 ManifestSborValue::String {
                     value: "Something".to_owned(),
-                },
+                }
+                .into(),
             ],
-        }],
+        }
+        .into()],
     }
 }
 

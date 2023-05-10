@@ -160,6 +160,7 @@ impl ManifestSborValue {
             Self::Enum {
                 variant_id: variant,
                 fields,
+                ..
             } => ManifestValue::Enum {
                 discriminator: *variant,
                 fields: fields
@@ -191,7 +192,9 @@ impl ManifestSborValue {
                     .map(|value| value.to_manifest_sbor_value())
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
             },
-            Self::Tuple { fields: elements } => ManifestValue::Tuple {
+            Self::Tuple {
+                fields: elements, ..
+            } => ManifestValue::Tuple {
                 fields: elements
                     .clone()
                     .into_iter()
@@ -296,8 +299,12 @@ impl ManifestSborValue {
                 fields: fields
                     .clone()
                     .into_iter()
-                    .map(|value| Self::from_manifest_sbor_value(&value, network_id))
+                    .map(|value| {
+                        Self::from_manifest_sbor_value(&value, network_id).map(|value| value.into())
+                    })
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
+                type_name: None,
+                variant_name: None,
             },
             ManifestValue::Map {
                 key_value_kind,
@@ -348,8 +355,11 @@ impl ManifestSborValue {
                 fields: fields
                     .clone()
                     .into_iter()
-                    .map(|value| Self::from_manifest_sbor_value(&value, network_id))
+                    .map(|value| {
+                        Self::from_manifest_sbor_value(&value, network_id).map(|value| value.into())
+                    })
                     .collect::<Result<Vec<_>, ManifestSborValueConversionError>>()?,
+                type_name: None,
             },
 
             ManifestValue::Custom {

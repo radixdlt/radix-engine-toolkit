@@ -358,7 +358,9 @@
             {
               "fields": [],
               "kind": "Enum",
-              "variant_id": "1"
+              "type_name": null,
+              "variant_id": "1",
+              "variant_name": null
             },
             {
               "fields": [
@@ -368,7 +370,9 @@
                 }
               ],
               "kind": "Enum",
-              "variant_id": "1"
+              "type_name": null,
+              "variant_id": "1",
+              "variant_name": null
             }
           ],
           "type": "string",
@@ -455,10 +459,12 @@
                       "value": "Something"
                     }
                   ],
-                  "kind": "Tuple"
+                  "kind": "Tuple",
+                  "type_name": null
                 }
               ],
-              "kind": "Tuple"
+              "kind": "Tuple",
+              "type_name": null
             }
           ],
           "type": "string",
