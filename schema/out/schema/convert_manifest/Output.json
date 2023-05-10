@@ -103,85 +103,85 @@
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "blueprint_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "Faucet"
               },
               "function_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "new"
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "blueprint_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "Faucet"
               },
               "function_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "new"
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "blueprint_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "Faucet"
               },
               "function_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "new"
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "blueprint_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "Faucet"
               },
               "function_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "new"
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -241,34 +241,34 @@
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "free"
               }
             },
             {
               "arguments": [
                 {
-                  "type": "Decimal",
+                  "kind": "Decimal",
                   "value": "1"
                 }
               ],
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "free"
               }
             },
@@ -276,11 +276,11 @@
               "arguments": null,
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "free"
               }
             },
@@ -288,11 +288,11 @@
               "arguments": null,
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
-                "type": "String",
+                "kind": "String",
                 "value": "free"
               }
             }
@@ -348,11 +348,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
@@ -362,11 +362,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -406,7 +406,7 @@
           "examples": [
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
@@ -415,16 +415,16 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
@@ -433,11 +433,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -487,7 +487,7 @@
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
@@ -497,17 +497,17 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
@@ -517,11 +517,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -574,7 +574,7 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "instruction": "RETURN_TO_WORKTOP"
             }
@@ -608,14 +608,14 @@
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -646,24 +646,24 @@
           "examples": [
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -704,27 +704,27 @@
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -769,7 +769,7 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               }
             }
           ],
@@ -805,7 +805,7 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               }
             }
           ],
@@ -881,11 +881,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
@@ -895,11 +895,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -939,7 +939,7 @@
           "examples": [
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
@@ -948,16 +948,16 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
@@ -966,11 +966,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -1020,7 +1020,7 @@
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
@@ -1030,17 +1030,17 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             },
             {
               "ids": [
                 {
-                  "type": "NonFungibleLocalId",
+                  "kind": "NonFungibleLocalId",
                   "value": "#1#"
                 }
               ],
@@ -1050,11 +1050,11 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -1107,7 +1107,7 @@
                   "type": "String",
                   "value": "bucket"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "into_proof": {
@@ -1115,7 +1115,7 @@
                   "type": "String",
                   "value": "Proof"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               }
             }
           ],
@@ -1160,14 +1160,14 @@
                   "type": "String",
                   "value": "ident2"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               },
               "proof": {
                 "identifier": {
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               }
             }
           ],
@@ -1212,7 +1212,7 @@
                   "type": "String",
                   "value": "proof"
                 },
-                "type": "Proof"
+                "kind": "Proof"
               }
             }
           ],
@@ -1264,23 +1264,23 @@
             {
               "code": {
                 "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
+                "kind": "Blob"
               },
               "instruction": "PUBLISH_PACKAGE",
               "metadata": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "String"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "String"
               },
               "royalty_config": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "schema": {
-                "type": "Bytes",
+                "kind": "Bytes",
                 "value": "4d2101230c2100"
               }
             }
@@ -1339,36 +1339,37 @@
           "examples": [
             {
               "access_rules": {
-                "elements": [
+                "fields": [
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
@@ -1376,54 +1377,55 @@
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               },
               "code": {
                 "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "type": "Blob"
+                "kind": "Blob"
               },
               "instruction": "PUBLISH_PACKAGE_ADVANCED",
               "metadata": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "String"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "String"
               },
               "royalty_config": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "schema": {
-                "type": "Bytes",
+                "kind": "Bytes",
                 "value": "4d2101230c2100"
               }
             }
@@ -1495,7 +1497,7 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "instruction": "BURN_RESOURCE"
             }
@@ -1527,13 +1529,13 @@
           "examples": [
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "RECALL_RESOURCE",
               "vault_id": {
                 "address": "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -1574,11 +1576,11 @@
             {
               "entity_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "SET_METADATA",
               "key": {
-                "type": "String",
+                "kind": "String",
                 "value": "name"
               },
               "value": {
@@ -1586,18 +1588,18 @@
                   {
                     "fields": [
                       {
-                        "type": "String",
+                        "kind": "String",
                         "value": "deadbeef"
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   }
                 ],
-                "type": "Enum",
+                "kind": "Enum",
                 "variant": {
                   "discriminator": "0",
                   "type": "U8"
@@ -1651,11 +1653,11 @@
             {
               "entity_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "REMOVE_METADATA",
               "key": {
-                "type": "String",
+                "kind": "String",
                 "value": "name"
               }
             }
@@ -1698,13 +1700,13 @@
               "instruction": "SET_PACKAGE_ROYALTY_CONFIG",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               },
               "royalty_config": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "Tuple"
               }
             }
           ],
@@ -1745,23 +1747,23 @@
             {
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
               "royalty_config": {
-                "elements": [
+                "fields": [
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "U32"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "U32"
                   },
                   {
-                    "type": "U32",
+                    "kind": "U32",
                     "value": "1"
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               }
             }
           ],
@@ -1803,7 +1805,7 @@
               "instruction": "CLAIM_PACKAGE_ROYALTY",
               "package_address": {
                 "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -1835,7 +1837,7 @@
             {
               "component_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "CLAIM_COMPONENT_ROYALTY"
             }
@@ -1868,27 +1870,29 @@
             {
               "entity_address": {
                 "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "type": "Address"
+                "kind": "Address"
               },
               "instruction": "SET_METHOD_ACCESS_RULE",
               "key": {
-                "elements": [
+                "fields": [
                   {
-                    "type": "Enum",
+                    "fields": [],
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "free"
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               },
               "rule": {
-                "type": "Enum",
+                "fields": [],
+                "kind": "Enum",
                 "variant": {
                   "discriminator": "0",
                   "type": "U8"
@@ -1941,13 +1945,13 @@
           "examples": [
             {
               "amount": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "MINT_FUNGIBLE",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -1988,14 +1992,14 @@
             {
               "entries": {
                 "entries": [],
-                "key_value_kind": "NonFungibleLocalId",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "NonFungibleLocalId",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "instruction": "MINT_NON_FUNGIBLE",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -2038,38 +2042,38 @@
                 "element_kind": "Tuple",
                 "elements": [
                   {
-                    "elements": [
+                    "fields": [
                       {
-                        "elements": [],
-                        "type": "Tuple"
+                        "fields": [],
+                        "kind": "Tuple"
                       },
                       {
-                        "elements": [],
-                        "type": "Tuple"
+                        "fields": [],
+                        "kind": "Tuple"
                       }
                     ],
-                    "type": "Tuple"
+                    "kind": "Tuple"
                   },
                   {
-                    "elements": [
+                    "fields": [
                       {
-                        "elements": [],
-                        "type": "Tuple"
+                        "fields": [],
+                        "kind": "Tuple"
                       },
                       {
-                        "elements": [],
-                        "type": "Tuple"
+                        "fields": [],
+                        "kind": "Tuple"
                       }
                     ],
-                    "type": "Tuple"
+                    "kind": "Tuple"
                   }
                 ],
-                "type": "Array"
+                "kind": "Array"
               },
               "instruction": "MINT_UUID_NON_FUNGIBLE",
               "resource_address": {
                 "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "type": "Address"
+                "kind": "Address"
               }
             }
           ],
@@ -2110,20 +2114,20 @@
             {
               "access_rules": {
                 "entries": [],
-                "key_value_kind": "Enum",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "Enum",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "divisibility": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "18"
               },
               "instruction": "CREATE_FUNGIBLE_RESOURCE",
               "metadata": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "String"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "String"
               }
             }
           ],
@@ -2173,24 +2177,24 @@
             {
               "access_rules": {
                 "entries": [],
-                "key_value_kind": "Enum",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "Enum",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "divisibility": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "18"
               },
               "initial_supply": {
-                "type": "Decimal",
+                "kind": "Decimal",
                 "value": "1"
               },
               "instruction": "CREATE_FUNGIBLE_RESOURCE_WITH_INITIAL_SUPPLY",
               "metadata": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "String"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "String"
               }
             }
           ],
@@ -2249,12 +2253,13 @@
             {
               "access_rules": {
                 "entries": [],
-                "key_value_kind": "Enum",
-                "type": "Map",
-                "value_value_kind": "Tuple"
+                "key_kind": "Enum",
+                "kind": "Map",
+                "value_kind": "Tuple"
               },
               "id_type": {
-                "type": "Enum",
+                "fields": [],
+                "kind": "Enum",
                 "variant": {
                   "discriminator": "0",
                   "type": "U8"
@@ -2263,40 +2268,40 @@
               "instruction": "CREATE_NON_FUNGIBLE_RESOURCE",
               "metadata": {
                 "entries": [],
-                "key_value_kind": "String",
-                "type": "Map",
-                "value_value_kind": "String"
+                "key_kind": "String",
+                "kind": "Map",
+                "value_kind": "String"
               },
               "schema": {
-                "elements": [
+                "fields": [
                   {
-                    "elements": [
+                    "fields": [
                       {
                         "element_kind": "Enum",
                         "elements": [],
-                        "type": "Array"
+                        "kind": "Array"
                       },
                       {
                         "element_kind": "Tuple",
                         "elements": [],
-                        "type": "Array"
+                        "kind": "Array"
                       },
                       {
                         "element_kind": "Enum",
                         "elements": [],
-                        "type": "Array"
+                        "kind": "Array"
                       }
                     ],
-                    "type": "Tuple"
+                    "kind": "Tuple"
                   },
                   {
                     "fields": [
                       {
-                        "type": "U8",
+                        "kind": "U8",
                         "value": "64"
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
@@ -2305,10 +2310,10 @@
                   {
                     "element_kind": "String",
                     "elements": [],
-                    "type": "Array"
+                    "kind": "Array"
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               }
             }
           ],
@@ -2430,39 +2435,42 @@
                   "type": "String",
                   "value": "ident"
                 },
-                "type": "Bucket"
+                "kind": "Bucket"
               },
               "instruction": "CREATE_ACCESS_CONTROLLER",
               "rule_set": {
-                "elements": [
+                "fields": [
                   {
-                    "type": "Enum",
+                    "fields": [],
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   },
                   {
-                    "type": "Enum",
+                    "fields": [],
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   },
                   {
-                    "type": "Enum",
+                    "fields": [],
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               },
               "timed_recovery_delay_in_minutes": {
-                "type": "Some",
+                "kind": "Some",
                 "value": {
-                  "type": "U32",
+                  "kind": "U32",
                   "value": "1"
                 }
               }
@@ -2514,7 +2522,7 @@
             {
               "instruction": "CREATE_VALIDATOR",
               "key": {
-                "type": "Bytes",
+                "kind": "Bytes",
                 "value": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
               }
             }
@@ -2566,36 +2574,37 @@
           "examples": [
             {
               "config": {
-                "elements": [
+                "fields": [
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
@@ -2603,34 +2612,35 @@
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               },
               "instruction": "CREATE_IDENTITY_ADVANCED"
             }
@@ -2677,36 +2687,37 @@
           "examples": [
             {
               "config": {
-                "elements": [
+                "fields": [
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
@@ -2714,34 +2725,35 @@
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "Tuple",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "Tuple",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "entries": [],
-                    "key_value_kind": "String",
-                    "type": "Map",
-                    "value_value_kind": "Enum"
+                    "key_kind": "String",
+                    "kind": "Map",
+                    "value_kind": "Enum"
                   },
                   {
                     "fields": [
                       {
-                        "type": "Enum",
+                        "fields": [],
+                        "kind": "Enum",
                         "variant": {
                           "discriminator": "0",
                           "type": "U8"
                         }
                       }
                     ],
-                    "type": "Enum",
+                    "kind": "Enum",
                     "variant": {
                       "discriminator": "0",
                       "type": "U8"
                     }
                   }
                 ],
-                "type": "Tuple"
+                "kind": "Tuple"
               },
               "instruction": "CREATE_ACCOUNT_ADVANCED"
             }
@@ -2769,7 +2781,7 @@
       "description": "A value model used to describe an algebraic sum type which is used to express transaction manifests as an abstract syntax tree. This is serialized as a discriminated union of types.",
       "examples": [
         {
-          "type": "Bool",
+          "kind": "Bool",
           "value": false
         }
       ],
@@ -2778,21 +2790,21 @@
           "description": "A boolean value which can either be true or false",
           "examples": [
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": false
             },
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": true
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Bool"
@@ -2807,17 +2819,17 @@
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U8",
+              "kind": "U8",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "U8"
@@ -2833,17 +2845,17 @@
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U16",
+              "kind": "U16",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "U16"
@@ -2859,17 +2871,17 @@
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U32",
+              "kind": "U32",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "U32"
@@ -2885,17 +2897,17 @@
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U64",
+              "kind": "U64",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "U64"
@@ -2911,17 +2923,17 @@
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U128",
+              "kind": "U128",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "U128"
@@ -2937,17 +2949,17 @@
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I8",
+              "kind": "I8",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "I8"
@@ -2963,17 +2975,17 @@
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I16",
+              "kind": "I16",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "I16"
@@ -2989,17 +3001,17 @@
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I32",
+              "kind": "I32",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "I32"
@@ -3015,17 +3027,17 @@
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I64",
+              "kind": "I64",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "I64"
@@ -3041,17 +3053,17 @@
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I128",
+              "kind": "I128",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "I128"
@@ -3067,17 +3079,17 @@
           "description": "A type representing a string",
           "examples": [
             {
-              "type": "String",
+              "kind": "String",
               "value": "Scrypto"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "String"
@@ -3092,14 +3104,16 @@
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
           "examples": [
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
               }
             },
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -3108,11 +3122,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
@@ -3121,11 +3135,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -3134,11 +3148,12 @@
           ],
           "type": "object",
           "required": [
-            "type",
+            "fields",
+            "kind",
             "variant"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Enum"
@@ -3154,10 +3169,7 @@
             },
             "fields": {
               "description": "Optional fields that the enum may have",
-              "type": [
-                "array",
-                "null"
-              ],
+              "type": "array",
               "items": {
                 "$ref": "#/definitions/ManifestAstValue"
               }
@@ -3168,20 +3180,20 @@
           "description": "The `Some` case of Rust Options where the value is some Self",
           "examples": [
             {
-              "type": "Some",
+              "kind": "Some",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Some"
@@ -3196,15 +3208,15 @@
           "description": "The `None` case of Rust Options where there is value",
           "examples": [
             {
-              "type": "None"
+              "kind": "None"
             }
           ],
           "type": "object",
           "required": [
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "None"
@@ -3216,20 +3228,20 @@
           "description": "The `Ok` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Ok",
+              "kind": "Ok",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Ok"
@@ -3244,20 +3256,20 @@
           "description": "The `Err` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Err",
+              "kind": "Err",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Err"
@@ -3275,29 +3287,29 @@
               "element_kind": "U8",
               "elements": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "2"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "3"
                 }
               ],
-              "type": "Array"
+              "kind": "Array"
             }
           ],
           "type": "object",
           "required": [
             "element_kind",
             "elements",
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Array"
@@ -3327,45 +3339,45 @@
               "entries": [
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "65"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "A"
                   }
                 ],
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "66"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "B"
                   }
                 ]
               ],
-              "key_value_kind": "U8",
-              "type": "Map",
-              "value_value_kind": "String"
+              "key_kind": "U8",
+              "kind": "Map",
+              "value_kind": "String"
             }
           ],
           "type": "object",
           "required": [
             "entries",
-            "key_value_kind",
-            "type",
-            "value_value_kind"
+            "key_kind",
+            "kind",
+            "value_kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Map"
               ]
             },
-            "key_value_kind": {
+            "key_kind": {
               "description": "The kind of the keys used for the map. A map will be validated to ensure that its keys are all of a single kind.",
               "allOf": [
                 {
@@ -3373,7 +3385,7 @@
                 }
               ]
             },
-            "value_value_kind": {
+            "value_kind": {
               "description": "The kind of the values used for the map. A map will be validated to ensure that its values are all of a single kind.",
               "allOf": [
                 {
@@ -3404,37 +3416,37 @@
           "description": "An array of elements where elements could be of different kinds.",
           "examples": [
             {
-              "elements": [
+              "fields": [
                 {
-                  "elements": [
+                  "fields": [
                     {
-                      "type": "U8",
+                      "kind": "U8",
                       "value": "1"
                     },
                     {
-                      "type": "String",
+                      "kind": "String",
                       "value": "Something"
                     }
                   ],
-                  "type": "Tuple"
+                  "kind": "Tuple"
                 }
               ],
-              "type": "Tuple"
+              "kind": "Tuple"
             }
           ],
           "type": "object",
           "required": [
-            "elements",
-            "type"
+            "fields",
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Tuple"
               ]
             },
-            "elements": {
+            "fields": {
               "type": "array",
               "items": {
                 "$ref": "#/definitions/ManifestAstValue"
@@ -3446,17 +3458,17 @@
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
           "examples": [
             {
-              "type": "Decimal",
+              "kind": "Decimal",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Decimal"
@@ -3472,17 +3484,17 @@
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
           "examples": [
             {
-              "type": "PreciseDecimal",
+              "kind": "PreciseDecimal",
               "value": "1"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "PreciseDecimal"
@@ -3499,24 +3511,24 @@
           "examples": [
             {
               "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx",
-              "type": "Address"
+              "kind": "Address"
             }
           ],
           "type": "object",
           "required": [
             "address",
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Address"
@@ -3535,23 +3547,23 @@
                 "type": "String",
                 "value": "bucket"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             }
           ],
           "type": "object",
           "required": [
             "identifier",
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Bucket"
@@ -3570,23 +3582,23 @@
                 "type": "String",
                 "value": "proof"
               },
-              "type": "Proof"
+              "kind": "Proof"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Proof"
+              "kind": "Proof"
             }
           ],
           "type": "object",
           "required": [
             "identifier",
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Proof"
@@ -3601,29 +3613,29 @@
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
           "examples": [
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "#1#"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "<Scrypto>"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "[01020304]"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "NonFungibleLocalId"
@@ -3638,58 +3650,58 @@
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
           "examples": [
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "#1#"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "<Scrypto>"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "[01020304]"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             }
           ],
           "type": "object",
           "required": [
+            "kind",
             "non_fungible_local_id",
-            "resource_address",
-            "type"
+            "resource_address"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "NonFungibleGlobalId"
@@ -3707,21 +3719,21 @@
           "description": "Represents a transaction manifest expression.",
           "examples": [
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_AUTH_ZONE"
             },
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_WORKTOP"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Expression"
@@ -3737,16 +3749,16 @@
           "examples": [
             {
               "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
-              "type": "Blob"
+              "kind": "Blob"
             }
           ],
           "type": "object",
           "required": [
             "hash",
-            "type"
+            "kind"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Blob"
@@ -3761,17 +3773,17 @@
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
           "examples": [
             {
-              "type": "Bytes",
+              "kind": "Bytes",
               "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
             }
           ],
           "type": "object",
           "required": [
-            "type",
+            "kind",
             "value"
           ],
           "properties": {
-            "type": {
+            "kind": {
               "type": "string",
               "enum": [
                 "Bytes"
@@ -3844,11 +3856,11 @@
           "description": "A boolean value which can either be true or false",
           "examples": [
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": false
             },
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": true
             }
           ],
@@ -3861,7 +3873,7 @@
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U8",
+              "kind": "U8",
               "value": "1"
             }
           ],
@@ -3874,7 +3886,7 @@
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U16",
+              "kind": "U16",
               "value": "1"
             }
           ],
@@ -3887,7 +3899,7 @@
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U32",
+              "kind": "U32",
               "value": "1"
             }
           ],
@@ -3900,7 +3912,7 @@
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U64",
+              "kind": "U64",
               "value": "1"
             }
           ],
@@ -3913,7 +3925,7 @@
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U128",
+              "kind": "U128",
               "value": "1"
             }
           ],
@@ -3926,7 +3938,7 @@
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I8",
+              "kind": "I8",
               "value": "1"
             }
           ],
@@ -3939,7 +3951,7 @@
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I16",
+              "kind": "I16",
               "value": "1"
             }
           ],
@@ -3952,7 +3964,7 @@
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I32",
+              "kind": "I32",
               "value": "1"
             }
           ],
@@ -3965,7 +3977,7 @@
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I64",
+              "kind": "I64",
               "value": "1"
             }
           ],
@@ -3978,7 +3990,7 @@
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I128",
+              "kind": "I128",
               "value": "1"
             }
           ],
@@ -3991,7 +4003,7 @@
           "description": "A type representing a string",
           "examples": [
             {
-              "type": "String",
+              "kind": "String",
               "value": "Scrypto"
             }
           ],
@@ -4004,14 +4016,16 @@
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
           "examples": [
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
               }
             },
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -4020,11 +4034,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
@@ -4033,11 +4047,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -4053,9 +4067,9 @@
           "description": "The `Some` case of Rust Options where the value is some Self",
           "examples": [
             {
-              "type": "Some",
+              "kind": "Some",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -4069,7 +4083,7 @@
           "description": "The `None` case of Rust Options where there is value",
           "examples": [
             {
-              "type": "None"
+              "kind": "None"
             }
           ],
           "type": "string",
@@ -4081,9 +4095,9 @@
           "description": "The `Ok` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Ok",
+              "kind": "Ok",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -4097,9 +4111,9 @@
           "description": "The `Err` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Err",
+              "kind": "Err",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -4116,19 +4130,19 @@
               "element_kind": "U8",
               "elements": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "2"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "3"
                 }
               ],
-              "type": "Array"
+              "kind": "Array"
             }
           ],
           "type": "string",
@@ -4143,28 +4157,28 @@
               "entries": [
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "65"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "A"
                   }
                 ],
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "66"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "B"
                   }
                 ]
               ],
-              "key_value_kind": "U8",
-              "type": "Map",
-              "value_value_kind": "String"
+              "key_kind": "U8",
+              "kind": "Map",
+              "value_kind": "String"
             }
           ],
           "type": "string",
@@ -4176,22 +4190,22 @@
           "description": "An array of elements where elements could be of different kinds.",
           "examples": [
             {
-              "elements": [
+              "fields": [
                 {
-                  "elements": [
+                  "fields": [
                     {
-                      "type": "U8",
+                      "kind": "U8",
                       "value": "1"
                     },
                     {
-                      "type": "String",
+                      "kind": "String",
                       "value": "Something"
                     }
                   ],
-                  "type": "Tuple"
+                  "kind": "Tuple"
                 }
               ],
-              "type": "Tuple"
+              "kind": "Tuple"
             }
           ],
           "type": "string",
@@ -4203,7 +4217,7 @@
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
           "examples": [
             {
-              "type": "Decimal",
+              "kind": "Decimal",
               "value": "1"
             }
           ],
@@ -4216,7 +4230,7 @@
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
           "examples": [
             {
-              "type": "PreciseDecimal",
+              "kind": "PreciseDecimal",
               "value": "1"
             }
           ],
@@ -4230,15 +4244,15 @@
           "examples": [
             {
               "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx",
-              "type": "Address"
+              "kind": "Address"
             }
           ],
           "type": "string",
@@ -4254,14 +4268,14 @@
                 "type": "String",
                 "value": "bucket"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             }
           ],
           "type": "string",
@@ -4277,14 +4291,14 @@
                 "type": "String",
                 "value": "proof"
               },
-              "type": "Proof"
+              "kind": "Proof"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Proof"
+              "kind": "Proof"
             }
           ],
           "type": "string",
@@ -4296,19 +4310,19 @@
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
           "examples": [
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "#1#"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "<Scrypto>"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "[01020304]"
             }
           ],
@@ -4321,48 +4335,48 @@
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
           "examples": [
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "#1#"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "<Scrypto>"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "[01020304]"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             }
           ],
           "type": "string",
@@ -4374,11 +4388,11 @@
           "description": "Represents a transaction manifest expression.",
           "examples": [
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_AUTH_ZONE"
             },
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_WORKTOP"
             }
           ],
@@ -4392,7 +4406,7 @@
           "examples": [
             {
               "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
-              "type": "Blob"
+              "kind": "Blob"
             }
           ],
           "type": "string",
@@ -4404,7 +4418,7 @@
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
           "examples": [
             {
-              "type": "Bytes",
+              "kind": "Bytes",
               "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
             }
           ],

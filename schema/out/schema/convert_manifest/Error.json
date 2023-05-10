@@ -835,11 +835,11 @@
           "description": "A boolean value which can either be true or false",
           "examples": [
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": false
             },
             {
-              "type": "Bool",
+              "kind": "Bool",
               "value": true
             }
           ],
@@ -852,7 +852,7 @@
           "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U8",
+              "kind": "U8",
               "value": "1"
             }
           ],
@@ -865,7 +865,7 @@
           "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U16",
+              "kind": "U16",
               "value": "1"
             }
           ],
@@ -878,7 +878,7 @@
           "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U32",
+              "kind": "U32",
               "value": "1"
             }
           ],
@@ -891,7 +891,7 @@
           "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U64",
+              "kind": "U64",
               "value": "1"
             }
           ],
@@ -904,7 +904,7 @@
           "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "U128",
+              "kind": "U128",
               "value": "1"
             }
           ],
@@ -917,7 +917,7 @@
           "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I8",
+              "kind": "I8",
               "value": "1"
             }
           ],
@@ -930,7 +930,7 @@
           "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I16",
+              "kind": "I16",
               "value": "1"
             }
           ],
@@ -943,7 +943,7 @@
           "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I32",
+              "kind": "I32",
               "value": "1"
             }
           ],
@@ -956,7 +956,7 @@
           "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I64",
+              "kind": "I64",
               "value": "1"
             }
           ],
@@ -969,7 +969,7 @@
           "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
           "examples": [
             {
-              "type": "I128",
+              "kind": "I128",
               "value": "1"
             }
           ],
@@ -982,7 +982,7 @@
           "description": "A type representing a string",
           "examples": [
             {
-              "type": "String",
+              "kind": "String",
               "value": "Scrypto"
             }
           ],
@@ -995,14 +995,16 @@
           "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
           "examples": [
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
               }
             },
             {
-              "type": "Enum",
+              "fields": [],
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -1011,11 +1013,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "1",
                 "type": "U8"
@@ -1024,11 +1026,11 @@
             {
               "fields": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 }
               ],
-              "type": "Enum",
+              "kind": "Enum",
               "variant": {
                 "discriminator": "EnumName::Variant",
                 "type": "String"
@@ -1044,9 +1046,9 @@
           "description": "The `Some` case of Rust Options where the value is some Self",
           "examples": [
             {
-              "type": "Some",
+              "kind": "Some",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -1060,7 +1062,7 @@
           "description": "The `None` case of Rust Options where there is value",
           "examples": [
             {
-              "type": "None"
+              "kind": "None"
             }
           ],
           "type": "string",
@@ -1072,9 +1074,9 @@
           "description": "The `Ok` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Ok",
+              "kind": "Ok",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -1088,9 +1090,9 @@
           "description": "The `Err` case of Rust Results where the value is some Self",
           "examples": [
             {
-              "type": "Err",
+              "kind": "Err",
               "value": {
-                "type": "U8",
+                "kind": "U8",
                 "value": "1"
               }
             }
@@ -1107,19 +1109,19 @@
               "element_kind": "U8",
               "elements": [
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "1"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "2"
                 },
                 {
-                  "type": "U8",
+                  "kind": "U8",
                   "value": "3"
                 }
               ],
-              "type": "Array"
+              "kind": "Array"
             }
           ],
           "type": "string",
@@ -1134,28 +1136,28 @@
               "entries": [
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "65"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "A"
                   }
                 ],
                 [
                   {
-                    "type": "U8",
+                    "kind": "U8",
                     "value": "66"
                   },
                   {
-                    "type": "String",
+                    "kind": "String",
                     "value": "B"
                   }
                 ]
               ],
-              "key_value_kind": "U8",
-              "type": "Map",
-              "value_value_kind": "String"
+              "key_kind": "U8",
+              "kind": "Map",
+              "value_kind": "String"
             }
           ],
           "type": "string",
@@ -1167,22 +1169,22 @@
           "description": "An array of elements where elements could be of different kinds.",
           "examples": [
             {
-              "elements": [
+              "fields": [
                 {
-                  "elements": [
+                  "fields": [
                     {
-                      "type": "U8",
+                      "kind": "U8",
                       "value": "1"
                     },
                     {
-                      "type": "String",
+                      "kind": "String",
                       "value": "Something"
                     }
                   ],
-                  "type": "Tuple"
+                  "kind": "Tuple"
                 }
               ],
-              "type": "Tuple"
+              "kind": "Tuple"
             }
           ],
           "type": "string",
@@ -1194,7 +1196,7 @@
           "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
           "examples": [
             {
-              "type": "Decimal",
+              "kind": "Decimal",
               "value": "1"
             }
           ],
@@ -1207,7 +1209,7 @@
           "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
           "examples": [
             {
-              "type": "PreciseDecimal",
+              "kind": "PreciseDecimal",
               "value": "1"
             }
           ],
@@ -1221,15 +1223,15 @@
           "examples": [
             {
               "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-              "type": "Address"
+              "kind": "Address"
             },
             {
               "address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx",
-              "type": "Address"
+              "kind": "Address"
             }
           ],
           "type": "string",
@@ -1245,14 +1247,14 @@
                 "type": "String",
                 "value": "bucket"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Bucket"
+              "kind": "Bucket"
             }
           ],
           "type": "string",
@@ -1268,14 +1270,14 @@
                 "type": "String",
                 "value": "proof"
               },
-              "type": "Proof"
+              "kind": "Proof"
             },
             {
               "identifier": {
                 "type": "U32",
                 "value": "1"
               },
-              "type": "Proof"
+              "kind": "Proof"
             }
           ],
           "type": "string",
@@ -1287,19 +1289,19 @@
           "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
           "examples": [
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "#1#"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "<Scrypto>"
             },
             {
-              "type": "NonFungibleLocalId",
+              "kind": "NonFungibleLocalId",
               "value": "[01020304]"
             }
           ],
@@ -1312,48 +1314,48 @@
           "description": "Represents a non-fungible address which may be considered as the \"global\" address of a non-fungible unit as it contains both the resource address and the non-fungible id for that unit.",
           "examples": [
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "#1#"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "<Scrypto>"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             },
             {
+              "kind": "NonFungibleGlobalId",
               "non_fungible_local_id": {
-                "type": "NonFungibleLocalId",
+                "kind": "NonFungibleLocalId",
                 "value": "[01020304]"
               },
               "resource_address": {
                 "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "type": "Address"
-              },
-              "type": "NonFungibleGlobalId"
+                "kind": "Address"
+              }
             }
           ],
           "type": "string",
@@ -1365,11 +1367,11 @@
           "description": "Represents a transaction manifest expression.",
           "examples": [
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_AUTH_ZONE"
             },
             {
-              "type": "Expression",
+              "kind": "Expression",
               "value": "ENTIRE_WORKTOP"
             }
           ],
@@ -1383,7 +1385,7 @@
           "examples": [
             {
               "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
-              "type": "Blob"
+              "kind": "Blob"
             }
           ],
           "type": "string",
@@ -1395,7 +1397,7 @@
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
           "examples": [
             {
-              "type": "Bytes",
+              "kind": "Bytes",
               "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
             }
           ],

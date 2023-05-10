@@ -160,16 +160,11 @@ pub fn traverse_value(
                 .map(|value| traverse_value(value, visitors))
                 .collect::<Result<Vec<_>, _>>()?;
         }
-        ManifestAstValue::Enum {
-            fields: Some(values),
-            ..
-        }
+        ManifestAstValue::Enum { fields: values, .. }
         | ManifestAstValue::Array {
             elements: values, ..
         }
-        | ManifestAstValue::Tuple {
-            elements: values, ..
-        } => {
+        | ManifestAstValue::Tuple { fields: values, .. } => {
             values
                 .iter_mut()
                 .map(|value| traverse_value(value, visitors))
@@ -192,7 +187,6 @@ pub fn traverse_value(
         | ManifestAstValue::I64 { .. }
         | ManifestAstValue::I128 { .. }
         | ManifestAstValue::String { .. }
-        | ManifestAstValue::Enum { fields: None, .. }
         | ManifestAstValue::None { .. }
         | ManifestAstValue::Decimal { .. }
         | ManifestAstValue::PreciseDecimal { .. }

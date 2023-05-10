@@ -27,7 +27,10 @@ pub struct ValueAliasingVisitor;
 
 impl ManifestAstValueVisitor for ValueAliasingVisitor {
     fn visit_tuple(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Tuple { ref elements } = value {
+        if let ManifestAstValue::Tuple {
+            fields: ref elements,
+        } = value
+        {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (

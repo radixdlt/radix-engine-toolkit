@@ -23,15 +23,15 @@ use scrypto::prelude::IntegerNonFungibleLocalId;
 fn aliasing_of_deeply_nested_structures_works() {
     // Arrange
     let mut value = ManifestAstValue::Map {
-        key_value_kind: ManifestAstValueKind::String,
-        value_value_kind: ManifestAstValueKind::Tuple,
+        key_kind: ManifestAstValueKind::String,
+        value_kind: ManifestAstValueKind::Tuple,
         entries: vec![
             (
                 ManifestAstValue::String {
                     value: "HelloWorld".into(),
                 },
                 ManifestAstValue::Tuple {
-                    elements: vec![
+                    fields: vec![
                         ManifestAstValue::Decimal {
                             value: "12".parse().unwrap(),
                         },
@@ -46,13 +46,13 @@ fn aliasing_of_deeply_nested_structures_works() {
                     value: "WorldHello".into(),
                 },
                 ManifestAstValue::Tuple {
-                    elements: vec![ManifestAstValue::Tuple {
-                        elements: vec![ManifestAstValue::Tuple {
-                            elements: vec![ManifestAstValue::Array {
+                    fields: vec![ManifestAstValue::Tuple {
+                        fields: vec![ManifestAstValue::Tuple {
+                            fields: vec![ManifestAstValue::Array {
                                 element_kind: ManifestAstValueKind::Array,
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,
-                                    elements: vec![ManifestAstValue::Tuple { elements: vec![
+                                    elements: vec![ManifestAstValue::Tuple { fields: vec![
                                         ManifestAstValue::Address { address: "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3".parse().unwrap() },
                                         ManifestAstValue::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
                                     ] }],
@@ -66,15 +66,15 @@ fn aliasing_of_deeply_nested_structures_works() {
     };
 
     let expected = ManifestAstValue::Map {
-        key_value_kind: ManifestAstValueKind::String,
-        value_value_kind: ManifestAstValueKind::Tuple,
+        key_kind: ManifestAstValueKind::String,
+        value_kind: ManifestAstValueKind::Tuple,
         entries: vec![
             (
                 ManifestAstValue::String {
                     value: "HelloWorld".into(),
                 },
                 ManifestAstValue::Tuple {
-                    elements: vec![
+                    fields: vec![
                         ManifestAstValue::Decimal {
                             value: "12".parse().unwrap(),
                         },
@@ -89,9 +89,9 @@ fn aliasing_of_deeply_nested_structures_works() {
                     value: "WorldHello".into(),
                 },
                 ManifestAstValue::Tuple {
-                    elements: vec![ManifestAstValue::Tuple {
-                        elements: vec![ManifestAstValue::Tuple {
-                            elements: vec![ManifestAstValue::Array {
+                    fields: vec![ManifestAstValue::Tuple {
+                        fields: vec![ManifestAstValue::Tuple {
+                            fields: vec![ManifestAstValue::Array {
                                 element_kind: ManifestAstValueKind::Array,
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,

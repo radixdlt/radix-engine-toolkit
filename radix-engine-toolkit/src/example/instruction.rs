@@ -541,13 +541,13 @@ pub fn publish_package() -> Instruction {
             value: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
         metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
     };
@@ -570,55 +570,55 @@ pub fn publish_package_advanced() -> Instruction {
             value: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
         metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
         access_rules: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
-                        variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
+                    fields: vec![ManifestAstValue::Enum {
                         variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
+                        fields: vec![],
+                    }],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: vec![],
+                    }],
                 },
             ],
         },
@@ -682,12 +682,12 @@ pub fn set_metadata() -> Instruction {
         },
         value: ManifestAstValue::Enum {
             variant: EnumDiscriminator::U8 { discriminator: 0u8 },
-            fields: Some(vec![ManifestAstValue::Enum {
+            fields: vec![ManifestAstValue::Enum {
                 variant: EnumDiscriminator::U8 { discriminator: 0u8 },
-                fields: Some(vec![ManifestAstValue::String {
+                fields: vec![ManifestAstValue::String {
                     value: "deadbeef".into(),
-                }]),
-            }]),
+                }],
+            }],
         },
     };
     check_instruction(&instruction);
@@ -713,8 +713,8 @@ pub fn set_package_royalty_config() -> Instruction {
             address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         royalty_config: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
     };
@@ -728,10 +728,10 @@ pub fn set_component_royalty_config() -> Instruction {
             address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         royalty_config: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::U32,
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::U32,
                     entries: vec![],
                 },
                 ManifestAstValue::U32 { value: 1 },
@@ -768,10 +768,10 @@ pub fn set_method_access_rule() -> Instruction {
             address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         key: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: vec![],
                 },
                 ManifestAstValue::String {
                     value: "free".to_owned(),
@@ -780,7 +780,7 @@ pub fn set_method_access_rule() -> Instruction {
         },
         rule: ManifestAstValue::Enum {
             variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
+            fields: vec![],
         },
     };
     check_instruction(&instruction);
@@ -806,8 +806,8 @@ pub fn mint_non_fungible() -> Instruction {
             address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         entries: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::NonFungibleLocalId,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::NonFungibleLocalId,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
     };
@@ -824,15 +824,15 @@ pub fn mint_uuid_non_fungible() -> Instruction {
             element_kind: ManifestAstValueKind::Tuple,
             elements: vec![
                 ManifestAstValue::Tuple {
-                    elements: vec![
-                        ManifestAstValue::Tuple { elements: vec![] },
-                        ManifestAstValue::Tuple { elements: vec![] },
+                    fields: vec![
+                        ManifestAstValue::Tuple { fields: vec![] },
+                        ManifestAstValue::Tuple { fields: vec![] },
                     ],
                 },
                 ManifestAstValue::Tuple {
-                    elements: vec![
-                        ManifestAstValue::Tuple { elements: vec![] },
-                        ManifestAstValue::Tuple { elements: vec![] },
+                    fields: vec![
+                        ManifestAstValue::Tuple { fields: vec![] },
+                        ManifestAstValue::Tuple { fields: vec![] },
                     ],
                 },
             ],
@@ -846,13 +846,13 @@ pub fn create_fungible_resource() -> Instruction {
     let instruction = Instruction::CreateFungibleResource {
         divisibility: ManifestAstValue::U8 { value: 18 },
         metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
         access_rules: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::Enum,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::Enum,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
     };
@@ -864,13 +864,13 @@ pub fn create_fungible_resource_with_initial_supply() -> Instruction {
     let instruction = Instruction::CreateFungibleResourceWithInitialSupply {
         divisibility: ManifestAstValue::U8 { value: 18 },
         metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
         access_rules: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::Enum,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::Enum,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
         initial_supply: ManifestAstValue::Decimal {
@@ -885,12 +885,12 @@ pub fn create_non_fungible_resource() -> Instruction {
     let instruction = Instruction::CreateNonFungibleResource {
         id_type: ManifestAstValue::Enum {
             variant: EnumDiscriminator::U8 { discriminator: 0 },
-            fields: None,
+            fields: vec![],
         },
         schema: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Tuple {
-                    elements: vec![
+                    fields: vec![
                         ManifestAstValue::Array {
                             element_kind: ManifestAstValueKind::Enum,
                             elements: vec![],
@@ -907,7 +907,7 @@ pub fn create_non_fungible_resource() -> Instruction {
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::U8 { value: 64 }]),
+                    fields: vec![ManifestAstValue::U8 { value: 64 }],
                 },
                 ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::String,
@@ -916,13 +916,13 @@ pub fn create_non_fungible_resource() -> Instruction {
             ],
         },
         metadata: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::String,
-            value_value_kind: ManifestAstValueKind::String,
+            key_kind: ManifestAstValueKind::String,
+            value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
         access_rules: ManifestAstValue::Map {
-            key_value_kind: ManifestAstValueKind::Enum,
-            value_value_kind: ManifestAstValueKind::Tuple,
+            key_kind: ManifestAstValueKind::Enum,
+            value_kind: ManifestAstValueKind::Tuple,
             entries: Vec::new(),
         },
     };
@@ -935,7 +935,7 @@ pub fn create_non_fungible_resource() -> Instruction {
 //     let instruction = Instruction::CreateNonFungibleResourceWithInitialSupply {
 //         id_type: ManifestAstValue::Enum {
 //             variant: EnumDiscriminator::U8 { discriminator: 0 },
-//             fields: None,
+//             fields: vec![]
 //         },
 //         metadata: ManifestAstValue::Map {
 //             key_value_kind: ManifestAstValueKind::String,
@@ -964,18 +964,18 @@ pub fn create_access_controller() -> Instruction {
             }),
         },
         rule_set: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: None,
+                    fields: vec![],
                 },
             ],
         },
@@ -996,45 +996,45 @@ pub fn create_identity() -> Instruction {
 pub fn create_identity_advanced() -> Instruction {
     let instruction = Instruction::CreateIdentityAdvanced {
         config: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
-                        variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
+                    fields: vec![ManifestAstValue::Enum {
                         variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
+                        fields: vec![],
+                    }],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: vec![],
+                    }],
                 },
             ],
         },
@@ -1052,45 +1052,45 @@ pub fn create_account() -> Instruction {
 pub fn create_account_advanced() -> Instruction {
     let instruction = Instruction::CreateAccountAdvanced {
         config: ManifestAstValue::Tuple {
-            elements: vec![
+            fields: vec![
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
-                        variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::Tuple,
-                    value_value_kind: ManifestAstValueKind::Enum,
-                    entries: vec![],
-                },
-                ManifestAstValue::Map {
-                    key_value_kind: ManifestAstValueKind::String,
-                    value_value_kind: ManifestAstValueKind::Enum,
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
                     entries: vec![],
                 },
                 ManifestAstValue::Enum {
                     variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: Some(vec![ManifestAstValue::Enum {
+                    fields: vec![ManifestAstValue::Enum {
                         variant: EnumDiscriminator::U8 { discriminator: 0 },
-                        fields: None,
-                    }]),
+                        fields: vec![],
+                    }],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::Tuple,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Map {
+                    key_kind: ManifestAstValueKind::String,
+                    value_kind: ManifestAstValueKind::Enum,
+                    entries: vec![],
+                },
+                ManifestAstValue::Enum {
+                    variant: EnumDiscriminator::U8 { discriminator: 0 },
+                    fields: vec![ManifestAstValue::Enum {
+                        variant: EnumDiscriminator::U8 { discriminator: 0 },
+                        fields: vec![],
+                    }],
                 },
             ],
         },

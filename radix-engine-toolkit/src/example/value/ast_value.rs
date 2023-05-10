@@ -90,7 +90,7 @@ pub fn string() -> ManifestAstValue {
 pub fn enum1() -> ManifestAstValue {
     ManifestAstValue::Enum {
         variant: EnumDiscriminator::U8 { discriminator: 1 },
-        fields: None,
+        fields: vec![],
     }
 }
 
@@ -99,14 +99,14 @@ pub fn enum2() -> ManifestAstValue {
         variant: EnumDiscriminator::String {
             discriminator: "EnumName::Variant".into(),
         },
-        fields: None,
+        fields: vec![],
     }
 }
 
 pub fn enum3() -> ManifestAstValue {
     ManifestAstValue::Enum {
         variant: EnumDiscriminator::U8 { discriminator: 1 },
-        fields: Some(vec![ManifestAstValue::U8 { value: 1 }]),
+        fields: vec![ManifestAstValue::U8 { value: 1 }],
     }
 }
 
@@ -115,7 +115,7 @@ pub fn enum4() -> ManifestAstValue {
         variant: EnumDiscriminator::String {
             discriminator: "EnumName::Variant".into(),
         },
-        fields: Some(vec![ManifestAstValue::U8 { value: 1 }]),
+        fields: vec![ManifestAstValue::U8 { value: 1 }],
     }
 }
 
@@ -154,8 +154,8 @@ pub fn array() -> ManifestAstValue {
 
 pub fn map() -> ManifestAstValue {
     ManifestAstValue::Map {
-        key_value_kind: ManifestAstValueKind::U8,
-        value_value_kind: ManifestAstValueKind::String,
+        key_kind: ManifestAstValueKind::U8,
+        value_kind: ManifestAstValueKind::String,
         entries: vec![
             (
                 ManifestAstValue::U8 { value: 65 },
@@ -175,8 +175,8 @@ pub fn map() -> ManifestAstValue {
 
 pub fn tuple() -> ManifestAstValue {
     ManifestAstValue::Tuple {
-        elements: vec![ManifestAstValue::Tuple {
-            elements: vec![
+        fields: vec![ManifestAstValue::Tuple {
+            fields: vec![
                 ManifestAstValue::U8 { value: 1 },
                 ManifestAstValue::String {
                     value: "Something".to_owned(),

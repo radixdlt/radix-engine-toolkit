@@ -33,7 +33,7 @@ define_kind_enum! {
     /// A value model used to describe an algebraic sum type which is used to express transaction
     /// manifests as an abstract syntax tree. This is serialized as a discriminated union of types.
     #[serializable]
-    #[serde(tag = "type")]
+    #[serde(tag = "kind")]
     #[schemars(example = "crate::example::value::ast_value::value")]
     #[derive(PartialEq, Eq, Hash)]
     pub enum ManifestAstValue {
@@ -151,8 +151,7 @@ define_kind_enum! {
             variant: EnumDiscriminator,
 
             /// Optional fields that the enum may have
-            #[serde(default, skip_serializing_if = "Option::is_none")]
-            fields: Option<Vec<Self>>,
+            fields: Vec<Self>,
         },
 
         /// The `Some` case of Rust Options where the value is some Self
@@ -188,11 +187,11 @@ define_kind_enum! {
         Map {
             /// The kind of the keys used for the map. A map will be validated to ensure that its keys
             /// are all of a single kind.
-            key_value_kind: ManifestAstValueKind,
+            key_kind: ManifestAstValueKind,
 
             /// The kind of the values used for the map. A map will be validated to ensure that its
             /// values are all of a single kind.
-            value_value_kind: ManifestAstValueKind,
+            value_kind: ManifestAstValueKind,
 
             /// A vector of tuples representing the entires in the map where each tuple is made up of
             /// two elements: a key and a value.
@@ -201,7 +200,7 @@ define_kind_enum! {
 
         /// An array of elements where elements could be of different kinds.
         #[schemars(example = "crate::example::value::ast_value::tuple")]
-        Tuple { elements: Vec<Self> },
+        Tuple { fields: Vec<Self> },
 
         /// A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum
         /// of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and

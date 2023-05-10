@@ -231,7 +231,6 @@ impl ManifestAstValue {
                 variant.resolve_discriminator()?,
                 fields
                     .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
@@ -258,8 +257,8 @@ impl ManifestAstValue {
                     .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
             ManifestAstValue::Map {
-                key_value_kind,
-                value_value_kind,
+                key_kind: key_value_kind,
+                value_kind: value_value_kind,
                 entries,
             } => ast::Value::Map(
                 (*key_value_kind).into(),
@@ -270,7 +269,7 @@ impl ManifestAstValue {
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
             ),
-            ManifestAstValue::Tuple { elements } => ast::Value::Tuple(
+            ManifestAstValue::Tuple { fields: elements } => ast::Value::Tuple(
                 elements
                     .iter()
                     .map(|v| v.to_ast_value(bech32_coder))
@@ -368,18 +367,10 @@ impl ManifestAstValue {
                 variant: EnumDiscriminator::U8 {
                     discriminator: *variant,
                 },
-                fields: {
-                    if fields.is_empty() {
-                        None
-                    } else {
-                        Some(
-                            fields
-                                .iter()
-                                .map(|value| Self::from_ast_value(value, bech32_coder))
-                                .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
-                        )
-                    }
-                },
+                fields: fields
+                    .iter()
+                    .map(|value| Self::from_ast_value(value, bech32_coder))
+                    .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
             },
 
             ast::Value::Some(value) => Self::Some {
@@ -394,8 +385,8 @@ impl ManifestAstValue {
             },
 
             ast::Value::Map(key_value_kind, value_value_kind, entries) => Self::Map {
-                key_value_kind: (*key_value_kind).into(),
-                value_value_kind: (*value_value_kind).into(),
+                key_kind: (*key_value_kind).into(),
+                value_kind: (*value_value_kind).into(),
                 entries: {
                     // Ensure that we have enough elements for the window operation
                     if entries.len() % 2 != 0 {
@@ -420,7 +411,7 @@ impl ManifestAstValue {
                     .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
             },
             ast::Value::Tuple(elements) => Self::Tuple {
-                elements: elements
+                fields: elements
                     .iter()
                     .map(|value| Self::from_ast_value(value, bech32_coder))
                     .collect::<Result<Vec<ManifestAstValue>, ManifestAstValueConversionError>>()?,
