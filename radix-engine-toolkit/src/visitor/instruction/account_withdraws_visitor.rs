@@ -63,13 +63,13 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
                 Some(ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
@@ -92,13 +92,13 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
                 // Resource Address to withdraw
                 Some(ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 }),
                 // Set of non-fungible ids
                 Some(ManifestAstValue::Array {
@@ -134,7 +134,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 // Method name
                 ManifestAstValue::String { value: method_name },
@@ -142,7 +142,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource address to withdraw
                 Some(ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 }),
                 // Amount to withdraw
                 Some(ManifestAstValue::Decimal { value: amount }),
@@ -164,7 +164,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
             (
                 // Component Address
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 // Method Name
                 ManifestAstValue::String { value: method_name },
@@ -172,7 +172,7 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 Some(ManifestAstValue::Decimal { .. }),
                 // Resource Address
                 Some(ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 }),
                 // Array of non-fungible ids
                 Some(ManifestAstValue::Array {

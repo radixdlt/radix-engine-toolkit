@@ -200,25 +200,25 @@ pub fn precise_decimal() -> ManifestAstValue {
 
 pub fn address1() -> ManifestAstValue {
     ManifestAstValue::Address {
-        address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+        value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
     }
 }
 
 pub fn address2() -> ManifestAstValue {
     ManifestAstValue::Address {
-        address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+        value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
     }
 }
 
 pub fn address3() -> ManifestAstValue {
     ManifestAstValue::Address {
-        address: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
+        value: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
     }
 }
 
 pub fn bucket1() -> ManifestAstValue {
     ManifestAstValue::Bucket {
-        identifier: BucketId(TransientIdentifier::String {
+        value: BucketId(TransientIdentifier::String {
             value: "bucket".to_owned(),
         }),
     }
@@ -226,13 +226,13 @@ pub fn bucket1() -> ManifestAstValue {
 
 pub fn bucket2() -> ManifestAstValue {
     ManifestAstValue::Bucket {
-        identifier: BucketId(TransientIdentifier::U32 { value: 1 }),
+        value: BucketId(TransientIdentifier::U32 { value: 1 }),
     }
 }
 
 pub fn proof1() -> ManifestAstValue {
     ManifestAstValue::Proof {
-        identifier: ProofId(TransientIdentifier::String {
+        value: ProofId(TransientIdentifier::String {
             value: "proof".to_owned(),
         }),
     }
@@ -240,7 +240,7 @@ pub fn proof1() -> ManifestAstValue {
 
 pub fn proof2() -> ManifestAstValue {
     ManifestAstValue::Proof {
-        identifier: ProofId(TransientIdentifier::U32 { value: 1 }),
+        value: ProofId(TransientIdentifier::U32 { value: 1 }),
     }
 }
 
@@ -334,7 +334,7 @@ pub fn expression2() -> ManifestAstValue {
 
 pub fn blob() -> ManifestAstValue {
     ManifestAstValue::Blob {
-        hash: ManifestBlobRef(
+        value: ManifestBlobRef(
             checked_copy_u8_slice(
                 hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
                     .unwrap(),
@@ -346,7 +346,7 @@ pub fn blob() -> ManifestAstValue {
 
 pub fn bytes() -> ManifestAstValue {
     ManifestAstValue::Bytes {
-        value: hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
+        hex: hex::decode("d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e")
             .unwrap(),
     }
 }

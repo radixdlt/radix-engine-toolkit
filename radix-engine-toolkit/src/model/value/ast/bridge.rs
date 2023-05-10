@@ -284,12 +284,12 @@ impl ManifestAstValue {
             }
 
             ManifestAstValue::Address {
-                address: NetworkAwareNodeId(node_id, ..),
+                value: NetworkAwareNodeId(node_id, ..),
             } => ast::Value::Address(Box::new(ast::Value::String(
                 bech32_coder.encode(NodeId(*node_id))?,
             ))),
 
-            ManifestAstValue::Bucket { identifier } => {
+            ManifestAstValue::Bucket { value: identifier } => {
                 ast::Value::Bucket(Box::new(match identifier.0 {
                     TransientIdentifier::String {
                         value: ref identifier,
@@ -297,7 +297,7 @@ impl ManifestAstValue {
                     TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
                 }))
             }
-            ManifestAstValue::Proof { identifier } => {
+            ManifestAstValue::Proof { value: identifier } => {
                 ast::Value::Proof(Box::new(match identifier.0 {
                     TransientIdentifier::String {
                         value: ref identifier,
@@ -321,7 +321,7 @@ impl ManifestAstValue {
                 ast::Value::NonFungibleGlobalId(Box::new(ast::Value::String(nf_global_id_string)))
             }
 
-            ManifestAstValue::Blob { hash } => {
+            ManifestAstValue::Blob { value: hash } => {
                 ast::Value::Blob(Box::new(ast::Value::String(hex::encode(hash.0))))
             }
             ManifestAstValue::Expression { value } => {
@@ -330,7 +330,7 @@ impl ManifestAstValue {
                     ManifestExpression::EntireAuthZone => "ENTIRE_AUTH_ZONE".into(),
                 })))
             }
-            ManifestAstValue::Bytes { value } => {
+            ManifestAstValue::Bytes { hex: value } => {
                 ast::Value::Bytes(Box::new(ast::Value::String(hex::encode(value))))
             }
         };
@@ -433,7 +433,7 @@ impl ManifestAstValue {
                     bech32_coder
                         .decode(address_string)
                         .map(|node_id| ManifestAstValue::Address {
-                            address: NetworkAwareNodeId(node_id.0, bech32_coder.network_id()),
+                            value: NetworkAwareNodeId(node_id.0, bech32_coder.network_id()),
                         })
                         .map_err(ManifestAstValueConversionError::from)
                 })?
@@ -442,11 +442,11 @@ impl ManifestAstValue {
             ast::Value::Bucket(value) => {
                 if let ast::Value::U32(identifier) = &**value {
                     Self::Bucket {
-                        identifier: TransientIdentifier::U32 { value: *identifier }.into(),
+                        value: TransientIdentifier::U32 { value: *identifier }.into(),
                     }
                 } else if let ast::Value::String(identifier) = &**value {
                     Self::Bucket {
-                        identifier: TransientIdentifier::String {
+                        value: TransientIdentifier::String {
                             value: identifier.to_owned(),
                         }
                         .into(),
@@ -462,11 +462,11 @@ impl ManifestAstValue {
             ast::Value::Proof(value) => {
                 if let ast::Value::U32(identifier) = &**value {
                     Self::Proof {
-                        identifier: TransientIdentifier::U32 { value: *identifier }.into(),
+                        value: TransientIdentifier::U32 { value: *identifier }.into(),
                     }
                 } else if let ast::Value::String(identifier) = &**value {
                     Self::Proof {
-                        identifier: TransientIdentifier::String {
+                        value: TransientIdentifier::String {
                             value: identifier.clone(),
                         }
                         .into(),
@@ -516,7 +516,7 @@ impl ManifestAstValue {
                 let bytes = hex::decode(blob_string)?;
                 ManifestBlobRef::try_from(bytes.as_slice())
                     .map(|manifest_blob| Self::Blob {
-                        hash: manifest_blob,
+                        value: manifest_blob,
                     })
                     .map_err(ManifestAstValueConversionError::from)
             })?,
@@ -543,7 +543,7 @@ impl ManifestAstValue {
             ast::Value::Bytes(value) => map_if_value_string(parsing, value, |string| {
                 hex::decode(string)
                     .map_err(ManifestAstValueConversionError::from)
-                    .map(|value| Self::Bytes { value })
+                    .map(|value| Self::Bytes { hex: value })
             })?,
         };
         Ok(value)
@@ -573,7 +573,7 @@ impl TryFrom<NetworkAwareNodeId> for ManifestAstValue {
     type Error = ManifestAstValueConversionError;
 
     fn try_from(address: NetworkAwareNodeId) -> std::result::Result<Self, Self::Error> {
-        Ok(Self::Address { address })
+        Ok(Self::Address { value: address })
     }
 }
 
@@ -581,7 +581,7 @@ impl TryFrom<ManifestAstValue> for NetworkAwareNodeId {
     type Error = ManifestAstValueConversionError;
 
     fn try_from(value: ManifestAstValue) -> std::result::Result<Self, Self::Error> {
-        if let ManifestAstValue::Address { address } = value {
+        if let ManifestAstValue::Address { value: address } = value {
             Ok(address)
         } else {
             Err(ManifestAstValueConversionError::InvalidKind {

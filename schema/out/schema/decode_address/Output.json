@@ -57,9 +57,7 @@
         "InternalNonFungibleVault",
         "InternalAccount",
         "InternalGenericComponent",
-        "InternalKeyValueStore",
-        "InternalIndex",
-        "InternalSortedIndex"
+        "InternalKeyValueStore"
       ]
     }
   }

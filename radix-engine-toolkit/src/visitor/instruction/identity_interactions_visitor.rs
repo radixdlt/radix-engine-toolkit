@@ -37,7 +37,7 @@ impl InstructionVisitor for IdentityInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_identity(*component_address) => {
                 self.0.insert(*component_address);
             }
@@ -54,7 +54,7 @@ impl InstructionVisitor for IdentityInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_identity(*component_address) => {
                 self.0.insert(*component_address);
             }
@@ -69,7 +69,7 @@ impl InstructionVisitor for IdentityInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_identity(*component_address) => {
                 self.0.insert(*component_address);
             }
@@ -86,7 +86,7 @@ impl InstructionVisitor for IdentityInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_identity(*component_address) => {
                 self.0.insert(*component_address);
             }

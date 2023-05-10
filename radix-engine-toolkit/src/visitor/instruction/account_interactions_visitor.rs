@@ -67,7 +67,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         match (component_address, method_name) {
             (
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
             ) if is_account(*component_address) => {
@@ -95,7 +95,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_account(*component_address) => {
                 self.auth_required.insert(*component_address);
             }
@@ -112,7 +112,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_account(*component_address) => {
                 self.auth_required.insert(*component_address);
             }
@@ -127,7 +127,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match component_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_account(*component_address) => {
                 self.auth_required.insert(*component_address);
             }
@@ -144,7 +144,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
     ) -> Result<(), VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
-                address: component_address,
+                value: component_address,
             } if is_account(*component_address) => {
                 self.auth_required.insert(*component_address);
             }

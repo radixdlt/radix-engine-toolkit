@@ -157,8 +157,8 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
             },
             {
@@ -178,8 +178,8 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
             },
             {
@@ -199,8 +199,8 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
             },
             {
@@ -220,8 +220,8 @@
               },
               "instruction": "CALL_FUNCTION",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
             }
           ],
@@ -286,8 +286,8 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -303,8 +303,8 @@
                 }
               ],
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -315,8 +315,8 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -327,8 +327,8 @@
             {
               "arguments": null,
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "CALL_METHOD",
               "method_name": {
@@ -384,29 +384,29 @@
             {
               "instruction": "TAKE_FROM_WORKTOP",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
               "instruction": "TAKE_FROM_WORKTOP",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -451,15 +451,15 @@
               },
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -469,15 +469,15 @@
               },
               "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -533,15 +533,15 @@
               ],
               "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -553,15 +553,15 @@
               ],
               "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
               "into_bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -610,11 +610,11 @@
           "examples": [
             {
               "bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "instruction": "RETURN_TO_WORKTOP"
             }
@@ -647,15 +647,15 @@
             {
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
               "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -691,8 +691,8 @@
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -702,8 +702,8 @@
               },
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -750,8 +750,8 @@
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -763,8 +763,8 @@
               ],
               "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -805,11 +805,11 @@
             {
               "instruction": "POP_FROM_AUTH_ZONE",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               }
             }
           ],
@@ -841,11 +841,11 @@
             {
               "instruction": "PUSH_TO_AUTH_ZONE",
               "proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               }
             }
           ],
@@ -917,29 +917,29 @@
             {
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -984,15 +984,15 @@
               },
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -1002,15 +1002,15 @@
               },
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -1066,15 +1066,15 @@
               ],
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             },
             {
@@ -1086,15 +1086,15 @@
               ],
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               },
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -1143,19 +1143,19 @@
           "examples": [
             {
               "bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "bucket"
-                },
-                "kind": "Bucket"
+                }
               },
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "Proof"
-                },
-                "kind": "Proof"
+                }
               }
             }
           ],
@@ -1196,18 +1196,18 @@
             {
               "instruction": "CLONE_PROOF",
               "into_proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident2"
-                },
-                "kind": "Proof"
+                }
               },
               "proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Proof"
+                }
               }
             }
           ],
@@ -1248,11 +1248,11 @@
             {
               "instruction": "DROP_PROOF",
               "proof": {
-                "identifier": {
+                "kind": "Proof",
+                "value": {
                   "type": "String",
                   "value": "proof"
-                },
-                "kind": "Proof"
+                }
               }
             }
           ],
@@ -1303,8 +1303,8 @@
           "examples": [
             {
               "code": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "kind": "Blob"
+                "kind": "Blob",
+                "value": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
               },
               "instruction": "PUBLISH_PACKAGE",
               "metadata": {
@@ -1320,8 +1320,8 @@
                 "value_kind": "Tuple"
               },
               "schema": {
-                "kind": "Bytes",
-                "value": "4d2101230c2100"
+                "hex": "4d2101230c2100",
+                "kind": "Bytes"
               }
             }
           ],
@@ -1448,8 +1448,8 @@
                 "kind": "Tuple"
               },
               "code": {
-                "hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-                "kind": "Blob"
+                "kind": "Blob",
+                "value": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
               },
               "instruction": "PUBLISH_PACKAGE_ADVANCED",
               "metadata": {
@@ -1465,8 +1465,8 @@
                 "value_kind": "Tuple"
               },
               "schema": {
-                "kind": "Bytes",
-                "value": "4d2101230c2100"
+                "hex": "4d2101230c2100",
+                "kind": "Bytes"
               }
             }
           ],
@@ -1533,11 +1533,11 @@
           "examples": [
             {
               "bucket": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "instruction": "BURN_RESOURCE"
             }
@@ -1574,8 +1574,8 @@
               },
               "instruction": "RECALL_RESOURCE",
               "vault_id": {
-                "address": "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff"
               }
             }
           ],
@@ -1615,8 +1615,8 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "SET_METADATA",
               "key": {
@@ -1692,8 +1692,8 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "REMOVE_METADATA",
               "key": {
@@ -1739,8 +1739,8 @@
             {
               "instruction": "SET_PACKAGE_ROYALTY_CONFIG",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               },
               "royalty_config": {
                 "entries": [],
@@ -1786,8 +1786,8 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "SET_COMPONENT_ROYALTY_CONFIG",
               "royalty_config": {
@@ -1844,8 +1844,8 @@
             {
               "instruction": "CLAIM_PACKAGE_ROYALTY",
               "package_address": {
-                "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
             }
           ],
@@ -1876,8 +1876,8 @@
           "examples": [
             {
               "component_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "CLAIM_COMPONENT_ROYALTY"
             }
@@ -1909,8 +1909,8 @@
           "examples": [
             {
               "entity_address": {
-                "address": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
               "instruction": "SET_METHOD_ACCESS_RULE",
               "key": {
@@ -1990,8 +1990,8 @@
               },
               "instruction": "MINT_FUNGIBLE",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -2038,8 +2038,8 @@
               },
               "instruction": "MINT_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -2112,8 +2112,8 @@
               },
               "instruction": "MINT_UUID_NON_FUNGIBLE",
               "resource_address": {
-                "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
               }
             }
           ],
@@ -2471,11 +2471,11 @@
           "examples": [
             {
               "controlled_asset": {
-                "identifier": {
+                "kind": "Bucket",
+                "value": {
                   "type": "String",
                   "value": "ident"
-                },
-                "kind": "Bucket"
+                }
               },
               "instruction": "CREATE_ACCESS_CONTROLLER",
               "rule_set": {
@@ -2562,8 +2562,8 @@
             {
               "instruction": "CREATE_VALIDATOR",
               "key": {
-                "kind": "Bytes",
-                "value": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+                "hex": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+                "kind": "Bytes"
               }
             }
           ],
@@ -3550,22 +3550,22 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
             },
             {
-              "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
             },
             {
-              "address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
             }
           ],
           "type": "object",
           "required": [
-            "address",
-            "kind"
+            "kind",
+            "value"
           ],
           "properties": {
             "kind": {
@@ -3574,7 +3574,7 @@
                 "Address"
               ]
             },
-            "address": {
+            "value": {
               "type": "string"
             }
           }
@@ -3583,24 +3583,24 @@
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
-              "identifier": {
+              "kind": "Bucket",
+              "value": {
                 "type": "String",
                 "value": "bucket"
-              },
-              "kind": "Bucket"
+              }
             },
             {
-              "identifier": {
+              "kind": "Bucket",
+              "value": {
                 "type": "U32",
                 "value": "1"
-              },
-              "kind": "Bucket"
+              }
             }
           ],
           "type": "object",
           "required": [
-            "identifier",
-            "kind"
+            "kind",
+            "value"
           ],
           "properties": {
             "kind": {
@@ -3609,7 +3609,7 @@
                 "Bucket"
               ]
             },
-            "identifier": {
+            "value": {
               "$ref": "#/definitions/BucketId"
             }
           }
@@ -3618,24 +3618,24 @@
           "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
-              "identifier": {
+              "kind": "Proof",
+              "value": {
                 "type": "String",
                 "value": "proof"
-              },
-              "kind": "Proof"
+              }
             },
             {
-              "identifier": {
+              "kind": "Proof",
+              "value": {
                 "type": "U32",
                 "value": "1"
-              },
-              "kind": "Proof"
+              }
             }
           ],
           "type": "object",
           "required": [
-            "identifier",
-            "kind"
+            "kind",
+            "value"
           ],
           "properties": {
             "kind": {
@@ -3644,7 +3644,7 @@
                 "Proof"
               ]
             },
-            "identifier": {
+            "value": {
               "$ref": "#/definitions/ProofId"
             }
           }
@@ -3696,8 +3696,8 @@
                 "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -3707,8 +3707,8 @@
                 "value": "#1#"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -3718,8 +3718,8 @@
                 "value": "<Scrypto>"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -3729,8 +3729,8 @@
                 "value": "[01020304]"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             }
           ],
@@ -3788,32 +3788,7 @@
           "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
           "examples": [
             {
-              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
-              "kind": "Blob"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "hash",
-            "kind"
-          ],
-          "properties": {
-            "kind": {
-              "type": "string",
-              "enum": [
-                "Blob"
-              ]
-            },
-            "hash": {
-              "$ref": "#/definitions/Blob"
-            }
-          }
-        },
-        {
-          "description": "Represents a byte array of an unknown size which is serialized as a hex string",
-          "examples": [
-            {
-              "kind": "Bytes",
+              "kind": "Blob",
               "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
             }
           ],
@@ -3826,10 +3801,35 @@
             "kind": {
               "type": "string",
               "enum": [
-                "Bytes"
+                "Blob"
               ]
             },
             "value": {
+              "$ref": "#/definitions/Blob"
+            }
+          }
+        },
+        {
+          "description": "Represents a byte array of an unknown size which is serialized as a hex string",
+          "examples": [
+            {
+              "hex": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "kind": "Bytes"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "hex",
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Bytes"
+              ]
+            },
+            "hex": {
               "type": "string"
             }
           }
@@ -4283,16 +4283,16 @@
           "description": "Represents a Bech32m encoded human-readable address which may be used to address a package, component, or resource. This address is serialized as a human-readable bech32m encoded string.",
           "examples": [
             {
-              "address": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
             },
             {
-              "address": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
             },
             {
-              "address": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx",
-              "kind": "Address"
+              "kind": "Address",
+              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
             }
           ],
           "type": "string",
@@ -4304,18 +4304,18 @@
           "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
-              "identifier": {
+              "kind": "Bucket",
+              "value": {
                 "type": "String",
                 "value": "bucket"
-              },
-              "kind": "Bucket"
+              }
             },
             {
-              "identifier": {
+              "kind": "Bucket",
+              "value": {
                 "type": "U32",
                 "value": "1"
-              },
-              "kind": "Bucket"
+              }
             }
           ],
           "type": "string",
@@ -4327,18 +4327,18 @@
           "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
           "examples": [
             {
-              "identifier": {
+              "kind": "Proof",
+              "value": {
                 "type": "String",
                 "value": "proof"
-              },
-              "kind": "Proof"
+              }
             },
             {
-              "identifier": {
+              "kind": "Proof",
+              "value": {
                 "type": "U32",
                 "value": "1"
-              },
-              "kind": "Proof"
+              }
             }
           ],
           "type": "string",
@@ -4381,8 +4381,8 @@
                 "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -4392,8 +4392,8 @@
                 "value": "#1#"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -4403,8 +4403,8 @@
                 "value": "<Scrypto>"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             },
             {
@@ -4414,8 +4414,8 @@
                 "value": "[01020304]"
               },
               "resource_address": {
-                "address": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg",
-                "kind": "Address"
+                "kind": "Address",
+                "value": "resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg"
               }
             }
           ],
@@ -4445,8 +4445,8 @@
           "description": "Represents the hash of a blob provided as part of a transaction manifest. This is represented as a byte array of 32 bytes which is serialized as a hex string.",
           "examples": [
             {
-              "hash": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
-              "kind": "Blob"
+              "kind": "Blob",
+              "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
             }
           ],
           "type": "string",
@@ -4458,8 +4458,8 @@
           "description": "Represents a byte array of an unknown size which is serialized as a hex string",
           "examples": [
             {
-              "kind": "Bytes",
-              "value": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e"
+              "hex": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "kind": "Bytes"
             }
           ],
           "type": "string",

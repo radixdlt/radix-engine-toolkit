@@ -34,7 +34,7 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
             // Case: NonFungibleGlobalId - A tuple of ResourceAddress and NonFungibleLocalId
             match (elements.get(0), elements.get(1)) {
                 (
-                    Some(ManifestAstValue::Address { address }),
+                    Some(ManifestAstValue::Address { value: address }),
                     Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
                     }),
@@ -66,7 +66,7 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
                     _ => return Ok(()),
                 }
             }
-            *value = ManifestAstValue::Bytes { value: bytes };
+            *value = ManifestAstValue::Bytes { hex: bytes };
         }
         Ok(())
     }

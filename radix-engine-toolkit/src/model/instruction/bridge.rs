@@ -728,7 +728,7 @@ fn package_schema_bytes_to_native_ast(
     bech32_coder: &Bech32Coder,
 ) -> Result<native_transaction::manifest::ast::Value, PackageSchemaResolutionError> {
     // Extract the encoded package schema from the Bytes object
-    let encoded_package_schema = if let ManifestAstValue::Bytes { value } = value {
+    let encoded_package_schema = if let ManifestAstValue::Bytes { hex: value } = value {
         Ok(value)
     } else {
         Err(PackageSchemaResolutionError::InvalidValueKind {
@@ -789,6 +789,6 @@ fn package_schema_tuple_to_ret_ast(
         manifest_encode(&package_schema).expect("Impossible case! Decoding succeeded");
 
     Ok(ManifestAstValue::Bytes {
-        value: encoded_package_schema,
+        hex: encoded_package_schema,
     })
 }

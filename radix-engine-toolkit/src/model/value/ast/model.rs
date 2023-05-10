@@ -239,7 +239,7 @@ define_kind_enum! {
         Address {
             #[schemars(with = "String")]
             #[serde_as(as = "serde_with::DisplayFromStr")]
-            address: NetworkAwareNodeId,
+            value: NetworkAwareNodeId,
         },
 
         /// Represents a Scrypto bucket which is identified through a transient identifier which is
@@ -248,7 +248,7 @@ define_kind_enum! {
             example = "crate::example::value::ast_value::bucket1",
             example = "crate::example::value::ast_value::bucket2",
         )]
-        Bucket { identifier: BucketId },
+        Bucket { value: BucketId },
 
         /// Represents a Scrypto proof which is identified through a transient identifier which is
         /// either a string or an unsigned 32-bit integer which is serialized as a Integer.
@@ -256,7 +256,7 @@ define_kind_enum! {
             example = "crate::example::value::ast_value::proof1",
             example = "crate::example::value::ast_value::proof2",
         )]
-        Proof { identifier: ProofId },
+        Proof { value: ProofId },
 
         /// Represents non-fungible ids which is a discriminated union of the different types that
         /// non-fungible ids may be.
@@ -308,7 +308,7 @@ define_kind_enum! {
         Blob {
             #[schemars(with = "crate::model::runtime::Blob")]
             #[serde_as(as = "serde_with::FromInto<crate::model::runtime::Blob>")]
-            hash: ManifestBlobRef,
+            value: ManifestBlobRef,
         },
 
         /// Represents a byte array of an unknown size which is serialized as a hex string
@@ -316,7 +316,7 @@ define_kind_enum! {
         Bytes {
             #[serde_as(as = "serde_with::hex::Hex")]
             #[schemars(with = "String")]
-            value: Vec<u8>,
+            hex: Vec<u8>,
         },
     }
 }

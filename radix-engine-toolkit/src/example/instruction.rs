@@ -41,7 +41,7 @@ fn example_component_address() -> ComponentAddress {
 pub fn call_function1() -> Instruction {
     let instruction = Instruction::CallFunction {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         blueprint_name: ManifestAstValue::String {
             value: "Faucet".into(),
@@ -60,7 +60,7 @@ pub fn call_function1() -> Instruction {
 pub fn call_function2() -> Instruction {
     let instruction = Instruction::CallFunction {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         blueprint_name: ManifestAstValue::String {
             value: "Faucet".into(),
@@ -79,7 +79,7 @@ pub fn call_function2() -> Instruction {
 pub fn call_function3() -> Instruction {
     let instruction = Instruction::CallFunction {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         blueprint_name: ManifestAstValue::String {
             value: "Faucet".into(),
@@ -98,7 +98,7 @@ pub fn call_function3() -> Instruction {
 pub fn call_function4() -> Instruction {
     let instruction = Instruction::CallFunction {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         blueprint_name: ManifestAstValue::String {
             value: "Faucet".into(),
@@ -117,7 +117,7 @@ pub fn call_function4() -> Instruction {
 pub fn call_method1() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         method_name: ManifestAstValue::String {
             value: "free".into(),
@@ -133,7 +133,7 @@ pub fn call_method1() -> Instruction {
 pub fn call_method2() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         method_name: ManifestAstValue::String {
             value: "free".into(),
@@ -149,7 +149,7 @@ pub fn call_method2() -> Instruction {
 pub fn call_method3() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         method_name: ManifestAstValue::String {
             value: "free".into(),
@@ -163,7 +163,7 @@ pub fn call_method3() -> Instruction {
 pub fn call_method4() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         method_name: ManifestAstValue::String {
             value: "free".into(),
@@ -177,10 +177,10 @@ pub fn call_method4() -> Instruction {
 pub fn take_from_worktop1() -> Instruction {
     let instruction = Instruction::TakeFromWorktop {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".to_owned(),
             }),
         },
@@ -192,10 +192,10 @@ pub fn take_from_worktop1() -> Instruction {
 pub fn take_from_worktop2() -> Instruction {
     let instruction = Instruction::TakeFromWorktop {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".to_owned(),
             }),
         },
@@ -207,13 +207,13 @@ pub fn take_from_worktop2() -> Instruction {
 pub fn take_from_worktop_by_amount1() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
         },
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -225,13 +225,13 @@ pub fn take_from_worktop_by_amount1() -> Instruction {
 pub fn take_from_worktop_by_amount2() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
         },
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -243,13 +243,13 @@ pub fn take_from_worktop_by_amount2() -> Instruction {
 pub fn take_from_worktop_by_ids1() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -261,13 +261,13 @@ pub fn take_from_worktop_by_ids1() -> Instruction {
 pub fn take_from_worktop_by_ids2() -> Instruction {
     let instruction = Instruction::TakeFromWorktopByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -279,7 +279,7 @@ pub fn take_from_worktop_by_ids2() -> Instruction {
 pub fn return_to_worktop() -> Instruction {
     let instruction = Instruction::ReturnToWorktop {
         bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -291,7 +291,7 @@ pub fn return_to_worktop() -> Instruction {
 pub fn assert_worktop_contains1() -> Instruction {
     let instruction = Instruction::AssertWorktopContains {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
     };
     check_instruction(&instruction);
@@ -301,7 +301,7 @@ pub fn assert_worktop_contains1() -> Instruction {
 pub fn assert_worktop_contains2() -> Instruction {
     let instruction = Instruction::AssertWorktopContains {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
     };
     check_instruction(&instruction);
@@ -311,7 +311,7 @@ pub fn assert_worktop_contains2() -> Instruction {
 pub fn assert_worktop_contains_by_amount1() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
@@ -324,7 +324,7 @@ pub fn assert_worktop_contains_by_amount1() -> Instruction {
 pub fn assert_worktop_contains_by_amount2() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
@@ -337,7 +337,7 @@ pub fn assert_worktop_contains_by_amount2() -> Instruction {
 pub fn assert_worktop_contains_by_ids1() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
@@ -350,7 +350,7 @@ pub fn assert_worktop_contains_by_ids1() -> Instruction {
 pub fn assert_worktop_contains_by_ids2() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
@@ -363,7 +363,7 @@ pub fn assert_worktop_contains_by_ids2() -> Instruction {
 pub fn pop_from_auth_zone() -> Instruction {
     let instruction = Instruction::PopFromAuthZone {
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -375,7 +375,7 @@ pub fn pop_from_auth_zone() -> Instruction {
 pub fn push_to_auth_zone() -> Instruction {
     let instruction = Instruction::PushToAuthZone {
         proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -393,10 +393,10 @@ pub fn clear_auth_zone() -> Instruction {
 pub fn create_proof_from_auth_zone1() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZone {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".to_owned(),
             }),
         },
@@ -408,10 +408,10 @@ pub fn create_proof_from_auth_zone1() -> Instruction {
 pub fn create_proof_from_auth_zone2() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZone {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".to_owned(),
             }),
         },
@@ -423,13 +423,13 @@ pub fn create_proof_from_auth_zone2() -> Instruction {
 pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -441,13 +441,13 @@ pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
 pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByAmount {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -459,13 +459,13 @@ pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
 pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -477,13 +477,13 @@ pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
 pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
     let instruction = Instruction::CreateProofFromAuthZoneByIds {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         ids: vec![ManifestAstValue::NonFungibleLocalId {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -495,12 +495,12 @@ pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
 pub fn create_proof_from_bucket() -> Instruction {
     let instruction = Instruction::CreateProofFromBucket {
         bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "bucket".into(),
             }),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "Proof".into(),
             }),
         },
@@ -512,12 +512,12 @@ pub fn create_proof_from_bucket() -> Instruction {
 pub fn clone_proof() -> Instruction {
     let instruction = Instruction::CloneProof {
         proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
         into_proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "ident2".into(),
             }),
         },
@@ -529,7 +529,7 @@ pub fn clone_proof() -> Instruction {
 pub fn publish_package() -> Instruction {
     let instruction = Instruction::PublishPackage {
         code: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
+            value: ManifestBlobRef(
                 checked_copy_u8_slice(
                     hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
                         .unwrap(),
@@ -538,7 +538,7 @@ pub fn publish_package() -> Instruction {
             ),
         },
         schema: ManifestAstValue::Bytes {
-            value: manifest_encode(&PackageSchema::default()).unwrap(),
+            hex: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
             key_kind: ManifestAstValueKind::String,
@@ -558,7 +558,7 @@ pub fn publish_package() -> Instruction {
 pub fn publish_package_advanced() -> Instruction {
     let instruction = Instruction::PublishPackageAdvanced {
         code: ManifestAstValue::Blob {
-            hash: ManifestBlobRef(
+            value: ManifestBlobRef(
                 checked_copy_u8_slice(
                     hex::decode("01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b")
                         .unwrap(),
@@ -567,7 +567,7 @@ pub fn publish_package_advanced() -> Instruction {
             ),
         },
         schema: ManifestAstValue::Bytes {
-            value: manifest_encode(&PackageSchema::default()).unwrap(),
+            hex: manifest_encode(&PackageSchema::default()).unwrap(),
         },
         royalty_config: ManifestAstValue::Map {
             key_kind: ManifestAstValueKind::String,
@@ -630,7 +630,7 @@ pub fn publish_package_advanced() -> Instruction {
 pub fn burn_resource() -> Instruction {
     let instruction = Instruction::BurnResource {
         bucket: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -648,7 +648,7 @@ pub fn drop_all_proofs() -> Instruction {
 pub fn drop_proof() -> Instruction {
     let instruction = Instruction::DropProof {
         proof: ManifestAstValue::Proof {
-            identifier: ProofId(TransientIdentifier::String {
+            value: ProofId(TransientIdentifier::String {
                 value: "proof".into(),
             }),
         },
@@ -660,7 +660,7 @@ pub fn drop_proof() -> Instruction {
 pub fn recall_resource() -> Instruction {
     let instruction = Instruction::RecallResource {
         vault_id: ManifestAstValue::Address {
-            address: "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff"
+            value: "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff"
                 .parse()
                 .unwrap(),
         },
@@ -675,7 +675,7 @@ pub fn recall_resource() -> Instruction {
 pub fn set_metadata() -> Instruction {
     let instruction = Instruction::SetMetadata {
         entity_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         key: ManifestAstValue::String {
             value: "name".into(),
@@ -697,7 +697,7 @@ pub fn set_metadata() -> Instruction {
 pub fn remove_metadata() -> Instruction {
     let instruction = Instruction::RemoveMetadata {
         entity_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         key: ManifestAstValue::String {
             value: "name".into(),
@@ -710,7 +710,7 @@ pub fn remove_metadata() -> Instruction {
 pub fn set_package_royalty_config() -> Instruction {
     let instruction = Instruction::SetPackageRoyaltyConfig {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
         royalty_config: ManifestAstValue::Map {
             key_kind: ManifestAstValueKind::String,
@@ -725,7 +725,7 @@ pub fn set_package_royalty_config() -> Instruction {
 pub fn set_component_royalty_config() -> Instruction {
     let instruction = Instruction::SetComponentRoyaltyConfig {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         royalty_config: ManifestAstValue::Tuple {
             fields: vec![
@@ -745,7 +745,7 @@ pub fn set_component_royalty_config() -> Instruction {
 pub fn claim_package_royalty() -> Instruction {
     let instruction = Instruction::ClaimPackageRoyalty {
         package_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
+            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
         },
     };
     check_instruction(&instruction);
@@ -755,7 +755,7 @@ pub fn claim_package_royalty() -> Instruction {
 pub fn claim_component_royalty() -> Instruction {
     let instruction = Instruction::ClaimComponentRoyalty {
         component_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
     };
     check_instruction(&instruction);
@@ -765,7 +765,7 @@ pub fn claim_component_royalty() -> Instruction {
 pub fn set_method_access_rule() -> Instruction {
     let instruction = Instruction::SetMethodAccessRule {
         entity_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
         key: ManifestAstValue::Tuple {
             fields: vec![
@@ -790,7 +790,7 @@ pub fn set_method_access_rule() -> Instruction {
 pub fn mint_fungible() -> Instruction {
     let instruction = Instruction::MintFungible {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         amount: ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
@@ -803,7 +803,7 @@ pub fn mint_fungible() -> Instruction {
 pub fn mint_non_fungible() -> Instruction {
     let instruction = Instruction::MintNonFungible {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         entries: ManifestAstValue::Map {
             key_kind: ManifestAstValueKind::NonFungibleLocalId,
@@ -818,7 +818,7 @@ pub fn mint_non_fungible() -> Instruction {
 pub fn mint_uuid_non_fungible() -> Instruction {
     let instruction = Instruction::MintUuidNonFungible {
         resource_address: ManifestAstValue::Address {
-            address: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         entries: ManifestAstValue::Array {
             element_kind: ManifestAstValueKind::Tuple,
@@ -959,7 +959,7 @@ pub fn create_non_fungible_resource() -> Instruction {
 pub fn create_access_controller() -> Instruction {
     let instruction = Instruction::CreateAccessController {
         controlled_asset: ManifestAstValue::Bucket {
-            identifier: BucketId(TransientIdentifier::String {
+            value: BucketId(TransientIdentifier::String {
                 value: "ident".into(),
             }),
         },
@@ -1102,10 +1102,8 @@ pub fn create_account_advanced() -> Instruction {
 pub fn create_validator() -> Instruction {
     let instruction = Instruction::CreateValidator {
         key: ManifestAstValue::Bytes {
-            value: hex::decode(
-                "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
-            )
-            .unwrap(),
+            hex: hex::decode("0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798")
+                .unwrap(),
         },
     };
     check_instruction(&instruction);
@@ -1128,20 +1126,20 @@ fn check_instruction(instruction: &Instruction) {
         Instruction::PushToAuthZone {
             proof:
                 ManifestAstValue::Proof {
-                    identifier: ProofId(TransientIdentifier::String { value }),
+                    value: ProofId(TransientIdentifier::String { value }),
                 },
         }
         | Instruction::CloneProof {
             proof:
                 ManifestAstValue::Proof {
-                    identifier: ProofId(TransientIdentifier::String { value }),
+                    value: ProofId(TransientIdentifier::String { value }),
                 },
             ..
         }
         | Instruction::DropProof {
             proof:
                 ManifestAstValue::Proof {
-                    identifier: ProofId(TransientIdentifier::String { value }),
+                    value: ProofId(TransientIdentifier::String { value }),
                 },
         } => {
             name_resolver
@@ -1156,37 +1154,37 @@ fn check_instruction(instruction: &Instruction) {
         Instruction::ReturnToWorktop {
             bucket:
                 ManifestAstValue::Bucket {
-                    identifier: BucketId(TransientIdentifier::String { value }),
+                    value: BucketId(TransientIdentifier::String { value }),
                 },
         }
         | Instruction::CreateProofFromBucket {
             bucket:
                 ManifestAstValue::Bucket {
-                    identifier: BucketId(TransientIdentifier::String { value }),
+                    value: BucketId(TransientIdentifier::String { value }),
                 },
             ..
         }
         | Instruction::BurnResource {
             bucket:
                 ManifestAstValue::Bucket {
-                    identifier: BucketId(TransientIdentifier::String { value }),
+                    value: BucketId(TransientIdentifier::String { value }),
                 },
         }
         | Instruction::CreateAccessController {
             controlled_asset:
                 ManifestAstValue::Bucket {
-                    identifier: BucketId(TransientIdentifier::String { value }),
+                    value: BucketId(TransientIdentifier::String { value }),
                 },
             ..
         } => name_resolver
             .insert_bucket(value.to_string(), id_validator.new_bucket().unwrap())
             .unwrap(),
         Instruction::PublishPackage {
-            code: ManifestAstValue::Blob { hash: code },
+            code: ManifestAstValue::Blob { value: code },
             ..
         }
         | Instruction::PublishPackageAdvanced {
-            code: ManifestAstValue::Blob { hash: code },
+            code: ManifestAstValue::Blob { value: code },
             ..
         } => {
             blobs.push(Hash(code.0));

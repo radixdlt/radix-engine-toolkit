@@ -49,13 +49,13 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         ) {
             (
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 ManifestAstValue::String {
                     value: ref method_name,
                 },
                 Some(ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 }),
             ) if is_account(*component_address)
                 && (method_name == ACCOUNT_CREATE_PROOF_IDENT

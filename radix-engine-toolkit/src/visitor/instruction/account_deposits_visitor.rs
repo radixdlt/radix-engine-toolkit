@@ -141,15 +141,12 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         match (component_address, method_name, &arguments) {
             (
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
             ) if is_account(*component_address) && method_name == ACCOUNT_DEPOSIT_IDENT => {
-                if let Some(ManifestAstValue::Bucket {
-                    identifier: bucket_id,
-                }) = arguments.get(0)
-                {
+                if let Some(ManifestAstValue::Bucket { value: bucket_id }) = arguments.get(0) {
                     let bucket_info = self.buckets.get(bucket_id).map_or(
                         Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
                             bucket_id.clone(),
@@ -164,7 +161,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
             }
             (
                 ManifestAstValue::Address {
-                    address: component_address,
+                    value: component_address,
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
@@ -237,7 +234,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                         let bucket_ids = {
                             let mut resolved_bucket_ids = BTreeSet::new();
                             for bucket_id in bucket_ids {
-                                if let ManifestAstValue::Bucket { identifier } = bucket_id {
+                                if let ManifestAstValue::Bucket { value: identifier } = bucket_id {
                                     resolved_bucket_ids.insert(identifier.clone());
                                 } else { /* TODO: currently a no-op. Should be an error? */
                                 }
@@ -291,11 +288,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         match (resource_address, into_bucket) {
             (
                 ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 },
-                ManifestAstValue::Bucket {
-                    identifier: bucket_id,
-                },
+                ManifestAstValue::Bucket { value: bucket_id },
             ) if resource_address.node_id().is_global_resource() => {
                 if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
                     if let Some(WorktopChange::Take(resource_quantifier)) = worktop_changes.get(0) {
@@ -340,12 +335,10 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         match (resource_address, amount, into_bucket) {
             (
                 ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 },
                 ManifestAstValue::Decimal { value: amount },
-                ManifestAstValue::Bucket {
-                    identifier: bucket_id,
-                },
+                ManifestAstValue::Bucket { value: bucket_id },
             ) if resource_address.node_id().is_global_resource() => {
                 self.add_bucket(
                     bucket_id.clone(),
@@ -373,12 +366,10 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         match (resource_address, ids, into_bucket) {
             (
                 ManifestAstValue::Address {
-                    address: resource_address,
+                    value: resource_address,
                 },
                 ids,
-                ManifestAstValue::Bucket {
-                    identifier: bucket_id,
-                },
+                ManifestAstValue::Bucket { value: bucket_id },
             ) if resource_address.node_id().is_global_resource() => {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
@@ -415,10 +406,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         &mut self,
         bucket: &mut ManifestAstValue,
     ) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Bucket {
-            identifier: bucket_id,
-        } = bucket
-        {
+        if let ManifestAstValue::Bucket { value: bucket_id } = bucket {
             self.buckets.remove(bucket_id).map_or(
                 Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
                     bucket_id.clone(),
@@ -432,10 +420,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
     }
 
     fn visit_burn_resource(&mut self, bucket: &mut ManifestAstValue) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Bucket {
-            identifier: bucket_id,
-        } = bucket
-        {
+        if let ManifestAstValue::Bucket { value: bucket_id } = bucket {
             self.buckets.remove(bucket_id).map_or(
                 Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
                     bucket_id.clone(),
@@ -454,10 +439,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
     ) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Bucket {
-            identifier: bucket_id,
-        } = bucket
-        {
+        if let ManifestAstValue::Bucket { value: bucket_id } = bucket {
             self.buckets.remove(bucket_id).map_or(
                 Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
                     bucket_id.clone(),
@@ -500,10 +482,7 @@ struct BucketValueVisitor(Vec<BucketId>);
 
 impl ManifestAstValueVisitor for BucketValueVisitor {
     fn visit_bucket(&mut self, bucket: &mut ManifestAstValue) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Bucket {
-            identifier: bucket_id,
-        } = bucket
-        {
+        if let ManifestAstValue::Bucket { value: bucket_id } = bucket {
             self.0.push(bucket_id.to_owned());
         }
         Ok(())

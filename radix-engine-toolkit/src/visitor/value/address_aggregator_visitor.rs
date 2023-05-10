@@ -33,7 +33,7 @@ pub struct AddressAggregatorVisitor {
 
 impl ManifestAstValueVisitor for AddressAggregatorVisitor {
     fn visit_address(&mut self, value: &mut ManifestAstValue) -> Result<(), VisitorError> {
-        if let ManifestAstValue::Address { address } = value {
+        if let ManifestAstValue::Address { value: address } = value {
             let node_id = address.node_id();
             if node_id.is_global_component() {
                 self.component_addresses.insert(*address);
