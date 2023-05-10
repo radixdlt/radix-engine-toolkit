@@ -17,6 +17,13 @@
       "description": "An 8 bit unsigned integer serialized as a string which represents the id of the network that the decoded data will be used on. This is primarily used for the Bech32m encoding of addresses.",
       "type": "string",
       "pattern": "[0-9]+"
+    },
+    "schema": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "[0-9a-fA-F]+"
     }
   }
 }

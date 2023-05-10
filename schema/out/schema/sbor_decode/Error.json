@@ -87,6 +87,13 @@
         }
       },
       "additionalProperties": false
+    },
+    {
+      "description": "Emitted when the schema fails to be decoded",
+      "type": "string",
+      "enum": [
+        "FailedToDecodeSchema"
+      ]
     }
   ],
   "definitions": {

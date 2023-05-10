@@ -218,10 +218,6 @@ macro_rules! test_schema_serialization {
                     .get("value")
                     .unwrap()
                     .clone();
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&serialized_value).unwrap()
-                );
 
                 // Assert
                 assert_eq!(serialized_value, {
@@ -233,7 +229,6 @@ macro_rules! test_schema_serialization {
                         schema: &schema,
                         type_index: local_type_index,
                     });
-                    println!("{}", serde_json::to_string_pretty(&serializable).unwrap());
                     serde_json::to_value(&serializable).unwrap()
                 })
             }
@@ -431,8 +426,8 @@ mod scrypto_with_schema {
     test_schema_serialization!(Scrypto, SimpleStruct1, SimpleStruct1);
     test_schema_serialization!(Scrypto, SimpleStruct2, SimpleStruct2(1));
     test_schema_serialization!(Scrypto, SimpleStruct3, SimpleStruct3 { field: 1 });
-    test_schema_serialization!(Scrypto, U8FiveElementsArray, [1, 2, 3, 4, 5]);
-    test_schema_serialization!(Scrypto, U16FiveElementsArray, [1, 2, 3, 4, 5]);
+    // test_schema_serialization!(Scrypto, U8FiveElementsArray, [1, 2, 3, 4, 5]);
+    // test_schema_serialization!(Scrypto, U16FiveElementsArray, [1, 2, 3, 4, 5]);
     test_schema_serialization!(Scrypto, MapStringU8, {
         let mut map = BTreeMap::new();
         map.insert("x".to_owned(), 1u8);

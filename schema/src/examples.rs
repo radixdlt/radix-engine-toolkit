@@ -27,7 +27,7 @@ use scrypto::prelude::manifest_encode;
 
 use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::transaction::InstructionKind;
-use radix_engine_toolkit::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueKind};
+use radix_engine_toolkit::model::value::scrypto_sbor::ScryptoSborValue;
 
 use radix_engine_toolkit::functions::*;
 use scrypto::prelude::*;
@@ -67,49 +67,14 @@ pub fn notary_private_key() -> EcdsaSecp256k1PrivateKey {
 
 pub fn value() -> ScryptoSborValue {
     ScryptoSborValue::Tuple {
+        type_name: None,
         fields: vec![
-            ScryptoSborValue::Decimal { value: dec!("10") },
-            ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
+            ScryptoSborValue::Decimal { value: dec!("10") }.into(),
+            ScryptoSborValue::PreciseDecimal { value: pdec!("10") }.into(),
             ScryptoSborValue::String {
                 value: "Hello World!".into(),
-            },
-            ScryptoSborValue::Tuple {
-                fields: vec![
-                    ScryptoSborValue::Decimal { value: dec!("10") },
-                    ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
-                    ScryptoSborValue::String {
-                        value: "Hello World!".into(),
-                    },
-                    ScryptoSborValue::Tuple {
-                        fields: vec![
-                            ScryptoSborValue::Decimal { value: dec!("10") },
-                            ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
-                            ScryptoSborValue::String {
-                                value: "Hello World!".into(),
-                            },
-                            ScryptoSborValue::Tuple {
-                                fields: vec![
-                                    ScryptoSborValue::Decimal { value: dec!("10") },
-                                    ScryptoSborValue::PreciseDecimal { value: pdec!("10") },
-                                    ScryptoSborValue::String {
-                                        value: "Hello World!".into(),
-                                    },
-                                    ScryptoSborValue::Array {
-                                        element_kind: ScryptoSborValueKind::Decimal,
-                                        elements: vec![
-                                            ScryptoSborValue::Decimal { value: dec!("20") },
-                                            ScryptoSborValue::Decimal { value: dec!("100") },
-                                            ScryptoSborValue::Decimal {
-                                                value: dec!("192.31"),
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            },
+            }
+            .into(),
         ],
     }
 }

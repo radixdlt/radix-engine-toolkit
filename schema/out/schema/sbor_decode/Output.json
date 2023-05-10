@@ -399,11 +399,23 @@
               "type": "string",
               "pattern": "[0-9]+"
             },
+            "variant_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "fields": {
               "description": "Optional fields that the enum may have",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/ScryptoSborValue"
+                "$ref": "#/definitions/Field_for_ScryptoSborValue"
               }
             }
           }
@@ -564,10 +576,18 @@
                 "Tuple"
               ]
             },
+            "type_name": {
+              "description": "An optional string field which is not serialized if no schema is provided. This is the name of the type if it's a struct and not actually a tuple.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "fields": {
+              "description": "The fields of the tuple which may contain 0 or more fields.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/ScryptoSborValue"
+                "$ref": "#/definitions/Field_for_ScryptoSborValue"
               }
             }
           }
@@ -742,6 +762,733 @@
           }
         }
       ]
+    },
+    "Field_for_ScryptoSborValue": {
+      "description": "A value model used to describe an algebraic sum type which is used to express Scrypto SBOR values. This is serialized as a discriminated union of types.",
+      "type": "object",
+      "oneOf": [
+        {
+          "description": "A boolean value which can either be true or false",
+          "examples": [
+            {
+              "kind": "Bool",
+              "value": false
+            },
+            {
+              "kind": "Bool",
+              "value": true
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Bool"
+              ]
+            },
+            "value": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "description": "An 8-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "U8",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "U8"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 16-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "U16",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "U16"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "U32",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "U32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 64-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "U64",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "U64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128-bit unsigned integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "U128",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "U128"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "An 8-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "I8",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "I8"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 16-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "I16",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "I16"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 32-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "I32"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 64-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "I32",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "I64"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A 128-bit signed integer which is serialized and deserialized as a string.",
+          "examples": [
+            {
+              "kind": "I128",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "I128"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A type representing a string",
+          "examples": [
+            {
+              "kind": "String",
+              "value": "Scrypto"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "String"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "A Rust-style Enum which has a variant and can optionally also have a list of values (acting in a way similar to discriminated algebraic sum types)",
+          "examples": [
+            {
+              "fields": [],
+              "kind": "Enum",
+              "variant_id": "1"
+            },
+            {
+              "fields": [
+                {
+                  "kind": "U8",
+                  "value": "1"
+                }
+              ],
+              "kind": "Enum",
+              "variant_id": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "fields",
+            "kind",
+            "variant_id"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Enum"
+              ]
+            },
+            "variant_id": {
+              "description": "The variant of the enum.",
+              "type": "string",
+              "pattern": "[0-9]+"
+            },
+            "variant_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type_name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "fields": {
+              "description": "Optional fields that the enum may have",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Field_for_ScryptoSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An array values of a single value kind",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "elements": [
+                {
+                  "kind": "U8",
+                  "value": "1"
+                },
+                {
+                  "kind": "U8",
+                  "value": "2"
+                },
+                {
+                  "kind": "U8",
+                  "value": "3"
+                }
+              ],
+              "kind": "Array"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "element_kind",
+            "elements",
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Array"
+              ]
+            },
+            "element_kind": {
+              "description": "The kind of elements that the array contains. An array will be validated to ensure that it contains a single element kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScryptoSborValueKind"
+                }
+              ]
+            },
+            "elements": {
+              "description": "The elements of the array which may contain 0 or more elements.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ScryptoSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "A key-value map of values where all keys are of a single kind and all values are of a single kind",
+          "examples": [
+            {
+              "entries": [
+                {
+                  "key": {
+                    "kind": "U8",
+                    "value": "65"
+                  },
+                  "value": {
+                    "kind": "String",
+                    "value": "A"
+                  }
+                },
+                {
+                  "key": {
+                    "kind": "U8",
+                    "value": "66"
+                  },
+                  "value": {
+                    "kind": "String",
+                    "value": "B"
+                  }
+                }
+              ],
+              "key_kind": "U8",
+              "kind": "Map",
+              "value_kind": "String"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "entries",
+            "key_kind",
+            "kind",
+            "value_kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Map"
+              ]
+            },
+            "key_kind": {
+              "description": "The kind of the keys used for the map. A map will be validated to ensure that its keys are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScryptoSborValueKind"
+                }
+              ]
+            },
+            "value_kind": {
+              "description": "The kind of the values used for the map. A map will be validated to ensure that its values are all of a single kind.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScryptoSborValueKind"
+                }
+              ]
+            },
+            "entries": {
+              "description": "A vector of tuples representing the entires in the map where each tuple is made up of two elements: a key and a value.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MapEntry_for_ScryptoSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An array of elements where elements could be of different kinds.",
+          "examples": [
+            {
+              "fields": [
+                {
+                  "fields": [
+                    {
+                      "kind": "U8",
+                      "value": "1"
+                    },
+                    {
+                      "kind": "String",
+                      "value": "Something"
+                    }
+                  ],
+                  "kind": "Tuple"
+                }
+              ],
+              "kind": "Tuple"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "fields",
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Tuple"
+              ]
+            },
+            "type_name": {
+              "description": "An optional string field which is not serialized if no schema is provided. This is the name of the type if it's a struct and not actually a tuple.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "fields": {
+              "description": "The fields of the tuple which may contain 0 or more fields.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Field_for_ScryptoSborValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "Represents a tagged enum of owned Radix Engine Nodes.",
+          "examples": [
+            {
+              "kind": "Own",
+              "value": "package_rdx1pkgxxxxxxxxxaccntxxxxxxxxxx000929625493xxxxxxxxxaccntx"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Own"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "A Scrypto Decimal which has a precision of 18 decimal places and has a maximum and minimum of 57896044618658097711785492504343953926634992332820282019728.792003956564819967 and -57896044618658097711785492504343953926634992332820282019728.792003956564819968 respectively",
+          "examples": [
+            {
+              "kind": "Decimal",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Decimal"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "A Scrypto PreciseDecimal which has a precision of 64 decimal places and has a maximum and minimum of 670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714. 9083451713845015929093243025426876941405973284973216824503042047 and -670390396497129854978701249910292306373968291029619668886178072186088201503677348840093714.9083451713845015929093243025426876941405973284973216824503042048 respectively",
+          "examples": [
+            {
+              "kind": "PreciseDecimal",
+              "value": "1"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "PreciseDecimal"
+              ]
+            },
+            "value": {
+              "type": "string",
+              "pattern": "[+-]?([0-9]*[.])?[0-9]+"
+            }
+          }
+        },
+        {
+          "description": "Represents non-fungible ids which is a discriminated union of the different types that non-fungible ids may be.",
+          "examples": [
+            {
+              "kind": "NonFungibleLocalId",
+              "value": "{b55081fa-9cd1-48c2-95d4-efe2db322a54}"
+            },
+            {
+              "kind": "NonFungibleLocalId",
+              "value": "#1#"
+            },
+            {
+              "kind": "NonFungibleLocalId",
+              "value": "<Scrypto>"
+            },
+            {
+              "kind": "NonFungibleLocalId",
+              "value": "[01020304]"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "NonFungibleLocalId"
+              ]
+            },
+            "value": {
+              "$ref": "#/definitions/NonFungibleLocalId"
+            }
+          }
+        },
+        {
+          "description": "Represents a reference to some RENode.",
+          "examples": [
+            {
+              "kind": "Reference",
+              "value": "package_rdx1pkgxxxxxxxxxaccntxxxxxxxxxx000929625493xxxxxxxxxaccntx"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Reference"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "Represents a byte array of an unknown size which is serialized as a hex string",
+          "examples": [
+            {
+              "element_kind": "U8",
+              "hex": "d28d2c3710601fbc097000ec73455693f4861dc0eb7c90d8821f2a13f617313e",
+              "kind": "Bytes"
+            }
+          ],
+          "type": "object",
+          "required": [
+            "element_kind",
+            "hex",
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Bytes"
+              ]
+            },
+            "element_kind": {
+              "$ref": "#/definitions/ScryptoSborValueKind"
+            },
+            "hex": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "field_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
     },
     "ScryptoSborValueKind": {
       "oneOf": [
