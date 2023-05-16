@@ -99,7 +99,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted when the decompilation of the notarized transaction intent fails
     FailedToDecompileNotarizedIntent(NotarizedTransactionConversionError),

@@ -89,7 +89,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted when the length of the passed data is invalid
     InvalidLength { expected: usize, actual: usize },

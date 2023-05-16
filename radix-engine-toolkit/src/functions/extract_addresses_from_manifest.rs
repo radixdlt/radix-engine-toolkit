@@ -219,7 +219,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted during the pre processing of the invocation
     PreProcessingError(VisitorError),

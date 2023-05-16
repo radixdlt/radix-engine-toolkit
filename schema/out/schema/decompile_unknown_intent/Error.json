@@ -20,6 +20,26 @@
     {
       "description": "An error emitted during the post processing of the invocation",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "PostProcessingError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/VisitorError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "VisitorError": {
+      "description": "Errors emitted by the various visitors used in the Radix Engine Toolkit.",
       "oneOf": [
         {
           "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
@@ -109,18 +129,7 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "PostProcessingError"
-          ]
-        }
-      }
+      ]
     }
-  ]
+  }
 }

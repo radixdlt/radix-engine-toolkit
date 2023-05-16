@@ -204,6 +204,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted by the SBOR upstream functions that perform the decoding.
     Error { message: String },

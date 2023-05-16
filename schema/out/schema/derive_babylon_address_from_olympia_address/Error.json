@@ -4,11 +4,9 @@
   "oneOf": [
     {
       "description": "An error emitted when the passed Olympia address could not be verified to be an Olympia address.",
-      "type": [
-        "object",
-        "string"
-      ],
+      "type": "object",
       "required": [
+        "error",
         "type"
       ],
       "properties": {
@@ -17,6 +15,9 @@
           "enum": [
             "InvalidOlympiaAddress"
           ]
+        },
+        "error": {
+          "type": "string"
         }
       }
     },
@@ -24,7 +25,7 @@
       "description": "An error emitted when a Bech32 operation fails.",
       "type": "object",
       "required": [
-        "message",
+        "error",
         "type"
       ],
       "properties": {
@@ -34,8 +35,16 @@
             "Error"
           ]
         },
-        "message": {
-          "type": "string"
+        "error": {
+          "type": "object",
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
         }
       }
     },

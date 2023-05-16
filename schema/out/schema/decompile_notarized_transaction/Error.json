@@ -5,6 +5,45 @@
     {
       "description": "Emitted if the decompilation of the transaction intent fails",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "DecompilationError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/NotarizedTransactionConversionError"
+        }
+      }
+    },
+    {
+      "description": "An error emitted during the post processing of the invocation",
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "PostProcessingError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/VisitorError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "NotarizedTransactionConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the notarized transaction intent fails.",
       "oneOf": [
         {
           "description": "Emitted when the decoding of the SBOR payload into a transaction intent fails",
@@ -704,126 +743,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "DecompilationError"
-          ]
-        }
-      }
+      ]
     },
-    {
-      "description": "An error emitted during the post processing of the invocation",
-      "type": "object",
-      "oneOf": [
-        {
-          "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
-          "type": "object",
-          "oneOf": [],
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ValueVisitorError"
-              ]
-            }
-          }
-        },
-        {
-          "description": "An error emitted when an Instruction visitor fails or reports an error.",
-          "type": "object",
-          "oneOf": [
-            {
-              "description": "Errors emitted by the account deposits visitor.",
-              "type": "object",
-              "oneOf": [
-                {
-                  "type": "object",
-                  "required": [
-                    "DuplicateBucketDeclaration"
-                  ],
-                  "properties": {
-                    "DuplicateBucketDeclaration": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "UseOfUndeclaredBucket"
-                  ],
-                  "properties": {
-                    "UseOfUndeclaredBucket": {
-                      "type": "string"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "NoCorrespondingResourceChangesForInstruction"
-                  ],
-                  "properties": {
-                    "NoCorrespondingResourceChangesForInstruction": {
-                      "type": "integer",
-                      "format": "uint32",
-                      "minimum": 0.0
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              ],
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "AccountDepositsVisitorError"
-                  ]
-                }
-              }
-            }
-          ],
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "InstructionVisitorError"
-              ]
-            }
-          }
-        }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "PostProcessingError"
-          ]
-        }
-      }
-    }
-  ],
-  "definitions": {
     "ManifestAstValueKind": {
       "oneOf": [
         {
@@ -1380,6 +1301,99 @@
           "enum": [
             "Bytes"
           ]
+        }
+      ]
+    },
+    "VisitorError": {
+      "description": "Errors emitted by the various visitors used in the Radix Engine Toolkit.",
+      "oneOf": [
+        {
+          "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
+          "type": "object",
+          "oneOf": [],
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ValueVisitorError"
+              ]
+            }
+          }
+        },
+        {
+          "description": "An error emitted when an Instruction visitor fails or reports an error.",
+          "type": "object",
+          "oneOf": [
+            {
+              "description": "Errors emitted by the account deposits visitor.",
+              "type": "object",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "DuplicateBucketDeclaration"
+                  ],
+                  "properties": {
+                    "DuplicateBucketDeclaration": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "UseOfUndeclaredBucket"
+                  ],
+                  "properties": {
+                    "UseOfUndeclaredBucket": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "NoCorrespondingResourceChangesForInstruction"
+                  ],
+                  "properties": {
+                    "NoCorrespondingResourceChangesForInstruction": {
+                      "type": "integer",
+                      "format": "uint32",
+                      "minimum": 0.0
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "AccountDepositsVisitorError"
+                  ]
+                }
+              }
+            }
+          ],
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "InstructionVisitorError"
+              ]
+            }
+          }
         }
       ]
     }

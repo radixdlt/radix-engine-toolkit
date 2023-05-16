@@ -103,6 +103,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted when a Bech32 operation fails.
     Error { message: String },

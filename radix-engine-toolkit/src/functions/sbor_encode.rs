@@ -75,7 +75,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     ManifestSborValueConversionError(ManifestSborValueConversionError),
     ScryptoSborValueConversionError(ScryptoSborValueConversionError),

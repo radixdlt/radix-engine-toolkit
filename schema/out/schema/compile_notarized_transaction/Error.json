@@ -5,6 +5,80 @@
     {
       "description": "An error emitted during the pre processing of the invocation",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "PreProcessingError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/VisitorError"
+        }
+      }
+    },
+    {
+      "description": "An error emitted when an address is encountered in the manifest with an invalid network id",
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidNetworkIdEncountered"
+          ]
+        },
+        "error": {
+          "type": "object",
+          "required": [
+            "expected",
+            "found"
+          ],
+          "properties": {
+            "expected": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "found": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "An error emitted when the compilation of the transaction intent fails",
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "CompilationError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/NotarizedTransactionConversionError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "VisitorError": {
+      "description": "Errors emitted by the various visitors used in the Radix Engine Toolkit.",
       "oneOf": [
         {
           "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
@@ -94,49 +168,10 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "PreProcessingError"
-          ]
-        }
-      }
+      ]
     },
-    {
-      "description": "An error emitted when an address is encountered in the manifest with an invalid network id",
-      "type": "object",
-      "required": [
-        "expected",
-        "found",
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "InvalidNetworkIdEncountered"
-          ]
-        },
-        "expected": {
-          "type": "integer",
-          "format": "uint8",
-          "minimum": 0.0
-        },
-        "found": {
-          "type": "integer",
-          "format": "uint8",
-          "minimum": 0.0
-        }
-      }
-    },
-    {
-      "description": "An error emitted when the compilation of the transaction intent fails",
-      "type": "object",
+    "NotarizedTransactionConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the notarized transaction intent fails.",
       "oneOf": [
         {
           "description": "Emitted when the decoding of the SBOR payload into a transaction intent fails",
@@ -836,21 +871,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "CompilationError"
-          ]
-        }
-      }
-    }
-  ],
-  "definitions": {
+      ]
+    },
     "ManifestAstValueKind": {
       "oneOf": [
         {

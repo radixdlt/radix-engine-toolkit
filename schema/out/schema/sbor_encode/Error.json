@@ -3,8 +3,71 @@
   "title": "Error",
   "oneOf": [
     {
-      "description": "An error emitted if the conversion between the native and RET representations of the Manifest Sbor fails.",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ManifestSborValueConversionError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/ManifestSborValueConversionError"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ScryptoSborValueConversionError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/ScryptoSborValueConversionError"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Error"
+          ]
+        },
+        "error": {
+          "type": "object",
+          "required": [
+            "message"
+          ],
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "ManifestSborValueConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the Manifest Sbor fails.",
       "oneOf": [
         {
           "description": "An error emitted when trying to parse a string to a type fails.",
@@ -94,98 +157,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "ManifestSborValueConversionError"
-          ]
-        }
-      }
+      ]
     },
-    {
-      "description": "An error emitted if the conversion between the native and RET representations of the Scrypto Sbor fails.",
-      "type": "object",
-      "oneOf": [
-        {
-          "description": "An error emitted when trying to parse a string to a type fails.",
-          "type": "object",
-          "required": [
-            "message",
-            "parsing",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ParseError"
-              ]
-            },
-            "parsing": {
-              "type": "string"
-            },
-            "message": {
-              "type": "string"
-            }
-          }
-        },
-        {
-          "description": "An error emitted when a value of an unexpected kind is encountered.",
-          "type": "object",
-          "required": [
-            "expected",
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "InvalidType"
-              ]
-            },
-            "expected": {
-              "$ref": "#/definitions/ScryptoSborValueKind"
-            }
-          }
-        }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "ScryptoSborValueConversionError"
-          ]
-        }
-      }
-    },
-    {
-      "type": "object",
-      "required": [
-        "message",
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Error"
-          ]
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    }
-  ],
-  "definitions": {
     "ManifestSborValueKind": {
       "oneOf": [
         {
@@ -603,6 +576,53 @@
           "enum": [
             "Bytes"
           ]
+        }
+      ]
+    },
+    "ScryptoSborValueConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the Scrypto Sbor fails.",
+      "oneOf": [
+        {
+          "description": "An error emitted when trying to parse a string to a type fails.",
+          "type": "object",
+          "required": [
+            "message",
+            "parsing",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "ParseError"
+              ]
+            },
+            "parsing": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "description": "An error emitted when a value of an unexpected kind is encountered.",
+          "type": "object",
+          "required": [
+            "expected",
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "InvalidType"
+              ]
+            },
+            "expected": {
+              "$ref": "#/definitions/ScryptoSborValueKind"
+            }
+          }
         }
       ]
     },

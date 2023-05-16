@@ -6,10 +6,17 @@
       "description": "An error emitted when a Bech32 operation fails.",
       "type": "object",
       "required": [
-        "Error"
+        "error",
+        "type"
       ],
       "properties": {
-        "Error": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Error"
+          ]
+        },
+        "error": {
           "type": "object",
           "required": [
             "message"
@@ -20,22 +27,37 @@
             }
           }
         }
-      },
-      "additionalProperties": false
+      }
     },
     {
       "description": "An error emitted when an unexpected Bech32 variant is encountered. In this case, it means that we expected Bech32m but encountered Bech32",
-      "type": "string",
-      "enum": [
-        "InvalidBech32Variant"
-      ]
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidBech32Variant"
+          ]
+        }
+      }
     },
     {
       "description": "An error emitted when the address does not have a corresponding entity type",
-      "type": "string",
-      "enum": [
-        "NoCorrespondingEntityType"
-      ]
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "NoCorrespondingEntityType"
+          ]
+        }
+      }
     }
   ]
 }

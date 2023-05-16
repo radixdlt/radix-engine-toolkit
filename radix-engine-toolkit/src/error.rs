@@ -29,7 +29,7 @@ use crate::visitor::AccountDepositsVisitorError;
 /// The error type that's returned by the Radix Engine Toolkit when an error takes place. This type
 /// is made up of a number of other more granular types which describe the error in full.
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum RETError {
     InvocationHandlingError(InvocationHandlingError),
     InvocationInterpretationError(InvocationInterpretationError),
@@ -37,7 +37,7 @@ pub enum RETError {
 
 /// Errors emitted when the invocation could not be interpreted.
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum InvocationInterpretationError {
     /// An error emitted when the serialized invocation string contains characters that are not
     /// valid UTF-8
@@ -67,7 +67,7 @@ impl From<std::str::Utf8Error> for InvocationInterpretationError {
 /// Errors pertaining to functions handling. This set of errors are returned when an invocation is
 /// of a correct structure, but the handling of the invocation failed (e.g., due to validation).
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum InvocationHandlingError {
     #[cfg(feature = "radix-engine")]
     AnalyzeTransactionExecutionError(analyze_transaction_execution::Error),

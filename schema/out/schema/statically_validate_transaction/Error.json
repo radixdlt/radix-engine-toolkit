@@ -5,6 +5,26 @@
     {
       "description": "An error emitted when the decompilation of the notarized transaction intent fails",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "FailedToDecompileNotarizedIntent"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/NotarizedTransactionConversionError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "NotarizedTransactionConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the notarized transaction intent fails.",
       "oneOf": [
         {
           "description": "Emitted when the decoding of the SBOR payload into a transaction intent fails",
@@ -704,21 +724,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "FailedToDecompileNotarizedIntent"
-          ]
-        }
-      }
-    }
-  ],
-  "definitions": {
+      ]
+    },
     "ManifestAstValueKind": {
       "oneOf": [
         {
