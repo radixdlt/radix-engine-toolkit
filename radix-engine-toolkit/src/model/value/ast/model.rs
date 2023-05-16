@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::str::FromStr;
-
 use crate::define_kind_enum;
 use crate::model::address::NetworkAwareNodeId;
 
@@ -242,21 +240,17 @@ define_kind_enum! {
             value: NetworkAwareNodeId,
         },
 
-        /// Represents a Scrypto bucket which is identified through a transient identifier which is
-        /// either a string or an unsigned 32-bit integer which is serialized as a Integer.
+        /// Represents a Manifest bucket which is identified through a string identifier.
         #[schemars(
-            example = "crate::example::value::ast_value::bucket1",
-            example = "crate::example::value::ast_value::bucket2",
+            example = "crate::example::value::ast_value::bucket",
         )]
-        Bucket { value: BucketId },
+        Bucket { value: String },
 
-        /// Represents a Scrypto proof which is identified through a transient identifier which is
-        /// either a string or an unsigned 32-bit integer which is serialized as a Integer.
+        /// Represents a Manifest proof which is identified through a string identifier.
         #[schemars(
-            example = "crate::example::value::ast_value::proof1",
-            example = "crate::example::value::ast_value::proof2",
+            example = "crate::example::value::ast_value::proof",
         )]
-        Proof { value: ProofId },
+        Proof { value: String },
 
         /// Represents non-fungible ids which is a discriminated union of the different types that
         /// non-fungible ids may be.
@@ -358,96 +352,5 @@ impl EnumDiscriminator {
                     },
                 ),
         }
-    }
-}
-
-#[serializable]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[serde(tag = "type")]
-/// Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets
-/// and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a
-/// number and not a string)
-pub enum TransientIdentifier {
-    #[schemars(example = "crate::example::engine_identifier::transient_identifier::string")]
-    String {
-        /// A string identifier
-        value: String,
-    },
-
-    #[schemars(example = "crate::example::engine_identifier::transient_identifier::u32")]
-    U32 {
-        /// A 32-bit unsigned integer which is serialized and deserialized as a string.
-        #[schemars(regex(pattern = "[0-9]+"))]
-        #[schemars(with = "String")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
-        value: u32,
-    },
-}
-
-#[serializable]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[schemars(
-    example = "crate::example::engine_identifier::transient_identifier::bucket_id1",
-    example = "crate::example::engine_identifier::transient_identifier::bucket_id2"
-)]
-/// Represents a BucketId which uses a transient identifier.
-pub struct BucketId(pub TransientIdentifier);
-
-#[serializable]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[schemars(
-    example = "crate::example::engine_identifier::transient_identifier::proof_id1",
-    example = "crate::example::engine_identifier::transient_identifier::proof_id2"
-)]
-/// Represents a ProofId which uses a transient identifier.
-pub struct ProofId(pub TransientIdentifier);
-
-// ============
-// Conversions
-// ============
-
-impl FromStr for TransientIdentifier {
-    type Err = ManifestAstValueConversionError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self::String {
-            value: s.to_owned(),
-        })
-    }
-}
-
-impl From<String> for TransientIdentifier {
-    fn from(identifier: String) -> Self {
-        Self::String { value: identifier }
-    }
-}
-
-impl From<u32> for TransientIdentifier {
-    fn from(identifier: u32) -> Self {
-        Self::U32 { value: identifier }
-    }
-}
-
-impl From<TransientIdentifier> for BucketId {
-    fn from(identifier: TransientIdentifier) -> Self {
-        Self(identifier)
-    }
-}
-
-impl From<BucketId> for TransientIdentifier {
-    fn from(bucket_id: BucketId) -> Self {
-        bucket_id.0
-    }
-}
-
-impl From<TransientIdentifier> for ProofId {
-    fn from(identifier: TransientIdentifier) -> Self {
-        Self(identifier)
-    }
-}
-
-impl From<ProofId> for TransientIdentifier {
-    fn from(proof_id: ProofId) -> Self {
-        proof_id.0
     }
 }

@@ -37,7 +37,7 @@
                   ],
                   "properties": {
                     "DuplicateBucketDeclaration": {
-                      "$ref": "#/definitions/BucketId"
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -49,7 +49,7 @@
                   ],
                   "properties": {
                     "UseOfUndeclaredBucket": {
-                      "$ref": "#/definitions/BucketId"
+                      "type": "string"
                     }
                   },
                   "additionalProperties": false
@@ -796,80 +796,6 @@
     }
   ],
   "definitions": {
-    "BucketId": {
-      "description": "Represents a BucketId which uses a transient identifier.",
-      "examples": [
-        {
-          "type": "String",
-          "value": "Scrypto"
-        },
-        {
-          "type": "U32",
-          "value": "1"
-        }
-      ],
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
-    },
-    "TransientIdentifier": {
-      "description": "Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
-      "oneOf": [
-        {
-          "examples": [
-            {
-              "type": "String",
-              "value": "Scrypto"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "String"
-              ]
-            },
-            "value": {
-              "description": "A string identifier",
-              "type": "string"
-            }
-          }
-        },
-        {
-          "examples": [
-            {
-              "type": "U32",
-              "value": "1"
-            }
-          ],
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "U32"
-              ]
-            },
-            "value": {
-              "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
-              "type": "string",
-              "pattern": "[0-9]+"
-            }
-          }
-        }
-      ]
-    },
     "ManifestAstValueKind": {
       "oneOf": [
         {
@@ -1281,21 +1207,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest bucket which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Bucket",
-              "value": {
-                "type": "String",
-                "value": "bucket"
-              }
-            },
-            {
-              "kind": "Bucket",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "bucket"
             }
           ],
           "type": "string",
@@ -1304,21 +1220,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest proof which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Proof",
-              "value": {
-                "type": "String",
-                "value": "proof"
-              }
-            },
-            {
-              "kind": "Proof",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "proof"
             }
           ],
           "type": "string",

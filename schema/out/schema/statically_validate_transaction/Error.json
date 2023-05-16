@@ -1130,21 +1130,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest bucket which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Bucket",
-              "value": {
-                "type": "String",
-                "value": "bucket"
-              }
-            },
-            {
-              "kind": "Bucket",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "bucket"
             }
           ],
           "type": "string",
@@ -1153,21 +1143,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest proof which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Proof",
-              "value": {
-                "type": "String",
-                "value": "proof"
-              }
-            },
-            {
-              "kind": "Proof",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "proof"
             }
           ],
           "type": "string",

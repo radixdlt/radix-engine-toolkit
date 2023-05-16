@@ -290,20 +290,10 @@ impl ManifestAstValue {
             ))),
 
             ManifestAstValue::Bucket { value: identifier } => {
-                ast::Value::Bucket(Box::new(match identifier.0 {
-                    TransientIdentifier::String {
-                        value: ref identifier,
-                    } => ast::Value::String(identifier.clone()),
-                    TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
-                }))
+                ast::Value::Bucket(Box::new(ast::Value::String(identifier.clone())))
             }
             ManifestAstValue::Proof { value: identifier } => {
-                ast::Value::Proof(Box::new(match identifier.0 {
-                    TransientIdentifier::String {
-                        value: ref identifier,
-                    } => ast::Value::String(identifier.clone()),
-                    TransientIdentifier::U32 { value: identifier } => ast::Value::U32(identifier),
-                }))
+                ast::Value::Proof(Box::new(ast::Value::String(identifier.clone())))
             }
 
             ManifestAstValue::NonFungibleLocalId { value } => {
@@ -440,16 +430,9 @@ impl ManifestAstValue {
             }
 
             ast::Value::Bucket(value) => {
-                if let ast::Value::U32(identifier) = &**value {
+                if let ast::Value::String(identifier) = &**value {
                     Self::Bucket {
-                        value: TransientIdentifier::U32 { value: *identifier }.into(),
-                    }
-                } else if let ast::Value::String(identifier) = &**value {
-                    Self::Bucket {
-                        value: TransientIdentifier::String {
-                            value: identifier.to_owned(),
-                        }
-                        .into(),
+                        value: identifier.to_owned(),
                     }
                 } else {
                     Err(ManifestAstValueConversionError::UnexpectedContents {
@@ -460,16 +443,9 @@ impl ManifestAstValue {
                 }
             }
             ast::Value::Proof(value) => {
-                if let ast::Value::U32(identifier) = &**value {
+                if let ast::Value::String(identifier) = &**value {
                     Self::Proof {
-                        value: TransientIdentifier::U32 { value: *identifier }.into(),
-                    }
-                } else if let ast::Value::String(identifier) = &**value {
-                    Self::Proof {
-                        value: TransientIdentifier::String {
-                            value: identifier.clone(),
-                        }
-                        .into(),
+                        value: identifier.clone(),
                     }
                 } else {
                     Err(ManifestAstValueConversionError::UnexpectedContents {
