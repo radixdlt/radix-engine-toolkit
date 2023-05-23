@@ -23,10 +23,7 @@ use scrypto::prelude::{
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::value::ast::{
-    BucketId, EnumDiscriminator, ManifestAstValue, ManifestAstValueKind, ProofId,
-    TransientIdentifier,
-};
+use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::utils::checked_copy_u8_slice;
 
 pub fn value() -> ManifestAstValue {
@@ -216,31 +213,15 @@ pub fn address3() -> ManifestAstValue {
     }
 }
 
-pub fn bucket1() -> ManifestAstValue {
+pub fn bucket() -> ManifestAstValue {
     ManifestAstValue::Bucket {
-        value: BucketId(TransientIdentifier::String {
-            value: "bucket".to_owned(),
-        }),
+        value: "bucket".into(),
     }
 }
 
-pub fn bucket2() -> ManifestAstValue {
-    ManifestAstValue::Bucket {
-        value: BucketId(TransientIdentifier::U32 { value: 1 }),
-    }
-}
-
-pub fn proof1() -> ManifestAstValue {
+pub fn proof() -> ManifestAstValue {
     ManifestAstValue::Proof {
-        value: ProofId(TransientIdentifier::String {
-            value: "proof".to_owned(),
-        }),
-    }
-}
-
-pub fn proof2() -> ManifestAstValue {
-    ManifestAstValue::Proof {
-        value: ProofId(TransientIdentifier::U32 { value: 1 }),
+        value: "proof".into(),
     }
 }
 

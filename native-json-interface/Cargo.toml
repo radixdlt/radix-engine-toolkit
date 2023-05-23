@@ -17,8 +17,12 @@ wasmtime = { version = "2.0.0" }
 anyhow = { version = "1.0.65" }
 
 [profile.release]
+incremental = false
+strip = true
 panic = 'abort'
 codegen-units = 1
+lto = true
+opt-level = 'z'
 
 [lib]
 name = "radix_engine_toolkit"

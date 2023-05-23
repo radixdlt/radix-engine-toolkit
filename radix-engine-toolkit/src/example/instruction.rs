@@ -25,10 +25,7 @@ use scrypto::prelude::{
 use scrypto::schema::PackageSchema;
 
 use crate::model::address::NetworkAwareNodeId;
-use crate::model::value::ast::{
-    BucketId, EnumDiscriminator, ManifestAstValue, ManifestAstValueKind, ProofId,
-    TransientIdentifier,
-};
+use crate::model::value::ast::{EnumDiscriminator, ManifestAstValue, ManifestAstValueKind};
 use crate::model::{address::Bech32Coder, instruction::Instruction, transaction::InstructionList};
 use crate::utils::checked_copy_u8_slice;
 
@@ -180,9 +177,7 @@ pub fn take_from_worktop1() -> Instruction {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".to_owned(),
-            }),
+            value: "ident".to_owned(),
         },
     };
     check_instruction(&instruction);
@@ -195,9 +190,7 @@ pub fn take_from_worktop2() -> Instruction {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".to_owned(),
-            }),
+            value: "ident".to_owned(),
         },
     };
     check_instruction(&instruction);
@@ -213,9 +206,7 @@ pub fn take_from_worktop_by_amount1() -> Instruction {
             value: "1".parse().unwrap(),
         },
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -231,9 +222,7 @@ pub fn take_from_worktop_by_amount2() -> Instruction {
             value: "1".parse().unwrap(),
         },
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -249,9 +238,7 @@ pub fn take_from_worktop_by_ids1() -> Instruction {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -267,9 +254,7 @@ pub fn take_from_worktop_by_ids2() -> Instruction {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -279,9 +264,7 @@ pub fn take_from_worktop_by_ids2() -> Instruction {
 pub fn return_to_worktop() -> Instruction {
     let instruction = Instruction::ReturnToWorktop {
         bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -363,9 +346,7 @@ pub fn assert_worktop_contains_by_ids2() -> Instruction {
 pub fn pop_from_auth_zone() -> Instruction {
     let instruction = Instruction::PopFromAuthZone {
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -375,9 +356,7 @@ pub fn pop_from_auth_zone() -> Instruction {
 pub fn push_to_auth_zone() -> Instruction {
     let instruction = Instruction::PushToAuthZone {
         proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -396,9 +375,7 @@ pub fn create_proof_from_auth_zone1() -> Instruction {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".to_owned(),
-            }),
+            value: "ident".to_owned(),
         },
     };
     check_instruction(&instruction);
@@ -411,9 +388,7 @@ pub fn create_proof_from_auth_zone2() -> Instruction {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".to_owned(),
-            }),
+            value: "ident".to_owned(),
         },
     };
     check_instruction(&instruction);
@@ -429,9 +404,7 @@ pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
             value: "1".parse().unwrap(),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -447,9 +420,7 @@ pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
             value: "1".parse().unwrap(),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -465,9 +436,7 @@ pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -483,9 +452,7 @@ pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
             value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
         }],
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -495,14 +462,10 @@ pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
 pub fn create_proof_from_bucket() -> Instruction {
     let instruction = Instruction::CreateProofFromBucket {
         bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "bucket".into(),
-            }),
+            value: "bucket".into(),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "Proof".into(),
-            }),
+            value: "Proof".into(),
         },
     };
     check_instruction(&instruction);
@@ -512,14 +475,10 @@ pub fn create_proof_from_bucket() -> Instruction {
 pub fn clone_proof() -> Instruction {
     let instruction = Instruction::CloneProof {
         proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
         into_proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "ident2".into(),
-            }),
+            value: "ident2".into(),
         },
     };
     check_instruction(&instruction);
@@ -630,9 +589,7 @@ pub fn publish_package_advanced() -> Instruction {
 pub fn burn_resource() -> Instruction {
     let instruction = Instruction::BurnResource {
         bucket: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
     };
     check_instruction(&instruction);
@@ -648,9 +605,7 @@ pub fn drop_all_proofs() -> Instruction {
 pub fn drop_proof() -> Instruction {
     let instruction = Instruction::DropProof {
         proof: ManifestAstValue::Proof {
-            value: ProofId(TransientIdentifier::String {
-                value: "proof".into(),
-            }),
+            value: "proof".into(),
         },
     };
     check_instruction(&instruction);
@@ -959,9 +914,7 @@ pub fn create_non_fungible_resource() -> Instruction {
 pub fn create_access_controller() -> Instruction {
     let instruction = Instruction::CreateAccessController {
         controlled_asset: ManifestAstValue::Bucket {
-            value: BucketId(TransientIdentifier::String {
-                value: "ident".into(),
-            }),
+            value: "ident".into(),
         },
         rule_set: ManifestAstValue::Tuple {
             fields: vec![
@@ -1124,23 +1077,14 @@ fn check_instruction(instruction: &Instruction) {
 
     match instruction {
         Instruction::PushToAuthZone {
-            proof:
-                ManifestAstValue::Proof {
-                    value: ProofId(TransientIdentifier::String { value }),
-                },
+            proof: ManifestAstValue::Proof { value },
         }
         | Instruction::CloneProof {
-            proof:
-                ManifestAstValue::Proof {
-                    value: ProofId(TransientIdentifier::String { value }),
-                },
+            proof: ManifestAstValue::Proof { value },
             ..
         }
         | Instruction::DropProof {
-            proof:
-                ManifestAstValue::Proof {
-                    value: ProofId(TransientIdentifier::String { value }),
-                },
+            proof: ManifestAstValue::Proof { value },
         } => {
             name_resolver
                 .insert_proof(
@@ -1152,29 +1096,17 @@ fn check_instruction(instruction: &Instruction) {
                 .unwrap();
         }
         Instruction::ReturnToWorktop {
-            bucket:
-                ManifestAstValue::Bucket {
-                    value: BucketId(TransientIdentifier::String { value }),
-                },
+            bucket: ManifestAstValue::Bucket { value },
         }
         | Instruction::CreateProofFromBucket {
-            bucket:
-                ManifestAstValue::Bucket {
-                    value: BucketId(TransientIdentifier::String { value }),
-                },
+            bucket: ManifestAstValue::Bucket { value },
             ..
         }
         | Instruction::BurnResource {
-            bucket:
-                ManifestAstValue::Bucket {
-                    value: BucketId(TransientIdentifier::String { value }),
-                },
+            bucket: ManifestAstValue::Bucket { value },
         }
         | Instruction::CreateAccessController {
-            controlled_asset:
-                ManifestAstValue::Bucket {
-                    value: BucketId(TransientIdentifier::String { value }),
-                },
+            controlled_asset: ManifestAstValue::Bucket { value },
             ..
         } => name_resolver
             .insert_bucket(value.to_string(), id_validator.new_bucket().unwrap())

@@ -5,6 +5,26 @@
     {
       "description": "An error emitted when the decompilation of the notarized transaction intent fails",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "FailedToDecompileNotarizedIntent"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/NotarizedTransactionConversionError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "NotarizedTransactionConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the notarized transaction intent fails.",
       "oneOf": [
         {
           "description": "Emitted when the decoding of the SBOR payload into a transaction intent fails",
@@ -704,21 +724,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "FailedToDecompileNotarizedIntent"
-          ]
-        }
-      }
-    }
-  ],
-  "definitions": {
+      ]
+    },
     "ManifestAstValueKind": {
       "oneOf": [
         {
@@ -1130,21 +1137,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest bucket which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Bucket",
-              "value": {
-                "type": "String",
-                "value": "bucket"
-              }
-            },
-            {
-              "kind": "Bucket",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "bucket"
             }
           ],
           "type": "string",
@@ -1153,21 +1150,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest proof which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Proof",
-              "value": {
-                "type": "String",
-                "value": "proof"
-              }
-            },
-            {
-              "kind": "Proof",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "proof"
             }
           ],
           "type": "string",

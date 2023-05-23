@@ -6,10 +6,17 @@
       "description": "An error emitted by the SBOR upstream functions that perform the decoding.",
       "type": "object",
       "required": [
-        "Error"
+        "error",
+        "type"
       ],
       "properties": {
-        "Error": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Error"
+          ]
+        },
+        "error": {
           "type": "object",
           "required": [
             "message"
@@ -20,17 +27,23 @@
             }
           }
         }
-      },
-      "additionalProperties": false
+      }
     },
     {
       "description": "An error emitted when the passed SBOR payload is of an unknown variant and thus can not be decoded.",
       "type": "object",
       "required": [
-        "InvalidSborVariant"
+        "error",
+        "type"
       ],
       "properties": {
-        "InvalidSborVariant": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "InvalidSborVariant"
+          ]
+        },
+        "error": {
           "type": "object",
           "required": [
             "actual",
@@ -52,48 +65,75 @@
             }
           }
         }
-      },
-      "additionalProperties": false
+      }
     },
     {
       "description": "Passed payload is empty; thus can not be decoded.",
-      "type": "string",
-      "enum": [
-        "EmptyPayloadError"
-      ]
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "EmptyPayloadError"
+          ]
+        }
+      }
     },
     {
       "description": "Emitted if the conversion from the Native manifest SBOR model to the RET manifest SBOR model fails.",
       "type": "object",
       "required": [
-        "ManifestSborValueConversionError"
+        "error",
+        "type"
       ],
       "properties": {
-        "ManifestSborValueConversionError": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ManifestSborValueConversionError"
+          ]
+        },
+        "error": {
           "$ref": "#/definitions/ManifestSborValueConversionError"
         }
-      },
-      "additionalProperties": false
+      }
     },
     {
       "description": "Emitted if the conversion from the Native scrypto SBOR model to the RET manifest SBOR model fails.",
       "type": "object",
       "required": [
-        "ScryptoSborValueConversionError"
+        "error",
+        "type"
       ],
       "properties": {
-        "ScryptoSborValueConversionError": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "ScryptoSborValueConversionError"
+          ]
+        },
+        "error": {
           "$ref": "#/definitions/ScryptoSborValueConversionError"
         }
-      },
-      "additionalProperties": false
+      }
     },
     {
       "description": "Emitted when the schema fails to be decoded",
-      "type": "string",
-      "enum": [
-        "FailedToDecodeSchema"
-      ]
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "FailedToDecodeSchema"
+          ]
+        }
+      }
     }
   ],
   "definitions": {
@@ -358,9 +398,7 @@
             {
               "fields": [],
               "kind": "Enum",
-              "type_name": null,
-              "variant_id": "1",
-              "variant_name": null
+              "variant_id": "1"
             },
             {
               "fields": [
@@ -370,9 +408,7 @@
                 }
               ],
               "kind": "Enum",
-              "type_name": null,
-              "variant_id": "1",
-              "variant_name": null
+              "variant_id": "1"
             }
           ],
           "type": "string",
@@ -459,12 +495,10 @@
                       "value": "Something"
                     }
                   ],
-                  "kind": "Tuple",
-                  "type_name": null
+                  "kind": "Tuple"
                 }
               ],
-              "kind": "Tuple",
-              "type_name": null
+              "kind": "Tuple"
             }
           ],
           "type": "string",

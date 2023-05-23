@@ -216,7 +216,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted if the passed compiled intent is neither an unsigned, signed, or notarized
     /// intent.

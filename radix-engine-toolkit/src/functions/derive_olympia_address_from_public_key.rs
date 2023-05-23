@@ -117,7 +117,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// Emitted when an invalid public key is passed. This function only accepts Ecdsa Secp256k1
     /// public keys.

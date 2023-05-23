@@ -130,7 +130,7 @@ impl InvocationHandler<Input, Output> for Handler {
 }
 
 #[serializable]
-#[serde(tag = "type")]
+#[serde(tag = "type", content = "error")]
 pub enum Error {
     /// An error emitted when the passed Olympia address could not be verified to be an Olympia
     /// address.

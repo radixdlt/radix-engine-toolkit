@@ -19,7 +19,6 @@
 //! Schema generated.
 
 pub mod crypto;
-pub mod engine_identifier;
 pub mod instruction;
 pub mod transaction;
 pub mod value;

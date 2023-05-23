@@ -5,6 +5,45 @@
     {
       "description": "Emitted if the decompilation of the transaction intent fails",
       "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "DecompilationError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/TransactionIntentConversionError"
+        }
+      }
+    },
+    {
+      "description": "An error emitted during the post processing of the invocation",
+      "type": "object",
+      "required": [
+        "error",
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "PostProcessingError"
+          ]
+        },
+        "error": {
+          "$ref": "#/definitions/VisitorError"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "TransactionIntentConversionError": {
+      "description": "An error emitted if the conversion between the native and RET representations of the Transaction Intent fails.",
       "oneOf": [
         {
           "description": "Emitted when the decoding of the SBOR payload into a transaction intent fails",
@@ -594,126 +633,8 @@
             }
           }
         }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "DecompilationError"
-          ]
-        }
-      }
+      ]
     },
-    {
-      "description": "An error emitted during the post processing of the invocation",
-      "type": "object",
-      "oneOf": [
-        {
-          "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
-          "type": "object",
-          "oneOf": [],
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "ValueVisitorError"
-              ]
-            }
-          }
-        },
-        {
-          "description": "An error emitted when an Instruction visitor fails or reports an error.",
-          "type": "object",
-          "oneOf": [
-            {
-              "description": "Errors emitted by the account deposits visitor.",
-              "type": "object",
-              "oneOf": [
-                {
-                  "type": "object",
-                  "required": [
-                    "DuplicateBucketDeclaration"
-                  ],
-                  "properties": {
-                    "DuplicateBucketDeclaration": {
-                      "$ref": "#/definitions/BucketId"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "UseOfUndeclaredBucket"
-                  ],
-                  "properties": {
-                    "UseOfUndeclaredBucket": {
-                      "$ref": "#/definitions/BucketId"
-                    }
-                  },
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "NoCorrespondingResourceChangesForInstruction"
-                  ],
-                  "properties": {
-                    "NoCorrespondingResourceChangesForInstruction": {
-                      "type": "integer",
-                      "format": "uint32",
-                      "minimum": 0.0
-                    }
-                  },
-                  "additionalProperties": false
-                }
-              ],
-              "required": [
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "enum": [
-                    "AccountDepositsVisitorError"
-                  ]
-                }
-              }
-            }
-          ],
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "InstructionVisitorError"
-              ]
-            }
-          }
-        }
-      ],
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "PostProcessingError"
-          ]
-        }
-      }
-    }
-  ],
-  "definitions": {
     "ManifestAstValueKind": {
       "oneOf": [
         {
@@ -1125,21 +1046,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto bucket which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest bucket which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Bucket",
-              "value": {
-                "type": "String",
-                "value": "bucket"
-              }
-            },
-            {
-              "kind": "Bucket",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "bucket"
             }
           ],
           "type": "string",
@@ -1148,21 +1059,11 @@
           ]
         },
         {
-          "description": "Represents a Scrypto proof which is identified through a transient identifier which is either a string or an unsigned 32-bit integer which is serialized as a Integer.",
+          "description": "Represents a Manifest proof which is identified through a string identifier.",
           "examples": [
             {
               "kind": "Proof",
-              "value": {
-                "type": "String",
-                "value": "proof"
-              }
-            },
-            {
-              "kind": "Proof",
-              "value": {
-                "type": "U32",
-                "value": "1"
-              }
+              "value": "proof"
             }
           ],
           "type": "string",
@@ -1293,75 +1194,94 @@
         }
       ]
     },
-    "BucketId": {
-      "description": "Represents a BucketId which uses a transient identifier.",
-      "examples": [
-        {
-          "type": "String",
-          "value": "Scrypto"
-        },
-        {
-          "type": "U32",
-          "value": "1"
-        }
-      ],
-      "allOf": [
-        {
-          "$ref": "#/definitions/TransientIdentifier"
-        }
-      ]
-    },
-    "TransientIdentifier": {
-      "description": "Represents a tagged transient identifier typically used as an identifiers for Scrypto buckets and proofs. Could either be a string or an unsigned 32-bit number (which is serialized as a number and not a string)",
+    "VisitorError": {
+      "description": "Errors emitted by the various visitors used in the Radix Engine Toolkit.",
       "oneOf": [
         {
-          "examples": [
-            {
-              "type": "String",
-              "value": "Scrypto"
-            }
-          ],
+          "description": "An error emitted when a ManifestAstValue visitor fails or reports an error.",
           "type": "object",
+          "oneOf": [],
           "required": [
-            "type",
-            "value"
+            "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "String"
+                "ValueVisitorError"
               ]
-            },
-            "value": {
-              "description": "A string identifier",
-              "type": "string"
             }
           }
         },
         {
-          "examples": [
+          "description": "An error emitted when an Instruction visitor fails or reports an error.",
+          "type": "object",
+          "oneOf": [
             {
-              "type": "U32",
-              "value": "1"
+              "description": "Errors emitted by the account deposits visitor.",
+              "type": "object",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "DuplicateBucketDeclaration"
+                  ],
+                  "properties": {
+                    "DuplicateBucketDeclaration": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "UseOfUndeclaredBucket"
+                  ],
+                  "properties": {
+                    "UseOfUndeclaredBucket": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "NoCorrespondingResourceChangesForInstruction"
+                  ],
+                  "properties": {
+                    "NoCorrespondingResourceChangesForInstruction": {
+                      "type": "integer",
+                      "format": "uint32",
+                      "minimum": 0.0
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "AccountDepositsVisitorError"
+                  ]
+                }
+              }
             }
           ],
-          "type": "object",
           "required": [
-            "type",
-            "value"
+            "type"
           ],
           "properties": {
             "type": {
               "type": "string",
               "enum": [
-                "U32"
+                "InstructionVisitorError"
               ]
-            },
-            "value": {
-              "description": "A 32-bit unsigned integer which is serialized and deserialized as a string.",
-              "type": "string",
-              "pattern": "[0-9]+"
             }
           }
         }

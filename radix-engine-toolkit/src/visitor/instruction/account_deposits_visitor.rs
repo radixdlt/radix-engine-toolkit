@@ -23,7 +23,7 @@ use crate::error::{InstructionVisitorError, VisitorError};
 use crate::model::address::utils::is_account;
 use crate::model::address::NetworkAwareNodeId;
 use crate::model::resource_quantifier::{ResourceManagerSpecifier, ResourceQuantifier};
-use crate::model::value::ast::{BucketId, ManifestAstValue, ManifestAstValueKind};
+use crate::model::value::ast::{ManifestAstValue, ManifestAstValueKind};
 use crate::visitor::{traverse_value, InstructionVisitor, ManifestAstValueVisitor};
 use radix_engine::system::system_modules::execution_trace::{
     ResourceChange, ResourceSpecifier as NativeResourceQuantifier, WorktopChange,
@@ -40,7 +40,7 @@ pub struct AccountDepositsInstructionVisitor {
     pub resource_changes: HashMap<u32, Vec<ResourceChange>>,
     pub worktop_changes: HashMap<u32, Vec<WorktopChange>>,
     newly_created_resources: Vec<ResourceAddress>,
-    buckets: BTreeMap<BucketId, ResourceSpecifier>,
+    buckets: BTreeMap<String, ResourceSpecifier>,
     instruction_index: u32,
     network_id: u8,
 }
@@ -465,7 +465,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
 impl AccountDepositsInstructionVisitor {
     pub fn add_bucket(
         &mut self,
-        bucket_id: BucketId,
+        bucket_id: String,
         specifier: ResourceSpecifier,
     ) -> Result<(), VisitorError> {
         if !self.buckets.contains_key(&bucket_id) {
@@ -478,7 +478,7 @@ impl AccountDepositsInstructionVisitor {
 }
 
 #[derive(Default)]
-struct BucketValueVisitor(Vec<BucketId>);
+struct BucketValueVisitor(Vec<String>);
 
 impl ManifestAstValueVisitor for BucketValueVisitor {
     fn visit_bucket(&mut self, bucket: &mut ManifestAstValue) -> Result<(), VisitorError> {
@@ -491,8 +491,8 @@ impl ManifestAstValueVisitor for BucketValueVisitor {
 
 #[serializable]
 pub enum AccountDepositsVisitorError {
-    DuplicateBucketDeclaration(BucketId),
-    UseOfUndeclaredBucket(BucketId),
+    DuplicateBucketDeclaration(String),
+    UseOfUndeclaredBucket(String),
     NoCorrespondingResourceChangesForInstruction(u32),
 }
 

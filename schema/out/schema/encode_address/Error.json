@@ -6,8 +6,7 @@
       "description": "An error emitted when the length of the passed data is invalid",
       "type": "object",
       "required": [
-        "actual",
-        "expected",
+        "error",
         "type"
       ],
       "properties": {
@@ -17,15 +16,24 @@
             "InvalidLength"
           ]
         },
-        "expected": {
-          "type": "integer",
-          "format": "uint",
-          "minimum": 0.0
-        },
-        "actual": {
-          "type": "integer",
-          "format": "uint",
-          "minimum": 0.0
+        "error": {
+          "type": "object",
+          "required": [
+            "actual",
+            "expected"
+          ],
+          "properties": {
+            "expected": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            },
+            "actual": {
+              "type": "integer",
+              "format": "uint",
+              "minimum": 0.0
+            }
+          }
         }
       }
     }
