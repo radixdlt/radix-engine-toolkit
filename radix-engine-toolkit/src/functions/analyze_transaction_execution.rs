@@ -22,7 +22,7 @@ use crate::error::VisitorError;
 use crate::model::address::{Bech32Coder, NetworkAwareNodeId};
 use crate::model::instruction::Instruction;
 use crate::model::transaction::{InstructionKind, InstructionList, TransactionManifest};
-use crate::model::value::metadata::MetadataEntry;
+use crate::model::value::metadata::MetadataValue;
 use crate::utils::debug_string;
 use crate::visitor::{
     traverse_instruction, AccountDeposit, AccountDepositsInstructionVisitor,
@@ -33,7 +33,7 @@ use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionRes
 use radix_engine::types::METADATA_KV_STORE_PARTITION;
 use radix_engine_common::types::SubstateKey;
 use radix_engine_store_interface::interface::DatabaseUpdate;
-use scrypto::api::node_modules::metadata::MetadataEntry as NativeMetadataEntry;
+use scrypto::api::node_modules::metadata::MetadataValue as NativeMetadataValue;
 use scrypto::prelude::scrypto_decode;
 use scrypto::prelude::EntityType;
 use toolkit_derive::serializable;
@@ -157,7 +157,7 @@ pub struct NewlyCreatedResource {
 #[derive(PartialEq, Eq)]
 pub struct MetadataKeyValue {
     pub key: String,
-    pub value: MetadataEntry,
+    pub value: MetadataValue,
 }
 
 /// The set of addresses encountered in the manifest
@@ -179,15 +179,10 @@ pub struct EncounteredComponents {
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
     pub identities: BTreeSet<NetworkAwareNodeId>,
 
-    /// The set of clock components encountered in the manifest
-    #[schemars(with = "BTreeSet<String>")]
-    #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub clocks: BTreeSet<NetworkAwareNodeId>,
-
     /// The set of epoch_manager components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
     #[serde_as(as = "BTreeSet<serde_with::DisplayFromStr>")]
-    pub epoch_managers: BTreeSet<NetworkAwareNodeId>,
+    pub consensus_managers: BTreeSet<NetworkAwareNodeId>,
 
     /// The set of validator components encountered in the manifest
     #[schemars(with = "BTreeSet<String>")]
@@ -229,8 +224,7 @@ impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
         let mut user_applications = BTreeSet::new();
         let mut accounts = BTreeSet::new();
         let mut identities = BTreeSet::new();
-        let mut clocks = BTreeSet::new();
-        let mut epoch_managers = BTreeSet::new();
+        let mut consensus_managers = BTreeSet::new();
         let mut validators = BTreeSet::new();
         let mut access_controller = BTreeSet::new();
 
@@ -248,11 +242,8 @@ impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
                     | EntityType::GlobalVirtualEd25519Identity => {
                         identities.insert(address);
                     }
-                    EntityType::GlobalClock => {
-                        clocks.insert(address);
-                    }
-                    EntityType::GlobalEpochManager => {
-                        epoch_managers.insert(address);
+                    EntityType::GlobalConsensusManager => {
+                        consensus_managers.insert(address);
                     }
                     EntityType::GlobalValidator => {
                         validators.insert(address);
@@ -272,8 +263,7 @@ impl From<BTreeSet<NetworkAwareNodeId>> for EncounteredComponents {
             user_applications,
             accounts,
             identities,
-            clocks,
-            epoch_managers,
+            consensus_managers,
             validators,
             access_controller,
         }
@@ -469,13 +459,13 @@ fn get_resource_metadata(
                     {
                         let key =
                             scrypto_decode::<String>(&Into::<Vec<u8>>::into(key.clone())).unwrap();
-                        let value = scrypto_decode::<Option<NativeMetadataEntry>>(value)
+                        let value = scrypto_decode::<Option<NativeMetadataValue>>(value)
                             .unwrap()
                             .unwrap();
 
                         resource_metadata.push(MetadataKeyValue {
                             key,
-                            value: MetadataEntry::from_metadata_entry(&value, bech32_coder),
+                            value: MetadataValue::from_metadata_value(&value, bech32_coder),
                         });
                     };
                 }

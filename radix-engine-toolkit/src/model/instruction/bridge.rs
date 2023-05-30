@@ -23,14 +23,11 @@ use crate::model::value::ast::ManifestAstValue;
 use crate::model::value::ast::ManifestAstValueKind;
 use crate::utils;
 use itertools::Itertools;
-use native_transaction::data::format_manifest_value;
-use native_transaction::data::ManifestDecompilationDisplayContext;
 use native_transaction::manifest::ast;
 use native_transaction::manifest::generator::generate_value;
 use native_transaction::manifest::generator::NameResolver;
 use native_transaction::manifest::lexer;
 use native_transaction::manifest::parser::Parser;
-use radix_engine_common::prelude::to_manifest_value;
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use scrypto::schema::PackageSchema;
 
