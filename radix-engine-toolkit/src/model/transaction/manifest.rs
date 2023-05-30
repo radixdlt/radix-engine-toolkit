@@ -19,7 +19,7 @@ use crate::model::address::Bech32Coder;
 use crate::model::transaction::{InstructionKind, InstructionList};
 use crate::utils::debug_string;
 use native_transaction::manifest::{decompile, DecompileError};
-use native_transaction::model as native;
+use radix_engine_common::prelude::hash;
 use toolkit_derive::serializable;
 
 use super::InstructionListConversionError;
@@ -48,7 +48,7 @@ pub struct TransactionManifest {
 
 impl TransactionManifest {
     pub fn from_native_manifest(
-        native_manifest: &native::TransactionManifest,
+        native_manifest: &native_transaction::prelude::TransactionManifestV1,
         instructions_kind: InstructionKind,
         bech32_coder: &Bech32Coder,
     ) -> Result<Self, TransactionManifestConversionError> {
@@ -63,26 +63,35 @@ impl TransactionManifest {
                 .convert_to_manifest_instructions_kind(
                     instructions_kind,
                     bech32_coder,
-                    native_manifest.blobs.clone(),
+                    native_manifest.blobs.values().cloned().collect(),
                 )
                 .map_err(TransactionManifestConversionError::from)
         })
         .map(|instructions| TransactionManifest {
             instructions,
-            blobs: native_manifest.blobs.clone(),
+            blobs: native_manifest.blobs.values().cloned().collect(),
         })
     }
 
     pub fn to_native_manifest(
         &self,
         bech32_coder: &Bech32Coder,
-    ) -> Result<native::TransactionManifest, TransactionManifestConversionError> {
+    ) -> Result<
+        native_transaction::prelude::TransactionManifestV1,
+        TransactionManifestConversionError,
+    > {
         self.instructions
             .basic_instructions(bech32_coder, self.blobs.clone())
-            .map(|basic_instructions| native::TransactionManifest {
-                instructions: basic_instructions,
-                blobs: self.blobs.clone(),
-            })
+            .map(
+                |basic_instructions| native_transaction::prelude::TransactionManifestV1 {
+                    instructions: basic_instructions,
+                    blobs: self
+                        .blobs
+                        .iter()
+                        .map(|blob| (hash(&blob), blob.clone()))
+                        .collect(),
+                },
+            )
             .map_err(TransactionManifestConversionError::from)
     }
 }

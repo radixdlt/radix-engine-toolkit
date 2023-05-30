@@ -87,7 +87,7 @@ impl InstructionList {
         // TODO: This is a work around for a larger issue. Should definitely be removed in the
         // future. The problem is described in the long comment below.
         blobs: Vec<Vec<u8>>,
-    ) -> Result<Vec<transaction::Instruction>, InstructionListConversionError> {
+    ) -> Result<Vec<transaction::InstructionV1>, InstructionListConversionError> {
         let instructions = self.ast_instructions(bech32_coder)?;
         let instructions = generator::generate_manifest(
             &instructions,

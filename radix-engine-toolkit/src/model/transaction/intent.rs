@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use native_transaction::prelude::{AttachmentsV1, BlobV1, BlobsV1};
+use radix_engine_common::prelude::hash;
 use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
@@ -24,7 +26,6 @@ use crate::model::transaction::InstructionKind;
 use crate::model::transaction::{TransactionHeader, TransactionManifest};
 use crate::traits::CompilableIntent;
 use crate::utils::debug_string;
-use native_transaction::model as native;
 
 use super::TransactionManifestConversionError;
 
@@ -73,13 +74,21 @@ impl CompilableIntent for TransactionIntent {
 
 impl TransactionIntent {
     pub fn from_native_transaction_intent(
-        native_transaction_intent: &native::TransactionIntent,
+        native_transaction_intent: &native_transaction::prelude::IntentV1,
         instructions_kind: InstructionKind,
     ) -> Result<Self, TransactionIntentConversionError> {
         let bech32_coder = Bech32Coder::new(native_transaction_intent.header.network_id);
 
         TransactionManifest::from_native_manifest(
-            &native_transaction_intent.manifest,
+            &native_transaction::prelude::TransactionManifestV1 {
+                instructions: native_transaction_intent.instructions.0,
+                blobs: native_transaction_intent
+                    .blobs
+                    .blobs
+                    .iter()
+                    .map(|blob| (hash(blob.0), blob.0.clone()))
+                    .collect(),
+            },
             instructions_kind,
             &bech32_coder,
         )
@@ -92,15 +101,27 @@ impl TransactionIntent {
 
     pub fn to_native_transaction_intent(
         &self,
-    ) -> Result<native::TransactionIntent, TransactionIntentConversionError> {
+    ) -> Result<native_transaction::prelude::IntentV1, TransactionIntentConversionError> {
         let bech32_coder = Bech32Coder::new(self.header.network_id);
 
         self.manifest
             .to_native_manifest(&bech32_coder)
-            .map(|transaction_manifest| native::TransactionIntent {
-                manifest: transaction_manifest,
-                header: self.header.clone().into(),
-            })
+            .map(
+                |transaction_manifest| native_transaction::prelude::IntentV1 {
+                    header: self.header.clone().into(),
+                    blobs: BlobsV1 {
+                        blobs: transaction_manifest
+                            .blobs
+                            .iter()
+                            .map(|(_, blob)| BlobV1(blob.clone()))
+                            .collect(),
+                    },
+                    instructions: native_transaction::prelude::InstructionsV1(
+                        transaction_manifest.instructions,
+                    ),
+                    attachments: AttachmentsV1 {},
+                },
+            )
             .map_err(TransactionIntentConversionError::from)
     }
 }

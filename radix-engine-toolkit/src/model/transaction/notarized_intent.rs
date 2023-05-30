@@ -19,6 +19,7 @@ use crate::model::transaction::{InstructionKind, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
 use crate::utils::debug_string;
 use native_transaction::model as native;
+use native_transaction::prelude::NotarySignatureV1;
 use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
@@ -40,7 +41,7 @@ pub struct NotarizedTransaction {
     /// The signature of the notary on the signed transaction intent.
     #[schemars(with = "crate::model::crypto::Signature")]
     #[serde_as(as = "serde_with::FromInto<crate::model::crypto::Signature>")]
-    pub notary_signature: native::Signature,
+    pub notary_signature: native::SignatureV1,
 }
 
 // ===============
@@ -76,7 +77,7 @@ impl CompilableIntent for NotarizedTransaction {
 
 impl NotarizedTransaction {
     pub fn from_native_notarized_transaction_intent(
-        native_notarized_transaction_intent: &native::NotarizedTransaction,
+        native_notarized_transaction_intent: &native::NotarizedTransactionV1,
         instructions_kind: InstructionKind,
     ) -> Result<Self, NotarizedTransactionConversionError> {
         SignedTransactionIntent::from_native_signed_transaction_intent(
@@ -85,19 +86,19 @@ impl NotarizedTransaction {
         )
         .map(|signed_intent| Self {
             signed_intent,
-            notary_signature: native_notarized_transaction_intent.notary_signature,
+            notary_signature: native_notarized_transaction_intent.notary_signature.0,
         })
         .map_err(NotarizedTransactionConversionError::from)
     }
 
     pub fn to_native_notarized_transaction_intent(
         &self,
-    ) -> Result<native::NotarizedTransaction, NotarizedTransactionConversionError> {
+    ) -> Result<native::NotarizedTransactionV1, NotarizedTransactionConversionError> {
         self.signed_intent
             .to_native_signed_transaction_intent()
-            .map(|signed_intent| native::NotarizedTransaction {
+            .map(|signed_intent| native::NotarizedTransactionV1 {
                 signed_intent,
-                notary_signature: self.notary_signature,
+                notary_signature: NotarySignatureV1(self.notary_signature),
             })
             .map_err(NotarizedTransactionConversionError::from)
     }

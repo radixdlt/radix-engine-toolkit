@@ -19,6 +19,7 @@ use crate::model::transaction::{InstructionKind, TransactionIntent};
 use crate::traits::CompilableIntent;
 use crate::utils::debug_string;
 use native_transaction::model as native;
+use native_transaction::prelude::{IntentSignatureV1, IntentSignaturesV1};
 use sbor::{DecodeError, EncodeError};
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
@@ -39,7 +40,7 @@ pub struct SignedTransactionIntent {
     /// A vector of transaction intent signatures.
     #[schemars(with = "Vec<crate::model::crypto::SignatureWithPublicKey>")]
     #[serde_as(as = "Vec<serde_with::FromInto<crate::model::crypto::SignatureWithPublicKey>>")]
-    pub intent_signatures: Vec<native::SignatureWithPublicKey>,
+    pub intent_signatures: Vec<native::SignatureWithPublicKeyV1>,
 }
 
 // ===============
@@ -73,7 +74,7 @@ impl CompilableIntent for SignedTransactionIntent {
 
 impl SignedTransactionIntent {
     pub fn from_native_signed_transaction_intent(
-        native_signed_transaction_intent: &native::SignedTransactionIntent,
+        native_signed_transaction_intent: &native::SignedIntentV1,
         instructions_kind: InstructionKind,
     ) -> Result<Self, SignedTransactionIntentConversionError> {
         TransactionIntent::from_native_transaction_intent(
@@ -82,19 +83,31 @@ impl SignedTransactionIntent {
         )
         .map(|transaction_intent| Self {
             intent: transaction_intent,
-            intent_signatures: native_signed_transaction_intent.intent_signatures.clone(),
+            intent_signatures: native_signed_transaction_intent
+                .intent_signatures
+                .clone()
+                .signatures
+                .into_iter()
+                .map(|sig| sig.0)
+                .collect(),
         })
         .map_err(SignedTransactionIntentConversionError::from)
     }
 
     pub fn to_native_signed_transaction_intent(
         &self,
-    ) -> Result<native::SignedTransactionIntent, SignedTransactionIntentConversionError> {
+    ) -> Result<native::SignedIntentV1, SignedTransactionIntentConversionError> {
         self.intent
             .to_native_transaction_intent()
-            .map(|transaction_intent| native::SignedTransactionIntent {
+            .map(|transaction_intent| native::SignedIntentV1 {
                 intent: transaction_intent,
-                intent_signatures: self.intent_signatures.clone(),
+                intent_signatures: IntentSignaturesV1 {
+                    signatures: self
+                        .intent_signatures
+                        .into_iter()
+                        .map(IntentSignatureV1)
+                        .collect(),
+                },
             })
             .map_err(SignedTransactionIntentConversionError::from)
     }

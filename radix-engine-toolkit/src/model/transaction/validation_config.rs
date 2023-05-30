@@ -29,6 +29,13 @@ pub struct ValidationConfig {
     #[serde_as(as = "DisplayFromStr")]
     pub network_id: u8,
 
+    /// An unsigned 64 bit integer serialized as a string which represents the maximum size of the
+    /// notarized transaction payload.
+    #[schemars(with = "String")]
+    #[schemars(regex(pattern = "[0-9]+"))]
+    #[serde_as(as = "DisplayFromStr")]
+    pub max_notarized_payload_size: u64,
+
     /// An unsigned 32 bit integer serialized as a string which represents the minimum cost unit
     /// limit that a transaction is allowed to have.
     #[schemars(with = "String")]
@@ -74,6 +81,7 @@ impl From<NativeValidationConfig> for ValidationConfig {
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,
+            max_notarized_payload_size: value.max_notarized_payload_size as u64,
         }
     }
 }
@@ -87,6 +95,7 @@ impl From<ValidationConfig> for NativeValidationConfig {
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,
+            max_notarized_payload_size: value.max_notarized_payload_size as usize,
         }
     }
 }
