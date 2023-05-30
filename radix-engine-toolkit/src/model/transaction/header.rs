@@ -16,6 +16,7 @@
 // under the License.
 
 use native_transaction::model as native;
+use radix_engine_common::types::Epoch;
 use toolkit_derive::serializable;
 
 /// A transaction header containing metadata and other transaction information.
@@ -25,12 +26,6 @@ use toolkit_derive::serializable;
     example = "crate::example::transaction::header::header2"
 )]
 pub struct TransactionHeader {
-    /// An 8 bit unsigned integer serialized as a string which represents the transaction version.
-    /// Currently, this value is always 1.
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub version: u8,
-
     /// An 8 bit unsigned integer serialized as a string which represents the id of the network
     /// that this transaction is meant for.
     #[schemars(with = "String")]
@@ -49,11 +44,11 @@ pub struct TransactionHeader {
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub end_epoch_exclusive: u64,
 
-    /// A 64 bit unsigned integer serialized as a string which represents a random nonce used for
+    /// A 32 bit unsigned integer serialized as a string which represents a random nonce used for
     /// this transaction.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub nonce: u64,
+    pub nonce: u32,
 
     /// The public key of the entity that will be notarizing this transaction.
     #[schemars(with = "crate::model::crypto::PublicKey")]
@@ -63,13 +58,7 @@ pub struct TransactionHeader {
     /// When `true` the notary's signature is also treated as an intent signature and therefore a
     /// virtual badge of the signature is added to the auth zone when the transaction auth zone at
     /// the beginning of the transaction.
-    pub notary_as_signatory: bool,
-
-    /// A 32 bit unsigned integer serialized as a string which represents the limit or maximum
-    /// amount of cost units that the transaction is allowed to use.
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub cost_unit_limit: u32,
+    pub notary_is_signatory: bool,
 
     /// A 16 bit unsigned integer serialized as a string which represents the percentage of tips
     /// given to validators for this transaction.
@@ -82,33 +71,29 @@ pub struct TransactionHeader {
 // Conversions
 // ============
 
-impl From<native::TransactionHeader> for TransactionHeader {
-    fn from(value: native::TransactionHeader) -> Self {
+impl From<native::TransactionHeaderV1> for TransactionHeader {
+    fn from(value: native::TransactionHeaderV1) -> Self {
         Self {
-            version: value.version,
             network_id: value.network_id,
-            start_epoch_inclusive: value.start_epoch_inclusive,
-            end_epoch_exclusive: value.end_epoch_exclusive,
+            start_epoch_inclusive: value.start_epoch_inclusive.number(),
+            end_epoch_exclusive: value.end_epoch_exclusive.number(),
             nonce: value.nonce,
             notary_public_key: value.notary_public_key,
-            notary_as_signatory: value.notary_as_signatory,
-            cost_unit_limit: value.cost_unit_limit,
+            notary_is_signatory: value.notary_is_signatory,
             tip_percentage: value.tip_percentage,
         }
     }
 }
 
-impl From<TransactionHeader> for native::TransactionHeader {
+impl From<TransactionHeader> for native::TransactionHeaderV1 {
     fn from(value: TransactionHeader) -> Self {
         Self {
-            version: value.version,
             network_id: value.network_id,
-            start_epoch_inclusive: value.start_epoch_inclusive,
-            end_epoch_exclusive: value.end_epoch_exclusive,
+            start_epoch_inclusive: Epoch::of(value.start_epoch_inclusive),
+            end_epoch_exclusive: Epoch::of(value.end_epoch_exclusive),
             nonce: value.nonce,
             notary_public_key: value.notary_public_key,
-            notary_as_signatory: value.notary_as_signatory,
-            cost_unit_limit: value.cost_unit_limit,
+            notary_is_signatory: value.notary_is_signatory,
             tip_percentage: value.tip_percentage,
         }
     }

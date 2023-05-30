@@ -32,7 +32,7 @@ pub fn header1() -> TransactionHeader {
             .unwrap()
             .public_key()
             .into(),
-        notary_as_signatory: false,
+        notary_is_signatory: false,
         cost_unit_limit: 100_000_000,
         tip_percentage: 12,
     }
@@ -49,7 +49,7 @@ pub fn header2() -> TransactionHeader {
             .unwrap()
             .public_key()
             .into(),
-        notary_as_signatory: false,
+        notary_is_signatory: false,
         cost_unit_limit: 100_000_000,
         tip_percentage: 12,
     }
