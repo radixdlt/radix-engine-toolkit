@@ -50,8 +50,6 @@ impl Instruction {
                 blueprint_name: blueprint_name.to_ast_value(bech32_coder)?,
                 function_name: function_name.to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
@@ -64,8 +62,6 @@ impl Instruction {
                 address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
@@ -78,8 +74,6 @@ impl Instruction {
                 address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
@@ -92,8 +86,6 @@ impl Instruction {
                 address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
@@ -106,8 +98,6 @@ impl Instruction {
                 address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
-                    .clone()
-                    .unwrap_or_default()
                     .iter()
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
@@ -491,14 +481,9 @@ impl Instruction {
                 blueprint_name: ManifestAstValue::from_ast_value(blueprint_name, bech32_coder)?,
                 function_name: ManifestAstValue::from_ast_value(function_name, bech32_coder)?,
                 arguments: {
-                    let arguments = args
-                        .iter()
+                    args.iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
+                        .collect::<Result<Vec<_>, _>>()?
                 },
             },
             ast::Instruction::CallMethod {
@@ -509,14 +494,9 @@ impl Instruction {
                 component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
                 method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
                 arguments: {
-                    let arguments = args
-                        .iter()
+                    args.iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
+                        .collect::<Result<Vec<_>, _>>()?
                 },
             },
             ast::Instruction::CallRoyaltyMethod {
@@ -527,14 +507,9 @@ impl Instruction {
                 component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
                 method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
                 arguments: {
-                    let arguments = args
-                        .iter()
+                    args.iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
+                        .collect::<Result<Vec<_>, _>>()?
                 },
             },
             ast::Instruction::CallMetadataMethod {
@@ -545,14 +520,9 @@ impl Instruction {
                 component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
                 method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
                 arguments: {
-                    let arguments = args
-                        .iter()
+                    args.iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
+                        .collect::<Result<Vec<_>, _>>()?
                 },
             },
             ast::Instruction::CallAccessRulesMethod {
@@ -563,14 +533,9 @@ impl Instruction {
                 component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
                 method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
                 arguments: {
-                    let arguments = args
-                        .iter()
+                    args.iter()
                         .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
-                        .collect::<Result<Vec<_>, _>>()?;
-                    match arguments.len() {
-                        0 => None,
-                        _ => Some(arguments),
-                    }
+                        .collect::<Result<Vec<_>, _>>()?
                 },
             },
 

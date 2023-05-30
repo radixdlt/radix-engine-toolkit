@@ -45,10 +45,8 @@ pub enum Instruction {
         /// from the ManifestAstValue model.
         function_name: ManifestAstValue,
 
-        /// An optional array of `ManifestAstValue` arguments to call the function with. If this
-        /// array is empty or is not provided, then the function is called with no
-        /// arguments.
-        arguments: Option<Vec<ManifestAstValue>>,
+        /// An array of `ManifestAstValue` arguments to call the function with.
+        arguments: Vec<ManifestAstValue>,
     },
 
     /// An instruction to call a method with a given name on a given component address with the
@@ -66,9 +64,8 @@ pub enum Instruction {
         /// the ManifestAstValue model.
         method_name: ManifestAstValue,
 
-        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
-        /// array is empty or is not provided, then the method is called with no arguments.
-        arguments: Option<Vec<ManifestAstValue>>,
+        /// An array of `ManifestAstValue` arguments to call the method with.
+        arguments: Vec<ManifestAstValue>,
     },
 
     /// An instruction to call a method with a given name on the royalty module of a given
@@ -86,9 +83,8 @@ pub enum Instruction {
         /// the ManifestAstValue model.
         method_name: ManifestAstValue,
 
-        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
-        /// array is empty or is not provided, then the method is called with no arguments.
-        arguments: Option<Vec<ManifestAstValue>>,
+        /// An array of `ManifestAstValue` arguments to call the method with.
+        arguments: Vec<ManifestAstValue>,
     },
 
     /// An instruction to call a method with a given name on the metadata module of a given
@@ -106,9 +102,8 @@ pub enum Instruction {
         /// the ManifestAstValue model.
         method_name: ManifestAstValue,
 
-        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
-        /// array is empty or is not provided, then the method is called with no arguments.
-        arguments: Option<Vec<ManifestAstValue>>,
+        /// An array of `ManifestAstValue` arguments to call the method with.
+        arguments: Vec<ManifestAstValue>,
     },
 
     /// An instruction to call a method with a given name on the access rules module of a given
@@ -126,9 +121,8 @@ pub enum Instruction {
         /// the ManifestAstValue model.
         method_name: ManifestAstValue,
 
-        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
-        /// array is empty or is not provided, then the method is called with no arguments.
-        arguments: Option<Vec<ManifestAstValue>>,
+        /// An array of `ManifestAstValue` arguments to call the method with.
+        arguments: Vec<ManifestAstValue>,
     },
 
     /// An instruction to take the entire amount of a given resource address from the worktop and
