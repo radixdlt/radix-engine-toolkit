@@ -16,15 +16,15 @@ schemars = { version = "0.8.11", features = ["preserve_order"] }
 toolkit-derive = { path = "../toolkit-derive" }
 
 # Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", package = "utils", features = ["serde"] }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", package = "transaction", features = ["serde"] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", optional = true }
-radix-engine-derive = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", features = ["serde"] }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", optional = true }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", package = "utils", features = ["serde"] }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", package = "transaction", features = ["serde"] }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", optional = true }
+radix-engine-derive = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", features = ["serde"] }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", optional = true }
 
 # Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
 # hex representation during serialization.
@@ -41,7 +41,7 @@ regex = "1.7.3"
 itertools = "0.10.5"
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
 lazy_static = { version = "1.4.0" }
 serde_json = { version = "1.0.91" }
 paste = { version = "1.0.11" }

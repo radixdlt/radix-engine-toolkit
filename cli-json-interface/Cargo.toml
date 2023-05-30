@@ -14,13 +14,13 @@ radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 serde = "1.0.152"
 serde_json = "1.0.93"
 
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189", package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-26d3a189" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", package = "utils" }
+native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200", package = "transaction" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
+radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "birch-d988ac200" }
 hex = "0.4.3"
 
 [[bin]]
