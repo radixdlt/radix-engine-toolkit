@@ -71,8 +71,8 @@ pub enum Instruction {
         arguments: Option<Vec<ManifestAstValue>>,
     },
 
-    /// An instruction to call a method with a given name on the royalty module of a given component
-    /// address with the given list of arguments.
+    /// An instruction to call a method with a given name on the royalty module of a given
+    /// component address with the given list of arguments.
     #[schemars(
         example = "crate::example::instruction::call_royalty_method1",
         example = "crate::example::instruction::call_royalty_method2"
@@ -91,8 +91,8 @@ pub enum Instruction {
         arguments: Option<Vec<ManifestAstValue>>,
     },
 
-    /// An instruction to call a method with a given name on the metadata module of a given component
-    /// address with the given list of arguments.
+    /// An instruction to call a method with a given name on the metadata module of a given
+    /// component address with the given list of arguments.
     #[schemars(
         example = "crate::example::instruction::call_metadata_method1",
         example = "crate::example::instruction::call_metadata_method2"
@@ -341,7 +341,8 @@ pub enum Instruction {
         into_proof: ManifestAstValue,
     },
 
-    /// An instruction to create a proof of the entire amount of a given resource address from a bucket.
+    /// An instruction to create a proof of the entire amount of a given resource address from a
+    /// bucket.
     #[schemars(
         example = "crate::example::instruction::create_proof_from_bucket_of_all1",
         example = "crate::example::instruction::create_proof_from_bucket_of_all2"
@@ -356,7 +357,8 @@ pub enum Instruction {
         into_proof: ManifestAstValue,
     },
 
-    /// An instruction to create a proof of the an amount of a given resource address from a auth zone.
+    /// An instruction to create a proof of the an amount of a given resource address from a auth
+    /// zone.
     #[schemars(
         example = "crate::example::instruction::create_proof_from_bucket_by_amount1",
         example = "crate::example::instruction::create_proof_from_bucket_by_amount2"
@@ -375,8 +377,8 @@ pub enum Instruction {
         into_proof: ManifestAstValue,
     },
 
-    /// An instruction to create a proof of the a set of non-fungible ids of a given resource address
-    /// from a bucket.
+    /// An instruction to create a proof of the a set of non-fungible ids of a given resource
+    /// address from a bucket.
     #[schemars(
         example = "crate::example::instruction::create_proof_from_bucket_by_ids1",
         example = "crate::example::instruction::create_proof_from_bucket_by_ids2"

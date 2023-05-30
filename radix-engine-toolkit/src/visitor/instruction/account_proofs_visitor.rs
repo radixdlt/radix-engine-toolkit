@@ -59,9 +59,14 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
                 }),
             ) if is_account(*component_address)
                 && (method_name == ACCOUNT_CREATE_PROOF_IDENT
-                    || method_name == ACCOUNT_CREATE_PROOF_BY_AMOUNT_IDENT
-                    || method_name == ACCOUNT_CREATE_PROOF_BY_IDS_IDENT)
-                && resource_address.node_id().is_global_resource() =>
+                    || method_name == ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT
+                    || method_name == ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT)
+                && (resource_address
+                    .node_id()
+                    .is_global_fungible_resource_manager()
+                    || resource_address
+                        .node_id()
+                        .is_global_non_fungible_resource_manager()) =>
             {
                 self.created_proofs.insert(*resource_address);
             }

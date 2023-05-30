@@ -37,7 +37,9 @@ impl ManifestAstValueVisitor for AddressAggregatorVisitor {
             let node_id = address.node_id();
             if node_id.is_global_component() {
                 self.component_addresses.insert(*address);
-            } else if node_id.is_global_resource() {
+            } else if node_id.is_global_fungible_resource_manager()
+                || node_id.is_global_non_fungible_resource_manager()
+            {
                 self.resource_addresses.insert(*address);
             } else if node_id.is_global_package() {
                 self.package_addresses.insert(*address);

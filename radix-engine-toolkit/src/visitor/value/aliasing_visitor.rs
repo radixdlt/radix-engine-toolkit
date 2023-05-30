@@ -38,7 +38,9 @@ impl ManifestAstValueVisitor for ValueAliasingVisitor {
                     Some(ManifestAstValue::NonFungibleLocalId {
                         value: non_fungible_local_id,
                     }),
-                ) if elements.len() == 2 && address.node_id().is_global_resource() => {
+                ) if elements.len() == 2
+                    && address.node_id().is_global_non_fungible_resource_manager() =>
+                {
                     *value = ManifestAstValue::NonFungibleGlobalId {
                         resource_address: *address,
                         non_fungible_local_id: non_fungible_local_id.clone(),

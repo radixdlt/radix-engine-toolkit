@@ -291,7 +291,13 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                     value: resource_address,
                 },
                 ManifestAstValue::Bucket { value: bucket_id },
-            ) if resource_address.node_id().is_global_resource() => {
+            ) if (resource_address
+                .node_id()
+                .is_global_fungible_resource_manager()
+                || resource_address
+                    .node_id()
+                    .is_global_non_fungible_resource_manager()) =>
+            {
                 if let Some(worktop_changes) = self.worktop_changes.get(&self.instruction_index) {
                     if let Some(WorktopChange::Take(resource_quantifier)) = worktop_changes.get(0) {
                         self.add_bucket(
@@ -339,7 +345,13 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 },
                 ManifestAstValue::Decimal { value: amount },
                 ManifestAstValue::Bucket { value: bucket_id },
-            ) if resource_address.node_id().is_global_resource() => {
+            ) if (resource_address
+                .node_id()
+                .is_global_fungible_resource_manager()
+                || resource_address
+                    .node_id()
+                    .is_global_non_fungible_resource_manager()) =>
+            {
                 self.add_bucket(
                     bucket_id.clone(),
                     ResourceSpecifier::Guaranteed {
@@ -370,7 +382,13 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 },
                 ids,
                 ManifestAstValue::Bucket { value: bucket_id },
-            ) if resource_address.node_id().is_global_resource() => {
+            ) if (resource_address
+                .node_id()
+                .is_global_fungible_resource_manager()
+                || resource_address
+                    .node_id()
+                    .is_global_non_fungible_resource_manager()) =>
+            {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
                     for id in ids {

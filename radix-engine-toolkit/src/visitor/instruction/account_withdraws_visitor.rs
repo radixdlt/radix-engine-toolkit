@@ -76,7 +76,12 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 None,
             ) if is_account(*component_address)
                 && method_name == ACCOUNT_WITHDRAW_IDENT
-                && resource_address.node_id().is_global_resource() =>
+                && (resource_address
+                    .node_id()
+                    .is_global_fungible_resource_manager()
+                    || resource_address
+                        .node_id()
+                        .is_global_non_fungible_resource_manager()) =>
             {
                 self.add(
                     *component_address,
@@ -108,7 +113,12 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 None,
             ) if is_account(*component_address)
                 && method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT
-                && resource_address.node_id().is_global_resource() =>
+                && (resource_address
+                    .node_id()
+                    .is_global_fungible_resource_manager()
+                    || resource_address
+                        .node_id()
+                        .is_global_non_fungible_resource_manager()) =>
             {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
@@ -148,7 +158,12 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 Some(ManifestAstValue::Decimal { value: amount }),
             ) if is_account(*component_address)
                 && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT
-                && resource_address.node_id().is_global_resource() =>
+                && (resource_address
+                    .node_id()
+                    .is_global_fungible_resource_manager()
+                    || resource_address
+                        .node_id()
+                        .is_global_non_fungible_resource_manager()) =>
             {
                 self.add(
                     *component_address,
@@ -181,7 +196,12 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
                 }),
             ) if is_account(*component_address)
                 && method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
-                && resource_address.node_id().is_global_resource() =>
+                && (resource_address
+                    .node_id()
+                    .is_global_fungible_resource_manager()
+                    || resource_address
+                        .node_id()
+                        .is_global_non_fungible_resource_manager()) =>
             {
                 let ids = {
                     let mut resolved_ids = BTreeSet::new();
