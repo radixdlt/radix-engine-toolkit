@@ -359,6 +359,59 @@ decompile a transaction intent of an unknown type."#
     }
 }
 
+impl ExampleData<hash_transaction_intent::Input, hash_transaction_intent::Output>
+    for hash_transaction_intent::Handler
+{
+    fn description() -> String {
+        r#"Hashes the transaction intent. This is useful for signing the intent."#.to_owned()
+    }
+
+    fn example_input() -> hash_transaction_intent::Input {
+        hash_transaction_intent::Input {
+            transaction_intent: radix_engine_toolkit::model::transaction::TransactionIntent::from_native_transaction_intent(
+                    &notarized_intent().signed_intent.intent,
+                    InstructionKind::Parsed,
+                )
+                .unwrap(),
+        }
+    }
+}
+
+impl ExampleData<hash_signed_transaction_intent::Input, hash_signed_transaction_intent::Output>
+    for hash_signed_transaction_intent::Handler
+{
+    fn description() -> String {
+        r#"Hashes the signed intent. This is useful for signing the signed intent."#.to_owned()
+    }
+
+    fn example_input() -> hash_signed_transaction_intent::Input {
+        hash_signed_transaction_intent::Input {
+            signed_intent:
+radix_engine_toolkit::model::transaction::SignedTransactionIntent::from_native_signed_transaction_intent(&
+notarized_intent()             .signed_intent
+            , InstructionKind::Parsed)
+                .unwrap(),
+        }
+    }
+}
+
+impl ExampleData<hash_notarized_transaction::Input, hash_notarized_transaction::Output>
+    for hash_notarized_transaction::Handler
+{
+    fn description() -> String {
+        r#"Hashes the notarized intent."#.to_owned()
+    }
+
+    fn example_input() -> hash_notarized_transaction::Input {
+        hash_notarized_transaction::Input {
+            notarized_intent:
+radix_engine_toolkit::model::transaction::NotarizedTransaction::from_native_notarized_transaction_intent(&
+notarized_intent()             , InstructionKind::Parsed)
+                .unwrap(),
+        }
+    }
+}
+
 impl ExampleData<encode_address::Input, encode_address::Output> for encode_address::Handler {
     fn description() -> String {
         r#"This function can be used when we have a byte array which we wish to do Bech32m

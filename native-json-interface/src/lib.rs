@@ -109,6 +109,10 @@ pub mod native {
     );
     export_handler!(compile_notarized_transaction::Handler as compile_notarized_transaction);
 
+    export_handler!(hash_transaction_intent::Handler as hash_transaction_intent);
+    export_handler!(hash_signed_transaction_intent::Handler as hash_signed_transaction_intent);
+    export_handler!(hash_notarized_transaction::Handler as hash_notarized_transaction);
+
     export_handler!(decompile_transaction_intent::Handler as decompile_transaction_intent);
     export_handler!(
         decompile_signed_transaction_intent::Handler as decompile_signed_transaction_intent
@@ -235,6 +239,19 @@ pub mod jni {
     export_handler!(
         compile_notarized_transaction::Handler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_compileNotarizedTransaction
+    );
+
+    export_handler!(
+        hash_transaction_intent::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hashTransactionIntent
+    );
+    export_handler!(
+        hash_signed_transaction_intent::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hashSignedTransactionIntent
+    );
+    export_handler!(
+        hash_notarized_transaction::Handler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_hashNotarizedTransaction
     );
 
     export_handler!(

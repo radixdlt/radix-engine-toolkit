@@ -91,6 +91,9 @@ pub enum InvocationHandlingError {
     ExtractAddressesFromManifestError(extract_addresses_from_manifest::Error),
     KnownEntityAddressesError(known_entity_addresses::Error),
     StaticallyValidateTransactionError(statically_validate_transaction::Error),
+    HashTransactionIntentError(hash_transaction_intent::Error),
+    HashSignedTransactionIntentError(hash_signed_transaction_intent::Error),
+    HashNotarizedTransactionError(hash_notarized_transaction::Error),
     HashError(hash::Error),
 }
 
@@ -126,6 +129,9 @@ impl_from! { derive_virtual_identity_address::Error => InvocationHandlingError a
 impl_from! { extract_addresses_from_manifest::Error => InvocationHandlingError as ExtractAddressesFromManifestError }
 impl_from! { known_entity_addresses::Error => InvocationHandlingError as KnownEntityAddressesError }
 impl_from! { statically_validate_transaction::Error => InvocationHandlingError as StaticallyValidateTransactionError }
+impl_from! { hash_transaction_intent::Error => InvocationHandlingError as HashTransactionIntentError }
+impl_from! { hash_signed_transaction_intent::Error => InvocationHandlingError as HashSignedTransactionIntentError }
+impl_from! { hash_notarized_transaction::Error => InvocationHandlingError as HashNotarizedTransactionError }
 impl_from! { hash::Error => InvocationHandlingError as HashError }
 
 /// Errors emitted when the conversion between the native Scrypto models and the RET models fails.

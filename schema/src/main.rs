@@ -164,6 +164,21 @@ pub fn generate_json_schema() -> Result<(), GenerationError> {
             analyze_transaction_execution::Output,
             analyze_transaction_execution::Error
         ),
+        "hash_transaction_intent" => generate_group_schema!(
+            hash_transaction_intent::Input,
+            hash_transaction_intent::Output,
+            hash_transaction_intent::Error
+        ),
+        "hash_signed_transaction_intent" => generate_group_schema!(
+            hash_signed_transaction_intent::Input,
+            hash_signed_transaction_intent::Output,
+            hash_signed_transaction_intent::Error
+        ),
+        "hash_notarized_transaction" => generate_group_schema!(
+            hash_notarized_transaction::Input,
+            hash_notarized_transaction::Output,
+            hash_notarized_transaction::Error
+        ),
     );
 
     for (function_name, type_schemas) in schema_map.iter() {
@@ -211,6 +226,9 @@ fn generate_function_examples() -> Result<(), GenerationError> {
         .add_example::<statically_validate_transaction::Handler, _, _>()
         .add_example::<known_entity_addresses::Handler, _, _>()
         .add_example::<hash::Handler, _, _>()
+        .add_example::<hash_transaction_intent::Handler, _, _>()
+        .add_example::<hash_signed_transaction_intent::Handler, _, _>()
+        .add_example::<hash_notarized_transaction::Handler, _, _>()
         .build();
 
     let path = {

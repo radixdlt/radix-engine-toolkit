@@ -44,6 +44,10 @@ pub mod derive_virtual_identity_address;
 pub mod known_entity_addresses;
 pub mod statically_validate_transaction;
 
+pub mod hash_notarized_transaction;
+pub mod hash_signed_transaction_intent;
+pub mod hash_transaction_intent;
+
 pub mod hash;
 
 pub mod traits;
