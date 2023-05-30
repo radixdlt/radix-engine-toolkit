@@ -20,7 +20,7 @@ use crate::model::transaction::{
 };
 use crate::traits::CompilableIntent;
 use native_transaction::validation::{
-    NotarizedTransactionValidator, TestIntentHashManager, TransactionValidator, ValidationConfig,
+    NotarizedTransactionValidator, TransactionValidator, ValidationConfig,
 };
 use toolkit_derive::serializable;
 
@@ -76,14 +76,8 @@ impl InvocationHandler<Input, Output> for Handler {
             InstructionKind::String,
         )?;
 
-        let intent_hash_manager = TestIntentHashManager::new();
-
         if let Err(ref error) = NotarizedTransactionValidator::new(input.validation_config)
-            .validate(
-                &notarized_transaction.to_native_notarized_transaction_intent()?,
-                input.compiled_notarized_intent.len(),
-                &intent_hash_manager,
-            )
+            .validate_from_payload_bytes(&input.compiled_notarized_intent)
         {
             Ok(Output::Invalid {
                 error: format!("{:?}", error),
