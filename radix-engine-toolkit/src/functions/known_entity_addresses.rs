@@ -19,9 +19,9 @@ use crate::functions::traits::InvocationHandler;
 use crate::model::address::NetworkAwareNodeId;
 use scrypto::prelude::FAUCET;
 use scrypto::prelude::{
-    ACCOUNT_PACKAGE, CLOCK, ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
-    EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE, EPOCH_MANAGER, FAUCET_PACKAGE,
-    PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE, RADIX_TOKEN, SYSTEM_TRANSACTION_BADGE,
+    ACCOUNT_PACKAGE, CONSENSUS_MANAGER, ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
+    EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE, FAUCET_PACKAGE, PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE,
+    RADIX_TOKEN, SYSTEM_TRANSACTION_BADGE,
 };
 use toolkit_derive::serializable;
 
@@ -98,16 +98,10 @@ pub struct Output {
     pub package_token_resource_address: NetworkAwareNodeId,
 
     /// A system address serialized as an `Address` from the `Value` model which represents
-    /// the address of the epoch manager on the requested network.
+    /// the address of the consensus manager on the requested network.
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub epoch_manager_system_address: NetworkAwareNodeId,
-
-    /// A system address serialized as an `Address` from the `Value` model which represents
-    /// the address of the clock on the requested network.
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub clock_system_address: NetworkAwareNodeId,
+    pub consensus_manager_component_address: NetworkAwareNodeId,
 }
 
 // ===============
@@ -156,11 +150,10 @@ impl InvocationHandler<Input, Output> for Handler {
                 PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.as_node_id().0,
                 network_id,
             ),
-            epoch_manager_system_address: NetworkAwareNodeId(
-                EPOCH_MANAGER.as_node_id().0,
+            consensus_manager_component_address: NetworkAwareNodeId(
+                CONSENSUS_MANAGER.as_node_id().0,
                 network_id,
             ),
-            clock_system_address: NetworkAwareNodeId(CLOCK.as_node_id().0, network_id),
         })
     }
 
