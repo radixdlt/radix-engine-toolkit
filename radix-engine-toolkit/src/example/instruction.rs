@@ -73,44 +73,6 @@ pub fn call_function2() -> Instruction {
     instruction
 }
 
-pub fn call_function3() -> Instruction {
-    let instruction = Instruction::CallFunction {
-        package_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
-        },
-        blueprint_name: ManifestAstValue::String {
-            value: "Faucet".into(),
-        },
-        function_name: ManifestAstValue::String {
-            value: "new".to_owned(),
-        },
-        arguments: Some(vec![ManifestAstValue::Decimal {
-            value: "1".parse().unwrap(),
-        }]),
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn call_function4() -> Instruction {
-    let instruction = Instruction::CallFunction {
-        package_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(FAUCET_PACKAGE.as_node_id().0, 1),
-        },
-        blueprint_name: ManifestAstValue::String {
-            value: "Faucet".into(),
-        },
-        function_name: ManifestAstValue::String {
-            value: "new".to_owned(),
-        },
-        arguments: Some(vec![ManifestAstValue::Decimal {
-            value: "1".parse().unwrap(),
-        }]),
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
 pub fn call_method1() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
@@ -135,6 +97,20 @@ pub fn call_method2() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
+        arguments: None,
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn call_royalty_method1() -> Instruction {
+    let instruction = Instruction::CallMethod {
+        component_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+        },
+        method_name: ManifestAstValue::String {
+            value: "free".into(),
+        },
         arguments: Some(vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
         }]),
@@ -143,7 +119,7 @@ pub fn call_method2() -> Instruction {
     instruction
 }
 
-pub fn call_method3() -> Instruction {
+pub fn call_royalty_method2() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
@@ -157,7 +133,53 @@ pub fn call_method3() -> Instruction {
     instruction
 }
 
-pub fn call_method4() -> Instruction {
+pub fn call_metadata_method1() -> Instruction {
+    let instruction = Instruction::CallMethod {
+        component_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+        },
+        method_name: ManifestAstValue::String {
+            value: "free".into(),
+        },
+        arguments: Some(vec![ManifestAstValue::Decimal {
+            value: "1".parse().unwrap(),
+        }]),
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn call_metadata_method2() -> Instruction {
+    let instruction = Instruction::CallMethod {
+        component_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+        },
+        method_name: ManifestAstValue::String {
+            value: "free".into(),
+        },
+        arguments: None,
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn call_access_rules_method1() -> Instruction {
+    let instruction = Instruction::CallMethod {
+        component_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+        },
+        method_name: ManifestAstValue::String {
+            value: "free".into(),
+        },
+        arguments: Some(vec![ManifestAstValue::Decimal {
+            value: "1".parse().unwrap(),
+        }]),
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn call_access_rules_method2() -> Instruction {
     let instruction = Instruction::CallMethod {
         component_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
@@ -172,7 +194,7 @@ pub fn call_method4() -> Instruction {
 }
 
 pub fn take_from_worktop1() -> Instruction {
-    let instruction = Instruction::TakeFromWorktop {
+    let instruction = Instruction::TakeAllFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -185,7 +207,7 @@ pub fn take_from_worktop1() -> Instruction {
 }
 
 pub fn take_from_worktop2() -> Instruction {
-    let instruction = Instruction::TakeFromWorktop {
+    let instruction = Instruction::TakeAllFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -198,7 +220,7 @@ pub fn take_from_worktop2() -> Instruction {
 }
 
 pub fn take_from_worktop_by_amount1() -> Instruction {
-    let instruction = Instruction::TakeFromWorktopByAmount {
+    let instruction = Instruction::TakeFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -214,7 +236,7 @@ pub fn take_from_worktop_by_amount1() -> Instruction {
 }
 
 pub fn take_from_worktop_by_amount2() -> Instruction {
-    let instruction = Instruction::TakeFromWorktopByAmount {
+    let instruction = Instruction::TakeFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -230,7 +252,7 @@ pub fn take_from_worktop_by_amount2() -> Instruction {
 }
 
 pub fn take_from_worktop_by_ids1() -> Instruction {
-    let instruction = Instruction::TakeFromWorktopByIds {
+    let instruction = Instruction::TakeNonFungiblesFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -246,7 +268,7 @@ pub fn take_from_worktop_by_ids1() -> Instruction {
 }
 
 pub fn take_from_worktop_by_ids2() -> Instruction {
-    let instruction = Instruction::TakeFromWorktopByIds {
+    let instruction = Instruction::TakeNonFungiblesFromWorktop {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -292,7 +314,7 @@ pub fn assert_worktop_contains2() -> Instruction {
 }
 
 pub fn assert_worktop_contains_by_amount1() -> Instruction {
-    let instruction = Instruction::AssertWorktopContainsByAmount {
+    let instruction = Instruction::AssertWorktopContains {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -305,7 +327,7 @@ pub fn assert_worktop_contains_by_amount1() -> Instruction {
 }
 
 pub fn assert_worktop_contains_by_amount2() -> Instruction {
-    let instruction = Instruction::AssertWorktopContainsByAmount {
+    let instruction = Instruction::AssertWorktopContains {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -318,7 +340,7 @@ pub fn assert_worktop_contains_by_amount2() -> Instruction {
 }
 
 pub fn assert_worktop_contains_by_ids1() -> Instruction {
-    let instruction = Instruction::AssertWorktopContainsByIds {
+    let instruction = Instruction::AssertWorktopContainsNonFungibles {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -331,7 +353,7 @@ pub fn assert_worktop_contains_by_ids1() -> Instruction {
 }
 
 pub fn assert_worktop_contains_by_ids2() -> Instruction {
-    let instruction = Instruction::AssertWorktopContainsByIds {
+    let instruction = Instruction::AssertWorktopContainsNonFungibles {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -396,7 +418,7 @@ pub fn create_proof_from_auth_zone2() -> Instruction {
 }
 
 pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
-    let instruction = Instruction::CreateProofFromAuthZoneByAmount {
+    let instruction = Instruction::CreateProofFromAuthZoneOfAmount {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -412,7 +434,7 @@ pub fn create_proof_from_auth_zone_by_amount1() -> Instruction {
 }
 
 pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
-    let instruction = Instruction::CreateProofFromAuthZoneByAmount {
+    let instruction = Instruction::CreateProofFromAuthZoneOfAmount {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -428,7 +450,7 @@ pub fn create_proof_from_auth_zone_by_amount2() -> Instruction {
 }
 
 pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
-    let instruction = Instruction::CreateProofFromAuthZoneByIds {
+    let instruction = Instruction::CreateProofFromAuthZoneOfNonFungibles {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -444,7 +466,7 @@ pub fn create_proof_from_auth_zone_by_ids1() -> Instruction {
 }
 
 pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
-    let instruction = Instruction::CreateProofFromAuthZoneByIds {
+    let instruction = Instruction::CreateProofFromAuthZoneOfNonFungibles {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
@@ -459,13 +481,142 @@ pub fn create_proof_from_auth_zone_by_ids2() -> Instruction {
     instruction
 }
 
-pub fn create_proof_from_bucket() -> Instruction {
+pub fn create_proof_from_auth_zone_of_all1() -> Instruction {
+    let instruction = Instruction::CreateProofFromAuthZoneOfAll {
+        resource_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".to_owned(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_auth_zone_of_all2() -> Instruction {
+    let instruction = Instruction::CreateProofFromAuthZoneOfAll {
+        resource_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".to_owned(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket1() -> Instruction {
     let instruction = Instruction::CreateProofFromBucket {
         bucket: ManifestAstValue::Bucket {
             value: "bucket".into(),
         },
         into_proof: ManifestAstValue::Proof {
-            value: "Proof".into(),
+            value: "ident".to_owned(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket2() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucket {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".to_owned(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_by_amount1() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfAmount {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        amount: ManifestAstValue::Decimal {
+            value: "1".parse().unwrap(),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".into(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_by_amount2() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfAmount {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        amount: ManifestAstValue::Decimal {
+            value: "1".parse().unwrap(),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".into(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_by_ids1() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfNonFungibles {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        ids: vec![ManifestAstValue::NonFungibleLocalId {
+            value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
+        }],
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".into(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_by_ids2() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfNonFungibles {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        ids: vec![ManifestAstValue::NonFungibleLocalId {
+            value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
+        }],
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".into(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_of_all1() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfAll {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".to_owned(),
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn create_proof_from_bucket_of_all2() -> Instruction {
+    let instruction = Instruction::CreateProofFromBucketOfAll {
+        bucket: ManifestAstValue::Bucket {
+            value: "bucket".into(),
+        },
+        into_proof: ManifestAstValue::Proof {
+            value: "ident".to_owned(),
         },
     };
     check_instruction(&instruction);
@@ -538,7 +689,7 @@ pub fn publish_package_advanced() -> Instruction {
             value_kind: ManifestAstValueKind::String,
             entries: Vec::new(),
         },
-        access_rules: ManifestAstValue::Tuple {
+        authority_rules: ManifestAstValue::Tuple {
             fields: vec![
                 ManifestAstValue::Map {
                     key_kind: ManifestAstValueKind::Tuple,

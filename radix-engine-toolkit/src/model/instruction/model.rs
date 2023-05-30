@@ -29,9 +29,7 @@ pub enum Instruction {
     /// address and blueprint name.
     #[schemars(
         example = "crate::example::instruction::call_function1",
-        example = "crate::example::instruction::call_function2",
-        example = "crate::example::instruction::call_function3",
-        example = "crate::example::instruction::call_function4"
+        example = "crate::example::instruction::call_function2"
     )]
     CallFunction {
         /// The address of the package containing the blueprint that contains the desired function.
@@ -57,11 +55,69 @@ pub enum Instruction {
     /// given list of arguments.
     #[schemars(
         example = "crate::example::instruction::call_method1",
-        example = "crate::example::instruction::call_method2",
-        example = "crate::example::instruction::call_method3",
-        example = "crate::example::instruction::call_method4"
+        example = "crate::example::instruction::call_method2"
     )]
     CallMethod {
+        /// The address of the component which contains the method to be invoked. This field is
+        /// serialized as an `Address` from the ManifestAstValue model.
+        component_address: ManifestAstValue,
+
+        /// A string of the name of the method to call. his field is serialized as a `String` from
+        /// the ManifestAstValue model.
+        method_name: ManifestAstValue,
+
+        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
+        /// array is empty or is not provided, then the method is called with no arguments.
+        arguments: Option<Vec<ManifestAstValue>>,
+    },
+
+    /// An instruction to call a method with a given name on the royalty module of a given component
+    /// address with the given list of arguments.
+    #[schemars(
+        example = "crate::example::instruction::call_royalty_method1",
+        example = "crate::example::instruction::call_royalty_method2"
+    )]
+    CallRoyaltyMethod {
+        /// The address of the component which contains the method to be invoked. This field is
+        /// serialized as an `Address` from the ManifestAstValue model.
+        component_address: ManifestAstValue,
+
+        /// A string of the name of the method to call. his field is serialized as a `String` from
+        /// the ManifestAstValue model.
+        method_name: ManifestAstValue,
+
+        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
+        /// array is empty or is not provided, then the method is called with no arguments.
+        arguments: Option<Vec<ManifestAstValue>>,
+    },
+
+    /// An instruction to call a method with a given name on the metadata module of a given component
+    /// address with the given list of arguments.
+    #[schemars(
+        example = "crate::example::instruction::call_metadata_method1",
+        example = "crate::example::instruction::call_metadata_method2"
+    )]
+    CallMetadataMethod {
+        /// The address of the component which contains the method to be invoked. This field is
+        /// serialized as an `Address` from the ManifestAstValue model.
+        component_address: ManifestAstValue,
+
+        /// A string of the name of the method to call. his field is serialized as a `String` from
+        /// the ManifestAstValue model.
+        method_name: ManifestAstValue,
+
+        /// An optional array of `ManifestAstValue` arguments to call the method with. If this
+        /// array is empty or is not provided, then the method is called with no arguments.
+        arguments: Option<Vec<ManifestAstValue>>,
+    },
+
+    /// An instruction to call a method with a given name on the access rules module of a given
+    /// component address with the given list of arguments.
+    #[schemars(
+        example = "crate::example::instruction::call_access_rules_method1",
+        example = "crate::example::instruction::call_access_rules_method2"
+    )]
+    CallAccessRulesMethod {
         /// The address of the component which contains the method to be invoked. This field is
         /// serialized as an `Address` from the ManifestAstValue model.
         component_address: ManifestAstValue,
@@ -81,7 +137,7 @@ pub enum Instruction {
         example = "crate::example::instruction::take_from_worktop1",
         example = "crate::example::instruction::take_from_worktop2"
     )]
-    TakeFromWorktop {
+    TakeAllFromWorktop {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -97,7 +153,7 @@ pub enum Instruction {
         example = "crate::example::instruction::take_from_worktop_by_amount1",
         example = "crate::example::instruction::take_from_worktop_by_amount2"
     )]
-    TakeFromWorktopByAmount {
+    TakeFromWorktop {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -117,7 +173,7 @@ pub enum Instruction {
         example = "crate::example::instruction::take_from_worktop_by_ids1",
         example = "crate::example::instruction::take_from_worktop_by_ids2"
     )]
-    TakeFromWorktopByIds {
+    TakeNonFungiblesFromWorktop {
         /// The address of the resource to take from the worktop. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -139,24 +195,13 @@ pub enum Instruction {
         bucket: ManifestAstValue,
     },
 
-    /// An instruction to assert that a given resource exists in the worktop.
-    #[schemars(
-        example = "crate::example::instruction::assert_worktop_contains1",
-        example = "crate::example::instruction::assert_worktop_contains2"
-    )]
-    AssertWorktopContains {
-        /// The address of the resource to perform the assertion on. This field is serialized as a
-        /// `Address` from the ManifestAstValue model.
-        resource_address: ManifestAstValue,
-    },
-
     /// An instruction to assert that a specific amount of a specific resource address exists in
     /// the worktop.
     #[schemars(
         example = "crate::example::instruction::assert_worktop_contains_by_amount1",
         example = "crate::example::instruction::assert_worktop_contains_by_amount2"
     )]
-    AssertWorktopContainsByAmount {
+    AssertWorktopContains {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -172,7 +217,7 @@ pub enum Instruction {
         example = "crate::example::instruction::assert_worktop_contains_by_ids1",
         example = "crate::example::instruction::assert_worktop_contains_by_ids2"
     )]
-    AssertWorktopContainsByIds {
+    AssertWorktopContainsNonFungibles {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -209,13 +254,28 @@ pub enum Instruction {
     #[schemars(example = "crate::example::instruction::clear_signature_proofs")]
     ClearSignatureProofs,
 
-    /// An instruction to create a proof of the entire amount of a given resource address from the
-    /// auth zone.
+    /// An instruction to create a proof of the one of a given resource address from the auth zone.
     #[schemars(
         example = "crate::example::instruction::create_proof_from_auth_zone1",
         example = "crate::example::instruction::create_proof_from_auth_zone2"
     )]
     CreateProofFromAuthZone {
+        /// The address of the resource to create a proof of. This field is serialized as a
+        /// `Address` from the ManifestAstValue model.
+        resource_address: ManifestAstValue,
+
+        /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
+        /// ManifestAstValue model.
+        into_proof: ManifestAstValue,
+    },
+
+    /// An instruction to create a proof of the entire amount of a given resource address from the
+    /// auth zone.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_auth_zone_of_all1",
+        example = "crate::example::instruction::create_proof_from_auth_zone_of_all2"
+    )]
+    CreateProofFromAuthZoneOfAll {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -231,7 +291,7 @@ pub enum Instruction {
         example = "crate::example::instruction::create_proof_from_auth_zone_by_amount1",
         example = "crate::example::instruction::create_proof_from_auth_zone_by_amount2"
     )]
-    CreateProofFromAuthZoneByAmount {
+    CreateProofFromAuthZoneOfAmount {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -251,7 +311,7 @@ pub enum Instruction {
         example = "crate::example::instruction::create_proof_from_auth_zone_by_ids1",
         example = "crate::example::instruction::create_proof_from_auth_zone_by_ids2"
     )]
-    CreateProofFromAuthZoneByIds {
+    CreateProofFromAuthZoneOfNonFungibles {
         /// The address of the resource to create a proof of. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
         resource_address: ManifestAstValue,
@@ -266,15 +326,73 @@ pub enum Instruction {
         into_proof: ManifestAstValue,
     },
 
-    /// An instruction to create a proof given a bucket of some resources
-    #[schemars(example = "crate::example::instruction::create_proof_from_bucket")]
+    /// An instruction to create a proof of the one of a given resource address from a bucket.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_bucket1",
+        example = "crate::example::instruction::create_proof_from_bucket2"
+    )]
     CreateProofFromBucket {
         /// The bucket of resources to create a proof from. This field is serialized as a `Bucket`
         /// from the ManifestAstValue model.
         bucket: ManifestAstValue,
 
-        /// The proof variable that the proof should go to. This field is serialized as a `Proof`
+        /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
+        /// ManifestAstValue model.
+        into_proof: ManifestAstValue,
+    },
+
+    /// An instruction to create a proof of the entire amount of a given resource address from a bucket.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_bucket_of_all1",
+        example = "crate::example::instruction::create_proof_from_bucket_of_all2"
+    )]
+    CreateProofFromBucketOfAll {
+        /// The bucket of resources to create a proof from. This field is serialized as a `Bucket`
         /// from the ManifestAstValue model.
+        bucket: ManifestAstValue,
+
+        /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
+        /// ManifestAstValue model.
+        into_proof: ManifestAstValue,
+    },
+
+    /// An instruction to create a proof of the an amount of a given resource address from a auth zone.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_bucket_by_amount1",
+        example = "crate::example::instruction::create_proof_from_bucket_by_amount2"
+    )]
+    CreateProofFromBucketOfAmount {
+        /// The bucket of resources to create a proof from. This field is serialized as a `Bucket`
+        /// from the ManifestAstValue model.
+        bucket: ManifestAstValue,
+
+        /// The amount of the resource to create a proof of. This field is serialized as a
+        /// `Decimal` from the ManifestAstValue model.
+        amount: ManifestAstValue,
+
+        /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
+        /// ManifestAstValue model.
+        into_proof: ManifestAstValue,
+    },
+
+    /// An instruction to create a proof of the a set of non-fungible ids of a given resource address
+    /// from a bucket.
+    #[schemars(
+        example = "crate::example::instruction::create_proof_from_bucket_by_ids1",
+        example = "crate::example::instruction::create_proof_from_bucket_by_ids2"
+    )]
+    CreateProofFromBucketOfNonFungibles {
+        /// The bucket of resources to create a proof from. This field is serialized as a `Bucket`
+        /// from the ManifestAstValue model.
+        bucket: ManifestAstValue,
+
+        /// The non-fungible ids to create a proof of. This is a set (serialized as a JSON array)
+        /// of `NonFungibleLocalId`s from the ManifestAstValue model.
+        #[schemars(with = "BTreeSet<crate::model::address::NonFungibleLocalId>")]
+        ids: Vec<ManifestAstValue>,
+
+        /// A proof to put the resource proof into. This field is serialized as a `Proof` from the
+        /// ManifestAstValue model.
         into_proof: ManifestAstValue,
     },
 
@@ -347,7 +465,7 @@ pub enum Instruction {
 
         /// The access rules to use for the package. This is serialized as a `Tuple` from the
         /// ManifestAstValue model.
-        access_rules: ManifestAstValue,
+        authority_rules: ManifestAstValue,
     },
 
     /// An instruction to burn a bucket of tokens.
@@ -627,4 +745,18 @@ pub enum Instruction {
     /// Creates a new global account component with the specified access rules config.
     #[schemars(example = "crate::example::instruction::create_account_advanced")]
     CreateAccountAdvanced { config: ManifestAstValue },
+
+    SetAuthorityRule {
+        entity_address: ManifestAstValue,
+        object_key: ManifestAstValue,
+        authority_key: ManifestAstValue,
+        rule: ManifestAstValue,
+    },
+
+    SetAuthorityMutability {
+        entity_address: ManifestAstValue,
+        object_key: ManifestAstValue,
+        authority_key: ManifestAstValue,
+        mutability: ManifestAstValue,
+    },
 }
