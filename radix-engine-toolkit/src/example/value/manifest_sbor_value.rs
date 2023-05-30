@@ -17,7 +17,7 @@
 
 use scrypto::prelude::{
     BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId, CLOCK, FAUCET_PACKAGE, RADIX_TOKEN,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId, FAUCET, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
@@ -177,7 +177,7 @@ pub fn address2() -> ManifestSborValue {
 
 pub fn address3() -> ManifestSborValue {
     ManifestSborValue::Address {
-        value: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
+        value: NetworkAwareNodeId(FAUCET.as_node_id().0, 1),
     }
 }
 

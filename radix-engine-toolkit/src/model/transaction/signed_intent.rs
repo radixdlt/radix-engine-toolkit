@@ -104,8 +104,8 @@ impl SignedTransactionIntent {
                 intent_signatures: IntentSignaturesV1 {
                     signatures: self
                         .intent_signatures
-                        .into_iter()
-                        .map(IntentSignatureV1)
+                        .iter()
+                        .map(|sig| IntentSignatureV1(*sig))
                         .collect(),
                 },
             })

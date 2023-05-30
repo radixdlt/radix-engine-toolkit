@@ -46,9 +46,9 @@ pub fn call_function1() -> Instruction {
         function_name: ManifestAstValue::String {
             value: "new".to_owned(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -65,9 +65,9 @@ pub fn call_function2() -> Instruction {
         function_name: ManifestAstValue::String {
             value: "new".to_owned(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -81,9 +81,9 @@ pub fn call_method1() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -97,7 +97,7 @@ pub fn call_method2() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: None,
+        arguments: vec![],
     };
     check_instruction(&instruction);
     instruction
@@ -111,9 +111,9 @@ pub fn call_royalty_method1() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -127,7 +127,7 @@ pub fn call_royalty_method2() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: None,
+        arguments: vec![],
     };
     check_instruction(&instruction);
     instruction
@@ -141,9 +141,9 @@ pub fn call_metadata_method1() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -157,7 +157,7 @@ pub fn call_metadata_method2() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: None,
+        arguments: vec![],
     };
     check_instruction(&instruction);
     instruction
@@ -171,9 +171,9 @@ pub fn call_access_rules_method1() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: Some(vec![ManifestAstValue::Decimal {
+        arguments: vec![ManifestAstValue::Decimal {
             value: "1".parse().unwrap(),
-        }]),
+        }],
     };
     check_instruction(&instruction);
     instruction
@@ -187,7 +187,7 @@ pub fn call_access_rules_method2() -> Instruction {
         method_name: ManifestAstValue::String {
             value: "free".into(),
         },
-        arguments: None,
+        arguments: vec![],
     };
     check_instruction(&instruction);
     instruction
@@ -298,61 +298,13 @@ pub fn assert_worktop_contains1() -> Instruction {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
         },
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn assert_worktop_contains2() -> Instruction {
-    let instruction = Instruction::AssertWorktopContains {
-        resource_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
-        },
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn assert_worktop_contains_by_amount1() -> Instruction {
-    let instruction = Instruction::AssertWorktopContains {
-        resource_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
-        },
-        amount: ManifestAstValue::Decimal {
-            value: "1".parse().unwrap(),
-        },
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn assert_worktop_contains_by_amount2() -> Instruction {
-    let instruction = Instruction::AssertWorktopContains {
-        resource_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
-        },
-        amount: ManifestAstValue::Decimal {
-            value: "1".parse().unwrap(),
-        },
+        amount: ManifestAstValue::Decimal { value: 1.into() },
     };
     check_instruction(&instruction);
     instruction
 }
 
 pub fn assert_worktop_contains_by_ids1() -> Instruction {
-    let instruction = Instruction::AssertWorktopContainsNonFungibles {
-        resource_address: ManifestAstValue::Address {
-            value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
-        },
-        ids: vec![ManifestAstValue::NonFungibleLocalId {
-            value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)),
-        }],
-    };
-    check_instruction(&instruction);
-    instruction
-}
-
-pub fn assert_worktop_contains_by_ids2() -> Instruction {
     let instruction = Instruction::AssertWorktopContainsNonFungibles {
         resource_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(RADIX_TOKEN.as_node_id().0, 1),
@@ -873,18 +825,37 @@ pub fn set_method_access_rule() -> Instruction {
         entity_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },
-        key: ManifestAstValue::Tuple {
-            fields: vec![
-                ManifestAstValue::Enum {
-                    variant: EnumDiscriminator::U8 { discriminator: 0 },
-                    fields: vec![],
-                },
-                ManifestAstValue::String {
-                    value: "free".to_owned(),
-                },
-            ],
+        object_key: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0 },
+            fields: vec![],
+        },
+        authority_key: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0 },
+            fields: vec![],
         },
         rule: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0 },
+            fields: vec![],
+        },
+    };
+    check_instruction(&instruction);
+    instruction
+}
+
+pub fn set_method_mutability() -> Instruction {
+    let instruction = Instruction::SetAuthorityMutability {
+        entity_address: ManifestAstValue::Address {
+            value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
+        },
+        object_key: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0 },
+            fields: vec![],
+        },
+        authority_key: ManifestAstValue::Enum {
+            variant: EnumDiscriminator::U8 { discriminator: 0 },
+            fields: vec![],
+        },
+        mutability: ManifestAstValue::Enum {
             variant: EnumDiscriminator::U8 { discriminator: 0 },
             fields: vec![],
         },
@@ -1250,6 +1221,18 @@ fn check_instruction(instruction: &Instruction) {
             bucket: ManifestAstValue::Bucket { value },
         }
         | Instruction::CreateProofFromBucket {
+            bucket: ManifestAstValue::Bucket { value },
+            ..
+        }
+        | Instruction::CreateProofFromBucketOfAll {
+            bucket: ManifestAstValue::Bucket { value },
+            ..
+        }
+        | Instruction::CreateProofFromBucketOfAmount {
+            bucket: ManifestAstValue::Bucket { value },
+            ..
+        }
+        | Instruction::CreateProofFromBucketOfNonFungibles {
             bucket: ManifestAstValue::Bucket { value },
             ..
         }

@@ -40,7 +40,7 @@ where
     T: ManifestEncode,
 {
     let mut string = String::new();
-    let mut context =
+    let context =
         ManifestDecompilationDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
     format_manifest_value(&mut string, &to_manifest_value(value), &context, true, 0)
         .expect("Impossible case! Valid SBOR can't fail here");

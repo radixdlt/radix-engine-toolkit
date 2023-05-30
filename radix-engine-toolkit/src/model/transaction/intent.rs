@@ -81,12 +81,12 @@ impl TransactionIntent {
 
         TransactionManifest::from_native_manifest(
             &native_transaction::prelude::TransactionManifestV1 {
-                instructions: native_transaction_intent.instructions.0,
+                instructions: native_transaction_intent.instructions.0.clone(),
                 blobs: native_transaction_intent
                     .blobs
                     .blobs
                     .iter()
-                    .map(|blob| (hash(blob.0), blob.0.clone()))
+                    .map(|blob| (hash(&blob.0), blob.0.clone()))
                     .collect(),
             },
             instructions_kind,
@@ -112,8 +112,8 @@ impl TransactionIntent {
                     blobs: BlobsV1 {
                         blobs: transaction_manifest
                             .blobs
-                            .iter()
-                            .map(|(_, blob)| BlobV1(blob.clone()))
+                            .values()
+                            .map(|blob| BlobV1(blob.clone()))
                             .collect(),
                     },
                     instructions: native_transaction::prelude::InstructionsV1(

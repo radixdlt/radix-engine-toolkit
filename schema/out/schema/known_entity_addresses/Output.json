@@ -5,10 +5,9 @@
   "type": "object",
   "required": [
     "account_package_address",
-    "clock_system_address",
+    "consensus_manager_component_address",
     "ecdsa_secp256k1_token_resource_address",
     "eddsa_ed25519_token_resource_address",
-    "epoch_manager_system_address",
     "package_token_resource_address",
     "system_token_resource_address",
     "xrd_resource_address"
@@ -52,12 +51,8 @@
       "description": "A resource address serialized as an `Address` from the `Value` model which represents the address of the package token resource on the requested network.",
       "type": "string"
     },
-    "epoch_manager_system_address": {
-      "description": "A system address serialized as an `Address` from the `Value` model which represents the address of the epoch manager on the requested network.",
-      "type": "string"
-    },
-    "clock_system_address": {
-      "description": "A system address serialized as an `Address` from the `Value` model which represents the address of the clock on the requested network.",
+    "consensus_manager_component_address": {
+      "description": "A system address serialized as an `Address` from the `Value` model which represents the address of the consensus manager on the requested network.",
       "type": "string"
     }
   }

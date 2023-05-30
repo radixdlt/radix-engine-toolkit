@@ -15,17 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::{
-    builder::TransactionBuilder, ecdsa_secp256k1::EcdsaSecp256k1PrivateKey,
-    eddsa_ed25519::EddsaEd25519PrivateKey,
-};
-
+use super::header::header1;
 use crate::model::transaction::{
     InstructionKind, InstructionList, NotarizedTransaction, SignedTransactionIntent,
     TransactionIntent, TransactionManifest,
 };
-
-use super::header::header1;
+use native_transaction::{
+    builder::TransactionBuilder, ecdsa_secp256k1::EcdsaSecp256k1PrivateKey,
+    eddsa_ed25519::EddsaEd25519PrivateKey, prelude::TransactionManifestV1,
+};
+use radix_engine_common::prelude::hash;
 
 pub fn manifest() -> TransactionManifest {
     TransactionManifest {
@@ -48,7 +47,15 @@ pub fn signed_intent() -> SignedTransactionIntent {
     let native_intent = intent.to_native_transaction_intent().unwrap();
     let transaction = TransactionBuilder::new()
         .header(native_intent.header)
-        .manifest(native_intent.manifest)
+        .manifest(TransactionManifestV1 {
+            instructions: native_intent.instructions.0,
+            blobs: native_intent
+                .blobs
+                .blobs
+                .iter()
+                .map(|blob| (hash(&blob.0), blob.0.clone()))
+                .collect(),
+        })
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(2).unwrap())
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(3).unwrap())
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(4).unwrap())
@@ -73,7 +80,15 @@ pub fn notarized_intent() -> NotarizedTransaction {
     let native_intent = intent.to_native_transaction_intent().unwrap();
     let transaction = TransactionBuilder::new()
         .header(native_intent.header)
-        .manifest(native_intent.manifest)
+        .manifest(TransactionManifestV1 {
+            instructions: native_intent.instructions.0,
+            blobs: native_intent
+                .blobs
+                .blobs
+                .iter()
+                .map(|blob| (hash(&blob.0), blob.0.clone()))
+                .collect(),
+        })
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(2).unwrap())
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(3).unwrap())
         .sign(&EcdsaSecp256k1PrivateKey::from_u64(4).unwrap())

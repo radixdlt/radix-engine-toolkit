@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::model::transaction::{
-    InstructionKind, NotarizedTransaction, NotarizedTransactionConversionError,
-};
-use crate::traits::CompilableIntent;
+use crate::model::transaction::NotarizedTransactionConversionError;
 use native_transaction::validation::{
     NotarizedTransactionValidator, TransactionValidator, ValidationConfig,
 };
@@ -71,11 +68,6 @@ impl InvocationHandler<Input, Output> for Handler {
     }
 
     fn handle(input: &Input) -> Result<Output, Error> {
-        let notarized_transaction = NotarizedTransaction::decompile(
-            &input.compiled_notarized_intent,
-            InstructionKind::String,
-        )?;
-
         if let Err(ref error) = NotarizedTransactionValidator::new(input.validation_config)
             .validate_from_payload_bytes(&input.compiled_notarized_intent)
         {

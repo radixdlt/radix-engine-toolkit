@@ -2435,7 +2435,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "object",
@@ -3241,7 +3241,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "object",
@@ -3785,7 +3785,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "string",

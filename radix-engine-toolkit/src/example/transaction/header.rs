@@ -23,7 +23,6 @@ use crate::model::transaction::TransactionHeader;
 
 pub fn header1() -> TransactionHeader {
     TransactionHeader {
-        version: 0x01,
         network_id: 0x01,
         start_epoch_inclusive: 100,
         end_epoch_exclusive: 105,
@@ -33,14 +32,12 @@ pub fn header1() -> TransactionHeader {
             .public_key()
             .into(),
         notary_is_signatory: false,
-        cost_unit_limit: 100_000_000,
         tip_percentage: 12,
     }
 }
 
 pub fn header2() -> TransactionHeader {
     TransactionHeader {
-        version: 0x01,
         network_id: 0x01,
         start_epoch_inclusive: 100,
         end_epoch_exclusive: 105,
@@ -50,7 +47,6 @@ pub fn header2() -> TransactionHeader {
             .public_key()
             .into(),
         notary_is_signatory: false,
-        cost_unit_limit: 100_000_000,
         tip_percentage: 12,
     }
 }

@@ -181,52 +181,11 @@
                 "kind": "Address",
                 "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
               }
-            },
-            {
-              "arguments": [
-                {
-                  "kind": "Decimal",
-                  "value": "1"
-                }
-              ],
-              "blueprint_name": {
-                "kind": "String",
-                "value": "Faucet"
-              },
-              "function_name": {
-                "kind": "String",
-                "value": "new"
-              },
-              "instruction": "CALL_FUNCTION",
-              "package_address": {
-                "kind": "Address",
-                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
-              }
-            },
-            {
-              "arguments": [
-                {
-                  "kind": "Decimal",
-                  "value": "1"
-                }
-              ],
-              "blueprint_name": {
-                "kind": "String",
-                "value": "Faucet"
-              },
-              "function_name": {
-                "kind": "String",
-                "value": "new"
-              },
-              "instruction": "CALL_FUNCTION",
-              "package_address": {
-                "kind": "Address",
-                "value": "package_rdx1pkgxxxxxxxxxfaucetxxxxxxxxx000034355863xxxxxxxxxfaucet"
-              }
             }
           ],
           "type": "object",
           "required": [
+            "arguments",
             "blueprint_name",
             "function_name",
             "instruction",
@@ -264,11 +223,8 @@
               ]
             },
             "arguments": {
-              "description": "An optional array of `ManifestAstValue` arguments to call the function with. If this array is empty or is not provided, then the function is called with no arguments.",
-              "type": [
-                "array",
-                "null"
-              ],
+              "description": "An array of `ManifestAstValue` arguments to call the function with.",
+              "type": "array",
               "items": {
                 "$ref": "#/definitions/ManifestAstValue"
               }
@@ -296,36 +252,7 @@
               }
             },
             {
-              "arguments": [
-                {
-                  "kind": "Decimal",
-                  "value": "1"
-                }
-              ],
-              "component_address": {
-                "kind": "Address",
-                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
-              },
-              "instruction": "CALL_METHOD",
-              "method_name": {
-                "kind": "String",
-                "value": "free"
-              }
-            },
-            {
-              "arguments": null,
-              "component_address": {
-                "kind": "Address",
-                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
-              },
-              "instruction": "CALL_METHOD",
-              "method_name": {
-                "kind": "String",
-                "value": "free"
-              }
-            },
-            {
-              "arguments": null,
+              "arguments": [],
               "component_address": {
                 "kind": "Address",
                 "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
@@ -339,6 +266,7 @@
           ],
           "type": "object",
           "required": [
+            "arguments",
             "component_address",
             "instruction",
             "method_name"
@@ -367,11 +295,224 @@
               ]
             },
             "arguments": {
-              "description": "An optional array of `ManifestAstValue` arguments to call the method with. If this array is empty or is not provided, then the method is called with no arguments.",
-              "type": [
-                "array",
-                "null"
+              "description": "An array of `ManifestAstValue` arguments to call the method with.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ManifestAstValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An instruction to call a method with a given name on the royalty module of a given component address with the given list of arguments.",
+          "examples": [
+            {
+              "arguments": [
+                {
+                  "kind": "Decimal",
+                  "value": "1"
+                }
               ],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": [],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "arguments",
+            "component_address",
+            "instruction",
+            "method_name"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CALL_ROYALTY_METHOD"
+              ]
+            },
+            "component_address": {
+              "description": "The address of the component which contains the method to be invoked. This field is serialized as an `Address` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "method_name": {
+              "description": "A string of the name of the method to call. his field is serialized as a `String` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "arguments": {
+              "description": "An array of `ManifestAstValue` arguments to call the method with.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ManifestAstValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An instruction to call a method with a given name on the metadata module of a given component address with the given list of arguments.",
+          "examples": [
+            {
+              "arguments": [
+                {
+                  "kind": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": [],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "arguments",
+            "component_address",
+            "instruction",
+            "method_name"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CALL_METADATA_METHOD"
+              ]
+            },
+            "component_address": {
+              "description": "The address of the component which contains the method to be invoked. This field is serialized as an `Address` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "method_name": {
+              "description": "A string of the name of the method to call. his field is serialized as a `String` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "arguments": {
+              "description": "An array of `ManifestAstValue` arguments to call the method with.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ManifestAstValue"
+              }
+            }
+          }
+        },
+        {
+          "description": "An instruction to call a method with a given name on the access rules module of a given component address with the given list of arguments.",
+          "examples": [
+            {
+              "arguments": [
+                {
+                  "kind": "Decimal",
+                  "value": "1"
+                }
+              ],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            },
+            {
+              "arguments": [],
+              "component_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "CALL_METHOD",
+              "method_name": {
+                "kind": "String",
+                "value": "free"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "arguments",
+            "component_address",
+            "instruction",
+            "method_name"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CALL_ACCESS_RULES_METHOD"
+              ]
+            },
+            "component_address": {
+              "description": "The address of the component which contains the method to be invoked. This field is serialized as an `Address` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "method_name": {
+              "description": "A string of the name of the method to call. his field is serialized as a `String` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "arguments": {
+              "description": "An array of `ManifestAstValue` arguments to call the method with.",
+              "type": "array",
               "items": {
                 "$ref": "#/definitions/ManifestAstValue"
               }
@@ -382,7 +523,7 @@
           "description": "An instruction to take the entire amount of a given resource address from the worktop and put it in a bucket.",
           "examples": [
             {
-              "instruction": "TAKE_FROM_WORKTOP",
+              "instruction": "TAKE_ALL_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -393,7 +534,7 @@
               }
             },
             {
-              "instruction": "TAKE_FROM_WORKTOP",
+              "instruction": "TAKE_ALL_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -414,7 +555,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "TAKE_FROM_WORKTOP"
+                "TAKE_ALL_FROM_WORKTOP"
               ]
             },
             "resource_address": {
@@ -443,7 +584,7 @@
                 "kind": "Decimal",
                 "value": "1"
               },
-              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
+              "instruction": "TAKE_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -458,7 +599,7 @@
                 "kind": "Decimal",
                 "value": "1"
               },
-              "instruction": "TAKE_FROM_WORKTOP_BY_AMOUNT",
+              "instruction": "TAKE_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -480,7 +621,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "TAKE_FROM_WORKTOP_BY_AMOUNT"
+                "TAKE_FROM_WORKTOP"
               ]
             },
             "resource_address": {
@@ -519,7 +660,7 @@
                   "value": "#1#"
                 }
               ],
-              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
+              "instruction": "TAKE_NON_FUNGIBLES_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -536,7 +677,7 @@
                   "value": "#1#"
                 }
               ],
-              "instruction": "TAKE_FROM_WORKTOP_BY_IDS",
+              "instruction": "TAKE_NON_FUNGIBLES_FROM_WORKTOP",
               "into_bucket": {
                 "kind": "Bucket",
                 "value": "ident"
@@ -558,7 +699,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "TAKE_FROM_WORKTOP_BY_IDS"
+                "TAKE_NON_FUNGIBLES_FROM_WORKTOP"
               ]
             },
             "resource_address": {
@@ -621,46 +762,6 @@
           }
         },
         {
-          "description": "An instruction to assert that a given resource exists in the worktop.",
-          "examples": [
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS",
-              "resource_address": {
-                "kind": "Address",
-                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
-              }
-            },
-            {
-              "instruction": "ASSERT_WORKTOP_CONTAINS",
-              "resource_address": {
-                "kind": "Address",
-                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
-              }
-            }
-          ],
-          "type": "object",
-          "required": [
-            "instruction",
-            "resource_address"
-          ],
-          "properties": {
-            "instruction": {
-              "type": "string",
-              "enum": [
-                "ASSERT_WORKTOP_CONTAINS"
-              ]
-            },
-            "resource_address": {
-              "description": "The address of the resource to perform the assertion on. This field is serialized as a `Address` from the ManifestAstValue model.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
-            }
-          }
-        },
-        {
           "description": "An instruction to assert that a specific amount of a specific resource address exists in the worktop.",
           "examples": [
             {
@@ -668,18 +769,7 @@
                 "kind": "Decimal",
                 "value": "1"
               },
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
-              "resource_address": {
-                "kind": "Address",
-                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
-              }
-            },
-            {
-              "amount": {
-                "kind": "Decimal",
-                "value": "1"
-              },
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT",
+              "instruction": "ASSERT_WORKTOP_CONTAINS",
               "resource_address": {
                 "kind": "Address",
                 "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
@@ -696,7 +786,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "ASSERT_WORKTOP_CONTAINS_BY_AMOUNT"
+                "ASSERT_WORKTOP_CONTAINS"
               ]
             },
             "resource_address": {
@@ -727,20 +817,7 @@
                   "value": "#1#"
                 }
               ],
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
-              "resource_address": {
-                "kind": "Address",
-                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
-              }
-            },
-            {
-              "ids": [
-                {
-                  "kind": "NonFungibleLocalId",
-                  "value": "#1#"
-                }
-              ],
-              "instruction": "ASSERT_WORKTOP_CONTAINS_BY_IDS",
+              "instruction": "ASSERT_WORKTOP_CONTAINS_NON_FUNGIBLES",
               "resource_address": {
                 "kind": "Address",
                 "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
@@ -757,7 +834,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "ASSERT_WORKTOP_CONTAINS_BY_IDS"
+                "ASSERT_WORKTOP_CONTAINS_NON_FUNGIBLES"
               ]
             },
             "resource_address": {
@@ -885,7 +962,7 @@
           }
         },
         {
-          "description": "An instruction to create a proof of the entire amount of a given resource address from the auth zone.",
+          "description": "An instruction to create a proof of the one of a given resource address from the auth zone.",
           "examples": [
             {
               "instruction": "CREATE_PROOF_FROM_AUTH_ZONE",
@@ -942,6 +1019,63 @@
           }
         },
         {
+          "description": "An instruction to create a proof of the entire amount of a given resource address from the auth zone.",
+          "examples": [
+            {
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              },
+              "resource_address": {
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
+              }
+            },
+            {
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              },
+              "resource_address": {
+                "kind": "Address",
+                "value": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "instruction",
+            "into_proof",
+            "resource_address"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL"
+              ]
+            },
+            "resource_address": {
+              "description": "The address of the resource to create a proof of. This field is serialized as a `Address` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
           "description": "An instruction to create a proof of the an amount of a given resource address from the auth zone.",
           "examples": [
             {
@@ -949,7 +1083,7 @@
                 "kind": "Decimal",
                 "value": "1"
               },
-              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT",
               "into_proof": {
                 "kind": "Proof",
                 "value": "ident"
@@ -964,7 +1098,7 @@
                 "kind": "Decimal",
                 "value": "1"
               },
-              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT",
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT",
               "into_proof": {
                 "kind": "Proof",
                 "value": "ident"
@@ -986,7 +1120,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "CREATE_PROOF_FROM_AUTH_ZONE_BY_AMOUNT"
+                "CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT"
               ]
             },
             "resource_address": {
@@ -1025,7 +1159,7 @@
                   "value": "#1#"
                 }
               ],
-              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES",
               "into_proof": {
                 "kind": "Proof",
                 "value": "ident"
@@ -1042,7 +1176,7 @@
                   "value": "#1#"
                 }
               ],
-              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS",
+              "instruction": "CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES",
               "into_proof": {
                 "kind": "Proof",
                 "value": "ident"
@@ -1064,7 +1198,7 @@
             "instruction": {
               "type": "string",
               "enum": [
-                "CREATE_PROOF_FROM_AUTH_ZONE_BY_IDS"
+                "CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES"
               ]
             },
             "resource_address": {
@@ -1094,7 +1228,7 @@
           }
         },
         {
-          "description": "An instruction to create a proof given a bucket of some resources",
+          "description": "An instruction to create a proof of the one of a given resource address from a bucket.",
           "examples": [
             {
               "bucket": {
@@ -1104,7 +1238,18 @@
               "instruction": "CREATE_PROOF_FROM_BUCKET",
               "into_proof": {
                 "kind": "Proof",
-                "value": "Proof"
+                "value": "ident"
+              }
+            },
+            {
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
               }
             }
           ],
@@ -1130,7 +1275,216 @@
               ]
             },
             "into_proof": {
-              "description": "The proof variable that the proof should go to. This field is serialized as a `Proof` from the ManifestAstValue model.",
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the entire amount of a given resource address from a bucket.",
+          "examples": [
+            {
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_ALL",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            },
+            {
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_ALL",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "bucket",
+            "instruction",
+            "into_proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_BUCKET_OF_ALL"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket of resources to create a proof from. This field is serialized as a `Bucket` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the an amount of a given resource address from a auth zone.",
+          "examples": [
+            {
+              "amount": {
+                "kind": "Decimal",
+                "value": "1"
+              },
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_AMOUNT",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            },
+            {
+              "amount": {
+                "kind": "Decimal",
+                "value": "1"
+              },
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_AMOUNT",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "amount",
+            "bucket",
+            "instruction",
+            "into_proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_BUCKET_OF_AMOUNT"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket of resources to create a proof from. This field is serialized as a `Bucket` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "amount": {
+              "description": "The amount of the resource to create a proof of. This field is serialized as a `Decimal` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "description": "An instruction to create a proof of the a set of non-fungible ids of a given resource address from a bucket.",
+          "examples": [
+            {
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "ids": [
+                {
+                  "kind": "NonFungibleLocalId",
+                  "value": "#1#"
+                }
+              ],
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            },
+            {
+              "bucket": {
+                "kind": "Bucket",
+                "value": "bucket"
+              },
+              "ids": [
+                {
+                  "kind": "NonFungibleLocalId",
+                  "value": "#1#"
+                }
+              ],
+              "instruction": "CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES",
+              "into_proof": {
+                "kind": "Proof",
+                "value": "ident"
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "bucket",
+            "ids",
+            "instruction",
+            "into_proof"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES"
+              ]
+            },
+            "bucket": {
+              "description": "The bucket of resources to create a proof from. This field is serialized as a `Bucket` from the ManifestAstValue model.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ManifestAstValue"
+                }
+              ]
+            },
+            "ids": {
+              "description": "The non-fungible ids to create a proof of. This is a set (serialized as a JSON array) of `NonFungibleLocalId`s from the ManifestAstValue model.",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NonFungibleLocalId"
+              },
+              "uniqueItems": true
+            },
+            "into_proof": {
+              "description": "A proof to put the resource proof into. This field is serialized as a `Proof` from the ManifestAstValue model.",
               "allOf": [
                 {
                   "$ref": "#/definitions/ManifestAstValue"
@@ -1318,7 +1672,7 @@
           "description": "An instruction to publish a package and set it's associated royalty configs, metadata, and access rules.",
           "examples": [
             {
-              "access_rules": {
+              "authority_rules": {
                 "fields": [
                   {
                     "entries": [],
@@ -1412,7 +1766,7 @@
           ],
           "type": "object",
           "required": [
-            "access_rules",
+            "authority_rules",
             "code",
             "instruction",
             "metadata",
@@ -1458,7 +1812,7 @@
                 }
               ]
             },
-            "access_rules": {
+            "authority_rules": {
               "description": "The access rules to use for the package. This is serialized as a `Tuple` from the ManifestAstValue model.",
               "allOf": [
                 {
@@ -1845,27 +2199,26 @@
           "description": "An instruction to modify the access rules of a method that an entity has.",
           "examples": [
             {
+              "authority_key": {
+                "fields": [],
+                "kind": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              },
               "entity_address": {
                 "kind": "Address",
                 "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
               },
-              "instruction": "SET_METHOD_ACCESS_RULE",
-              "key": {
-                "fields": [
-                  {
-                    "fields": [],
-                    "kind": "Enum",
-                    "variant": {
-                      "discriminator": "0",
-                      "type": "U8"
-                    }
-                  },
-                  {
-                    "kind": "String",
-                    "value": "free"
-                  }
-                ],
-                "kind": "Tuple"
+              "instruction": "SET_AUTHORITY_ACCESS_RULE",
+              "object_key": {
+                "fields": [],
+                "kind": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
               },
               "rule": {
                 "fields": [],
@@ -1879,41 +2232,94 @@
           ],
           "type": "object",
           "required": [
+            "authority_key",
             "entity_address",
             "instruction",
-            "key",
+            "object_key",
             "rule"
           ],
           "properties": {
             "instruction": {
               "type": "string",
               "enum": [
-                "SET_METHOD_ACCESS_RULE"
+                "SET_AUTHORITY_ACCESS_RULE"
               ]
             },
             "entity_address": {
-              "description": "The entity address of the entity to modify the access rules for.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
+              "$ref": "#/definitions/ManifestAstValue"
             },
-            "key": {
-              "description": "The method key for the method to set the access rule of. This field is serialized as an `Enum` from the ManifestAstValue model",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
-                }
-              ]
+            "object_key": {
+              "$ref": "#/definitions/ManifestAstValue"
+            },
+            "authority_key": {
+              "$ref": "#/definitions/ManifestAstValue"
             },
             "rule": {
-              "description": "The new access rule to set in-place of the old one. This field is serialized as an `Enum` from the ManifestAstValue model",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ManifestAstValue"
+              "$ref": "#/definitions/ManifestAstValue"
+            }
+          }
+        },
+        {
+          "description": "An instruction to modify the mutability of a method that an entity has.",
+          "examples": [
+            {
+              "authority_key": {
+                "fields": [],
+                "kind": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
                 }
+              },
+              "entity_address": {
+                "kind": "Address",
+                "value": "component_rdx1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve90hqtq"
+              },
+              "instruction": "SET_AUTHORITY_MUTABILITY",
+              "mutability": {
+                "fields": [],
+                "kind": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              },
+              "object_key": {
+                "fields": [],
+                "kind": "Enum",
+                "variant": {
+                  "discriminator": "0",
+                  "type": "U8"
+                }
+              }
+            }
+          ],
+          "type": "object",
+          "required": [
+            "authority_key",
+            "entity_address",
+            "instruction",
+            "mutability",
+            "object_key"
+          ],
+          "properties": {
+            "instruction": {
+              "type": "string",
+              "enum": [
+                "SET_AUTHORITY_MUTABILITY"
               ]
+            },
+            "entity_address": {
+              "$ref": "#/definitions/ManifestAstValue"
+            },
+            "object_key": {
+              "$ref": "#/definitions/ManifestAstValue"
+            },
+            "authority_key": {
+              "$ref": "#/definitions/ManifestAstValue"
+            },
+            "mutability": {
+              "$ref": "#/definitions/ManifestAstValue"
             }
           }
         },
@@ -3493,7 +3899,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "object",
@@ -4206,7 +4612,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "string",

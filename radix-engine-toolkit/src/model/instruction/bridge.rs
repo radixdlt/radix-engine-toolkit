@@ -139,13 +139,6 @@ impl Instruction {
                 amount: amount.to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
             },
-            Self::AssertWorktopContains {
-                amount,
-                resource_address,
-            } => ast::Instruction::AssertWorktopContains {
-                amount: amount.to_ast_value(bech32_coder)?,
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-            },
             Self::AssertWorktopContainsNonFungibles {
                 ids,
                 resource_address,
@@ -577,13 +570,6 @@ impl Instruction {
                 resource_address,
                 amount,
             } => Self::AssertWorktopContains {
-                amount: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-            },
-            ast::Instruction::AssertWorktopContains {
-                amount,
-                resource_address,
-            } => Self::AssertWorktopContains {
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
             },
@@ -762,7 +748,7 @@ impl Instruction {
                 }
             }
 
-            ast::Instruction::ClaimPackageRoyalty { address, args } => Self::ClaimPackageRoyalty {
+            ast::Instruction::ClaimPackageRoyalty { address, .. } => Self::ClaimPackageRoyalty {
                 package_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
             },
 

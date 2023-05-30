@@ -17,8 +17,8 @@
 
 use scrypto::prelude::{
     BytesNonFungibleLocalId, IntegerNonFungibleLocalId, NonFungibleLocalId,
-    StringNonFungibleLocalId, UUIDNonFungibleLocalId, CLOCK,
-    ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE, FAUCET_PACKAGE, RADIX_TOKEN,
+    StringNonFungibleLocalId, UUIDNonFungibleLocalId, ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
+    FAUCET, FAUCET_PACKAGE, RADIX_TOKEN,
 };
 use scrypto::prelude::{ManifestBlobRef, ManifestExpression};
 
@@ -209,7 +209,7 @@ pub fn address2() -> ManifestAstValue {
 
 pub fn address3() -> ManifestAstValue {
     ManifestAstValue::Address {
-        value: NetworkAwareNodeId(CLOCK.as_node_id().0, 1),
+        value: NetworkAwareNodeId(FAUCET.as_node_id().0, 1),
     }
 }
 

@@ -101,8 +101,7 @@
       "required": [
         "access_controller",
         "accounts",
-        "clocks",
-        "epoch_managers",
+        "consensus_managers",
         "identities",
         "user_applications",
         "validators"
@@ -132,15 +131,7 @@
           },
           "uniqueItems": true
         },
-        "clocks": {
-          "description": "The set of clock components encountered in the manifest",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
-        },
-        "epoch_managers": {
+        "consensus_managers": {
           "description": "The set of epoch_manager components encountered in the manifest",
           "type": "array",
           "items": {
@@ -405,52 +396,9 @@
           "type": "string"
         },
         "value": {
-          "$ref": "#/definitions/MetadataEntry"
+          "$ref": "#/definitions/MetadataValue"
         }
       }
-    },
-    "MetadataEntry": {
-      "oneOf": [
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "Value"
-              ]
-            },
-            "value": {
-              "$ref": "#/definitions/MetadataValue"
-            }
-          }
-        },
-        {
-          "type": "object",
-          "required": [
-            "type",
-            "value"
-          ],
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "List"
-              ]
-            },
-            "value": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MetadataValue"
-              }
-            }
-          }
-        }
-      ]
     },
     "MetadataValue": {
       "oneOf": [
@@ -614,7 +562,7 @@
             "type": {
               "type": "string",
               "enum": [
-                "Address"
+                "GlobalAddress"
               ]
             },
             "value": {
@@ -745,6 +693,342 @@
             },
             "value": {
               "$ref": "#/definitions/PublicKeyHash"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "StringArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "BoolArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U8Array"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U32Array"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "U64Array"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I32Array"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "I64Array"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "DecimalArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "GlobalAddressArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PublicKeyArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicKey"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NonFungibleGlobalIdArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "NonFungibleLocalIdArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "InstantArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "UrlArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "OriginArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "PublicKeyHashArray"
+              ]
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PublicKeyHash"
+              }
             }
           }
         }

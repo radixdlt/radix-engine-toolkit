@@ -29,6 +29,7 @@
       "required": [
         "max_cost_unit_limit",
         "max_epoch_range",
+        "max_notarized_payload_size",
         "max_tip_percentage",
         "min_cost_unit_limit",
         "min_tip_percentage",
@@ -37,6 +38,11 @@
       "properties": {
         "network_id": {
           "description": "An unsigned 8 bit integer serialized as a string which represents the network id to validate the transaction against.",
+          "type": "string",
+          "pattern": "[0-9]+"
+        },
+        "max_notarized_payload_size": {
+          "description": "An unsigned 64 bit integer serialized as a string which represents the maximum size of the notarized transaction payload.",
           "type": "string",
           "pattern": "[0-9]+"
         },

@@ -441,8 +441,6 @@ fn get_resource_metadata(
     commit: &CommitResult,
     bech32_coder: &Bech32Coder,
 ) -> Vec<Vec<MetadataKeyValue>> {
-    // let metadata_module_id: ModuleId = SysModuleId::Metadata.into();
-
     let mut metadata = Vec::new();
     for resource_address in commit.new_resource_addresses() {
         let mut resource_metadata = Vec::new();

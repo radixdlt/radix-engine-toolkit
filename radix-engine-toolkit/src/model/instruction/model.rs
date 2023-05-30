@@ -191,10 +191,7 @@ pub enum Instruction {
 
     /// An instruction to assert that a specific amount of a specific resource address exists in
     /// the worktop.
-    #[schemars(
-        example = "crate::example::instruction::assert_worktop_contains_by_amount1",
-        example = "crate::example::instruction::assert_worktop_contains_by_amount2"
-    )]
+    #[schemars(example = "crate::example::instruction::assert_worktop_contains1")]
     AssertWorktopContains {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
@@ -207,10 +204,7 @@ pub enum Instruction {
 
     /// An instruction to assert that a set ids of a specific resource address exists in the
     /// worktop.
-    #[schemars(
-        example = "crate::example::instruction::assert_worktop_contains_by_ids1",
-        example = "crate::example::instruction::assert_worktop_contains_by_ids2"
-    )]
+    #[schemars(example = "crate::example::instruction::assert_worktop_contains_by_ids1")]
     AssertWorktopContainsNonFungibles {
         /// The address of the resource to perform the assertion on. This field is serialized as a
         /// `Address` from the ManifestAstValue model.
@@ -563,8 +557,8 @@ pub enum Instruction {
         rule: ManifestAstValue,
     },
 
-    /// An instruction to modify the access rules of a method that an entity has.
-    #[schemars(example = "crate::example::instruction::set_method_access_rule")]
+    /// An instruction to modify the mutability of a method that an entity has.
+    #[schemars(example = "crate::example::instruction::set_method_mutability")]
     SetAuthorityMutability {
         entity_address: ManifestAstValue,
         object_key: ManifestAstValue,

@@ -88,7 +88,7 @@ impl TransactionManifest {
                     blobs: self
                         .blobs
                         .iter()
-                        .map(|blob| (hash(&blob), blob.clone()))
+                        .map(|blob| (hash(blob), blob.clone()))
                         .collect(),
                 },
             )

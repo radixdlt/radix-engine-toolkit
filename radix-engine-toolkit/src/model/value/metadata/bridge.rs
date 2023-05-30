@@ -152,12 +152,24 @@ impl MetadataValue {
             NativeMetadataValue::StringArray(value) => Self::StringArray {
                 value: value.to_owned(),
             },
-            NativeMetadataValue::BoolArray(value) => Self::BoolArray { value: *value },
-            NativeMetadataValue::U8Array(value) => Self::U8Array { value: *value },
-            NativeMetadataValue::U32Array(value) => Self::U32Array { value: *value },
-            NativeMetadataValue::U64Array(value) => Self::U64Array { value: *value },
-            NativeMetadataValue::I32Array(value) => Self::I32Array { value: *value },
-            NativeMetadataValue::I64Array(value) => Self::I64Array { value: *value },
+            NativeMetadataValue::BoolArray(value) => Self::BoolArray {
+                value: value.clone(),
+            },
+            NativeMetadataValue::U8Array(value) => Self::U8Array {
+                value: value.clone(),
+            },
+            NativeMetadataValue::U32Array(value) => Self::U32Array {
+                value: value.clone(),
+            },
+            NativeMetadataValue::U64Array(value) => Self::U64Array {
+                value: value.clone(),
+            },
+            NativeMetadataValue::I32Array(value) => Self::I32Array {
+                value: value.clone(),
+            },
+            NativeMetadataValue::I64Array(value) => Self::I64Array {
+                value: value.clone(),
+            },
             NativeMetadataValue::DecimalArray(value) => Self::DecimalArray {
                 value: value.to_owned(),
             },

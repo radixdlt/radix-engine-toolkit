@@ -540,6 +540,24 @@
                               ]
                             }
                           }
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "content",
+                            "type"
+                          ],
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "TupleConversionError"
+                              ]
+                            },
+                            "content": {
+                              "type": "string"
+                            }
+                          }
                         }
                       ],
                       "required": [
@@ -1092,7 +1110,7 @@
             },
             {
               "kind": "Address",
-              "value": "clock_rdx1skxxxxxxxxxxclckxxxxxxxxxxx002253583992xxxxxxxxxclckxx"
+              "value": "component_rdx1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxfaucet"
             }
           ],
           "type": "string",

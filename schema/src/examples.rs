@@ -19,7 +19,8 @@ use native_transaction::builder::TransactionBuilder;
 use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
 use native_transaction::eddsa_ed25519::EddsaEd25519PrivateKey;
 use native_transaction::manifest::compile;
-use native_transaction::model::{NotarizedTransaction, TransactionHeader};
+use native_transaction::model::{NotarizedTransactionV1, TransactionHeaderV1};
+use native_transaction::prelude::{IntentV1, NotarySignatureV1, TransactionManifestV1};
 use radix_engine_toolkit::functions::derive_olympia_address_from_public_key::OlympiaNetwork;
 use radix_engine_toolkit::utils::checked_copy_u8_slice;
 use scrypto::network::NetworkDefinition;
@@ -37,15 +38,13 @@ pub fn network_definition() -> NetworkDefinition {
     NetworkDefinition::simulator()
 }
 
-pub fn notarized_intent() -> NotarizedTransaction {
+pub fn notarized_intent() -> NotarizedTransactionV1 {
     TransactionBuilder::new()
         .manifest(compile("DROP_ALL_PROOFS;", &network_definition(), vec![]).unwrap())
-        .header(TransactionHeader {
-            version: 0x01,
+        .header(TransactionHeaderV1 {
             network_id: network_definition().id,
-            cost_unit_limit: 100_000_000,
-            start_epoch_inclusive: 0x200,
-            end_epoch_exclusive: 0x210,
+            start_epoch_inclusive: Epoch::of(0x200),
+            end_epoch_exclusive: Epoch::of(0x210),
             nonce: 0x22,
             notary_is_signatory: true,
             notary_public_key: notary_private_key().public_key().into(),
@@ -175,7 +174,7 @@ types: string and Parsed."#
         convert_manifest::Input {
             manifest:
                 radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
-                    &notarized_intent().signed_intent.intent.manifest,
+                    &manifest(&notarized_intent().signed_intent.intent),
                     InstructionKind::Parsed,
                     &bec32_coder,
                 )
@@ -202,7 +201,7 @@ just used in the manifest in general."#
         extract_addresses_from_manifest::Input {
             manifest:
                 radix_engine_toolkit::model::transaction::TransactionManifest::from_native_manifest(
-                    &notarized_intent().signed_intent.intent.manifest,
+                    &manifest(&notarized_intent().signed_intent.intent),
                     InstructionKind::String,
                     &bec32_coder,
                 )
@@ -542,8 +541,11 @@ impl ExampleData<statically_validate_transaction::Input, statically_validate_tra
         // Making the notarized transaction invalid
         let notarized_transaction = {
             let mut transaction = notarized_intent();
-            transaction.notary_signature =
-                transaction.signed_intent.intent_signatures[0].signature();
+            transaction.notary_signature = NotarySignatureV1(
+                transaction.signed_intent.intent_signatures.signatures[0]
+                    .0
+                    .signature(),
+            );
             transaction
         };
 
@@ -558,8 +560,7 @@ impl ExampleData<statically_validate_transaction::Input, statically_validate_tra
 
 impl ExampleData<hash::Input, hash::Output> for hash::Handler {
     fn description() -> String {
-        r#"Hashes some payload through the hashing algorithm used in Scrypto and the Radix
-Engine."#
+        r#"Hashes some payload through the hashing algorithm used in Scrypto and the Radix Engine."#
             .to_owned()
     }
 
@@ -567,8 +568,11 @@ Engine."#
         // Making the notarized transaction invalid
         let notarized_transaction = {
             let mut transaction = notarized_intent();
-            transaction.notary_signature =
-                transaction.signed_intent.intent_signatures[0].signature();
+            transaction.notary_signature = NotarySignatureV1(
+                transaction.signed_intent.intent_signatures.signatures[0]
+                    .0
+                    .signature(),
+            );
             transaction
         };
 
@@ -576,5 +580,17 @@ Engine."#
         hash::Input {
             payload: compiled_transaction_intent,
         }
+    }
+}
+
+pub fn manifest(intent: &IntentV1) -> TransactionManifestV1 {
+    TransactionManifestV1 {
+        instructions: intent.instructions.0.clone(),
+        blobs: intent
+            .blobs
+            .blobs
+            .iter()
+            .map(|blob| (hash(&blob.0), blob.0.clone()))
+            .collect(),
     }
 }
