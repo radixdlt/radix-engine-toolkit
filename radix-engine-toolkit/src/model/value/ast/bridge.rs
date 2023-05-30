@@ -23,52 +23,53 @@ use scrypto::prelude::{
     ManifestBlobRef, ManifestCustomValueKind, ManifestExpression, ManifestValueKind, NodeId,
 };
 
-impl From<ast::Type> for ManifestAstValueKind {
-    fn from(value: ast::Type) -> ManifestAstValueKind {
+impl From<ast::ValueKind> for ManifestAstValueKind {
+    fn from(value: ast::ValueKind) -> ManifestAstValueKind {
         match value {
-            ast::Type::Bool => Self::Bool,
+            ast::ValueKind::Bool => Self::Bool,
 
-            ast::Type::I8 => Self::I8,
-            ast::Type::I16 => Self::I16,
-            ast::Type::I32 => Self::I32,
-            ast::Type::I64 => Self::I64,
-            ast::Type::I128 => Self::I128,
-            ast::Type::U8 => Self::U8,
-            ast::Type::U16 => Self::U16,
-            ast::Type::U32 => Self::U32,
-            ast::Type::U64 => Self::U64,
-            ast::Type::U128 => Self::U128,
+            ast::ValueKind::I8 => Self::I8,
+            ast::ValueKind::I16 => Self::I16,
+            ast::ValueKind::I32 => Self::I32,
+            ast::ValueKind::I64 => Self::I64,
+            ast::ValueKind::I128 => Self::I128,
+            ast::ValueKind::U8 => Self::U8,
+            ast::ValueKind::U16 => Self::U16,
+            ast::ValueKind::U32 => Self::U32,
+            ast::ValueKind::U64 => Self::U64,
+            ast::ValueKind::U128 => Self::U128,
 
-            ast::Type::String => Self::String,
+            ast::ValueKind::String => Self::String,
 
-            ast::Type::Enum => Self::Enum,
+            ast::ValueKind::Enum => Self::Enum,
 
-            ast::Type::Array => Self::Array,
-            ast::Type::Tuple => Self::Tuple,
+            ast::ValueKind::Array => Self::Array,
+            ast::ValueKind::Tuple => Self::Tuple,
+            ast::ValueKind::Map => Self::Map,
 
-            ast::Type::Decimal => Self::Decimal,
-            ast::Type::PreciseDecimal => Self::PreciseDecimal,
+            ast::ValueKind::Decimal => Self::Decimal,
+            ast::ValueKind::PreciseDecimal => Self::PreciseDecimal,
 
-            ast::Type::Address => Self::Address,
-            ast::Type::PackageAddress => Self::Address,
-            ast::Type::ResourceAddress => Self::Address,
-            ast::Type::ComponentAddress => Self::Address,
+            ast::ValueKind::Address => Self::Address,
+            ast::ValueKind::PackageAddress => Self::Address,
+            ast::ValueKind::ResourceAddress => Self::Address,
+            ast::ValueKind::ComponentAddress => Self::Address,
 
-            ast::Type::Bucket => Self::Bucket,
-            ast::Type::Proof => Self::Proof,
+            ast::ValueKind::Bucket => Self::Bucket,
+            ast::ValueKind::Proof => Self::Proof,
 
-            ast::Type::NonFungibleLocalId => Self::NonFungibleLocalId,
-            ast::Type::NonFungibleGlobalId => Self::NonFungibleGlobalId,
+            ast::ValueKind::NonFungibleLocalId => Self::NonFungibleLocalId,
+            ast::ValueKind::NonFungibleGlobalId => Self::NonFungibleGlobalId,
 
-            ast::Type::Blob => Self::Blob,
-            ast::Type::Expression => Self::Expression,
-            ast::Type::Bytes => Self::Bytes,
+            ast::ValueKind::Blob => Self::Blob,
+            ast::ValueKind::Expression => Self::Expression,
+            ast::ValueKind::Bytes => Self::Bytes,
         }
     }
 }
 
-impl From<ManifestAstValueKind> for ast::Type {
-    fn from(value: ManifestAstValueKind) -> ast::Type {
+impl From<ManifestAstValueKind> for ast::ValueKind {
+    fn from(value: ManifestAstValueKind) -> ast::ValueKind {
         match value {
             ManifestAstValueKind::Bool => Self::Bool,
             ManifestAstValueKind::I8 => Self::I8,
@@ -265,9 +266,12 @@ impl ManifestAstValue {
                 (*value_value_kind).into(),
                 entries
                     .iter()
-                    .flat_map(|(x, y)| [x, y])
-                    .map(|value| value.to_ast_value(bech32_coder))
-                    .collect::<Result<Vec<ast::Value>, ManifestAstValueConversionError>>()?,
+                    .map(|(key, value)| {
+                        key.to_ast_value(bech32_coder).and_then(|key| {
+                            value.to_ast_value(bech32_coder).map(|value| (key, value))
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
             ),
             ManifestAstValue::Tuple { fields: elements } => ast::Value::Tuple(
                 elements
@@ -377,21 +381,14 @@ impl ManifestAstValue {
             ast::Value::Map(key_value_kind, value_value_kind, entries) => Self::Map {
                 key_kind: (*key_value_kind).into(),
                 value_kind: (*value_value_kind).into(),
-                entries: {
-                    // Ensure that we have enough elements for the window operation
-                    if entries.len() % 2 != 0 {
-                        Err(ManifestAstValueConversionError::MapHasOddNumberOfElements)
-                    } else {
-                        let mut entries_vec = Vec::new();
-                        for chunk in entries.chunks(2) {
-                            let key = Self::from_ast_value(&chunk[0], bech32_coder)?;
-                            let value = Self::from_ast_value(&chunk[1], bech32_coder)?;
-
-                            entries_vec.push((key, value));
-                        }
-                        Ok(entries_vec)
-                    }
-                }?,
+                entries: entries
+                    .iter()
+                    .map(|(key, value)| {
+                        Self::from_ast_value(key, bech32_coder).and_then(|key| {
+                            Self::from_ast_value(value, bech32_coder).map(|value| (key, value))
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
             },
             ast::Value::Array(ast_type, elements) => Self::Array {
                 element_kind: (*ast_type).into(),
