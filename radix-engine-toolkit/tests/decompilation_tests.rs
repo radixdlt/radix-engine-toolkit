@@ -17,9 +17,10 @@
 
 use native_transaction::builder::{ManifestBuilder, TransactionBuilder};
 use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
-use native_transaction::model::{NotarizedTransaction, TransactionHeader};
+use native_transaction::prelude::{
+    NotarizedTransactionV1, TransactionHeaderV1, TransactionPayload,
+};
 use radix_engine_common::ManifestSbor;
-use radix_engine_constants::DEFAULT_COST_UNIT_LIMIT;
 use radix_engine_toolkit::functions::traits::InvocationHandler;
 use radix_engine_toolkit::functions::{
     compile_notarized_transaction, decompile_notarized_transaction,
@@ -164,22 +165,20 @@ fn decompilation_and_compilation_of_minting_non_fungible_tokens_succeeds() {
     test_inversion(&transaction);
 }
 
-fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> TransactionHeader {
-    TransactionHeader {
-        version: 0x01,
+fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> TransactionHeaderV1 {
+    TransactionHeaderV1 {
         network_id,
-        start_epoch_inclusive: 10,
-        end_epoch_exclusive: 13,
+        start_epoch_inclusive: Epoch::of(10),
+        end_epoch_exclusive: Epoch::of(13),
         nonce: 0x02,
         notary_public_key: notary_public_key.into(),
         notary_is_signatory: true,
-        cost_unit_limit: DEFAULT_COST_UNIT_LIMIT,
         tip_percentage: 0,
     }
 }
 
-fn test_inversion(transaction: &NotarizedTransaction) {
-    let native_compiled = manifest_encode(&transaction).unwrap();
+fn test_inversion(transaction: &NotarizedTransactionV1) {
+    let native_compiled = transaction.to_payload_bytes().unwrap();
     let compiled_from_decompiled = {
         let input = decompile_notarized_transaction::Input {
             compiled_notarized_intent: native_compiled.clone(),

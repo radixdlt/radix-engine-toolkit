@@ -18,10 +18,11 @@
 use native_transaction::builder::{ManifestBuilder, TransactionBuilder};
 use native_transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
 use native_transaction::manifest::{compile, decompile};
-use native_transaction::model::{NotarizedTransaction, TransactionHeader};
+use native_transaction::prelude::{
+    NotarizedTransactionV1, TransactionHeaderV1, TransactionPayload,
+};
 use native_transaction::validation::ValidationConfig;
 use radix_engine_common::ManifestSbor;
-use radix_engine_constants::DEFAULT_COST_UNIT_LIMIT;
 use radix_engine_toolkit::functions::statically_validate_transaction;
 use radix_engine_toolkit::functions::traits::InvocationHandler;
 use scrypto::prelude::*;
@@ -198,22 +199,20 @@ fn static_validation_of_minting_non_fungible_tokens_succeeds() {
     );
 }
 
-fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> TransactionHeader {
-    TransactionHeader {
-        version: 0x01,
+fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> TransactionHeaderV1 {
+    TransactionHeaderV1 {
         network_id,
-        start_epoch_inclusive: 10,
-        end_epoch_exclusive: 13,
+        start_epoch_inclusive: Epoch::of(10),
+        end_epoch_exclusive: Epoch::of(13),
         nonce: 0x02,
         notary_public_key: notary_public_key.into(),
         notary_is_signatory: true,
-        cost_unit_limit: DEFAULT_COST_UNIT_LIMIT,
         tip_percentage: 0,
     }
 }
 
-fn test_inversion(transaction: &NotarizedTransaction) {
-    let passed_manifest = transaction.signed_intent.intent.manifest.clone();
+fn test_inversion(transaction: &NotarizedTransactionV1) {
+    let passed_manifest = radix_engine_toolkit::utils::manifest(&transaction.signed_intent.intent);
     let inverted_manifest = {
         let network =
             radix_engine_toolkit::model::address::utils::network_definition_from_network_id(
@@ -226,9 +225,9 @@ fn test_inversion(transaction: &NotarizedTransaction) {
 }
 
 fn statically_validate(
-    transaction: &NotarizedTransaction,
+    transaction: &NotarizedTransactionV1,
 ) -> statically_validate_transaction::Output {
-    let encoded_transaction = manifest_encode(&transaction).unwrap();
+    let encoded_transaction = transaction.to_payload_bytes().unwrap();
     let input = statically_validate_transaction::Input {
         compiled_notarized_intent: encoded_transaction,
         validation_config: ValidationConfig::default(

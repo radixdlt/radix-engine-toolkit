@@ -27,7 +27,7 @@ use radix_engine_toolkit::{
     },
     visitor::{AccountDeposit, ResourceSpecifier},
 };
-use scrypto::prelude::*;
+use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 use scrypto_unit::TestRunner;
 
 #[test]
@@ -41,8 +41,14 @@ pub fn analyze_create_resources_transaction() {
         .create_fungible_resource(
             18,
             [
-                ("name".into(), "my first resource".into()),
-                ("description".into(), "my exciting resource".into()),
+                (
+                    "name".into(),
+                    MetadataValue::String("my first resource".to_owned()),
+                ),
+                (
+                    "description".into(),
+                    MetadataValue::String("my exciting resource".to_owned()),
+                ),
             ]
             .into(),
             BTreeMap::<ResourceMethodAuthKey, (AccessRule, AccessRule)>::new(),
@@ -51,8 +57,14 @@ pub fn analyze_create_resources_transaction() {
         .create_fungible_resource(
             18,
             [
-                ("name".into(), "my second resource".into()),
-                ("description".into(), "my exciting resource".into()),
+                (
+                    "name".into(),
+                    MetadataValue::String("my second resource".to_owned()),
+                ),
+                (
+                    "description".into(),
+                    MetadataValue::String("my exciting resource".to_owned()),
+                ),
             ]
             .into(),
             BTreeMap::<ResourceMethodAuthKey, (AccessRule, AccessRule)>::new(),
@@ -60,7 +72,7 @@ pub fn analyze_create_resources_transaction() {
         )
         .call_method(
             account,
-            "deposit_batch",
+            "try_deposit_batch_or_abort",
             manifest_args!(ManifestExpression::EntireWorktop),
         )
         .build();

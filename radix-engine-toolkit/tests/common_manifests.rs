@@ -64,6 +64,11 @@ pub fn common_manifests_can_be_converted_to_parsed_and_then_back_to_string_manif
             .map(manifest_replace)
             .unwrap();
 
+        println!("{manifest_str}");
+        if manifest_str.contains("Map<U8, U16>(1u8 => 5u16)") {
+            println!("here")
+        }
+
         let manifest = TransactionManifest {
             instructions: InstructionList::String(manifest_str),
             blobs: vec![[10].into()],
@@ -161,6 +166,18 @@ fn manifest_replace(string: String) -> String {
             "resource_sim1nfhtg7ttszgjwysfglx8jcjtvv8q02fg9s2y6qpnvtw5jsy3wvlhj6",
         )
         .replace(
+            "${mintable_fungible_resource_address}",
+            "resource_sim1nfhtg7ttszgjwysfglx8jcjtvv8q02fg9s2y6qpnvtw5jsy3wvlhj6",
+        )
+        .replace(
+            "${second_resource_address}",
+            "resource_sim1nfhtg7ttszgjwysfglx8jcjtvv8q02fg9s2y6qpnvtw5jsy3wvlhj6",
+        )
+        .replace(
+            "${mintable_non_fungible_resource_address}",
+            "resource_sim1nfhtg7ttszgjwysfglx8jcjtvv8q02fg9s2y6qpnvtw5jsy3wvlhj6",
+        )
+        .replace(
             "${vault_address}",
             "internal_vault_sim1tqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvevp72ff",
         )
@@ -182,8 +199,8 @@ fn manifest_replace(string: String) -> String {
             "package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk",
         )
         .replace(
-            "${epochmanager_address}",
-            "epochmanager_sim1sexxxxxxxxxxephmgrxxxxxxxxx009352500589xxxxxxxxx82g6cl",
+            "${consensusmanager_address}",
+            "consensusmanager_sim1scxxxxxxxxxxcnsmgrxxxxxxxxx000999665565xxxxxxxxxxc06cl",
         )
         .replace(
             "${clock_address}",

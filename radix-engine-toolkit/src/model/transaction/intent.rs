@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_transaction::prelude::{AttachmentsV1, BlobV1, BlobsV1};
+use native_transaction::prelude::{AttachmentsV1, BlobV1, BlobsV1, IntentV1, TransactionPayload};
 use radix_engine_common::prelude::hash;
 use sbor::{DecodeError, EncodeError};
-use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
 use crate::model::address::Bech32Coder;
@@ -54,7 +53,7 @@ impl CompilableIntent for TransactionIntent {
 
     fn compile(&self) -> Result<Vec<u8>, Self::Error> {
         self.to_native_transaction_intent()
-            .and_then(|intent| manifest_encode(&intent).map_err(Self::Error::from))
+            .and_then(|intent| intent.to_payload_bytes().map_err(Self::Error::from))
     }
 
     fn decompile<T>(data: &T, instructions_kind: InstructionKind) -> Result<Self, Self::Error>
@@ -62,7 +61,7 @@ impl CompilableIntent for TransactionIntent {
         Self: Sized,
         T: AsRef<[u8]>,
     {
-        manifest_decode(data.as_ref())
+        IntentV1::from_payload_bytes(data.as_ref())
             .map_err(Self::Error::from)
             .and_then(|decoded| Self::from_native_transaction_intent(&decoded, instructions_kind))
     }

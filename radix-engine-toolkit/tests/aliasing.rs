@@ -53,7 +53,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,
                                     elements: vec![ManifestAstValue::Tuple { fields: vec![
-                                        ManifestAstValue::Address { value: "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3".parse().unwrap() },
+                                        ManifestAstValue::Address { value: "resource_rdx1nfxxxxxxxxxxglcllrxxxxxxxxx002350006550xxxxxxxxxglcllr".parse().unwrap() },
                                         ManifestAstValue::NonFungibleLocalId { value: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1)) } ,
                                     ] }],
                                 }],
@@ -96,7 +96,7 @@ fn aliasing_of_deeply_nested_structures_works() {
                                 elements: vec![ManifestAstValue::Array {
                                     element_kind: ManifestAstValueKind::Tuple,
                                     elements: vec![ManifestAstValue::NonFungibleGlobalId {
-                                        resource_address: "resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3".parse().unwrap(),
+                                        resource_address: "resource_rdx1nfxxxxxxxxxxglcllrxxxxxxxxx002350006550xxxxxxxxxglcllr".parse().unwrap(),
                                         non_fungible_local_id: scrypto::prelude::NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1))
                                     }],
                                 }],

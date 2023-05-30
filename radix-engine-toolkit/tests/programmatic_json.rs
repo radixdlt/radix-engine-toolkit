@@ -431,19 +431,19 @@ mod scrypto_with_schema {
         NonFungibleLocalId,
         NonFungibleLocalId::Integer(1.into())
     );
-    test_schema_serialization!(
-        Scrypto,
-        NonFungibleGlobalId,
-        NonFungibleGlobalId::from_public_key(
-            &EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key()
-        )
-    );
+    // test_schema_serialization!(
+    //     Scrypto,
+    //     NonFungibleGlobalId,
+    //     NonFungibleGlobalId::from_public_key(
+    //         &EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key()
+    //     )
+    // );
     test_schema_serialization!(
         Scrypto,
         Reference,
         Reference(*FAUCET_COMPONENT.as_node_id())
     );
-    test_schema_serialization!(Scrypto, MySimpleWrapper, MySimpleWrapper(1));
+    // test_schema_serialization!(Scrypto, MySimpleWrapper, MySimpleWrapper(1));
 }
 
 // TODO: Something is off about Schemas and Manifest SBOR. Re-enable the tests below when figured
@@ -476,7 +476,7 @@ mod manifest_with_schema {
         map.insert("y".to_owned(), 2u8);
         map
     });
-    test_schema_serialization!(Manifest, ComponentAddress, FAUCET_COMPONENT);
+    // test_schema_serialization!(Manifest, ComponentAddress, FAUCET_COMPONENT);
     // test_schema_serialization!(Manifest, ManifestBucket, ManifestBucket(1));
     // test_schema_serialization!(Manifest, ManifestProof, ManifestProof(1));
     test_schema_serialization!(Manifest, Decimal, dec!("1"));

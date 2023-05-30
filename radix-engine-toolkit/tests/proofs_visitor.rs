@@ -83,7 +83,7 @@ fn account_create_proof_by_amount_is_captured_by_visitor() {
 
     let mut instructions = {
         let native_manifest = ManifestBuilder::new()
-            .create_proof_from_account_by_amount(account, RADIX_TOKEN, 1.into())
+            .create_proof_from_account_of_amount(account, RADIX_TOKEN, 1.into())
             .build();
         let manifest = TransactionManifest::from_native_manifest(
             &native_manifest,
@@ -128,7 +128,7 @@ fn account_create_proof_by_ids_is_captured_by_visitor() {
 
     let mut instructions = {
         let native_manifest = ManifestBuilder::new()
-            .create_proof_from_account_by_ids(
+            .create_proof_from_account_of_non_fungibles(
                 account,
                 RADIX_TOKEN,
                 &[NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(

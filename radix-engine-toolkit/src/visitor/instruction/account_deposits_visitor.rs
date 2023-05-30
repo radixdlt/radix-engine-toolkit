@@ -29,7 +29,7 @@ use radix_engine::system::system_modules::execution_trace::{
     ResourceChange, ResourceSpecifier as NativeResourceQuantifier, WorktopChange,
 };
 use radix_engine::types::ResourceAddress;
-use scrypto::blueprints::account::{ACCOUNT_DEPOSIT_BATCH_IDENT, ACCOUNT_DEPOSIT_IDENT};
+use scrypto::blueprints::account::*;
 use scrypto::prelude::ManifestExpression;
 use toolkit_derive::serializable;
 
@@ -145,7 +145,11 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
-            ) if is_account(*component_address) && method_name == ACCOUNT_DEPOSIT_IDENT => {
+            ) if is_account(*component_address)
+                && (method_name == ACCOUNT_DEPOSIT_IDENT
+                    || method_name == ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
+                    || method_name == ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT) =>
+            {
                 if let Some(ManifestAstValue::Bucket { value: bucket_id }) = arguments.get(0) {
                     let bucket_info = self.buckets.get(bucket_id).map_or(
                         Err(AccountDepositsVisitorError::UseOfUndeclaredBucket(
@@ -165,7 +169,11 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
                 },
                 ManifestAstValue::String { value: method_name },
                 arguments,
-            ) if is_account(*component_address) && method_name == ACCOUNT_DEPOSIT_BATCH_IDENT => {
+            ) if is_account(*component_address)
+                && (method_name == ACCOUNT_DEPOSIT_BATCH_IDENT
+                    || method_name == ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
+                    || method_name == ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT) =>
+            {
                 match (arguments.len(), arguments.get(0)) {
                     (
                         1,

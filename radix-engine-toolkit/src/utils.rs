@@ -17,7 +17,8 @@
 
 use crate::model::address::Bech32Coder;
 use native_transaction::data::{format_manifest_value, ManifestDecompilationDisplayContext};
-use radix_engine_common::prelude::{to_manifest_value, ManifestEncode};
+use native_transaction::prelude::{IntentV1, TransactionManifestV1};
+use radix_engine_common::prelude::{hash, to_manifest_value, ManifestEncode};
 use std::fmt::Debug;
 
 pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Option<[u8; N]> {
@@ -45,4 +46,16 @@ where
     format_manifest_value(&mut string, &to_manifest_value(value), &context, true, 0)
         .expect("Impossible case! Valid SBOR can't fail here");
     string
+}
+
+pub fn manifest(intent: &IntentV1) -> TransactionManifestV1 {
+    TransactionManifestV1 {
+        instructions: intent.instructions.0.clone(),
+        blobs: intent
+            .blobs
+            .blobs
+            .iter()
+            .map(|blob| (hash(&blob.0), blob.0.clone()))
+            .collect(),
+    }
 }

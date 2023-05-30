@@ -19,9 +19,8 @@ use crate::model::transaction::{InstructionKind, SignedTransactionIntent};
 use crate::traits::CompilableIntent;
 use crate::utils::debug_string;
 use native_transaction::model as native;
-use native_transaction::prelude::NotarySignatureV1;
+use native_transaction::prelude::{NotarizedTransactionV1, NotarySignatureV1, TransactionPayload};
 use sbor::{DecodeError, EncodeError};
-use scrypto::prelude::{manifest_decode, manifest_encode};
 use toolkit_derive::serializable;
 
 use super::SignedTransactionIntentConversionError;
@@ -54,7 +53,9 @@ impl CompilableIntent for NotarizedTransaction {
     fn compile(&self) -> Result<Vec<u8>, Self::Error> {
         self.to_native_notarized_transaction_intent()
             .and_then(|notarized_transaction| {
-                manifest_encode(&notarized_transaction).map_err(Self::Error::from)
+                notarized_transaction
+                    .to_payload_bytes()
+                    .map_err(Self::Error::from)
             })
     }
 
@@ -63,7 +64,7 @@ impl CompilableIntent for NotarizedTransaction {
         Self: Sized,
         T: AsRef<[u8]>,
     {
-        manifest_decode(data.as_ref())
+        NotarizedTransactionV1::from_payload_bytes(data.as_ref())
             .map_err(Self::Error::from)
             .and_then(|decoded| {
                 Self::from_native_notarized_transaction_intent(&decoded, instructions_kind)

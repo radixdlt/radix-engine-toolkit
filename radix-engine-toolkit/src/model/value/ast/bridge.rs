@@ -92,7 +92,7 @@ impl From<ManifestAstValueKind> for ast::ValueKind {
             ManifestAstValueKind::Ok => Self::Enum,
             ManifestAstValueKind::Err => Self::Enum,
 
-            ManifestAstValueKind::Map => Self::Array,
+            ManifestAstValueKind::Map => Self::Map,
             ManifestAstValueKind::Array => Self::Array,
             ManifestAstValueKind::Tuple => Self::Tuple,
 

@@ -2,10 +2,7 @@ use native_transaction::{builder::ManifestBuilder, ecdsa_secp256k1::EcdsaSecp256
 use radix_engine_toolkit::functions::*;
 use radix_engine_toolkit::model::address::Bech32Coder;
 use radix_engine_toolkit::model::transaction::{InstructionKind, TransactionManifest};
-use scrypto::{
-    api::node_modules::metadata::{MetadataEntry, MetadataValue},
-    prelude::*,
-};
+use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 
 #[test]
 pub fn identities_needed_to_sign_appear_when_extracting_addresses() {
@@ -16,7 +13,7 @@ pub fn identities_needed_to_sign_appear_when_extracting_addresses() {
         .set_metadata(
             identity.into(),
             "name".into(),
-            MetadataEntry::Value(MetadataValue::String("my_name".into())),
+            MetadataValue::String("my_name".into()),
         )
         .build();
 

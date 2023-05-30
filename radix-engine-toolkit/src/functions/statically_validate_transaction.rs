@@ -16,8 +16,9 @@
 // under the License.
 
 use crate::model::transaction::NotarizedTransactionConversionError;
-use native_transaction::validation::{
-    NotarizedTransactionValidator, TransactionValidator, ValidationConfig,
+use native_transaction::{
+    prelude::RawNotarizedTransaction,
+    validation::{NotarizedTransactionValidator, TransactionValidator, ValidationConfig},
 };
 use toolkit_derive::serializable;
 
@@ -68,8 +69,9 @@ impl InvocationHandler<Input, Output> for Handler {
     }
 
     fn handle(input: &Input) -> Result<Output, Error> {
-        if let Err(ref error) = NotarizedTransactionValidator::new(input.validation_config)
-            .validate_from_payload_bytes(&input.compiled_notarized_intent)
+        let raw = RawNotarizedTransaction(input.compiled_notarized_intent.clone());
+        if let Err(ref error) =
+            NotarizedTransactionValidator::new(input.validation_config).validate_from_raw(&raw)
         {
             Ok(Output::Invalid {
                 error: format!("{:?}", error),

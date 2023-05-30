@@ -699,7 +699,7 @@ impl Instruction {
                 }
             }
             ast::Instruction::PublishPackageAdvanced { args } => {
-                let (code, schema, royalty_config, metadata, authority_rules) = unpack!(args);
+                let (_, code, schema, royalty_config, metadata, authority_rules) = unpack!(args);
                 Self::PublishPackageAdvanced {
                     code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
                     schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
