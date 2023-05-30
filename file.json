@@ -1,0 +1,212 @@
+{
+    "CallFunction": [
+        "package_address",
+        "blueprint_name",
+        "function_name",
+        "arguments"
+    ],
+    "CallMethod": [
+        "component_address",
+        "method_name",
+        "arguments"
+    ],
+    "CallRoyaltyMethod": [
+        "component_address",
+        "method_name",
+        "arguments"
+    ],
+    "CallMetadataMethod": [
+        "component_address",
+        "method_name",
+        "arguments"
+    ],
+    "CallAccessRulesMethod": [
+        "component_address",
+        "method_name",
+        "arguments"
+    ],
+    "TakeAllFromWorktop": [
+        "resource_address",
+        "into_bucket"
+    ],
+    "TakeFromWorktop": [
+        "resource_address",
+        "amount",
+        "into_bucket"
+    ],
+    "TakeNonFungiblesFromWorktop": [
+        "resource_address",
+        "ids",
+        "into_bucket"
+    ],
+    "ReturnToWorktop": [
+        "bucket"
+    ],
+    "AssertWorktopContains": [
+        "resource_address",
+        "amount"
+    ],
+    "AssertWorktopContainsNonFungibles": [
+        "resource_address",
+        "ids"
+    ],
+    "PopFromAuthZone": [
+        "into_proof"
+    ],
+    "PushToAuthZone": [
+        "proof"
+    ],
+    "ClearAuthZone": [],
+    "ClearSignatureProofs": [],
+    "CreateProofFromAuthZone": [
+        "resource_address",
+        "into_proof"
+    ],
+    "CreateProofFromAuthZoneOfAll": [
+        "resource_address",
+        "into_proof"
+    ],
+    "CreateProofFromAuthZoneOfAmount": [
+        "resource_address",
+        "amount",
+        "into_proof"
+    ],
+    "CreateProofFromAuthZoneOfNonFungibles": [
+        "resource_address",
+        "ids",
+        "into_proof"
+    ],
+    "CreateProofFromBucket": [
+        "bucket",
+        "into_proof"
+    ],
+    "CreateProofFromBucketOfAll": [
+        "bucket",
+        "into_proof"
+    ],
+    "CreateProofFromBucketOfAmount": [
+        "bucket",
+        "amount",
+        "into_proof"
+    ],
+    "CreateProofFromBucketOfNonFungibles": [
+        "bucket",
+        "ids",
+        "into_proof"
+    ],
+    "CloneProof": [
+        "proof",
+        "into_proof"
+    ],
+    "DropProof": [
+        "proof"
+    ],
+    "DropAllProofs": [],
+    "PublishPackage": [
+        "code",
+        "schema",
+        "royalty_config",
+        "metadata"
+    ],
+    "PublishPackageAdvanced": [
+        "code",
+        "schema",
+        "royalty_config",
+        "metadata",
+        "authority_rules"
+    ],
+    "BurnResource": [
+        "bucket"
+    ],
+    "RecallResource": [
+        "vault_id",
+        "amount"
+    ],
+    "SetMetadata": [
+        "entity_address",
+        "key",
+        "value"
+    ],
+    "RemoveMetadata": [
+        "entity_address",
+        "key"
+    ],
+    "SetPackageRoyaltyConfig": [
+        "package_address",
+        "royalty_config"
+    ],
+    "SetComponentRoyaltyConfig": [
+        "component_address",
+        "royalty_config"
+    ],
+    "ClaimPackageRoyalty": [
+        "package_address"
+    ],
+    "ClaimComponentRoyalty": [
+        "component_address"
+    ],
+    "SetAuthorityAccessRule": [
+        "entity_address",
+        "object_key",
+        "authority_key",
+        "rule"
+    ],
+    "SetAuthorityMutability": [
+        "entity_address",
+        "object_key",
+        "authority_key",
+        "mutability"
+    ],
+    "MintFungible": [
+        "resource_address",
+        "amount"
+    ],
+    "MintNonFungible": [
+        "resource_address",
+        "entries"
+    ],
+    "MintUuidNonFungible": [
+        "resource_address",
+        "entries"
+    ],
+    "CreateFungibleResource": [
+        "divisibility",
+        "metadata",
+        "access_rules"
+    ],
+    "CreateFungibleResourceWithInitialSupply": [
+        "divisibility",
+        "metadata",
+        "access_rules",
+        "initial_supply"
+    ],
+    "CreateNonFungibleResource": [
+        "id_type",
+        "schema",
+        "metadata",
+        "access_rules"
+    ],
+    "CreateNonFungibleResourceWithInitialSupply": [
+        "id_type",
+        "schema",
+        "metadata",
+        "access_rules",
+        "initial_supply"
+    ],
+    "CreateAccessController": [
+        "controlled_asset",
+        "rule_set",
+        "timed_recovery_delay_in_minutes"
+    ],
+    "CreateValidator": [
+        "key"
+    ],
+    "CreateIdentity": [],
+    "CreateIdentityAdvanced": [
+        "config"
+    ],
+    "CreateAccount": [],
+    "CreateAccountAdvanced": [
+        "config"
+    ]
+}
