@@ -21,11 +21,11 @@ use super::PackageSchemaResolutionError;
 use crate::model::address::Bech32Coder;
 use crate::model::value::ast::ManifestAstValue;
 use crate::model::value::ast::ManifestAstValueKind;
+use crate::utils;
 use itertools::Itertools;
 use native_transaction::data::format_manifest_value;
 use native_transaction::data::ManifestDecompilationDisplayContext;
 use native_transaction::manifest::ast;
-use native_transaction::manifest::decompiler::DecompilationContext;
 use native_transaction::manifest::generator::generate_value;
 use native_transaction::manifest::generator::NameResolver;
 use native_transaction::manifest::lexer;
@@ -947,20 +947,8 @@ fn package_schema_bytes_to_native_ast(
         .map_err(|_| PackageSchemaResolutionError::FailedToSborDecode)?;
 
     // Convert the PackageSchema object to a manifest string
-    let package_schema_manifest_string = {
-        let mut string = String::new();
-        let mut context =
-            ManifestDecompilationDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
-        format_manifest_value(
-            &mut string,
-            &to_manifest_value(&package_schema),
-            &context,
-            true,
-            0,
-        )
-        .expect("Impossible case! Valid SBOR can't fail here");
-        string
-    };
+    let package_schema_manifest_string =
+        utils::manifest_string_representation(&package_schema, bech32_coder);
 
     // Convert the package schema manifest string to the AST value model
     let ast = {

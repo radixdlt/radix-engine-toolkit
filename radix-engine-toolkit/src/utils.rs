@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::model::address::Bech32Coder;
+use native_transaction::data::{format_manifest_value, ManifestDecompilationDisplayContext};
+use radix_engine_common::prelude::{to_manifest_value, ManifestEncode};
 use std::fmt::Debug;
 
 pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Option<[u8; N]> {
@@ -30,4 +33,16 @@ pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Option
 
 pub fn debug_string<T: Debug>(object: T) -> String {
     format!("{:?}", object)
+}
+
+pub fn manifest_string_representation<T>(value: &T, bech32_coder: &Bech32Coder) -> String
+where
+    T: ManifestEncode,
+{
+    let mut string = String::new();
+    let mut context =
+        ManifestDecompilationDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
+    format_manifest_value(&mut string, &to_manifest_value(value), &context, true, 0)
+        .expect("Impossible case! Valid SBOR can't fail here");
+    string
 }

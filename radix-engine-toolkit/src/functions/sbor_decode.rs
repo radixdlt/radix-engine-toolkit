@@ -19,8 +19,8 @@ use crate::functions::traits::InvocationHandler;
 use crate::model::address::Bech32Coder;
 use crate::model::value::manifest_sbor::ManifestSborValueConversionError;
 use crate::model::value::scrypto_sbor::{ScryptoSborValue, ScryptoSborValueConversionError};
+use crate::utils;
 use crate::{model::value::manifest_sbor::ManifestSborValue, utils::debug_string};
-use native_transaction::manifest::decompiler::{format_typed_value, DecompilationContext};
 use sbor::representations::{SerializationMode, SerializationParameters};
 use sbor::{DecodeError, LocalTypeIndex, Schema};
 use scrypto::prelude::*;
@@ -168,19 +168,10 @@ impl InvocationHandler<Input, Output> for Handler {
                     serde_json::to_value(serializable).unwrap()
                 };
 
-                let manifest_string = {
-                    let mut string = String::new();
-                    let mut context = DecompilationContext::new_with_optional_network(Some(
-                        bech32_coder.encoder(),
-                    ));
-                    format_typed_value(
-                        &mut string,
-                        &mut context,
-                        &manifest_decode::<ManifestValue>(&input.encoded_value).unwrap(),
-                    )
-                    .expect("Impossible case! Valid SBOR can't fail here");
-                    string.trim().to_owned()
-                };
+                let manifest_string = utils::manifest_string_representation(
+                    &manifest_decode::<ManifestValue>(&input.encoded_value).unwrap(),
+                    &bech32_coder,
+                );
 
                 Ok(Output::ManifestSbor {
                     manifest_string,
