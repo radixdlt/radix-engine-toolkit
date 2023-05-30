@@ -21,13 +21,16 @@ use super::PackageSchemaResolutionError;
 use crate::model::address::Bech32Coder;
 use crate::model::value::ast::ManifestAstValue;
 use crate::model::value::ast::ManifestAstValueKind;
+use itertools::Itertools;
+use native_transaction::data::format_manifest_value;
+use native_transaction::data::ManifestDecompilationDisplayContext;
 use native_transaction::manifest::ast;
-use native_transaction::manifest::decompiler::format_typed_value;
 use native_transaction::manifest::decompiler::DecompilationContext;
 use native_transaction::manifest::generator::generate_value;
 use native_transaction::manifest::generator::NameResolver;
 use native_transaction::manifest::lexer;
 use native_transaction::manifest::parser::Parser;
+use radix_engine_common::prelude::to_manifest_value;
 use scrypto::prelude::{manifest_decode, manifest_encode};
 use scrypto::schema::PackageSchema;
 
@@ -58,7 +61,49 @@ impl Instruction {
                 method_name,
                 arguments,
             } => ast::Instruction::CallMethod {
-                component_address: component_address.to_ast_value(bech32_coder)?,
+                address: component_address.to_ast_value(bech32_coder)?,
+                method_name: method_name.to_ast_value(bech32_coder)?,
+                args: arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|value| value.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Self::CallRoyaltyMethod {
+                component_address,
+                method_name,
+                arguments,
+            } => ast::Instruction::CallRoyaltyMethod {
+                address: component_address.to_ast_value(bech32_coder)?,
+                method_name: method_name.to_ast_value(bech32_coder)?,
+                args: arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|value| value.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Self::CallMetadataMethod {
+                component_address,
+                method_name,
+                arguments,
+            } => ast::Instruction::CallMetadataMethod {
+                address: component_address.to_ast_value(bech32_coder)?,
+                method_name: method_name.to_ast_value(bech32_coder)?,
+                args: arguments
+                    .clone()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|value| value.to_ast_value(bech32_coder))
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+            Self::CallAccessRulesMethod {
+                component_address,
+                method_name,
+                arguments,
+            } => ast::Instruction::CallAccessRulesMethod {
+                address: component_address.to_ast_value(bech32_coder)?,
                 method_name: method_name.to_ast_value(bech32_coder)?,
                 args: arguments
                     .clone()
@@ -70,7 +115,7 @@ impl Instruction {
             Self::TakeAllFromWorktop {
                 resource_address,
                 into_bucket,
-            } => ast::Instruction::TakeFromWorktop {
+            } => ast::Instruction::TakeAllFromWorktop {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_bucket: into_bucket.to_ast_value(bech32_coder)?,
             },
@@ -78,7 +123,7 @@ impl Instruction {
                 amount,
                 resource_address,
                 into_bucket,
-            } => ast::Instruction::TakeFromWorktopByAmount {
+            } => ast::Instruction::TakeFromWorktop {
                 amount: amount.to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_bucket: into_bucket.to_ast_value(bech32_coder)?,
@@ -87,7 +132,7 @@ impl Instruction {
                 ids,
                 resource_address,
                 into_bucket,
-            } => ast::Instruction::TakeFromWorktopByIds {
+            } => ast::Instruction::TakeNonFungiblesFromWorktop {
                 ids: ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.clone().into_iter().collect::<Vec<_>>(),
@@ -100,22 +145,24 @@ impl Instruction {
                 bucket: bucket.to_ast_value(bech32_coder)?,
             },
 
-            Self::AssertWorktopContains { resource_address } => {
-                ast::Instruction::AssertWorktopContains {
-                    resource_address: resource_address.to_ast_value(bech32_coder)?,
-                }
-            }
+            Self::AssertWorktopContains {
+                resource_address,
+                amount,
+            } => ast::Instruction::AssertWorktopContains {
+                amount: amount.to_ast_value(bech32_coder)?,
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+            },
             Self::AssertWorktopContains {
                 amount,
                 resource_address,
-            } => ast::Instruction::AssertWorktopContainsByAmount {
+            } => ast::Instruction::AssertWorktopContains {
                 amount: amount.to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
             },
             Self::AssertWorktopContainsNonFungibles {
                 ids,
                 resource_address,
-            } => ast::Instruction::AssertWorktopContainsByIds {
+            } => ast::Instruction::AssertWorktopContainsNonFungibles {
                 ids: ManifestAstValue::Array {
                     // TODO: This was `ManifestAstValueKind::Bucket` by mistake. What kind of test
                     // can we introduce to catch this?
@@ -141,11 +188,18 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_proof: into_proof.to_ast_value(bech32_coder)?,
             },
+            Self::CreateProofFromAuthZoneOfAll {
+                resource_address,
+                into_proof,
+            } => ast::Instruction::CreateProofFromAuthZoneOfAll {
+                resource_address: resource_address.to_ast_value(bech32_coder)?,
+                new_proof: into_proof.to_ast_value(bech32_coder)?,
+            },
             Self::CreateProofFromAuthZoneOfAmount {
                 amount,
                 resource_address,
                 into_proof,
-            } => ast::Instruction::CreateProofFromAuthZoneByAmount {
+            } => ast::Instruction::CreateProofFromAuthZoneOfAmount {
                 amount: amount.to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_proof: into_proof.to_ast_value(bech32_coder)?,
@@ -154,7 +208,7 @@ impl Instruction {
                 ids,
                 resource_address,
                 into_proof,
-            } => ast::Instruction::CreateProofFromAuthZoneByIds {
+            } => ast::Instruction::CreateProofFromAuthZoneOfNonFungibles {
                 ids: ManifestAstValue::Array {
                     element_kind: ManifestAstValueKind::NonFungibleLocalId,
                     elements: ids.clone().into_iter().collect::<Vec<_>>(),
@@ -169,6 +223,34 @@ impl Instruction {
                     new_proof: into_proof.to_ast_value(bech32_coder)?,
                 }
             }
+            Self::CreateProofFromBucketOfAll { bucket, into_proof } => {
+                ast::Instruction::CreateProofFromBucketOfAll {
+                    bucket: bucket.to_ast_value(bech32_coder)?,
+                    new_proof: into_proof.to_ast_value(bech32_coder)?,
+                }
+            }
+            Self::CreateProofFromBucketOfAmount {
+                amount,
+                bucket,
+                into_proof,
+            } => ast::Instruction::CreateProofFromBucketOfAmount {
+                amount: amount.to_ast_value(bech32_coder)?,
+                bucket: bucket.to_ast_value(bech32_coder)?,
+                new_proof: into_proof.to_ast_value(bech32_coder)?,
+            },
+            Self::CreateProofFromBucketOfNonFungibles {
+                ids,
+                bucket,
+                into_proof,
+            } => ast::Instruction::CreateProofFromBucketOfNonFungibles {
+                ids: ManifestAstValue::Array {
+                    element_kind: ManifestAstValueKind::NonFungibleLocalId,
+                    elements: ids.clone().into_iter().collect::<Vec<_>>(),
+                }
+                .to_ast_value(bech32_coder)?,
+                bucket: bucket.to_ast_value(bech32_coder)?,
+                new_proof: into_proof.to_ast_value(bech32_coder)?,
+            },
 
             Self::CloneProof { proof, into_proof } => ast::Instruction::CloneProof {
                 proof: proof.to_ast_value(bech32_coder)?,
@@ -189,10 +271,12 @@ impl Instruction {
                 royalty_config,
                 metadata,
             } => ast::Instruction::PublishPackage {
-                code: code.to_ast_value(bech32_coder)?,
-                schema: package_schema_bytes_to_native_ast(schema, bech32_coder)?,
-                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
+                args: vec![
+                    code.to_ast_value(bech32_coder)?,
+                    package_schema_bytes_to_native_ast(schema, bech32_coder)?,
+                    royalty_config.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                ],
             },
             Self::PublishPackageAdvanced {
                 code,
@@ -201,11 +285,13 @@ impl Instruction {
                 metadata,
                 authority_rules: access_rules,
             } => ast::Instruction::PublishPackageAdvanced {
-                code: code.to_ast_value(bech32_coder)?,
-                schema: package_schema_bytes_to_native_ast(schema, bech32_coder)?,
-                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
+                args: vec![
+                    code.to_ast_value(bech32_coder)?,
+                    package_schema_bytes_to_native_ast(schema, bech32_coder)?,
+                    royalty_config.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                    access_rules.to_ast_value(bech32_coder)?,
+                ],
             },
 
             Self::RecallResource { vault_id, amount } => ast::Instruction::RecallResource {
@@ -218,55 +304,77 @@ impl Instruction {
                 key,
                 value,
             } => ast::Instruction::SetMetadata {
-                entity_address: entity_address.to_ast_value(bech32_coder)?,
-                key: key.to_ast_value(bech32_coder)?,
-                value: value.to_ast_value(bech32_coder)?,
+                address: entity_address.to_ast_value(bech32_coder)?,
+                args: vec![
+                    key.to_ast_value(bech32_coder)?,
+                    value.to_ast_value(bech32_coder)?,
+                ],
             },
 
             Self::RemoveMetadata {
                 entity_address,
                 key,
             } => ast::Instruction::RemoveMetadata {
-                entity_address: entity_address.to_ast_value(bech32_coder)?,
-                key: key.to_ast_value(bech32_coder)?,
+                address: entity_address.to_ast_value(bech32_coder)?,
+                args: vec![key.to_ast_value(bech32_coder)?],
             },
 
             Self::SetPackageRoyaltyConfig {
                 package_address,
                 royalty_config,
             } => ast::Instruction::SetPackageRoyaltyConfig {
-                package_address: package_address.to_ast_value(bech32_coder)?,
-                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+                address: package_address.to_ast_value(bech32_coder)?,
+                args: vec![royalty_config.to_ast_value(bech32_coder)?],
             },
 
             Self::SetComponentRoyaltyConfig {
                 component_address,
                 royalty_config,
             } => ast::Instruction::SetComponentRoyaltyConfig {
-                component_address: component_address.to_ast_value(bech32_coder)?,
-                royalty_config: royalty_config.to_ast_value(bech32_coder)?,
+                address: component_address.to_ast_value(bech32_coder)?,
+                args: vec![royalty_config.to_ast_value(bech32_coder)?],
             },
 
             Self::ClaimPackageRoyalty { package_address } => {
                 ast::Instruction::ClaimPackageRoyalty {
-                    package_address: package_address.to_ast_value(bech32_coder)?,
+                    address: package_address.to_ast_value(bech32_coder)?,
+                    args: vec![],
                 }
             }
 
             Self::ClaimComponentRoyalty { component_address } => {
                 ast::Instruction::ClaimComponentRoyalty {
-                    component_address: component_address.to_ast_value(bech32_coder)?,
+                    address: component_address.to_ast_value(bech32_coder)?,
+                    args: vec![],
                 }
             }
 
-            Self::SetMethodAccessRule {
+            Self::SetAuthorityAccessRule {
                 entity_address,
-                key,
+                object_key,
+                authority_key,
                 rule,
-            } => ast::Instruction::SetMethodAccessRule {
-                entity_address: entity_address.to_ast_value(bech32_coder)?,
-                key: key.to_ast_value(bech32_coder)?,
-                rule: rule.to_ast_value(bech32_coder)?,
+            } => ast::Instruction::SetAuthorityAccessRule {
+                address: entity_address.to_ast_value(bech32_coder)?,
+                args: vec![
+                    object_key.to_ast_value(bech32_coder)?,
+                    authority_key.to_ast_value(bech32_coder)?,
+                    rule.to_ast_value(bech32_coder)?,
+                ],
+            },
+
+            Self::SetAuthorityMutability {
+                entity_address,
+                object_key,
+                authority_key,
+                mutability,
+            } => ast::Instruction::SetAuthorityMutability {
+                address: entity_address.to_ast_value(bech32_coder)?,
+                args: vec![
+                    object_key.to_ast_value(bech32_coder)?,
+                    authority_key.to_ast_value(bech32_coder)?,
+                    mutability.to_ast_value(bech32_coder)?,
+                ],
             },
 
             Self::CreateFungibleResource {
@@ -274,9 +382,11 @@ impl Instruction {
                 metadata,
                 access_rules,
             } => ast::Instruction::CreateFungibleResource {
-                divisibility: divisibility.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
+                args: vec![
+                    divisibility.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                    access_rules.to_ast_value(bech32_coder)?,
+                ],
             },
             Self::CreateFungibleResourceWithInitialSupply {
                 divisibility,
@@ -284,10 +394,12 @@ impl Instruction {
                 access_rules,
                 initial_supply,
             } => ast::Instruction::CreateFungibleResourceWithInitialSupply {
-                divisibility: divisibility.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
-                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+                args: vec![
+                    divisibility.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                    access_rules.to_ast_value(bech32_coder)?,
+                    initial_supply.to_ast_value(bech32_coder)?,
+                ],
             },
             Self::CreateNonFungibleResource {
                 id_type,
@@ -295,10 +407,12 @@ impl Instruction {
                 metadata,
                 access_rules,
             } => ast::Instruction::CreateNonFungibleResource {
-                id_type: id_type.to_ast_value(bech32_coder)?,
-                schema: schema.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
+                args: vec![
+                    id_type.to_ast_value(bech32_coder)?,
+                    schema.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                    access_rules.to_ast_value(bech32_coder)?,
+                ],
             },
             Self::CreateNonFungibleResourceWithInitialSupply {
                 id_type,
@@ -307,53 +421,56 @@ impl Instruction {
                 access_rules,
                 initial_supply,
             } => ast::Instruction::CreateNonFungibleResourceWithInitialSupply {
-                id_type: id_type.to_ast_value(bech32_coder)?,
-                schema: schema.to_ast_value(bech32_coder)?,
-                metadata: metadata.to_ast_value(bech32_coder)?,
-                access_rules: access_rules.to_ast_value(bech32_coder)?,
-                initial_supply: initial_supply.to_ast_value(bech32_coder)?,
+                args: vec![
+                    id_type.to_ast_value(bech32_coder)?,
+                    schema.to_ast_value(bech32_coder)?,
+                    metadata.to_ast_value(bech32_coder)?,
+                    access_rules.to_ast_value(bech32_coder)?,
+                    initial_supply.to_ast_value(bech32_coder)?,
+                ],
             },
             Self::MintFungible {
                 resource_address,
                 amount,
             } => ast::Instruction::MintFungible {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                amount: amount.to_ast_value(bech32_coder)?,
+                address: resource_address.to_ast_value(bech32_coder)?,
+                args: vec![amount.to_ast_value(bech32_coder)?],
             },
             Self::MintNonFungible {
                 resource_address,
                 entries,
             } => ast::Instruction::MintNonFungible {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                args: entries.to_ast_value(bech32_coder)?,
+                address: resource_address.to_ast_value(bech32_coder)?,
+                args: vec![entries.to_ast_value(bech32_coder)?],
             },
             Self::MintUuidNonFungible {
                 resource_address,
                 entries,
             } => ast::Instruction::MintUuidNonFungible {
-                resource_address: resource_address.to_ast_value(bech32_coder)?,
-                args: entries.to_ast_value(bech32_coder)?,
+                address: resource_address.to_ast_value(bech32_coder)?,
+                args: vec![entries.to_ast_value(bech32_coder)?],
             },
             Self::CreateAccessController {
                 controlled_asset,
                 rule_set,
                 timed_recovery_delay_in_minutes,
             } => ast::Instruction::CreateAccessController {
-                controlled_asset: controlled_asset.to_ast_value(bech32_coder)?,
-                rule_set: rule_set.to_ast_value(bech32_coder)?,
-                timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes
-                    .to_ast_value(bech32_coder)?,
+                args: vec![
+                    controlled_asset.to_ast_value(bech32_coder)?,
+                    rule_set.to_ast_value(bech32_coder)?,
+                    timed_recovery_delay_in_minutes.to_ast_value(bech32_coder)?,
+                ],
             },
-            Self::CreateIdentity => ast::Instruction::CreateIdentity {},
+            Self::CreateIdentity => ast::Instruction::CreateIdentity { args: vec![] },
             Self::CreateIdentityAdvanced { config } => ast::Instruction::CreateIdentityAdvanced {
-                config: config.to_ast_value(bech32_coder)?,
+                args: vec![config.to_ast_value(bech32_coder)?],
             },
             Self::CreateValidator { key } => ast::Instruction::CreateValidator {
-                key: key.to_ast_value(bech32_coder)?,
+                args: vec![key.to_ast_value(bech32_coder)?],
             },
-            Self::CreateAccount {} => ast::Instruction::CreateAccount {},
+            Self::CreateAccount {} => ast::Instruction::CreateAccount { args: vec![] },
             Self::CreateAccountAdvanced { config } => ast::Instruction::CreateAccountAdvanced {
-                config: config.to_ast_value(bech32_coder)?,
+                args: vec![config.to_ast_value(bech32_coder)?],
             },
         };
         Ok(ast_instruction)
@@ -385,14 +502,65 @@ impl Instruction {
                 },
             },
             ast::Instruction::CallMethod {
-                component_address,
+                address,
                 method_name,
                 args,
             } => Self::CallMethod {
-                component_address: ManifestAstValue::from_ast_value(
-                    component_address,
-                    bech32_coder,
-                )?,
+                component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
+                arguments: {
+                    let arguments = args
+                        .iter()
+                        .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    match arguments.len() {
+                        0 => None,
+                        _ => Some(arguments),
+                    }
+                },
+            },
+            ast::Instruction::CallRoyaltyMethod {
+                address,
+                method_name,
+                args,
+            } => Self::CallRoyaltyMethod {
+                component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
+                arguments: {
+                    let arguments = args
+                        .iter()
+                        .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    match arguments.len() {
+                        0 => None,
+                        _ => Some(arguments),
+                    }
+                },
+            },
+            ast::Instruction::CallMetadataMethod {
+                address,
+                method_name,
+                args,
+            } => Self::CallMetadataMethod {
+                component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
+                arguments: {
+                    let arguments = args
+                        .iter()
+                        .map(|v| ManifestAstValue::from_ast_value(v, bech32_coder))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    match arguments.len() {
+                        0 => None,
+                        _ => Some(arguments),
+                    }
+                },
+            },
+            ast::Instruction::CallAccessRulesMethod {
+                address,
+                method_name,
+                args,
+            } => Self::CallAccessRulesMethod {
+                component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
                 method_name: ManifestAstValue::from_ast_value(method_name, bech32_coder)?,
                 arguments: {
                     let arguments = args
@@ -406,14 +574,14 @@ impl Instruction {
                 },
             },
 
-            ast::Instruction::TakeFromWorktop {
+            ast::Instruction::TakeAllFromWorktop {
                 resource_address,
                 new_bucket,
             } => Self::TakeAllFromWorktop {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_bucket: ManifestAstValue::from_ast_value(new_bucket, bech32_coder)?,
             },
-            ast::Instruction::TakeFromWorktopByAmount {
+            ast::Instruction::TakeFromWorktop {
                 amount,
                 resource_address,
                 new_bucket,
@@ -422,7 +590,7 @@ impl Instruction {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_bucket: ManifestAstValue::from_ast_value(new_bucket, bech32_coder)?,
             },
-            ast::Instruction::TakeFromWorktopByIds {
+            ast::Instruction::TakeNonFungiblesFromWorktop {
                 ids,
                 resource_address,
                 new_bucket,
@@ -443,22 +611,21 @@ impl Instruction {
                 bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
             },
 
-            ast::Instruction::AssertWorktopContains { resource_address } => {
-                Self::AssertWorktopContains {
-                    resource_address: ManifestAstValue::from_ast_value(
-                        resource_address,
-                        bech32_coder,
-                    )?,
-                }
-            }
-            ast::Instruction::AssertWorktopContainsByAmount {
+            ast::Instruction::AssertWorktopContains {
+                resource_address,
+                amount,
+            } => Self::AssertWorktopContains {
+                amount: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
+                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
+            },
+            ast::Instruction::AssertWorktopContains {
                 amount,
                 resource_address,
             } => Self::AssertWorktopContains {
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
             },
-            ast::Instruction::AssertWorktopContainsByIds {
+            ast::Instruction::AssertWorktopContainsNonFungibles {
                 ids,
                 resource_address,
             } => Self::AssertWorktopContainsNonFungibles {
@@ -489,7 +656,14 @@ impl Instruction {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
             },
-            ast::Instruction::CreateProofFromAuthZoneByAmount {
+            ast::Instruction::CreateProofFromAuthZoneOfAll {
+                resource_address,
+                new_proof,
+            } => Self::CreateProofFromAuthZoneOfAll {
+                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
+                into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
+            },
+            ast::Instruction::CreateProofFromAuthZoneOfAmount {
                 amount,
                 resource_address,
                 new_proof,
@@ -498,7 +672,7 @@ impl Instruction {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
             },
-            ast::Instruction::CreateProofFromAuthZoneByIds {
+            ast::Instruction::CreateProofFromAuthZoneOfNonFungibles {
                 ids,
                 resource_address,
                 new_proof,
@@ -521,6 +695,38 @@ impl Instruction {
                     into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
                 }
             }
+            ast::Instruction::CreateProofFromBucketOfAll { bucket, new_proof } => {
+                Self::CreateProofFromBucketOfAll {
+                    bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
+                    into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateProofFromBucketOfAmount {
+                amount,
+                bucket,
+                new_proof,
+            } => Self::CreateProofFromBucketOfAmount {
+                amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
+                bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
+                into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
+            },
+            ast::Instruction::CreateProofFromBucketOfNonFungibles {
+                ids,
+                bucket,
+                new_proof,
+            } => Self::CreateProofFromBucketOfNonFungibles {
+                ids: if let ManifestAstValue::Array {
+                    element_kind: _,
+                    elements,
+                } = ManifestAstValue::from_ast_value(ids, bech32_coder)?
+                {
+                    elements.into_iter().collect::<Vec<ManifestAstValue>>()
+                } else {
+                    panic!("Expected type Array!")
+                },
+                bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
+                into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
+            },
 
             ast::Instruction::CloneProof { proof, new_proof } => Self::CloneProof {
                 proof: ManifestAstValue::from_ast_value(proof, bech32_coder)?,
@@ -534,189 +740,188 @@ impl Instruction {
             ast::Instruction::BurnResource { bucket } => Self::BurnResource {
                 bucket: ManifestAstValue::from_ast_value(bucket, bech32_coder)?,
             },
-            ast::Instruction::PublishPackage {
-                code,
-                schema,
-                royalty_config,
-                metadata,
-            } => Self::PublishPackage {
-                code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
-                schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
-                royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-            },
-            ast::Instruction::PublishPackageAdvanced {
-                code,
-                schema,
-                royalty_config,
-                metadata,
-                access_rules,
-            } => Self::PublishPackageAdvanced {
-                code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
-                schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
-                royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                authority_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
-            },
+            ast::Instruction::PublishPackage { args } => {
+                // let (code, schema, royalty_config, metadata) = ;
+                let (code, schema, royalty_config, metadata) = unpack!(args);
+                Self::PublishPackage {
+                    code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
+                    schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
+                    royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                }
+            }
+            ast::Instruction::PublishPackageAdvanced { args } => {
+                let (code, schema, royalty_config, metadata, authority_rules) = unpack!(args);
+                Self::PublishPackageAdvanced {
+                    code: ManifestAstValue::from_ast_value(code, bech32_coder)?,
+                    schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
+                    royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                    authority_rules: ManifestAstValue::from_ast_value(
+                        authority_rules,
+                        bech32_coder,
+                    )?,
+                }
+            }
             ast::Instruction::RecallResource { vault_id, amount } => Self::RecallResource {
                 vault_id: ManifestAstValue::from_ast_value(vault_id, bech32_coder)?,
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
             },
-            ast::Instruction::SetMetadata {
-                entity_address,
-                key,
-                value,
-            } => Self::SetMetadata {
-                entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
-                key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
-                value: ManifestAstValue::from_ast_value(value, bech32_coder)?,
-            },
-
-            ast::Instruction::RemoveMetadata {
-                entity_address,
-                key,
-            } => Self::RemoveMetadata {
-                entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
-                key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
-            },
-
-            ast::Instruction::SetPackageRoyaltyConfig {
-                package_address,
-                royalty_config,
-            } => Self::SetPackageRoyaltyConfig {
-                package_address: ManifestAstValue::from_ast_value(package_address, bech32_coder)?,
-                royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
-            },
-
-            ast::Instruction::SetComponentRoyaltyConfig {
-                component_address,
-                royalty_config,
-            } => Self::SetComponentRoyaltyConfig {
-                component_address: ManifestAstValue::from_ast_value(
-                    component_address,
-                    bech32_coder,
-                )?,
-                royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
-            },
-
-            ast::Instruction::ClaimPackageRoyalty { package_address } => {
-                Self::ClaimPackageRoyalty {
-                    package_address: ManifestAstValue::from_ast_value(
-                        package_address,
-                        bech32_coder,
-                    )?,
+            ast::Instruction::SetMetadata { address, args } => {
+                let (key, value) = unpack!(args);
+                Self::SetMetadata {
+                    entity_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
+                    value: ManifestAstValue::from_ast_value(value, bech32_coder)?,
                 }
             }
 
-            ast::Instruction::ClaimComponentRoyalty { component_address } => {
+            ast::Instruction::RemoveMetadata { address, args } => {
+                let (key,) = unpack!(args);
+                Self::RemoveMetadata {
+                    entity_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::SetPackageRoyaltyConfig { address, args } => {
+                let (royalty_config,) = unpack!(args);
+                Self::SetPackageRoyaltyConfig {
+                    package_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::SetComponentRoyaltyConfig { address, args } => {
+                let (royalty_config,) = unpack!(args);
+                Self::SetComponentRoyaltyConfig {
+                    component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::ClaimPackageRoyalty { address, args } => Self::ClaimPackageRoyalty {
+                package_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+            },
+
+            ast::Instruction::ClaimComponentRoyalty { address, .. } => {
                 Self::ClaimComponentRoyalty {
-                    component_address: ManifestAstValue::from_ast_value(
-                        component_address,
+                    component_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::SetAuthorityAccessRule { address, args } => {
+                let (object_key, authority_key, rule) = unpack!(args);
+                Self::SetAuthorityAccessRule {
+                    entity_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    object_key: ManifestAstValue::from_ast_value(object_key, bech32_coder)?,
+                    authority_key: ManifestAstValue::from_ast_value(authority_key, bech32_coder)?,
+                    rule: ManifestAstValue::from_ast_value(rule, bech32_coder)?,
+                }
+            }
+            ast::Instruction::SetAuthorityMutability { address, args } => {
+                let (object_key, authority_key, mutability) = unpack!(args);
+                Self::SetAuthorityMutability {
+                    entity_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    object_key: ManifestAstValue::from_ast_value(object_key, bech32_coder)?,
+                    authority_key: ManifestAstValue::from_ast_value(authority_key, bech32_coder)?,
+                    mutability: ManifestAstValue::from_ast_value(mutability, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::CreateFungibleResource { args } => {
+                let (divisibility, metadata, access_rules) = unpack!(args);
+                Self::CreateFungibleResource {
+                    divisibility: ManifestAstValue::from_ast_value(divisibility, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                    access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateFungibleResourceWithInitialSupply { args } => {
+                let (divisibility, metadata, access_rules, initial_supply) = unpack!(args);
+                Self::CreateFungibleResourceWithInitialSupply {
+                    divisibility: ManifestAstValue::from_ast_value(divisibility, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                    access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
+                    initial_supply: ManifestAstValue::from_ast_value(initial_supply, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateNonFungibleResource { args } => {
+                let (id_type, schema, metadata, access_rules) = unpack!(args);
+                Self::CreateNonFungibleResource {
+                    id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
+                    schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                    access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateNonFungibleResourceWithInitialSupply { args } => {
+                let (id_type, schema, metadata, access_rules, initial_supply) = unpack!(args);
+                Self::CreateNonFungibleResourceWithInitialSupply {
+                    id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
+                    schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
+                    metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
+                    access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
+                    initial_supply: ManifestAstValue::from_ast_value(initial_supply, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::MintFungible { address, args } => {
+                let (amount,) = unpack!(args);
+                Self::MintFungible {
+                    resource_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
+                }
+            }
+            ast::Instruction::MintNonFungible { address, args } => {
+                let (entries,) = unpack!(args);
+                Self::MintNonFungible {
+                    resource_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    entries: ManifestAstValue::from_ast_value(entries, bech32_coder)?,
+                }
+            }
+            ast::Instruction::MintUuidNonFungible { address, args } => {
+                let (entries,) = unpack!(args);
+                Self::MintUuidNonFungible {
+                    resource_address: ManifestAstValue::from_ast_value(address, bech32_coder)?,
+                    entries: ManifestAstValue::from_ast_value(entries, bech32_coder)?,
+                }
+            }
+
+            ast::Instruction::CreateIdentity { .. } => Self::CreateIdentity,
+            ast::Instruction::CreateIdentityAdvanced { args } => {
+                let (config,) = unpack!(args);
+                Self::CreateIdentityAdvanced {
+                    config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateAccessController { args } => {
+                let (controlled_asset, rule_set, timed_recovery_delay_in_minutes) = unpack!(args);
+                Self::CreateAccessController {
+                    controlled_asset: ManifestAstValue::from_ast_value(
+                        controlled_asset,
+                        bech32_coder,
+                    )?,
+                    rule_set: ManifestAstValue::from_ast_value(rule_set, bech32_coder)?,
+                    timed_recovery_delay_in_minutes: ManifestAstValue::from_ast_value(
+                        timed_recovery_delay_in_minutes,
                         bech32_coder,
                     )?,
                 }
             }
-
-            ast::Instruction::SetMethodAccessRule {
-                entity_address,
-                key,
-                rule,
-            } => Self::SetMethodAccessRule {
-                entity_address: ManifestAstValue::from_ast_value(entity_address, bech32_coder)?,
-                key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
-                rule: ManifestAstValue::from_ast_value(rule, bech32_coder)?,
-            },
-
-            ast::Instruction::CreateFungibleResource {
-                divisibility,
-                metadata,
-                access_rules,
-            } => Self::CreateFungibleResource {
-                divisibility: ManifestAstValue::from_ast_value(divisibility, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
-            },
-            ast::Instruction::CreateFungibleResourceWithInitialSupply {
-                divisibility,
-                metadata,
-                access_rules,
-                initial_supply,
-            } => Self::CreateFungibleResourceWithInitialSupply {
-                divisibility: ManifestAstValue::from_ast_value(divisibility, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
-                initial_supply: ManifestAstValue::from_ast_value(initial_supply, bech32_coder)?,
-            },
-            ast::Instruction::CreateNonFungibleResource {
-                id_type,
-                schema,
-                metadata,
-                access_rules,
-            } => Self::CreateNonFungibleResource {
-                id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
-                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
-            },
-            ast::Instruction::CreateNonFungibleResourceWithInitialSupply {
-                id_type,
-                schema,
-                metadata,
-                access_rules,
-                initial_supply,
-            } => Self::CreateNonFungibleResourceWithInitialSupply {
-                id_type: ManifestAstValue::from_ast_value(id_type, bech32_coder)?,
-                schema: ManifestAstValue::from_ast_value(schema, bech32_coder)?,
-                metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
-                initial_supply: ManifestAstValue::from_ast_value(initial_supply, bech32_coder)?,
-            },
-
-            ast::Instruction::MintFungible {
-                resource_address,
-                amount,
-            } => Self::MintFungible {
-                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
-            },
-            ast::Instruction::MintNonFungible {
-                resource_address,
-                args,
-            } => Self::MintNonFungible {
-                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                entries: ManifestAstValue::from_ast_value(args, bech32_coder)?,
-            },
-            ast::Instruction::MintUuidNonFungible {
-                resource_address,
-                args,
-            } => Self::MintUuidNonFungible {
-                resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
-                entries: ManifestAstValue::from_ast_value(args, bech32_coder)?,
-            },
-
-            ast::Instruction::CreateIdentity {} => Self::CreateIdentity,
-            ast::Instruction::CreateIdentityAdvanced { config } => Self::CreateIdentityAdvanced {
-                config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
-            },
-            ast::Instruction::CreateAccessController {
-                controlled_asset,
-                rule_set,
-                timed_recovery_delay_in_minutes,
-            } => Self::CreateAccessController {
-                controlled_asset: ManifestAstValue::from_ast_value(controlled_asset, bech32_coder)?,
-                rule_set: ManifestAstValue::from_ast_value(rule_set, bech32_coder)?,
-                timed_recovery_delay_in_minutes: ManifestAstValue::from_ast_value(
-                    timed_recovery_delay_in_minutes,
-                    bech32_coder,
-                )?,
-            },
-            ast::Instruction::CreateValidator { key } => Self::CreateValidator {
-                key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
-            },
-            ast::Instruction::CreateAccount {} => Self::CreateAccount,
-            ast::Instruction::CreateAccountAdvanced { config } => Self::CreateAccountAdvanced {
-                config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
-            },
+            ast::Instruction::CreateValidator { args } => {
+                let (key,) = unpack!(args);
+                Self::CreateValidator {
+                    key: ManifestAstValue::from_ast_value(key, bech32_coder)?,
+                }
+            }
+            ast::Instruction::CreateAccount { .. } => Self::CreateAccount,
+            ast::Instruction::CreateAccountAdvanced { args } => {
+                let (config,) = unpack!(args);
+                Self::CreateAccountAdvanced {
+                    config: ManifestAstValue::from_ast_value(config, bech32_coder)?,
+                }
+            }
         };
         Ok(instruction)
     }
@@ -745,9 +950,15 @@ fn package_schema_bytes_to_native_ast(
     let package_schema_manifest_string = {
         let mut string = String::new();
         let mut context =
-            DecompilationContext::new_with_optional_network(Some(bech32_coder.encoder()));
-        format_typed_value(&mut string, &mut context, &package_schema)
-            .expect("Impossible case! Valid SBOR can't fail here");
+            ManifestDecompilationDisplayContext::with_optional_bech32(Some(bech32_coder.encoder()));
+        format_manifest_value(
+            &mut string,
+            &to_manifest_value(&package_schema),
+            &context,
+            true,
+            0,
+        )
+        .expect("Impossible case! Valid SBOR can't fail here");
         string
     };
 
@@ -792,3 +1003,15 @@ fn package_schema_tuple_to_ret_ast(
         hex: encoded_package_schema,
     })
 }
+
+macro_rules! unpack {
+    ($values: expr) => {
+        $values.iter().collect_tuple().map_or(
+            Err(InstructionConversionError::TupleConversionError {
+                content: format!("{:?}", $values),
+            }),
+            Ok,
+        )?
+    };
+}
+use unpack;

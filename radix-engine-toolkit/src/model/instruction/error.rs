@@ -26,6 +26,7 @@ use crate::model::value::ast::{ManifestAstValueConversionError, ManifestAstValue
 pub enum InstructionConversionError {
     ManifestAstValueConversionError(ManifestAstValueConversionError),
     PackageSchemaResolutionError(PackageSchemaResolutionError),
+    TupleConversionError { content: String },
 }
 
 impl From<PackageSchemaResolutionError> for InstructionConversionError {

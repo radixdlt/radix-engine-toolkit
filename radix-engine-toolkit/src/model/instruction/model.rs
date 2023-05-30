@@ -560,17 +560,20 @@ pub enum Instruction {
 
     /// An instruction to modify the access rules of a method that an entity has.
     #[schemars(example = "crate::example::instruction::set_method_access_rule")]
-    SetMethodAccessRule {
-        /// The entity address of the entity to modify the access rules for.
+    SetAuthorityAccessRule {
         entity_address: ManifestAstValue,
-
-        /// The method key for the method to set the access rule of. This field is serialized as an
-        /// `Enum` from the ManifestAstValue model
-        key: ManifestAstValue,
-
-        /// The new access rule to set in-place of the old one. This field is serialized as an
-        /// `Enum` from the ManifestAstValue model
+        object_key: ManifestAstValue,
+        authority_key: ManifestAstValue,
         rule: ManifestAstValue,
+    },
+
+    /// An instruction to modify the access rules of a method that an entity has.
+    #[schemars(example = "crate::example::instruction::set_method_access_rule")]
+    SetAuthorityMutability {
+        entity_address: ManifestAstValue,
+        object_key: ManifestAstValue,
+        authority_key: ManifestAstValue,
+        mutability: ManifestAstValue,
     },
 
     /// An instruction to mint fungible resources
@@ -745,18 +748,4 @@ pub enum Instruction {
     /// Creates a new global account component with the specified access rules config.
     #[schemars(example = "crate::example::instruction::create_account_advanced")]
     CreateAccountAdvanced { config: ManifestAstValue },
-
-    SetAuthorityRule {
-        entity_address: ManifestAstValue,
-        object_key: ManifestAstValue,
-        authority_key: ManifestAstValue,
-        rule: ManifestAstValue,
-    },
-
-    SetAuthorityMutability {
-        entity_address: ManifestAstValue,
-        object_key: ManifestAstValue,
-        authority_key: ManifestAstValue,
-        mutability: ManifestAstValue,
-    },
 }

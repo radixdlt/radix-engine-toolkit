@@ -869,7 +869,7 @@ pub fn claim_component_royalty() -> Instruction {
 }
 
 pub fn set_method_access_rule() -> Instruction {
-    let instruction = Instruction::SetMethodAccessRule {
+    let instruction = Instruction::SetAuthorityAccessRule {
         entity_address: ManifestAstValue::Address {
             value: NetworkAwareNodeId(example_component_address().as_node_id().0, 1),
         },

@@ -642,7 +642,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::SetMethodAccessRule {
+        Instruction::SetAuthorityAccessRule {
             entity_address,
             key,
             rule,
