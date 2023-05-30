@@ -15,7 +15,7 @@
             "end_epoch_exclusive": "105",
             "network_id": "1",
             "nonce": "5144",
-            "notary_as_signatory": false,
+            "notary_is_signatory": false,
             "notary_public_key": {
               "curve": "EcdsaSecp256k1",
               "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
@@ -111,7 +111,7 @@
               "end_epoch_exclusive": "105",
               "network_id": "1",
               "nonce": "5144",
-              "notary_as_signatory": false,
+              "notary_is_signatory": false,
               "notary_public_key": {
                 "curve": "EcdsaSecp256k1",
                 "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
@@ -204,7 +204,7 @@
             "end_epoch_exclusive": "105",
             "network_id": "1",
             "nonce": "5144",
-            "notary_as_signatory": false,
+            "notary_is_signatory": false,
             "notary_public_key": {
               "curve": "EcdsaSecp256k1",
               "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
@@ -254,7 +254,7 @@
           "end_epoch_exclusive": "105",
           "network_id": "1",
           "nonce": "5144",
-          "notary_as_signatory": false,
+          "notary_is_signatory": false,
           "notary_public_key": {
             "curve": "EcdsaSecp256k1",
             "public_key": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
@@ -268,7 +268,7 @@
           "end_epoch_exclusive": "105",
           "network_id": "1",
           "nonce": "5144",
-          "notary_as_signatory": false,
+          "notary_is_signatory": false,
           "notary_public_key": {
             "curve": "EddsaEd25519",
             "public_key": "4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29"
@@ -284,7 +284,7 @@
         "end_epoch_exclusive",
         "network_id",
         "nonce",
-        "notary_as_signatory",
+        "notary_is_signatory",
         "notary_public_key",
         "start_epoch_inclusive",
         "tip_percentage",
@@ -319,7 +319,7 @@
             }
           ]
         },
-        "notary_as_signatory": {
+        "notary_is_signatory": {
           "description": "When `true` the notary's signature is also treated as an intent signature and therefore a virtual badge of the signature is added to the auth zone when the transaction auth zone at the beginning of the transaction.",
           "type": "boolean"
         },

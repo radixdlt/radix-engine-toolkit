@@ -330,7 +330,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::TakeFromWorktop {
+        Instruction::TakeAllFromWorktop {
             resource_address,
             into_bucket,
         } => {
@@ -344,7 +344,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::TakeFromWorktopByAmount {
+        Instruction::TakeFromWorktop {
             resource_address,
             amount,
             into_bucket,
@@ -361,7 +361,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::TakeFromWorktopByIds {
+        Instruction::TakeNonFungiblesFromWorktop {
             resource_address,
             ids,
             into_bucket,
@@ -394,7 +394,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::AssertWorktopContainsByAmount {
+        Instruction::AssertWorktopContains {
             resource_address,
             amount,
         } => {
@@ -408,7 +408,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::AssertWorktopContainsByIds {
+        Instruction::AssertWorktopContainsNonFungibles {
             resource_address,
             ids,
         } => {
@@ -448,7 +448,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::CreateProofFromAuthZoneByAmount {
+        Instruction::CreateProofFromAuthZoneOfAmount {
             resource_address,
             amount,
             into_proof,
@@ -465,7 +465,7 @@ pub fn traverse_instruction(
             )?;
         }
 
-        Instruction::CreateProofFromAuthZoneByIds {
+        Instruction::CreateProofFromAuthZoneOfNonFungibles {
             resource_address,
             ids,
             into_proof,
@@ -531,7 +531,7 @@ pub fn traverse_instruction(
             schema: abi,
             royalty_config,
             metadata,
-            access_rules,
+            authority_rules: access_rules,
         } => {
             traverse_value(code, value_visitors)?;
             traverse_value(abi, value_visitors)?;

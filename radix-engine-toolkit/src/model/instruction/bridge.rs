@@ -67,14 +67,14 @@ impl Instruction {
                     .map(|value| value.to_ast_value(bech32_coder))
                     .collect::<Result<Vec<_>, _>>()?,
             },
-            Self::TakeFromWorktop {
+            Self::TakeAllFromWorktop {
                 resource_address,
                 into_bucket,
             } => ast::Instruction::TakeFromWorktop {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_bucket: into_bucket.to_ast_value(bech32_coder)?,
             },
-            Self::TakeFromWorktopByAmount {
+            Self::TakeFromWorktop {
                 amount,
                 resource_address,
                 into_bucket,
@@ -83,7 +83,7 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_bucket: into_bucket.to_ast_value(bech32_coder)?,
             },
-            Self::TakeFromWorktopByIds {
+            Self::TakeNonFungiblesFromWorktop {
                 ids,
                 resource_address,
                 into_bucket,
@@ -105,14 +105,14 @@ impl Instruction {
                     resource_address: resource_address.to_ast_value(bech32_coder)?,
                 }
             }
-            Self::AssertWorktopContainsByAmount {
+            Self::AssertWorktopContains {
                 amount,
                 resource_address,
             } => ast::Instruction::AssertWorktopContainsByAmount {
                 amount: amount.to_ast_value(bech32_coder)?,
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
             },
-            Self::AssertWorktopContainsByIds {
+            Self::AssertWorktopContainsNonFungibles {
                 ids,
                 resource_address,
             } => ast::Instruction::AssertWorktopContainsByIds {
@@ -141,7 +141,7 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_proof: into_proof.to_ast_value(bech32_coder)?,
             },
-            Self::CreateProofFromAuthZoneByAmount {
+            Self::CreateProofFromAuthZoneOfAmount {
                 amount,
                 resource_address,
                 into_proof,
@@ -150,7 +150,7 @@ impl Instruction {
                 resource_address: resource_address.to_ast_value(bech32_coder)?,
                 new_proof: into_proof.to_ast_value(bech32_coder)?,
             },
-            Self::CreateProofFromAuthZoneByIds {
+            Self::CreateProofFromAuthZoneOfNonFungibles {
                 ids,
                 resource_address,
                 into_proof,
@@ -199,7 +199,7 @@ impl Instruction {
                 schema,
                 royalty_config,
                 metadata,
-                access_rules,
+                authority_rules: access_rules,
             } => ast::Instruction::PublishPackageAdvanced {
                 code: code.to_ast_value(bech32_coder)?,
                 schema: package_schema_bytes_to_native_ast(schema, bech32_coder)?,
@@ -409,7 +409,7 @@ impl Instruction {
             ast::Instruction::TakeFromWorktop {
                 resource_address,
                 new_bucket,
-            } => Self::TakeFromWorktop {
+            } => Self::TakeAllFromWorktop {
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_bucket: ManifestAstValue::from_ast_value(new_bucket, bech32_coder)?,
             },
@@ -417,7 +417,7 @@ impl Instruction {
                 amount,
                 resource_address,
                 new_bucket,
-            } => Self::TakeFromWorktopByAmount {
+            } => Self::TakeFromWorktop {
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_bucket: ManifestAstValue::from_ast_value(new_bucket, bech32_coder)?,
@@ -426,7 +426,7 @@ impl Instruction {
                 ids,
                 resource_address,
                 new_bucket,
-            } => Self::TakeFromWorktopByIds {
+            } => Self::TakeNonFungiblesFromWorktop {
                 ids: if let ManifestAstValue::Array {
                     element_kind: _,
                     elements,
@@ -454,14 +454,14 @@ impl Instruction {
             ast::Instruction::AssertWorktopContainsByAmount {
                 amount,
                 resource_address,
-            } => Self::AssertWorktopContainsByAmount {
+            } => Self::AssertWorktopContains {
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
             },
             ast::Instruction::AssertWorktopContainsByIds {
                 ids,
                 resource_address,
-            } => Self::AssertWorktopContainsByIds {
+            } => Self::AssertWorktopContainsNonFungibles {
                 ids: if let ManifestAstValue::Array {
                     element_kind: _,
                     elements,
@@ -493,7 +493,7 @@ impl Instruction {
                 amount,
                 resource_address,
                 new_proof,
-            } => Self::CreateProofFromAuthZoneByAmount {
+            } => Self::CreateProofFromAuthZoneOfAmount {
                 amount: ManifestAstValue::from_ast_value(amount, bech32_coder)?,
                 resource_address: ManifestAstValue::from_ast_value(resource_address, bech32_coder)?,
                 into_proof: ManifestAstValue::from_ast_value(new_proof, bech32_coder)?,
@@ -502,7 +502,7 @@ impl Instruction {
                 ids,
                 resource_address,
                 new_proof,
-            } => Self::CreateProofFromAuthZoneByIds {
+            } => Self::CreateProofFromAuthZoneOfNonFungibles {
                 ids: if let ManifestAstValue::Array {
                     element_kind: _,
                     elements,
@@ -556,7 +556,7 @@ impl Instruction {
                 schema: package_schema_tuple_to_ret_ast(schema, bech32_coder)?,
                 royalty_config: ManifestAstValue::from_ast_value(royalty_config, bech32_coder)?,
                 metadata: ManifestAstValue::from_ast_value(metadata, bech32_coder)?,
-                access_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
+                authority_rules: ManifestAstValue::from_ast_value(access_rules, bech32_coder)?,
             },
             ast::Instruction::RecallResource { vault_id, amount } => Self::RecallResource {
                 vault_id: ManifestAstValue::from_ast_value(vault_id, bech32_coder)?,

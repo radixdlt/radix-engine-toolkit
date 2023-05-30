@@ -206,7 +206,7 @@ fn header<P: Into<PublicKey>>(network_id: u8, notary_public_key: P) -> Transacti
         end_epoch_exclusive: 13,
         nonce: 0x02,
         notary_public_key: notary_public_key.into(),
-        notary_as_signatory: true,
+        notary_is_signatory: true,
         cost_unit_limit: DEFAULT_COST_UNIT_LIMIT,
         tip_percentage: 0,
     }

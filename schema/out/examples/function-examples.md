@@ -147,7 +147,7 @@ the payload and responses of these requests.
       "curve": "EcdsaSecp256k1",
       "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
     },
-    "notary_as_signatory": true,
+    "notary_is_signatory": true,
     "cost_unit_limit": "100000000",
     "tip_percentage": "0"
   },
@@ -210,7 +210,7 @@ the payload and responses of these requests.
       "curve": "EcdsaSecp256k1",
       "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
     },
-    "notary_as_signatory": true,
+    "notary_is_signatory": true,
     "cost_unit_limit": "100000000",
     "tip_percentage": "0"
   },
@@ -253,7 +253,7 @@ the payload and responses of these requests.
         "curve": "EcdsaSecp256k1",
         "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
       },
-      "notary_as_signatory": true,
+      "notary_is_signatory": true,
       "cost_unit_limit": "100000000",
       "tip_percentage": "0"
     },
@@ -347,7 +347,7 @@ the payload and responses of these requests.
         "curve": "EcdsaSecp256k1",
         "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
       },
-      "notary_as_signatory": true,
+      "notary_is_signatory": true,
       "cost_unit_limit": "100000000",
       "tip_percentage": "0"
     },
@@ -421,7 +421,7 @@ the payload and responses of these requests.
           "curve": "EcdsaSecp256k1",
           "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
         },
-        "notary_as_signatory": true,
+        "notary_is_signatory": true,
         "cost_unit_limit": "100000000",
         "tip_percentage": "0"
       },
@@ -521,7 +521,7 @@ the payload and responses of these requests.
           "curve": "EcdsaSecp256k1",
           "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
         },
-        "notary_as_signatory": true,
+        "notary_is_signatory": true,
         "cost_unit_limit": "100000000",
         "tip_percentage": "0"
       },
@@ -613,7 +613,7 @@ the payload and responses of these requests.
             "curve": "EcdsaSecp256k1",
             "public_key": "03c32f9761dd3f961a3d12747e54db6b821bd022ef92b9ebf591bfe186885baa21"
           },
-          "notary_as_signatory": true,
+          "notary_is_signatory": true,
           "cost_unit_limit": "100000000",
           "tip_percentage": "0"
         },

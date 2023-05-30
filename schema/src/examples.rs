@@ -47,7 +47,7 @@ pub fn notarized_intent() -> NotarizedTransaction {
             start_epoch_inclusive: 0x200,
             end_epoch_exclusive: 0x210,
             nonce: 0x22,
-            notary_as_signatory: true,
+            notary_is_signatory: true,
             notary_public_key: notary_private_key().public_key().into(),
             tip_percentage: 0x00,
         })
