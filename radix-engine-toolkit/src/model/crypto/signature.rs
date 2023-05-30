@@ -59,7 +59,7 @@ pub enum Signature {
 // Conversions
 // ============
 
-impl From<Signature> for native_transaction::model::Signature {
+impl From<Signature> for native_transaction::model::SignatureV1 {
     fn from(value: Signature) -> Self {
         match value {
             Signature::EcdsaSecp256k1 { signature } => Self::EcdsaSecp256k1(signature),
@@ -68,13 +68,13 @@ impl From<Signature> for native_transaction::model::Signature {
     }
 }
 
-impl From<native_transaction::model::Signature> for Signature {
-    fn from(value: native_transaction::model::Signature) -> Self {
+impl From<native_transaction::model::SignatureV1> for Signature {
+    fn from(value: native_transaction::model::SignatureV1) -> Self {
         match value {
-            native_transaction::model::Signature::EcdsaSecp256k1(signature) => {
+            native_transaction::model::SignatureV1::EcdsaSecp256k1(signature) => {
                 Self::EcdsaSecp256k1 { signature }
             }
-            native_transaction::model::Signature::EddsaEd25519(signature) => {
+            native_transaction::model::SignatureV1::EddsaEd25519(signature) => {
                 Self::EddsaEd25519 { signature }
             }
         }

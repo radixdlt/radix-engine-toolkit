@@ -71,7 +71,7 @@ pub enum SignatureWithPublicKey {
 // Conversions
 // ============
 
-impl From<SignatureWithPublicKey> for native_transaction::model::SignatureWithPublicKey {
+impl From<SignatureWithPublicKey> for native_transaction::model::SignatureWithPublicKeyV1 {
     fn from(value: SignatureWithPublicKey) -> Self {
         match value {
             SignatureWithPublicKey::EcdsaSecp256k1 { signature } => {
@@ -88,13 +88,13 @@ impl From<SignatureWithPublicKey> for native_transaction::model::SignatureWithPu
     }
 }
 
-impl From<native_transaction::model::SignatureWithPublicKey> for SignatureWithPublicKey {
-    fn from(value: native_transaction::model::SignatureWithPublicKey) -> Self {
+impl From<native_transaction::model::SignatureWithPublicKeyV1> for SignatureWithPublicKey {
+    fn from(value: native_transaction::model::SignatureWithPublicKeyV1) -> Self {
         match value {
-            native_transaction::model::SignatureWithPublicKey::EcdsaSecp256k1 { signature } => {
+            native_transaction::model::SignatureWithPublicKeyV1::EcdsaSecp256k1 { signature } => {
                 Self::EcdsaSecp256k1 { signature }
             }
-            native_transaction::model::SignatureWithPublicKey::EddsaEd25519 {
+            native_transaction::model::SignatureWithPublicKeyV1::EddsaEd25519 {
                 signature,
                 public_key,
             } => Self::EddsaEd25519 {
