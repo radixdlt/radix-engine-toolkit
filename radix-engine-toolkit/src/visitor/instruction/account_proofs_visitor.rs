@@ -37,16 +37,12 @@ impl InstructionVisitor for AccountProofsInstructionVisitor {
         &mut self,
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
-        args: &mut Option<Vec<ManifestAstValue>>,
+        args: &mut Vec<ManifestAstValue>,
     ) -> Result<(), VisitorError> {
         // Checking for instructions that create proofs from accounts. Since all that is of interest
         // to us is the resource address then only the first argument needs to be analyzed.
         let args = args.clone();
-        match (
-            component_address,
-            method_name,
-            args.unwrap_or_default().get(0),
-        ) {
+        match (component_address, method_name, args.get(0)) {
             (
                 ManifestAstValue::Address {
                     value: component_address,

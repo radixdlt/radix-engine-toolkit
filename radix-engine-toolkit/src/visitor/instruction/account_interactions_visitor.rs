@@ -65,7 +65,7 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         &mut self,
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
-        _args: &mut Option<Vec<ManifestAstValue>>,
+        _: &mut Vec<ManifestAstValue>,
     ) -> Result<(), VisitorError> {
         // Checking for methods that require auth
         match (component_address, method_name) {
@@ -140,12 +140,31 @@ impl InstructionVisitor for AccountInteractionsInstructionVisitor {
         Ok(())
     }
 
-    fn visit_set_method_access_rule(
+    fn visit_set_authority_access_rule(
         &mut self,
         entity_address: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> Result<(), VisitorError> {
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<(), crate::error::VisitorError> {
+        match entity_address {
+            ManifestAstValue::Address {
+                value: component_address,
+            } if is_account(*component_address) => {
+                self.auth_required.insert(*component_address);
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn visit_set_authority_mutability(
+        &mut self,
+        entity_address: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<(), crate::error::VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
                 value: component_address,

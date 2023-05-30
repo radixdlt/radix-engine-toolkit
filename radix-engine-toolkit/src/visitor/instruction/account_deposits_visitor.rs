@@ -107,11 +107,11 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
         _: &mut ManifestAstValue,
-        arguments: &mut Option<Vec<ManifestAstValue>>,
+        arguments: &mut Vec<ManifestAstValue>,
     ) -> Result<(), VisitorError> {
         // Consuming buckets
         let consumed_buckets = {
-            let mut arguments = arguments.clone().unwrap_or_default();
+            let mut arguments = arguments.clone();
             let mut visitor = BucketValueVisitor::default();
             for value in arguments.iter_mut() {
                 traverse_value(value, &mut [&mut visitor])?;
@@ -133,9 +133,9 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         &mut self,
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
-        arguments: &mut Option<Vec<ManifestAstValue>>,
+        arguments: &mut Vec<ManifestAstValue>,
     ) -> Result<(), VisitorError> {
-        let arguments = arguments.clone().unwrap_or_default();
+        let arguments = arguments.clone();
 
         // Checking for account deposits
         match (component_address, method_name, &arguments) {
@@ -280,7 +280,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         Ok(())
     }
 
-    fn visit_take_from_worktop(
+    fn visit_take_all_from_worktop(
         &mut self,
         resource_address: &mut ManifestAstValue,
         into_bucket: &mut ManifestAstValue,
@@ -332,7 +332,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         }
     }
 
-    fn visit_take_from_worktop_by_amount(
+    fn visit_take_from_worktop(
         &mut self,
         resource_address: &mut ManifestAstValue,
         amount: &mut ManifestAstValue,
@@ -369,7 +369,7 @@ impl InstructionVisitor for AccountDepositsInstructionVisitor {
         }
     }
 
-    fn visit_take_from_worktop_by_ids(
+    fn visit_take_non_fungibles_from_worktop(
         &mut self,
         resource_address: &mut ManifestAstValue,
         ids: &mut Vec<ManifestAstValue>,

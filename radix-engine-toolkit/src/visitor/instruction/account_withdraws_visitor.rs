@@ -49,9 +49,9 @@ impl InstructionVisitor for AccountWithdrawsInstructionVisitor {
         &mut self,
         component_address: &mut ManifestAstValue,
         method_name: &mut ManifestAstValue,
-        args: &mut Option<Vec<ManifestAstValue>>,
+        args: &mut Vec<ManifestAstValue>,
     ) -> Result<(), VisitorError> {
-        let args = args.clone().unwrap_or_default();
+        let args = args.clone();
         match (
             component_address,
             method_name,

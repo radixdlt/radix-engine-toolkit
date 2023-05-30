@@ -78,12 +78,31 @@ impl InstructionVisitor for IdentityInteractionsInstructionVisitor {
         Ok(())
     }
 
-    fn visit_set_method_access_rule(
+    fn visit_set_authority_access_rule(
         &mut self,
         entity_address: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
         _: &mut crate::model::value::ast::ManifestAstValue,
-    ) -> Result<(), VisitorError> {
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<(), crate::error::VisitorError> {
+        match entity_address {
+            ManifestAstValue::Address {
+                value: component_address,
+            } if is_identity(*component_address) => {
+                self.0.insert(*component_address);
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+
+    fn visit_set_authority_mutability(
+        &mut self,
+        entity_address: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+        _: &mut crate::model::value::ast::ManifestAstValue,
+    ) -> Result<(), crate::error::VisitorError> {
         match entity_address {
             ManifestAstValue::Address {
                 value: component_address,
