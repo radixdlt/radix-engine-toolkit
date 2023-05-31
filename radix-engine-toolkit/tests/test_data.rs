@@ -36,8 +36,8 @@ pub fn notarized_transaction() -> NotarizedTransactionV1 {
         )
         .header(TransactionHeaderV1 {
             network_id: 0x01,
-            start_epoch_inclusive: 100,
-            end_epoch_exclusive: 200,
+            start_epoch_inclusive: Epoch::of(100),
+            end_epoch_exclusive: Epoch::of(200),
             nonce: 100,
             notary_public_key: private_key1().public_key().into(),
             notary_is_signatory: true,

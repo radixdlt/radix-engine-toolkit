@@ -39,5 +39,5 @@ where
 pub fn statically_validate(
     manifest: &TransactionManifestV1,
 ) -> Result<(), TransactionValidationError> {
-    NotarizedTransactionValidator::validate_instructions(&manifest.instructions)
+    NotarizedTransactionValidator::validate_instructions_v1(&manifest.instructions)
 }

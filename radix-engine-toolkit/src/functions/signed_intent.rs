@@ -21,13 +21,10 @@ use transaction::errors::*;
 use transaction::model::*;
 use transaction::validation::*;
 
-type SignedIntentPayload =
-    FixedEnumVariant<{ TransactionDiscriminator::V1SignedIntent as u8 }, SignedIntentV1>;
-
-pub fn hash(signed_intent: &SignedIntentV1) -> Result<Hash, ConvertToPreparedError> {
+pub fn hash(signed_intent: &SignedIntentV1) -> Result<Hash, PrepareError> {
     signed_intent
         .prepare()
-        .map(|prepared| Hash(prepared.signed_intent_hash().0))
+        .map(|prepared| prepared.signed_intent_hash().0)
 }
 
 pub fn compile(signed_intent: &SignedIntentV1) -> Result<Vec<u8>, EncodeError> {
@@ -38,8 +35,7 @@ pub fn decompile<T>(payload_bytes: T) -> Result<SignedIntentV1, DecodeError>
 where
     T: AsRef<[u8]>,
 {
-    manifest_decode::<SignedIntentPayload>(payload_bytes.as_ref())
-        .map(|decompiled| decompiled.fields)
+    SignedIntentV1::from_payload_bytes(payload_bytes.as_ref())
 }
 
 pub fn statically_validate(
@@ -47,13 +43,8 @@ pub fn statically_validate(
     validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
     let validator = NotarizedTransactionValidator::new(validation_config);
-    let prepared = signed_intent.prepare().map_err(|error| match error {
-        ConvertToPreparedError::EncodeError(error) => {
-            TransactionValidationError::EncodeError(error)
-        }
-        ConvertToPreparedError::PrepareError(error) => {
-            TransactionValidationError::PrepareError(error)
-        }
-    })?;
-    validator.validate_intent(&prepared.intent)
+    signed_intent
+        .prepare()
+        .map_err(TransactionValidationError::PrepareError)
+        .and_then(|prepared| validator.validate_intent_v1(&prepared.intent))
 }
