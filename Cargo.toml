@@ -1,6 +1,0 @@
-[workspace]
-members = [
-    "radix-engine-toolkit",
-    "schema",
-    "toolkit-derive",
-]
