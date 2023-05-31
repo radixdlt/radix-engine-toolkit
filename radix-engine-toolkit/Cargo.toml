@@ -8,9 +8,14 @@ edition = "2021"
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-57c76524", features = ["serde"] }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-57c76524", features = ["serde"] }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-57c76524" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-57c76524", features = ["serde"] }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
+
+# The serde-json dependency without the serde dependency. This is used for the SBOR serialization
+# in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
+serde_json = { version = "1.0.96" }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
