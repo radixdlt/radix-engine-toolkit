@@ -3,4 +3,12 @@
         "radix-engine-toolkit/Cargo.toml",
         "native-json-library/Cargo.toml",
     ],
+    "cSpell.words": [
+        "Releasenet",
+        "RCNet",
+        "Milestonenet",
+        "Devopsnet",
+        "Sandpitnet",
+        "Localnet"
+    ],
 }

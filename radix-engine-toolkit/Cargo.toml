@@ -4,6 +4,13 @@ version = "0.10.0"
 edition = "2021"
 
 [dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-50006018" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-50006018" }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-50006018" }
+
+# Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
+bech32 = { version = "0.9.1" }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
