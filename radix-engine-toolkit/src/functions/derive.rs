@@ -25,7 +25,7 @@ where
 }
 
 pub fn virtual_account_address_from_olympia_account_address<S>(
-    olympia_account_address: &S,
+    olympia_account_address: S,
 ) -> Result<ComponentAddress, DerivationError>
 where
     S: AsRef<str>,
@@ -35,7 +35,7 @@ where
 }
 
 pub fn public_key_from_olympia_account_address<S>(
-    olympia_account_address: &S,
+    olympia_account_address: S,
 ) -> Result<EcdsaSecp256k1PublicKey, DerivationError>
 where
     S: AsRef<str>,
@@ -99,7 +99,7 @@ where
 }
 
 pub fn olympia_account_address_from_public_key(
-    public_key: EcdsaSecp256k1PublicKey,
+    public_key: &EcdsaSecp256k1PublicKey,
     olympia_network: OlympiaNetwork,
 ) -> String {
     let public_key = {
