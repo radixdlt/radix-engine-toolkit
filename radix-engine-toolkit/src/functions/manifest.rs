@@ -15,5 +15,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod utils;
+use sbor::*;
+use scrypto::prelude::*;
+use transaction::builder::*;
+use transaction::errors::*;
+use transaction::validation::*;
+
+pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
+    compile(manifest).map(scrypto::prelude::hash)
+}
+
+pub fn compile(manifest: &TransactionManifestV1) -> Result<Vec<u8>, EncodeError> {
+    manifest_encode(manifest)
+}
+
+pub fn decompile<T>(payload_bytes: T) -> Result<TransactionManifestV1, DecodeError>
+where
+    T: AsRef<[u8]>,
+{
+    manifest_decode(payload_bytes.as_ref())
+}
+
+pub fn statically_validate(
+    manifest: &TransactionManifestV1,
+) -> Result<(), TransactionValidationError> {
+    NotarizedTransactionValidator::validate_instructions(&manifest.instructions)
+}

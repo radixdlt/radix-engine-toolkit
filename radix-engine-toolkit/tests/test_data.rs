@@ -59,19 +59,7 @@ pub fn intent() -> IntentV1 {
 }
 
 pub fn manifest() -> TransactionManifestV1 {
-    let IntentV1 {
-        instructions,
-        blobs,
-        ..
-    } = intent();
-    TransactionManifestV1 {
-        instructions: instructions.0,
-        blobs: blobs
-            .blobs
-            .into_iter()
-            .map(|blob| (hash(&blob.0), blob.0))
-            .collect(),
-    }
+    radix_engine_toolkit::utils::manifest_from_intent(&intent())
 }
 
 pub fn private_key1() -> EcdsaSecp256k1PrivateKey {

@@ -15,5 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod utils;
+use scrypto::prelude::hash;
+use transaction::{builder::TransactionManifestV1, model::IntentV1};
+
+pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
+    let IntentV1 {
+        instructions,
+        blobs,
+        ..
+    } = intent;
+    TransactionManifestV1 {
+        instructions: instructions.0.clone(),
+        blobs: blobs
+            .blobs
+            .iter()
+            .map(|blob| (hash(&blob.0), blob.0.clone()))
+            .collect(),
+    }
+}
