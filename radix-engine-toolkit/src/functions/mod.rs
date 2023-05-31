@@ -16,4 +16,7 @@
 // under the License.
 
 pub mod derive;
+
+pub mod intent;
 pub mod notarized_transaction;
+pub mod signed_intent;
