@@ -4,11 +4,22 @@
         "native-json-library/Cargo.toml",
     ],
     "cSpell.words": [
-        "Releasenet",
-        "RCNet",
-        "Milestonenet",
+        "adapanet",
+        "ansharnet",
         "Devopsnet",
+        "Localnet",
+        "Milestonenet",
+        "nebunet",
+        "RCNet",
+        "Releasenet",
         "Sandpitnet",
-        "Localnet"
+        "ansharnet",
+        "kisharnet",
+        "gilganet",
+        "enkinet",
+        "hammunet",
+        "nergalnet",
+        "dumunet",
+        "mardunet"
     ],
 }

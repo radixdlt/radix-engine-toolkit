@@ -18,6 +18,8 @@
 use bech32::{FromBase32, ToBase32};
 use scrypto::prelude::*;
 
+use crate::utils;
+
 pub fn virtual_account_address_from_public_key<P>(public_key: &P) -> ComponentAddress
 where
     P: Into<PublicKey> + Clone,
@@ -130,6 +132,18 @@ pub fn olympia_account_address_from_public_key(
         bech32::Variant::Bech32,
     )
     .unwrap()
+}
+
+pub fn node_address_from_public_key(
+    public_key: &EcdsaSecp256k1PublicKey,
+    network_id: u8,
+) -> String {
+    let hrp = {
+        let network_identifier = utils::network_definition_from_network_id(network_id).hrp_suffix;
+        format!("node_{network_identifier}")
+    };
+
+    bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m).unwrap()
 }
 
 pub enum OlympiaNetwork {
