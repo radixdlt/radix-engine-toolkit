@@ -15,14 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod information;
+use radix_engine_toolkit::functions::information;
 
-pub mod derive;
-
-pub mod intent;
-pub mod manifest;
-pub mod notarized_transaction;
-pub mod signed_intent;
-
-pub mod manifest_sbor;
-pub mod scrypto_sbor;
+#[test]
+fn information_can_be_obtained() {
+    information::information();
+}
