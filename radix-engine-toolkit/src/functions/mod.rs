@@ -22,4 +22,5 @@ pub mod manifest;
 pub mod notarized_transaction;
 pub mod signed_intent;
 
+pub mod manifest_sbor;
 pub mod scrypto_sbor;
