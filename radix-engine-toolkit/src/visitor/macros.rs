@@ -15,6 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod utils;
-pub mod visitor;
+macro_rules! traverse {
+    (
+        $instructions: expr,
+        $( $visitor: ident ),* $(,)?
+    ) => {
+        {
+            super::traverser::traverse($instructions, &mut [$(&mut $visitor),*])?;
+
+            (
+                $(
+                    $visitor.output()
+                ),*
+            )
+        }
+    };
+}
+pub(crate) use traverse;
