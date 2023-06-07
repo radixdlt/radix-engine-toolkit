@@ -284,6 +284,7 @@ mod constants {
                 false
             }
             SchemaTypeKind::<ScryptoCustomSchema>::Enum { variants } => {
+                #[allow(clippy::for_kv_map)]
                 for (_, local_type_indices) in variants {
                     for local_type_index in local_type_indices {
                         let contains_bucket = path_contains_a_bucket(*local_type_index, schema);

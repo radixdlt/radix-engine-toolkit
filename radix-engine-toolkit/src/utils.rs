@@ -124,3 +124,14 @@ pub fn is_account(node_id: &NodeId) -> bool {
         )
     )
 }
+
+pub fn is_identity(node_id: &NodeId) -> bool {
+    matches!(
+        node_id.entity_type(),
+        Some(
+            EntityType::GlobalIdentity
+                | EntityType::GlobalVirtualSecp256k1Identity
+                | EntityType::GlobalVirtualEd25519Identity
+        )
+    )
+}
