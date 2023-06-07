@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::error::Error;
+use super::error::InstructionVisitorError;
 use super::traits::InstructionVisitor;
 use std::fmt::Debug;
 use transaction::prelude::InstructionV1;
@@ -23,10 +23,10 @@ use transaction::prelude::InstructionV1;
 pub fn traverse(
     instructions: &[InstructionV1],
     visitors: &mut [&mut dyn InstructionVisitor<
-        Error = impl Debug + Into<Error>,
+        Error = impl Debug + Into<InstructionVisitorError>,
         Output = impl Sized,
     >],
-) -> Result<(), Error> {
+) -> Result<(), InstructionVisitorError> {
     for instruction in instructions {
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {

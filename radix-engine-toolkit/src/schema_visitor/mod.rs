@@ -15,7 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod instruction_visitor;
-pub mod schema_visitor;
-pub mod utils;
+pub mod core;
+pub mod visitors;

@@ -17,7 +17,7 @@
 
 use std::convert::Infallible;
 
-use crate::{utils::is_account, visitor::core::traits::InstructionVisitor};
+use crate::{instruction_visitor::core::traits::InstructionVisitor, utils::is_account};
 use scrypto::{api::ObjectModuleId, prelude::*};
 
 pub struct AccountInteractionsVisitor {
@@ -153,12 +153,13 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
 mod constants {
     use radix_engine::blueprints::account::AccountNativePackage;
-    use radix_engine_common::prelude::{
-        OwnValidation, ScryptoCustomSchema, ScryptoCustomTypeKind, ScryptoCustomTypeValidation,
-    };
-    use sbor::{LocalTypeIndex, Schema, SchemaTypeKind, TypeValidation};
+    use radix_engine_common::prelude::ScryptoCustomSchema;
+    use sbor::{LocalTypeIndex, Schema};
     use scrypto::blueprints::account::*;
     use scrypto::schema::{BlueprintSchema, ReceiverInfo, SchemaMethodKey, SchemaMethodPermission};
+
+    use crate::schema_visitor::core::traverser::traverse;
+    use crate::schema_visitor::visitors::bucket_in_path_visitor::BucketInPathVisitor;
 
     lazy_static::lazy_static! {
         static ref ACCOUNT_BLUEPRINT_SCHEMA: BlueprintSchema = get_account_blueprint_schema();
@@ -256,62 +257,8 @@ mod constants {
         local_type_index: LocalTypeIndex,
         schema: &Schema<ScryptoCustomSchema>,
     ) -> bool {
-        let type_kind = schema.resolve_type_kind(local_type_index).unwrap();
-        match type_kind {
-            SchemaTypeKind::<ScryptoCustomSchema>::Any
-            | SchemaTypeKind::<ScryptoCustomSchema>::Bool
-            | SchemaTypeKind::<ScryptoCustomSchema>::I8
-            | SchemaTypeKind::<ScryptoCustomSchema>::I16
-            | SchemaTypeKind::<ScryptoCustomSchema>::I32
-            | SchemaTypeKind::<ScryptoCustomSchema>::I64
-            | SchemaTypeKind::<ScryptoCustomSchema>::I128
-            | SchemaTypeKind::<ScryptoCustomSchema>::U8
-            | SchemaTypeKind::<ScryptoCustomSchema>::U16
-            | SchemaTypeKind::<ScryptoCustomSchema>::U32
-            | SchemaTypeKind::<ScryptoCustomSchema>::U64
-            | SchemaTypeKind::<ScryptoCustomSchema>::U128
-            | SchemaTypeKind::<ScryptoCustomSchema>::String => false,
-            SchemaTypeKind::<ScryptoCustomSchema>::Array { element_type } => {
-                path_contains_a_bucket(*element_type, schema)
-            }
-            SchemaTypeKind::<ScryptoCustomSchema>::Tuple { field_types } => {
-                for field_type in field_types {
-                    let contains_bucket = path_contains_a_bucket(*field_type, schema);
-                    if contains_bucket {
-                        return true;
-                    }
-                }
-                false
-            }
-            SchemaTypeKind::<ScryptoCustomSchema>::Enum { variants } => {
-                #[allow(clippy::for_kv_map)]
-                for (_, local_type_indices) in variants {
-                    for local_type_index in local_type_indices {
-                        let contains_bucket = path_contains_a_bucket(*local_type_index, schema);
-                        if contains_bucket {
-                            return true;
-                        }
-                    }
-                }
-                false
-            }
-            SchemaTypeKind::<ScryptoCustomSchema>::Map {
-                key_type,
-                value_type,
-            } => {
-                path_contains_a_bucket(*key_type, schema)
-                    || path_contains_a_bucket(*value_type, schema)
-            }
-            SchemaTypeKind::<ScryptoCustomSchema>::Custom(ScryptoCustomTypeKind::Own) => {
-                let type_validation = schema.resolve_type_validation(local_type_index).unwrap();
-                matches!(
-                    type_validation,
-                    TypeValidation::<ScryptoCustomTypeValidation>::Custom(
-                        ScryptoCustomTypeValidation::Own(OwnValidation::IsBucket),
-                    )
-                )
-            }
-            SchemaTypeKind::<ScryptoCustomSchema>::Custom(_) => false,
-        }
+        let mut visitor = BucketInPathVisitor::default();
+        traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
+        visitor.path_contains_bucket()
     }
 }

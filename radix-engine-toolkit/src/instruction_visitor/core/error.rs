@@ -15,7 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod instruction_visitor;
-pub mod schema_visitor;
-pub mod utils;
+use std::convert::Infallible;
+
+pub enum InstructionVisitorError {
+    Infallible(Infallible),
+}
+
+impl From<Infallible> for InstructionVisitorError {
+    fn from(error: Infallible) -> Self {
+        Self::Infallible(error)
+    }
+}

@@ -15,14 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::convert::Infallible;
-
-pub enum Error {
-    Infallible(Infallible),
-}
-
-impl From<Infallible> for Error {
-    fn from(error: Infallible) -> Self {
-        Self::Infallible(error)
-    }
-}
+pub mod bucket_in_path_visitor;
+pub mod proof_in_path_visitor;

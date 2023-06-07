@@ -17,7 +17,7 @@
 
 use std::convert::Infallible;
 
-use crate::{utils::is_identity, visitor::core::traits::InstructionVisitor};
+use crate::{instruction_visitor::core::traits::InstructionVisitor, utils::is_identity};
 use scrypto::{api::ObjectModuleId, prelude::*};
 
 pub struct IdentityInteractionsVisitor(HashSet<ComponentAddress>);

@@ -15,7 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod instruction_visitor;
-pub mod schema_visitor;
-pub mod utils;
+use sbor::LocalTypeIndex;
+use std::convert::Infallible;
+
+#[derive(Debug, Clone)]
+pub enum SchemaVisitorError {
+    Infallible(Infallible),
+    InvalidLocalTypeIndex(LocalTypeIndex),
+}
+
+impl From<Infallible> for SchemaVisitorError {
+    fn from(error: Infallible) -> Self {
+        Self::Infallible(error)
+    }
+}

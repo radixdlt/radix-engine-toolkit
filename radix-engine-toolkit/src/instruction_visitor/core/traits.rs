@@ -17,11 +17,11 @@
 
 #![allow(unused)]
 
-use super::error::Error;
+use super::error::InstructionVisitorError;
 use scrypto::prelude::*;
 
 pub trait InstructionVisitor {
-    type Error: Debug + Into<Error>;
+    type Error: Debug + Into<InstructionVisitorError>;
     type Output: Sized;
 
     //==============
