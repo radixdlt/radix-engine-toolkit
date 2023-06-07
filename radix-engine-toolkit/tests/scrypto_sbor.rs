@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::{
-    prelude::{scrypto_encode, Bech32Encoder, ScryptoCustomSchema, ScryptoValue},
-    ScryptoSbor,
+use radix_engine_common::prelude::{
+    scrypto_encode, Bech32Encoder, ScryptoCustomSchema, ScryptoValue,
 };
+use radix_engine_common::ScryptoSbor;
 use sbor::{generate_full_schema_from_single_type, representations::SerializationMode};
 
 #[test]

@@ -15,5 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod core;
-pub mod visitors;
+pub mod account_interactions_visitor;

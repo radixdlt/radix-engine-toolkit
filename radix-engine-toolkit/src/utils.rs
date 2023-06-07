@@ -112,3 +112,15 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         },
     }
 }
+
+pub fn is_account(node_id: &NodeId) -> bool {
+    matches!(
+        node_id.entity_type(),
+        Some(
+            EntityType::GlobalAccount
+                | EntityType::InternalAccount
+                | EntityType::GlobalVirtualSecp256k1Account
+                | EntityType::GlobalVirtualEd25519Account
+        )
+    )
+}
