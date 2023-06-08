@@ -15,21 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use heck::ToSnakeCase;
 use native_json_library::functions::traits::Function;
 use serde::{Deserialize, Serialize};
 
+use crate::utils;
+
 pub trait HasExamples<'f, const N: usize>
 where
-    Self: Function<'f>,
+    Self: Function<'f> + Sized,
 {
     fn function_name() -> String {
-        std::any::type_name::<Self::Input>()
-            .split("::")
-            .last()
-            .unwrap()
-            .to_owned()
-            .to_snake_case()
+        utils::snake_case_type_name::<Self>()
     }
 
     fn example_inputs() -> [Self::Input; N];

@@ -19,6 +19,7 @@ native-json-library = { path = "../native-json-library" }
 serde = { version = "1.0.163" }
 serde_json = { version = "1.0.96" }
 serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
 
 # Used to change the casing of strings
 heck = { version = "0.4.1" }

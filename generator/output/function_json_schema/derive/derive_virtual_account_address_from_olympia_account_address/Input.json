@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeriveVirtualAccountAddressFromOlympiaAccountAddressInput",
+  "type": "object",
+  "required": [
+    "network_id",
+    "olympia_account_address"
+  ],
+  "properties": {
+    "olympia_account_address": {
+      "type": "string"
+    },
+    "network_id": {
+      "type": "string"
+    }
+  }
+}

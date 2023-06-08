@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput",
+  "type": "object",
+  "required": [
+    "network_id",
+    "public_key"
+  ],
+  "properties": {
+    "public_key": {
+      "$ref": "#/definitions/SerializablePublicKey"
+    },
+    "network_id": {
+      "type": "string"
+    }
+  },
+  "definitions": {
+    "SerializablePublicKey": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "EcdsaSecp256k1"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "value"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "EddsaEd25519"
+              ]
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

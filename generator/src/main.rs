@@ -16,8 +16,11 @@
 // under the License.
 
 mod function_examples;
+mod function_schema;
+mod utils;
 
 use crate::function_examples::generator::generate_function_examples;
+use function_schema::generator::generate_function_schema;
 use std::path::PathBuf;
 
 fn main() {
@@ -38,6 +41,34 @@ fn main() {
             let serialized = serde_json::to_string_pretty(&examples).unwrap();
 
             std::fs::write(output_path, serialized).unwrap();
+        }
+    }
+
+    // Generating the function JSON schema
+    {
+        let output_directory = output_directory.join("function_json_schema");
+        std::fs::create_dir_all(&output_directory).unwrap();
+
+        let function_examples = generate_function_schema();
+        for (module, functions) in function_examples {
+            let output_directory = output_directory.join(module);
+
+            for (function_name, (input_schema, output_schema)) in functions {
+                let output_directory = output_directory.join(function_name);
+                std::fs::create_dir_all(&output_directory).unwrap();
+
+                {
+                    let output_path = output_directory.join("Input.json");
+                    let serialized = serde_json::to_string_pretty(&input_schema).unwrap();
+                    std::fs::write(output_path, serialized).unwrap();
+                }
+
+                {
+                    let output_path = output_directory.join("Output.json");
+                    let serialized = serde_json::to_string_pretty(&output_schema).unwrap();
+                    std::fs::write(output_path, serialized).unwrap();
+                }
+            }
         }
     }
 }
