@@ -2,6 +2,7 @@
     "rust-analyzer.linkedProjects": [
         "radix-engine-toolkit/Cargo.toml",
         "native-json-library/Cargo.toml",
+        "generator/Cargo.toml",
     ],
     "cSpell.words": [
         "adapanet",

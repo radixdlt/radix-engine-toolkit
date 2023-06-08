@@ -15,10 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::PublicKey;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
+use super::macros::{export_function, export_jni_function};
+use super::traits::Function;
 use crate::error::InvocationHandlingError;
 use crate::models::cryptographic::public_key::{
     SerializableEcdsaSecp256k1PublicKey, SerializablePublicKey,
@@ -29,9 +27,9 @@ use crate::models::non_fungible_global_id::{
     SerializableNonFungibleGlobalId, SerializableNonFungibleGlobalIdInternal,
 };
 use crate::utils::debug_string;
-
-use super::macros::{export_function, export_jni_function};
-use super::traits::Function;
+use radix_engine_common::prelude::PublicKey;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 //================================================
 // Derive Virtual Account Address from Public Key
@@ -44,7 +42,7 @@ pub struct DeriveVirtualAccountAddressFromPublicKeyInput {
 }
 pub type DeriveVirtualAccountAddressFromPublicKeyOutput = SerializableNodeId;
 
-struct DeriveVirtualAccountAddressFromPublicKey;
+pub struct DeriveVirtualAccountAddressFromPublicKey;
 impl<'a> Function<'a> for DeriveVirtualAccountAddressFromPublicKey {
     type Input = DeriveVirtualAccountAddressFromPublicKeyInput;
     type Output = DeriveVirtualAccountAddressFromPublicKeyOutput;
@@ -85,7 +83,7 @@ pub struct DeriveVirtualIdentityAddressFromPublicKeyInput {
 }
 pub type DeriveVirtualIdentityAddressFromPublicKeyOutput = SerializableNodeId;
 
-struct DeriveVirtualIdentityAddressFromPublicKey;
+pub struct DeriveVirtualIdentityAddressFromPublicKey;
 impl<'a> Function<'a> for DeriveVirtualIdentityAddressFromPublicKey {
     type Input = DeriveVirtualIdentityAddressFromPublicKeyInput;
     type Output = DeriveVirtualIdentityAddressFromPublicKeyOutput;
@@ -127,7 +125,7 @@ pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput {
 pub type DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyOutput =
     SerializableNonFungibleGlobalId;
 
-struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey;
+pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey;
 impl<'a> Function<'a> for DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey {
     type Input = DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput;
     type Output = DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyOutput;
@@ -172,7 +170,7 @@ pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddressInput {
 }
 pub type DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput = SerializableNodeId;
 
-struct DeriveVirtualAccountAddressFromOlympiaAccountAddress;
+pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddress;
 impl<'a> Function<'a> for DeriveVirtualAccountAddressFromOlympiaAccountAddress {
     type Input = DeriveVirtualAccountAddressFromOlympiaAccountAddressInput;
     type Output = DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput;
@@ -211,7 +209,7 @@ export_jni_function!(
 pub type DerivePublicKeyFromOlympiaAccountAddressInput = String;
 pub type DerivePublicKeyFromOlympiaAccountAddressOutput = SerializableEcdsaSecp256k1PublicKey;
 
-struct DerivePublicKeyFromOlympiaAccountAddress;
+pub struct DerivePublicKeyFromOlympiaAccountAddress;
 impl<'a> Function<'a> for DerivePublicKeyFromOlympiaAccountAddress {
     type Input = DerivePublicKeyFromOlympiaAccountAddressInput;
     type Output = DerivePublicKeyFromOlympiaAccountAddressOutput;
@@ -238,12 +236,12 @@ export_jni_function!(
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveOlympiaAccountAddressFromPublicKeyInput {
-    olympia_network: SerializableOlympiaNetwork,
-    public_key: SerializableEcdsaSecp256k1PublicKey,
+    pub olympia_network: SerializableOlympiaNetwork,
+    pub public_key: SerializableEcdsaSecp256k1PublicKey,
 }
 pub type DeriveOlympiaAccountAddressFromPublicKeyOutput = String;
 
-struct DeriveOlympiaAccountAddressFromPublicKey;
+pub struct DeriveOlympiaAccountAddressFromPublicKey;
 impl<'a> Function<'a> for DeriveOlympiaAccountAddressFromPublicKey {
     type Input = DeriveOlympiaAccountAddressFromPublicKeyInput;
     type Output = DeriveOlympiaAccountAddressFromPublicKeyOutput;
@@ -277,12 +275,12 @@ export_jni_function!(
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveNodeAddressFromPublicKeyInput {
-    network_id: SerializableNetworkId,
-    public_key: SerializableEcdsaSecp256k1PublicKey,
+    pub network_id: SerializableNetworkId,
+    pub public_key: SerializableEcdsaSecp256k1PublicKey,
 }
 pub type DeriveNodeAddressFromPublicKeyOutput = String;
 
-struct DeriveNodeAddressFromPublicKey;
+pub struct DeriveNodeAddressFromPublicKey;
 impl<'a> Function<'a> for DeriveNodeAddressFromPublicKey {
     type Input = DeriveNodeAddressFromPublicKeyInput;
     type Output = DeriveNodeAddressFromPublicKeyOutput;
