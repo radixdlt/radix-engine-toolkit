@@ -15,22 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![allow(unused_macros, unused_imports)]
-
-macro_rules! traverse {
-    (
-        $instructions: expr,
-        $( $visitor: ident ),* $(,)?
-    ) => {
-        {
-            super::traverser::traverse($instructions, &mut [$(&mut $visitor),*])?;
-
-            (
-                $(
-                    $visitor.output()
-                ),*
-            )
-        }
-    };
-}
-pub(crate) use traverse;
+pub mod public_key;

@@ -15,22 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![allow(unused_macros, unused_imports)]
+use schemars::JsonSchema;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-macro_rules! traverse {
-    (
-        $instructions: expr,
-        $( $visitor: ident ),* $(,)?
-    ) => {
-        {
-            super::traverser::traverse($instructions, &mut [$(&mut $visitor),*])?;
+pub trait Function<'a> {
+    type Input: Serialize + Deserialize<'a> + DeserializeOwned + JsonSchema;
+    type Output: Serialize + Deserialize<'a> + DeserializeOwned + JsonSchema;
 
-            (
-                $(
-                    $visitor.output()
-                ),*
-            )
-        }
-    };
+    fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError>;
 }
-pub(crate) use traverse;

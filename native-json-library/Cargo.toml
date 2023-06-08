@@ -4,3 +4,30 @@ version = "0.10.0"
 edition = "2021"
 
 [dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-39ebb3c7", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-39ebb3c7", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-39ebb3c7" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-39ebb3c7", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-39ebb3c7", features = ["serde"] }
+
+# Core Radix Engine Toolkit
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+
+# Serde for JSON serialization
+serde = { version = "1.0.163" }
+serde_json = { version = "1.0.96" }
+serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
+
+# Regex needed to extract the network specifier from addresses
+regex = { version = "1.8.4" }
+
+# Bech32 for encoding and decoding addresses
+bech32 = { version = "0.9.1" }
+
+# Used to be able to expose the crate to JVM clients
+jni = { version = "0.21.1" }
+
+# Used to allow for more powerful macros
+paste = { version = "1.0.12" }

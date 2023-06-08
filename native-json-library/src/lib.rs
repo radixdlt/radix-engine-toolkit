@@ -15,17 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod error;
+pub mod functions;
+pub mod memory;
+pub mod models;
+pub mod utils;
