@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::{
-    functions::derive::*,
-    models::network::{SerializableNetworkId, SerializableOlympiaNetwork},
-};
+use native_json_library::functions::derive::*;
+use native_json_library::models::network::network_id::SerializableNetworkId;
+use native_json_library::models::network::olympia_network::SerializableOlympiaNetwork;
 use radix_engine_common::prelude::PublicKey;
 use transaction::validation::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
 

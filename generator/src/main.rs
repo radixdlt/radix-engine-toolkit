@@ -17,10 +17,12 @@
 
 mod function_examples;
 mod function_schema;
+mod serializable_models;
 mod utils;
 
 use crate::function_examples::generator::generate_function_examples;
 use function_schema::generator::generate_function_schema;
+use serializable_models::generator::generate_serializable_model_examples;
 use std::path::PathBuf;
 
 fn main() {
@@ -68,6 +70,24 @@ fn main() {
                     let serialized = serde_json::to_string_pretty(&output_schema).unwrap();
                     std::fs::write(output_path, serialized).unwrap();
                 }
+            }
+        }
+    }
+
+    // Generating the model examples
+    {
+        let output_directory = output_directory.join("serializable_model_examples");
+        std::fs::create_dir_all(&output_directory).unwrap();
+
+        let serializable_models_examples = generate_serializable_model_examples();
+        for (path_extension, examples) in serializable_models_examples {
+            let output_directory = output_directory.join(path_extension);
+            std::fs::create_dir_all(&output_directory).unwrap();
+
+            for (file_name, examples) in examples {
+                let output_path = output_directory.join(format!("{file_name}.json"));
+                let serialized = serde_json::to_string_pretty(&examples).unwrap();
+                std::fs::write(output_path, serialized).unwrap();
             }
         }
     }

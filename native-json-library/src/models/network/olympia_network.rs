@@ -15,35 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::ops::{Deref, DerefMut};
-
 use radix_engine_toolkit::functions::derive::OlympiaNetwork;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-
-#[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-#[serde(transparent)]
-pub struct SerializableNetworkId(
-    #[schemars(with = "String")]
-    #[serde_as(as = "serde_with::DisplayFromStr")]
-    pub u8,
-);
-
-impl Deref for SerializableNetworkId {
-    type Target = u8;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for SerializableNetworkId {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
 
 #[serde_as]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]

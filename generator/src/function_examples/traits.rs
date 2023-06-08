@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils;
 
-pub trait HasExamples<'f, const N: usize>
+pub(super) trait HasExamples<'f, const N: usize>
 where
     Self: Function<'f> + Sized,
 {

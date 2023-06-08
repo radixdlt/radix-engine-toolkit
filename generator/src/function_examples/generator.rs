@@ -19,11 +19,13 @@ use super::traits::FunctionExample;
 use indexmap::{indexmap, IndexMap};
 use native_json_library::functions::derive::*;
 
-pub fn generate_function_examples(
-) -> IndexMap<String, IndexMap<String, Vec<FunctionExample<serde_json::Value, serde_json::Value>>>>
-{
+#[allow(clippy::type_complexity)]
+pub fn generate_function_examples() -> IndexMap<
+    &'static str,
+    IndexMap<String, Vec<FunctionExample<serde_json::Value, serde_json::Value>>>,
+> {
     indexmap!(
-        "derive".to_string() => function_examples![
+        "derive" => function_examples![
             DeriveVirtualAccountAddressFromPublicKey,
             DeriveVirtualIdentityAddressFromPublicKey,
             DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey,
