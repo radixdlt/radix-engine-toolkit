@@ -8,3 +8,4 @@ openapi-generator-cli-6.0.1.jar
 Cargo.lock
 .idea
 build
+generator/output
