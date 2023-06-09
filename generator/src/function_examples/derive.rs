@@ -16,8 +16,7 @@
 // under the License.
 
 use native_json_library::functions::derive::*;
-use native_json_library::models::network::network_id::SerializableNetworkId;
-use native_json_library::models::network::olympia_network::SerializableOlympiaNetwork;
+use native_json_library::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
 use radix_engine_common::prelude::PublicKey;
 use transaction::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
 

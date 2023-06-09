@@ -21,8 +21,7 @@ use crate::error::InvocationHandlingError;
 use crate::models::cryptographic::public_key::{
     SerializablePublicKey, SerializableSecp256k1PublicKey,
 };
-use crate::models::network::network_id::SerializableNetworkId;
-use crate::models::network::olympia_network::SerializableOlympiaNetwork;
+use crate::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
 use crate::models::node_id::{SerializableNodeId, SerializableNodeIdInternal};
 use crate::models::non_fungible_global_id::{
     SerializableNonFungibleGlobalId, SerializableNonFungibleGlobalIdInternal,

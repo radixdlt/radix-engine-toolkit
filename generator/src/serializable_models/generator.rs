@@ -16,6 +16,12 @@
 // under the License.
 
 use indexmap::{indexmap, IndexMap};
+use native_json_library::models::cryptographic::public_key::{
+    SerializableEd25519PublicKey, SerializablePublicKey, SerializableSecp256k1PublicKey,
+};
+use native_json_library::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
+use native_json_library::models::node_id::SerializableNodeId;
+use native_json_library::models::non_fungible_global_id::SerializableNonFungibleGlobalId;
 
 pub fn generate_serializable_model_examples(
 ) -> IndexMap<&'static str, IndexMap<String, Vec<serde_json::Value>>> {
@@ -59,11 +65,3 @@ macro_rules! model_examples {
     };
 }
 use model_examples;
-use native_json_library::models::{
-    cryptographic::public_key::{
-        SerializableEd25519PublicKey, SerializablePublicKey, SerializableSecp256k1PublicKey,
-    },
-    network::{network_id::SerializableNetworkId, olympia_network::SerializableOlympiaNetwork},
-    node_id::SerializableNodeId,
-    non_fungible_global_id::SerializableNonFungibleGlobalId,
-};
