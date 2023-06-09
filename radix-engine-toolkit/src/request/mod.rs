@@ -37,6 +37,7 @@ pub mod sbor_decode;
 pub mod sbor_encode;
 
 pub mod derive_babylon_address_from_olympia_address;
+pub mod derive_babylon_resource_address_from_olympia_resource_address;
 pub mod derive_non_fungible_global_id_from_public_key;
 pub mod derive_virtual_account_address;
 pub mod derive_virtual_identity_address;
@@ -74,6 +75,7 @@ pub use sbor_decode::*;
 pub use sbor_encode::*;
 
 pub use derive_babylon_address_from_olympia_address::*;
+pub use derive_babylon_resource_address_from_olympia_resource_address::*;
 pub use derive_non_fungible_global_id_from_public_key::*;
 pub use derive_virtual_account_address::*;
 pub use derive_virtual_identity_address::*;

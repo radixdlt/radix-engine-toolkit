@@ -106,6 +106,10 @@ pub mod native {
         DeriveBabylonAddressFromOlympiaAddressHandler
             as derive_babylon_address_from_olympia_address
     );
+    export_handler!(
+        DeriveBabylonResourceAddressFromOlympiaResourceAddressHandler
+            as derive_babylon_resource_address_from_olympia_resource_address
+    );
     export_handler!(DeriveVirtualAccountAddressHandler as derive_virtual_account_address);
     export_handler!(DeriveVirtualIdentityAddressHandler as derive_virtual_identity_address);
     export_handler!(
@@ -237,6 +241,10 @@ pub mod jni {
     export_handler!(
         DeriveBabylonAddressFromOlympiaAddressHandler
             as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_deriveBabylonAddressFromOlympiaAddress
+    );
+    export_handler!(
+        DeriveBabylonResourceAddressFromOlympiaResourceAddressHandler
+            as Java_com_radixdlt_toolkit_RadixEngineToolkitFFI_DeriveBabylonResourceAddressFromOlympiaResourceAddress
     );
     export_handler!(
         DeriveVirtualAccountAddressHandler
