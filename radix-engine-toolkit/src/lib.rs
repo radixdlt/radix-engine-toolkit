@@ -16,6 +16,7 @@
 // under the License.
 
 pub mod functions;
+pub mod indexed_manifest_value;
 pub mod instruction_visitor;
 pub mod schema_visitor;
 pub mod statics;

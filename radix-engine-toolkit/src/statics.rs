@@ -118,7 +118,7 @@ fn account_proof_creation_methods() -> Vec<String> {
         .functions
         .iter()
         .filter_map(|(function_ident, function_schema)| {
-            if function_schema.receiver != Some(ReceiverInfo::normal_ref_mut()) {
+            if function_schema.receiver != Some(ReceiverInfo::normal_ref()) {
                 return None;
             }
 

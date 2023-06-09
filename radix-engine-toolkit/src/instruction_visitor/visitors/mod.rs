@@ -16,4 +16,5 @@
 // under the License.
 
 pub mod account_interactions_visitor;
+pub mod account_proofs_visitor;
 pub mod identity_interactions_visitor;
