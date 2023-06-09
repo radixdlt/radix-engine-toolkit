@@ -17,6 +17,7 @@
 
 use std::convert::Infallible;
 
+#[derive(Debug, Clone)]
 pub enum InstructionVisitorError {
     Infallible(Infallible),
 }

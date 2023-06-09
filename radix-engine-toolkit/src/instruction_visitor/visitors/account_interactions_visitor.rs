@@ -21,6 +21,7 @@ use scrypto::api::ObjectModuleId;
 use scrypto::prelude::*;
 use std::convert::Infallible;
 
+#[derive(Default, Clone, Debug)]
 pub struct AccountInteractionsVisitor {
     accounts_requiring_auth: HashSet<ComponentAddress>,
     accounts_withdrawn_from: HashSet<ComponentAddress>,
@@ -64,9 +65,13 @@ impl InstructionVisitor for AccountInteractionsVisitor {
                 .any(|ident| ident.as_str() == method_name)
             {
                 self.accounts_requiring_auth.insert(component_address);
-            } else if crate::statics::ACCOUNT_DEPOSIT_METHODS.contains(&method_name.to_owned()) {
+            }
+
+            if crate::statics::ACCOUNT_DEPOSIT_METHODS.contains(&method_name.to_owned()) {
                 self.accounts_deposited_into.insert(component_address);
-            } else if crate::statics::ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_owned()) {
+            }
+
+            if crate::statics::ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_owned()) {
                 self.accounts_withdrawn_from.insert(component_address);
             }
         };

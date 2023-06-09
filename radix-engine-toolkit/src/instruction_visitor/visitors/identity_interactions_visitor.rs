@@ -20,6 +20,7 @@ use std::convert::Infallible;
 use crate::{instruction_visitor::core::traits::InstructionVisitor, utils::is_identity};
 use scrypto::{api::ObjectModuleId, prelude::*};
 
+#[derive(Clone, Default)]
 pub struct IdentityInteractionsVisitor(HashSet<ComponentAddress>);
 
 impl InstructionVisitor for IdentityInteractionsVisitor {
