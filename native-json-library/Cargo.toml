@@ -31,3 +31,6 @@ jni = { version = "0.21.1" }
 
 # Used to allow for more powerful macros
 paste = { version = "1.0.12" }
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
