@@ -15,8 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod macros;
-pub mod traits;
+use super::traits::HasExamples;
+use native_json_library::functions::information::*;
+
+impl<'f> HasExamples<'f, 1> for BuildInformation {
+    fn example_inputs() -> [Self::Input; 1] {
+        [BuildInformationInput {}]
+    }
+}

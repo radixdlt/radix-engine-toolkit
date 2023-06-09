@@ -17,11 +17,15 @@
 
 use indexmap::{indexmap, IndexMap};
 use native_json_library::functions::derive::*;
+use native_json_library::functions::information::*;
 use schemars::schema::RootSchema;
 
 pub fn generate_function_schema(
 ) -> IndexMap<&'static str, IndexMap<String, (RootSchema, RootSchema)>> {
     indexmap!(
+        "information" => function_schema![
+            BuildInformation,
+        ],
         "derive" => function_schema![
             DeriveVirtualAccountAddressFromPublicKey,
             DeriveVirtualIdentityAddressFromPublicKey,

@@ -8,6 +8,12 @@ All across the Radix Engine Toolkit all types which are serialized as discrimina
 * Added a new function for deriving the public key associated with an Olympia account address: `derive_public_key_from_olympia_account_address`.
 * Added a new function for deriving the node address for a given Ecdsa Secp256k1 public key: `derive_node_address_from_public_key`. Note that the term "node" here does not refer to RE (Radix Engine) nodes, but refers to Radix Nodes.
 
+### `information`
+
+* The `information` function has been renamed to `build_information`.
+* The `last_commit_hash` field has been removed.
+* Added a new `scrypto_dependency` field which has the current version of the Scrypto dependency used. This information is obtained directly from the Cargo.toml manifest file, thus it is guaranteed to always be accurate.
+
 ### `derive_virtual_account_address`
 
 * The `derive_virtual_account_address` function has been renamed to `derive_virtual_account_address_from_public_key`.
