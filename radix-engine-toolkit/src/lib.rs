@@ -18,4 +18,5 @@
 pub mod functions;
 pub mod instruction_visitor;
 pub mod schema_visitor;
+pub mod statics;
 pub mod utils;

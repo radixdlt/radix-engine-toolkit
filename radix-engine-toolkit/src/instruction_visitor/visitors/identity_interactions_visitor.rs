@@ -39,7 +39,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         if is_identity(address.as_node_id()) {
             let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
-            if constants::IDENTITY_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::IDENTITY_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
                     if schema_method_key.module_id == ObjectModuleId::Main.to_u8() {
@@ -65,7 +65,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         if is_identity(address.as_node_id()) {
             let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
-            if constants::IDENTITY_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::IDENTITY_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
                     if schema_method_key.module_id == ObjectModuleId::AccessRules.to_u8() {
@@ -91,7 +91,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         if is_identity(address.as_node_id()) {
             let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
-            if constants::IDENTITY_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::IDENTITY_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
                     if schema_method_key.module_id == ObjectModuleId::Metadata.to_u8() {
@@ -117,7 +117,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         if is_identity(address.as_node_id()) {
             let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
-            if constants::IDENTITY_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::IDENTITY_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
                     if schema_method_key.module_id == ObjectModuleId::Royalty.to_u8() {
@@ -132,43 +132,5 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
             }
         }
         Ok(())
-    }
-}
-
-mod constants {
-    use radix_engine::blueprints::identity::IdentityNativePackage;
-    use scrypto::blueprints::identity::*;
-    use scrypto::schema::{BlueprintSchema, SchemaMethodKey, SchemaMethodPermission};
-
-    lazy_static::lazy_static! {
-        static ref IDENTITY_BLUEPRINT_SCHEMA: BlueprintSchema = get_identity_blueprint_schema();
-
-        pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<SchemaMethodKey> =
-            get_methods_that_require_auth_from_schema();
-    }
-
-    fn get_identity_blueprint_schema() -> BlueprintSchema {
-        IdentityNativePackage::definition()
-            .schema
-            .blueprints
-            .get(IDENTITY_BLUEPRINT)
-            .unwrap()
-            .clone()
-    }
-
-    /// An identity method that requires auth is a method whose method permission is not public in
-    /// the schema.
-    fn get_methods_that_require_auth_from_schema() -> Vec<SchemaMethodKey> {
-        IDENTITY_BLUEPRINT_SCHEMA
-            .method_auth_template
-            .iter()
-            .filter_map(|(key, value)| {
-                if let SchemaMethodPermission::Public = value {
-                    None
-                } else {
-                    Some(key.clone())
-                }
-            })
-            .collect()
     }
 }
