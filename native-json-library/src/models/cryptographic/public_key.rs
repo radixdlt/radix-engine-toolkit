@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::{EcdsaSecp256k1PublicKey, EddsaEd25519PublicKey, PublicKey};
+use radix_engine_common::prelude::{Ed25519PublicKey, PublicKey, Secp256k1PublicKey};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
@@ -24,25 +24,25 @@ use serde_with::serde_as;
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[serde(tag = "kind")]
 pub enum SerializablePublicKey {
-    EcdsaSecp256k1 {
+    Secp256k1 {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::hex::Hex")]
-        value: [u8; EcdsaSecp256k1PublicKey::LENGTH],
+        value: [u8; Secp256k1PublicKey::LENGTH],
     },
-    EddsaEd25519 {
+    Ed25519 {
         #[schemars(with = "String")]
         #[serde_as(as = "serde_with::hex::Hex")]
-        value: [u8; EddsaEd25519PublicKey::LENGTH],
+        value: [u8; Ed25519PublicKey::LENGTH],
     },
 }
 
 impl From<PublicKey> for SerializablePublicKey {
     fn from(value: PublicKey) -> Self {
         match value {
-            PublicKey::EcdsaSecp256k1(public_key) => Self::EcdsaSecp256k1 {
+            PublicKey::Secp256k1(public_key) => Self::Secp256k1 {
                 value: public_key.0,
             },
-            PublicKey::EddsaEd25519(public_key) => Self::EddsaEd25519 {
+            PublicKey::Ed25519(public_key) => Self::Ed25519 {
                 value: public_key.0,
             },
         }
@@ -52,12 +52,10 @@ impl From<PublicKey> for SerializablePublicKey {
 impl From<SerializablePublicKey> for PublicKey {
     fn from(value: SerializablePublicKey) -> Self {
         match value {
-            SerializablePublicKey::EcdsaSecp256k1 { value } => {
-                Self::EcdsaSecp256k1(EcdsaSecp256k1PublicKey(value))
+            SerializablePublicKey::Secp256k1 { value } => {
+                Self::Secp256k1(Secp256k1PublicKey(value))
             }
-            SerializablePublicKey::EddsaEd25519 { value } => {
-                Self::EddsaEd25519(EddsaEd25519PublicKey(value))
-            }
+            SerializablePublicKey::Ed25519 { value } => Self::Ed25519(Ed25519PublicKey(value)),
         }
     }
 }
@@ -66,20 +64,20 @@ impl From<SerializablePublicKey> for PublicKey {
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 #[schemars(transparent)]
 #[serde(transparent)]
-pub struct SerializableEcdsaSecp256k1PublicKey(
+pub struct SerializableSecp256k1PublicKey(
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::hex::Hex")]
-    [u8; EcdsaSecp256k1PublicKey::LENGTH],
+    [u8; Secp256k1PublicKey::LENGTH],
 );
 
-impl From<SerializableEcdsaSecp256k1PublicKey> for EcdsaSecp256k1PublicKey {
-    fn from(value: SerializableEcdsaSecp256k1PublicKey) -> Self {
+impl From<SerializableSecp256k1PublicKey> for Secp256k1PublicKey {
+    fn from(value: SerializableSecp256k1PublicKey) -> Self {
         Self(value.0)
     }
 }
 
-impl From<EcdsaSecp256k1PublicKey> for SerializableEcdsaSecp256k1PublicKey {
-    fn from(value: EcdsaSecp256k1PublicKey) -> Self {
+impl From<Secp256k1PublicKey> for SerializableSecp256k1PublicKey {
+    fn from(value: Secp256k1PublicKey) -> Self {
         Self(value.0)
     }
 }
@@ -88,20 +86,20 @@ impl From<EcdsaSecp256k1PublicKey> for SerializableEcdsaSecp256k1PublicKey {
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[schemars(transparent)]
 #[serde(transparent)]
-pub struct SerializableEddsaEd25519PublicKey(
+pub struct SerializableEd25519PublicKey(
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::hex::Hex")]
-    [u8; EddsaEd25519PublicKey::LENGTH],
+    [u8; Ed25519PublicKey::LENGTH],
 );
 
-impl From<SerializableEddsaEd25519PublicKey> for EddsaEd25519PublicKey {
-    fn from(value: SerializableEddsaEd25519PublicKey) -> Self {
+impl From<SerializableEd25519PublicKey> for Ed25519PublicKey {
+    fn from(value: SerializableEd25519PublicKey) -> Self {
         Self(value.0)
     }
 }
 
-impl From<EddsaEd25519PublicKey> for SerializableEddsaEd25519PublicKey {
-    fn from(value: EddsaEd25519PublicKey) -> Self {
+impl From<Ed25519PublicKey> for SerializableEd25519PublicKey {
+    fn from(value: Ed25519PublicKey) -> Self {
         Self(value.0)
     }
 }

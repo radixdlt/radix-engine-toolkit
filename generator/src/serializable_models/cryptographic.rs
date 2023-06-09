@@ -16,40 +16,34 @@
 // under the License.
 
 use native_json_library::models::cryptographic::public_key::*;
-use transaction::validation::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
+use transaction::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
 
 use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f> for SerializablePublicKey {
     fn examples() -> Vec<Self> {
         vec![
-            Self::EcdsaSecp256k1 {
-                value: EcdsaSecp256k1PrivateKey::from_u64(1)
-                    .unwrap()
-                    .public_key()
-                    .0,
+            Self::Secp256k1 {
+                value: Secp256k1PrivateKey::from_u64(1).unwrap().public_key().0,
             },
-            Self::EddsaEd25519 {
-                value: EddsaEd25519PrivateKey::from_u64(1).unwrap().public_key().0,
+            Self::Ed25519 {
+                value: Ed25519PrivateKey::from_u64(1).unwrap().public_key().0,
             },
         ]
     }
 }
 
-impl<'f> HasExamples<'f> for SerializableEcdsaSecp256k1PublicKey {
+impl<'f> HasExamples<'f> for SerializableSecp256k1PublicKey {
     fn examples() -> Vec<Self> {
-        vec![EcdsaSecp256k1PrivateKey::from_u64(1)
+        vec![Secp256k1PrivateKey::from_u64(1)
             .unwrap()
             .public_key()
             .into()]
     }
 }
 
-impl<'f> HasExamples<'f> for SerializableEddsaEd25519PublicKey {
+impl<'f> HasExamples<'f> for SerializableEd25519PublicKey {
     fn examples() -> Vec<Self> {
-        vec![EddsaEd25519PrivateKey::from_u64(1)
-            .unwrap()
-            .public_key()
-            .into()]
+        vec![Ed25519PrivateKey::from_u64(1).unwrap().public_key().into()]
     }
 }

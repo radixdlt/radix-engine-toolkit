@@ -17,7 +17,7 @@
 
 use radix_engine_toolkit::functions::derive::{self, OlympiaNetwork};
 use scrypto::prelude::*;
-use transaction::ecdsa_secp256k1::EcdsaSecp256k1PrivateKey;
+use transaction::prelude::Secp256k1PrivateKey;
 
 #[test]
 fn virtual_account_address_can_be_derived_from_public_key() {
@@ -60,7 +60,7 @@ fn virtual_account_address_can_be_derived_from_olympia_account_address() {
     // Arrange
     let olympia_address = "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842";
     let public_key = "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c"
-        .parse::<EcdsaSecp256k1PublicKey>()
+        .parse::<Secp256k1PublicKey>()
         .unwrap();
 
     // Act
@@ -79,7 +79,7 @@ fn public_key_can_be_derived_from_olympia_account_address() {
     // Arrange
     let olympia_address = "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842";
     let expected_public_key = "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c"
-        .parse::<EcdsaSecp256k1PublicKey>()
+        .parse::<Secp256k1PublicKey>()
         .unwrap();
 
     // Act
@@ -95,7 +95,7 @@ fn olympia_address_can_be_derived_from_public_key() {
     let expected_olympia_address =
         "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842";
     let public_key = "026f08db98ef1d0231eb15580da9123db8e25aa1747c8c32e5fd2ec47b8db73d5c"
-        .parse::<EcdsaSecp256k1PublicKey>()
+        .parse::<Secp256k1PublicKey>()
         .unwrap();
 
     // Act
@@ -112,7 +112,7 @@ fn node_address_can_be_derived_from_public_key() {
     let expected_node_address =
         "node_tdx_21_1qfk895krd3l8t8z7z7p9sxpjdszpal24f6y2sjtqe7mdkhdele5az658ak2";
     let public_key = "026c72d2c36c7e759c5e17825818326c041efd554e88a84960cfb6db5db9fe69d1"
-        .parse::<EcdsaSecp256k1PublicKey>()
+        .parse::<Secp256k1PublicKey>()
         .unwrap();
 
     // Act
@@ -123,6 +123,6 @@ fn node_address_can_be_derived_from_public_key() {
 }
 
 fn public_key() -> PublicKey {
-    let private_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap();
+    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
     private_key.public_key().into()
 }

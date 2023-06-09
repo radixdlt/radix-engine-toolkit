@@ -192,13 +192,13 @@ pub fn traverse(
                 )
             }
             InstructionV1::CallDirectVaultMethod {
-                vault_id,
+                address,
                 method_name,
                 args,
             } => {
                 for_each_enabled_visitor!(
                     visitors,
-                    visit_call_direct_vault_method(vault_id, method_name, args)
+                    visit_call_direct_vault_method(address, method_name, args)
                 )
             }
             InstructionV1::DropAllProofs => {

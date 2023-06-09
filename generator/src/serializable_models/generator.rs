@@ -22,8 +22,8 @@ pub fn generate_serializable_model_examples(
     indexmap! {
         "cryptographic/public_key" => model_examples![
             SerializablePublicKey,
-            SerializableEcdsaSecp256k1PublicKey,
-            SerializableEddsaEd25519PublicKey
+            SerializableSecp256k1PublicKey,
+            SerializableEd25519PublicKey
         ],
         "network" => model_examples![
             SerializableNetworkId,
@@ -61,8 +61,7 @@ macro_rules! model_examples {
 use model_examples;
 use native_json_library::models::{
     cryptographic::public_key::{
-        SerializableEcdsaSecp256k1PublicKey, SerializableEddsaEd25519PublicKey,
-        SerializablePublicKey,
+        SerializableEd25519PublicKey, SerializablePublicKey, SerializableSecp256k1PublicKey,
     },
     network::{network_id::SerializableNetworkId, olympia_network::SerializableOlympiaNetwork},
     node_id::SerializableNodeId,

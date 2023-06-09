@@ -23,8 +23,8 @@ impl<'f> HasExamples<'f> for SerializableNodeId {
     fn examples() -> Vec<Self> {
         [
             XRD.as_node_id(),
-            ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id(),
-            EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE.as_node_id(),
+            SECP256K1_SIGNATURE_VIRTUAL_BADGE.as_node_id(),
+            ED25519_SIGNATURE_VIRTUAL_BADGE.as_node_id(),
             PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.as_node_id(),
             GLOBAL_CALLER_VIRTUAL_BADGE.as_node_id(),
             SYSTEM_TRANSACTION_BADGE.as_node_id(),

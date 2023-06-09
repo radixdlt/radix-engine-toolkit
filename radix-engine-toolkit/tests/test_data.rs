@@ -21,6 +21,7 @@ use radix_engine_toolkit::functions::*;
 use scrypto::prelude::*;
 use transaction::builder::*;
 use transaction::model::*;
+use transaction::prelude::*;
 use transaction::validation::*;
 
 pub fn notarized_transaction() -> NotarizedTransactionV1 {
@@ -62,18 +63,18 @@ pub fn manifest() -> TransactionManifestV1 {
     radix_engine_toolkit::utils::manifest_from_intent(&intent())
 }
 
-pub fn private_key1() -> EcdsaSecp256k1PrivateKey {
-    EcdsaSecp256k1PrivateKey::from_u64(1).unwrap()
+pub fn private_key1() -> Secp256k1PrivateKey {
+    Secp256k1PrivateKey::from_u64(1).unwrap()
 }
 
-pub fn private_key2() -> EddsaEd25519PrivateKey {
-    EddsaEd25519PrivateKey::from_u64(1).unwrap()
+pub fn private_key2() -> Ed25519PrivateKey {
+    Ed25519PrivateKey::from_u64(1).unwrap()
 }
 
-pub fn private_key3() -> EcdsaSecp256k1PrivateKey {
-    EcdsaSecp256k1PrivateKey::from_u64(2).unwrap()
+pub fn private_key3() -> Secp256k1PrivateKey {
+    Secp256k1PrivateKey::from_u64(2).unwrap()
 }
 
-pub fn private_key4() -> EddsaEd25519PrivateKey {
-    EddsaEd25519PrivateKey::from_u64(2).unwrap()
+pub fn private_key4() -> Ed25519PrivateKey {
+    Ed25519PrivateKey::from_u64(2).unwrap()
 }

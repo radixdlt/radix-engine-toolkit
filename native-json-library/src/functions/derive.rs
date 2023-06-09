@@ -19,7 +19,7 @@ use super::macros::{export_function, export_jni_function};
 use super::traits::Function;
 use crate::error::InvocationHandlingError;
 use crate::models::cryptographic::public_key::{
-    SerializableEcdsaSecp256k1PublicKey, SerializablePublicKey,
+    SerializablePublicKey, SerializableSecp256k1PublicKey,
 };
 use crate::models::network::network_id::SerializableNetworkId;
 use crate::models::network::olympia_network::SerializableOlympiaNetwork;
@@ -208,7 +208,7 @@ export_jni_function!(
 //================================================
 
 pub type DerivePublicKeyFromOlympiaAccountAddressInput = String;
-pub type DerivePublicKeyFromOlympiaAccountAddressOutput = SerializableEcdsaSecp256k1PublicKey;
+pub type DerivePublicKeyFromOlympiaAccountAddressOutput = SerializableSecp256k1PublicKey;
 
 pub struct DerivePublicKeyFromOlympiaAccountAddress;
 impl<'a> Function<'a> for DerivePublicKeyFromOlympiaAccountAddress {
@@ -238,7 +238,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveOlympiaAccountAddressFromPublicKeyInput {
     pub olympia_network: SerializableOlympiaNetwork,
-    pub public_key: SerializableEcdsaSecp256k1PublicKey,
+    pub public_key: SerializableSecp256k1PublicKey,
 }
 pub type DeriveOlympiaAccountAddressFromPublicKeyOutput = String;
 
@@ -277,7 +277,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveNodeAddressFromPublicKeyInput {
     pub network_id: SerializableNetworkId,
-    pub public_key: SerializableEcdsaSecp256k1PublicKey,
+    pub public_key: SerializableSecp256k1PublicKey,
 }
 pub type DeriveNodeAddressFromPublicKeyOutput = String;
 

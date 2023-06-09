@@ -19,14 +19,14 @@ use native_json_library::functions::derive::*;
 use native_json_library::models::network::network_id::SerializableNetworkId;
 use native_json_library::models::network::olympia_network::SerializableOlympiaNetwork;
 use radix_engine_common::prelude::PublicKey;
-use transaction::validation::{EcdsaSecp256k1PrivateKey, EddsaEd25519PrivateKey};
+use transaction::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
 
 use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, 2> for DeriveVirtualAccountAddressFromPublicKey {
     fn example_inputs() -> [Self::Input; 2] {
-        let public_key1 = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key();
-        let public_key2 = EddsaEd25519PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key1 = Secp256k1PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key2 = Ed25519PrivateKey::from_u64(1).unwrap().public_key();
 
         [
             Self::Input {
@@ -43,8 +43,8 @@ impl<'f> HasExamples<'f, 2> for DeriveVirtualAccountAddressFromPublicKey {
 
 impl<'f> HasExamples<'f, 2> for DeriveVirtualIdentityAddressFromPublicKey {
     fn example_inputs() -> [Self::Input; 2] {
-        let public_key1 = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key();
-        let public_key2 = EddsaEd25519PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key1 = Secp256k1PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key2 = Ed25519PrivateKey::from_u64(1).unwrap().public_key();
 
         [
             Self::Input {
@@ -61,8 +61,8 @@ impl<'f> HasExamples<'f, 2> for DeriveVirtualIdentityAddressFromPublicKey {
 
 impl<'f> HasExamples<'f, 2> for DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey {
     fn example_inputs() -> [Self::Input; 2] {
-        let public_key1 = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key();
-        let public_key2 = EddsaEd25519PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key1 = Secp256k1PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key2 = Ed25519PrivateKey::from_u64(1).unwrap().public_key();
 
         [
             Self::Input {
@@ -95,7 +95,7 @@ impl<'f> HasExamples<'f, 1> for DerivePublicKeyFromOlympiaAccountAddress {
 
 impl<'f> HasExamples<'f, 1> for DeriveOlympiaAccountAddressFromPublicKey {
     fn example_inputs() -> [Self::Input; 1] {
-        let public_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key = Secp256k1PrivateKey::from_u64(1).unwrap().public_key();
 
         [Self::Input {
             public_key: public_key.into(),
@@ -106,7 +106,7 @@ impl<'f> HasExamples<'f, 1> for DeriveOlympiaAccountAddressFromPublicKey {
 
 impl<'f> HasExamples<'f, 1> for DeriveNodeAddressFromPublicKey {
     fn example_inputs() -> [Self::Input; 1] {
-        let public_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap().public_key();
+        let public_key = Secp256k1PrivateKey::from_u64(1).unwrap().public_key();
 
         [Self::Input {
             public_key: public_key.into(),

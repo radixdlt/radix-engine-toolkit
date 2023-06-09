@@ -55,7 +55,7 @@ where
 
 pub fn public_key_from_olympia_account_address<S>(
     olympia_account_address: S,
-) -> Result<EcdsaSecp256k1PublicKey, DerivationError>
+) -> Result<Secp256k1PublicKey, DerivationError>
 where
     S: AsRef<str>,
 {
@@ -112,13 +112,13 @@ where
     }?;
 
     let public_key =
-        EcdsaSecp256k1PublicKey(data.try_into().expect("Impossible case. Length is known."));
+        Secp256k1PublicKey(data.try_into().expect("Impossible case. Length is known."));
 
     Ok(public_key)
 }
 
 pub fn olympia_account_address_from_public_key(
-    public_key: &EcdsaSecp256k1PublicKey,
+    public_key: &Secp256k1PublicKey,
     olympia_network: OlympiaNetwork,
 ) -> String {
     let public_key = {
@@ -134,10 +134,7 @@ pub fn olympia_account_address_from_public_key(
     .unwrap()
 }
 
-pub fn node_address_from_public_key(
-    public_key: &EcdsaSecp256k1PublicKey,
-    network_id: u8,
-) -> String {
+pub fn node_address_from_public_key(public_key: &Secp256k1PublicKey, network_id: u8) -> String {
     let hrp = {
         let network_identifier = utils::network_definition_from_network_id(network_id).hrp_suffix;
         format!("node_{network_identifier}")
