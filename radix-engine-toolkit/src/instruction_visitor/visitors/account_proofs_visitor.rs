@@ -20,11 +20,10 @@ use std::convert::Infallible;
 use sbor::prelude::*;
 use scrypto::prelude::*;
 
-use crate::indexed_manifest_value::IndexedManifestValue;
+use crate::instruction_visitor::core::traits::InstructionVisitor;
+use crate::sbor::indexed_manifest_value::IndexedManifestValue;
+use crate::statics::ACCOUNT_PROOF_CREATION_METHODS;
 use crate::utils::is_account;
-use crate::{
-    instruction_visitor::core::traits::InstructionVisitor, statics::ACCOUNT_PROOF_CREATION_METHODS,
-};
 
 #[derive(Default, Clone)]
 pub struct AccountProofsVisitor(HashSet<ResourceAddress>);
