@@ -21,7 +21,9 @@ use native_json_library::models::cryptographic::public_key::{
 };
 use native_json_library::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
 use native_json_library::models::node_id::SerializableNodeId;
-use native_json_library::models::non_fungible_global_id::SerializableNonFungibleGlobalId;
+use native_json_library::models::non_fungible::{
+    SerializableNonFungibleGlobalId, SerializableNonFungibleLocalId,
+};
 
 pub fn generate_serializable_model_examples(
 ) -> IndexMap<&'static str, IndexMap<String, Vec<serde_json::Value>>> {
@@ -37,6 +39,7 @@ pub fn generate_serializable_model_examples(
         ],
         "non_fungible" => model_examples![
             SerializableNonFungibleGlobalId,
+            SerializableNonFungibleLocalId
         ],
         "node_id" => model_examples![
             SerializableNodeId,

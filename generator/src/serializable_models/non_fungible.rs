@@ -17,8 +17,9 @@
 
 use std::str::FromStr;
 
-use native_json_library::models::non_fungible_global_id::{
+use native_json_library::models::non_fungible::{
     SerializableNonFungibleGlobalId, SerializableNonFungibleGlobalIdInternal,
+    SerializableNonFungibleLocalId,
 };
 use radix_engine_common::prelude::{NonFungibleLocalId, ACCOUNT_OWNER_BADGE};
 use transaction::prelude::NonFungibleGlobalId;
@@ -27,6 +28,21 @@ use super::traits::HasExamples;
 
 impl<'d> HasExamples<'d> for SerializableNonFungibleGlobalId {
     fn examples() -> Vec<Self> {
+        SerializableNonFungibleLocalId::examples()
+            .into_iter()
+            .map(|local_id| NonFungibleGlobalId::new(ACCOUNT_OWNER_BADGE, local_id.0))
+            .map(|global_id| {
+                SerializableNonFungibleGlobalId(SerializableNonFungibleGlobalIdInternal {
+                    network_id: 0x01,
+                    non_fungible_global_id: global_id,
+                })
+            })
+            .collect()
+    }
+}
+
+impl<'d> HasExamples<'d> for SerializableNonFungibleLocalId {
+    fn examples() -> Vec<Self> {
         vec![
             NonFungibleLocalId::string("Hello").unwrap(),
             NonFungibleLocalId::integer(1),
@@ -34,13 +50,7 @@ impl<'d> HasExamples<'d> for SerializableNonFungibleGlobalId {
             NonFungibleLocalId::from_str("{86cc8d24-194d-4393-85ee-91ee00000005}").unwrap(),
         ]
         .into_iter()
-        .map(|local_id| NonFungibleGlobalId::new(ACCOUNT_OWNER_BADGE, local_id))
-        .map(|global_id| {
-            SerializableNonFungibleGlobalId(SerializableNonFungibleGlobalIdInternal {
-                network_id: 0x01,
-                non_fungible_global_id: global_id,
-            })
-        })
+        .map(Self)
         .collect()
     }
 }

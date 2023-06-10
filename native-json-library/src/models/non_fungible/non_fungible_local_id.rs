@@ -15,9 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod cryptographic;
-pub mod macros;
-pub mod network;
-pub mod node_id;
-pub mod non_fungible;
-pub mod number;
+use crate::models::macros::serializable_string_wrapper;
+use scrypto::prelude::NonFungibleLocalId;
+
+serializable_string_wrapper!(NonFungibleLocalId);

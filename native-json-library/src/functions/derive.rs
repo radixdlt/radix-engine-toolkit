@@ -23,7 +23,7 @@ use crate::models::cryptographic::public_key::{
 };
 use crate::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
 use crate::models::node_id::{SerializableNodeId, SerializableNodeIdInternal};
-use crate::models::non_fungible_global_id::{
+use crate::models::non_fungible::{
     SerializableNonFungibleGlobalId, SerializableNonFungibleGlobalIdInternal,
 };
 use crate::utils::debug_string;

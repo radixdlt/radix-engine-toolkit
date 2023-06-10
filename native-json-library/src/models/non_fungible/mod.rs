@@ -15,9 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod cryptographic;
-pub mod macros;
-pub mod network;
-pub mod node_id;
-pub mod non_fungible;
-pub mod number;
+mod non_fungible_global_id;
+mod non_fungible_local_id;
+
+pub use non_fungible_global_id::*;
+pub use non_fungible_local_id::*;
