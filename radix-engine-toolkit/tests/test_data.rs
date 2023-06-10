@@ -78,3 +78,15 @@ pub fn private_key3() -> Secp256k1PrivateKey {
 pub fn private_key4() -> Ed25519PrivateKey {
     Ed25519PrivateKey::from_u64(2).unwrap()
 }
+
+pub fn account1() -> ComponentAddress {
+    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
+    let public_key = private_key.public_key();
+    ComponentAddress::virtual_account_from_public_key(&public_key)
+}
+
+pub fn account2() -> ComponentAddress {
+    let private_key = Secp256k1PrivateKey::from_u64(2).unwrap();
+    let public_key = private_key.public_key();
+    ComponentAddress::virtual_account_from_public_key(&public_key)
+}

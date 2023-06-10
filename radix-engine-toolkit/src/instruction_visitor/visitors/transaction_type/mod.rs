@@ -15,7 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod account_interactions_visitor;
-pub mod account_proofs_visitor;
-pub mod identity_interactions_visitor;
-pub mod transaction_type;
+pub mod simple_transfer_visitor;

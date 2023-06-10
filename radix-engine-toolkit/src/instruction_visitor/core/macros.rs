@@ -17,20 +17,18 @@
 
 #![allow(unused_macros, unused_imports)]
 
-macro_rules! traverse {
+#[macro_export]
+macro_rules! traverse_instructions {
     (
         $instructions: expr,
         $( $visitor: ident ),* $(,)?
     ) => {
         {
-            super::traverser::traverse($instructions, &mut [$(&mut $visitor),*])?;
-
-            (
+            $crate::instruction_visitor::core::traverser::traverse($instructions, &mut [$(&mut $visitor),*]).map(|_| (
                 $(
-                    $visitor.output()
+                    $crate::instruction_visitor::core::traits::InstructionVisitor::output($visitor)
                 ),*
-            )
+            ))
         }
     };
 }
-pub(crate) use traverse;

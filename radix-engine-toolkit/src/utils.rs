@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::NetworkDefinition;
+use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
 use scrypto::prelude::*;
 use transaction::{builder::TransactionManifestV1, model::IntentV1};
 
@@ -111,6 +112,28 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
             hrp_suffix: format!("tdx_{:x}_", network_id),
         },
     }
+}
+
+pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
+    manifest_encode(value)
+        .ok()
+        .and_then(|encoded| manifest_decode(&encoded).ok())
+}
+
+#[allow(clippy::result_unit_err)]
+pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
+    value: &ManifestValue,
+) -> Result<(), ()> {
+    let (local_type_index, schema) =
+        generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
+    let encoded_payload = manifest_encode(&value).unwrap();
+    validate_payload_against_schema::<ManifestCustomExtension, _>(
+        &encoded_payload,
+        &schema,
+        local_type_index,
+        &(),
+    )
+    .map_err(|_| ())
 }
 
 pub fn is_account(node_id: &NodeId) -> bool {
