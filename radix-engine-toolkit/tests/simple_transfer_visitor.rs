@@ -69,7 +69,7 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
                 NonFungibleLocalId::integer(2),
             ]),
         )
-        .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+        .take_from_worktop(RADIX_TOKEN, 2.into(), |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
         .build();
@@ -112,7 +112,7 @@ pub fn simple_transfer_visitor_invalidated_transfer_with_an_additional_withdraw(
                 NonFungibleLocalId::integer(2),
             ]),
         )
-        .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+        .take_from_worktop(RADIX_TOKEN, 2.into(), |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
         .build();

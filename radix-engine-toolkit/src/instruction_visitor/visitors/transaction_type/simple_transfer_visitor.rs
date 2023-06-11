@@ -64,6 +64,8 @@ impl InstructionVisitor for SimpleTransferVisitor {
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
         if is_account(address.as_node_id()) {
+            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+
             // Two account methods are allowed: Withdraw and Withdraw non-fungibles.
             if let (
                 ACCOUNT_WITHDRAW_IDENT,
@@ -80,7 +82,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
                 &self.withdraw,
             ) {
                 self.withdraw = Some((
-                    ComponentAddress::new_or_panic(address.as_node_id().0),
+                    component_address,
                     ResourceSpecifier::Amount(resource_address, amount),
                 ))
             } else if let (
@@ -98,7 +100,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
                 &self.withdraw,
             ) {
                 self.withdraw = Some((
-                    ComponentAddress::new_or_panic(address.as_node_id().0),
+                    component_address,
                     ResourceSpecifier::Ids(resource_address, ids),
                 ))
             } else if let (
@@ -116,7 +118,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
                 &self.withdraw,
                 &self.deposit,
             ) {
-                self.deposit = Some(ComponentAddress::new_or_panic(address.as_node_id().0))
+                self.deposit = Some(component_address)
             } else {
                 self.illegal_instruction_encountered = true
             }

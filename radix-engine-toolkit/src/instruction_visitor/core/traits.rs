@@ -19,10 +19,20 @@
 
 use super::error::InstructionVisitorError;
 use scrypto::prelude::*;
+use transaction::prelude::InstructionV1;
 
 pub trait InstructionVisitor {
     type Error: Debug + Into<InstructionVisitorError>;
     type Output: Sized;
+
+    //=====
+    // Raw
+    //=====
+
+    #[inline]
+    fn visit_instruction(&mut self, instruction: &InstructionV1) -> Result<(), Self::Error> {
+        Ok(())
+    }
 
     //==============
     // Instructions

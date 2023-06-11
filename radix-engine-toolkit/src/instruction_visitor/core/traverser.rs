@@ -28,6 +28,7 @@ pub fn traverse(
     >],
 ) -> Result<(), InstructionVisitorError> {
     for instruction in instructions {
+        for_each_enabled_visitor!(visitors, visit_instruction(instruction));
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
                 for_each_enabled_visitor!(visitors, visit_take_all_from_worktop(resource_address));

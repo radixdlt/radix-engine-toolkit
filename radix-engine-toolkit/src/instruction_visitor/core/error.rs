@@ -15,15 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::TransferTransactionTypeError;
 use std::convert::Infallible;
 
 #[derive(Debug, Clone)]
 pub enum InstructionVisitorError {
     Infallible(Infallible),
+    TransferTransactionTypeError(TransferTransactionTypeError),
 }
 
 impl From<Infallible> for InstructionVisitorError {
     fn from(error: Infallible) -> Self {
         Self::Infallible(error)
+    }
+}
+
+impl From<TransferTransactionTypeError> for InstructionVisitorError {
+    fn from(value: TransferTransactionTypeError) -> Self {
+        Self::TransferTransactionTypeError(value)
     }
 }

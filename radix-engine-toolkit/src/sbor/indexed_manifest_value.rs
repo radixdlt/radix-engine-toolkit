@@ -22,6 +22,7 @@ use sbor::rust::cell::Ref;
 use sbor::rust::prelude::*;
 use sbor::traversal::*;
 use sbor::*;
+use transaction::prelude::{ManifestBucket, ManifestExpression};
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {
@@ -29,6 +30,8 @@ pub struct IndexedManifestValue {
     manifest_value: RefCell<Option<ManifestValue>>,
 
     addresses: Vec<NodeId>,
+    buckets: Vec<ManifestBucket>,
+    expressions: Vec<ManifestExpression>,
 }
 
 impl IndexedManifestValue {
@@ -39,7 +42,9 @@ impl IndexedManifestValue {
             ExpectedStart::PayloadPrefix(MANIFEST_SBOR_V1_PAYLOAD_PREFIX),
             true,
         );
-        let mut addresses = Vec::<NodeId>::new();
+        let mut addresses = Vec::new();
+        let mut buckets = Vec::new();
+        let mut expressions = Vec::new();
         loop {
             let event = traverser.next_event();
             match event.event {
@@ -49,9 +54,11 @@ impl IndexedManifestValue {
                     if let traversal::TerminalValueRef::Custom(c) = r {
                         match c.0 {
                             ManifestCustomValue::Address(address) => addresses.push(address.0),
-                            ManifestCustomValue::Bucket(_)
-                            | ManifestCustomValue::Proof(_)
-                            | ManifestCustomValue::Expression(_)
+                            ManifestCustomValue::Bucket(bucket) => buckets.push(bucket),
+                            ManifestCustomValue::Expression(expression) => {
+                                expressions.push(expression)
+                            }
+                            ManifestCustomValue::Proof(_)
                             | ManifestCustomValue::Blob(_)
                             | ManifestCustomValue::Decimal(_)
                             | ManifestCustomValue::PreciseDecimal(_)
@@ -73,6 +80,8 @@ impl IndexedManifestValue {
         Ok(Self {
             bytes,
             addresses,
+            buckets,
+            expressions,
             manifest_value: RefCell::new(None),
         })
     }
@@ -130,5 +139,13 @@ impl IndexedManifestValue {
 
     pub fn addresses(&self) -> &Vec<NodeId> {
         &self.addresses
+    }
+
+    pub fn expressions(&self) -> &Vec<ManifestExpression> {
+        &self.expressions
+    }
+
+    pub fn buckets(&self) -> &Vec<ManifestBucket> {
+        &self.buckets
     }
 }

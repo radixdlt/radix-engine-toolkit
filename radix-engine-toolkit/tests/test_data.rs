@@ -90,3 +90,9 @@ pub fn account2() -> ComponentAddress {
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }
+
+pub fn account3() -> ComponentAddress {
+    let private_key = Secp256k1PrivateKey::from_u64(3).unwrap();
+    let public_key = private_key.public_key();
+    ComponentAddress::virtual_account_from_public_key(&public_key)
+}
