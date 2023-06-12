@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine::system::system_modules::execution_trace::*;
+use radix_engine::transaction::TransactionReceipt;
 use radix_engine::utils::*;
 use sbor::*;
 use scrypto::prelude::*;
@@ -73,8 +74,9 @@ pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<NodeId>, Ha
 
 pub fn transaction_type(
     instructions: &[InstructionV1],
+    transaction_receipt: &TransactionReceipt,
 ) -> Result<TransactionType, InstructionVisitorError> {
-    let mut simple_transfer_visitor = SimpleTransferVisitor::default();
+    let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let mut transfer_visitor = TransferTransactionTypeVisitor::default();
 
     traverse(

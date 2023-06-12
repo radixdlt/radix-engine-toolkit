@@ -17,7 +17,7 @@
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_toolkit::{
-    instruction_visitor::visitors::transaction_type::simple_transfer_visitor::SimpleTransferVisitor,
+    instruction_visitor::visitors::transaction_type::simple_transfer_visitor::SimpleTransactionTypeVisitor,
     traverse_instructions,
 };
 use scrypto::prelude::*;
@@ -39,7 +39,7 @@ pub fn simple_transfer_visitor_can_pick_up_fungible_transfer() {
         .build();
 
     // Act
-    let mut simple_transfer_visitor = SimpleTransferVisitor::default();
+    let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let (from_account, to_account, resource_specifier) =
         traverse_instructions!(&manifest.instructions, simple_transfer_visitor)
             .unwrap()
@@ -75,7 +75,7 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
         .build();
 
     // Act
-    let mut simple_transfer_visitor = SimpleTransferVisitor::default();
+    let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let (from_account, to_account, resource_specifier) =
         traverse_instructions!(&manifest.instructions, simple_transfer_visitor)
             .unwrap()
@@ -118,7 +118,7 @@ pub fn simple_transfer_visitor_invalidated_transfer_with_an_additional_withdraw(
         .build();
 
     // Act
-    let mut simple_transfer_visitor = SimpleTransferVisitor::default();
+    let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let transfer_data =
         traverse_instructions!(&manifest.instructions, simple_transfer_visitor).unwrap();
 

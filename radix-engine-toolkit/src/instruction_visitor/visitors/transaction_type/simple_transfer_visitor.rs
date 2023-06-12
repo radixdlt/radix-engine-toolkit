@@ -24,7 +24,7 @@ use scrypto::prelude::*;
 use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress};
 
 #[derive(Default, Debug, Clone)]
-pub struct SimpleTransferVisitor {
+pub struct SimpleTransactionTypeVisitor {
     withdraw: Option<(ComponentAddress, ResourceSpecifier)>,
     deposit: Option<ComponentAddress>,
 
@@ -32,7 +32,7 @@ pub struct SimpleTransferVisitor {
     instruction_index: usize,
 }
 
-impl SimpleTransferVisitor {
+impl SimpleTransactionTypeVisitor {
     pub fn output(self) -> Option<(ComponentAddress, ComponentAddress, ResourceSpecifier)> {
         if self.illegal_instruction_encountered {
             None
@@ -46,7 +46,7 @@ impl SimpleTransferVisitor {
     }
 }
 
-impl InstructionVisitor for SimpleTransferVisitor {
+impl InstructionVisitor for SimpleTransactionTypeVisitor {
     fn is_enabled(&self) -> bool {
         !self.illegal_instruction_encountered
     }
