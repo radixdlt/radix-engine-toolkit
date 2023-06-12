@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::LocatedGeneralTransactionTypeError;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::TransferTransactionTypeError;
 use std::convert::Infallible;
 
@@ -22,6 +23,7 @@ use std::convert::Infallible;
 pub enum InstructionVisitorError {
     Infallible(Infallible),
     TransferTransactionTypeError(TransferTransactionTypeError),
+    LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
 }
 
 impl From<Infallible> for InstructionVisitorError {
@@ -33,5 +35,11 @@ impl From<Infallible> for InstructionVisitorError {
 impl From<TransferTransactionTypeError> for InstructionVisitorError {
     fn from(value: TransferTransactionTypeError) -> Self {
         Self::TransferTransactionTypeError(value)
+    }
+}
+
+impl From<LocatedGeneralTransactionTypeError> for InstructionVisitorError {
+    fn from(value: LocatedGeneralTransactionTypeError) -> Self {
+        Self::LocatedGeneralTransactionTypeError(value)
     }
 }

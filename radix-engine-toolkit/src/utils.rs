@@ -15,9 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::system::system::DynSubstate;
+use radix_engine::transaction::TransactionReceipt;
 use radix_engine_common::prelude::NetworkDefinition;
+use radix_engine_queries::typed_substate_layout::{
+    to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
+    TypedMainModuleSubstateValue, TypedSubstateKey, TypedSubstateValue,
+};
+use radix_engine_store_interface::interface::DatabaseUpdate;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
-use scrypto::prelude::*;
+use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::DynamicGlobalAddress};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
@@ -167,4 +174,125 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
             )
         }
     }
+}
+
+pub fn metadata_of_newly_created_entities(
+    receipt: &TransactionReceipt,
+) -> Option<HashMap<GlobalAddress, HashMap<String, MetadataValue>>> {
+    if !receipt.is_commit_success() {
+        return None;
+    }
+
+    let mut map = HashMap::<GlobalAddress, HashMap<String, MetadataValue>>::new();
+    let commit_success = receipt.expect_commit_success();
+    for global_address in commit_success
+        .new_component_addresses()
+        .iter()
+        .map(|address| address.into_node_id())
+        .chain(
+            commit_success
+                .new_package_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .chain(
+            commit_success
+                .new_resource_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .map(|node_id| GlobalAddress::new_or_panic(node_id.0))
+    {
+        if let Some(key_update_map) = commit_success
+            .state_updates
+            .system_updates
+            .get(&(*global_address.as_node_id(), METADATA_KV_STORE_PARTITION))
+        {
+            for (substate_key, database_update) in key_update_map.iter() {
+                if let DatabaseUpdate::Set(data) = database_update {
+                    if let Ok((
+                        TypedSubstateKey::MetadataModuleEntryKey(key),
+                        TypedSubstateValue::MetadataModuleEntryValue(DynSubstate { value, .. }),
+                    )) = to_typed_substate_key(
+                        global_address.as_node_id().entity_type().unwrap(),
+                        METADATA_KV_STORE_PARTITION,
+                        substate_key,
+                    )
+                    .and_then(|typed_substate_key| {
+                        to_typed_substate_value(&typed_substate_key, data)
+                            .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
+                    }) {
+                        map.entry(global_address)
+                            .or_default()
+                            .insert(key, value.unwrap());
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+    }
+
+    Some(map)
+}
+
+pub fn data_of_newly_minted_non_fungibles(
+    receipt: &TransactionReceipt,
+) -> Option<HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>> {
+    if !receipt.is_commit_success() {
+        return None;
+    }
+
+    let mut map = HashMap::<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>::new();
+    let commit_success = receipt.expect_commit_success();
+
+    for ((node_id, partition_number), database_update_map) in
+        commit_success.state_updates.system_updates.iter()
+    {
+        // Only care about non-fungible resource manager nodes, ignore everything else
+        if !node_id.entity_type().map_or(false, |entity_type| {
+            entity_type.is_global_non_fungible_resource_manager()
+        }) {
+            continue;
+        }
+
+        for (substate_key, database_update) in database_update_map {
+            if let DatabaseUpdate::Set(data) = database_update {
+                if let Ok((
+                    TypedSubstateKey::MainModule(
+                        TypedMainModuleSubstateKey::NonFungibleResourceData(non_fungible_local_id),
+                    ),
+                    TypedSubstateValue::MainModule(
+                        TypedMainModuleSubstateValue::NonFungibleResourceData(DynSubstate {
+                            value: non_fungible_data,
+                            ..
+                        }),
+                    ),
+                )) = to_typed_substate_key(
+                    node_id.entity_type().unwrap(),
+                    *partition_number,
+                    substate_key,
+                )
+                .and_then(|typed_substate_key| {
+                    to_typed_substate_value(&typed_substate_key, data)
+                        .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
+                }) {
+                    let resource_address = ResourceAddress::new_or_panic(node_id.0);
+                    let non_fungible_local_id = non_fungible_local_id;
+                    let non_fungible_data = scrypto_decode::<ScryptoValue>(
+                        &scrypto_encode(&non_fungible_data.unwrap()).unwrap(),
+                    )
+                    .unwrap();
+
+                    map.entry(resource_address)
+                        .or_default()
+                        .insert(non_fungible_local_id, non_fungible_data);
+                }
+            } else {
+                continue;
+            }
+        }
+    }
+
+    Some(map)
 }
