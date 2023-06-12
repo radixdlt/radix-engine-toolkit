@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::instruction_visitor::core::traits::InstructionVisitor;
 use radix_engine_toolkit::instruction_visitor::core::traverser::traverse;
 use radix_engine_toolkit::instruction_visitor::visitors::account_proofs_visitor::AccountProofsVisitor;
 use scrypto::prelude::*;

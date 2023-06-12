@@ -26,7 +26,7 @@ macro_rules! traverse_instructions {
         {
             $crate::instruction_visitor::core::traverser::traverse($instructions, &mut [$(&mut $visitor),*]).map(|_| (
                 $(
-                    $crate::instruction_visitor::core::traits::InstructionVisitor::output($visitor)
+                    $visitor.output()
                 ),*
             ))
         }

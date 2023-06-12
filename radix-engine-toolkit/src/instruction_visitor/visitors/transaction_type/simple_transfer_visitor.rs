@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::utils::{is_account, to_manifest_type, validate_manifest_value_against_schema};
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
-use std::convert::Infallible;
 use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress};
 
 #[derive(Default, Debug, Clone)]
@@ -32,11 +32,8 @@ pub struct SimpleTransferVisitor {
     instruction_index: usize,
 }
 
-impl InstructionVisitor for SimpleTransferVisitor {
-    type Error = Infallible;
-    type Output = Option<(ComponentAddress, ComponentAddress, ResourceSpecifier)>;
-
-    fn output(self) -> Self::Output {
+impl SimpleTransferVisitor {
+    pub fn output(self) -> Option<(ComponentAddress, ComponentAddress, ResourceSpecifier)> {
         if self.illegal_instruction_encountered {
             None
         } else if let (Some((from_account, resource_specifier)), Some(to_account)) =
@@ -47,12 +44,14 @@ impl InstructionVisitor for SimpleTransferVisitor {
             None
         }
     }
+}
 
+impl InstructionVisitor for SimpleTransferVisitor {
     fn is_enabled(&self) -> bool {
         !self.illegal_instruction_encountered
     }
 
-    fn post_visit(&mut self) -> Result<(), Self::Error> {
+    fn post_visit(&mut self) -> Result<(), InstructionVisitorError> {
         self.instruction_index += 1;
         Ok(())
     }
@@ -63,7 +62,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -143,7 +142,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if self.instruction_index != 1 {
             self.illegal_instruction_encountered = true
         }
@@ -154,7 +153,10 @@ impl InstructionVisitor for SimpleTransferVisitor {
     /* Illegal Instructions */
 
     #[inline]
-    fn visit_take_all_from_worktop(&mut self, _: &ResourceAddress) -> Result<(), Self::Error> {
+    fn visit_take_all_from_worktop(
+        &mut self,
+        _: &ResourceAddress,
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -164,13 +166,16 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_return_to_worktop(&mut self, _: &ManifestBucket) -> Result<(), Self::Error> {
+    fn visit_return_to_worktop(
+        &mut self,
+        _: &ManifestBucket,
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -180,7 +185,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -190,25 +195,28 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_pop_from_auth_zone(&mut self) -> Result<(), Self::Error> {
+    fn visit_pop_from_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_push_to_auth_zone(&mut self, _: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_push_to_auth_zone(
+        &mut self,
+        _: &ManifestProof,
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_clear_auth_zone(&mut self) -> Result<(), Self::Error> {
+    fn visit_clear_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -217,7 +225,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
     fn visit_create_proof_from_auth_zone(
         &mut self,
         _: &ResourceAddress,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -227,7 +235,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -237,7 +245,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ResourceAddress,
         _: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -246,19 +254,22 @@ impl InstructionVisitor for SimpleTransferVisitor {
     fn visit_create_proof_from_auth_zone_of_all(
         &mut self,
         _: &ResourceAddress,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_clear_signature_proofs(&mut self) -> Result<(), Self::Error> {
+    fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_create_proof_from_bucket(&mut self, _: &ManifestBucket) -> Result<(), Self::Error> {
+    fn visit_create_proof_from_bucket(
+        &mut self,
+        _: &ManifestBucket,
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -268,7 +279,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ManifestBucket,
         _: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -278,7 +289,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         &mut self,
         _: &ManifestBucket,
         _: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -287,25 +298,25 @@ impl InstructionVisitor for SimpleTransferVisitor {
     fn visit_create_proof_from_bucket_of_all(
         &mut self,
         _: &ManifestBucket,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_burn_resource(&mut self, _: &ManifestBucket) -> Result<(), Self::Error> {
+    fn visit_burn_resource(&mut self, _: &ManifestBucket) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_clone_proof(&mut self, _: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_clone_proof(&mut self, _: &ManifestProof) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_drop_proof(&mut self, _: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_drop_proof(&mut self, _: &ManifestProof) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -317,7 +328,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         _: &str,
         _: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -328,7 +339,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -339,7 +350,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -350,7 +361,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
         _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -361,13 +372,13 @@ impl InstructionVisitor for SimpleTransferVisitor {
         _: &InternalAddress,
         _: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
 
     #[inline]
-    fn visit_drop_all_proofs(&mut self) -> Result<(), Self::Error> {
+    fn visit_drop_all_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }

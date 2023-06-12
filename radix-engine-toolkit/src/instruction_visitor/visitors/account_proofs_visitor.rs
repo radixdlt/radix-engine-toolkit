@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::convert::Infallible;
-
 use sbor::prelude::*;
 use scrypto::prelude::*;
 use transaction::prelude::DynamicGlobalAddress;
 
+use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::sbor::indexed_manifest_value::IndexedManifestValue;
 use crate::statics::ACCOUNT_PROOF_CREATION_METHODS;
@@ -29,16 +28,19 @@ use crate::utils::is_account;
 #[derive(Default, Clone)]
 pub struct AccountProofsVisitor(HashSet<ResourceAddress>);
 
-impl InstructionVisitor for AccountProofsVisitor {
-    type Error = Infallible;
-    type Output = HashSet<ResourceAddress>;
+impl AccountProofsVisitor {
+    pub fn output(self) -> HashSet<ResourceAddress> {
+        self.0
+    }
+}
 
+impl InstructionVisitor for AccountProofsVisitor {
     fn visit_call_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name.to_owned()) {
             self.0.extend(
                 IndexedManifestValue::from_manifest_value(args)
@@ -55,9 +57,5 @@ impl InstructionVisitor for AccountProofsVisitor {
         }
 
         Ok(())
-    }
-
-    fn output(self) -> Self::Output {
-        self.0
     }
 }

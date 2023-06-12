@@ -17,15 +17,11 @@
 
 use super::error::InstructionVisitorError;
 use super::traits::InstructionVisitor;
-use std::fmt::Debug;
 use transaction::prelude::InstructionV1;
 
 pub fn traverse(
     instructions: &[InstructionV1],
-    visitors: &mut [&mut dyn InstructionVisitor<
-        Error = impl Debug + Into<InstructionVisitorError>,
-        Output = impl Sized,
-    >],
+    visitors: &mut [&mut dyn InstructionVisitor],
 ) -> Result<(), InstructionVisitorError> {
     for instruction in instructions {
         for_each_enabled_visitor!(visitors, visit_instruction(instruction));
@@ -218,7 +214,7 @@ pub fn traverse(
 
         for visitor in visitors.iter_mut() {
             if visitor.is_enabled() {
-                visitor.post_visit().map_err(Into::into)?;
+                visitor.post_visit()?;
             }
         }
     }
@@ -232,7 +228,7 @@ macro_rules! for_each_enabled_visitor {
             if visitor.is_enabled() {
                 visitor.$method_ident(
                     $($arg),*
-                ).map_err(Into::into)?;
+                )?;
             }
         }
     };

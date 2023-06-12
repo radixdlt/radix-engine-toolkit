@@ -19,6 +19,7 @@ pub mod information;
 
 pub mod derive;
 
+pub mod instructions;
 pub mod intent;
 pub mod manifest;
 pub mod notarized_transaction;

@@ -22,15 +22,15 @@ use scrypto::prelude::*;
 use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress, InstructionV1};
 
 pub trait InstructionVisitor {
-    type Error: Debug + Into<InstructionVisitorError>;
-    type Output: Sized;
-
     //=====
     // Raw
     //=====
 
     #[inline]
-    fn visit_instruction(&mut self, instruction: &InstructionV1) -> Result<(), Self::Error> {
+    fn visit_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -42,7 +42,7 @@ pub trait InstructionVisitor {
     fn visit_take_all_from_worktop(
         &mut self,
         resource_address: &ResourceAddress,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -51,7 +51,7 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         amount: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -60,12 +60,15 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         ids: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_return_to_worktop(&mut self, bucket_id: &ManifestBucket) -> Result<(), Self::Error> {
+    fn visit_return_to_worktop(
+        &mut self,
+        bucket_id: &ManifestBucket,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -74,7 +77,7 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         amount: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -83,22 +86,25 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         ids: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_pop_from_auth_zone(&mut self) -> Result<(), Self::Error> {
+    fn visit_pop_from_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_push_to_auth_zone(&mut self, proof_id: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_push_to_auth_zone(
+        &mut self,
+        proof_id: &ManifestProof,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_clear_auth_zone(&mut self) -> Result<(), Self::Error> {
+    fn visit_clear_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -106,7 +112,7 @@ pub trait InstructionVisitor {
     fn visit_create_proof_from_auth_zone(
         &mut self,
         resource_address: &ResourceAddress,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -115,7 +121,7 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         amount: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -124,7 +130,7 @@ pub trait InstructionVisitor {
         &mut self,
         resource_address: &ResourceAddress,
         ids: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -132,12 +138,12 @@ pub trait InstructionVisitor {
     fn visit_create_proof_from_auth_zone_of_all(
         &mut self,
         resource_address: &ResourceAddress,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_clear_signature_proofs(&mut self) -> Result<(), Self::Error> {
+    fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -145,7 +151,7 @@ pub trait InstructionVisitor {
     fn visit_create_proof_from_bucket(
         &mut self,
         bucket_id: &ManifestBucket,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -154,7 +160,7 @@ pub trait InstructionVisitor {
         &mut self,
         bucket_id: &ManifestBucket,
         amount: &Decimal,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -163,7 +169,7 @@ pub trait InstructionVisitor {
         &mut self,
         bucket_id: &ManifestBucket,
         ids: &[NonFungibleLocalId],
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -171,22 +177,31 @@ pub trait InstructionVisitor {
     fn visit_create_proof_from_bucket_of_all(
         &mut self,
         bucket_id: &ManifestBucket,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_burn_resource(&mut self, bucket_id: &ManifestBucket) -> Result<(), Self::Error> {
+    fn visit_burn_resource(
+        &mut self,
+        bucket_id: &ManifestBucket,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_clone_proof(&mut self, proof_id: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_clone_proof(
+        &mut self,
+        proof_id: &ManifestProof,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_drop_proof(&mut self, proof_id: &ManifestProof) -> Result<(), Self::Error> {
+    fn visit_drop_proof(
+        &mut self,
+        proof_id: &ManifestProof,
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -197,7 +212,7 @@ pub trait InstructionVisitor {
         blueprint_name: &str,
         function_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -207,7 +222,7 @@ pub trait InstructionVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -217,7 +232,7 @@ pub trait InstructionVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -227,7 +242,7 @@ pub trait InstructionVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -237,7 +252,7 @@ pub trait InstructionVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -247,12 +262,12 @@ pub trait InstructionVisitor {
         vault_id: &InternalAddress,
         method_name: &str,
         args: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
-    fn visit_drop_all_proofs(&mut self) -> Result<(), Self::Error> {
+    fn visit_drop_all_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -261,7 +276,7 @@ pub trait InstructionVisitor {
         &mut self,
         package_address: &PackageAddress,
         blueprint_name: &str,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -270,15 +285,13 @@ pub trait InstructionVisitor {
     //========
 
     #[inline]
-    fn post_visit(&mut self) -> Result<(), Self::Error> {
+    fn post_visit(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     //=======
     // State
     //=======
-
-    fn output(self) -> Self::Output;
 
     #[inline]
     fn is_enabled(&self) -> bool {

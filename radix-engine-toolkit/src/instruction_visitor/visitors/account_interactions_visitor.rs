@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::utils::is_account;
 use scrypto::api::ObjectModuleId;
 use scrypto::prelude::*;
-use std::convert::Infallible;
 use transaction::prelude::DynamicGlobalAddress;
 
 #[derive(Default, Clone, Debug)]
@@ -29,28 +29,29 @@ pub struct AccountInteractionsVisitor {
     accounts_deposited_into: HashSet<ComponentAddress>,
 }
 
-impl InstructionVisitor for AccountInteractionsVisitor {
-    type Error = Infallible;
-    type Output = (
+impl AccountInteractionsVisitor {
+    pub fn output(
+        self,
+    ) -> (
         HashSet<ComponentAddress>,
         HashSet<ComponentAddress>,
         HashSet<ComponentAddress>,
-    );
-
-    fn output(self) -> Self::Output {
+    ) {
         (
             self.accounts_requiring_auth,
             self.accounts_withdrawn_from,
             self.accounts_deposited_into,
         )
     }
+}
 
+impl InstructionVisitor for AccountInteractionsVisitor {
     fn visit_call_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -91,7 +92,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -124,7 +125,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -157,7 +158,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {

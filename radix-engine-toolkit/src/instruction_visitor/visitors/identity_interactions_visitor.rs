@@ -15,29 +15,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::convert::Infallible;
-
-use crate::{instruction_visitor::core::traits::InstructionVisitor, utils::is_identity};
+use crate::instruction_visitor::core::error::InstructionVisitorError;
+use crate::instruction_visitor::core::traits::InstructionVisitor;
+use crate::utils::is_identity;
 use scrypto::{api::ObjectModuleId, prelude::*};
 use transaction::prelude::DynamicGlobalAddress;
 
 #[derive(Clone, Default)]
 pub struct IdentityInteractionsVisitor(HashSet<ComponentAddress>);
 
-impl InstructionVisitor for IdentityInteractionsVisitor {
-    type Error = Infallible;
-    type Output = HashSet<ComponentAddress>;
-
-    fn output(self) -> Self::Output {
+impl IdentityInteractionsVisitor {
+    pub fn output(self) -> HashSet<ComponentAddress> {
         self.0
     }
+}
 
+impl InstructionVisitor for IdentityInteractionsVisitor {
     fn visit_call_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_identity(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -70,7 +69,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_identity(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -103,7 +102,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_identity(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
@@ -136,7 +135,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
-    ) -> Result<(), Self::Error> {
+    ) -> Result<(), InstructionVisitorError> {
         if is_identity(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {

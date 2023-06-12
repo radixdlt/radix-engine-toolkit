@@ -24,7 +24,7 @@ use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 
 use crate::{
-    instruction_visitor::core::traits::InstructionVisitor,
+    instruction_visitor::core::{error::InstructionVisitorError, traits::InstructionVisitor},
     sbor::indexed_manifest_value::IndexedManifestValue,
     utils::{self, is_account, to_manifest_type},
 };
@@ -47,14 +47,14 @@ pub struct TransferTransactionTypeVisitor {
     is_illegal_state: bool,
 }
 
-impl InstructionVisitor for TransferTransactionTypeVisitor {
-    type Error = TransferTransactionTypeError;
-    type Output = Option<(
+impl TransferTransactionTypeVisitor {
+    #[allow(clippy::type_complexity)]
+    pub fn output(
+        self,
+    ) -> Option<(
         ComponentAddress,
         HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
-    )>;
-
-    fn output(self) -> Self::Output {
+    )> {
         if self.is_illegal_state {
             None
         } else if self.account_withdrawn_from.is_some() && !self.account_deposits.is_empty() {
@@ -63,12 +63,17 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             None
         }
     }
+}
 
+impl InstructionVisitor for TransferTransactionTypeVisitor {
     fn is_enabled(&self) -> bool {
         !self.is_illegal_state
     }
 
-    fn visit_instruction(&mut self, instruction: &InstructionV1) -> Result<(), Self::Error> {
+    fn visit_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+    ) -> Result<(), InstructionVisitorError> {
         match instruction {
             /* Method Calls */
             InstructionV1::CallMethod {
@@ -85,20 +90,20 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
 
                 match method_name.as_str() {
                     ACCOUNT_WITHDRAW_IDENT => to_manifest_type(args)
-                        .ok_or(Self::Error::InvalidArgs)
+                        .ok_or(TransferTransactionTypeError::InvalidArgs)
                         .and_then(|value| self.handle_account_withdraw(component_address, value))?,
                     ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT => to_manifest_type(args)
-                        .ok_or(Self::Error::InvalidArgs)
+                        .ok_or(TransferTransactionTypeError::InvalidArgs)
                         .and_then(|value| {
                             self.handle_account_withdraw_non_fungibles(component_address, value)
                         })?,
                     ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT => to_manifest_type(args)
-                        .ok_or(Self::Error::InvalidArgs)
+                        .ok_or(TransferTransactionTypeError::InvalidArgs)
                         .and_then(|value| {
                             self.handle_account_lock_fee_and_withdraw(component_address, value)
                         })?,
                     ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT => to_manifest_type(args)
-                        .ok_or(Self::Error::InvalidArgs)
+                        .ok_or(TransferTransactionTypeError::InvalidArgs)
                         .and_then(|value| {
                             self.handle_account_lock_fee_and_withdraw_non_fungibles(
                                 component_address,
@@ -121,12 +126,18 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                 resource_address,
                 amount,
             } => {
-                let (bucket, resources) = self.worktop.take(*resource_address, *amount)?;
+                let (bucket, resources) = self
+                    .worktop
+                    .take(*resource_address, *amount)
+                    .map_err(TransferTransactionTypeError::WorktopError)?;
                 self.bucket_tracker
                     .insert(bucket, (*resource_address, resources));
             }
             InstructionV1::TakeAllFromWorktop { resource_address } => {
-                let (bucket, resources) = self.worktop.take_all(*resource_address)?;
+                let (bucket, resources) = self
+                    .worktop
+                    .take_all(*resource_address)
+                    .map_err(TransferTransactionTypeError::WorktopError)?;
                 self.bucket_tracker
                     .insert(bucket, (*resource_address, resources));
             }
@@ -136,7 +147,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             } => {
                 let (bucket, resources) = self
                     .worktop
-                    .take_non_fungibles(*resource_address, &ids.iter().cloned().collect())?;
+                    .take_non_fungibles(*resource_address, &ids.iter().cloned().collect())
+                    .map_err(TransferTransactionTypeError::WorktopError)?;
                 self.bucket_tracker
                     .insert(bucket, (*resource_address, resources));
             }
@@ -144,8 +156,10 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                 let (resource_address, resources) = self
                     .bucket_tracker
                     .remove(bucket_id)
-                    .ok_or(Self::Error::BucketNotFound(*bucket_id))?;
-                self.worktop.put(resource_address, resources)?;
+                    .ok_or(TransferTransactionTypeError::BucketNotFound(*bucket_id))?;
+                self.worktop
+                    .put(resource_address, resources)
+                    .map_err(TransferTransactionTypeError::WorktopError)?;
             }
             /* Allowed Instructions */
             InstructionV1::AssertWorktopContains { .. }

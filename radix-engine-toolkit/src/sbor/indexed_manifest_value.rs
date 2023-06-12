@@ -147,6 +147,10 @@ impl IndexedManifestValue {
         &self.static_addresses
     }
 
+    pub fn named_addresses(&self) -> &Vec<u32> {
+        &self.named_addresses
+    }
+
     pub fn expressions(&self) -> &Vec<ManifestExpression> {
         &self.expressions
     }
