@@ -19,6 +19,7 @@ use std::convert::Infallible;
 
 use sbor::prelude::*;
 use scrypto::prelude::*;
+use transaction::prelude::DynamicGlobalAddress;
 
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::sbor::indexed_manifest_value::IndexedManifestValue;
@@ -34,16 +35,14 @@ impl InstructionVisitor for AccountProofsVisitor {
 
     fn visit_call_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id())
-            && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name.to_owned())
-        {
+        if is_account(address) && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name.to_owned()) {
             self.0.extend(
                 IndexedManifestValue::from_manifest_value(args)
-                    .addresses()
+                    .static_addresses()
                     .iter()
                     .filter_map(|node_id| {
                         if node_id.is_global_resource_manager() {

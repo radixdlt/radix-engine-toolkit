@@ -205,6 +205,15 @@ pub fn traverse(
             InstructionV1::DropAllProofs => {
                 for_each_enabled_visitor!(visitors, visit_drop_all_proofs())
             }
+            InstructionV1::AllocateGlobalAddress {
+                package_address,
+                blueprint_name,
+            } => {
+                for_each_enabled_visitor!(
+                    visitors,
+                    visit_allocate_global_address(package_address, blueprint_name)
+                )
+            }
         }
 
         for visitor in visitors.iter_mut() {

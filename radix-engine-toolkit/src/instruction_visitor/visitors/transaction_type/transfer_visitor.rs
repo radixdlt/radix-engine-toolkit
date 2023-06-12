@@ -15,7 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use transaction::{prelude::InstructionV1, validation::ManifestIdAllocator};
+use transaction::{
+    prelude::{DynamicGlobalAddress, InstructionV1},
+    validation::ManifestIdAllocator,
+};
 
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
@@ -69,11 +72,11 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
         match instruction {
             /* Method Calls */
             InstructionV1::CallMethod {
-                address,
+                address: DynamicGlobalAddress::Static(address),
                 method_name,
                 args,
             } => {
-                if !is_account(address.as_node_id()) {
+                if !is_account(address) {
                     self.is_illegal_state = true;
                     return Ok(());
                 }
@@ -148,7 +151,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             InstructionV1::AssertWorktopContains { .. }
             | InstructionV1::AssertWorktopContainsNonFungibles { .. } => {}
             /* Illegal Instructions */
-            InstructionV1::PopFromAuthZone
+            InstructionV1::CallMethod { .. }
+            | InstructionV1::PopFromAuthZone
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::ClearAuthZone
             | InstructionV1::CreateProofFromAuthZone { .. }
@@ -168,7 +172,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             | InstructionV1::CallMetadataMethod { .. }
             | InstructionV1::CallAccessRulesMethod { .. }
             | InstructionV1::CallDirectVaultMethod { .. }
-            | InstructionV1::DropAllProofs => {
+            | InstructionV1::DropAllProofs
+            | InstructionV1::AllocateGlobalAddress { .. } => {
                 self.is_illegal_state = true;
             }
         }
@@ -276,7 +281,7 @@ impl TransferTransactionTypeVisitor {
             return Err(TransferTransactionTypeError::InvalidArgs);
         }
 
-        let indexed_manifest_value = IndexedManifestValue::from_manifest_value(&args);
+        let indexed_manifest_value = IndexedManifestValue::from_manifest_value(args);
         let buckets = indexed_manifest_value.buckets();
         let expressions = indexed_manifest_value.expressions();
 

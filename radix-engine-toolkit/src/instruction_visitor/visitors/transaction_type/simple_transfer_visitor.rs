@@ -21,6 +21,7 @@ use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use std::convert::Infallible;
+use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress};
 
 #[derive(Default, Debug, Clone)]
 pub struct SimpleTransferVisitor {
@@ -59,12 +60,20 @@ impl InstructionVisitor for SimpleTransferVisitor {
     #[inline]
     fn visit_call_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id()) {
-            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+        if is_account(address) {
+            let component_address = match address {
+                DynamicGlobalAddress::Static(address) => {
+                    ComponentAddress::new_or_panic(address.as_node_id().0)
+                }
+                DynamicGlobalAddress::Named(_) => {
+                    self.illegal_instruction_encountered = true;
+                    return Ok(());
+                }
+            };
 
             // Two account methods are allowed: Withdraw and Withdraw non-fungibles.
             if let (
@@ -304,7 +313,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
     #[inline]
     fn visit_call_function(
         &mut self,
-        _: &PackageAddress,
+        _: &DynamicPackageAddress,
         _: &str,
         _: &str,
         _: &ManifestValue,
@@ -316,7 +325,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
     #[inline]
     fn visit_call_royalty_method(
         &mut self,
-        _: &GlobalAddress,
+        _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -327,7 +336,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
     #[inline]
     fn visit_call_metadata_method(
         &mut self,
-        _: &GlobalAddress,
+        _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -338,7 +347,7 @@ impl InstructionVisitor for SimpleTransferVisitor {
     #[inline]
     fn visit_call_access_rules_method(
         &mut self,
-        _: &GlobalAddress,
+        _: &DynamicGlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {

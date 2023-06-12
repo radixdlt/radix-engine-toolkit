@@ -20,6 +20,7 @@ use crate::utils::is_account;
 use scrypto::api::ObjectModuleId;
 use scrypto::prelude::*;
 use std::convert::Infallible;
+use transaction::prelude::DynamicGlobalAddress;
 
 #[derive(Default, Clone, Debug)]
 pub struct AccountInteractionsVisitor {
@@ -46,12 +47,19 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
     fn visit_call_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id()) {
-            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+        if is_account(address) {
+            let component_address = match address {
+                DynamicGlobalAddress::Static(address) => {
+                    ComponentAddress::new_or_panic(address.as_node_id().0)
+                }
+                DynamicGlobalAddress::Named(_) => {
+                    return Ok(());
+                }
+            };
 
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
@@ -80,12 +88,19 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
     fn visit_call_access_rules_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id()) {
-            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+        if is_account(address) {
+            let component_address = match address {
+                DynamicGlobalAddress::Static(address) => {
+                    ComponentAddress::new_or_panic(address.as_node_id().0)
+                }
+                DynamicGlobalAddress::Named(_) => {
+                    return Ok(());
+                }
+            };
 
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
@@ -106,12 +121,19 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
     fn visit_call_metadata_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id()) {
-            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+        if is_account(address) {
+            let component_address = match address {
+                DynamicGlobalAddress::Static(address) => {
+                    ComponentAddress::new_or_panic(address.as_node_id().0)
+                }
+                DynamicGlobalAddress::Named(_) => {
+                    return Ok(());
+                }
+            };
 
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
@@ -132,12 +154,19 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
     fn visit_call_royalty_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         _: &ManifestValue,
     ) -> Result<(), Self::Error> {
-        if is_account(address.as_node_id()) {
-            let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
+        if is_account(address) {
+            let component_address = match address {
+                DynamicGlobalAddress::Static(address) => {
+                    ComponentAddress::new_or_panic(address.as_node_id().0)
+                }
+                DynamicGlobalAddress::Named(_) => {
+                    return Ok(());
+                }
+            };
 
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()

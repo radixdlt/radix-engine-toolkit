@@ -19,7 +19,7 @@
 
 use super::error::InstructionVisitorError;
 use scrypto::prelude::*;
-use transaction::prelude::InstructionV1;
+use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress, InstructionV1};
 
 pub trait InstructionVisitor {
     type Error: Debug + Into<InstructionVisitorError>;
@@ -193,7 +193,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_function(
         &mut self,
-        package_address: &PackageAddress,
+        package_address: &DynamicPackageAddress,
         blueprint_name: &str,
         function_name: &str,
         args: &ManifestValue,
@@ -204,7 +204,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -214,7 +214,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_royalty_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -224,7 +224,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_metadata_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -234,7 +234,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_access_rules_method(
         &mut self,
-        address: &GlobalAddress,
+        address: &DynamicGlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), Self::Error> {
@@ -253,6 +253,15 @@ pub trait InstructionVisitor {
 
     #[inline]
     fn visit_drop_all_proofs(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    #[inline]
+    fn visit_allocate_global_address(
+        &mut self,
+        package_address: &PackageAddress,
+        blueprint_name: &str,
+    ) -> Result<(), Self::Error> {
         Ok(())
     }
 

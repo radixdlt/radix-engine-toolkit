@@ -18,7 +18,7 @@
 use radix_engine_common::prelude::NetworkDefinition;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
 use scrypto::prelude::*;
-use transaction::{builder::TransactionManifestV1, model::IntentV1};
+use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::DynamicGlobalAddress};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -136,25 +136,35 @@ pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     .map_err(|_| ())
 }
 
-pub fn is_account(node_id: &NodeId) -> bool {
-    matches!(
-        node_id.entity_type(),
-        Some(
-            EntityType::GlobalAccount
-                | EntityType::InternalAccount
-                | EntityType::GlobalVirtualSecp256k1Account
-                | EntityType::GlobalVirtualEd25519Account
-        )
-    )
+pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
+    match node_id.clone().into() {
+        DynamicGlobalAddress::Named(_) => false,
+        DynamicGlobalAddress::Static(address) => {
+            matches!(
+                address.as_node_id().entity_type(),
+                Some(
+                    EntityType::GlobalAccount
+                        | EntityType::InternalAccount
+                        | EntityType::GlobalVirtualSecp256k1Account
+                        | EntityType::GlobalVirtualEd25519Account
+                )
+            )
+        }
+    }
 }
 
-pub fn is_identity(node_id: &NodeId) -> bool {
-    matches!(
-        node_id.entity_type(),
-        Some(
-            EntityType::GlobalIdentity
-                | EntityType::GlobalVirtualSecp256k1Identity
-                | EntityType::GlobalVirtualEd25519Identity
-        )
-    )
+pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
+    match node_id.clone().into() {
+        DynamicGlobalAddress::Named(_) => false,
+        DynamicGlobalAddress::Static(address) => {
+            matches!(
+                address.as_node_id().entity_type(),
+                Some(
+                    EntityType::GlobalIdentity
+                        | EntityType::GlobalVirtualSecp256k1Identity
+                        | EntityType::GlobalVirtualEd25519Identity
+                )
+            )
+        }
+    }
 }
