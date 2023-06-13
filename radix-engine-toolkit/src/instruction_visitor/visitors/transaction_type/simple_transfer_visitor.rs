@@ -17,7 +17,7 @@
 
 use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
-use crate::utils::{is_account, to_manifest_type, validate_manifest_value_against_schema};
+use crate::utils::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
@@ -25,19 +25,16 @@ use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress};
 
 #[derive(Default, Debug, Clone)]
 pub struct SimpleTransactionTypeVisitor {
-    withdraw: Option<(ComponentAddress, ResourceSpecifier)>,
-    deposit: Option<ComponentAddress>,
-
     illegal_instruction_encountered: bool,
-    instruction_index: usize,
+    state_machine: StateMachine,
 }
 
 impl SimpleTransactionTypeVisitor {
     pub fn output(self) -> Option<(ComponentAddress, ComponentAddress, ResourceSpecifier)> {
         if self.illegal_instruction_encountered {
             None
-        } else if let (Some((from_account, resource_specifier)), Some(to_account)) =
-            (self.withdraw, self.deposit)
+        } else if let Ok((from_account, to_account, resource_specifier)) =
+            self.state_machine.output()
         {
             Some((from_account, to_account, resource_specifier))
         } else {
@@ -49,11 +46,6 @@ impl SimpleTransactionTypeVisitor {
 impl InstructionVisitor for SimpleTransactionTypeVisitor {
     fn is_enabled(&self) -> bool {
         !self.illegal_instruction_encountered
-    }
-
-    fn post_visit(&mut self) -> Result<(), InstructionVisitorError> {
-        self.instruction_index += 1;
-        Ok(())
     }
 
     #[inline]
@@ -74,61 +66,98 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
                 }
             };
 
-            // Two account methods are allowed: Withdraw and Withdraw non-fungibles.
-            if let (
+            if method_name == ACCOUNT_LOCK_FEE_IDENT {
+                let _ = self.state_machine.transition_to_lock_fee().map_err(|_| {
+                    self.illegal_instruction_encountered = true;
+                });
+            } else if let (
                 ACCOUNT_WITHDRAW_IDENT,
                 Some(AccountWithdrawInput {
                     resource_address,
                     amount,
                 }),
-                0,
-                None,
-            ) = (
-                method_name,
-                to_manifest_type(args),
-                self.instruction_index,
-                &self.withdraw,
-            ) {
-                self.withdraw = Some((
-                    component_address,
-                    ResourceSpecifier::Amount(resource_address, amount),
-                ))
+            ) = (method_name, to_manifest_type(args))
+            {
+                let _ = self
+                    .state_machine
+                    .transition_to_account_withdraw(
+                        component_address,
+                        ResourceSpecifier::Amount(resource_address, amount),
+                    )
+                    .map_err(|_| {
+                        self.illegal_instruction_encountered = true;
+                    });
             } else if let (
                 ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
                 Some(AccountWithdrawNonFungiblesInput {
                     resource_address,
                     ids,
                 }),
-                0,
-                None,
-            ) = (
-                method_name,
-                to_manifest_type(args),
-                self.instruction_index,
-                &self.withdraw,
-            ) {
-                self.withdraw = Some((
-                    component_address,
-                    ResourceSpecifier::Ids(resource_address, ids),
-                ))
+            ) = (method_name, to_manifest_type(args))
+            {
+                let _ = self
+                    .state_machine
+                    .transition_to_account_withdraw(
+                        component_address,
+                        ResourceSpecifier::Ids(resource_address, ids),
+                    )
+                    .map_err(|_| {
+                        self.illegal_instruction_encountered = true;
+                    });
             } else if let (
-                ACCOUNT_DEPOSIT_IDENT
-                | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
-                | ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                Ok(_),
-                2,
-                Some(..),
-                None,
-            ) = (
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                Some(AccountLockFeeAndWithdrawInput {
+                    amount,
+                    resource_address,
+                    ..
+                }),
+            ) = (method_name, to_manifest_type(args))
+            {
+                let _ = self
+                    .state_machine
+                    .transition_to_lock_fee()
+                    .and_then(|_| {
+                        self.state_machine.transition_to_account_withdraw(
+                            component_address,
+                            ResourceSpecifier::Amount(resource_address, amount),
+                        )
+                    })
+                    .map_err(|_| {
+                        self.illegal_instruction_encountered = true;
+                    });
+            } else if let (
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                Some(AccountLockFeeAndWithdrawNonFungiblesInput {
+                    ids,
+                    resource_address,
+                    ..
+                }),
+            ) = (method_name, to_manifest_type(args))
+            {
+                let _ = self
+                    .state_machine
+                    .transition_to_lock_fee()
+                    .and_then(|_| {
+                        self.state_machine.transition_to_account_withdraw(
+                            component_address,
+                            ResourceSpecifier::Ids(resource_address, ids),
+                        )
+                    })
+                    .map_err(|_| {
+                        self.illegal_instruction_encountered = true;
+                    });
+            } else if let (ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT, Ok(())) = (
                 method_name,
                 validate_manifest_value_against_schema::<AccountDepositInput>(args),
-                self.instruction_index,
-                &self.withdraw,
-                &self.deposit,
             ) {
-                self.deposit = Some(component_address)
+                let _ = self
+                    .state_machine
+                    .transition_to_deposit(component_address)
+                    .map_err(|_| {
+                        self.illegal_instruction_encountered = true;
+                    });
             } else {
-                self.illegal_instruction_encountered = true
+                self.illegal_instruction_encountered = true;
             }
         } else {
             self.illegal_instruction_encountered = true
@@ -143,9 +172,12 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
         _: &ResourceAddress,
         _: &Decimal,
     ) -> Result<(), InstructionVisitorError> {
-        if self.instruction_index != 1 {
-            self.illegal_instruction_encountered = true
-        }
+        let _ = self
+            .state_machine
+            .transition_to_take_from_worktop()
+            .map_err(|_| {
+                self.illegal_instruction_encountered = true;
+            });
 
         Ok(())
     }
@@ -383,3 +415,85 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
         Ok(())
     }
 }
+
+#[derive(Clone, Debug, Default)]
+enum StateMachine {
+    #[default]
+    None,
+    LockFee,
+    AccountWithdraw(ComponentAddress, ResourceSpecifier),
+    TakeFromWorktop(ComponentAddress, ResourceSpecifier),
+    Deposit(ComponentAddress, ComponentAddress, ResourceSpecifier),
+}
+
+impl StateMachine {
+    pub fn transition_to_lock_fee(&mut self) -> Result<(), StateMachineError> {
+        match self {
+            Self::None => {
+                *self = Self::LockFee;
+                Ok(())
+            }
+            Self::LockFee
+            | Self::AccountWithdraw(..)
+            | Self::TakeFromWorktop(..)
+            | Self::Deposit(..) => Err(StateMachineError),
+        }
+    }
+
+    pub fn transition_to_account_withdraw(
+        &mut self,
+        component_address: ComponentAddress,
+        resource_specifier: ResourceSpecifier,
+    ) -> Result<(), StateMachineError> {
+        match self {
+            Self::None | Self::LockFee => {
+                *self = Self::AccountWithdraw(component_address, resource_specifier);
+                Ok(())
+            }
+            Self::AccountWithdraw(..) | Self::TakeFromWorktop(..) | Self::Deposit(..) => {
+                Err(StateMachineError)
+            }
+        }
+    }
+
+    pub fn transition_to_take_from_worktop(&mut self) -> Result<(), StateMachineError> {
+        match self {
+            Self::AccountWithdraw(from_account, resources) => {
+                *self = Self::TakeFromWorktop(*from_account, resources.clone());
+                Ok(())
+            }
+            Self::None | Self::LockFee | Self::TakeFromWorktop(..) | Self::Deposit(..) => {
+                Err(StateMachineError)
+            }
+        }
+    }
+
+    pub fn transition_to_deposit(
+        &mut self,
+        to_account: ComponentAddress,
+    ) -> Result<(), StateMachineError> {
+        match self {
+            Self::TakeFromWorktop(from_account, resources) => {
+                *self = Self::Deposit(*from_account, to_account, resources.clone());
+                Ok(())
+            }
+            Self::None | Self::LockFee | Self::Deposit(..) | Self::AccountWithdraw(..) => {
+                Err(StateMachineError)
+            }
+        }
+    }
+
+    pub fn output(
+        self,
+    ) -> Result<(ComponentAddress, ComponentAddress, ResourceSpecifier), StateMachineError> {
+        match self {
+            Self::Deposit(from, to, resources) => Ok((from, to, resources)),
+            Self::None | Self::LockFee | Self::TakeFromWorktop(..) | Self::AccountWithdraw(..) => {
+                Err(StateMachineError)
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct StateMachineError;
