@@ -135,7 +135,7 @@ pub fn transaction_type(
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TransactionType {
     SimpleTransfer(Box<SimpleTransferTransactionType>),
     Transfer(Box<TransferTransactionType>),
@@ -143,20 +143,20 @@ pub enum TransactionType {
     NonConforming,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SimpleTransferTransactionType {
     pub from: ComponentAddress,
     pub to: ComponentAddress,
     pub transferred: ResourceSpecifier,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TransferTransactionType {
     pub from: ComponentAddress,
     pub transfers: HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GeneralTransactionType {
     pub account_proofs: HashSet<ResourceAddress>,
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceSpecifier>>,

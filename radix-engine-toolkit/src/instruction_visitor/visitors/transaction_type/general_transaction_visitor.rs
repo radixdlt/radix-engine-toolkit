@@ -356,7 +356,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             }
         }
 
-        todo!()
+        Ok(())
     }
 
     pub fn handle_take_from_worktop(
@@ -418,7 +418,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Source<T> {
     Guaranteed(T),
     Predicted(usize, T),
