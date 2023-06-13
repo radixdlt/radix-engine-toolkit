@@ -53,6 +53,50 @@ where
         .map(|public_key| virtual_account_address_from_public_key(&public_key))
 }
 
+pub fn resource_address_from_olympia_resource_address<S>(
+    olympia_resource_address: S,
+) -> Result<ResourceAddress, DerivationError>
+where
+    S: AsRef<str>,
+{
+    let olympia_resource_address = olympia_resource_address.as_ref();
+    let (_, data, variant) =
+        bech32::decode(olympia_resource_address).map_err(DerivationError::Bech32DecodeError)?;
+    if let bech32::Variant::Bech32 = variant {
+        Ok(())
+    } else {
+        Err(DerivationError::InvalidOlympiaBech32Variant {
+            expected: bech32::Variant::Bech32,
+            actual: bech32::Variant::Bech32m,
+        })
+    }?;
+
+    // Convert from 5 bits to 8 bits.
+    let data = Vec::<u8>::from_base32(&data).map_err(DerivationError::Bech32BaseConversionError)?;
+
+    // Check the length of the data to ensure that it's valid.
+    let prefix = data.first();
+    let length = data.len();
+
+    let node_id = match (prefix, length) {
+        (Some(0x01), 1) => Ok(scrypto::prelude::RADIX_TOKEN.into_node_id()),
+        (Some(0x03), 27) => {
+            let hash = scrypto::prelude::hash(&data);
+
+            let mut bytes = vec![EntityType::GlobalFungibleResourceManager as u8];
+            bytes.extend(hash.0[..29].iter());
+
+            Ok(NodeId(bytes.try_into().unwrap()))
+        }
+        _ => Err(DerivationError::InvalidOlympiaAddressLength {
+            expected: 27,
+            actual: length,
+        }),
+    }?;
+
+    Ok(ResourceAddress::new_or_panic(node_id.0))
+}
+
 pub fn public_key_from_olympia_account_address<S>(
     olympia_account_address: S,
 ) -> Result<Secp256k1PublicKey, DerivationError>

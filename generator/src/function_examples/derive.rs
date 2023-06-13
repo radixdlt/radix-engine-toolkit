@@ -86,6 +86,16 @@ impl<'f> HasExamples<'f, 1> for DeriveVirtualAccountAddressFromOlympiaAccountAdd
     }
 }
 
+impl<'f> HasExamples<'f, 1> for DeriveResourceAddressFromOlympiaResourceAddress {
+    fn example_inputs() -> [Self::Input; 1] {
+        [Self::Input {
+            olympia_resource_address: "floop_rr1q0p0hzap6ckxqdk6khesyft62w34e0vdd06msn9snhfqknl370"
+                .to_string(),
+            network_id: SerializableNetworkId(1),
+        }]
+    }
+}
+
 impl<'f> HasExamples<'f, 1> for DerivePublicKeyFromOlympiaAccountAddress {
     fn example_inputs() -> [Self::Input; 1] {
         ["rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842".to_string()]

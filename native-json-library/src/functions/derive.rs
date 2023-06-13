@@ -202,6 +202,49 @@ export_jni_function!(
         as deriveVirtualAccountAddressFromOlympiaAccountAddress
 );
 
+//=======================================================
+// Derive Resource Address from Olympia Resource Address
+//=======================================================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+pub struct DeriveResourceAddressFromOlympiaResourceAddressInput {
+    pub olympia_resource_address: String,
+    pub network_id: SerializableNetworkId,
+}
+pub type DeriveResourceAddressFromOlympiaResourceAddressOutput = SerializableNodeId;
+
+pub struct DeriveResourceAddressFromOlympiaResourceAddress;
+impl<'a> Function<'a> for DeriveResourceAddressFromOlympiaResourceAddress {
+    type Input = DeriveResourceAddressFromOlympiaResourceAddressInput;
+    type Output = DeriveResourceAddressFromOlympiaResourceAddressOutput;
+
+    fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let DeriveResourceAddressFromOlympiaResourceAddressInput {
+            olympia_resource_address,
+            network_id,
+        } = input;
+
+        let component_address =
+            radix_engine_toolkit::functions::derive::resource_address_from_olympia_resource_address(
+                olympia_resource_address,
+            ).map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
+
+        Ok(SerializableNodeId(SerializableNodeIdInternal {
+            network_id: *network_id,
+            node_id: component_address.into_node_id(),
+        }))
+    }
+}
+
+export_function!(
+    DeriveResourceAddressFromOlympiaResourceAddress
+        as derive_resource_address_from_olympia_resource_address
+);
+export_jni_function!(
+    DeriveResourceAddressFromOlympiaResourceAddress
+        as deriveResourceAddressFromOlympiaResourceAddress
+);
+
 //================================================
 // Derive Public Key from Olympia Account Address
 //================================================

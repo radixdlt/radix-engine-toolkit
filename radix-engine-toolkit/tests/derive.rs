@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_common::prelude::Bech32Decoder;
 use radix_engine_toolkit::functions::derive::{self, OlympiaNetwork};
 use scrypto::prelude::*;
 use transaction::prelude::Secp256k1PrivateKey;
@@ -87,6 +88,25 @@ fn public_key_can_be_derived_from_olympia_account_address() {
 
     // Assert
     assert_eq!(public_key, expected_public_key)
+}
+
+#[test]
+fn resource_address_can_be_derived_from_olympia_resource_address() {
+    // Arrange
+    let olympia_address = "floop_rr1q0p0hzap6ckxqdk6khesyft62w34e0vdd06msn9snhfqknl370";
+    let expected_babylon_resource_address = Bech32Decoder::validate_and_decode_ignore_hrp(
+        "resource_rdx1tkhseye4w0hmf2af5enwurkxu4x29zk73yckyzhndv8xdk8tp2tn8q",
+    )
+    .map(|(_, _, data)| NodeId(data.try_into().unwrap()))
+    .map(|node_id| ResourceAddress::new_or_panic(node_id.0))
+    .unwrap();
+
+    // Act
+    let resource_address =
+        derive::resource_address_from_olympia_resource_address(olympia_address).unwrap();
+
+    // Assert
+    assert_eq!(resource_address, expected_babylon_resource_address)
 }
 
 #[test]

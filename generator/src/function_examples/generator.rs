@@ -34,6 +34,7 @@ pub fn generate_function_examples() -> IndexMap<
             DeriveVirtualIdentityAddressFromPublicKey,
             DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey,
             DeriveVirtualAccountAddressFromOlympiaAccountAddress,
+            DeriveResourceAddressFromOlympiaResourceAddress,
             DerivePublicKeyFromOlympiaAccountAddress,
             DeriveOlympiaAccountAddressFromPublicKey,
             DeriveNodeAddressFromPublicKey,

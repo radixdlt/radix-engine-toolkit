@@ -31,6 +31,7 @@ pub fn generate_function_schema(
             DeriveVirtualIdentityAddressFromPublicKey,
             DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey,
             DeriveVirtualAccountAddressFromOlympiaAccountAddress,
+            DeriveResourceAddressFromOlympiaResourceAddress,
             DerivePublicKeyFromOlympiaAccountAddress,
             DeriveOlympiaAccountAddressFromPublicKey,
             DeriveNodeAddressFromPublicKey,
