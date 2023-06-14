@@ -2,6 +2,14 @@
 
 All across the Radix Engine Toolkit all types which are serialized as discriminated unions now have a discriminator called `kind` and a value field of `value`. There are some exceptions to this where the value is not a single value but multiple such as `SignatureWithPublicKey`.
 
+## Value Models
+
+### Manifest AST Value
+
+* This value model has been renamed to `ManifestValue`.
+* All aliases have been removed: `Some`, `None`, `Ok`, `Err`, `NonFungibleGlobalId`, and `Bytes`.
+* Enums no longer accept string or u8 discriminators, only u8.
+
 ## Functions
 
 * Added a new function for deriving the virtual signature badge non-fungible global id from a public key: `derive_virtual_signature_non_fungible_global_id_from_public_key`.

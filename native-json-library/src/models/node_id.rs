@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
 #[serde(transparent)]
 #[schemars(transparent)]
 pub struct SerializableNodeId(
@@ -31,6 +31,7 @@ pub struct SerializableNodeId(
     pub SerializableNodeIdInternal,
 );
 
+#[derive(Clone, Debug)]
 pub struct SerializableNodeIdInternal {
     pub node_id: NodeId,
     pub network_id: u8,

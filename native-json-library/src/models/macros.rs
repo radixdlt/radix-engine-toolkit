@@ -47,6 +47,58 @@ macro_rules! serializable_string_wrapper {
                 &mut self.0
             }
         }
+
+        impl From<$type> for $name {
+            fn from(value: $type) -> Self {
+                Self(value)
+            }
+        }
+
+        impl From<$name> for $type {
+            fn from(value: $name) -> Self {
+                value.0
+            }
+        }
     };
 }
+
+macro_rules! define_enum_and_kind {
+    (
+        $(#[$meta: meta])*
+        $vis: vis enum $name: ident {
+            $(
+                $variant_name: ident $({
+                    $(
+                        $field_name: ident: $field_type: ty
+                    ),* $(,)?
+                })?
+            ),*
+
+            $(,)?
+        }
+    ) => {
+        paste::paste! {
+            #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+            #[serde(tag = "kind")]
+            $vis enum $name {
+                $(
+                    $variant_name $({
+                        $(
+                            $field_name: $field_type
+                        ),*
+                    })?,
+                )*
+            }
+
+            #[derive(Clone, Copy, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+            $vis enum [< $name Kind >] {
+                $(
+                    $variant_name,
+                )*
+            }
+        }
+    };
+}
+
+pub(crate) use define_enum_and_kind;
 pub(crate) use serializable_string_wrapper;
