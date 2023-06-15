@@ -16,6 +16,7 @@
 // under the License.
 
 pub mod cryptographic;
+pub mod instruction;
 pub mod macros;
 pub mod manifest_runtime;
 pub mod network;

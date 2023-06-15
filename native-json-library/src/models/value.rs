@@ -17,6 +17,9 @@
 
 use radix_engine_common::prelude::converter::*;
 use radix_engine_common::prelude::*;
+use schemars::JsonSchema;
+use serde::Deserialize;
+use serde::Serialize;
 use transaction::manifest::generator::*;
 use transaction::prelude::*;
 
@@ -190,13 +193,20 @@ impl From<ManifestValueKind> for SerializableManifestValueKind {
 }
 
 impl SerializableManifestValue {
+    pub fn from_typed<T: ManifestEncode>(
+        manifest_value: &T,
+        network_id: u8,
+        name_dictionary: &NameDictionary,
+    ) -> Result<Self, ValueConversionError> {
+        let value =
+            manifest_decode::<ManifestValue>(&manifest_encode(manifest_value).unwrap()).unwrap();
+        Self::from_manifest_value(&value, network_id, name_dictionary)
+    }
+
     pub fn from_manifest_value(
         manifest_value: &ManifestValue,
         network_id: u8,
-        bucket_name_mapping: &HashMap<ManifestBucket, String>,
-        proof_name_mapping: &HashMap<ManifestProof, String>,
-        address_reservation_name_mapping: &HashMap<ManifestAddressReservation, String>,
-        named_address_name_mapping: &HashMap<u32, String>,
+        name_dictionary: &NameDictionary,
     ) -> Result<Self, ValueConversionError> {
         let value = match manifest_value {
             ManifestValue::Bool { value } => Self::Bool { value: *value },
@@ -240,16 +250,7 @@ impl SerializableManifestValue {
                 discriminator: into!(*discriminator),
                 fields: fields
                     .iter()
-                    .map(|value| {
-                        Self::from_manifest_value(
-                            value,
-                            network_id,
-                            bucket_name_mapping,
-                            proof_name_mapping,
-                            address_reservation_name_mapping,
-                            named_address_name_mapping,
-                        )
-                    })
+                    .map(|value| Self::from_manifest_value(value, network_id, name_dictionary))
                     .collect::<Result<_, _>>()?,
             },
             ManifestValue::Array {
@@ -259,31 +260,13 @@ impl SerializableManifestValue {
                 element_value_kind: into!(*element_value_kind),
                 elements: elements
                     .iter()
-                    .map(|value| {
-                        Self::from_manifest_value(
-                            value,
-                            network_id,
-                            bucket_name_mapping,
-                            proof_name_mapping,
-                            address_reservation_name_mapping,
-                            named_address_name_mapping,
-                        )
-                    })
+                    .map(|value| Self::from_manifest_value(value, network_id, name_dictionary))
                     .collect::<Result<_, _>>()?,
             },
             ManifestValue::Tuple { fields } => Self::Tuple {
                 fields: fields
                     .iter()
-                    .map(|value| {
-                        Self::from_manifest_value(
-                            value,
-                            network_id,
-                            bucket_name_mapping,
-                            proof_name_mapping,
-                            address_reservation_name_mapping,
-                            named_address_name_mapping,
-                        )
-                    })
+                    .map(|value| Self::from_manifest_value(value, network_id, name_dictionary))
                     .collect::<Result<_, _>>()?,
             },
             ManifestValue::Map {
@@ -296,40 +279,24 @@ impl SerializableManifestValue {
                 entries: entries
                     .iter()
                     .map(|(key, value)| {
-                        Self::from_manifest_value(
-                            key,
-                            network_id,
-                            bucket_name_mapping,
-                            proof_name_mapping,
-                            address_reservation_name_mapping,
-                            named_address_name_mapping,
+                        Self::from_manifest_value(key, network_id, name_dictionary).and_then(
+                            |key| {
+                                Self::from_manifest_value(value, network_id, name_dictionary)
+                                    .map(|value| (key, value))
+                            },
                         )
-                        .and_then(|key| {
-                            Self::from_manifest_value(
-                                value,
-                                network_id,
-                                bucket_name_mapping,
-                                proof_name_mapping,
-                                address_reservation_name_mapping,
-                                named_address_name_mapping,
-                            )
-                            .map(|value| (key, value))
-                        })
                     })
                     .collect::<Result<_, _>>()?,
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Address(value),
             } => match value {
-                ManifestAddress::Named(named) => named_address_name_mapping
-                    .get(named)
-                    .map(|named_address| SerializableNamedAddress(named_address.clone()))
+                ManifestAddress::Named(named) => name_dictionary
+                    .named_address_name(*named)
+                    .map(SerializableNamedAddress)
                     .map(|value| Self::Address {
                         value: SerializableManifestAddress::Named { value },
-                    })
-                    .ok_or(ValueConversionError::NamedAddressHasNoAssociatedName(
-                        *named,
-                    ))?,
+                    })?,
                 ManifestAddress::Static(node_id) => Self::Address {
                     value: SerializableManifestAddress::Static {
                         value: SerializableNodeId(SerializableNodeIdInternal {
@@ -341,18 +308,16 @@ impl SerializableManifestValue {
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Bucket(value),
-            } => bucket_name_mapping
-                .get(value)
-                .map(|bucket_name| SerializableBucketId(bucket_name.clone()))
-                .map(|bucket_id| SerializableManifestValue::Bucket { value: bucket_id })
-                .ok_or(ValueConversionError::BucketHasNoAssociatedName(value.0))?,
+            } => name_dictionary
+                .bucket_name(value)
+                .map(SerializableBucketId)
+                .map(|bucket_id| SerializableManifestValue::Bucket { value: bucket_id })?,
             ManifestValue::Custom {
                 value: ManifestCustomValue::Proof(value),
-            } => proof_name_mapping
-                .get(value)
-                .map(|proof_name| SerializableProofId(proof_name.clone()))
-                .map(|proof_id| SerializableManifestValue::Proof { value: proof_id })
-                .ok_or(ValueConversionError::ProofHasNoAssociatedName(value.0))?,
+            } => name_dictionary
+                .proof_name(value)
+                .map(SerializableProofId)
+                .map(|proof_id| SerializableManifestValue::Proof { value: proof_id })?,
             ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(value),
             } => SerializableManifestValue::Expression {
@@ -380,17 +345,12 @@ impl SerializableManifestValue {
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::AddressReservation(value),
-            } => address_reservation_name_mapping
-                .get(value)
-                .map(|reservation_name| SerializableAddressReservation(reservation_name.clone()))
-                .map(
-                    |reservation| SerializableManifestValue::AddressReservation {
-                        value: reservation,
-                    },
-                )
-                .ok_or(ValueConversionError::AddressReservationHasNoAssociatedName(
-                    value.0,
-                ))?,
+            } => name_dictionary
+                .address_reservation_name(value)
+                .map(SerializableAddressReservation)
+                .map(|proof_id| SerializableManifestValue::AddressReservation {
+                    value: proof_id,
+                })?,
         };
         Ok(value)
     }
@@ -510,8 +470,19 @@ impl SerializableManifestValue {
         };
         Ok(value)
     }
+
+    pub fn to_typed<T: ManifestDecode>(
+        &self,
+        name_resolver: &mut NameResolver,
+    ) -> Result<T, ValueConversionError> {
+        let value = self.to_manifest_value(name_resolver)?;
+        manifest_decode(&manifest_encode(&value).unwrap())
+            .map_err(|error| ValueConversionError::DecodeError(format!("{:?}", error)))
+    }
 }
 
+#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "error")]
 pub enum ValueConversionError {
     BucketHasNoAssociatedName(u32),
     ProofHasNoAssociatedName(u32),
@@ -522,6 +493,8 @@ pub enum ValueConversionError {
     NamedProofNotFound(String),
     NamedAddressReservationNotFound(String),
     NamedAddressNotFound(String),
+
+    DecodeError(String),
 }
 
 macro_rules! into {
@@ -530,3 +503,70 @@ macro_rules! into {
     };
 }
 use into;
+
+#[derive(Debug, Clone, Default)]
+pub struct NameDictionary {
+    bucket_name_mapping: HashMap<ManifestBucket, String>,
+    proof_name_mapping: HashMap<ManifestProof, String>,
+    address_reservation_name_mapping: HashMap<ManifestAddressReservation, String>,
+    named_address_name_mapping: HashMap<u32, String>,
+}
+
+impl NameDictionary {
+    pub fn bucket_name(&self, bucket: &ManifestBucket) -> Result<String, ValueConversionError> {
+        self.bucket_name_mapping
+            .get(bucket)
+            .ok_or(ValueConversionError::BucketHasNoAssociatedName(bucket.0))
+            .cloned()
+    }
+
+    pub fn proof_name(&self, proof: &ManifestProof) -> Result<String, ValueConversionError> {
+        self.proof_name_mapping
+            .get(proof)
+            .ok_or(ValueConversionError::ProofHasNoAssociatedName(proof.0))
+            .cloned()
+    }
+
+    pub fn address_reservation_name(
+        &self,
+        address_reservation: &ManifestAddressReservation,
+    ) -> Result<String, ValueConversionError> {
+        self.address_reservation_name_mapping
+            .get(address_reservation)
+            .ok_or(ValueConversionError::AddressReservationHasNoAssociatedName(
+                address_reservation.0,
+            ))
+            .cloned()
+    }
+
+    pub fn named_address_name(&self, named_address: u32) -> Result<String, ValueConversionError> {
+        self.named_address_name_mapping
+            .get(&named_address)
+            .ok_or(ValueConversionError::NamedAddressHasNoAssociatedName(
+                named_address,
+            ))
+            .cloned()
+    }
+
+    pub fn add_bucket<T: ToString>(&mut self, bucket: &ManifestBucket, name: T) {
+        self.bucket_name_mapping.insert(*bucket, name.to_string());
+    }
+
+    pub fn add_proof<T: ToString>(&mut self, proof: &ManifestProof, name: T) {
+        self.proof_name_mapping.insert(*proof, name.to_string());
+    }
+
+    pub fn add_named_address<T: ToString>(&mut self, named_address: u32, name: T) {
+        self.named_address_name_mapping
+            .insert(named_address, name.to_string());
+    }
+
+    pub fn add_address_reservation<T: ToString>(
+        &mut self,
+        address_reservation: &ManifestAddressReservation,
+        name: T,
+    ) {
+        self.address_reservation_name_mapping
+            .insert(*address_reservation, name.to_string());
+    }
+}
