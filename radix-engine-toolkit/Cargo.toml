@@ -6,13 +6,13 @@ build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", default-features= false, features = ["std", "lru"] }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", default-features= false, features = ["std", "lru"] }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
@@ -29,7 +29,7 @@ lazy_static = { version = "1.4.0" }
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "bugfix/scrypto-unit-feature-gating", default-features = false, features = ["lru", "std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", default-features = false, features = ["lru", "std", "resource_tracker"] }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]

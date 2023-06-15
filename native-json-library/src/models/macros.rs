@@ -59,6 +59,12 @@ macro_rules! serializable_string_wrapper {
                 value.0
             }
         }
+
+        impl ToString for $name {
+            fn to_string(&self) -> String {
+                self.0.to_string()
+            }
+        }
     };
 }
 

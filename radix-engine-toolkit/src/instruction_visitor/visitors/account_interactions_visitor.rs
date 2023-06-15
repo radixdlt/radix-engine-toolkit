@@ -65,7 +65,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Main.to_u8() {
+                    if schema_method_key.module_id == ObjectModuleId::Main {
                         Some(&schema_method_key.ident)
                     } else {
                         None
@@ -106,7 +106,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::AccessRules.to_u8() {
+                    if schema_method_key.module_id == ObjectModuleId::AccessRules {
                         Some(&schema_method_key.ident)
                     } else {
                         None
@@ -139,7 +139,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Metadata.to_u8() {
+                    if schema_method_key.module_id == ObjectModuleId::Metadata {
                         Some(&schema_method_key.ident)
                     } else {
                         None
@@ -172,7 +172,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Royalty.to_u8() {
+                    if schema_method_key.module_id == ObjectModuleId::Royalty {
                         Some(&schema_method_key.ident)
                     } else {
                         None

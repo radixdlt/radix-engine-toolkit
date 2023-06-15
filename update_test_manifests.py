@@ -4,7 +4,10 @@ import re
 
 SCRIPT_DIRECTORY: str = os.path.dirname(os.path.realpath(__file__))
 REPOSITORY_URL: str = "https://github.com/radixdlt/radixdlt-scrypto"
-OUTPUT_DIRECTORY: str = os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "tests", "manifests")
+OUTPUT_DIRECTORIES: list[str] = [
+    os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "tests", "manifests"),
+    os.path.join(SCRIPT_DIRECTORY, "native-json-library", "tests", "manifests"),
+]
 
 def main() -> None:
     # Get the tag or branch of the Scrypto dependency being used.
@@ -21,26 +24,27 @@ def main() -> None:
 
     # Copy the manifests from the path that they're at to the output path
     manifests_path: str = os.path.join(radixdlt_scrypto_directory, 'transaction', 'examples')
-    if os.path.exists(OUTPUT_DIRECTORY):
-        shutil.rmtree(OUTPUT_DIRECTORY)
-    shutil.copytree(manifests_path, OUTPUT_DIRECTORY)
+    for output_directory in OUTPUT_DIRECTORIES:
+        if os.path.exists(output_directory):
+            shutil.rmtree(output_directory)
+        shutil.copytree(manifests_path, output_directory)
 
-    # Get and apply the needed replacements to the transaction manifests.
-    replacements: dict[str, str] = get_replacements(radixdlt_scrypto_directory)
-    for (root_directory, _, file_names) in os.walk(OUTPUT_DIRECTORY):
-        for file_name in file_names:
-            if not file_name.endswith('rtm'):
-                continue
+        # Get and apply the needed replacements to the transaction manifests.
+        replacements: dict[str, str] = get_replacements(radixdlt_scrypto_directory)
+        for (root_directory, _, file_names) in os.walk(output_directory):
+            for file_name in file_names:
+                if not file_name.endswith('rtm'):
+                    continue
 
-            path: str = os.path.join(root_directory, file_name)
-            with open(path, 'r') as file:
-                content: str = file.read()
+                path: str = os.path.join(root_directory, file_name)
+                with open(path, 'r') as file:
+                    content: str = file.read()
 
-            for (old, new) in replacements.items():
-                content = content.replace(old, new)
+                for (old, new) in replacements.items():
+                    content = content.replace(old, new)
 
-            with open(path, 'w') as file:
-                file.write(content)
+                with open(path, 'w') as file:
+                    file.write(content)
 
     # Remove the radixdlt-scrypto repo after we're finished with it.
     shutil.rmtree(radixdlt_scrypto_directory)

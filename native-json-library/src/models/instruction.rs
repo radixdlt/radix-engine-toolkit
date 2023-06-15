@@ -30,11 +30,11 @@ use scrypto::blueprints::account::*;
 use scrypto::blueprints::consensus_manager::*;
 use scrypto::blueprints::identity::*;
 use serde::*;
-use transaction::manifest::generator::NameResolver;
 use transaction::prelude::*;
 use transaction::validation::*;
 
 #[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind")]
 pub enum SerializableInstruction {
     TakeFromWorktop {
         resource_address: SerializableManifestValue,
@@ -265,12 +265,6 @@ pub enum SerializableInstruction {
         mutability: SerializableManifestValue,
     },
 
-    SetPackageRoyaltyConfig {
-        address: SerializableManifestValue,
-        blueprint: SerializableManifestValue,
-        fn_name: SerializableManifestValue,
-        royalty: SerializableManifestValue,
-    },
     ClaimPackageRoyalty {
         address: SerializableManifestValue,
     },
@@ -288,6 +282,7 @@ pub enum SerializableInstruction {
     },
     CreateValidator {
         key: SerializableManifestValue,
+        fee_factor: SerializableManifestValue,
     },
 }
 
@@ -296,7 +291,6 @@ impl SerializableInstruction {
         instruction: &InstructionV1,
         network_id: u8,
         id_allocator: &mut ManifestIdAllocator,
-        name_dictionary: &mut NameDictionary,
     ) -> Result<Self, InstructionConversionError> {
         let instruction = match instruction {
             InstructionV1::TakeFromWorktop {
@@ -304,25 +298,14 @@ impl SerializableInstruction {
                 amount,
             } => {
                 let bucket = id_allocator.new_bucket_id();
-                let bucket_name = format!("bucket{}", bucket.0 + 1);
-                name_dictionary.add_bucket(&bucket, &bucket_name);
 
                 Self::TakeFromWorktop {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    amount: SerializableManifestValue::from_typed(
-                        amount,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_bucket: SerializableManifestValue::from_typed(
-                        &bucket,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    amount: SerializableManifestValue::from_typed(amount, network_id)?,
+                    new_bucket: SerializableManifestValue::from_typed(&bucket, network_id)?,
                 }
             }
             InstructionV1::TakeNonFungiblesFromWorktop {
@@ -330,47 +313,29 @@ impl SerializableInstruction {
                 ids,
             } => {
                 let bucket = id_allocator.new_bucket_id();
-                let bucket_name = format!("bucket{}", bucket.0 + 1);
-                name_dictionary.add_bucket(&bucket, &bucket_name);
 
                 Self::TakeNonFungiblesFromWorktop {
-                    ids: SerializableManifestValue::from_typed(ids, network_id, name_dictionary)?,
+                    ids: SerializableManifestValue::from_typed(ids, network_id)?,
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    new_bucket: SerializableManifestValue::from_typed(
-                        &bucket,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    new_bucket: SerializableManifestValue::from_typed(&bucket, network_id)?,
                 }
             }
             InstructionV1::TakeAllFromWorktop { resource_address } => {
                 let bucket = id_allocator.new_bucket_id();
-                let bucket_name = format!("bucket{}", bucket.0 + 1);
-                name_dictionary.add_bucket(&bucket, &bucket_name);
 
                 Self::TakeAllFromWorktop {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    new_bucket: SerializableManifestValue::from_typed(
-                        &bucket,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    new_bucket: SerializableManifestValue::from_typed(&bucket, network_id)?,
                 }
             }
             InstructionV1::ReturnToWorktop { bucket_id } => Self::ReturnToWorktop {
-                bucket: SerializableManifestValue::from_typed(
-                    &bucket_id,
-                    network_id,
-                    name_dictionary,
-                )?,
+                bucket: SerializableManifestValue::from_typed(&bucket_id, network_id)?,
             },
             InstructionV1::AssertWorktopContains {
                 resource_address,
@@ -379,9 +344,8 @@ impl SerializableInstruction {
                 resource_address: SerializableManifestValue::from_typed(
                     resource_address,
                     network_id,
-                    name_dictionary,
                 )?,
-                amount: SerializableManifestValue::from_typed(amount, network_id, name_dictionary)?,
+                amount: SerializableManifestValue::from_typed(amount, network_id)?,
             },
             InstructionV1::AssertWorktopContainsNonFungibles {
                 resource_address,
@@ -390,65 +354,40 @@ impl SerializableInstruction {
                 resource_address: SerializableManifestValue::from_typed(
                     resource_address,
                     network_id,
-                    name_dictionary,
                 )?,
-                ids: SerializableManifestValue::from_typed(ids, network_id, name_dictionary)?,
+                ids: SerializableManifestValue::from_typed(ids, network_id)?,
             },
             InstructionV1::PopFromAuthZone => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::PopFromAuthZone {
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::PushToAuthZone { proof_id } => Self::PushToAuthZone {
-                proof: SerializableManifestValue::from_typed(
-                    &proof_id,
-                    network_id,
-                    name_dictionary,
-                )?,
+                proof: SerializableManifestValue::from_typed(&proof_id, network_id)?,
             },
             InstructionV1::ClearAuthZone => Self::ClearAuthZone,
             InstructionV1::CreateProofFromAuthZone { resource_address } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromAuthZone {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromAuthZoneOfAll { resource_address } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromAuthZoneOfAll {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromAuthZoneOfAmount {
@@ -456,25 +395,14 @@ impl SerializableInstruction {
                 resource_address,
             } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromAuthZoneOfAmount {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    amount: SerializableManifestValue::from_typed(
-                        amount,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    amount: SerializableManifestValue::from_typed(amount, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
@@ -482,133 +410,64 @@ impl SerializableInstruction {
                 resource_address,
             } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromAuthZoneOfNonFungibles {
                     resource_address: SerializableManifestValue::from_typed(
                         resource_address,
                         network_id,
-                        name_dictionary,
                     )?,
-                    ids: SerializableManifestValue::from_typed(ids, network_id, name_dictionary)?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    ids: SerializableManifestValue::from_typed(ids, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::ClearSignatureProofs => Self::ClearSignatureProofs,
             InstructionV1::CreateProofFromBucket { bucket_id } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromBucket {
-                    bucket: SerializableManifestValue::from_typed(
-                        bucket_id,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    bucket: SerializableManifestValue::from_typed(bucket_id, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromBucketOfAll { bucket_id } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromBucketOfAll {
-                    bucket: SerializableManifestValue::from_typed(
-                        bucket_id,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    bucket: SerializableManifestValue::from_typed(bucket_id, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromBucketOfAmount { amount, bucket_id } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromBucketOfAmount {
-                    bucket: SerializableManifestValue::from_typed(
-                        bucket_id,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    amount: SerializableManifestValue::from_typed(
-                        amount,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    bucket: SerializableManifestValue::from_typed(bucket_id, network_id)?,
+                    amount: SerializableManifestValue::from_typed(amount, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::CreateProofFromBucketOfNonFungibles { ids, bucket_id } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CreateProofFromBucketOfNonFungibles {
-                    bucket: SerializableManifestValue::from_typed(
-                        bucket_id,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    ids: SerializableManifestValue::from_typed(ids, network_id, name_dictionary)?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    bucket: SerializableManifestValue::from_typed(bucket_id, network_id)?,
+                    ids: SerializableManifestValue::from_typed(ids, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::BurnResource { bucket_id } => Self::BurnResource {
-                bucket: SerializableManifestValue::from_typed(
-                    bucket_id,
-                    network_id,
-                    name_dictionary,
-                )?,
+                bucket: SerializableManifestValue::from_typed(bucket_id, network_id)?,
             },
             InstructionV1::CloneProof { proof_id } => {
                 let proof = id_allocator.new_proof_id();
-                let proof_name = format!("proof{}", proof.0 + 1);
-                name_dictionary.add_proof(&proof, &proof_name);
 
                 Self::CloneProof {
-                    proof: SerializableManifestValue::from_typed(
-                        proof_id,
-                        network_id,
-                        name_dictionary,
-                    )?,
-                    new_proof: SerializableManifestValue::from_typed(
-                        &proof,
-                        network_id,
-                        name_dictionary,
-                    )?,
+                    proof: SerializableManifestValue::from_typed(proof_id, network_id)?,
+                    new_proof: SerializableManifestValue::from_typed(&proof, network_id)?,
                 }
             }
             InstructionV1::DropProof { proof_id } => Self::DropProof {
-                proof: SerializableManifestValue::from_typed(
-                    proof_id,
-                    network_id,
-                    name_dictionary,
-                )?,
+                proof: SerializableManifestValue::from_typed(proof_id, network_id)?,
             },
             InstructionV1::DropAllProofs => Self::DropAllProofs,
             InstructionV1::CallFunction {
@@ -617,14 +476,13 @@ impl SerializableInstruction {
                 function_name,
                 args,
             } => {
-                if let DynamicPackageAddress::Static(address) = package_address {
-                    if let Some(instruction) = alias_call_function!(
+                let instruction = if let DynamicPackageAddress::Static(address) = package_address {
+                    alias_call_function!(
                         address.as_node_id(),
                         blueprint_name,
                         function_name,
                         args,
                         network_id,
-                        name_dictionary,
                         [
                             PublishPackageAlias,
                             PublishPackageAdvancedAlias,
@@ -638,54 +496,28 @@ impl SerializableInstruction {
                             CreateAccountAlias,
                             CreateAccountAdvancedAlias,
                         ]
-                    ) {
-                        instruction
-                    } else {
-                        Self::CallFunction {
-                            package_address: SerializableManifestValue::from_typed(
-                                package_address,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            blueprint_name: SerializableManifestValue::from_typed(
-                                blueprint_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            function_name: SerializableManifestValue::from_typed(
-                                function_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            args: SerializableManifestValue::from_typed(
-                                args,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                        }
-                    }
+                    )
+                } else {
+                    None
+                };
+
+                if let Some(instruction) = instruction {
+                    instruction
                 } else {
                     Self::CallFunction {
                         package_address: SerializableManifestValue::from_typed(
                             package_address,
                             network_id,
-                            name_dictionary,
                         )?,
                         blueprint_name: SerializableManifestValue::from_typed(
                             blueprint_name,
                             network_id,
-                            name_dictionary,
                         )?,
                         function_name: SerializableManifestValue::from_typed(
                             function_name,
                             network_id,
-                            name_dictionary,
                         )?,
-                        args: SerializableManifestValue::from_typed(
-                            args,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        args: SerializableManifestValue::from_typed(args, network_id)?,
                     }
                 }
             }
@@ -694,60 +526,35 @@ impl SerializableInstruction {
                 method_name,
                 args,
             } => {
-                if let DynamicGlobalAddress::Static(address) = address {
-                    if let Some(instruction) = alias_call_method!(
+                let instruction = if let DynamicGlobalAddress::Static(address) = address {
+                    alias_call_method!(
                         address.as_node_id(),
                         ObjectModuleId::Main,
                         method_name,
                         args,
                         network_id,
-                        name_dictionary,
                         [
-                            SetPackageRoyaltyConfigAlias,
                             ClaimPackageRoyaltyAlias,
                             MintFungibleAlias,
                             MintNonFungibleAlias,
                             MintUuidNonFungibleAlias,
                             CreateValidatorAlias,
                         ]
-                    ) {
-                        instruction
-                    } else {
-                        Self::CallMethod {
-                            address: SerializableManifestValue::from_typed(
-                                address,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            method_name: SerializableManifestValue::from_typed(
-                                method_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            args: SerializableManifestValue::from_typed(
-                                args,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                        }
-                    }
+                    )
+                } else {
+                    None
+                };
+
+                if let Some(instruction) = instruction {
+                    instruction
                 } else {
                     Self::CallMethod {
-                        address: SerializableManifestValue::from_typed(
-                            address,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        address: SerializableManifestValue::from_typed(address, network_id)?,
                         method_name: SerializableManifestValue::from_typed(
                             method_name,
                             network_id,
-                            name_dictionary,
                         )?,
-                        args: SerializableManifestValue::from_typed(
-                            args,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        args: SerializableManifestValue::from_typed(args, network_id)?,
                     }
                 }
             }
@@ -756,53 +563,29 @@ impl SerializableInstruction {
                 method_name,
                 args,
             } => {
-                if let DynamicGlobalAddress::Static(address) = address {
-                    if let Some(instruction) = alias_call_method!(
+                let instruction = if let DynamicGlobalAddress::Static(address) = address {
+                    alias_call_method!(
                         address.as_node_id(),
                         ObjectModuleId::Royalty,
                         method_name,
                         args,
                         network_id,
-                        name_dictionary,
                         [SetComponentRoyaltyConfigAlias, ClaimComponentRoyaltyAlias]
-                    ) {
-                        instruction
-                    } else {
-                        Self::CallRoyaltyMethod {
-                            address: SerializableManifestValue::from_typed(
-                                address,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            method_name: SerializableManifestValue::from_typed(
-                                method_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            args: SerializableManifestValue::from_typed(
-                                args,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                        }
-                    }
+                    )
+                } else {
+                    None
+                };
+
+                if let Some(instruction) = instruction {
+                    instruction
                 } else {
                     Self::CallRoyaltyMethod {
-                        address: SerializableManifestValue::from_typed(
-                            address,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        address: SerializableManifestValue::from_typed(address, network_id)?,
                         method_name: SerializableManifestValue::from_typed(
                             method_name,
                             network_id,
-                            name_dictionary,
                         )?,
-                        args: SerializableManifestValue::from_typed(
-                            args,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        args: SerializableManifestValue::from_typed(args, network_id)?,
                     }
                 }
             }
@@ -811,53 +594,29 @@ impl SerializableInstruction {
                 method_name,
                 args,
             } => {
-                if let DynamicGlobalAddress::Static(address) = address {
-                    if let Some(instruction) = alias_call_method!(
+                let instruction = if let DynamicGlobalAddress::Static(address) = address {
+                    alias_call_method!(
                         address.as_node_id(),
                         ObjectModuleId::Metadata,
                         method_name,
                         args,
                         network_id,
-                        name_dictionary,
                         [SetMetadataAlias, RemoveMetadataAlias]
-                    ) {
-                        instruction
-                    } else {
-                        Self::CallMetadataMethod {
-                            address: SerializableManifestValue::from_typed(
-                                address,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            method_name: SerializableManifestValue::from_typed(
-                                method_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            args: SerializableManifestValue::from_typed(
-                                args,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                        }
-                    }
+                    )
+                } else {
+                    None
+                };
+
+                if let Some(instruction) = instruction {
+                    instruction
                 } else {
                     Self::CallMetadataMethod {
-                        address: SerializableManifestValue::from_typed(
-                            address,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        address: SerializableManifestValue::from_typed(address, network_id)?,
                         method_name: SerializableManifestValue::from_typed(
                             method_name,
                             network_id,
-                            name_dictionary,
                         )?,
-                        args: SerializableManifestValue::from_typed(
-                            args,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        args: SerializableManifestValue::from_typed(args, network_id)?,
                     }
                 }
             }
@@ -866,53 +625,29 @@ impl SerializableInstruction {
                 method_name,
                 args,
             } => {
-                if let DynamicGlobalAddress::Static(address) = address {
-                    if let Some(instruction) = alias_call_method!(
+                let instruction = if let DynamicGlobalAddress::Static(address) = address {
+                    alias_call_method!(
                         address.as_node_id(),
-                        ObjectModuleId::AccessRules,
+                        ObjectModuleId::Metadata,
                         method_name,
                         args,
                         network_id,
-                        name_dictionary,
                         [UpdateRoleAlias]
-                    ) {
-                        instruction
-                    } else {
-                        Self::CallAccessRulesMethod {
-                            address: SerializableManifestValue::from_typed(
-                                address,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            method_name: SerializableManifestValue::from_typed(
-                                method_name,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                            args: SerializableManifestValue::from_typed(
-                                args,
-                                network_id,
-                                name_dictionary,
-                            )?,
-                        }
-                    }
+                    )
+                } else {
+                    None
+                };
+
+                if let Some(instruction) = instruction {
+                    instruction
                 } else {
                     Self::CallAccessRulesMethod {
-                        address: SerializableManifestValue::from_typed(
-                            address,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        address: SerializableManifestValue::from_typed(address, network_id)?,
                         method_name: SerializableManifestValue::from_typed(
                             method_name,
                             network_id,
-                            name_dictionary,
                         )?,
-                        args: SerializableManifestValue::from_typed(
-                            args,
-                            network_id,
-                            name_dictionary,
-                        )?,
+                        args: SerializableManifestValue::from_typed(args, network_id)?,
                     }
                 }
             }
@@ -928,7 +663,6 @@ impl SerializableInstruction {
                     method_name,
                     args,
                     network_id,
-                    name_dictionary,
                     [FreezeVaultAlias, UnfreezeVaultAlias, RecallVaultAlias]
                 )
                 .unwrap()
@@ -938,35 +672,24 @@ impl SerializableInstruction {
                 blueprint_name,
             } => {
                 let address_reservation = id_allocator.new_address_reservation_id();
-                let address_reservation_name =
-                    format!("address_reservation{}", address_reservation.0 + 1);
-                name_dictionary
-                    .add_address_reservation(&address_reservation, &address_reservation_name);
-
                 let named_address = id_allocator.new_address_id();
-                let named_address_name = format!("named_address{}", named_address + 1);
-                name_dictionary.add_named_address(named_address, &named_address_name);
 
                 Self::AllocateGlobalAddress {
                     package_address: SerializableManifestValue::from_typed(
                         package_address,
                         network_id,
-                        name_dictionary,
                     )?,
                     blueprint_name: SerializableManifestValue::from_typed(
                         blueprint_name,
                         network_id,
-                        name_dictionary,
                     )?,
                     address_reservation: SerializableManifestValue::from_typed(
                         &address_reservation,
                         network_id,
-                        name_dictionary,
                     )?,
                     named_address: SerializableManifestValue::from_typed(
                         &named_address,
                         network_id,
-                        name_dictionary,
                     )?,
                 }
             }
@@ -974,109 +697,106 @@ impl SerializableInstruction {
         Ok(instruction)
     }
 
-    pub fn to_instruction(
-        &self,
-        name_resolver: &mut NameResolver,
-    ) -> Result<InstructionV1, InstructionConversionError> {
+    pub fn to_instruction(&self) -> Result<InstructionV1, InstructionConversionError> {
         let instruction = match self {
             Self::TakeFromWorktop {
                 resource_address,
                 amount,
                 ..
             } => InstructionV1::TakeFromWorktop {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                amount: amount.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                amount: amount.to_typed()?,
             },
             Self::TakeNonFungiblesFromWorktop {
                 ids,
                 resource_address,
                 ..
             } => InstructionV1::TakeNonFungiblesFromWorktop {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                ids: ids.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                ids: ids.to_typed()?,
             },
             Self::TakeAllFromWorktop {
                 resource_address, ..
             } => InstructionV1::TakeAllFromWorktop {
-                resource_address: resource_address.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
             },
             Self::ReturnToWorktop { bucket } => InstructionV1::ReturnToWorktop {
-                bucket_id: bucket.to_typed(name_resolver)?,
+                bucket_id: bucket.to_typed()?,
             },
             Self::AssertWorktopContains {
                 resource_address,
                 amount,
             } => InstructionV1::AssertWorktopContains {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                amount: amount.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                amount: amount.to_typed()?,
             },
             Self::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
             } => InstructionV1::AssertWorktopContainsNonFungibles {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                ids: ids.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                ids: ids.to_typed()?,
             },
             Self::PopFromAuthZone { .. } => InstructionV1::PopFromAuthZone {},
             Self::PushToAuthZone { proof } => InstructionV1::PushToAuthZone {
-                proof_id: proof.to_typed(name_resolver)?,
+                proof_id: proof.to_typed()?,
             },
             Self::ClearAuthZone => InstructionV1::ClearAuthZone,
             Self::ClearSignatureProofs => InstructionV1::ClearSignatureProofs,
             Self::CreateProofFromAuthZone {
                 resource_address, ..
             } => InstructionV1::CreateProofFromAuthZone {
-                resource_address: resource_address.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
             },
             Self::CreateProofFromAuthZoneOfAll {
                 resource_address, ..
             } => InstructionV1::CreateProofFromAuthZoneOfAll {
-                resource_address: resource_address.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
             },
             Self::CreateProofFromAuthZoneOfAmount {
                 resource_address,
                 amount,
                 ..
             } => InstructionV1::CreateProofFromAuthZoneOfAmount {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                amount: amount.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                amount: amount.to_typed()?,
             },
             Self::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address,
                 ids,
                 ..
             } => InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
-                resource_address: resource_address.to_typed(name_resolver)?,
-                ids: ids.to_typed(name_resolver)?,
+                resource_address: resource_address.to_typed()?,
+                ids: ids.to_typed()?,
             },
             Self::CreateProofFromBucket { bucket, .. } => InstructionV1::CreateProofFromBucket {
-                bucket_id: bucket.to_typed(name_resolver)?,
+                bucket_id: bucket.to_typed()?,
             },
             Self::CreateProofFromBucketOfAll { bucket, .. } => {
                 InstructionV1::CreateProofFromBucketOfAll {
-                    bucket_id: bucket.to_typed(name_resolver)?,
+                    bucket_id: bucket.to_typed()?,
                 }
             }
             Self::CreateProofFromBucketOfAmount { bucket, amount, .. } => {
                 InstructionV1::CreateProofFromBucketOfAmount {
-                    bucket_id: bucket.to_typed(name_resolver)?,
-                    amount: amount.to_typed(name_resolver)?,
+                    bucket_id: bucket.to_typed()?,
+                    amount: amount.to_typed()?,
                 }
             }
             Self::CreateProofFromBucketOfNonFungibles { bucket, ids, .. } => {
                 InstructionV1::CreateProofFromBucketOfNonFungibles {
-                    bucket_id: bucket.to_typed(name_resolver)?,
-                    ids: ids.to_typed(name_resolver)?,
+                    bucket_id: bucket.to_typed()?,
+                    ids: ids.to_typed()?,
                 }
             }
             Self::BurnResource { bucket } => InstructionV1::BurnResource {
-                bucket_id: bucket.to_typed(name_resolver)?,
+                bucket_id: bucket.to_typed()?,
             },
             Self::CloneProof { proof, .. } => InstructionV1::CloneProof {
-                proof_id: proof.to_typed(name_resolver)?,
+                proof_id: proof.to_typed()?,
             },
             Self::DropProof { proof, .. } => InstructionV1::DropProof {
-                proof_id: proof.to_typed(name_resolver)?,
+                proof_id: proof.to_typed()?,
             },
             Self::DropAllProofs {} => InstructionV1::DropAllProofs {},
             Self::CallFunction {
@@ -1085,67 +805,67 @@ impl SerializableInstruction {
                 function_name,
                 args,
             } => InstructionV1::CallFunction {
-                package_address: package_address.to_typed(name_resolver)?,
-                blueprint_name: blueprint_name.to_typed(name_resolver)?,
-                function_name: function_name.to_typed(name_resolver)?,
-                args: args.to_typed(name_resolver)?,
+                package_address: package_address.to_typed()?,
+                blueprint_name: blueprint_name.to_typed()?,
+                function_name: function_name.to_typed()?,
+                args: args.to_typed()?,
             },
             Self::CallMethod {
                 address,
                 method_name,
                 args,
             } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
-                method_name: method_name.to_typed(name_resolver)?,
-                args: args.to_typed(name_resolver)?,
+                address: address.to_typed()?,
+                method_name: method_name.to_typed()?,
+                args: args.to_typed()?,
             },
             Self::CallRoyaltyMethod {
                 address,
                 method_name,
                 args,
             } => InstructionV1::CallRoyaltyMethod {
-                address: address.to_typed(name_resolver)?,
-                method_name: method_name.to_typed(name_resolver)?,
-                args: args.to_typed(name_resolver)?,
+                address: address.to_typed()?,
+                method_name: method_name.to_typed()?,
+                args: args.to_typed()?,
             },
             Self::CallMetadataMethod {
                 address,
                 method_name,
                 args,
             } => InstructionV1::CallMetadataMethod {
-                address: address.to_typed(name_resolver)?,
-                method_name: method_name.to_typed(name_resolver)?,
-                args: args.to_typed(name_resolver)?,
+                address: address.to_typed()?,
+                method_name: method_name.to_typed()?,
+                args: args.to_typed()?,
             },
             Self::CallAccessRulesMethod {
                 address,
                 method_name,
                 args,
             } => InstructionV1::CallAccessRulesMethod {
-                address: address.to_typed(name_resolver)?,
-                method_name: method_name.to_typed(name_resolver)?,
-                args: args.to_typed(name_resolver)?,
+                address: address.to_typed()?,
+                method_name: method_name.to_typed()?,
+                args: args.to_typed()?,
             },
             Self::AllocateGlobalAddress {
                 package_address,
                 blueprint_name,
                 ..
             } => InstructionV1::AllocateGlobalAddress {
-                package_address: package_address.to_typed(name_resolver)?,
-                blueprint_name: blueprint_name.to_typed(name_resolver)?,
+                package_address: package_address.to_typed()?,
+                blueprint_name: blueprint_name.to_typed()?,
             },
             Self::RecallVault { vault_id, amount } => InstructionV1::CallDirectVaultMethod {
-                address: vault_id.to_typed(name_resolver)?,
+                address: vault_id.to_typed()?,
                 method_name: VAULT_RECALL_IDENT.to_string(),
-                args: manifest_args!(amount.to_manifest_value(name_resolver)?),
+                args: manifest_args!(amount.to_manifest_value()?),
             },
             Self::FreezeVault { vault_id } => InstructionV1::CallDirectVaultMethod {
-                address: vault_id.to_typed(name_resolver)?,
+                address: vault_id.to_typed()?,
                 method_name: VAULT_FREEZE_IDENT.to_string(),
                 args: manifest_args!(),
             },
             Self::UnfreezeVault { vault_id } => InstructionV1::CallDirectVaultMethod {
-                address: vault_id.to_typed(name_resolver)?,
+                address: vault_id.to_typed()?,
                 method_name: VAULT_UNFREEZE_IDENT.to_string(),
                 args: manifest_args!(),
             },
@@ -1158,9 +878,9 @@ impl SerializableInstruction {
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_IDENT.to_string(),
                 args: to_manifest_value(&PackagePublishWasmManifestInput {
-                    code: code.to_typed(name_resolver)?,
-                    metadata: metadata.to_typed(name_resolver)?,
-                    setup: setup.to_typed(name_resolver)?,
+                    code: code.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    setup: setup.to_typed()?,
                 }),
             },
             Self::PublishPackageAdvanced {
@@ -1174,11 +894,11 @@ impl SerializableInstruction {
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_ADVANCED_IDENT.to_string(),
                 args: to_manifest_value(&PackagePublishWasmAdvancedManifestInput {
-                    code: code.to_typed(name_resolver)?,
-                    metadata: metadata.to_typed(name_resolver)?,
-                    setup: setup.to_typed(name_resolver)?,
-                    owner_rule: owner_rule.to_typed(name_resolver)?,
-                    package_address: package_address.to_typed(name_resolver)?,
+                    code: code.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    setup: setup.to_typed()?,
+                    owner_rule: owner_rule.to_typed()?,
+                    package_address: package_address.to_typed()?,
                 }),
             },
             Self::CreateFungibleResource {
@@ -1191,10 +911,10 @@ impl SerializableInstruction {
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
                 args: to_manifest_value(&FungibleResourceManagerCreateInput {
-                    access_rules: access_rules.to_typed(name_resolver)?,
-                    divisibility: divisibility.to_typed(name_resolver)?,
-                    metadata: metadata.to_typed(name_resolver)?,
-                    track_total_supply: track_total_supply.to_typed(name_resolver)?,
+                    access_rules: access_rules.to_typed()?,
+                    divisibility: divisibility.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    track_total_supply: track_total_supply.to_typed()?,
                 }),
             },
             Self::CreateFungibleResourceWithInitialSupply {
@@ -1209,11 +929,11 @@ impl SerializableInstruction {
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
                 args: to_manifest_value(&FungibleResourceManagerCreateWithInitialSupplyInput {
-                    access_rules: access_rules.to_typed(name_resolver)?,
-                    divisibility: divisibility.to_typed(name_resolver)?,
-                    metadata: metadata.to_typed(name_resolver)?,
-                    track_total_supply: track_total_supply.to_typed(name_resolver)?,
-                    initial_supply: initial_supply.to_typed(name_resolver)?,
+                    access_rules: access_rules.to_typed()?,
+                    divisibility: divisibility.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    track_total_supply: track_total_supply.to_typed()?,
+                    initial_supply: initial_supply.to_typed()?,
                 }),
             },
             Self::CreateNonFungibleResource {
@@ -1227,11 +947,11 @@ impl SerializableInstruction {
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
                 args: to_manifest_value(&NonFungibleResourceManagerCreateInput {
-                    access_rules: access_rules.to_typed(name_resolver)?,
-                    metadata: metadata.to_typed(name_resolver)?,
-                    track_total_supply: track_total_supply.to_typed(name_resolver)?,
-                    id_type: id_type.to_typed(name_resolver)?,
-                    non_fungible_schema: non_fungible_schema.to_typed(name_resolver)?,
+                    access_rules: access_rules.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    track_total_supply: track_total_supply.to_typed()?,
+                    id_type: id_type.to_typed()?,
+                    non_fungible_schema: non_fungible_schema.to_typed()?,
                 }),
             },
             Self::CreateNonFungibleResourceWithInitialSupply {
@@ -1248,12 +968,12 @@ impl SerializableInstruction {
                     .to_string(),
                 args: to_manifest_value(
                     &NonFungibleResourceManagerCreateWithInitialSupplyManifestInput {
-                        access_rules: access_rules.to_typed(name_resolver)?,
-                        metadata: metadata.to_typed(name_resolver)?,
-                        track_total_supply: track_total_supply.to_typed(name_resolver)?,
-                        id_type: id_type.to_typed(name_resolver)?,
-                        non_fungible_schema: non_fungible_schema.to_typed(name_resolver)?,
-                        entries: entries.to_typed(name_resolver)?,
+                        access_rules: access_rules.to_typed()?,
+                        metadata: metadata.to_typed()?,
+                        track_total_supply: track_total_supply.to_typed()?,
+                        id_type: id_type.to_typed()?,
+                        non_fungible_schema: non_fungible_schema.to_typed()?,
+                        entries: entries.to_typed()?,
                     },
                 ),
             },
@@ -1266,10 +986,9 @@ impl SerializableInstruction {
                 blueprint_name: ACCESS_CONTROLLER_BLUEPRINT.to_string(),
                 function_name: ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT.to_string(),
                 args: to_manifest_value(&AccessControllerCreateGlobalManifestInput {
-                    controlled_asset: controlled_asset.to_typed(name_resolver)?,
-                    rule_set: rule_set.to_typed(name_resolver)?,
-                    timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes
-                        .to_typed(name_resolver)?,
+                    controlled_asset: controlled_asset.to_typed()?,
+                    rule_set: rule_set.to_typed()?,
+                    timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes.to_typed()?,
                 }),
             },
             Self::CreateIdentity {} => InstructionV1::CallFunction {
@@ -1283,7 +1002,7 @@ impl SerializableInstruction {
                 blueprint_name: IDENTITY_BLUEPRINT.to_string(),
                 function_name: IDENTITY_CREATE_ADVANCED_IDENT.to_string(),
                 args: to_manifest_value(&IdentityCreateAdvancedInput {
-                    owner_rule: owner_rule.to_typed(name_resolver)?,
+                    owner_rule: owner_rule.to_typed()?,
                 }),
             },
             Self::CreateAccount {} => InstructionV1::CallFunction {
@@ -1297,7 +1016,7 @@ impl SerializableInstruction {
                 blueprint_name: ACCOUNT_BLUEPRINT.to_string(),
                 function_name: ACCOUNT_CREATE_ADVANCED_IDENT.to_string(),
                 args: to_manifest_value(&AccountCreateAdvancedInput {
-                    owner_role: owner_role.to_typed(name_resolver)?,
+                    owner_role: owner_role.to_typed()?,
                 }),
             },
             Self::SetMetadata {
@@ -1305,18 +1024,18 @@ impl SerializableInstruction {
                 key,
                 value,
             } => InstructionV1::CallMetadataMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: METADATA_SET_IDENT.to_string(),
                 args: to_manifest_value(&MetadataSetInput {
-                    key: key.to_typed(name_resolver)?,
-                    value: value.to_typed(name_resolver)?,
+                    key: key.to_typed()?,
+                    value: value.to_typed()?,
                 }),
             },
             Self::RemoveMetadata { address, key } => InstructionV1::CallMetadataMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: METADATA_REMOVE_IDENT.to_string(),
                 args: to_manifest_value(&MetadataRemoveInput {
-                    key: key.to_typed(name_resolver)?,
+                    key: key.to_typed()?,
                 }),
             },
             Self::SetComponentRoyaltyConfig {
@@ -1324,15 +1043,15 @@ impl SerializableInstruction {
                 method,
                 amount,
             } => InstructionV1::CallRoyaltyMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: COMPONENT_ROYALTY_SET_ROYALTY_IDENT.to_string(),
                 args: to_manifest_value(&ComponentSetRoyaltyInput {
-                    method: method.to_typed(name_resolver)?,
-                    amount: amount.to_typed(name_resolver)?,
+                    method: method.to_typed()?,
+                    amount: amount.to_typed()?,
                 }),
             },
             Self::ClaimComponentRoyalty { address } => InstructionV1::CallRoyaltyMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT.to_string(),
                 args: to_manifest_value(&ComponentClaimRoyaltiesInput {}),
             },
@@ -1342,59 +1061,46 @@ impl SerializableInstruction {
                 rule,
                 mutability,
             } => InstructionV1::CallAccessRulesMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: ACCESS_RULES_UPDATE_ROLE_IDENT.to_string(),
                 args: to_manifest_value(&AccessRulesUpdateRoleInput {
-                    role_key: role_key.to_typed(name_resolver)?,
-                    rule: rule.to_typed(name_resolver)?,
-                    mutability: mutability.to_typed(name_resolver)?,
-                }),
-            },
-            Self::SetPackageRoyaltyConfig {
-                address,
-                blueprint,
-                fn_name,
-                royalty,
-            } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
-                method_name: PACKAGE_SET_ROYALTY_IDENT.to_string(),
-                args: to_manifest_value(&PackageSetRoyaltyInput {
-                    blueprint: blueprint.to_typed(name_resolver)?,
-                    fn_name: fn_name.to_typed(name_resolver)?,
-                    royalty: royalty.to_typed(name_resolver)?,
+                    role_key: role_key.to_typed()?,
+                    rule: rule.to_typed()?,
+                    mutability: mutability.to_typed()?,
                 }),
             },
             Self::ClaimPackageRoyalty { address } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: PACKAGE_CLAIM_ROYALTIES_IDENT.to_string(),
                 args: to_manifest_value(&PackageClaimRoyaltiesInput {}),
             },
             Self::MintFungible { address, amount } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_string(),
                 args: to_manifest_value(&FungibleResourceManagerMintInput {
-                    amount: amount.to_typed(name_resolver)?,
+                    amount: amount.to_typed()?,
                 }),
             },
             Self::MintNonFungible { address, entries } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_string(),
                 args: to_manifest_value(&NonFungibleResourceManagerMintManifestInput {
-                    entries: entries.to_typed(name_resolver)?,
+                    entries: entries.to_typed()?,
                 }),
             },
             Self::MintUuidNonFungible { address, entries } => InstructionV1::CallMethod {
-                address: address.to_typed(name_resolver)?,
+                address: address.to_typed()?,
                 method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_UUID_IDENT.to_string(),
                 args: to_manifest_value(&NonFungibleResourceManagerMintUuidManifestInput {
-                    entries: entries.to_typed(name_resolver)?,
+                    entries: entries.to_typed()?,
                 }),
             },
-            Self::CreateValidator { key } => InstructionV1::CallMethod {
+            Self::CreateValidator { key, fee_factor } => InstructionV1::CallMethod {
                 address: DynamicGlobalAddress::Static(CONSENSUS_MANAGER.into()),
                 method_name: CONSENSUS_MANAGER_CREATE_VALIDATOR_IDENT.to_string(),
                 args: to_manifest_value(&ConsensusManagerCreateValidatorInput {
-                    key: key.to_typed(name_resolver)?,
+                    key: key.to_typed()?,
+                    fee_factor: fee_factor.to_typed()?,
                 }),
             },
         };
@@ -1402,7 +1108,7 @@ impl SerializableInstruction {
     }
 }
 
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
 #[serde(tag = "kind", content = "error")]
 pub enum InstructionConversionError {
     ValueConversionError(ValueConversionError),
@@ -1426,7 +1132,6 @@ trait CallMethodAlias {
         node_id: &NodeId,
         args: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError>;
 
     fn alias(
@@ -1435,7 +1140,6 @@ trait CallMethodAlias {
         method_name: &str,
         args: &ManifestValue,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Option<SerializableInstruction> {
         if Self::is_valid_address(node_id)
             && object_module_id == Self::MODULE
@@ -1452,13 +1156,7 @@ trait CallMethodAlias {
             )
             .is_ok()
             {
-                Self::handle_aliasing(
-                    node_id,
-                    &to_manifest_type(args).unwrap(),
-                    network_id,
-                    name_dictionary,
-                )
-                .ok()
+                Self::handle_aliasing(node_id, &to_manifest_type(args).unwrap(), network_id).ok()
             } else {
                 None
             }
@@ -1483,16 +1181,11 @@ impl CallMethodAlias for RecallVaultAlias {
         node_id: &NodeId,
         VaultRecallInput { amount }: &VaultRecallInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let vault_address = InternalAddress::new_or_panic(node_id.0);
         let instruction = SerializableInstruction::RecallVault {
-            vault_id: SerializableManifestValue::from_typed(
-                &vault_address,
-                network_id,
-                name_dictionary,
-            )?,
-            amount: SerializableManifestValue::from_typed(&amount, network_id, name_dictionary)?,
+            vault_id: SerializableManifestValue::from_typed(&vault_address, network_id)?,
+            amount: SerializableManifestValue::from_typed(&amount, network_id)?,
         };
         Ok(instruction)
     }
@@ -1513,15 +1206,10 @@ impl CallMethodAlias for FreezeVaultAlias {
         node_id: &NodeId,
         VaultFreezeInput {}: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let vault_address = InternalAddress::new_or_panic(node_id.0);
         let instruction = SerializableInstruction::FreezeVault {
-            vault_id: SerializableManifestValue::from_typed(
-                &vault_address,
-                network_id,
-                name_dictionary,
-            )?,
+            vault_id: SerializableManifestValue::from_typed(&vault_address, network_id)?,
         };
         Ok(instruction)
     }
@@ -1542,15 +1230,10 @@ impl CallMethodAlias for UnfreezeVaultAlias {
         node_id: &NodeId,
         VaultUnfreezeInput {}: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let vault_address = InternalAddress::new_or_panic(node_id.0);
         let instruction = SerializableInstruction::UnfreezeVault {
-            vault_id: SerializableManifestValue::from_typed(
-                &vault_address,
-                network_id,
-                name_dictionary,
-            )?,
+            vault_id: SerializableManifestValue::from_typed(&vault_address, network_id)?,
         };
         Ok(instruction)
     }
@@ -1571,13 +1254,12 @@ impl CallMethodAlias for SetMetadataAlias {
         node_id: &NodeId,
         MetadataSetInput { key, value }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::SetMetadata {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            key: SerializableManifestValue::from_typed(&key, network_id, name_dictionary)?,
-            value: SerializableManifestValue::from_typed(&value, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            key: SerializableManifestValue::from_typed(&key, network_id)?,
+            value: SerializableManifestValue::from_typed(&value, network_id)?,
         };
         Ok(instruction)
     }
@@ -1598,12 +1280,11 @@ impl CallMethodAlias for RemoveMetadataAlias {
         node_id: &NodeId,
         MetadataRemoveInput { key }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::RemoveMetadata {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            key: SerializableManifestValue::from_typed(&key, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            key: SerializableManifestValue::from_typed(&key, network_id)?,
         };
         Ok(instruction)
     }
@@ -1624,13 +1305,12 @@ impl CallMethodAlias for SetComponentRoyaltyConfigAlias {
         node_id: &NodeId,
         ComponentSetRoyaltyInput { amount, method }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::SetComponentRoyaltyConfig {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            method: SerializableManifestValue::from_typed(&method, network_id, name_dictionary)?,
-            amount: SerializableManifestValue::from_typed(&amount, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            method: SerializableManifestValue::from_typed(&method, network_id)?,
+            amount: SerializableManifestValue::from_typed(&amount, network_id)?,
         };
         Ok(instruction)
     }
@@ -1651,11 +1331,10 @@ impl CallMethodAlias for ClaimComponentRoyaltyAlias {
         node_id: &NodeId,
         ComponentClaimRoyaltiesInput {}: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::ClaimComponentRoyalty {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
         };
         Ok(instruction)
     }
@@ -1680,58 +1359,13 @@ impl CallMethodAlias for UpdateRoleAlias {
             mutability,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::UpdateRole {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            role_key: SerializableManifestValue::from_typed(
-                &role_key,
-                network_id,
-                name_dictionary,
-            )?,
-            rule: SerializableManifestValue::from_typed(&rule, network_id, name_dictionary)?,
-            mutability: SerializableManifestValue::from_typed(
-                &mutability,
-                network_id,
-                name_dictionary,
-            )?,
-        };
-        Ok(instruction)
-    }
-}
-
-struct SetPackageRoyaltyConfigAlias;
-impl CallMethodAlias for SetPackageRoyaltyConfigAlias {
-    type ScryptoInput = PackageSetRoyaltyInput;
-    type ManifestInput = PackageSetRoyaltyInput;
-    const METHOD_NAME: &'static str = PACKAGE_SET_ROYALTY_IDENT;
-    const MODULE: ObjectModuleId = ObjectModuleId::Main;
-
-    fn is_valid_address(node_id: &NodeId) -> bool {
-        node_id.is_global_package()
-    }
-
-    fn handle_aliasing(
-        node_id: &NodeId,
-        PackageSetRoyaltyInput {
-            blueprint,
-            fn_name,
-            royalty,
-        }: &Self::ManifestInput,
-        network_id: u8,
-        name_dictionary: &NameDictionary,
-    ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
-        let instruction = SerializableInstruction::SetPackageRoyaltyConfig {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            blueprint: SerializableManifestValue::from_typed(
-                &blueprint,
-                network_id,
-                name_dictionary,
-            )?,
-            fn_name: SerializableManifestValue::from_typed(&fn_name, network_id, name_dictionary)?,
-            royalty: SerializableManifestValue::from_typed(&royalty, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            role_key: SerializableManifestValue::from_typed(&role_key, network_id)?,
+            rule: SerializableManifestValue::from_typed(&rule, network_id)?,
+            mutability: SerializableManifestValue::from_typed(&mutability, network_id)?,
         };
         Ok(instruction)
     }
@@ -1752,11 +1386,10 @@ impl CallMethodAlias for ClaimPackageRoyaltyAlias {
         node_id: &NodeId,
         PackageClaimRoyaltiesInput {}: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::ClaimPackageRoyalty {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
         };
         Ok(instruction)
     }
@@ -1777,12 +1410,11 @@ impl CallMethodAlias for MintFungibleAlias {
         node_id: &NodeId,
         FungibleResourceManagerMintInput { amount }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::MintFungible {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            amount: SerializableManifestValue::from_typed(&amount, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            amount: SerializableManifestValue::from_typed(&amount, network_id)?,
         };
         Ok(instruction)
     }
@@ -1803,12 +1435,11 @@ impl CallMethodAlias for MintNonFungibleAlias {
         node_id: &NodeId,
         NonFungibleResourceManagerMintManifestInput { entries }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::MintNonFungible {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            entries: SerializableManifestValue::from_typed(&entries, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            entries: SerializableManifestValue::from_typed(&entries, network_id)?,
         };
         Ok(instruction)
     }
@@ -1829,12 +1460,11 @@ impl CallMethodAlias for MintUuidNonFungibleAlias {
         node_id: &NodeId,
         Self::ManifestInput { entries }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
-        let address = GlobalAddress::new_or_panic(node_id.0);
+        let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::MintUuidNonFungible {
-            address: SerializableManifestValue::from_typed(&address, network_id, name_dictionary)?,
-            entries: SerializableManifestValue::from_typed(&entries, network_id, name_dictionary)?,
+            address: SerializableManifestValue::from_typed(&address, network_id)?,
+            entries: SerializableManifestValue::from_typed(&entries, network_id)?,
         };
         Ok(instruction)
     }
@@ -1853,12 +1483,12 @@ impl CallMethodAlias for CreateValidatorAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        Self::ManifestInput { key }: &Self::ManifestInput,
+        Self::ManifestInput { key, fee_factor }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateValidator {
-            key: SerializableManifestValue::from_typed(&key, network_id, name_dictionary)?,
+            key: SerializableManifestValue::from_typed(&key, network_id)?,
+            fee_factor: SerializableManifestValue::from_typed(&fee_factor, network_id)?,
         };
         Ok(instruction)
     }
@@ -1876,7 +1506,6 @@ trait CallFunctionAlias {
         node_id: &NodeId,
         args: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError>;
 
     fn alias(
@@ -1885,7 +1514,6 @@ trait CallFunctionAlias {
         function_name: &str,
         args: &ManifestValue,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Option<SerializableInstruction> {
         if Self::is_valid_address(node_id)
             && blueprint_name == Self::BLUEPRINT_NAME
@@ -1902,13 +1530,7 @@ trait CallFunctionAlias {
             )
             .is_ok()
             {
-                Self::handle_aliasing(
-                    node_id,
-                    &to_manifest_type(args).unwrap(),
-                    network_id,
-                    name_dictionary,
-                )
-                .ok()
+                Self::handle_aliasing(node_id, &to_manifest_type(args).unwrap(), network_id).ok()
             } else {
                 None
             }
@@ -1937,20 +1559,11 @@ impl CallFunctionAlias for PublishPackageAlias {
             metadata,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::PublishPackage {
-            code: SerializableManifestValue::from_typed(&code, network_id, name_dictionary)?,
-            setup: SerializableManifestValue::from_typed(
-                &manifest_encode(&setup),
-                network_id,
-                name_dictionary,
-            )?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
+            code: SerializableManifestValue::from_typed(&code, network_id)?,
+            setup: SerializableManifestValue::from_typed(&manifest_encode(&setup), network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
         };
         Ok(instruction)
     }
@@ -1977,30 +1590,13 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
             setup,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::PublishPackageAdvanced {
-            package_address: SerializableManifestValue::from_typed(
-                &package_address,
-                network_id,
-                name_dictionary,
-            )?,
-            code: SerializableManifestValue::from_typed(&code, network_id, name_dictionary)?,
-            setup: SerializableManifestValue::from_typed(
-                &manifest_encode(&setup),
-                network_id,
-                name_dictionary,
-            )?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
-            owner_rule: SerializableManifestValue::from_typed(
-                &owner_rule,
-                network_id,
-                name_dictionary,
-            )?,
+            package_address: SerializableManifestValue::from_typed(&package_address, network_id)?,
+            code: SerializableManifestValue::from_typed(&code, network_id)?,
+            setup: SerializableManifestValue::from_typed(&manifest_encode(&setup), network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
+            owner_rule: SerializableManifestValue::from_typed(&owner_rule, network_id)?,
         };
         Ok(instruction)
     }
@@ -2026,29 +1622,15 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
             track_total_supply,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateFungibleResource {
             track_total_supply: SerializableManifestValue::from_typed(
                 &track_total_supply,
                 network_id,
-                name_dictionary,
             )?,
-            divisibility: SerializableManifestValue::from_typed(
-                &divisibility,
-                network_id,
-                name_dictionary,
-            )?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
-            access_rules: SerializableManifestValue::from_typed(
-                &access_rules,
-                network_id,
-                name_dictionary,
-            )?,
+            divisibility: SerializableManifestValue::from_typed(&divisibility, network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
+            access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
         };
         Ok(instruction)
     }
@@ -2075,34 +1657,16 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
             track_total_supply,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateFungibleResourceWithInitialSupply {
             track_total_supply: SerializableManifestValue::from_typed(
                 &track_total_supply,
                 network_id,
-                name_dictionary,
             )?,
-            divisibility: SerializableManifestValue::from_typed(
-                &divisibility,
-                network_id,
-                name_dictionary,
-            )?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
-            access_rules: SerializableManifestValue::from_typed(
-                &access_rules,
-                network_id,
-                name_dictionary,
-            )?,
-            initial_supply: SerializableManifestValue::from_typed(
-                &initial_supply,
-                network_id,
-                name_dictionary,
-            )?,
+            divisibility: SerializableManifestValue::from_typed(&divisibility, network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
+            access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
+            initial_supply: SerializableManifestValue::from_typed(&initial_supply, network_id)?,
         };
         Ok(instruction)
     }
@@ -2129,29 +1693,18 @@ impl CallFunctionAlias for CreateNonFungibleResourceAlias {
             non_fungible_schema,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateNonFungibleResource {
             track_total_supply: SerializableManifestValue::from_typed(
                 &track_total_supply,
                 network_id,
-                name_dictionary,
             )?,
-            id_type: SerializableManifestValue::from_typed(&id_type, network_id, name_dictionary)?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
-            access_rules: SerializableManifestValue::from_typed(
-                &access_rules,
-                network_id,
-                name_dictionary,
-            )?,
+            id_type: SerializableManifestValue::from_typed(&id_type, network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
+            access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
             non_fungible_schema: SerializableManifestValue::from_typed(
                 &non_fungible_schema,
                 network_id,
-                name_dictionary,
             )?,
         };
         Ok(instruction)
@@ -2181,31 +1734,20 @@ impl CallFunctionAlias for CreateNonFungibleResourceWithInitialSupplyAlias {
             entries,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateNonFungibleResourceWithInitialSupply {
             track_total_supply: SerializableManifestValue::from_typed(
                 &track_total_supply,
                 network_id,
-                name_dictionary,
             )?,
-            id_type: SerializableManifestValue::from_typed(&id_type, network_id, name_dictionary)?,
-            metadata: SerializableManifestValue::from_typed(
-                &metadata,
-                network_id,
-                name_dictionary,
-            )?,
-            access_rules: SerializableManifestValue::from_typed(
-                &access_rules,
-                network_id,
-                name_dictionary,
-            )?,
+            id_type: SerializableManifestValue::from_typed(&id_type, network_id)?,
+            metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
+            access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
             non_fungible_schema: SerializableManifestValue::from_typed(
                 &non_fungible_schema,
                 network_id,
-                name_dictionary,
             )?,
-            entries: SerializableManifestValue::from_typed(&entries, network_id, name_dictionary)?,
+            entries: SerializableManifestValue::from_typed(&entries, network_id)?,
         };
         Ok(instruction)
     }
@@ -2230,23 +1772,13 @@ impl CallFunctionAlias for CreateAccessControllerAlias {
             timed_recovery_delay_in_minutes,
         }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateAccessController {
-            controlled_asset: SerializableManifestValue::from_typed(
-                &controlled_asset,
-                network_id,
-                name_dictionary,
-            )?,
-            rule_set: SerializableManifestValue::from_typed(
-                &rule_set,
-                network_id,
-                name_dictionary,
-            )?,
+            controlled_asset: SerializableManifestValue::from_typed(&controlled_asset, network_id)?,
+            rule_set: SerializableManifestValue::from_typed(&rule_set, network_id)?,
             timed_recovery_delay_in_minutes: SerializableManifestValue::from_typed(
                 &timed_recovery_delay_in_minutes,
                 network_id,
-                name_dictionary,
             )?,
         };
         Ok(instruction)
@@ -2268,7 +1800,6 @@ impl CallFunctionAlias for CreateIdentityAlias {
         _: &NodeId,
         IdentityCreateInput {}: &Self::ManifestInput,
         _: u8,
-        _: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateIdentity {};
         Ok(instruction)
@@ -2290,14 +1821,9 @@ impl CallFunctionAlias for CreateIdentityAdvancedAlias {
         _: &NodeId,
         IdentityCreateAdvancedInput { owner_rule }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateIdentityAdvanced {
-            owner_rule: SerializableManifestValue::from_typed(
-                &owner_rule,
-                network_id,
-                name_dictionary,
-            )?,
+            owner_rule: SerializableManifestValue::from_typed(&owner_rule, network_id)?,
         };
         Ok(instruction)
     }
@@ -2318,7 +1844,6 @@ impl CallFunctionAlias for CreateAccountAlias {
         _: &NodeId,
         AccountCreateInput {}: &Self::ManifestInput,
         _: u8,
-        _: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateAccount {};
         Ok(instruction)
@@ -2340,14 +1865,9 @@ impl CallFunctionAlias for CreateAccountAdvancedAlias {
         _: &NodeId,
         AccountCreateAdvancedInput { owner_role }: &Self::ManifestInput,
         network_id: u8,
-        name_dictionary: &NameDictionary,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateAccountAdvanced {
-            owner_role: SerializableManifestValue::from_typed(
-                &owner_role,
-                network_id,
-                name_dictionary,
-            )?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
         };
         Ok(instruction)
     }
@@ -2360,7 +1880,6 @@ macro_rules! alias_call_method {
         $method_name: expr,
         $args: expr,
         $network_id: expr,
-        $name_dictionary: expr,
         [
             $($aliasing_handler: ty),* $(,)?
         ]
@@ -2373,7 +1892,6 @@ macro_rules! alias_call_method {
                     $method_name,
                     $args,
                     $network_id,
-                    $name_dictionary,
                 )
             ),*
         ].into_iter().find_map(|instruction| instruction)
@@ -2387,7 +1905,6 @@ macro_rules! alias_call_function {
         $function_name: expr,
         $args: expr,
         $network_id: expr,
-        $name_dictionary: expr,
         [
             $($aliasing_handler: ty),* $(,)?
         ]
@@ -2400,7 +1917,6 @@ macro_rules! alias_call_function {
                     $function_name,
                     $args,
                     $network_id,
-                    $name_dictionary,
                 )
             ),*
         ].into_iter().find_map(|instruction| instruction)

@@ -1,35 +1,23 @@
-# This transaction manifest shows how to publish a package and call function immediately.
+# This transaction manifest shows how a package can be published to the ledger
 
 # ==================================================================================================
 # WARNING: If you will be submitting this transaction through the Babylon wallet then you MUST
 # remove the "lock_fee" instruction that you see below. Otherwise your transaction will fail. If all 
 # that you are using is resim then you can safely ignore this warning.
 # ==================================================================================================
- 
+
+# Locking 10 XRD in fees from the account component. 
 CALL_METHOD 
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") 
     "lock_fee"
-    Decimal("10")
-;
-ALLOCATE_GLOBAL_ADDRESS
-    Address("${package_package_address}")
-    "Package"
-    AddressReservation("my_reservation")
-    NamedAddress("my_package")
-;
+    Decimal("10");
+
+# Publishing a new package and setting some of its royalty and access rules.
 PUBLISH_PACKAGE_ADVANCED
-    Some(AddressReservation("my_reservation"))
+    None
     Blob("a710f0959d8e139b3c1ca74ac4fcb9a95ada2c82e7f563304c5487e0117095c0")
     Tuple(
         Map<String, Tuple>()
     )
-    Map<String, Enum>()
-    Enum<0u8>()
-;
-CALL_FUNCTION
-    NamedAddress("my_package")
-    "BlueprintName"
-    "no_such_function" 
-    Decimal("1.0")
-    NamedAddress("my_package")
-;
+    Map<String, Enum>()        # Metadata
+    Enum<0u8>();               # Owner AccessRule

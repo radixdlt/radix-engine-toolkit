@@ -1,0 +1,73 @@
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez")
+    Bucket("temp1");
+CREATE_PROOF_FROM_AUTH_ZONE
+    Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez")
+    Proof("temp2");
+
+CALL_METHOD 
+    Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
+    "aliases"
+
+    # enum
+    None
+    Enum<0u8>()
+    Some("hello")
+    Enum<1u8>( "hello")
+    Ok("test")
+    Enum<0u8>( "test")
+    Err("test123")
+    Enum<1u8>( "test123")
+    Enum<Option::None>()
+    Enum<Option::Some>( "a")
+    Enum<Result::Ok>( "b")
+    Enum<Result::Err>( "c")
+
+    # bytes
+    Bytes("deadbeef")
+    Array<U8>(5u8, 10u8, 255u8)
+
+    # non-fungible address
+    NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:<value>")
+    NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:#123#")
+    NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:#456#")
+    NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:[031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f]")
+    NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:#1234567890#")
+    Tuple(Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha"), NonFungibleLocalId("#1#"))
+
+    # array
+    Array<Bytes>(Bytes("dead"), Array<U8>(5u8, 10u8, 255u8))
+    Array<Array>(Bytes("dead"), Array<U8>(5u8, 10u8, 255u8))
+    Array<NonFungibleGlobalId>(NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:<value>"), Tuple(Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha"), NonFungibleLocalId("#1#")))
+    Array<Tuple>(NonFungibleGlobalId("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha:<value>"), Tuple(Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha"), NonFungibleLocalId("#1#")))
+    Array<Enum>(Some("hello"))
+    Array<Enum>(Enum<1u8>(), Enum<Option::None>())
+    Array<Map>(Map<U8, U16>())
+
+    # map
+    Map<U8, U16>(1u8 => 5u16)
+;
+
+CALL_METHOD 
+    Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
+    "custom_types"
+
+    # Address
+    Address("package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk")
+    Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
+    Address("consensusmanager_sim1scxxxxxxxxxxcnsmgrxxxxxxxxx000999665565xxxxxxxxxxc06cl")
+    Address("validator_sim1sgvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvedzgr3l")
+    Address("accesscontroller_sim1cvvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvexaj7at")
+
+    Bucket("temp1")
+    Proof("temp2")
+    Expression("ENTIRE_WORKTOP")
+    Blob("a710f0959d8e139b3c1ca74ac4fcb9a95ada2c82e7f563304c5487e0117095c0")
+
+    Decimal("1.2")
+    PreciseDecimal("1.2")
+    NonFungibleLocalId("<SomeId>")
+    NonFungibleLocalId("#12#")
+    NonFungibleLocalId("[031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f]")
+    NonFungibleLocalId("{43968a72-5954-45da-9678-8659dd399faa}")
+;
