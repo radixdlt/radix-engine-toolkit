@@ -1,0 +1,4 @@
+CREATE_IDENTITY_ADVANCED
+    Enum<OwnerRole::None>();
+
+CREATE_IDENTITY;
