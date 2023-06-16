@@ -879,7 +879,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_IDENT.to_string(),
-                args: to_manifest_value(&PackagePublishWasmManifestInput {
+                args: to_manifest_value(&PackagePublishWasmManifestIndexMapInput {
                     code: code.to_typed()?,
                     metadata: metadata.to_typed()?,
                     setup: resolve_encoded_type(setup)
@@ -896,7 +896,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_ADVANCED_IDENT.to_string(),
-                args: to_manifest_value(&PackagePublishWasmAdvancedManifestInput {
+                args: to_manifest_value(&PackagePublishWasmAdvancedManifestIndexMapInput {
                     code: code.to_typed()?,
                     metadata: metadata.to_typed()?,
                     setup: resolve_encoded_type(setup)
@@ -914,7 +914,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&FungibleResourceManagerCreateInput {
+                args: to_manifest_value(&FungibleResourceManagerCreateIndexMapInput {
                     access_rules: access_rules.to_typed()?,
                     divisibility: divisibility.to_typed()?,
                     metadata: metadata.to_typed()?,
@@ -932,13 +932,15 @@ impl SerializableInstruction {
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
-                args: to_manifest_value(&FungibleResourceManagerCreateWithInitialSupplyInput {
-                    access_rules: access_rules.to_typed()?,
-                    divisibility: divisibility.to_typed()?,
-                    metadata: metadata.to_typed()?,
-                    track_total_supply: track_total_supply.to_typed()?,
-                    initial_supply: initial_supply.to_typed()?,
-                }),
+                args: to_manifest_value(
+                    &FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
+                        access_rules: access_rules.to_typed()?,
+                        divisibility: divisibility.to_typed()?,
+                        metadata: metadata.to_typed()?,
+                        track_total_supply: track_total_supply.to_typed()?,
+                        initial_supply: initial_supply.to_typed()?,
+                    },
+                ),
             },
             Self::CreateNonFungibleResource {
                 access_rules,
@@ -950,7 +952,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&NonFungibleResourceManagerCreateInput {
+                args: to_manifest_value(&NonFungibleResourceManagerCreateIndexMapInput {
                     access_rules: access_rules.to_typed()?,
                     metadata: metadata.to_typed()?,
                     track_total_supply: track_total_supply.to_typed()?,
@@ -971,7 +973,7 @@ impl SerializableInstruction {
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
                 args: to_manifest_value(
-                    &NonFungibleResourceManagerCreateWithInitialSupplyManifestInput {
+                    &NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
                         access_rules: access_rules.to_typed()?,
                         metadata: metadata.to_typed()?,
                         track_total_supply: track_total_supply.to_typed()?,
@@ -1088,7 +1090,7 @@ impl SerializableInstruction {
             Self::MintNonFungible { address, entries } => InstructionV1::CallMethod {
                 address: address.to_typed()?,
                 method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_string(),
-                args: to_manifest_value(&NonFungibleResourceManagerMintManifestInput {
+                args: to_manifest_value(&NonFungibleResourceManagerMintManifestIndexMapInput {
                     entries: entries.to_typed()?,
                 }),
             },
@@ -1427,8 +1429,8 @@ impl CallMethodAlias for MintFungibleAlias {
 
 struct MintNonFungibleAlias;
 impl CallMethodAlias for MintNonFungibleAlias {
-    type ScryptoInput = NonFungibleResourceManagerMintInput;
-    type ManifestInput = NonFungibleResourceManagerMintManifestInput;
+    type ScryptoInput = NonFungibleResourceManagerMintIndexMapInput;
+    type ManifestInput = NonFungibleResourceManagerMintManifestIndexMapInput;
     const METHOD_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT;
     const MODULE: ObjectModuleId = ObjectModuleId::Main;
 
@@ -1438,7 +1440,7 @@ impl CallMethodAlias for MintNonFungibleAlias {
 
     fn handle_aliasing(
         node_id: &NodeId,
-        NonFungibleResourceManagerMintManifestInput { entries }: &Self::ManifestInput,
+        NonFungibleResourceManagerMintManifestIndexMapInput { entries }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
@@ -1547,8 +1549,8 @@ trait CallFunctionAlias {
 
 struct PublishPackageAlias;
 impl CallFunctionAlias for PublishPackageAlias {
-    type ScryptoInput = PackagePublishWasmInput;
-    type ManifestInput = PackagePublishWasmInput;
+    type ScryptoInput = PackagePublishWasmIndexMapInput;
+    type ManifestInput = PackagePublishWasmIndexMapInput;
     const FUNCTION_NAME: &'static str = PACKAGE_PUBLISH_WASM_IDENT;
     const BLUEPRINT_NAME: &'static str = PACKAGE_BLUEPRINT;
 
@@ -1558,7 +1560,7 @@ impl CallFunctionAlias for PublishPackageAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        PackagePublishWasmInput {
+        PackagePublishWasmIndexMapInput {
             code,
             setup,
             metadata,
@@ -1579,8 +1581,8 @@ impl CallFunctionAlias for PublishPackageAlias {
 
 struct PublishPackageAdvancedAlias;
 impl CallFunctionAlias for PublishPackageAdvancedAlias {
-    type ScryptoInput = PackagePublishWasmAdvancedInput;
-    type ManifestInput = PackagePublishWasmAdvancedManifestInput;
+    type ScryptoInput = PackagePublishWasmAdvancedIndexMapInput;
+    type ManifestInput = PackagePublishWasmAdvancedManifestIndexMapInput;
     const FUNCTION_NAME: &'static str = PACKAGE_PUBLISH_WASM_ADVANCED_IDENT;
     const BLUEPRINT_NAME: &'static str = PACKAGE_BLUEPRINT;
 
@@ -1590,7 +1592,7 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        PackagePublishWasmAdvancedManifestInput {
+        PackagePublishWasmAdvancedManifestIndexMapInput {
             code,
             metadata,
             owner_rule,
@@ -1615,8 +1617,8 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
 
 struct CreateFungibleResourceAlias;
 impl CallFunctionAlias for CreateFungibleResourceAlias {
-    type ScryptoInput = FungibleResourceManagerCreateInput;
-    type ManifestInput = FungibleResourceManagerCreateInput;
+    type ScryptoInput = FungibleResourceManagerCreateIndexMapInput;
+    type ManifestInput = FungibleResourceManagerCreateIndexMapInput;
     const FUNCTION_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT;
     const BLUEPRINT_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1626,7 +1628,7 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        FungibleResourceManagerCreateInput {
+        FungibleResourceManagerCreateIndexMapInput {
             access_rules,
             divisibility,
             metadata,
@@ -1649,8 +1651,8 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
 
 struct CreateFungibleResourceWithInitialSupplyAlias;
 impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
-    type ScryptoInput = FungibleResourceManagerCreateWithInitialSupplyInput;
-    type ManifestInput = FungibleResourceManagerCreateWithInitialSupplyInput;
+    type ScryptoInput = FungibleResourceManagerCreateWithInitialSupplyIndexMapInput;
+    type ManifestInput = FungibleResourceManagerCreateWithInitialSupplyIndexMapInput;
     const FUNCTION_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT;
     const BLUEPRINT_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1660,7 +1662,7 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        FungibleResourceManagerCreateWithInitialSupplyInput {
+        FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
             access_rules,
             divisibility,
             initial_supply,
@@ -1685,8 +1687,8 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
 
 struct CreateNonFungibleResourceAlias;
 impl CallFunctionAlias for CreateNonFungibleResourceAlias {
-    type ScryptoInput = NonFungibleResourceManagerCreateInput;
-    type ManifestInput = NonFungibleResourceManagerCreateInput;
+    type ScryptoInput = NonFungibleResourceManagerCreateIndexMapInput;
+    type ManifestInput = NonFungibleResourceManagerCreateIndexMapInput;
     const FUNCTION_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT;
     const BLUEPRINT_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1696,7 +1698,7 @@ impl CallFunctionAlias for CreateNonFungibleResourceAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        NonFungibleResourceManagerCreateInput {
+        NonFungibleResourceManagerCreateIndexMapInput {
             access_rules,
             metadata,
             track_total_supply,
@@ -1724,8 +1726,8 @@ impl CallFunctionAlias for CreateNonFungibleResourceAlias {
 
 struct CreateNonFungibleResourceWithInitialSupplyAlias;
 impl CallFunctionAlias for CreateNonFungibleResourceWithInitialSupplyAlias {
-    type ScryptoInput = NonFungibleResourceManagerCreateWithInitialSupplyInput;
-    type ManifestInput = NonFungibleResourceManagerCreateWithInitialSupplyManifestInput;
+    type ScryptoInput = NonFungibleResourceManagerCreateWithInitialSupplyIndexMapInput;
+    type ManifestInput = NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput;
     const FUNCTION_NAME: &'static str =
         NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT;
     const BLUEPRINT_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
@@ -1736,7 +1738,7 @@ impl CallFunctionAlias for CreateNonFungibleResourceWithInitialSupplyAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        NonFungibleResourceManagerCreateWithInitialSupplyManifestInput {
+        NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
             access_rules,
             metadata,
             track_total_supply,

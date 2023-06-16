@@ -1,13 +1,26 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 #![allow(dead_code)]
 #![allow(clippy::expect_fun_call)]
 
-use native_json_library::models::instruction::{
-    InstructionConversionError, SerializableInstruction,
-};
+use native_json_library::models::transaction::instruction::*;
 use radix_engine_common::prelude::*;
 use transaction::manifest::*;
-use transaction::prelude::*;
-use transaction::validation::*;
 use walkdir::WalkDir;
 
 #[test]
@@ -40,8 +53,7 @@ fn common_manifests_can_all_be_converted_to_serializable() {
 #[test]
 fn common_manifests_can_be_converted_to_serialized_and_back() {
     // Arrange
-    // let path = ".";
-    let path = "/Users/omarabdulla/Desktop/toolkit-reboot/native-json-library/tests/manifests/resources/mint/non_fungible/";
+    let path = ".";
     for entry in WalkDir::new(path) {
         let path = entry.unwrap().path().canonicalize().unwrap();
 
@@ -71,8 +83,7 @@ fn common_manifests_can_be_converted_to_serialized_and_back() {
 #[test]
 fn common_manifests_can_be_converted_to_serialized_and_back_and_are_equal() {
     // Arrange
-    // let path = ".";
-    let path = "/Users/omarabdulla/Desktop/toolkit-reboot/native-json-library/tests/manifests/resources/mint/non_fungible/";
+    let path = ".";
     for entry in WalkDir::new(path) {
         let path = entry.unwrap().path().canonicalize().unwrap();
 
@@ -95,48 +106,6 @@ fn common_manifests_can_be_converted_to_serialized_and_back_and_are_equal() {
         let instructions = to_native_instructions(&serializable_instructions).unwrap();
 
         // Assert
-        assert_eq!(instructions, manifest.instructions)
+        assert_eq!(instructions, manifest.instructions, "{path:?}")
     }
-}
-
-fn to_serializable_instructions(
-    instructions: &[InstructionV1],
-) -> Result<Vec<SerializableInstruction>, LocatedInstructionConversionError> {
-    let network_id = 0xF2;
-    let mut id_allocator = ManifestIdAllocator::default();
-
-    instructions
-        .iter()
-        .enumerate()
-        .map(|(instruction_index, instruction)| {
-            SerializableInstruction::from_instruction(instruction, network_id, &mut id_allocator)
-                .map_err(|error| LocatedInstructionConversionError {
-                    instruction_index,
-                    error,
-                })
-        })
-        .collect::<Result<_, _>>()
-}
-
-fn to_native_instructions(
-    instructions: &[SerializableInstruction],
-) -> Result<Vec<InstructionV1>, LocatedInstructionConversionError> {
-    instructions
-        .iter()
-        .enumerate()
-        .map(|(instruction_index, instruction)| {
-            instruction
-                .to_instruction()
-                .map_err(|error| LocatedInstructionConversionError {
-                    instruction_index,
-                    error,
-                })
-        })
-        .collect::<Result<_, _>>()
-}
-
-#[derive(Debug, Clone)]
-struct LocatedInstructionConversionError {
-    instruction_index: usize,
-    error: InstructionConversionError,
 }
