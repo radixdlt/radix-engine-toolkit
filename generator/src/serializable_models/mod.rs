@@ -22,3 +22,4 @@ pub mod cryptographic;
 pub mod network;
 pub mod node_id;
 pub mod non_fungible;
+pub mod numbers;

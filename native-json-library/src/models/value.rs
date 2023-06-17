@@ -411,10 +411,10 @@ impl SerializableManifestValue {
                 value: ManifestCustomValue::Blob(ManifestBlobRef((**value).0)),
             },
             Self::Decimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Decimal(from_decimal(&**value)),
+                value: ManifestCustomValue::Decimal(from_decimal(value)),
             },
             Self::PreciseDecimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(&**value)),
+                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(value)),
             },
             Self::NonFungibleLocalId { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::NonFungibleLocalId(from_non_fungible_local_id(

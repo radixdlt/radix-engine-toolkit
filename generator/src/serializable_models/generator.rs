@@ -39,12 +39,26 @@ pub fn generate_serializable_model_examples(
         "node_id" => model_examples![
             SerializableNodeId,
         ],
+        "numbers" => model_examples![
+            SerializableU8 as serializable_u8,
+            SerializableU16 as serializable_u16,
+            SerializableU32 as serializable_u32,
+            SerializableU64 as serializable_u64,
+            SerializableU128 as serializable_u128,
+            SerializableI8 as serializable_i8,
+            SerializableI16 as serializable_i16,
+            SerializableI32 as serializable_i32,
+            SerializableI64 as serializable_i64,
+            SerializableI128 as serializable_i128,
+            SerializableDecimal,
+            SerializablePreciseDecimal,
+        ]
     }
 }
 
 macro_rules! model_examples {
     (
-        $( $function: ident ),* $(,)?
+        $( $function: ident $(as $name: ident)? ),* $(,)?
     ) => {
         {
             use $crate::serializable_models::traits::HasExamples;
@@ -52,7 +66,11 @@ macro_rules! model_examples {
             let mut map = indexmap::IndexMap::new();
 
             $(
+                #[allow(unused_variables)]
                 let name = $crate::utils::snake_case_type_name::<$function>();
+                $(
+                    let name = stringify!($name).to_owned();
+                )?
                 let examples = $function::serde_value_examples().into_iter().collect::<Vec<_>>();
 
                 map.insert(name, examples);
