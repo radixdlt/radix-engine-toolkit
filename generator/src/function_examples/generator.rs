@@ -19,6 +19,7 @@ use super::traits::FunctionExample;
 use indexmap::{indexmap, IndexMap};
 use native_json_library::functions::derive::*;
 use native_json_library::functions::information::*;
+use native_json_library::functions::instructions::*;
 
 #[allow(clippy::type_complexity)]
 pub fn generate_function_examples() -> IndexMap<
@@ -38,6 +39,14 @@ pub fn generate_function_examples() -> IndexMap<
             DerivePublicKeyFromOlympiaAccountAddress,
             DeriveOlympiaAccountAddressFromPublicKey,
             DeriveNodeAddressFromPublicKey,
+        ],
+        "instructions" => function_examples![
+            InstructionsHash,
+            InstructionsConvert,
+            InstructionsCompile,
+            InstructionsDecompile,
+            InstructionsStaticallyValidate,
+            InstructionsExtractAddresses
         ]
     )
 }

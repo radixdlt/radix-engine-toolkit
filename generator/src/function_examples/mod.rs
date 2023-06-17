@@ -18,4 +18,5 @@
 pub mod derive;
 pub mod generator;
 pub mod information;
+pub mod instructions;
 pub mod traits;

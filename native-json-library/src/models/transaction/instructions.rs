@@ -37,6 +37,24 @@ pub enum SerializableInstructionsKind {
 }
 
 impl SerializableInstructions {
+    pub fn new(
+        instructions: &[InstructionV1],
+        kind: SerializableInstructionsKind,
+        network_id: u8,
+    ) -> Result<Self, SerializableInstructionsError> {
+        match kind {
+            SerializableInstructionsKind::String => {
+                let network_definition = network_definition_from_network_id(network_id);
+                let string = transaction::manifest::decompile(instructions, &network_definition)?;
+                Ok(Self::String(string))
+            }
+            SerializableInstructionsKind::Parsed => {
+                let instructions = to_serializable_instructions(instructions, network_id)?;
+                Ok(Self::Parsed(instructions))
+            }
+        }
+    }
+
     pub fn to_instructions(
         &self,
         network_id: u8,
@@ -79,7 +97,7 @@ impl SerializableInstructions {
                     MockBlobProvider::new(),
                 )
                 .map(|manifest| manifest.instructions)?;
-                let instructions = to_serializable_instructions(&instructions)?;
+                let instructions = to_serializable_instructions(&instructions, network_id)?;
                 *self = Self::Parsed(instructions);
                 Ok(())
             }

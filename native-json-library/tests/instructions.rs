@@ -43,7 +43,7 @@ fn common_manifests_can_all_be_converted_to_serializable() {
         .unwrap();
 
         // Act
-        let serializable_instructions = to_serializable_instructions(&manifest.instructions);
+        let serializable_instructions = to_serializable_instructions(&manifest.instructions, 0xf2);
 
         // Assert
         serializable_instructions.expect(&format!("Failed on: {:?}", path));
@@ -70,7 +70,7 @@ fn common_manifests_can_be_converted_to_serialized_and_back() {
         .unwrap();
 
         let serializable_instructions =
-            to_serializable_instructions(&manifest.instructions).unwrap();
+            to_serializable_instructions(&manifest.instructions, 0xf2).unwrap();
 
         // Act
         let instructions = to_native_instructions(&serializable_instructions);
@@ -100,7 +100,7 @@ fn common_manifests_can_be_converted_to_serialized_and_back_and_are_equal() {
         .unwrap();
 
         let serializable_instructions =
-            to_serializable_instructions(&manifest.instructions).unwrap();
+            to_serializable_instructions(&manifest.instructions, 0xf2).unwrap();
 
         // Act
         let instructions = to_native_instructions(&serializable_instructions).unwrap();

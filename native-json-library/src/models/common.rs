@@ -21,7 +21,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
+#[derive(
+    Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 #[serde(transparent)]
 #[schemars(transparent)]
 #[schemars(bound = "")]
@@ -63,23 +65,25 @@ where
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
+#[derive(
+    Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
 #[serde(transparent)]
 #[schemars(transparent)]
 #[schemars(bound = "")]
-pub struct AsStr<T, E>(
+pub struct AsStr<T>(
     #[schemars(with = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     T,
 )
 where
-    T: Display + FromStr<Err = E>,
-    E: Display;
+    T: Display + FromStr,
+    <T as FromStr>::Err: Display;
 
-impl<T, E> std::ops::Deref for AsStr<T, E>
+impl<T> std::ops::Deref for AsStr<T>
 where
-    T: Display + FromStr<Err = E>,
-    E: Display,
+    T: Display + FromStr,
+    <T as FromStr>::Err: Display,
 {
     type Target = T;
 
@@ -88,39 +92,39 @@ where
     }
 }
 
-impl<T, E> std::ops::DerefMut for AsStr<T, E>
+impl<T> std::ops::DerefMut for AsStr<T>
 where
-    T: Display + FromStr<Err = E>,
-    E: Display,
+    T: Display + FromStr,
+    <T as FromStr>::Err: Display,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl<T, E> From<T> for AsStr<T, E>
+impl<T> From<T> for AsStr<T>
 where
-    T: Display + FromStr<Err = E>,
-    E: Display,
+    T: Display + FromStr,
+    <T as FromStr>::Err: Display,
 {
     fn from(value: T) -> Self {
         Self(value)
     }
 }
 
-pub type AsStrType<T> = AsStr<T, <T as FromStr>::Err>;
+pub type SerializableHash = AsStr<Hash>;
+pub type SerializableNonFungibleLocalId = AsStr<NonFungibleLocalId>;
+pub type SerializableU8 = AsStr<u8>;
+pub type SerializableU16 = AsStr<u16>;
+pub type SerializableU32 = AsStr<u32>;
+pub type SerializableU64 = AsStr<u64>;
+pub type SerializableU128 = AsStr<u128>;
+pub type SerializableI8 = AsStr<i8>;
+pub type SerializableI16 = AsStr<i16>;
+pub type SerializableI32 = AsStr<i32>;
+pub type SerializableI64 = AsStr<i64>;
+pub type SerializableI128 = AsStr<i128>;
+pub type SerializableDecimal = AsStr<Decimal>;
+pub type SerializablePreciseDecimal = AsStr<PreciseDecimal>;
 
-pub type SerializableHash = AsStrType<Hash>;
-pub type SerializableNonFungibleLocalId = AsStrType<NonFungibleLocalId>;
-pub type SerializableU8 = AsStrType<u8>;
-pub type SerializableU16 = AsStrType<u16>;
-pub type SerializableU32 = AsStrType<u32>;
-pub type SerializableU64 = AsStrType<u64>;
-pub type SerializableU128 = AsStrType<u128>;
-pub type SerializableI8 = AsStrType<i8>;
-pub type SerializableI16 = AsStrType<i16>;
-pub type SerializableI32 = AsStrType<i32>;
-pub type SerializableI64 = AsStrType<i64>;
-pub type SerializableI128 = AsStrType<i128>;
-pub type SerializableDecimal = AsStrType<Decimal>;
-pub type SerializablePreciseDecimal = AsStrType<PreciseDecimal>;
+pub type SerializableBytes = AsHex<Vec<u8>>;

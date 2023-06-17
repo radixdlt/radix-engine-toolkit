@@ -16,8 +16,8 @@
 // under the License.
 
 use native_json_library::prelude::*;
-use radix_engine_common::prelude::PublicKey;
-use transaction::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
+use radix_engine_common::prelude::*;
+use transaction::prelude::*;
 
 use super::traits::HasExamples;
 

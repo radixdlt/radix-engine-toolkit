@@ -1948,8 +1948,8 @@ pub struct AccessControllerCreateGlobalManifestInput {
 
 pub fn to_serializable_instructions(
     instructions: &[InstructionV1],
+    network_id: u8,
 ) -> Result<Vec<SerializableInstruction>, LocatedInstructionConversionError> {
-    let network_id = 0xF2;
     let mut id_allocator = ManifestIdAllocator::default();
 
     instructions

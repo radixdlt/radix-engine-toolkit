@@ -21,6 +21,7 @@
         "radixdlt",
         "RCNet",
         "Releasenet",
-        "Sandpitnet"
+        "Sandpitnet",
+        "walkdir"
     ],
 }

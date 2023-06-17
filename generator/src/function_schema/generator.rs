@@ -18,6 +18,7 @@
 use indexmap::{indexmap, IndexMap};
 use native_json_library::functions::derive::*;
 use native_json_library::functions::information::*;
+use native_json_library::functions::instructions::*;
 use schemars::schema::RootSchema;
 
 pub fn generate_function_schema(
@@ -35,6 +36,14 @@ pub fn generate_function_schema(
             DerivePublicKeyFromOlympiaAccountAddress,
             DeriveOlympiaAccountAddressFromPublicKey,
             DeriveNodeAddressFromPublicKey,
+        ],
+        "instructions" => function_schema![
+            InstructionsHash,
+            InstructionsConvert,
+            InstructionsCompile,
+            InstructionsDecompile,
+            InstructionsStaticallyValidate,
+            InstructionsExtractAddresses
         ]
     )
 }

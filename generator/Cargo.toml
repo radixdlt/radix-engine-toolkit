@@ -23,4 +23,9 @@ schemars = { version = "0.8.12", features = ["preserve_order"] }
 
 # Used to change the casing of strings
 heck = { version = "0.4.1" }
-indexmap = "1.9.3"
+
+# Used in walking directories to get manifests
+walkdir = { version = "2.3.3" }
+
+# Misc
+indexmap = { version = "1.9.3" }

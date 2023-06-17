@@ -45,6 +45,7 @@ pub enum InvocationHandlingError {
     DerivationError(String),
     SerializableInstructionsError(String),
     EncodeError(String, String),
+    DecodeError(String, String),
 }
 
 impl From<InvocationHandlingError> for Error {
