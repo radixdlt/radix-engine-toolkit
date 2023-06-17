@@ -19,4 +19,5 @@ pub mod error;
 pub mod functions;
 pub mod memory;
 pub mod models;
+pub mod prelude;
 pub mod utils;

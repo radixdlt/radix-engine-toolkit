@@ -15,8 +15,4 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod non_fungible_global_id;
-mod non_fungible_local_id;
-
-pub use non_fungible_global_id::*;
-pub use non_fungible_local_id::*;
+pub mod network;

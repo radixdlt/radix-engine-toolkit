@@ -19,7 +19,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use transaction::prelude::*;
 
-use super::node_id::SerializableNodeId;
+use crate::prelude::*;
 
 define_prefixed_id!(SerializableBucketId, ManifestBucket, "bucket");
 define_prefixed_id!(SerializableProofId, ManifestProof, "proof");

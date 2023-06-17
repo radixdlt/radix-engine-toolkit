@@ -15,13 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod common;
 pub mod cryptographic;
 pub mod macros;
-pub mod manifest_inputs;
-pub mod manifest_runtime;
-pub mod network;
-pub mod node_id;
-pub mod non_fungible;
-pub mod number;
+pub mod manifest;
+pub mod olympia;
+pub mod scrypto;
 pub mod transaction;
 pub mod value;

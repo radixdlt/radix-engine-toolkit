@@ -15,20 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::macros::serializable_string_wrapper;
-use scrypto::prelude::*;
-
-serializable_string_wrapper!(u8);
-serializable_string_wrapper!(u16);
-serializable_string_wrapper!(u32);
-serializable_string_wrapper!(u64);
-serializable_string_wrapper!(u128);
-
-serializable_string_wrapper!(i8);
-serializable_string_wrapper!(i16);
-serializable_string_wrapper!(i32);
-serializable_string_wrapper!(i64);
-serializable_string_wrapper!(i128);
-
-serializable_string_wrapper!(Decimal);
-serializable_string_wrapper!(PreciseDecimal);
+pub mod node_id;
+pub mod non_fungible_global_id;

@@ -22,12 +22,7 @@ use serde::Deserialize;
 use serde::Serialize;
 use transaction::prelude::*;
 
-use super::manifest_runtime::*;
-use crate::models::cryptographic::hash::*;
-use crate::models::macros::*;
-use crate::models::node_id::*;
-use crate::models::non_fungible::*;
-use crate::models::number::*;
+use crate::prelude::*;
 
 define_enum_and_kind! {
     pub enum SerializableManifestValue {
@@ -317,7 +312,7 @@ impl SerializableManifestValue {
             ManifestValue::Custom {
                 value: ManifestCustomValue::Blob(value),
             } => SerializableManifestValue::Blob {
-                value: into!(value.0),
+                value: into!(Hash(value.0)),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(value),
@@ -346,16 +341,16 @@ impl SerializableManifestValue {
     pub fn to_manifest_value(&self) -> Result<ManifestValue, ValueConversionError> {
         let value = match self {
             Self::Bool { value } => ManifestValue::Bool { value: *value },
-            Self::I8 { value } => ManifestValue::I8 { value: value.0 },
-            Self::I16 { value } => ManifestValue::I16 { value: value.0 },
-            Self::I32 { value } => ManifestValue::I32 { value: value.0 },
-            Self::I64 { value } => ManifestValue::I64 { value: value.0 },
-            Self::I128 { value } => ManifestValue::I128 { value: value.0 },
-            Self::U8 { value } => ManifestValue::U8 { value: value.0 },
-            Self::U16 { value } => ManifestValue::U16 { value: value.0 },
-            Self::U32 { value } => ManifestValue::U32 { value: value.0 },
-            Self::U64 { value } => ManifestValue::U64 { value: value.0 },
-            Self::U128 { value } => ManifestValue::U128 { value: value.0 },
+            Self::I8 { value } => ManifestValue::I8 { value: **value },
+            Self::I16 { value } => ManifestValue::I16 { value: **value },
+            Self::I32 { value } => ManifestValue::I32 { value: **value },
+            Self::I64 { value } => ManifestValue::I64 { value: **value },
+            Self::I128 { value } => ManifestValue::I128 { value: **value },
+            Self::U8 { value } => ManifestValue::U8 { value: **value },
+            Self::U16 { value } => ManifestValue::U16 { value: **value },
+            Self::U32 { value } => ManifestValue::U32 { value: **value },
+            Self::U64 { value } => ManifestValue::U64 { value: **value },
+            Self::U128 { value } => ManifestValue::U128 { value: **value },
             Self::String { value } => ManifestValue::String {
                 value: value.to_owned(),
             },
@@ -363,7 +358,7 @@ impl SerializableManifestValue {
                 discriminator,
                 fields,
             } => ManifestValue::Enum {
-                discriminator: discriminator.0,
+                discriminator: **discriminator,
                 fields: fields
                     .iter()
                     .map(|value| value.to_manifest_value())
@@ -413,17 +408,17 @@ impl SerializableManifestValue {
                 value: ManifestCustomValue::Expression(into!(*value)),
             },
             Self::Blob { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Blob(ManifestBlobRef(into!(*value))),
+                value: ManifestCustomValue::Blob(ManifestBlobRef((**value).0)),
             },
             Self::Decimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Decimal(from_decimal(&value.0)),
+                value: ManifestCustomValue::Decimal(from_decimal(&**value)),
             },
             Self::PreciseDecimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(&value.0)),
+                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(&**value)),
             },
             Self::NonFungibleLocalId { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::NonFungibleLocalId(from_non_fungible_local_id(
-                    value.0.clone(),
+                    (**value).clone(),
                 )),
             },
             Self::Address { value } => match value {

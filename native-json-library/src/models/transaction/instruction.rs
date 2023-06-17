@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::models::manifest_inputs::*;
-use crate::models::value::*;
+use crate::prelude::*;
 
 use radix_engine::blueprints::package::*;
 use radix_engine::types::*;
@@ -2000,7 +1999,7 @@ where
         } => elements
             .iter()
             .map(|element| match element {
-                SerializableManifestValue::U8 { value } => Some(value.0),
+                SerializableManifestValue::U8 { value } => Some(**value),
                 _ => None,
             })
             .collect::<Option<Vec<u8>>>()

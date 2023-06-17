@@ -15,7 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::models::macros::serializable_string_wrapper;
-use scrypto::prelude::NonFungibleLocalId;
-
-serializable_string_wrapper!(NonFungibleLocalId);
+pub mod inputs;
+pub mod runtime;

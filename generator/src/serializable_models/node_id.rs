@@ -16,7 +16,7 @@
 // under the License.
 
 use super::traits::HasExamples;
-use native_json_library::models::node_id::{SerializableNodeId, SerializableNodeIdInternal};
+use native_json_library::prelude::*;
 use scrypto::prelude::*;
 
 impl<'f> HasExamples<'f> for SerializableNodeId {

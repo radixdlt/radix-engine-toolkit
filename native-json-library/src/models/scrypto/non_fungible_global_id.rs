@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::utils::{debug_string, network_id_from_address_string};
+use crate::prelude::*;
+
 use radix_engine_common::prelude::{Bech32Decoder, Bech32Encoder};
 use radix_engine_toolkit::utils::network_definition_from_network_id;
 use schemars::JsonSchema;

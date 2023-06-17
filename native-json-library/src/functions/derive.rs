@@ -15,18 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::macros::{export_function, export_jni_function};
-use super::traits::Function;
-use crate::error::InvocationHandlingError;
-use crate::models::cryptographic::public_key::{
-    SerializablePublicKey, SerializableSecp256k1PublicKey,
-};
-use crate::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
-use crate::models::node_id::{SerializableNodeId, SerializableNodeIdInternal};
-use crate::models::non_fungible::{
-    SerializableNonFungibleGlobalId, SerializableNonFungibleGlobalIdInternal,
-};
-use crate::utils::debug_string;
+use crate::prelude::*;
 use radix_engine_common::prelude::PublicKey;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -38,7 +27,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualAccountAddressFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
 }
 pub type DeriveVirtualAccountAddressFromPublicKeyOutput = SerializableNodeId;
 
@@ -79,7 +68,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualIdentityAddressFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
 }
 pub type DeriveVirtualIdentityAddressFromPublicKeyOutput = SerializableNodeId;
 
@@ -120,7 +109,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
 }
 pub type DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyOutput =
     SerializableNonFungibleGlobalId;
@@ -166,7 +155,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddressInput {
     pub olympia_account_address: String,
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
 }
 pub type DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput = SerializableNodeId;
 
@@ -209,7 +198,7 @@ export_jni_function!(
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveResourceAddressFromOlympiaResourceAddressInput {
     pub olympia_resource_address: String,
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
 }
 pub type DeriveResourceAddressFromOlympiaResourceAddressOutput = SerializableNodeId;
 
@@ -318,7 +307,7 @@ export_jni_function!(
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveNodeAddressFromPublicKeyInput {
-    pub network_id: SerializableNetworkId,
+    pub network_id: SerializableU8,
     pub public_key: SerializableSecp256k1PublicKey,
 }
 pub type DeriveNodeAddressFromPublicKeyOutput = String;

@@ -15,13 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::macros::serializable_string_wrapper;
 use radix_engine_toolkit::functions::derive::OlympiaNetwork;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-
-serializable_string_wrapper!(u8, SerializableNetworkId);
 
 #[serde_as]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]

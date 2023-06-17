@@ -15,59 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-macro_rules! serializable_string_wrapper {
-    ($type: ty) => {
-        paste::paste! {
-            serializable_string_wrapper!{
-                $type, [< Serializable $type:camel >]
-            }
-        }
-    };
-    ($type: ty, $name: ident) => {
-        #[serde_with::serde_as]
-        #[derive(serde::Serialize, serde::Deserialize, schemars::JsonSchema, Clone, Debug)]
-        #[schemars(transparent)]
-        #[serde(transparent)]
-        pub struct $name(
-            #[schemars(with = "String")]
-            #[serde_as(as = "serde_with::DisplayFromStr")]
-            pub $type,
-        );
-
-        impl std::ops::Deref for $name {
-            type Target = $type;
-
-            fn deref(&self) -> &Self::Target {
-                &self.0
-            }
-        }
-
-        impl std::ops::DerefMut for $name {
-            fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
-            }
-        }
-
-        impl From<$type> for $name {
-            fn from(value: $type) -> Self {
-                Self(value)
-            }
-        }
-
-        impl From<$name> for $type {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl ToString for $name {
-            fn to_string(&self) -> String {
-                self.0.to_string()
-            }
-        }
-    };
-}
-
 macro_rules! define_enum_and_kind {
     (
         $(#[$meta: meta])*
@@ -107,4 +54,3 @@ macro_rules! define_enum_and_kind {
 }
 
 pub(crate) use define_enum_and_kind;
-pub(crate) use serializable_string_wrapper;

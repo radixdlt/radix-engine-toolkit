@@ -24,10 +24,18 @@ impl<'f> HasExamples<'f> for SerializablePublicKey {
     fn examples() -> Vec<Self> {
         vec![
             Self::Secp256k1 {
-                value: Secp256k1PrivateKey::from_u64(1).unwrap().public_key().0,
+                value: Secp256k1PrivateKey::from_u64(1)
+                    .unwrap()
+                    .public_key()
+                    .0
+                    .into(),
             },
             Self::Ed25519 {
-                value: Ed25519PrivateKey::from_u64(1).unwrap().public_key().0,
+                value: Ed25519PrivateKey::from_u64(1)
+                    .unwrap()
+                    .public_key()
+                    .0
+                    .into(),
             },
         ]
     }

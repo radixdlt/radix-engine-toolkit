@@ -15,8 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::functions::derive::*;
-use native_json_library::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
+use native_json_library::prelude::*;
 use radix_engine_common::prelude::PublicKey;
 use transaction::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
 
@@ -30,11 +29,11 @@ impl<'f> HasExamples<'f, 2> for DeriveVirtualAccountAddressFromPublicKey {
         [
             Self::Input {
                 public_key: PublicKey::from(public_key1).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
             Self::Input {
                 public_key: PublicKey::from(public_key2).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
         ]
     }
@@ -48,11 +47,11 @@ impl<'f> HasExamples<'f, 2> for DeriveVirtualIdentityAddressFromPublicKey {
         [
             Self::Input {
                 public_key: PublicKey::from(public_key1).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
             Self::Input {
                 public_key: PublicKey::from(public_key2).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
         ]
     }
@@ -66,11 +65,11 @@ impl<'f> HasExamples<'f, 2> for DeriveVirtualSignatureNonFungibleGlobalIdFromPub
         [
             Self::Input {
                 public_key: PublicKey::from(public_key1).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
             Self::Input {
                 public_key: PublicKey::from(public_key2).into(),
-                network_id: SerializableNetworkId(1),
+                network_id: 1.into(),
             },
         ]
     }
@@ -81,7 +80,7 @@ impl<'f> HasExamples<'f, 1> for DeriveVirtualAccountAddressFromOlympiaAccountAdd
         [Self::Input {
             olympia_account_address:
                 "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842".to_string(),
-            network_id: SerializableNetworkId(1),
+            network_id: 1.into(),
         }]
     }
 }
@@ -91,7 +90,7 @@ impl<'f> HasExamples<'f, 1> for DeriveResourceAddressFromOlympiaResourceAddress 
         [Self::Input {
             olympia_resource_address: "floop_rr1q0p0hzap6ckxqdk6khesyft62w34e0vdd06msn9snhfqknl370"
                 .to_string(),
-            network_id: SerializableNetworkId(1),
+            network_id: 1.into(),
         }]
     }
 }
@@ -119,7 +118,7 @@ impl<'f> HasExamples<'f, 1> for DeriveNodeAddressFromPublicKey {
 
         [Self::Input {
             public_key: public_key.into(),
-            network_id: SerializableNetworkId(1),
+            network_id: 1.into(),
         }]
     }
 }

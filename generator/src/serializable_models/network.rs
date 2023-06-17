@@ -16,13 +16,7 @@
 // under the License.
 
 use super::traits::HasExamples;
-use native_json_library::models::network::{SerializableNetworkId, SerializableOlympiaNetwork};
-
-impl<'d> HasExamples<'d> for SerializableNetworkId {
-    fn examples() -> Vec<Self> {
-        (0u8..255u8).map(Self).collect()
-    }
-}
+use native_json_library::prelude::*;
 
 impl<'d> HasExamples<'d> for SerializableOlympiaNetwork {
     fn examples() -> Vec<Self> {

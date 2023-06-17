@@ -18,6 +18,10 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+use crate::{
+    models::transaction::instructions::SerializableInstructionsError, utils::debug_string,
+};
+
 #[derive(Serialize, Deserialize, JsonSchema, Debug)]
 #[serde(tag = "kind", content = "error")]
 pub enum Error {
@@ -39,6 +43,8 @@ pub enum InvocationInterpretationError {
 #[serde(tag = "kind", content = "error")]
 pub enum InvocationHandlingError {
     DerivationError(String),
+    SerializableInstructionsError(String),
+    EncodeError(String, String),
 }
 
 impl From<InvocationHandlingError> for Error {
@@ -50,5 +56,11 @@ impl From<InvocationHandlingError> for Error {
 impl From<InvocationInterpretationError> for Error {
     fn from(value: InvocationInterpretationError) -> Self {
         Self::InvocationInterpretationError(value)
+    }
+}
+
+impl From<SerializableInstructionsError> for InvocationHandlingError {
+    fn from(value: SerializableInstructionsError) -> Self {
+        Self::SerializableInstructionsError(debug_string(value))
     }
 }
