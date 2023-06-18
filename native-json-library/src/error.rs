@@ -46,6 +46,7 @@ pub enum InvocationHandlingError {
     SerializableInstructionsError(String),
     EncodeError(String, String),
     DecodeError(String, String),
+    InstructionVisitorError(String),
 }
 
 impl From<InvocationHandlingError> for Error {

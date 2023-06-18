@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Copy, Debug)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 #[schemars(transparent)]
 pub struct SerializableHash(

@@ -7,6 +7,7 @@ edition = "2021"
 # radixdlt-scrypto dependencies.
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", default-features = false, features = ["lru", "std"] }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", default-features= false, features = ["std", "lru"] }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-13f090f8", features = ["serde"] }

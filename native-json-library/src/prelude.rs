@@ -31,6 +31,7 @@ pub use crate::functions::traits::*;
 pub use crate::models::common::*;
 pub use crate::models::cryptographic::hash::*;
 pub use crate::models::cryptographic::public_key::*;
+pub use crate::models::cryptographic::public_key_hash::*;
 pub use crate::models::macros::*;
 pub use crate::models::manifest::inputs::*;
 pub use crate::models::manifest::runtime::*;

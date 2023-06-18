@@ -46,7 +46,8 @@ pub fn generate_function_examples() -> IndexMap<
             InstructionsCompile,
             InstructionsDecompile,
             InstructionsStaticallyValidate,
-            InstructionsExtractAddresses
+            InstructionsExtractAddresses,
+            InstructionsTransactionType
         ]
     )
 }

@@ -43,7 +43,8 @@ pub fn generate_function_schema(
             InstructionsCompile,
             InstructionsDecompile,
             InstructionsStaticallyValidate,
-            InstructionsExtractAddresses
+            InstructionsExtractAddresses,
+            InstructionsTransactionType
         ]
     )
 }

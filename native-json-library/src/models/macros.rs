@@ -31,7 +31,7 @@ macro_rules! define_enum_and_kind {
         }
     ) => {
         paste::paste! {
-            #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+            #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema, PartialEq, Eq,)]
             #[serde(tag = "kind")]
             $vis enum $name {
                 $(
@@ -43,7 +43,7 @@ macro_rules! define_enum_and_kind {
                 )*
             }
 
-            #[derive(Clone, Copy, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema)]
+            #[derive(Clone, Copy, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema, PartialEq, Eq,)]
             $vis enum [< $name Kind >] {
                 $(
                     $variant_name,

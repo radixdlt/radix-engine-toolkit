@@ -23,7 +23,7 @@ use serde_with::serde_as;
 use crate::prelude::*;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind")]
 pub enum SerializablePublicKey {
     Secp256k1 {

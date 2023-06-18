@@ -34,7 +34,7 @@ use serde::*;
 use transaction::prelude::*;
 use transaction::validation::*;
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind")]
 pub enum SerializableInstruction {
     TakeFromWorktop {

@@ -27,7 +27,7 @@ use std::str::FromStr;
 use transaction::prelude::NonFungibleGlobalId;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 #[schemars(transparent)]
 pub struct SerializableNonFungibleGlobalId(
@@ -36,6 +36,16 @@ pub struct SerializableNonFungibleGlobalId(
     pub SerializableNonFungibleGlobalIdInternal,
 );
 
+impl SerializableNonFungibleGlobalId {
+    pub fn new(id: NonFungibleGlobalId, network_id: u8) -> Self {
+        Self(SerializableNonFungibleGlobalIdInternal {
+            non_fungible_global_id: id,
+            network_id,
+        })
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SerializableNonFungibleGlobalIdInternal {
     pub non_fungible_global_id: NonFungibleGlobalId,
     pub network_id: u8,

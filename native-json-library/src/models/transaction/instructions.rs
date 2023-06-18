@@ -23,14 +23,14 @@ use serde::{Deserialize, Serialize};
 use transaction::manifest::*;
 use transaction::prelude::*;
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableInstructions {
     String(String),
     Parsed(Vec<SerializableInstruction>),
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub enum SerializableInstructionsKind {
     String,
     Parsed,
