@@ -17,16 +17,12 @@
 
 use crate::prelude::*;
 
-use radix_engine::{
-    system::system_modules::execution_trace::ResourceSpecifier, transaction::TransactionReceipt,
-};
+use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+use radix_engine::transaction::TransactionReceipt;
 use radix_engine_common::prelude::{scrypto_decode, scrypto_encode};
-use radix_engine_toolkit::{
-    functions::instructions::TransactionType,
-    instruction_visitor::visitors::transaction_type::{
-        general_transaction_visitor::Source, transfer_visitor::Resources,
-    },
-};
+use radix_engine_toolkit::functions::instructions::TransactionType;
+use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
+use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::general_transaction_visitor::Source;
 use sbor::prelude::{HashMap, HashSet};
 use schemars::JsonSchema;
 use scrypto::api::node_modules::metadata::MetadataValue;

@@ -21,5 +21,6 @@ pub mod macros;
 pub mod manifest;
 pub mod olympia;
 pub mod scrypto;
+pub mod traits;
 pub mod transaction;
 pub mod value;

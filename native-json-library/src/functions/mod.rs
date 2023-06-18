@@ -20,4 +20,5 @@ pub mod handler;
 pub mod information;
 pub mod instructions;
 pub mod macros;
+pub mod manifest;
 pub mod traits;

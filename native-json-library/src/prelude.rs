@@ -38,6 +38,8 @@ pub use crate::models::manifest::runtime::*;
 pub use crate::models::olympia::network::*;
 pub use crate::models::scrypto::node_id::*;
 pub use crate::models::scrypto::non_fungible_global_id::*;
+pub use crate::models::traits::*;
 pub use crate::models::transaction::instruction::*;
 pub use crate::models::transaction::instructions::*;
+pub use crate::models::transaction::manifest::*;
 pub use crate::models::value::*;

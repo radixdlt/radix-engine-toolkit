@@ -129,3 +129,21 @@ impl From<LocatedInstructionConversionError> for SerializableInstructionsError {
         Self::LocatedInstructionConversionError(value)
     }
 }
+
+impl NativeConvertible for SerializableInstructions {
+    type Native = Vec<InstructionV1>;
+    type Error = SerializableInstructionsError;
+    type Context = SerializableInstructionsKind;
+
+    fn to_native(&self, network_id: u8) -> Result<Self::Native, Self::Error> {
+        self.to_instructions(network_id)
+    }
+
+    fn from_native(
+        native: &Self::Native,
+        network_id: u8,
+        output_kind: Self::Context,
+    ) -> Result<Self, Self::Error> {
+        Self::new(&native, output_kind, network_id)
+    }
+}

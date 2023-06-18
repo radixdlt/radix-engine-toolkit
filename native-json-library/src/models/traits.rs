@@ -15,6 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod instruction;
-pub mod instructions;
-pub mod manifest;
+pub trait NativeConvertible
+where
+    Self: Sized,
+{
+    type Native;
+    type Error;
+    type Context;
+
+    fn to_native(&self, network_id: u8) -> Result<Self::Native, Self::Error>;
+
+    fn from_native(
+        native: &Self::Native,
+        network_id: u8,
+        context: Self::Context,
+    ) -> Result<Self, Self::Error>;
+}
