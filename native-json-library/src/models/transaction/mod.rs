@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod header;
 pub mod instruction;
 pub mod instructions;
+pub mod intent;
 pub mod manifest;
+pub mod validation_config;

@@ -144,6 +144,6 @@ impl NativeConvertible for SerializableInstructions {
         network_id: u8,
         output_kind: Self::Context,
     ) -> Result<Self, Self::Error> {
-        Self::new(&native, output_kind, network_id)
+        Self::new(native, output_kind, network_id)
     }
 }
