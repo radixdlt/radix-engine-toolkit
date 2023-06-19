@@ -20,4 +20,5 @@ pub mod instruction;
 pub mod instructions;
 pub mod intent;
 pub mod manifest;
+pub mod signed_intent;
 pub mod validation_config;
