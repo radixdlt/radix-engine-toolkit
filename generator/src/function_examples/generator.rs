@@ -17,9 +17,7 @@
 
 use super::traits::FunctionExample;
 use indexmap::{indexmap, IndexMap};
-use native_json_library::functions::derive::*;
-use native_json_library::functions::information::*;
-use native_json_library::functions::instructions::*;
+use native_json_library::prelude::*;
 
 #[allow(clippy::type_complexity)]
 pub fn generate_function_examples() -> IndexMap<
@@ -48,6 +46,12 @@ pub fn generate_function_examples() -> IndexMap<
             InstructionsStaticallyValidate,
             InstructionsExtractAddresses,
             InstructionsTransactionType
+        ],
+        "notarized_transaction" => function_examples![
+            NotarizedTransactionHash,
+            NotarizedTransactionCompile,
+            NotarizedTransactionDecompile,
+            NotarizedTransactionStaticallyValidate,
         ]
     )
 }

@@ -20,4 +20,5 @@ pub mod generator;
 pub mod information;
 pub mod instructions;
 pub mod manifest_provider;
+pub mod notarized_transaction;
 pub mod traits;
