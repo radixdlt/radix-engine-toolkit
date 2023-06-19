@@ -60,6 +60,13 @@ pub fn generate_serializable_model_examples(
             SerializableI128 as serializable_i128,
             SerializableDecimal,
             SerializablePreciseDecimal,
+        ],
+        "transaction" => model_examples![
+            SerializableNotarizedTransaction,
+            SerializableSignedIntent,
+            SerializableIntent,
+            SerializableTransactionManifest,
+            SerializableInstructions,
         ]
     }
 }

@@ -28,23 +28,19 @@ use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        get_serializable_instructions()
-            .map(build_transaction)
-            .map(|transaction| Self::Input {
-                notarized_transaction: transaction,
-                network_id: 0xf2.into(),
-            })
+        notarized_transactions().map(|transaction| Self::Input {
+            notarized_transaction: transaction,
+            network_id: 0xf2.into(),
+        })
     }
 }
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionCompile {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        get_serializable_instructions()
-            .map(build_transaction)
-            .map(|transaction| Self::Input {
-                notarized_transaction: transaction,
-                network_id: 0xf2.into(),
-            })
+        notarized_transactions().map(|transaction| Self::Input {
+            notarized_transaction: transaction,
+            network_id: 0xf2.into(),
+        })
     }
 }
 
@@ -62,13 +58,11 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionDec
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionStaticallyValidate {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        get_serializable_instructions()
-            .map(build_transaction)
-            .map(|transaction| Self::Input {
-                notarized_transaction: transaction,
-                network_id: 0xf2.into(),
-                validation_config: ValidationConfig::default(0xf2).into(),
-            })
+        notarized_transactions().map(|transaction| Self::Input {
+            notarized_transaction: transaction,
+            network_id: 0xf2.into(),
+            validation_config: ValidationConfig::default(0xf2).into(),
+        })
     }
 }
 
@@ -106,4 +100,8 @@ fn build_transaction(instructions: SerializableInstructions) -> SerializableNota
         .build();
 
     SerializableNotarizedTransaction::from_native(&transaction, 0xf2, instructions_kind).unwrap()
+}
+
+pub fn notarized_transactions() -> [SerializableNotarizedTransaction; NUMBER_OF_MANIFESTS_DOUBLE] {
+    get_serializable_instructions().map(build_transaction)
 }
