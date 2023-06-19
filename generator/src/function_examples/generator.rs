@@ -47,12 +47,30 @@ pub fn generate_function_examples() -> IndexMap<
             InstructionsExtractAddresses,
             InstructionsTransactionType
         ],
+        "manifest" => function_examples![
+            ManifestHash,
+            ManifestCompile,
+            ManifestDecompile,
+            ManifestStaticallyValidate,
+        ],
+        "intent" => function_examples![
+            IntentHash,
+            IntentCompile,
+            IntentDecompile,
+            IntentStaticallyValidate,
+        ],
+        "signed_intent" => function_examples![
+            SignedIntentHash,
+            SignedIntentCompile,
+            SignedIntentDecompile,
+            SignedIntentStaticallyValidate,
+        ],
         "notarized_transaction" => function_examples![
             NotarizedTransactionHash,
             NotarizedTransactionCompile,
             NotarizedTransactionDecompile,
             NotarizedTransactionStaticallyValidate,
-        ]
+        ],
     )
 }
 
