@@ -79,6 +79,7 @@ where
     Ok(serialized)
 }
 
+#[derive(Debug, Clone)]
 pub enum ScryptoSborError {
     SchemaValidationError,
     DecodeError(DecodeError),

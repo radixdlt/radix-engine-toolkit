@@ -28,7 +28,9 @@ pub use crate::functions::instructions::*;
 pub use crate::functions::intent::*;
 pub use crate::functions::macros::*;
 pub use crate::functions::manifest::*;
+pub use crate::functions::manifest_sbor::*;
 pub use crate::functions::notarized_transaction::*;
+pub use crate::functions::scrypto_sbor::*;
 pub use crate::functions::signed_intent::*;
 pub use crate::functions::traits::*;
 
@@ -42,6 +44,8 @@ pub use crate::models::macros::*;
 pub use crate::models::manifest::inputs::*;
 pub use crate::models::manifest::runtime::*;
 pub use crate::models::olympia::network::*;
+pub use crate::models::sbor::local_type_index::*;
+pub use crate::models::sbor::serialization_mode::*;
 pub use crate::models::scrypto::node_id::*;
 pub use crate::models::scrypto::non_fungible_global_id::*;
 pub use crate::models::traits::*;

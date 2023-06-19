@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_toolkit::functions::manifest_sbor::ManifestSborError;
+use radix_engine_toolkit::functions::scrypto_sbor::ScryptoSborError;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -47,6 +49,8 @@ pub enum InvocationHandlingError {
     EncodeError(String, String),
     DecodeError(String, String),
     InstructionVisitorError(String),
+    ManifestSborError(String),
+    ScryptoSborError(String),
 }
 
 impl From<InvocationHandlingError> for Error {
@@ -64,5 +68,17 @@ impl From<InvocationInterpretationError> for Error {
 impl From<SerializableInstructionsError> for InvocationHandlingError {
     fn from(value: SerializableInstructionsError) -> Self {
         Self::SerializableInstructionsError(debug_string(value))
+    }
+}
+
+impl From<ManifestSborError> for InvocationHandlingError {
+    fn from(value: ManifestSborError) -> Self {
+        Self::ManifestSborError(debug_string(value))
+    }
+}
+
+impl From<ScryptoSborError> for InvocationHandlingError {
+    fn from(value: ScryptoSborError) -> Self {
+        Self::ScryptoSborError(debug_string(value))
     }
 }

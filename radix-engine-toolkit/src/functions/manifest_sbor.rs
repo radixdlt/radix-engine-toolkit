@@ -99,6 +99,7 @@ where
     Ok(string)
 }
 
+#[derive(Debug, Clone)]
 pub enum ManifestSborError {
     SchemaValidationError,
     DecodeError(DecodeError),
