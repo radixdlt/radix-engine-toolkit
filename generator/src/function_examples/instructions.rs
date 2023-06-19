@@ -17,16 +17,12 @@
 
 use native_json_library::prelude::*;
 use radix_engine_common::prelude::*;
-use scrypto::blueprints::account::ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT;
+use scrypto::blueprints::account::*;
 use scrypto_unit::*;
-use transaction::manifest::*;
 use transaction::prelude::*;
-use walkdir::WalkDir;
 
+use super::manifest_provider::*;
 use super::traits::HasExamples;
-
-const NUMBER_OF_MANIFESTS: usize = 24;
-const NUMBER_OF_MANIFESTS_DOUBLE: usize = NUMBER_OF_MANIFESTS * 2;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
@@ -45,46 +41,18 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsHash {
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsConvert {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        let mut inputs = Vec::new();
+        get_serializable_instructions().map(|instructions| {
+            let other_kind = match instructions {
+                SerializableInstructions::Parsed(..) => SerializableInstructionsKind::String,
+                SerializableInstructions::String(..) => SerializableInstructionsKind::Parsed,
+            };
 
-        let path = "../native-json-library/tests/manifests";
-        for entry in WalkDir::new(path) {
-            let path = entry.unwrap().path().canonicalize().unwrap();
-
-            if path.extension().and_then(|str| str.to_str()) != Some("rtm") {
-                continue;
+            Self::Input {
+                instructions,
+                network_id: 0xf2.into(),
+                output_kind: other_kind,
             }
-
-            let manifest_string = std::fs::read_to_string(&path).unwrap();
-            let manifest = compile(
-                &manifest_string,
-                &NetworkDefinition::simulator(),
-                MockBlobProvider::new(),
-            )
-            .unwrap();
-
-            let mut instructions = SerializableInstructions::Parsed(
-                to_serializable_instructions(&manifest.instructions, 0xf2).unwrap(),
-            );
-            inputs.push(Self::Input {
-                instructions: instructions.clone(),
-                network_id: 0xf2.into(),
-                output_kind: SerializableInstructionsKind::String,
-            });
-
-            instructions
-                .convert_serializable_instructions_kind(SerializableInstructionsKind::String, 0xf2)
-                .unwrap();
-
-            inputs.push(Self::Input {
-                instructions: instructions.clone(),
-                network_id: 0xf2.into(),
-                output_kind: SerializableInstructionsKind::Parsed,
-            });
-        }
-
-        let err_string = format!("NUMBER_OF_MANIFESTS should be {}", inputs.len() / 2);
-        inputs.try_into().expect(&err_string)
+        })
     }
 }
 
