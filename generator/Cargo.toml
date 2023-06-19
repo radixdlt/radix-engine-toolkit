@@ -30,3 +30,11 @@ walkdir = { version = "2.3.3" }
 
 # Misc
 indexmap = { version = "1.9.3" }
+
+[profile.release]
+incremental = false
+strip = true
+panic = 'abort'
+codegen-units = 1
+lto = true
+opt-level = 'z'
