@@ -59,3 +59,18 @@ impl From<SerializablePublicKeyHash> for PublicKeyHash {
         }
     }
 }
+
+impl From<PublicKey> for SerializablePublicKeyHash {
+    fn from(value: PublicKey) -> Self {
+        match value {
+            PublicKey::Secp256k1(public_key) => Self::Secp256k1 {
+                value: public_key.to_hash().0.into(),
+            },
+            PublicKey::Ed25519(public_key) => Self::Ed25519 {
+                value: Ed25519PublicKeyHash::new_from_public_key(&public_key)
+                    .0
+                    .into(),
+            },
+        }
+    }
+}

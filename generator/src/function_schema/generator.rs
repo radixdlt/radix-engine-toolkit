@@ -16,9 +16,7 @@
 // under the License.
 
 use indexmap::{indexmap, IndexMap};
-use native_json_library::functions::derive::*;
-use native_json_library::functions::information::*;
-use native_json_library::functions::instructions::*;
+use native_json_library::prelude::*;
 use schemars::schema::RootSchema;
 
 pub fn generate_function_schema(
@@ -45,7 +43,31 @@ pub fn generate_function_schema(
             InstructionsStaticallyValidate,
             InstructionsExtractAddresses,
             InstructionsTransactionType
-        ]
+        ],
+        "manifest" => function_schema![
+            ManifestHash,
+            ManifestCompile,
+            ManifestDecompile,
+            ManifestStaticallyValidate,
+        ],
+        "intent" => function_schema![
+            IntentHash,
+            IntentCompile,
+            IntentDecompile,
+            IntentStaticallyValidate,
+        ],
+        "signed_intent" => function_schema![
+            SignedIntentHash,
+            SignedIntentCompile,
+            SignedIntentDecompile,
+            SignedIntentStaticallyValidate,
+        ],
+        "notarized_transaction" => function_schema![
+            NotarizedTransactionHash,
+            NotarizedTransactionCompile,
+            NotarizedTransactionDecompile,
+            NotarizedTransactionStaticallyValidate,
+        ],
     )
 }
 

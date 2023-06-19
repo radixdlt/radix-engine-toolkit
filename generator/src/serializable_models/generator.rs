@@ -26,8 +26,16 @@ pub fn generate_serializable_model_examples(
     indexmap! {
         "cryptographic/public_key" => model_examples![
             SerializablePublicKey,
+            SerializablePublicKeyHash,
             SerializableSecp256k1PublicKey,
-            SerializableEd25519PublicKey
+            SerializableEd25519PublicKey,
+        ],
+        "cryptographic/signature" => model_examples![
+            SerializableSignature,
+            SerializableSignatureWithPublicKey
+        ],
+        "cryptographic/hash" => model_examples![
+            SerializableHash,
         ],
         "network" => model_examples![
             SerializableOlympiaNetwork,
