@@ -22,5 +22,6 @@ pub mod instructions;
 pub mod intent;
 pub mod macros;
 pub mod manifest;
+pub mod notarized_transaction;
 pub mod signed_intent;
 pub mod traits;
