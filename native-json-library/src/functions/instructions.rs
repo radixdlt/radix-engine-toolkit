@@ -19,6 +19,7 @@ use crate::prelude::*;
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::TransactionReceipt;
+use radix_engine_common::{types::EntityType};
 use radix_engine_common::prelude::{scrypto_decode, scrypto_encode};
 use radix_engine_toolkit::functions::instructions::TransactionType;
 use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
@@ -230,7 +231,7 @@ pub struct InstructionsExtractAddressesInput {
 
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsExtractAddressesOutput {
-    pub addresses: HashSet<SerializableNodeId>,
+    pub addresses: HashMap<SerializableEntityType, Vec<SerializableNodeId>>,
     pub named_addresses: HashSet<SerializableU32>,
 }
 
@@ -250,11 +251,10 @@ impl<'a> Function<'a> for InstructionsExtractAddresses {
         let (addresses, named_addresses) =
             radix_engine_toolkit::functions::instructions::extract_addresses(&instructions);
 
+        let addresses = transform_addresses_set_to_map(addresses, *network_id);
+
         Ok(Self::Output {
-            addresses: addresses
-                .into_iter()
-                .map(|node_id| SerializableNodeId::new(node_id, *network_id))
-                .collect(),
+            addresses,
             named_addresses: named_addresses.into_iter().map(Into::into).collect(),
         })
     }
@@ -407,12 +407,10 @@ impl<'f> Function<'f> for InstructionsTransactionType {
                             })
                             .collect(),
                         addresses_in_manifest: InstructionsExtractAddressesOutput {
-                            addresses: general_transaction
-                                .addresses_in_manifest
-                                .0
-                                .into_iter()
-                                .map(|value| SerializableNodeId::new(value, *network_id))
-                                .collect(),
+                            addresses: transform_addresses_set_to_map(
+                                general_transaction.addresses_in_manifest.0,
+                                *network_id,
+                            ),
                             named_addresses: array_into!(
                                 general_transaction.addresses_in_manifest.1
                             ),
@@ -685,3 +683,147 @@ macro_rules! array_into {
     };
 }
 use array_into;
+
+#[derive(
+    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
+)]
+pub enum SerializableEntityType {
+    GlobalPackage,
+    GlobalConsensusManager,
+    GlobalValidator,
+    GlobalTransactionTracker,
+    GlobalGenericComponent,
+    GlobalAccount,
+    GlobalIdentity,
+    GlobalAccessController,
+    GlobalOneResourcePool,
+    GlobalTwoResourcePool,
+    GlobalMultiResourcePool,
+    GlobalVirtualSecp256k1Account,
+    GlobalVirtualSecp256k1Identity,
+    GlobalVirtualEd25519Account,
+    GlobalVirtualEd25519Identity,
+    GlobalFungibleResourceManager,
+    InternalFungibleVault,
+    GlobalNonFungibleResourceManager,
+    InternalNonFungibleVault,
+    InternalGenericComponent,
+    InternalAccount,
+    InternalKeyValueStore,
+}
+
+impl SerializableEntityType {
+    pub fn all() -> Vec<SerializableEntityType> {
+        vec![
+            Self::GlobalPackage,
+            Self::GlobalConsensusManager,
+            Self::GlobalValidator,
+            Self::GlobalTransactionTracker,
+            Self::GlobalGenericComponent,
+            Self::GlobalAccount,
+            Self::GlobalIdentity,
+            Self::GlobalAccessController,
+            Self::GlobalOneResourcePool,
+            Self::GlobalTwoResourcePool,
+            Self::GlobalMultiResourcePool,
+            Self::GlobalVirtualSecp256k1Account,
+            Self::GlobalVirtualSecp256k1Identity,
+            Self::GlobalVirtualEd25519Account,
+            Self::GlobalVirtualEd25519Identity,
+            Self::GlobalFungibleResourceManager,
+            Self::InternalFungibleVault,
+            Self::GlobalNonFungibleResourceManager,
+            Self::InternalNonFungibleVault,
+            Self::InternalGenericComponent,
+            Self::InternalAccount,
+            Self::InternalKeyValueStore,
+        ]
+    }
+}
+
+impl From<EntityType> for SerializableEntityType {
+    fn from(value: EntityType) -> Self {
+        match value {
+            EntityType::GlobalPackage => Self::GlobalPackage,
+            EntityType::GlobalConsensusManager => Self::GlobalConsensusManager,
+            EntityType::GlobalValidator => Self::GlobalValidator,
+            EntityType::GlobalTransactionTracker => Self::GlobalTransactionTracker,
+            EntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
+            EntityType::GlobalAccount => Self::GlobalAccount,
+            EntityType::GlobalIdentity => Self::GlobalIdentity,
+            EntityType::GlobalAccessController => Self::GlobalAccessController,
+            EntityType::GlobalOneResourcePool => Self::GlobalOneResourcePool,
+            EntityType::GlobalTwoResourcePool => Self::GlobalTwoResourcePool,
+            EntityType::GlobalMultiResourcePool => Self::GlobalMultiResourcePool,
+            EntityType::GlobalVirtualSecp256k1Account => Self::GlobalVirtualSecp256k1Account,
+            EntityType::GlobalVirtualSecp256k1Identity => Self::GlobalVirtualSecp256k1Identity,
+            EntityType::GlobalVirtualEd25519Account => Self::GlobalVirtualEd25519Account,
+            EntityType::GlobalVirtualEd25519Identity => Self::GlobalVirtualEd25519Identity,
+            EntityType::GlobalFungibleResourceManager => Self::GlobalFungibleResourceManager,
+            EntityType::InternalFungibleVault => Self::InternalFungibleVault,
+            EntityType::GlobalNonFungibleResourceManager => Self::GlobalNonFungibleResourceManager,
+            EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
+            EntityType::InternalGenericComponent => Self::InternalGenericComponent,
+            EntityType::InternalAccount => Self::InternalAccount,
+            EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+        }
+    }
+}
+
+impl From<SerializableEntityType> for EntityType {
+    fn from(value: SerializableEntityType) -> Self {
+        match value {
+            SerializableEntityType::GlobalPackage => Self::GlobalPackage,
+            SerializableEntityType::GlobalConsensusManager => Self::GlobalConsensusManager,
+            SerializableEntityType::GlobalValidator => Self::GlobalValidator,
+            SerializableEntityType::GlobalTransactionTracker => Self::GlobalTransactionTracker,
+            SerializableEntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
+            SerializableEntityType::GlobalAccount => Self::GlobalAccount,
+            SerializableEntityType::GlobalIdentity => Self::GlobalIdentity,
+            SerializableEntityType::GlobalAccessController => Self::GlobalAccessController,
+            SerializableEntityType::GlobalOneResourcePool => Self::GlobalOneResourcePool,
+            SerializableEntityType::GlobalTwoResourcePool => Self::GlobalTwoResourcePool,
+            SerializableEntityType::GlobalMultiResourcePool => Self::GlobalMultiResourcePool,
+            SerializableEntityType::GlobalVirtualSecp256k1Account => {
+                Self::GlobalVirtualSecp256k1Account
+            }
+            SerializableEntityType::GlobalVirtualSecp256k1Identity => {
+                Self::GlobalVirtualSecp256k1Identity
+            }
+            SerializableEntityType::GlobalVirtualEd25519Account => {
+                Self::GlobalVirtualEd25519Account
+            }
+            SerializableEntityType::GlobalVirtualEd25519Identity => {
+                Self::GlobalVirtualEd25519Identity
+            }
+            SerializableEntityType::GlobalFungibleResourceManager => {
+                Self::GlobalFungibleResourceManager
+            }
+            SerializableEntityType::InternalFungibleVault => Self::InternalFungibleVault,
+            SerializableEntityType::GlobalNonFungibleResourceManager => {
+                Self::GlobalNonFungibleResourceManager
+            }
+            SerializableEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
+            SerializableEntityType::InternalGenericComponent => Self::InternalGenericComponent,
+            SerializableEntityType::InternalAccount => Self::InternalAccount,
+            SerializableEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+        }
+    }
+}
+
+fn transform_addresses_set_to_map(
+    addresses: HashSet<scrypto::prelude::NodeId>,
+    network_id: u8,
+) -> HashMap<SerializableEntityType, Vec<SerializableNodeId>> {
+    let mut addresses_map = HashMap::<SerializableEntityType, Vec<SerializableNodeId>>::new();
+    for node_id in addresses.into_iter() {
+        addresses_map
+            .entry(node_id.entity_type().unwrap().into())
+            .or_default()
+            .push(SerializableNodeId::new(node_id, network_id))
+    }
+    for entity_type in SerializableEntityType::all() {
+        addresses_map.entry(entity_type).or_default();
+    }
+    addresses_map
+}
