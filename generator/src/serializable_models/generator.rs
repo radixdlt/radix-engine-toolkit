@@ -67,6 +67,12 @@ pub fn generate_serializable_model_examples(
             SerializableIntent,
             SerializableTransactionManifest,
             SerializableInstructions,
+        ],
+        "value" => model_examples![
+            SerializableManifestValue
+        ],
+        "instruction" => model_examples![
+            SerializableInstruction
         ]
     }
 }
