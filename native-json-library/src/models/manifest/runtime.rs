@@ -33,7 +33,7 @@ define_prefixed_id!(
 pub struct ManifestNamedAddress(u32);
 
 #[serde_with::serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum SerializableExpression {
     EntireWorktop,
     EntireAuthZone,
@@ -58,7 +58,7 @@ impl From<SerializableExpression> for ManifestExpression {
 }
 
 #[serde_with::serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(tag = "kind")]
 pub enum SerializableManifestAddress {
     Static { value: SerializableNodeId },
@@ -87,6 +87,7 @@ macro_rules! define_prefixed_id {
             Copy,
             PartialEq,
             Eq,
+            Hash,
         )]
         #[schemars(transparent)]
         #[serde(transparent)]
@@ -144,7 +145,7 @@ macro_rules! define_prefixed_id {
             }
         }
 
-        #[derive(Clone, Debug, Copy, PartialEq, Eq)]
+        #[derive(Clone, Debug, Copy, PartialEq, Eq, Hash)]
         struct $prefixed_type_name(u32);
 
         impl $prefixed_type_name {

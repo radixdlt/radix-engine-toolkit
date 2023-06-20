@@ -34,7 +34,7 @@ use serde::*;
 use transaction::prelude::*;
 use transaction::validation::*;
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(tag = "kind")]
 pub enum SerializableInstruction {
     TakeFromWorktop {
@@ -1560,7 +1560,7 @@ trait CallFunctionAlias {
 struct PublishPackageAlias;
 impl CallFunctionAlias for PublishPackageAlias {
     type ScryptoInput = PackagePublishWasmIndexMapInput;
-    type ManifestInput = PackagePublishWasmIndexMapInput;
+    type ManifestInput = PackagePublishWasmManifestIndexMapInput;
     const FUNCTION_NAME: &'static str = PACKAGE_PUBLISH_WASM_IDENT;
     const BLUEPRINT_NAME: &'static str = PACKAGE_BLUEPRINT;
 
@@ -1570,7 +1570,7 @@ impl CallFunctionAlias for PublishPackageAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        PackagePublishWasmIndexMapInput {
+        PackagePublishWasmManifestIndexMapInput {
             code,
             setup,
             metadata,

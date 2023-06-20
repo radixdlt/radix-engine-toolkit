@@ -11,6 +11,7 @@ scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "de
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", default-features= false, features = ["std", "lru"] }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f" }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
@@ -18,7 +19,7 @@ native-json-library = { path = "../native-json-library" }
 
 # Serde dependencies
 serde = { version = "1.0.163" }
-serde_json = { version = "1.0.96" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = { version = "3.0.0", features = ["hex"] }
 schemars = { version = "0.8.12", features = ["preserve_order"] }
 

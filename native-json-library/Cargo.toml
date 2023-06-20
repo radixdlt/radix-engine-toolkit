@@ -16,7 +16,7 @@ radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 
 # Serde for JSON serialization
 serde = { version = "1.0.163" }
-serde_json = { version = "1.0.96" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = { version = "3.0.0", features = ["hex"] }
 schemars = { version = "0.8.12", features = ["preserve_order"] }
 
