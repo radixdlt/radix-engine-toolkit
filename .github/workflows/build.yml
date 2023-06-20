@@ -150,11 +150,11 @@ jobs:
             cbindgen \
               --lang c \
               --config cbindgen.toml \
-              --output "$INCLUDE_DIRECTORY_PATH/libnative_json_interface.h" 
+              --output "$INCLUDE_DIRECTORY_PATH/libnative_json_library.h" 
             rustup default stable
 
             echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-            echo "  umbrella header \"libnative_json_interface.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+            echo "  umbrella header \"libnative_json_library.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
             echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
             echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
 
@@ -213,13 +213,13 @@ jobs:
 
           # Creating the fat libraries
           lipo -create \
-              "./aarch64-apple-darwin/libnative_json_interface.a" \
-              "./x86_64-apple-darwin/libnative_json_interface.a" \
-              -o "./macos-arm64_x86_64/libnative_json_interface.a"
+              "./aarch64-apple-darwin/libnative_json_library.a" \
+              "./x86_64-apple-darwin/libnative_json_library.a" \
+              -o "./macos-arm64_x86_64/libnative_json_library.a"
           lipo -create \
-              "./aarch64-apple-ios-sim/libnative_json_interface.a" \
-              "./x86_64-apple-ios/libnative_json_interface.a" \
-              -o "./ios-simulator-arm64_x86_64/libnative_json_interface.a"
+              "./aarch64-apple-ios-sim/libnative_json_library.a" \
+              "./x86_64-apple-ios/libnative_json_library.a" \
+              -o "./ios-simulator-arm64_x86_64/libnative_json_library.a"
 
           # Copying the "include" directory from its origin into the fat library directory
           cp -r ./aarch64-apple-darwin/include ./macos-arm64_x86_64/
@@ -227,11 +227,11 @@ jobs:
 
           # Creating the XC Framework
           xcodebuild -create-xcframework \
-            -library "./aarch64-apple-ios/libnative_json_interface.a" \
+            -library "./aarch64-apple-ios/libnative_json_library.a" \
             -headers "./aarch64-apple-ios/include" \
-            -library "./macos-arm64_x86_64/libnative_json_interface.a" \
+            -library "./macos-arm64_x86_64/libnative_json_library.a" \
             -headers "./macos-arm64_x86_64/include" \
-            -library "./ios-simulator-arm64_x86_64/libnative_json_interface.a" \
+            -library "./ios-simulator-arm64_x86_64/libnative_json_library.a" \
             -headers "./ios-simulator-arm64_x86_64/include" \
             -output "./RadixEngineToolkit.xcframework"
 
