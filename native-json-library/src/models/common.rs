@@ -64,6 +64,8 @@ where
     }
 }
 
+impl<T> Copy for AsHex<T> where T: AsRef<[u8]> + TryFrom<Vec<u8>> + Copy {}
+
 #[serde_as]
 #[derive(
     Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
@@ -110,6 +112,13 @@ where
     fn from(value: T) -> Self {
         Self(value)
     }
+}
+
+impl<T> Copy for AsStr<T>
+where
+    T: Display + FromStr + Copy,
+    <T as FromStr>::Err: Display,
+{
 }
 
 pub type SerializableHash = AsStr<Hash>;

@@ -18,4 +18,5 @@ CALL_METADATA_METHOD
 CALL_ACCESS_RULES_METHOD
     Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
     "get_role"
+    Enum<0u8>()
     "hello";

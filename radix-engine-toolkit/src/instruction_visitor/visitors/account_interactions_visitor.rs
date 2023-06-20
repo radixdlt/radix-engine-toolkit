@@ -18,7 +18,6 @@
 use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::utils::is_account;
-use scrypto::api::ObjectModuleId;
 use scrypto::prelude::*;
 use transaction::prelude::DynamicGlobalAddress;
 
@@ -64,14 +63,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
 
             if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
-                .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Main {
-                        Some(&schema_method_key.ident)
-                    } else {
-                        None
-                    }
-                })
-                .any(|ident| ident.as_str() == method_name)
+                .any(|MethodKey { ident }| ident.as_str() == method_name)
             {
                 self.accounts_requiring_auth.insert(component_address);
             }
@@ -103,16 +95,9 @@ impl InstructionVisitor for AccountInteractionsVisitor {
                 }
             };
 
-            if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH
                 .iter()
-                .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::AccessRules {
-                        Some(&schema_method_key.ident)
-                    } else {
-                        None
-                    }
-                })
-                .any(|ident| ident.as_str() == method_name)
+                .any(|MethodKey { ident }| ident.as_str() == method_name)
             {
                 self.accounts_requiring_auth.insert(component_address);
             }
@@ -136,16 +121,9 @@ impl InstructionVisitor for AccountInteractionsVisitor {
                 }
             };
 
-            if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::METADATA_METHODS_THAT_REQUIRE_AUTH
                 .iter()
-                .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Metadata {
-                        Some(&schema_method_key.ident)
-                    } else {
-                        None
-                    }
-                })
-                .any(|ident| ident.as_str() == method_name)
+                .any(|MethodKey { ident }| ident.as_str() == method_name)
             {
                 self.accounts_requiring_auth.insert(component_address);
             }
@@ -169,16 +147,9 @@ impl InstructionVisitor for AccountInteractionsVisitor {
                 }
             };
 
-            if crate::statics::ACCOUNT_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::ROYALTY_METHODS_THAT_REQUIRE_AUTH
                 .iter()
-                .filter_map(|schema_method_key| {
-                    if schema_method_key.module_id == ObjectModuleId::Royalty {
-                        Some(&schema_method_key.ident)
-                    } else {
-                        None
-                    }
-                })
-                .any(|ident| ident.as_str() == method_name)
+                .any(|MethodKey { ident }| ident.as_str() == method_name)
             {
                 self.accounts_requiring_auth.insert(component_address);
             }

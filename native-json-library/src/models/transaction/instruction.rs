@@ -261,6 +261,7 @@ pub enum SerializableInstruction {
     },
     UpdateRole {
         address: SerializableManifestValue,
+        module: SerializableManifestValue,
         role_key: SerializableManifestValue,
         rule: SerializableManifestValue,
         mutability: SerializableManifestValue,
@@ -277,7 +278,7 @@ pub enum SerializableInstruction {
         address: SerializableManifestValue,
         entries: SerializableManifestValue,
     },
-    MintUuidNonFungible {
+    MintRuidNonFungible {
         address: SerializableManifestValue,
         entries: SerializableManifestValue,
     },
@@ -538,7 +539,7 @@ impl SerializableInstruction {
                             ClaimPackageRoyaltyAlias,
                             MintFungibleAlias,
                             MintNonFungibleAlias,
-                            MintUuidNonFungibleAlias,
+                            MintRuidNonFungibleAlias,
                             CreateValidatorAlias,
                         ]
                     )
@@ -878,7 +879,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_IDENT.to_string(),
-                args: to_manifest_value(&PackagePublishWasmManifestIndexMapInput {
+                args: to_manifest_value_or_panic(&PackagePublishWasmManifestIndexMapInput {
                     code: code.to_typed()?,
                     metadata: metadata.to_typed()?,
                     setup: resolve_encoded_type(setup)
@@ -895,14 +896,16 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_ADVANCED_IDENT.to_string(),
-                args: to_manifest_value(&PackagePublishWasmAdvancedManifestIndexMapInput {
-                    code: code.to_typed()?,
-                    metadata: metadata.to_typed()?,
-                    setup: resolve_encoded_type(setup)
-                        .ok_or(InstructionConversionError::FailedToResolveSetup)?,
-                    owner_rule: owner_rule.to_typed()?,
-                    package_address: package_address.to_typed()?,
-                }),
+                args: to_manifest_value_or_panic(
+                    &PackagePublishWasmAdvancedManifestIndexMapInput {
+                        code: code.to_typed()?,
+                        metadata: metadata.to_typed()?,
+                        setup: resolve_encoded_type(setup)
+                            .ok_or(InstructionConversionError::FailedToResolveSetup)?,
+                        owner_rule: owner_rule.to_typed()?,
+                        package_address: package_address.to_typed()?,
+                    },
+                ),
             },
             Self::CreateFungibleResource {
                 access_rules,
@@ -913,7 +916,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&FungibleResourceManagerCreateIndexMapInput {
+                args: to_manifest_value_or_panic(&FungibleResourceManagerCreateIndexMapInput {
                     access_rules: access_rules.to_typed()?,
                     divisibility: divisibility.to_typed()?,
                     metadata: metadata.to_typed()?,
@@ -931,7 +934,7 @@ impl SerializableInstruction {
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
-                args: to_manifest_value(
+                args: to_manifest_value_or_panic(
                     &FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
                         access_rules: access_rules.to_typed()?,
                         divisibility: divisibility.to_typed()?,
@@ -951,7 +954,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&NonFungibleResourceManagerCreateIndexMapInput {
+                args: to_manifest_value_or_panic(&NonFungibleResourceManagerCreateIndexMapInput {
                     access_rules: access_rules.to_typed()?,
                     metadata: metadata.to_typed()?,
                     track_total_supply: track_total_supply.to_typed()?,
@@ -971,7 +974,7 @@ impl SerializableInstruction {
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
-                args: to_manifest_value(
+                args: to_manifest_value_or_panic(
                     &NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
                         access_rules: access_rules.to_typed()?,
                         metadata: metadata.to_typed()?,
@@ -990,7 +993,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(ACCESS_CONTROLLER_PACKAGE),
                 blueprint_name: ACCESS_CONTROLLER_BLUEPRINT.to_string(),
                 function_name: ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT.to_string(),
-                args: to_manifest_value(&AccessControllerCreateGlobalManifestInput {
+                args: to_manifest_value_or_panic(&AccessControllerCreateGlobalManifestInput {
                     controlled_asset: controlled_asset.to_typed()?,
                     rule_set: rule_set.to_typed()?,
                     timed_recovery_delay_in_minutes: timed_recovery_delay_in_minutes.to_typed()?,
@@ -1000,13 +1003,13 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(IDENTITY_PACKAGE),
                 blueprint_name: IDENTITY_BLUEPRINT.to_string(),
                 function_name: IDENTITY_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&IdentityCreateInput {}),
+                args: to_manifest_value_or_panic(&IdentityCreateInput {}),
             },
             Self::CreateIdentityAdvanced { owner_rule } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(IDENTITY_PACKAGE),
                 blueprint_name: IDENTITY_BLUEPRINT.to_string(),
                 function_name: IDENTITY_CREATE_ADVANCED_IDENT.to_string(),
-                args: to_manifest_value(&IdentityCreateAdvancedInput {
+                args: to_manifest_value_or_panic(&IdentityCreateAdvancedInput {
                     owner_rule: owner_rule.to_typed()?,
                 }),
             },
@@ -1014,13 +1017,13 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(ACCOUNT_PACKAGE),
                 blueprint_name: ACCOUNT_BLUEPRINT.to_string(),
                 function_name: ACCOUNT_CREATE_IDENT.to_string(),
-                args: to_manifest_value(&AccountCreateInput {}),
+                args: to_manifest_value_or_panic(&AccountCreateInput {}),
             },
             Self::CreateAccountAdvanced { owner_role } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(ACCOUNT_PACKAGE),
                 blueprint_name: ACCOUNT_BLUEPRINT.to_string(),
                 function_name: ACCOUNT_CREATE_ADVANCED_IDENT.to_string(),
-                args: to_manifest_value(&AccountCreateAdvancedInput {
+                args: to_manifest_value_or_panic(&AccountCreateAdvancedInput {
                     owner_role: owner_role.to_typed()?,
                 }),
             },
@@ -1031,7 +1034,7 @@ impl SerializableInstruction {
             } => InstructionV1::CallMetadataMethod {
                 address: address.to_typed()?,
                 method_name: METADATA_SET_IDENT.to_string(),
-                args: to_manifest_value(&MetadataSetInput {
+                args: to_manifest_value_or_panic(&MetadataSetInput {
                     key: key.to_typed()?,
                     value: value.to_typed()?,
                 }),
@@ -1039,7 +1042,7 @@ impl SerializableInstruction {
             Self::RemoveMetadata { address, key } => InstructionV1::CallMetadataMethod {
                 address: address.to_typed()?,
                 method_name: METADATA_REMOVE_IDENT.to_string(),
-                args: to_manifest_value(&MetadataRemoveInput {
+                args: to_manifest_value_or_panic(&MetadataRemoveInput {
                     key: key.to_typed()?,
                 }),
             },
@@ -1050,7 +1053,7 @@ impl SerializableInstruction {
             } => InstructionV1::CallRoyaltyMethod {
                 address: address.to_typed()?,
                 method_name: COMPONENT_ROYALTY_SET_ROYALTY_IDENT.to_string(),
-                args: to_manifest_value(&ComponentSetRoyaltyInput {
+                args: to_manifest_value_or_panic(&ComponentSetRoyaltyInput {
                     method: method.to_typed()?,
                     amount: amount.to_typed()?,
                 }),
@@ -1058,17 +1061,19 @@ impl SerializableInstruction {
             Self::ClaimComponentRoyalty { address } => InstructionV1::CallRoyaltyMethod {
                 address: address.to_typed()?,
                 method_name: COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT.to_string(),
-                args: to_manifest_value(&ComponentClaimRoyaltiesInput {}),
+                args: to_manifest_value_or_panic(&ComponentClaimRoyaltiesInput {}),
             },
             Self::UpdateRole {
                 address,
+                module,
                 role_key,
                 rule,
                 mutability,
             } => InstructionV1::CallAccessRulesMethod {
                 address: address.to_typed()?,
                 method_name: ACCESS_RULES_UPDATE_ROLE_IDENT.to_string(),
-                args: to_manifest_value(&AccessRulesUpdateRoleInput {
+                args: to_manifest_value_or_panic(&AccessRulesUpdateRoleInput {
+                    module: module.to_typed()?,
                     role_key: role_key.to_typed()?,
                     rule: rule.to_typed()?,
                     mutability: mutability.to_typed()?,
@@ -1077,33 +1082,37 @@ impl SerializableInstruction {
             Self::ClaimPackageRoyalty { address } => InstructionV1::CallMethod {
                 address: address.to_typed()?,
                 method_name: PACKAGE_CLAIM_ROYALTIES_IDENT.to_string(),
-                args: to_manifest_value(&PackageClaimRoyaltiesInput {}),
+                args: to_manifest_value_or_panic(&PackageClaimRoyaltiesInput {}),
             },
             Self::MintFungible { address, amount } => InstructionV1::CallMethod {
                 address: address.to_typed()?,
                 method_name: FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_string(),
-                args: to_manifest_value(&FungibleResourceManagerMintInput {
+                args: to_manifest_value_or_panic(&FungibleResourceManagerMintInput {
                     amount: amount.to_typed()?,
                 }),
             },
             Self::MintNonFungible { address, entries } => InstructionV1::CallMethod {
                 address: address.to_typed()?,
                 method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_string(),
-                args: to_manifest_value(&NonFungibleResourceManagerMintManifestIndexMapInput {
-                    entries: entries.to_typed()?,
-                }),
+                args: to_manifest_value_or_panic(
+                    &NonFungibleResourceManagerMintManifestIndexMapInput {
+                        entries: entries.to_typed()?,
+                    },
+                ),
             },
-            Self::MintUuidNonFungible { address, entries } => InstructionV1::CallMethod {
+            Self::MintRuidNonFungible { address, entries } => InstructionV1::CallMethod {
                 address: address.to_typed()?,
-                method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_UUID_IDENT.to_string(),
-                args: to_manifest_value(&NonFungibleResourceManagerMintUuidManifestInput {
-                    entries: entries.to_typed()?,
-                }),
+                method_name: NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT.to_string(),
+                args: to_manifest_value_or_panic(
+                    &NonFungibleResourceManagerMintRuidManifestInput {
+                        entries: entries.to_typed()?,
+                    },
+                ),
             },
             Self::CreateValidator { key, fee_factor } => InstructionV1::CallMethod {
                 address: DynamicGlobalAddress::Static(CONSENSUS_MANAGER.into()),
                 method_name: CONSENSUS_MANAGER_CREATE_VALIDATOR_IDENT.to_string(),
-                args: to_manifest_value(&ConsensusManagerCreateValidatorInput {
+                args: to_manifest_value_or_panic(&ConsensusManagerCreateValidatorInput {
                     key: key.to_typed()?,
                     fee_factor: fee_factor.to_typed()?,
                 }),
@@ -1360,8 +1369,9 @@ impl CallMethodAlias for UpdateRoleAlias {
     fn handle_aliasing(
         node_id: &NodeId,
         AccessRulesUpdateRoleInput {
-            rule,
+            module,
             role_key,
+            rule,
             mutability,
         }: &Self::ManifestInput,
         network_id: u8,
@@ -1369,6 +1379,7 @@ impl CallMethodAlias for UpdateRoleAlias {
         let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
         let instruction = SerializableInstruction::UpdateRole {
             address: SerializableManifestValue::from_typed(&address, network_id)?,
+            module: SerializableManifestValue::from_typed(&module, network_id)?,
             role_key: SerializableManifestValue::from_typed(&role_key, network_id)?,
             rule: SerializableManifestValue::from_typed(&rule, network_id)?,
             mutability: SerializableManifestValue::from_typed(&mutability, network_id)?,
@@ -1451,11 +1462,11 @@ impl CallMethodAlias for MintNonFungibleAlias {
     }
 }
 
-struct MintUuidNonFungibleAlias;
-impl CallMethodAlias for MintUuidNonFungibleAlias {
-    type ScryptoInput = NonFungibleResourceManagerMintUuidInput;
-    type ManifestInput = NonFungibleResourceManagerMintUuidManifestInput;
-    const METHOD_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_MINT_UUID_IDENT;
+struct MintRuidNonFungibleAlias;
+impl CallMethodAlias for MintRuidNonFungibleAlias {
+    type ScryptoInput = NonFungibleResourceManagerMintRuidInput;
+    type ManifestInput = NonFungibleResourceManagerMintRuidManifestInput;
+    const METHOD_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT;
     const MODULE: ObjectModuleId = ObjectModuleId::Main;
 
     fn is_valid_address(node_id: &NodeId) -> bool {
@@ -1468,7 +1479,7 @@ impl CallMethodAlias for MintUuidNonFungibleAlias {
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
-        let instruction = SerializableInstruction::MintUuidNonFungible {
+        let instruction = SerializableInstruction::MintRuidNonFungible {
             address: SerializableManifestValue::from_typed(&address, network_id)?,
             entries: SerializableManifestValue::from_typed(&entries, network_id)?,
         };
@@ -2006,4 +2017,8 @@ where
             .and_then(|bytes| manifest_decode(&bytes).ok()),
         _ => None,
     }
+}
+
+fn to_manifest_value_or_panic<T: ManifestEncode + ?Sized>(value: &T) -> ManifestValue {
+    to_manifest_value(value).unwrap()
 }

@@ -23,7 +23,7 @@ use serde_with::serde_as;
 use crate::prelude::*;
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(tag = "kind")]
 pub enum SerializablePublicKey {
     Secp256k1 {
@@ -59,7 +59,7 @@ impl From<SerializablePublicKey> for PublicKey {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[schemars(transparent)]
 #[serde(transparent)]
 pub struct SerializableSecp256k1PublicKey(AsHex<[u8; Secp256k1PublicKey::LENGTH]>);
@@ -77,7 +77,7 @@ impl From<Secp256k1PublicKey> for SerializableSecp256k1PublicKey {
 }
 
 #[serde_as]
-#[derive(Serialize, Deserialize, JsonSchema)]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[schemars(transparent)]
 #[serde(transparent)]
 pub struct SerializableEd25519PublicKey(AsHex<[u8; Ed25519PublicKey::LENGTH]>);

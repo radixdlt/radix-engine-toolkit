@@ -20,6 +20,9 @@ use radix_engine::blueprints::native_schema::*;
 use radix_engine::blueprints::package::*;
 use radix_engine::types::*;
 use radix_engine_common::prelude::*;
+use scrypto::api::node_modules::auth::*;
+use scrypto::api::node_modules::metadata::*;
+use scrypto::api::node_modules::royalty::*;
 use scrypto::blueprints::account::*;
 use scrypto::blueprints::identity::*;
 use scrypto::schema::*;
@@ -44,6 +47,15 @@ lazy_static! {
     pub static ref IDENTITY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = identity_blueprint_schema();
 
     pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = identity_methods_that_require_auth();
+
+    // Modules Package
+    pub static ref ACCESS_RULES_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = access_rules_blueprint_schema();
+    pub static ref METADATA_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = metadata_blueprint_schema();
+    pub static ref ROYALTY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = royalty_blueprint_schema();
+
+    pub static ref ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = access_rules_methods_that_require_auth();
+    pub static ref METADATA_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = metadata_methods_that_require_auth();
+    pub static ref ROYALTY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = royalty_methods_that_require_auth();
 }
 
 fn account_blueprint_schema() -> BlueprintDefinitionInit {
@@ -55,20 +67,7 @@ fn account_blueprint_schema() -> BlueprintDefinitionInit {
 }
 
 fn account_methods_that_require_auth() -> Vec<MethodKey> {
-    ACCOUNT_BLUEPRINT_SCHEMA
-        .auth_config
-        .method_auth
-        .clone()
-        .auth()
-        .iter()
-        .filter_map(|(key, value)| {
-            if let MethodPermission::Public = value {
-                None
-            } else {
-                Some(key.clone())
-            }
-        })
-        .collect()
+    methods_that_require_auth(&ACCOUNT_BLUEPRINT_SCHEMA)
 }
 
 fn account_deposit_methods() -> Vec<String> {
@@ -174,14 +173,50 @@ fn identity_blueprint_schema() -> BlueprintDefinitionInit {
 }
 
 fn identity_methods_that_require_auth() -> Vec<MethodKey> {
-    IDENTITY_BLUEPRINT_SCHEMA
-        .auth_config
-        .method_auth
+    methods_that_require_auth(&IDENTITY_BLUEPRINT_SCHEMA)
+}
+
+fn access_rules_blueprint_schema() -> BlueprintDefinitionInit {
+    ACCESS_RULES_PACKAGE_DEFINITION
+        .blueprints
+        .get(ACCESS_RULES_BLUEPRINT)
+        .unwrap()
         .clone()
-        .auth()
+}
+
+fn metadata_blueprint_schema() -> BlueprintDefinitionInit {
+    METADATA_PACKAGE_DEFINITION
+        .blueprints
+        .get(METADATA_BLUEPRINT)
+        .unwrap()
+        .clone()
+}
+
+fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
+    ROYALTIES_PACKAGE_DEFINITION
+        .blueprints
+        .get(COMPONENT_ROYALTY_BLUEPRINT)
+        .unwrap()
+        .clone()
+}
+
+fn access_rules_methods_that_require_auth() -> Vec<MethodKey> {
+    methods_that_require_auth(&ACCESS_RULES_BLUEPRINT_SCHEMA)
+}
+
+fn metadata_methods_that_require_auth() -> Vec<MethodKey> {
+    methods_that_require_auth(&METADATA_BLUEPRINT_SCHEMA)
+}
+
+fn royalty_methods_that_require_auth() -> Vec<MethodKey> {
+    methods_that_require_auth(&ROYALTY_BLUEPRINT_SCHEMA)
+}
+
+fn methods_that_require_auth(blueprint_schema: &BlueprintDefinitionInit) -> Vec<MethodKey> {
+    method_auth_template_static_or_panic(&blueprint_schema.auth_config.method_auth)
         .iter()
         .filter_map(|(key, value)| {
-            if let MethodPermission::Public = value {
+            if let MethodAccessibility::Public = value {
                 None
             } else {
                 Some(key.clone())
@@ -194,5 +229,16 @@ fn type_ref_static_or_panic<T>(type_ref: &TypeRef<T>) -> &T {
     match type_ref {
         TypeRef::Static(item) => item,
         TypeRef::Generic(_) => panic!("TypeRef is not static!"),
+    }
+}
+
+fn method_auth_template_static_or_panic(
+    method_auth_template: &MethodAuthTemplate,
+) -> &BTreeMap<MethodKey, MethodAccessibility> {
+    match method_auth_template {
+        MethodAuthTemplate::Static(value) => value,
+        MethodAuthTemplate::AllowAll | MethodAuthTemplate::StaticUseOuterAuth(..) => {
+            panic!("MethodAuthTemplate is not static")
+        }
     }
 }

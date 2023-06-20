@@ -44,7 +44,10 @@ impl<'d> HasExamples<'d> for SerializableNonFungibleLocalId {
             NonFungibleLocalId::string("Hello").unwrap(),
             NonFungibleLocalId::integer(1),
             NonFungibleLocalId::bytes(vec![100]).unwrap(),
-            NonFungibleLocalId::from_str("{86cc8d24-194d-4393-85ee-91ee00000005}").unwrap(),
+            NonFungibleLocalId::from_str(
+                "{1111111111111111-1111111111111111-1111111111111111-1111111111111111}",
+            )
+            .unwrap(),
         ]
         .into_iter()
         .map(SerializableNonFungibleLocalId::from)

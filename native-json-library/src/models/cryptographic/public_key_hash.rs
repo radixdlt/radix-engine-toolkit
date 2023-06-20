@@ -27,10 +27,10 @@ use crate::prelude::*;
 #[serde(tag = "kind")]
 pub enum SerializablePublicKeyHash {
     Secp256k1 {
-        value: AsHex<[u8; NodeId::UUID_LENGTH]>,
+        value: AsHex<[u8; NodeId::RID_LENGTH]>,
     },
     Ed25519 {
-        value: AsHex<[u8; NodeId::UUID_LENGTH]>,
+        value: AsHex<[u8; NodeId::RID_LENGTH]>,
     },
 }
 

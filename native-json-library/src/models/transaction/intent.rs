@@ -25,6 +25,7 @@ use crate::prelude::*;
 pub struct SerializableIntent {
     pub header: SerializableTransactionHeader,
     pub manifest: SerializableTransactionManifest,
+    pub message: SerializableMessage,
 }
 
 impl NativeConvertible for SerializableIntent {
@@ -38,6 +39,7 @@ impl NativeConvertible for SerializableIntent {
             instructions,
             blobs,
         } = self.manifest.to_native(network_id)?;
+        let message = self.message.clone().into();
 
         Ok(IntentV1 {
             header,
@@ -45,7 +47,7 @@ impl NativeConvertible for SerializableIntent {
             blobs: BlobsV1 {
                 blobs: blobs.into_values().map(BlobV1).collect(),
             },
-            attachments: AttachmentsV1 {},
+            message,
         })
     }
 
@@ -63,6 +65,7 @@ impl NativeConvertible for SerializableIntent {
             .into_iter()
             .map(|blob| blob.0.into())
             .collect();
+        let message = native.message.clone().into();
 
         let manifest = SerializableTransactionManifest {
             instructions,
@@ -70,6 +73,10 @@ impl NativeConvertible for SerializableIntent {
         };
         let header = native.header.clone().into();
 
-        Ok(Self { manifest, header })
+        Ok(Self {
+            manifest,
+            header,
+            message,
+        })
     }
 }

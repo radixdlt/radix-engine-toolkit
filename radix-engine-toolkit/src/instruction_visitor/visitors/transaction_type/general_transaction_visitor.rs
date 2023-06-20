@@ -34,8 +34,8 @@ use transaction::prelude::*;
 use transaction::validation::ManifestIdAllocator;
 
 pub struct GeneralTransactionTypeVisitor<'r> {
-    /// The transaction receipt from doing a preview of the transaction.
-    preview_receipt: &'r TransactionReceipt,
+    /// The execution trace from the preview receipt
+    execution_trace: &'r TransactionExecutionTrace,
 
     /// Tracks if the visitor is currently in an illegal state or not.
     is_illegal_state: bool,
@@ -179,7 +179,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     ) -> Result<Self, LocatedGeneralTransactionTypeError> {
         if preview_receipt.is_commit_success() {
             Ok(Self {
-                preview_receipt,
+                execution_trace: &preview_receipt.expect_commit_success().execution_trace,
                 is_illegal_state: Default::default(),
                 account_withdraws: Default::default(),
                 account_deposits: Default::default(),
@@ -273,7 +273,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 | EntityType::GlobalConsensusManager
                 | EntityType::InternalFungibleVault
                 | EntityType::InternalNonFungibleVault
-                | EntityType::InternalKeyValueStore => false,
+                | EntityType::InternalKeyValueStore
+                | EntityType::GlobalTransactionTracker => false,
             })
         {
             self.is_illegal_state = true;
@@ -285,7 +286,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         if ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_string()) && is_account(global_address)
         {
             let withdrawn_resources = self
-                .preview_receipt
                 .execution_trace
                 .worktop_changes()
                 .get(&self.instruction_index)
@@ -315,7 +315,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             let expressions = indexed_manifest_value.expressions();
             if !expressions.is_empty() {
                 let worktop_changes = self
-                    .preview_receipt
                     .execution_trace
                     .worktop_changes()
                     .get(&self.instruction_index)
@@ -389,7 +388,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     ) -> Result<(), GeneralTransactionTypeError> {
         let bucket = self.id_allocator.new_bucket_id();
         let resource_specifier = self
-            .preview_receipt
             .execution_trace
             .worktop_changes()
             .get(&self.instruction_index)

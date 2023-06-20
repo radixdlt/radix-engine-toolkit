@@ -54,6 +54,7 @@ pub use crate::models::transaction::instruction::*;
 pub use crate::models::transaction::instructions::*;
 pub use crate::models::transaction::intent::*;
 pub use crate::models::transaction::manifest::*;
+pub use crate::models::transaction::message::*;
 pub use crate::models::transaction::notarized_transaction::*;
 pub use crate::models::transaction::signed_intent::*;
 pub use crate::models::transaction::validation_config::*;

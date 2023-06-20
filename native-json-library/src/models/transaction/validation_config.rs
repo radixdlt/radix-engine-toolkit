@@ -17,7 +17,7 @@
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::validation::ValidationConfig;
+use transaction::validation::{MessageValidationConfig, ValidationConfig};
 
 use crate::prelude::*;
 
@@ -30,6 +30,15 @@ pub struct SerializableValidationConfig {
     pub min_tip_percentage: SerializableU16,
     pub max_tip_percentage: SerializableU16,
     pub max_epoch_range: SerializableU64,
+    pub message_validation: SerializableMessageValidationConfig,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct SerializableMessageValidationConfig {
+    pub max_plaintext_message_length: SerializableU64,
+    pub max_encrypted_message_length: SerializableU64,
+    pub max_mime_type_length: SerializableU64,
+    pub max_decryptors: SerializableU64,
 }
 
 impl From<ValidationConfig> for SerializableValidationConfig {
@@ -42,6 +51,7 @@ impl From<ValidationConfig> for SerializableValidationConfig {
             min_tip_percentage: value.min_tip_percentage.into(),
             max_tip_percentage: value.max_tip_percentage.into(),
             max_epoch_range: value.max_epoch_range.into(),
+            message_validation: value.message_validation.into(),
         }
     }
 }
@@ -56,6 +66,29 @@ impl From<SerializableValidationConfig> for ValidationConfig {
             min_tip_percentage: *value.min_tip_percentage,
             max_tip_percentage: *value.max_tip_percentage,
             max_epoch_range: *value.max_epoch_range,
+            message_validation: MessageValidationConfig::from(value.message_validation),
+        }
+    }
+}
+
+impl From<MessageValidationConfig> for SerializableMessageValidationConfig {
+    fn from(value: MessageValidationConfig) -> Self {
+        Self {
+            max_plaintext_message_length: (value.max_plaintext_message_length as u64).into(),
+            max_encrypted_message_length: (value.max_encrypted_message_length as u64).into(),
+            max_mime_type_length: (value.max_mime_type_length as u64).into(),
+            max_decryptors: (value.max_decryptors as u64).into(),
+        }
+    }
+}
+
+impl From<SerializableMessageValidationConfig> for MessageValidationConfig {
+    fn from(value: SerializableMessageValidationConfig) -> Self {
+        Self {
+            max_plaintext_message_length: *value.max_plaintext_message_length as usize,
+            max_encrypted_message_length: *value.max_encrypted_message_length as usize,
+            max_mime_type_length: *value.max_mime_type_length as usize,
+            max_decryptors: *value.max_decryptors as usize,
         }
     }
 }
