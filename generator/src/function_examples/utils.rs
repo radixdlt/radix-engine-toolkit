@@ -15,16 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+use super::traits::HasExamples;
+use native_json_library::prelude::*;
+
+impl<'f> HasExamples<'f, 0xFF> for KnownAddress {
+    fn example_inputs() -> [Self::Input; 0xFF] {
+        (1u8..=0xFFu8)
+            .map(Into::into)
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap()
+    }
+}

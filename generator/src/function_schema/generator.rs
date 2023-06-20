@@ -68,6 +68,9 @@ pub fn generate_function_schema(
             NotarizedTransactionDecompile,
             NotarizedTransactionStaticallyValidate,
         ],
+        "utils" => function_schema![
+            KnownAddress
+        ]
     )
 }
 

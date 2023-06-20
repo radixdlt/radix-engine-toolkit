@@ -40,6 +40,12 @@ impl SerializableNodeId {
             network_id,
         })
     }
+
+    pub fn from_global_address<G: Into<GlobalAddress>>(address: G, network_id: u8) -> Self {
+        let global_address: GlobalAddress = address.into();
+        let node_id = global_address.as_node_id();
+        Self::new(*node_id, network_id)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

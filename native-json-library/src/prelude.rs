@@ -33,6 +33,7 @@ pub use crate::functions::notarized_transaction::*;
 pub use crate::functions::scrypto_sbor::*;
 pub use crate::functions::signed_intent::*;
 pub use crate::functions::traits::*;
+pub use crate::functions::utils::*;
 
 pub use crate::models::common::*;
 pub use crate::models::cryptographic::public_key::*;

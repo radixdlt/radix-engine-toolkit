@@ -25,3 +25,4 @@ pub mod manifest_provider;
 pub mod notarized_transaction;
 pub mod signed_intent;
 pub mod traits;
+pub mod utils;
