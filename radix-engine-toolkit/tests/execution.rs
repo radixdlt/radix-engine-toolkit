@@ -16,7 +16,8 @@
 // under the License.
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine_toolkit::functions::instructions::*;
+use radix_engine::transaction::TransactionReceipt;
+use radix_engine_toolkit::functions::execution::{self, *};
 use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
@@ -50,7 +51,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt).unwrap();
+    let transaction_type = transaction_type(&manifest.instructions, &receipt);
 
     // Assert
     assert_eq!(
@@ -98,7 +99,7 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt).unwrap();
+    let transaction_type = transaction_type(&manifest.instructions, &receipt);
 
     // Assert
     assert_eq!(
@@ -153,11 +154,19 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt).unwrap();
+    let transaction_type = transaction_type(&manifest.instructions, &receipt);
 
     // Assert
     assert!(matches!(
         transaction_type,
         TransactionType::GeneralTransaction(..)
     ))
+}
+
+fn transaction_type(
+    manifest_instructions: &[InstructionV1],
+    receipt: &TransactionReceipt,
+) -> TransactionType {
+    let analysis = execution::analyze(manifest_instructions, receipt).unwrap();
+    analysis.transaction_type
 }

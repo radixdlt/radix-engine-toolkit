@@ -174,24 +174,15 @@ impl<'r> InstructionVisitor for GeneralTransactionTypeVisitor<'r> {
 }
 
 impl<'r> GeneralTransactionTypeVisitor<'r> {
-    pub fn new(
-        preview_receipt: &'r TransactionReceipt,
-    ) -> Result<Self, LocatedGeneralTransactionTypeError> {
-        if preview_receipt.is_commit_success() {
-            Ok(Self {
-                execution_trace: &preview_receipt.expect_commit_success().execution_trace,
-                is_illegal_state: Default::default(),
-                account_withdraws: Default::default(),
-                account_deposits: Default::default(),
-                instruction_index: Default::default(),
-                id_allocator: Default::default(),
-                bucket_tracker: Default::default(),
-            })
-        } else {
-            Err(LocatedGeneralTransactionTypeError {
-                instruction_index: 0,
-                error: GeneralTransactionTypeError::ReceiptOfAFailedOrRejectedTransaction,
-            })
+    pub fn new(execution_trace: &'r TransactionExecutionTrace) -> Self {
+        Self {
+            execution_trace,
+            is_illegal_state: Default::default(),
+            account_withdraws: Default::default(),
+            account_deposits: Default::default(),
+            instruction_index: Default::default(),
+            id_allocator: Default::default(),
+            bucket_tracker: Default::default(),
         }
     }
 

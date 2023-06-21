@@ -5,13 +5,13 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", default-features = false, features = ["lru", "std"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features = false, features = ["lru", "std"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }

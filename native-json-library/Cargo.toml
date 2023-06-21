@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2c48440f", features = ["serde"] }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }

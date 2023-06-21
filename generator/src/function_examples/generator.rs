@@ -45,7 +45,9 @@ pub fn generate_function_examples() -> IndexMap<
             InstructionsDecompile,
             InstructionsStaticallyValidate,
             InstructionsExtractAddresses,
-            InstructionsTransactionType
+        ],
+        "execution" => function_examples![
+            ExecutionAnalyze
         ],
         "manifest" => function_examples![
             ManifestHash,

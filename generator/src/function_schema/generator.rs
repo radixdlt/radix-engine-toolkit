@@ -42,7 +42,9 @@ pub fn generate_function_schema(
             InstructionsDecompile,
             InstructionsStaticallyValidate,
             InstructionsExtractAddresses,
-            InstructionsTransactionType
+        ],
+        "execution" => function_schema![
+            ExecutionAnalyze
         ],
         "manifest" => function_schema![
             ManifestHash,
