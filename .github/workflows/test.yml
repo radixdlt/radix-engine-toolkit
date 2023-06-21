@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        crate: [ native-json-library, radix-engine-toolkit ]
+        crate: [ radix-engine-toolkit, radix-engine-toolkit-core ]
 
     steps:
     - uses: actions/checkout@v3

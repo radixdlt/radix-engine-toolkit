@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::prelude::*;
 use radix_engine_common::prelude::*;
+use radix_engine_toolkit::prelude::*;
 use transaction::manifest::*;
 use walkdir::WalkDir;
 
@@ -26,7 +26,7 @@ pub const NUMBER_OF_MANIFESTS_DOUBLE: usize = NUMBER_OF_MANIFESTS * 2;
 pub fn get_serializable_instructions() -> [SerializableInstructions; NUMBER_OF_MANIFESTS_DOUBLE] {
     let mut output = Vec::new();
 
-    let path = "../native-json-library/tests/manifests";
+    let path = "../radix-engine-toolkit/tests/manifests";
     for entry in WalkDir::new(path) {
         let path = entry.unwrap().path().canonicalize().unwrap();
 

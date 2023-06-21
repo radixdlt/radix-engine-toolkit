@@ -7,7 +7,7 @@
     <owners>Radix Publishing</owners>
     <license type="expression">Apache-2.0</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <repository type="git" url="https://github.com/radixdlt/radix-engine-toolkit" commit="34cb99c742cdf028ff05ec25f1132aeac2b5338f" /> <!-- TODO make it dynamic! -->
+    <repository type="git" url="https://github.com/radixdlt/radix-engine-toolkit-core" commit="34cb99c742cdf028ff05ec25f1132aeac2b5338f" /> <!-- TODO make it dynamic! -->
     <description>Multiplatform native library that exposes a set of functions to help clients written in languages other than Rust compile and decompile transactions, perform SBOR encoding and decoding, derive virtual account and virtual badge addresses, and other functionalities.</description>
     <tags>radix sbor</tags>
   </metadata>

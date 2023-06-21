@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::prelude::*;
 use radix_engine_common::prelude::*;
+use radix_engine_toolkit::prelude::*;
 use scrypto::blueprints::account::*;
 use scrypto_unit::*;
 use transaction::prelude::*;

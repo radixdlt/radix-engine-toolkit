@@ -5,13 +5,13 @@ import re
 SCRIPT_DIRECTORY: str = os.path.dirname(os.path.realpath(__file__))
 REPOSITORY_URL: str = "https://github.com/radixdlt/radixdlt-scrypto"
 OUTPUT_DIRECTORIES: list[str] = [
+    os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit-core", "tests", "manifests"),
     os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "tests", "manifests"),
-    os.path.join(SCRIPT_DIRECTORY, "native-json-library", "tests", "manifests"),
 ]
 
 def main() -> None:
     # Get the tag or branch of the Scrypto dependency being used.
-    path_of_cargo_toml_manifest: str = os.path.join(SCRIPT_DIRECTORY, 'radix-engine-toolkit', 'Cargo.toml')
+    path_of_cargo_toml_manifest: str = os.path.join(SCRIPT_DIRECTORY, 'radix-engine-toolkit-core', 'Cargo.toml')
     branch_or_tag: str = read_tag_or_version(path_of_cargo_toml_manifest)
 
     # Remove the radixdlt-scrypto if it exists

@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::prelude::*;
 use radix_engine_common::math::*;
+use radix_engine_toolkit::prelude::*;
 
 macro_rules! impl_example {
     ($type: ident) => {

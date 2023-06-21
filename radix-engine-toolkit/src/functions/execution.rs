@@ -15,182 +15,480 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system_modules::costing::transmute_u128_as_decimal;
-use radix_engine::system::system_modules::execution_trace::*;
-use radix_engine::transaction::*;
-use radix_engine::utils::*;
-use scrypto::api::node_modules::metadata::*;
-use scrypto::prelude::*;
-use transaction::errors::*;
-use transaction::prelude::*;
+use crate::prelude::*;
 
-use crate::instruction_visitor::core::error::*;
-use crate::instruction_visitor::core::traverser::*;
-use crate::instruction_visitor::visitors::account_proofs_visitor::*;
-use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
-use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
-use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
-use crate::utils;
+use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+use radix_engine::transaction::{TransactionReceipt, FeeLocks};
+use radix_engine_common::prelude::{scrypto_decode, scrypto_encode};
+use radix_engine_toolkit_core::functions::execution::{TransactionType, FeeSummary};
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::Source;
+use sbor::prelude::{HashMap, HashSet};
+use schemars::JsonSchema;
+use scrypto::api::node_modules::metadata::MetadataValue;
+use serde::{Deserialize, Serialize};
 
-pub fn analyze(
-    instructions: &[InstructionV1],
-    preview_receipt: &TransactionReceipt,
-) -> Result<ExecutionAnalysis, ExecutionModuleError> {
-    let (execution_trace, fee_summary) = match preview_receipt.transaction_result {
-        TransactionResult::Commit(CommitResult {
-            outcome: TransactionOutcome::Success(..),
-            ref execution_trace,
-            ref fee_summary,
-            ..
-        }) => Ok((execution_trace, fee_summary)),
-        _ => Err(ExecutionModuleError::IsNotCommitSuccess(
-            preview_receipt.clone(),
-        )),
-    }?;
+//===================
+// Execution Analyze
+//===================
 
-    let mut account_proofs_visitor = AccountProofsVisitor::default();
-    let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
-    let mut transfer_visitor = TransferTransactionTypeVisitor::default();
-    let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
-
-    traverse(
-        instructions,
-        &mut [
-            &mut simple_transfer_visitor,
-            &mut transfer_visitor,
-            &mut account_proofs_visitor,
-            &mut general_transaction_visitor,
-        ],
-    )?;
-
-    let transaction_type = if let Some((from_account_address, to_account_address, transfer)) =
-        simple_transfer_visitor.output()
-    {
-        TransactionType::SimpleTransfer(Box::new(SimpleTransferTransactionType {
-            from: from_account_address,
-            to: to_account_address,
-            transferred: transfer,
-        }))
-    } else if let Some((from_account_address, transfers)) = transfer_visitor.output() {
-        TransactionType::Transfer(Box::new(TransferTransactionType {
-            from: from_account_address,
-            transfers,
-        }))
-    } else if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output()
-    {
-        TransactionType::GeneralTransaction(Box::new(GeneralTransactionType {
-            account_proofs: account_proofs_visitor.output(),
-            account_withdraws,
-            account_deposits,
-            addresses_in_manifest: crate::functions::instructions::extract_addresses(instructions),
-            metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
-                preview_receipt,
-            )
-            .unwrap(),
-            data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
-                preview_receipt,
-            )
-            .unwrap(),
-        }))
-    } else {
-        TransactionType::NonConforming
-    };
-
-    let fee_locks = execution_trace.fee_locks.clone();
-
-    let fee_summary = {
-        // Previews sometimes reports a cost unit price of zero. So, we will:
-        // * Calculate all fees in XRD from the cost units.
-        // * Calculate all fees based on the current cost unit price.
-        let mut network_fees = 0u128;
-        for value in fee_summary.execution_cost_breakdown.values() {
-            network_fees += *value as u128;
-        }
-        let network_fee = cost_units_to_xrd(network_fees);
-
-        let royalty_fee = fee_summary
-            .royalty_cost_breakdown
-            .values()
-            .map(|(_, v)| *v)
-            .sum();
-
-        FeeSummary {
-            network_fee,
-            royalty_fee,
-        }
-    };
-
-    Ok(ExecutionAnalysis {
-        fee_locks,
-        fee_summary,
-        transaction_type,
-    })
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ExecutionAnalyzeInput {
+    pub instructions: SerializableInstructions,
+    pub network_id: SerializableU8,
+    pub preview_receipt: SerializableBytes,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct ExecutionAnalysis {
-    pub fee_locks: FeeLocks,
-    pub fee_summary: FeeSummary,
-    pub transaction_type: TransactionType,
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ExecutionAnalyzeOutput {
+    pub fee_locks: SerializableFeeLocks,
+    pub fee_summary: SerializableFeeSummary,
+    pub transaction_type: SerializableTransactionType,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct FeeSummary {
-    pub network_fee: Decimal,
-    pub royalty_fee: Decimal,
-}
+pub struct ExecutionAnalyze;
+impl<'f> Function<'f> for ExecutionAnalyze {
+    type Input = ExecutionAnalyzeInput;
+    type Output = ExecutionAnalyzeOutput;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum TransactionType {
-    SimpleTransfer(Box<SimpleTransferTransactionType>),
-    Transfer(Box<TransferTransactionType>),
-    GeneralTransaction(Box<GeneralTransactionType>),
-    NonConforming,
-}
+    fn handle(
+        ExecutionAnalyzeInput {
+            instructions,
+            network_id,
+            preview_receipt,
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let instructions = instructions.to_instructions(*network_id)?;
+        let receipt = scrypto_decode::<TransactionReceipt>(&preview_receipt).map_err(|error| {
+            InvocationHandlingError::DecodeError(debug_string(error), debug_string(preview_receipt))
+        })?;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct SimpleTransferTransactionType {
-    pub from: ComponentAddress,
-    pub to: ComponentAddress,
-    pub transferred: ResourceSpecifier,
-}
+        let execution_analysis =
+            radix_engine_toolkit_core::functions::execution::analyze(&instructions, &receipt)
+                .map_err(|error| {
+                    InvocationHandlingError::InstructionVisitorError(debug_string(error))
+                })?;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TransferTransactionType {
-    pub from: ComponentAddress,
-    pub transfers: HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
-}
+        let transaction_type = match execution_analysis.transaction_type {
+            TransactionType::NonConforming => SerializableTransactionType::NonConforming,
+            TransactionType::SimpleTransfer(simple_transfer) => {
+                SerializableTransactionType::SimpleTransfer(Box::new(
+                    SerializableSimpleTransferTransactionType {
+                        from: SerializableNodeId::new(
+                            simple_transfer.from.into_node_id(),
+                            *network_id,
+                        ),
+                        to: SerializableNodeId::new(simple_transfer.to.into_node_id(), *network_id),
+                        transferred: SerializableResourceSpecifier::new(
+                            simple_transfer.transferred,
+                            *network_id,
+                        ),
+                    },
+                ))
+            }
+            TransactionType::Transfer(transfer) => SerializableTransactionType::Transfer(Box::new(
+                SerializableTransferTransactionType {
+                    from: SerializableNodeId::new(transfer.from.into_node_id(), *network_id),
+                    transfers: transfer
+                        .transfers
+                        .into_iter()
+                        .map(|(key, value)| {
+                            (
+                                SerializableNodeId::new(key.into_node_id(), *network_id),
+                                value
+                                    .into_iter()
+                                    .map(|(key, value)| {
+                                        (
+                                            SerializableNodeId::new(
+                                                key.into_node_id(),
+                                                *network_id,
+                                            ),
+                                            value.into(),
+                                        )
+                                    })
+                                    .collect(),
+                            )
+                        })
+                        .collect(),
+                },
+            )),
+            TransactionType::GeneralTransaction(general_transaction) => {
+                SerializableTransactionType::GeneralTransaction(Box::new(
+                    SerializableGeneralTransactionType {
+                        account_proofs: general_transaction
+                            .account_proofs
+                            .into_iter()
+                            .map(|address| {
+                                SerializableNodeId::new(address.into_node_id(), *network_id)
+                            })
+                            .collect(),
+                        account_withdraws: general_transaction
+                            .account_withdraws
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    value
+                                        .into_iter()
+                                        .map(|value| {
+                                            SerializableResourceSpecifier::new(value, *network_id)
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                        account_deposits: general_transaction
+                            .account_deposits
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    value
+                                        .into_iter()
+                                        .map(|value| match value {
+                                            Source::Guaranteed(value) => {
+                                                SerializableSource::Guaranteed {
+                                                    value: SerializableResourceSpecifier::new(
+                                                        value,
+                                                        *network_id,
+                                                    ),
+                                                }
+                                            }
+                                            Source::Predicted(instruction_index, value) => {
+                                                SerializableSource::Predicted {
+                                                    instruction_index: (instruction_index as u64)
+                                                        .into(),
+                                                    value: SerializableResourceSpecifier::new(
+                                                        value,
+                                                        *network_id,
+                                                    ),
+                                                }
+                                            }
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                        addresses_in_manifest: InstructionsExtractAddressesOutput {
+                            addresses: transform_addresses_set_to_map(
+                                general_transaction.addresses_in_manifest.0,
+                                *network_id,
+                            ),
+                            named_addresses: array_into!(
+                                general_transaction.addresses_in_manifest.1
+                            ),
+                        },
+                        metadata_of_newly_created_entities: general_transaction
+                            .metadata_of_newly_created_entities
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    value
+                                        .into_iter()
+                                        .map(|(key, value)| {
+                                            (
+                                                key,
+                                                SerializableMetadataValue::new(value, *network_id),
+                                            )
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                        data_of_newly_minted_non_fungibles: general_transaction
+                            .data_of_newly_minted_non_fungibles
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    value
+                                        .into_iter()
+                                        .map(|(key, value)| {
+                                            (key.into(), scrypto_encode(&value).unwrap().into())
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                    },
+                ))
+            }
+        };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct GeneralTransactionType {
-    pub account_proofs: HashSet<ResourceAddress>,
-    pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceSpecifier>>,
-    pub account_deposits: HashMap<ComponentAddress, Vec<Source<ResourceSpecifier>>>,
-    pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
-    pub metadata_of_newly_created_entities: HashMap<GlobalAddress, HashMap<String, MetadataValue>>,
-    pub data_of_newly_minted_non_fungibles:
-        HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>,
-}
+        let fee_summary = execution_analysis.fee_summary.into();
+        let fee_locks = execution_analysis.fee_locks.into();
 
-#[derive(Clone, Debug)]
-pub enum InstructionValidationError {
-    TransactionValidationError(TransactionValidationError),
-    LocatedInstructionSchemaValidationError(LocatedInstructionSchemaValidationError),
-}
-
-#[derive(Clone, Debug)]
-pub enum ExecutionModuleError {
-    IsNotCommitSuccess(TransactionReceipt),
-    InstructionVisitorError(InstructionVisitorError),
-    LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
-}
-
-impl From<InstructionVisitorError> for ExecutionModuleError {
-    fn from(value: InstructionVisitorError) -> Self {
-        Self::InstructionVisitorError(value)
+        Ok(Self::Output {
+            fee_locks,
+            fee_summary,
+            transaction_type,
+        })
     }
 }
 
-fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    transmute_u128_as_decimal(DEFAULT_COST_UNIT_PRICE) * cost_units
+export_function!(ExecutionAnalyze as execution_analyze);
+export_jni_function!(ExecutionAnalyze as executionAnalyze);
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableTransactionType {
+    SimpleTransfer(Box<SerializableSimpleTransferTransactionType>),
+    Transfer(Box<SerializableTransferTransactionType>),
+    GeneralTransaction(Box<SerializableGeneralTransactionType>),
+    NonConforming,
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableFeeSummary {
+    pub network_fee: SerializableDecimal,
+    pub royalty_fee: SerializableDecimal,
+}
+
+impl From<FeeSummary> for SerializableFeeSummary {
+    fn from(value: FeeSummary) -> Self {
+        Self {
+            network_fee: value.network_fee.into(),
+            royalty_fee: value.royalty_fee.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableFeeLocks {
+    pub lock: SerializableDecimal,
+    pub contingent_lock: SerializableDecimal,
+}
+
+impl From<FeeLocks> for SerializableFeeLocks {
+    fn from(value: FeeLocks) -> Self {
+        Self {
+            lock: value.lock.into(),
+            contingent_lock: value.contingent_lock.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind")]
+pub enum SerializableResourceSpecifier {
+    Amount {
+        resource_address: SerializableNodeId,
+        amount: SerializableDecimal,
+    },
+    Ids {
+        resource_address: SerializableNodeId,
+        ids: HashSet<SerializableNonFungibleLocalId>,
+    },
+}
+
+impl SerializableResourceSpecifier {
+    pub fn new(resource_specifier: ResourceSpecifier, network_id: u8) -> Self {
+        match resource_specifier {
+            ResourceSpecifier::Amount(resource_address, amount) => Self::Amount {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: amount.into(),
+            },
+            ResourceSpecifier::Ids(resource_address, ids) => Self::Ids {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                ids: ids.into_iter().map(Into::into).collect(),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableResources {
+    Amount(SerializableDecimal),
+    Ids(HashSet<SerializableNonFungibleLocalId>),
+}
+
+impl From<Resources> for SerializableResources {
+    fn from(value: Resources) -> Self {
+        match value {
+            Resources::Amount(amount) => Self::Amount(amount.into()),
+            Resources::Ids(ids) => Self::Ids(ids.into_iter().map(Into::into).collect()),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableSimpleTransferTransactionType {
+    pub from: SerializableNodeId,
+    pub to: SerializableNodeId,
+    pub transferred: SerializableResourceSpecifier,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableTransferTransactionType {
+    pub from: SerializableNodeId,
+    pub transfers: HashMap<SerializableNodeId, HashMap<SerializableNodeId, SerializableResources>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableGeneralTransactionType {
+    pub account_proofs: HashSet<SerializableNodeId>,
+    pub account_withdraws: HashMap<SerializableNodeId, Vec<SerializableResourceSpecifier>>,
+    pub account_deposits:
+        HashMap<SerializableNodeId, Vec<SerializableSource<SerializableResourceSpecifier>>>,
+    pub addresses_in_manifest: InstructionsExtractAddressesOutput,
+    pub metadata_of_newly_created_entities:
+        HashMap<SerializableNodeId, HashMap<String, SerializableMetadataValue>>,
+    pub data_of_newly_minted_non_fungibles:
+        HashMap<SerializableNodeId, HashMap<SerializableNonFungibleLocalId, SerializableBytes>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableMetadataValue {
+    String(String),
+    Bool(bool),
+    U8(SerializableU8),
+    U32(SerializableU32),
+    U64(SerializableU64),
+    I32(SerializableI32),
+    I64(SerializableI64),
+    Decimal(SerializableDecimal),
+    GlobalAddress(SerializableNodeId),
+    PublicKey(SerializablePublicKey),
+    NonFungibleGlobalId(SerializableNonFungibleGlobalId),
+    NonFungibleLocalId(SerializableNonFungibleLocalId),
+    Instant(SerializableI64),
+    Url(String),
+    Origin(String),
+    PublicKeyHash(SerializablePublicKeyHash),
+
+    StringArray(Vec<String>),
+    BoolArray(Vec<bool>),
+    U8Array(Vec<u8>),
+    U32Array(Vec<u32>),
+    U64Array(Vec<u64>),
+    I32Array(Vec<i32>),
+    I64Array(Vec<i64>),
+    DecimalArray(Vec<SerializableDecimal>),
+    GlobalAddressArray(Vec<SerializableNodeId>),
+    PublicKeyArray(Vec<SerializablePublicKey>),
+    NonFungibleGlobalIdArray(Vec<SerializableNonFungibleGlobalId>),
+    NonFungibleLocalIdArray(Vec<SerializableNonFungibleLocalId>),
+    InstantArray(Vec<SerializableI64>),
+    UrlArray(Vec<String>),
+    OriginArray(Vec<String>),
+    PublicKeyHashArray(Vec<SerializablePublicKeyHash>),
+}
+
+impl SerializableMetadataValue {
+    pub fn new(metadata: MetadataValue, network_id: u8) -> Self {
+        match metadata {
+            MetadataValue::String(value) => SerializableMetadataValue::String(value),
+            MetadataValue::Bool(value) => SerializableMetadataValue::Bool(value),
+            MetadataValue::U8(value) => SerializableMetadataValue::U8(value.into()),
+            MetadataValue::U32(value) => SerializableMetadataValue::U32(value.into()),
+            MetadataValue::U64(value) => SerializableMetadataValue::U64(value.into()),
+            MetadataValue::I32(value) => SerializableMetadataValue::I32(value.into()),
+            MetadataValue::I64(value) => SerializableMetadataValue::I64(value.into()),
+            MetadataValue::Decimal(value) => SerializableMetadataValue::Decimal(value.into()),
+            MetadataValue::GlobalAddress(value) => SerializableMetadataValue::GlobalAddress(
+                SerializableNodeId::new(value.into_node_id(), network_id),
+            ),
+            MetadataValue::PublicKey(value) => SerializableMetadataValue::PublicKey(value.into()),
+            MetadataValue::NonFungibleGlobalId(value) => {
+                SerializableMetadataValue::NonFungibleGlobalId(
+                    SerializableNonFungibleGlobalId::new(value, network_id),
+                )
+            }
+            MetadataValue::NonFungibleLocalId(value) => {
+                SerializableMetadataValue::NonFungibleLocalId(value.into())
+            }
+            MetadataValue::Instant(value) => {
+                SerializableMetadataValue::Instant(value.seconds_since_unix_epoch.into())
+            }
+            MetadataValue::Url(value) => SerializableMetadataValue::Url(value.0),
+            MetadataValue::Origin(value) => SerializableMetadataValue::Origin(value.0),
+            MetadataValue::PublicKeyHash(value) => {
+                SerializableMetadataValue::PublicKeyHash(value.into())
+            }
+
+            MetadataValue::StringArray(value) => SerializableMetadataValue::StringArray(value),
+            MetadataValue::BoolArray(value) => SerializableMetadataValue::BoolArray(value),
+            MetadataValue::U8Array(value) => SerializableMetadataValue::U8Array(array_into!(value)),
+            MetadataValue::U32Array(value) => {
+                SerializableMetadataValue::U32Array(array_into!(value))
+            }
+            MetadataValue::U64Array(value) => {
+                SerializableMetadataValue::U64Array(array_into!(value))
+            }
+            MetadataValue::I32Array(value) => {
+                SerializableMetadataValue::I32Array(array_into!(value))
+            }
+            MetadataValue::I64Array(value) => {
+                SerializableMetadataValue::I64Array(array_into!(value))
+            }
+            MetadataValue::DecimalArray(value) => {
+                SerializableMetadataValue::DecimalArray(array_into!(value))
+            }
+            MetadataValue::GlobalAddressArray(value) => {
+                SerializableMetadataValue::GlobalAddressArray(
+                    value
+                        .into_iter()
+                        .map(|address| SerializableNodeId::new(address.into_node_id(), network_id))
+                        .collect(),
+                )
+            }
+            MetadataValue::PublicKeyArray(value) => {
+                SerializableMetadataValue::PublicKeyArray(array_into!(value))
+            }
+            MetadataValue::NonFungibleGlobalIdArray(value) => {
+                SerializableMetadataValue::NonFungibleGlobalIdArray(
+                    value
+                        .into_iter()
+                        .map(|id| SerializableNonFungibleGlobalId::new(id, network_id))
+                        .collect(),
+                )
+            }
+            MetadataValue::NonFungibleLocalIdArray(value) => {
+                SerializableMetadataValue::NonFungibleLocalIdArray(array_into!(value))
+            }
+            MetadataValue::InstantArray(value) => SerializableMetadataValue::InstantArray(
+                value
+                    .into_iter()
+                    .map(|id| id.seconds_since_unix_epoch.into())
+                    .collect(),
+            ),
+            MetadataValue::UrlArray(value) => SerializableMetadataValue::UrlArray(
+                value.into_iter().map(|value| value.0).collect(),
+            ),
+            MetadataValue::OriginArray(value) => SerializableMetadataValue::OriginArray(
+                value.into_iter().map(|value| value.0).collect(),
+            ),
+            MetadataValue::PublicKeyHashArray(value) => {
+                SerializableMetadataValue::PublicKeyHashArray(array_into!(value))
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind")]
+pub enum SerializableSource<T> {
+    Guaranteed {
+        value: T,
+    },
+    Predicted {
+        value: T,
+        instruction_index: SerializableU64,
+    },
+}
+
+macro_rules! array_into {
+    ($array: expr) => {
+        $array.into_iter().map(Into::into).collect()
+    };
+}
+use array_into;

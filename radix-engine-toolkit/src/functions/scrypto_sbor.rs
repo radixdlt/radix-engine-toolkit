@@ -15,72 +15,70 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::prelude::ContextualSerialize;
-use sbor::representations::{SerializationMode, SerializationParameters};
-use sbor::*;
-use scrypto::address::*;
-use scrypto::prelude::*;
+use std::ops::Deref;
 
-pub fn encode(value: &ScryptoValue) -> Result<Vec<u8>, EncodeError> {
-    scrypto_encode(value)
+use crate::prelude::*;
+
+use radix_engine_common::prelude::*;
+use radix_engine_toolkit_core::utils::*;
+use sbor::{LocalTypeIndex, Schema};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+
+//===============================
+// Scrypto Sbor Decode to String
+//===============================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ScryptoSborDecodeToStringInput {
+    encoded_payload: SerializableBytes,
+    representation: SerializableSerializationMode,
+    network_id: SerializableU8,
+    schema: Option<(SerializableLocalTypeIndex, SerializableBytes)>,
 }
+pub type ScryptoSborDecodeToStringOutput = String;
 
-pub fn decode<T>(value: T) -> Result<ScryptoValue, DecodeError>
-where
-    T: AsRef<[u8]>,
-{
-    scrypto_decode(value.as_ref())
-}
+pub struct ScryptoSborDecodeToString;
+impl<'f> Function<'f> for ScryptoSborDecodeToString {
+    type Input = ScryptoSborDecodeToStringInput;
+    type Output = ScryptoSborDecodeToStringOutput;
 
-pub fn decode_to_string_representation<T>(
-    value: T,
-    representation: SerializationMode,
-    bech32_encoder: &Bech32Encoder,
-    schema: Option<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>,
-) -> Result<String, ScryptoSborError>
-where
-    T: AsRef<[u8]>,
-{
-    let value = value.as_ref();
-
-    // Ensure that whatever value was passed either matches the schema if given or is valid Scrypto
-    // sbor.
-    if let Some((ref local_type_index, ref schema)) = schema {
-        validate_payload_against_schema::<ScryptoCustomExtension, _>(
-            value,
+    fn handle(
+        ScryptoSborDecodeToStringInput {
+            encoded_payload,
+            network_id,
+            representation,
             schema,
-            *local_type_index,
-            &(),
-        )
-        .map_err(|_| ScryptoSborError::SchemaValidationError)?;
-    } else {
-        decode(value).map_err(ScryptoSborError::DecodeError)?;
-    };
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let encoded_payload = encoded_payload.deref().clone();
+        let network_id = *network_id;
+        let representation = representation.into();
+        let schema = if let Some((local_type_index, schema)) = schema {
+            let local_type_index = LocalTypeIndex::from(local_type_index);
+            let schema =
+                scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema).map_err(|error| {
+                    InvocationHandlingError::DecodeError(debug_string(error), debug_string(schema))
+                })?;
 
-    let context = ScryptoValueDisplayContext::with_optional_bech32(Some(bech32_encoder));
-    let serialization_parameters = if let Some((ref local_type_index, ref schema)) = schema {
-        SerializationParameters::WithSchema {
-            mode: representation,
-            custom_context: context,
-            schema,
-            type_index: *local_type_index,
-        }
-    } else {
-        SerializationParameters::Schemaless {
-            mode: representation,
-            custom_context: context,
-        }
-    };
+            Some((local_type_index, schema))
+        } else {
+            None
+        };
+        let network_definition = network_definition_from_network_id(network_id);
+        let bech32_encoder = Bech32Encoder::new(&network_definition);
 
-    let payload = ScryptoRawPayload::new_from_valid_slice(value);
-    let serializable = payload.serializable(serialization_parameters);
-    let serialized = serde_json::to_string(&serializable).expect("Impossible Case!");
+        let string =
+            radix_engine_toolkit_core::functions::scrypto_sbor::decode_to_string_representation(
+                encoded_payload,
+                representation,
+                &bech32_encoder,
+                schema,
+            )?;
 
-    Ok(serialized)
+        Ok(string)
+    }
 }
 
-#[derive(Debug, Clone)]
-pub enum ScryptoSborError {
-    SchemaValidationError,
-    DecodeError(DecodeError),
-}
+export_function!(ScryptoSborDecodeToString as scrypto_sbor_decode_to_string);
+export_jni_function!(ScryptoSborDecodeToString as scryptoSborDecodeToString);

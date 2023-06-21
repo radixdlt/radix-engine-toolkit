@@ -15,37 +15,181 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::*;
-use scrypto::prelude::*;
-use transaction::errors::*;
-use transaction::model::*;
-use transaction::validation::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-pub fn hash(notarized_transaction: &NotarizedTransactionV1) -> Result<Hash, PrepareError> {
-    notarized_transaction
-        .prepare()
-        .map(|prepared| prepared.notarized_transaction_hash().0)
+use crate::prelude::*;
+
+//============================
+// Notarized Transaction Hash
+//============================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct NotarizedTransactionHashInput {
+    pub notarized_transaction: SerializableNotarizedTransaction,
+    pub network_id: SerializableU8,
+}
+pub type NotarizedTransactionHashOutput = SerializableHash;
+
+pub struct NotarizedTransactionHash;
+impl<'f> Function<'f> for NotarizedTransactionHash {
+    type Input = NotarizedTransactionHashInput;
+    type Output = NotarizedTransactionHashOutput;
+
+    fn handle(
+        NotarizedTransactionHashInput {
+            notarized_transaction,
+            network_id,
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let hash = radix_engine_toolkit_core::functions::notarized_transaction::hash(
+            &notarized_transaction,
+        )
+        .map_err(|error| {
+            InvocationHandlingError::EncodeError(
+                debug_string(error),
+                debug_string(notarized_transaction),
+            )
+        })?;
+        Ok(hash.into())
+    }
 }
 
-pub fn compile(notarized_transaction: &NotarizedTransactionV1) -> Result<Vec<u8>, EncodeError> {
-    notarized_transaction.to_payload_bytes()
+export_function!(NotarizedTransactionHash as notarized_transaction_hash);
+export_jni_function!(NotarizedTransactionHash as notarizedTransactionHash);
+
+//===============================
+// Notarized Transaction Compile
+//===============================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct NotarizedTransactionCompileInput {
+    pub notarized_transaction: SerializableNotarizedTransaction,
+    pub network_id: SerializableU8,
+}
+pub type NotarizedTransactionCompileOutput = SerializableBytes;
+
+pub struct NotarizedTransactionCompile;
+impl<'f> Function<'f> for NotarizedTransactionCompile {
+    type Input = NotarizedTransactionCompileInput;
+    type Output = NotarizedTransactionCompileOutput;
+
+    fn handle(
+        NotarizedTransactionCompileInput {
+            notarized_transaction,
+            network_id,
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let compile = radix_engine_toolkit_core::functions::notarized_transaction::compile(
+            &notarized_transaction,
+        )
+        .map_err(|error| {
+            InvocationHandlingError::EncodeError(
+                debug_string(error),
+                debug_string(notarized_transaction),
+            )
+        })?;
+        Ok(compile.into())
+    }
 }
 
-pub fn decompile<T>(payload_bytes: T) -> Result<NotarizedTransactionV1, DecodeError>
-where
-    T: AsRef<[u8]>,
-{
-    NotarizedTransactionV1::from_payload_bytes(payload_bytes.as_ref())
+export_function!(NotarizedTransactionCompile as notarized_transaction_compile);
+export_jni_function!(NotarizedTransactionCompile as notarizedTransactionCompile);
+
+//=================================
+// Notarized Transaction Decompile
+//=================================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct NotarizedTransactionDecompileInput {
+    pub compiled: SerializableBytes,
+    pub network_id: SerializableU8,
+    pub instructions_kind: SerializableInstructionsKind,
+}
+pub type NotarizedTransactionDecompileOutput = SerializableNotarizedTransaction;
+
+pub struct NotarizedTransactionDecompile;
+impl<'a> Function<'a> for NotarizedTransactionDecompile {
+    type Input = NotarizedTransactionDecompileInput;
+    type Output = NotarizedTransactionDecompileOutput;
+
+    fn handle(
+        NotarizedTransactionDecompileInput {
+            compiled,
+            network_id,
+            instructions_kind,
+        }: Self::Input,
+    ) -> Result<Self::Output, InvocationHandlingError> {
+        let notarized_transaction =
+            radix_engine_toolkit_core::functions::notarized_transaction::decompile(&**compiled)
+                .map_err(|error| {
+                    InvocationHandlingError::EncodeError(
+                        debug_string(error),
+                        debug_string(compiled),
+                    )
+                })?;
+
+        let notarized_transaction = SerializableNotarizedTransaction::from_native(
+            &notarized_transaction,
+            *network_id,
+            instructions_kind,
+        )?;
+
+        Ok(notarized_transaction)
+    }
 }
 
-pub fn statically_validate(
-    notarized_transaction: &NotarizedTransactionV1,
-    validation_config: ValidationConfig,
-) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidator::new(validation_config);
-    notarized_transaction
-        .prepare()
-        .map_err(TransactionValidationError::PrepareError)
-        .and_then(|prepared| validator.validate(prepared))
-        .map(|_| ())
+export_function!(NotarizedTransactionDecompile as notarized_transaction_decompile);
+export_jni_function!(NotarizedTransactionDecompile as notarizedTransactionDecompile);
+
+//===========================================
+// Notarized Transaction Statically Validate
+//===========================================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct NotarizedTransactionStaticallyValidateInput {
+    pub notarized_transaction: SerializableNotarizedTransaction,
+    pub network_id: SerializableU8,
+    pub validation_config: SerializableValidationConfig,
 }
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
+pub enum NotarizedTransactionStaticallyValidateOutput {
+    Valid,
+    Invalid(String),
+}
+
+pub struct NotarizedTransactionStaticallyValidate;
+impl<'a> Function<'a> for NotarizedTransactionStaticallyValidate {
+    type Input = NotarizedTransactionStaticallyValidateInput;
+    type Output = NotarizedTransactionStaticallyValidateOutput;
+
+    fn handle(
+        NotarizedTransactionStaticallyValidateInput {
+            notarized_transaction,
+            network_id,
+            validation_config,
+        }: Self::Input,
+    ) -> Result<Self::Output, InvocationHandlingError> {
+        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let validation_config = validation_config.into();
+
+        match radix_engine_toolkit_core::functions::notarized_transaction::statically_validate(
+            &notarized_transaction,
+            validation_config,
+        ) {
+            Ok(..) => Ok(Self::Output::Valid),
+            Err(error) => Ok(Self::Output::Invalid(debug_string(error))),
+        }
+    }
+}
+
+export_function!(
+    NotarizedTransactionStaticallyValidate as notarized_transaction_statically_validate
+);
+export_jni_function!(
+    NotarizedTransactionStaticallyValidate as notarizedTransactionStaticallyValidate
+);

@@ -16,7 +16,7 @@
 // under the License.
 
 use indexmap::{indexmap, IndexMap};
-use native_json_library::prelude::*;
+use radix_engine_toolkit::prelude::*;
 use schemars::schema::RootSchema;
 
 pub fn generate_function_schema(
@@ -87,8 +87,8 @@ macro_rules! function_schema {
 
                 let name = $crate::utils::snake_case_type_name::<$function>();
 
-                let input_schema = schemars::schema_for!(<$function as native_json_library::functions::traits::Function>::Input);
-                let output_schema = schemars::schema_for!(<$function as native_json_library::functions::traits::Function>::Output);
+                let input_schema = schemars::schema_for!(<$function as radix_engine_toolkit::functions::traits::Function>::Input);
+                let output_schema = schemars::schema_for!(<$function as radix_engine_toolkit::functions::traits::Function>::Output);
 
                 map.insert(name, (input_schema, output_schema));
             )*

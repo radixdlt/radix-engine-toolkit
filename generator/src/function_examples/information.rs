@@ -16,7 +16,7 @@
 // under the License.
 
 use super::traits::HasExamples;
-use native_json_library::functions::information::*;
+use radix_engine_toolkit::functions::information::*;
 
 impl<'f> HasExamples<'f, 1> for BuildInformation {
     fn example_inputs() -> [Self::Input; 1] {

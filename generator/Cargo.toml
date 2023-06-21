@@ -14,8 +14,8 @@ radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", br
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
-native-json-library = { path = "../native-json-library" }
 
 # Serde dependencies
 serde = { version = "1.0.163" }

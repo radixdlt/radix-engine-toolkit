@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod error;
 pub mod functions;
-pub mod instruction_visitor;
-pub mod sbor;
-pub mod schema_visitor;
-pub mod statics;
+pub mod memory;
+pub mod models;
+pub mod prelude;
 pub mod utils;

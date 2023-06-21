@@ -15,29 +15,158 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::*;
-use scrypto::prelude::*;
-use transaction::builder::*;
-use transaction::errors::*;
-use transaction::validation::*;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
-    compile(manifest).map(scrypto::prelude::hash)
+use crate::prelude::*;
+
+//===============
+// Manifest Hash
+//===============
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ManifestHashInput {
+    pub manifest: SerializableTransactionManifest,
+    pub network_id: SerializableU8,
+}
+pub type ManifestHashOutput = SerializableHash;
+
+pub struct ManifestHash;
+impl<'f> Function<'f> for ManifestHash {
+    type Input = ManifestHashInput;
+    type Output = ManifestHashOutput;
+
+    fn handle(
+        ManifestHashInput {
+            manifest,
+            network_id,
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let manifest = manifest.to_native(*network_id)?;
+        let hash =
+            radix_engine_toolkit_core::functions::manifest::hash(&manifest).map_err(|error| {
+                InvocationHandlingError::EncodeError(debug_string(error), debug_string(manifest))
+            })?;
+        Ok(hash.into())
+    }
 }
 
-pub fn compile(manifest: &TransactionManifestV1) -> Result<Vec<u8>, EncodeError> {
-    manifest_encode(manifest)
+export_function!(ManifestHash as manifest_hash);
+export_jni_function!(ManifestHash as manifestHash);
+
+//==================
+// Manifest Compile
+//==================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ManifestCompileInput {
+    pub manifest: SerializableTransactionManifest,
+    pub network_id: SerializableU8,
+}
+pub type ManifestCompileOutput = SerializableBytes;
+
+pub struct ManifestCompile;
+impl<'f> Function<'f> for ManifestCompile {
+    type Input = ManifestCompileInput;
+    type Output = ManifestCompileOutput;
+
+    fn handle(
+        ManifestCompileInput {
+            manifest,
+            network_id,
+        }: Self::Input,
+    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let manifest = manifest.to_native(*network_id)?;
+        let compile = radix_engine_toolkit_core::functions::manifest::compile(&manifest).map_err(
+            |error| {
+                InvocationHandlingError::EncodeError(debug_string(error), debug_string(manifest))
+            },
+        )?;
+        Ok(compile.into())
+    }
 }
 
-pub fn decompile<T>(payload_bytes: T) -> Result<TransactionManifestV1, DecodeError>
-where
-    T: AsRef<[u8]>,
-{
-    manifest_decode(payload_bytes.as_ref())
+export_function!(ManifestCompile as manifest_compile);
+export_jni_function!(ManifestCompile as manifestCompile);
+
+//====================
+// Manifest Decompile
+//====================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ManifestDecompileInput {
+    pub compiled: SerializableBytes,
+    pub network_id: SerializableU8,
+    pub instructions_kind: SerializableInstructionsKind,
+}
+pub type ManifestDecompileOutput = SerializableTransactionManifest;
+
+pub struct ManifestDecompile;
+impl<'a> Function<'a> for ManifestDecompile {
+    type Input = ManifestDecompileInput;
+    type Output = ManifestDecompileOutput;
+
+    fn handle(
+        ManifestDecompileInput {
+            compiled,
+            network_id,
+            instructions_kind,
+        }: Self::Input,
+    ) -> Result<Self::Output, InvocationHandlingError> {
+        let manifest = radix_engine_toolkit_core::functions::manifest::decompile(&**compiled)
+            .map_err(|error| {
+                InvocationHandlingError::EncodeError(debug_string(error), debug_string(compiled))
+            })?;
+
+        let manifest = SerializableTransactionManifest::from_native(
+            &manifest,
+            *network_id,
+            instructions_kind,
+        )?;
+
+        Ok(manifest)
+    }
 }
 
-pub fn statically_validate(
-    manifest: &TransactionManifestV1,
-) -> Result<(), TransactionValidationError> {
-    NotarizedTransactionValidator::validate_instructions_v1(&manifest.instructions)
+export_function!(ManifestDecompile as manifest_decompile);
+export_jni_function!(ManifestDecompile as manifestDecompile);
+
+//==============================
+// Manifest Statically Validate
+//==============================
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct ManifestStaticallyValidateInput {
+    pub manifest: SerializableTransactionManifest,
+    pub network_id: SerializableU8,
 }
+
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
+pub enum ManifestStaticallyValidateOutput {
+    Valid,
+    Invalid(String),
+}
+
+pub struct ManifestStaticallyValidate;
+impl<'a> Function<'a> for ManifestStaticallyValidate {
+    type Input = ManifestStaticallyValidateInput;
+    type Output = ManifestStaticallyValidateOutput;
+
+    fn handle(
+        ManifestStaticallyValidateInput {
+            manifest,
+            network_id,
+        }: Self::Input,
+    ) -> Result<Self::Output, InvocationHandlingError> {
+        let manifest = manifest.to_native(*network_id)?;
+
+        match radix_engine_toolkit_core::functions::manifest::statically_validate(&manifest) {
+            Ok(..) => Ok(Self::Output::Valid),
+            Err(error) => Ok(Self::Output::Invalid(debug_string(error))),
+        }
+    }
+}
+
+export_function!(ManifestStaticallyValidate as manifest_statically_validate);
+export_jni_function!(ManifestStaticallyValidate as manifestStaticallyValidate);

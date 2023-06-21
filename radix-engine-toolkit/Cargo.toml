@@ -2,7 +2,6 @@
 name = "radix-engine-toolkit"
 version = "0.10.0"
 edition = "2021"
-build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
@@ -11,26 +10,40 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feat
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features= false, features = ["std", "lru"] }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", features = ["serde"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features= false, features = ["std", "lru"] }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace" }
 
-# Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
+# Core Radix Engine Toolkit
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+
+# Serde for JSON serialization
+serde = { version = "1.0.163" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
+
+# Regex needed to extract the network specifier from addresses
+regex = { version = "1.8.4" }
+
+# Bech32 for encoding and decoding addresses
 bech32 = { version = "0.9.1" }
 
-# The serde-json dependency without the serde dependency. This is used for the SBOR serialization
-# in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
-serde_json = { version = "1.0.96", features = ["preserve_order"] }
+# Used to be able to expose the crate to JVM clients
+jni = { version = "0.21.1" }
 
-# Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
-# computed once.
-lazy_static = { version = "1.4.0" }
-
-[build-dependencies]
-cargo_toml = { version = "0.15.3" }
+# Used to allow for more powerful macros
+paste = { version = "1.0.12" }
+walkdir = "2.3.3"
+indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/fee-locks-in-execution-trace", default-features = false, features = ["lru", "std", "resource_tracker"] }
+walkdir = "2.3.3"
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.release]
+incremental = false
+strip = true
+panic = 'abort'
+codegen-units = 1
+lto = true
+opt-level = 'z'

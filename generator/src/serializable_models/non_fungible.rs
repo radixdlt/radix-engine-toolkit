@@ -17,8 +17,8 @@
 
 use std::str::FromStr;
 
-use native_json_library::prelude::*;
 use radix_engine_common::prelude::{NonFungibleLocalId, ACCOUNT_OWNER_BADGE};
+use radix_engine_toolkit::prelude::*;
 use transaction::prelude::NonFungibleGlobalId;
 
 use super::traits::HasExamples;

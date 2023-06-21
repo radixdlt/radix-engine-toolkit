@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::functions::traits::Function;
+use radix_engine_toolkit::functions::traits::Function;
 use serde::{Deserialize, Serialize};
 
 use crate::utils;

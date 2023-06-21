@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_json_library::prelude::*;
 use radix_engine_common::prelude::PublicKey;
+use radix_engine_toolkit::prelude::*;
 use scrypto::prelude::{hash, Hash};
 use transaction::prelude::{
     Ed25519PrivateKey, Secp256k1PrivateKey, SignatureV1, SignatureWithPublicKeyV1,

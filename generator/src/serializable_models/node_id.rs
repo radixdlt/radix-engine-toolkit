@@ -16,7 +16,7 @@
 // under the License.
 
 use super::traits::HasExamples;
-use native_json_library::prelude::*;
+use radix_engine_toolkit::prelude::*;
 use scrypto::prelude::*;
 
 impl<'f> HasExamples<'f> for SerializableNodeId {

@@ -17,11 +17,11 @@
 
 use super::traits::HasExamples;
 use crate::function_examples::notarized_transaction::*;
-use native_json_library::prelude::*;
 use radix_engine::system::bootstrap::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::package::*;
+use radix_engine_toolkit::prelude::*;
 use scrypto::api::node_modules::auth::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::api::node_modules::royalty::*;
