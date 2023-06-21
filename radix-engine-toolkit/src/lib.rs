@@ -15,9 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+/// cbindgen:ignore
 pub mod error;
 pub mod functions;
 pub mod memory;
+/// cbindgen:ignore
 pub mod models;
+/// cbindgen:ignore
 pub mod prelude;
+/// cbindgen:ignore
 pub mod utils;
