@@ -71,7 +71,7 @@ pub fn generate_function_schema(
             NotarizedTransactionStaticallyValidate,
         ],
         "utils" => function_schema![
-            KnownAddress
+            UtilsKnownAddress
         ]
     )
 }

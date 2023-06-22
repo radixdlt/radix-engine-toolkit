@@ -74,7 +74,7 @@ pub fn generate_function_examples() -> IndexMap<
             NotarizedTransactionStaticallyValidate,
         ],
         "utils" => function_examples![
-            KnownAddress
+            UtilsKnownAddress
         ]
     )
 }

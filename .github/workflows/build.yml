@@ -243,7 +243,7 @@ jobs:
           name: "RadixEngineToolkit.xcframework.tar.gz"
           path: "./artifacts/native/RadixEngineToolkit.xcframework.tar.gz"
 
-  build-test-pack:
+  build-test-kit:
     needs: [build]
     runs-on: macos-latest
     steps:
@@ -253,13 +253,13 @@ jobs:
         run: cargo run
         working-directory: generator
       - name: Compress Generated
-        run: tar -czf "./test-pack.tar.gz" ./output
+        run: tar -czf "./test-kit.tar.gz" ./output
         working-directory: generator
       - name: Upload Generated Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "test-pack.tar.gz"
-          path: "./generator/test-pack.tar.gz"
+          name: "test-kit.tar.gz"
+          path: "./generator/test-kit.tar.gz"
 
   publish-csharp-nuget:
     needs: [build]

@@ -20,18 +20,18 @@ use schemars::JsonSchema;
 use scrypto::prelude::*;
 use serde::{Deserialize, Serialize};
 
-pub type KnownAddressesInput = SerializableU8;
+pub type UtilsKnownAddressesInput = SerializableU8;
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub struct KnownAddressesOutput {
+pub struct UtilsKnownAddressesOutput {
     pub resource_addresses: ResourceAddresses,
     pub package_addresses: PackageAddresses,
     pub component_addresses: ComponentAddresses,
 }
 
-pub struct KnownAddress;
-impl<'f> Function<'f> for KnownAddress {
-    type Input = KnownAddressesInput;
-    type Output = KnownAddressesOutput;
+pub struct UtilsKnownAddress;
+impl<'f> Function<'f> for UtilsKnownAddress {
+    type Input = UtilsKnownAddressesInput;
+    type Output = UtilsKnownAddressesOutput;
 
     fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let network_id = *input;

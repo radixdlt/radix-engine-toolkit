@@ -18,7 +18,7 @@
 use super::traits::HasExamples;
 use radix_engine_toolkit::prelude::*;
 
-impl<'f> HasExamples<'f, 0xFF> for KnownAddress {
+impl<'f> HasExamples<'f, 0xFF> for UtilsKnownAddress {
     fn example_inputs() -> [Self::Input; 0xFF] {
         (1u8..=0xFFu8)
             .map(Into::into)
