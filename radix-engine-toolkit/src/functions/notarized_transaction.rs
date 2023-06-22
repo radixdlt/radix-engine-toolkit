@@ -24,11 +24,7 @@ use crate::prelude::*;
 // Notarized Transaction Hash
 //============================
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct NotarizedTransactionHashInput {
-    pub notarized_transaction: SerializableNotarizedTransaction,
-    pub network_id: SerializableU8,
-}
+pub type NotarizedTransactionHashInput = SerializableNotarizedTransaction;
 pub type NotarizedTransactionHashOutput = SerializableHash;
 
 pub struct NotarizedTransactionHash;
@@ -37,12 +33,10 @@ impl<'f> Function<'f> for NotarizedTransactionHash {
     type Output = NotarizedTransactionHashOutput;
 
     fn handle(
-        NotarizedTransactionHashInput {
-            notarized_transaction,
-            network_id,
-        }: Self::Input,
+        notarized_transaction: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let notarized_transaction = notarized_transaction
+            .to_native(*notarized_transaction.signed_intent.intent.header.network_id)?;
         let hash = radix_engine_toolkit_core::functions::notarized_transaction::hash(
             &notarized_transaction,
         )
@@ -63,11 +57,7 @@ export_jni_function!(NotarizedTransactionHash as notarizedTransactionHash);
 // Notarized Transaction Compile
 //===============================
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct NotarizedTransactionCompileInput {
-    pub notarized_transaction: SerializableNotarizedTransaction,
-    pub network_id: SerializableU8,
-}
+pub type NotarizedTransactionCompileInput = SerializableNotarizedTransaction;
 pub type NotarizedTransactionCompileOutput = SerializableBytes;
 
 pub struct NotarizedTransactionCompile;
@@ -76,12 +66,10 @@ impl<'f> Function<'f> for NotarizedTransactionCompile {
     type Output = NotarizedTransactionCompileOutput;
 
     fn handle(
-        NotarizedTransactionCompileInput {
-            notarized_transaction,
-            network_id,
-        }: Self::Input,
+        notarized_transaction: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let notarized_transaction = notarized_transaction
+            .to_native(*notarized_transaction.signed_intent.intent.header.network_id)?;
         let compile = radix_engine_toolkit_core::functions::notarized_transaction::compile(
             &notarized_transaction,
         )
@@ -105,7 +93,6 @@ export_jni_function!(NotarizedTransactionCompile as notarizedTransactionCompile)
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct NotarizedTransactionDecompileInput {
     pub compiled: SerializableBytes,
-    pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
 pub type NotarizedTransactionDecompileOutput = SerializableNotarizedTransaction;
@@ -118,7 +105,6 @@ impl<'a> Function<'a> for NotarizedTransactionDecompile {
     fn handle(
         NotarizedTransactionDecompileInput {
             compiled,
-            network_id,
             instructions_kind,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
@@ -133,7 +119,7 @@ impl<'a> Function<'a> for NotarizedTransactionDecompile {
 
         let notarized_transaction = SerializableNotarizedTransaction::from_native(
             &notarized_transaction,
-            *network_id,
+            notarized_transaction.signed_intent.intent.header.network_id,
             instructions_kind,
         )?;
 
@@ -151,7 +137,6 @@ export_jni_function!(NotarizedTransactionDecompile as notarizedTransactionDecomp
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct NotarizedTransactionStaticallyValidateInput {
     pub notarized_transaction: SerializableNotarizedTransaction,
-    pub network_id: SerializableU8,
     pub validation_config: SerializableValidationConfig,
 }
 
@@ -170,11 +155,11 @@ impl<'a> Function<'a> for NotarizedTransactionStaticallyValidate {
     fn handle(
         NotarizedTransactionStaticallyValidateInput {
             notarized_transaction,
-            network_id,
             validation_config,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
-        let notarized_transaction = notarized_transaction.to_native(*network_id)?;
+        let notarized_transaction = notarized_transaction
+            .to_native(*notarized_transaction.signed_intent.intent.header.network_id)?;
         let validation_config = validation_config.into();
 
         match radix_engine_toolkit_core::functions::notarized_transaction::statically_validate(

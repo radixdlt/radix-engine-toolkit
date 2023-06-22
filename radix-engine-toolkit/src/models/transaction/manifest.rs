@@ -51,10 +51,13 @@ impl NativeConvertible for SerializableTransactionManifest {
     fn from_native(
         native: &Self::Native,
         network_id: u8,
-        output_kind: Self::Context,
+        instructions_kind: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let instructions =
-            SerializableInstructions::from_native(&native.instructions, network_id, output_kind)?;
+        let instructions = SerializableInstructions::from_native(
+            &native.instructions,
+            network_id,
+            instructions_kind,
+        )?;
         let blobs = native.blobs.values().cloned().map(Into::into).collect();
 
         Ok(Self {

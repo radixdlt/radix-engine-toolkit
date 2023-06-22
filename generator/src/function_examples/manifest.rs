@@ -23,7 +23,7 @@ use super::traits::HasExamples;
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for ManifestHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent.manifest)
+            .map(|tx| tx.signed_intent.intent.manifest)
             .map(|transaction| Self::Input {
                 manifest: transaction,
                 network_id: 0xf2.into(),
@@ -34,7 +34,7 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for ManifestHash {
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for ManifestCompile {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent.manifest)
+            .map(|tx| tx.signed_intent.intent.manifest)
             .map(|transaction| Self::Input {
                 manifest: transaction,
                 network_id: 0xf2.into(),
@@ -55,7 +55,7 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for ManifestDecompile {
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for ManifestStaticallyValidate {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent.manifest)
+            .map(|tx| tx.signed_intent.intent.manifest)
             .map(|transaction| Self::Input {
                 manifest: transaction,
                 network_id: 0xf2.into(),

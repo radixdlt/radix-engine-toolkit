@@ -28,19 +28,13 @@ use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        notarized_transactions().map(|transaction| Self::Input {
-            notarized_transaction: transaction,
-            network_id: 0xf2.into(),
-        })
+        notarized_transactions()
     }
 }
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionCompile {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        notarized_transactions().map(|transaction| Self::Input {
-            notarized_transaction: transaction,
-            network_id: 0xf2.into(),
-        })
+        notarized_transactions()
     }
 }
 
@@ -50,7 +44,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionDec
             NotarizedTransactionDecompileInput {
                 compiled: output,
                 instructions_kind: SerializableInstructionsKind::String,
-                network_id: 0xf2.into(),
             }
         })
     }
@@ -60,7 +53,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for NotarizedTransactionSta
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         notarized_transactions().map(|transaction| Self::Input {
             notarized_transaction: transaction,
-            network_id: 0xf2.into(),
             validation_config: ValidationConfig::default(0xf2).into(),
         })
     }

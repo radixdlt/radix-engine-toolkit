@@ -23,23 +23,13 @@ use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent)
-            .map(|transaction| Self::Input {
-                intent: transaction,
-                network_id: 0xf2.into(),
-            })
+        NotarizedTransactionHash::example_inputs().map(|tx| tx.signed_intent.intent)
     }
 }
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentCompile {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent)
-            .map(|transaction| Self::Input {
-                intent: transaction,
-                network_id: 0xf2.into(),
-            })
+        NotarizedTransactionHash::example_inputs().map(|tx| tx.signed_intent.intent)
     }
 }
 
@@ -48,7 +38,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentDecompile {
         IntentCompile::example_outputs().map(|output| IntentDecompileInput {
             compiled: output,
             instructions_kind: SerializableInstructionsKind::String,
-            network_id: 0xf2.into(),
         })
     }
 }
@@ -56,10 +45,9 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentDecompile {
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentStaticallyValidate {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent.intent)
+            .map(|tx| tx.signed_intent.intent)
             .map(|transaction| Self::Input {
                 intent: transaction,
-                network_id: 0xf2.into(),
                 validation_config: ValidationConfig::default(0xf2).into(),
             })
     }

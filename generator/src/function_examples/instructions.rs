@@ -47,7 +47,7 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsConvert {
             Self::Input {
                 instructions,
                 network_id: 0xf2.into(),
-                output_kind: other_kind,
+                instructions_kind: other_kind,
             }
         })
     }

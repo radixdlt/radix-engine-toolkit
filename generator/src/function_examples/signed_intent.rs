@@ -23,23 +23,13 @@ use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedIntentHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent)
-            .map(|transaction| Self::Input {
-                signed_intent: transaction,
-                network_id: 0xf2.into(),
-            })
+        NotarizedTransactionHash::example_inputs().map(|tx| tx.signed_intent)
     }
 }
 
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedIntentCompile {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
-        NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent)
-            .map(|transaction| Self::Input {
-                signed_intent: transaction,
-                network_id: 0xf2.into(),
-            })
+        NotarizedTransactionHash::example_inputs().map(|tx| tx.signed_intent)
     }
 }
 
@@ -48,7 +38,6 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedIntentDecompile {
         SignedIntentCompile::example_outputs().map(|output| SignedIntentDecompileInput {
             compiled: output,
             instructions_kind: SerializableInstructionsKind::String,
-            network_id: 0xf2.into(),
         })
     }
 }
@@ -56,10 +45,9 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedIntentDecompile {
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for SignedIntentStaticallyValidate {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
-            .map(|tx| tx.notarized_transaction.signed_intent)
+            .map(|tx| tx.signed_intent)
             .map(|transaction| Self::Input {
                 signed_intent: transaction,
-                network_id: 0xf2.into(),
                 validation_config: ValidationConfig::default(0xf2).into(),
             })
     }

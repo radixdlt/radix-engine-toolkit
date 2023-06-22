@@ -24,11 +24,7 @@ use crate::prelude::*;
 // Intent Hash
 //=============
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct IntentHashInput {
-    pub intent: SerializableIntent,
-    pub network_id: SerializableU8,
-}
+pub type IntentHashInput = SerializableIntent;
 pub type IntentHashOutput = SerializableHash;
 
 pub struct IntentHash;
@@ -36,10 +32,8 @@ impl<'f> Function<'f> for IntentHash {
     type Input = IntentHashInput;
     type Output = IntentHashOutput;
 
-    fn handle(
-        IntentHashInput { intent, network_id }: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let intent = intent.to_native(*network_id)?;
+    fn handle(intent: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let intent = intent.to_native(*intent.header.network_id)?;
         let hash =
             radix_engine_toolkit_core::functions::intent::hash(&intent).map_err(|error| {
                 InvocationHandlingError::EncodeError(debug_string(error), debug_string(intent))
@@ -55,11 +49,7 @@ export_jni_function!(IntentHash as intentHash);
 // Intent Compile
 //================
 
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct IntentCompileInput {
-    pub intent: SerializableIntent,
-    pub network_id: SerializableU8,
-}
+pub type IntentCompileInput = SerializableIntent;
 pub type IntentCompileOutput = SerializableBytes;
 
 pub struct IntentCompile;
@@ -67,10 +57,8 @@ impl<'f> Function<'f> for IntentCompile {
     type Input = IntentCompileInput;
     type Output = IntentCompileOutput;
 
-    fn handle(
-        IntentCompileInput { intent, network_id }: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let intent = intent.to_native(*network_id)?;
+    fn handle(intent: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let intent = intent.to_native(*intent.header.network_id)?;
         let compile =
             radix_engine_toolkit_core::functions::intent::compile(&intent).map_err(|error| {
                 InvocationHandlingError::EncodeError(debug_string(error), debug_string(intent))
@@ -89,7 +77,6 @@ export_jni_function!(IntentCompile as intentCompile);
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct IntentDecompileInput {
     pub compiled: SerializableBytes,
-    pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
 pub type IntentDecompileOutput = SerializableIntent;
@@ -102,7 +89,6 @@ impl<'a> Function<'a> for IntentDecompile {
     fn handle(
         IntentDecompileInput {
             compiled,
-            network_id,
             instructions_kind,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
@@ -112,7 +98,8 @@ impl<'a> Function<'a> for IntentDecompile {
             },
         )?;
 
-        let intent = SerializableIntent::from_native(&intent, *network_id, instructions_kind)?;
+        let intent =
+            SerializableIntent::from_native(&intent, intent.header.network_id, instructions_kind)?;
 
         Ok(intent)
     }
@@ -128,7 +115,6 @@ export_jni_function!(IntentDecompile as intentDecompile);
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct IntentStaticallyValidateInput {
     pub intent: SerializableIntent,
-    pub network_id: SerializableU8,
     pub validation_config: SerializableValidationConfig,
 }
 
@@ -147,11 +133,10 @@ impl<'a> Function<'a> for IntentStaticallyValidate {
     fn handle(
         IntentStaticallyValidateInput {
             intent,
-            network_id,
             validation_config,
         }: Self::Input,
     ) -> Result<Self::Output, InvocationHandlingError> {
-        let intent = intent.to_native(*network_id)?;
+        let intent = intent.to_native(*intent.header.network_id)?;
         let validation_config = validation_config.into();
 
         match radix_engine_toolkit_core::functions::intent::statically_validate(

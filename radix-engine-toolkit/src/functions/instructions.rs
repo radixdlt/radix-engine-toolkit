@@ -69,7 +69,7 @@ export_jni_function!(InstructionsHash as instructionsHash);
 pub struct InstructionsConvertInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
-    pub output_kind: SerializableInstructionsKind,
+    pub instructions_kind: SerializableInstructionsKind,
 }
 pub type InstructionsConvertOutput = SerializableInstructions;
 
@@ -82,10 +82,10 @@ impl<'a> Function<'a> for InstructionsConvert {
         Self::Input {
             mut instructions,
             network_id,
-            output_kind,
+            instructions_kind,
         }: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        instructions.convert_serializable_instructions_kind(output_kind, *network_id)?;
+        instructions.convert_serializable_instructions_kind(instructions_kind, *network_id)?;
         Ok(instructions)
     }
 }
