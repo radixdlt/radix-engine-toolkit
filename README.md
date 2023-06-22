@@ -6,7 +6,7 @@ The Radix Engine Toolkit is a multiplatform library written in Rust that exposes
 
 Babylon transactions are composed of a number of different parts, but their building blocks essentially boil down to: a transaction header, a manifest, and signatures which might either be intent signatures or a notary signature depending on what exactly was signed. The diagram below illustrates the relationship and names of the different parts of a transaction.
 
-![image](./images/v0.5.0-transaction-model.png)
+![image](./assets/v0.5.0-transaction-model.png)
 
 When we have a transaction intent, getting to a signed transaction intent requires that the transaction intent is "compiled" and signed. In this context, compiling something simply refers to encoding it in SBOR. Once all of the signers have signed the compiled transaction intent, then we have all we need to for a signed transaction intent.
 
@@ -38,7 +38,7 @@ With the above in mind, this library allows for the following functionality to b
 
 This section gives a high-level overview of the architecture of the Radix Engine Toolkit and is useful for developers hoping to extend the Radix Engine Toolkit to add additional interfaces and additional ways to talk to use the core functionality available in the library.
 
-![image](./images/library-overview.png)
+![image](./assets/library-overview.png)
 
 The core functionality of the library is implemented in the `radix-engine-toolkit-core` crate. This crate has the definition of the requests, their responses, how they are validated, and how they are handled and fulfilled. This crate utilizes the Scrypto standard library as well as other dependencies from the Scrypto repository to handle requests. If there is a need to extend the library to handle a new request type (e.g. a request to statically validate transactions) then it is implemented in this crate. 
 
