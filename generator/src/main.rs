@@ -23,7 +23,10 @@ mod utils;
 use crate::function_examples::generator::generate_function_examples;
 use function_schema::generator::generate_function_schema;
 use serializable_models::generator::generate_serializable_model_examples;
-use std::path::PathBuf;
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 fn main() {
     let output_directory = {
@@ -89,6 +92,34 @@ fn main() {
                 let serialized = serde_json::to_string_pretty(&examples).unwrap();
                 std::fs::write(output_path, serialized).unwrap();
             }
+        }
+    }
+
+    // Generating the manifest test vectors
+    {
+        let output_directory = output_directory.join("manifests");
+        std::fs::create_dir_all(&output_directory).unwrap();
+
+        let manifest_directory = Path::new("../radix-engine-toolkit/tests/manifests")
+            .canonicalize()
+            .unwrap();
+
+        for entry in walkdir::WalkDir::new(&manifest_directory) {
+            let path = entry.unwrap().path().canonicalize().unwrap();
+            if path.extension().and_then(|str| str.to_str()) != Some("rtm") {
+                continue;
+            }
+
+            let output_directory =
+                PathBuf::from_str(&path.parent().unwrap().to_str().unwrap().replace(
+                    manifest_directory.to_str().unwrap(),
+                    output_directory.to_str().unwrap(),
+                ))
+                .unwrap();
+            std::fs::create_dir_all(&output_directory).unwrap();
+
+            let output_path = output_directory.join(path.file_name().unwrap());
+            std::fs::copy(path, output_path).unwrap();
         }
     }
 }
