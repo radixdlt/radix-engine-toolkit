@@ -72,6 +72,12 @@ pub fn generate_function_schema(
         ],
         "utils" => function_schema![
             UtilsKnownAddress
+        ],
+        "scrypto_sbor" => function_schema![
+            ScryptoSborDecodeToString
+        ],
+        "manifest_sbor" => function_schema![
+            ManifestSborDecodeToString
         ]
     )
 }

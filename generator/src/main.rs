@@ -17,11 +17,13 @@
 
 mod function_examples;
 mod function_schema;
+mod function_spec;
 mod serializable_models;
 mod utils;
 
 use crate::function_examples::generator::generate_function_examples;
 use function_schema::generator::generate_function_schema;
+use function_spec::generator::generate_function_spec;
 use serializable_models::generator::generate_serializable_model_examples;
 use std::{
     path::{Path, PathBuf},
@@ -121,5 +123,18 @@ fn main() {
             let output_path = output_directory.join(path.file_name().unwrap());
             std::fs::copy(path, output_path).unwrap();
         }
+    }
+
+    // Generating the OpenAPI spec
+    {
+        let output_directory = output_directory.join("function_spec");
+        std::fs::create_dir_all(&output_directory).unwrap();
+
+        let mut spec = generate_function_spec();
+        spec.info.title = "Radix Engine Toolkit".to_string();
+
+        let output_path = output_directory.join("spec.yaml");
+        let serialized = serde_yaml::to_string(&spec).unwrap();
+        std::fs::write(output_path, serialized).unwrap();
     }
 }
