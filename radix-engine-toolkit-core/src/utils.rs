@@ -20,7 +20,8 @@ use radix_engine::transaction::TransactionReceipt;
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
-    TypedMainModuleSubstateValue, TypedSubstateKey, TypedSubstateValue,
+    TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey, TypedMetadataModuleSubstateValue,
+    TypedSubstateKey, TypedSubstateValue,
 };
 use radix_engine_store_interface::interface::DatabaseUpdate;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
@@ -211,8 +212,8 @@ pub fn metadata_of_newly_created_entities(
             for (substate_key, database_update) in key_update_map.iter() {
                 if let DatabaseUpdate::Set(data) = database_update {
                     if let Ok((
-                        TypedSubstateKey::MetadataModuleEntryKey(key),
-                        TypedSubstateValue::MetadataModuleEntryValue(DynSubstate { value, .. }),
+                        TypedSubstateKey::MetadataModule(key),
+                        TypedSubstateValue::MetadataModule(value),
                     )) = to_typed_substate_key(
                         global_address.as_node_id().entity_type().unwrap(),
                         METADATA_KV_STORE_PARTITION,
@@ -222,6 +223,13 @@ pub fn metadata_of_newly_created_entities(
                         to_typed_substate_value(&typed_substate_key, data)
                             .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
                     }) {
+                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
+                        let value = match value {
+                            TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
+                                value,
+                                ..
+                            }) => value,
+                        };
                         map.entry(global_address)
                             .or_default()
                             .insert(key, value.unwrap());

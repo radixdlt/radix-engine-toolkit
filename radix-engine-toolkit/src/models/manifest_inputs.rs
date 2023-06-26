@@ -183,3 +183,4 @@ pub struct AccessRulesCreateIndexMapInput {
 pub struct MetadataCreateWithDataIndexMapInput {
     pub data: IndexMap<String, MetadataValue>,
 }
+

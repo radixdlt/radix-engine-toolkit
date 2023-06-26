@@ -96,7 +96,15 @@ pub fn analyze(
         TransactionType::NonConforming
     };
 
-    let fee_locks = execution_trace.fee_locks.clone();
+    let mut fee_locks = FeeLocks::default();
+    for (_, amount, is_contingent) in fee_summary.locked_fees.iter() {
+        let amount = amount.amount();
+        if *is_contingent {
+            fee_locks.contingent_lock += amount;
+        } else {
+            fee_locks.lock += amount;
+        }
+    }
 
     let fee_summary = {
         // Previews sometimes reports a cost unit price of zero. So, we will:
@@ -134,10 +142,16 @@ pub struct ExecutionAnalysis {
     pub transaction_type: TransactionType,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct FeeSummary {
     pub network_fee: Decimal,
     pub royalty_fee: Decimal,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct FeeLocks {
+    pub lock: Decimal,
+    pub contingent_lock: Decimal,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

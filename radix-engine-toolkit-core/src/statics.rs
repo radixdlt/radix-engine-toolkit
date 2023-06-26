@@ -216,7 +216,7 @@ fn methods_that_require_auth(blueprint_schema: &BlueprintDefinitionInit) -> Vec<
     method_auth_template_static_or_panic(&blueprint_schema.auth_config.method_auth)
         .iter()
         .filter_map(|(key, value)| {
-            if let MethodAccessibility::Public = value {
+            if let MethodPermission::Public = value {
                 None
             } else {
                 Some(key.clone())
@@ -234,11 +234,8 @@ fn type_ref_static_or_panic<T>(type_ref: &TypeRef<T>) -> &T {
 
 fn method_auth_template_static_or_panic(
     method_auth_template: &MethodAuthTemplate,
-) -> &BTreeMap<MethodKey, MethodAccessibility> {
+) -> &BTreeMap<MethodKey, MethodPermission> {
     match method_auth_template {
-        MethodAuthTemplate::Static(value) => value,
-        MethodAuthTemplate::AllowAll | MethodAuthTemplate::StaticUseOuterAuth(..) => {
-            panic!("MethodAuthTemplate is not static")
-        }
+        MethodAuthTemplate::Static { auth, .. } => auth,
     }
 }

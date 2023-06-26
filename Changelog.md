@@ -1,3 +1,7 @@
+# 0.10.0-damson.1 (26-June-2023)
+
+No interface changes were made with this internal release, just internal changes to the toolkit as a result of bumping the version of the Scrypto Dependency.
+
 # 0.10.0 (26-June-2023)
 
 * All builds of the Radix Engine Toolkit now come with a `test-kit.tar.gz` file containing many test vectors to use when updating the toolkit wrappers to be compatible with the toolkit. More specifically, it includes the following:

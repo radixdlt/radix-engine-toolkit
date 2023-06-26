@@ -378,7 +378,7 @@ fn example_package() -> (Vec<u8>, PackageDefinition) {
                 && blueprint_name == PACKAGE_BLUEPRINT
                 && function_name == PACKAGE_PUBLISH_WASM_IDENT =>
             {
-                let PackagePublishWasmManifestInput { code, setup, .. } =
+                let PackagePublishWasmManifestIndexMapInput { code, setup, .. } =
                     manifest_decode(&manifest_encode(&args).unwrap()).unwrap();
 
                 (code, setup)
@@ -392,7 +392,7 @@ fn example_package() -> (Vec<u8>, PackageDefinition) {
                 && blueprint_name == PACKAGE_BLUEPRINT
                 && function_name == PACKAGE_PUBLISH_WASM_ADVANCED_IDENT =>
             {
-                let PackagePublishWasmAdvancedManifestInput { code, setup, .. } =
+                let PackagePublishWasmAdvancedManifestIndexMapInput { code, setup, .. } =
                     manifest_decode(&manifest_encode(&args).unwrap()).unwrap();
 
                 (code, setup)
