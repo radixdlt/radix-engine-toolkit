@@ -1,4 +1,4 @@
-# 0.10.0 (WIP)
+# 0.10.0 (26-June-2023)
 
 * All builds of the Radix Engine Toolkit now come with a `test-kit.tar.gz` file containing many test vectors to use when updating the toolkit wrappers to be compatible with the toolkit. More specifically, it includes the following:
     * The JSON Schema of all of the models used by the toolkit.
