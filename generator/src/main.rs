@@ -25,10 +25,9 @@ use crate::function_examples::generator::generate_function_examples;
 use function_schema::generator::generate_function_schema;
 use function_spec::generator::generate_function_spec;
 use serializable_models::generator::generate_serializable_model_examples;
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use utils::convert_open_api_adts_to_discriminated_unions;
 
 fn main() {
     let output_directory = {
@@ -134,7 +133,8 @@ fn main() {
         spec.info.title = "Radix Engine Toolkit".to_string();
 
         let output_path = output_directory.join("spec.yaml");
-        let serialized = serde_yaml::to_string(&spec).unwrap();
+        let serialized =
+            serde_yaml::to_string(&convert_open_api_adts_to_discriminated_unions(&spec)).unwrap();
         std::fs::write(output_path, serialized).unwrap();
     }
 }

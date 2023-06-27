@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine_toolkit::prelude::*;
+use rocket_okapi::okapi::openapi3::OpenApi;
 
 pub fn generate_function_spec() -> OpenApi {
     open_api_spec![
@@ -74,4 +75,3 @@ macro_rules! open_api_spec {
     };
 }
 use open_api_spec;
-use rocket_okapi::okapi::openapi3::OpenApi;
