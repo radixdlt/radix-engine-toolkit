@@ -4,4 +4,5 @@ cd $BASEDIR
 python3 add_license.py
 ./format.sh
 ./test.sh
+./uniffi_bindgen.rs
 (cd generator; cargo run)

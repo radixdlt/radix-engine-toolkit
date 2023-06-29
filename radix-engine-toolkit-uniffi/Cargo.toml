@@ -1,0 +1,33 @@
+[package]
+name = "radix_engine_toolkit_uniffi"
+version = "0.10.0-damson.1"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "damson-6b1549985", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "damson-6b1549985", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "damson-6b1549985" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "damson-6b1549985", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "damson-6b1549985", features = ["serde"] }
+
+# Core Radix Engine Toolkit
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+
+# The UniFFI crate for generating bindings to other languages
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["cli"] }
+hex = "0.4.3"
+thiserror = "1.0.40"
+
+[build-dependencies]
+# The UniFFI crate for generating bindings to other languages
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["build"] }
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.release]
+incremental = false
+panic = 'abort'
+codegen-units = 1

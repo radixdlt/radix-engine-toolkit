@@ -7,6 +7,5 @@ openapi-generator-cli-6.0.1.jar
 .DS_Store
 Cargo.lock
 .idea
-build
-generator/output
+output
 ./radixdlt-scrypto/
