@@ -20,6 +20,7 @@ pub mod common;
 pub mod cryptography;
 pub mod derive;
 pub mod error;
+pub mod utils;
 
 pub(crate) mod internal_prelude;
 
@@ -43,6 +44,9 @@ pub mod prelude {
 
     /* Build */
     pub use crate::build::functions::*;
+
+    /* Utils */
+    pub use crate::utils::functions::*;
 
     /* Derive */
     pub use crate::derive::functions::*;
