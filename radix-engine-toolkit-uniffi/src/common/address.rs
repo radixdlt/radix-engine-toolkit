@@ -173,3 +173,37 @@ impl Address {
         self.0.entity_type().unwrap().is_internal_vault()
     }
 }
+
+impl Address {
+    pub fn from_node_id<T>(node_id: T, network_id: u8) -> Self
+    where
+        T: Into<NativeNodeId>,
+    {
+        let node_id = Into::<NativeNodeId>::into(node_id);
+        Self(node_id, network_id)
+    }
+}
+
+impl TryFrom<Address> for NativeResourceAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0 .0.try_into().map_err(Into::into)
+    }
+}
+
+impl TryFrom<Address> for NativeComponentAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0 .0.try_into().map_err(Into::into)
+    }
+}
+
+impl TryFrom<Address> for NativePackageAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0 .0.try_into().map_err(Into::into)
+    }
+}

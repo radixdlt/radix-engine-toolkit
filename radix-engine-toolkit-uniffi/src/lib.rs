@@ -21,6 +21,7 @@ pub mod cryptography;
 pub mod derive;
 pub mod error;
 pub mod manifest;
+pub mod transaction;
 pub mod utils;
 
 pub(crate) mod internal_prelude;
@@ -53,6 +54,9 @@ pub mod prelude {
     pub use crate::manifest::expression::*;
     pub use crate::manifest::proof::*;
     pub use crate::manifest::value::*;
+
+    /* Transaction */
+    pub use crate::transaction::instruction::*;
 
     /* Build */
     pub use crate::build::functions::*;

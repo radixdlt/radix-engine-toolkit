@@ -98,6 +98,10 @@ mod native {
         ParseNonFungibleLocalIdError as NativeParseNonFungibleLocalIdError,
         ParseNonFungibleGlobalIdError as NativeParseNonFungibleGlobalIdError,
         ParseHashError as NativeParseHashError,
+        ParseResourceAddressError as NativeParseResourceAddressError,
+        ParseComponentAddressError as NativeParseComponentAddressError,
+        ParsePackageAddressError as NativeParsePackageAddressError,
+        ParseGlobalAddressError as NativeParseGlobalAddressError,
 
         Hash as NativeHash,
         hash as native_hash,
@@ -158,6 +162,12 @@ mod native {
     pub use scrypto::address::{
         Bech32Decoder as NativeBech32Decoder,
         Bech32Encoder as NativeBech32Encoder,
+    };
+    pub use transaction::prelude::{
+        InstructionV1 as NativeInstruction,
+        InstructionsV1 as NativeInstructions,
+        DynamicGlobalAddress as NativeDynamicGlobalAddress,
+        DynamicPackageAddress as NativeDynamicPackageAddress,
     };
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError

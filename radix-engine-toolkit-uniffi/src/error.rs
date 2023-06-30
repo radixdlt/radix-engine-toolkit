@@ -93,6 +93,11 @@ impl_parse_error! { scrypto::prelude::NonFungibleGlobalId, scrypto::prelude::Par
 impl_parse_error! { scrypto::prelude::NonFungibleLocalId, scrypto::prelude::ParseNonFungibleLocalIdError }
 impl_parse_error! { scrypto::prelude::Hash, scrypto::prelude::ParseHashError }
 impl_parse_error! { u128, std::num::ParseIntError } // TODO: can we continue making the u128 assumption?
+impl_parse_error! { scrypto::prelude::ResourceAddress, scrypto::prelude::ParseResourceAddressError }
+impl_parse_error! { scrypto::prelude::ComponentAddress, scrypto::prelude::ParseComponentAddressError }
+impl_parse_error! { scrypto::prelude::PackageAddress, scrypto::prelude::ParsePackageAddressError }
+impl_parse_error! { scrypto::prelude::GlobalAddress, scrypto::prelude::ParseGlobalAddressError }
+impl_parse_error! { scrypto::prelude::InternalAddress, scrypto::prelude::ParseInternalAddressError }
 
 impl_dbg_str_from! { NativeContentValidationError, NonFungibleContentValidationError }
 impl_dbg_str_from! { CoreDerivationError, DerivationError }

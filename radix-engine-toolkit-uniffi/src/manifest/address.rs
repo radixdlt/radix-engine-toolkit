@@ -33,12 +33,68 @@ impl From<ManifestAddress> for NativeManifestAddress {
 }
 
 impl ManifestAddress {
-    pub fn new(native: NativeManifestAddress, network_id: u8) -> Self {
+    pub fn new(native: &NativeManifestAddress, network_id: u8) -> Self {
         match native {
-            NativeManifestAddress::Named(value) => Self::Named { value },
+            NativeManifestAddress::Named(value) => Self::Named { value: *value },
             NativeManifestAddress::Static(value) => Self::Static {
-                value: Arc::new(Address(value, network_id)),
+                value: Arc::new(Address(*value, network_id)),
             },
+        }
+    }
+
+    pub fn from_dynamic_global_address(
+        native: &NativeDynamicGlobalAddress,
+        network_id: u8,
+    ) -> Self {
+        match native {
+            NativeDynamicGlobalAddress::Named(value) => Self::Named { value: *value },
+            NativeDynamicGlobalAddress::Static(value) => Self::Static {
+                value: Arc::new(Address(value.into_node_id(), network_id)),
+            },
+        }
+    }
+
+    pub fn from_dynamic_package_address(
+        native: &NativeDynamicPackageAddress,
+        network_id: u8,
+    ) -> Self {
+        match native {
+            NativeDynamicPackageAddress::Named(value) => Self::Named { value: *value },
+            NativeDynamicPackageAddress::Static(value) => Self::Static {
+                value: Arc::new(Address(value.into_node_id(), network_id)),
+            },
+        }
+    }
+}
+
+impl TryFrom<ManifestAddress> for NativeDynamicPackageAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: ManifestAddress) -> std::result::Result<Self, Self::Error> {
+        match value {
+            ManifestAddress::Named { value } => Ok(Self::Named(value)),
+            ManifestAddress::Static { value } => value
+                .0
+                 .0
+                .try_into()
+                .map(|value| Self::Static(value))
+                .map_err(Into::into),
+        }
+    }
+}
+
+impl TryFrom<ManifestAddress> for NativeDynamicGlobalAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: ManifestAddress) -> std::result::Result<Self, Self::Error> {
+        match value {
+            ManifestAddress::Named { value } => Ok(Self::Named(value)),
+            ManifestAddress::Static { value } => value
+                .0
+                 .0
+                .try_into()
+                .map(|value| Self::Static(value))
+                .map_err(Into::into),
         }
     }
 }

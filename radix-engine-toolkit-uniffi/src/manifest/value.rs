@@ -398,7 +398,7 @@ impl ManifestValue {
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Address(value),
             } => Self::AddressValue {
-                value: ManifestAddress::new(*value, network_id),
+                value: ManifestAddress::new(value, network_id),
             },
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Bucket(value),
