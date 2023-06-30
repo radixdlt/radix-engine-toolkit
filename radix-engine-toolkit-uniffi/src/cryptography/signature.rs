@@ -17,32 +17,10 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum, Object)]
+#[derive(Clone, Enum)]
 pub enum Signature {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },
-}
-
-#[uniffi::export]
-impl Signature {
-    pub fn bytes(&self) -> Vec<u8> {
-        match self {
-            Self::Ed25519 { value } => value.clone(),
-            Self::Secp256k1 { value } => value.clone(),
-        }
-    }
-
-    pub fn hex(&self) -> String {
-        let bytes = self.bytes();
-        hex::encode(bytes)
-    }
-
-    pub fn curve(&self) -> Curve {
-        match self {
-            Self::Ed25519 { .. } => Curve::Ed25519,
-            Self::Secp256k1 { .. } => Curve::Secp256k1,
-        }
-    }
 }
 
 impl From<NativeSignature> for Signature {
@@ -59,15 +37,15 @@ impl From<NativeSignature> for Signature {
 }
 
 impl TryFrom<Signature> for NativeSignature {
-    type Error = CryptographyConversionError;
+    type Error = RadixEngineToolkitError;
 
-    fn try_from(value: Signature) -> Result<Self, Self::Error> {
+    fn try_from(value: Signature) -> Result<Self> {
         match value {
             Signature::Ed25519 { value } => value
                 .try_into()
                 .map(NativeEd25519Signature)
                 .map(Self::Ed25519)
-                .map_err(|value| CryptographyConversionError::InvalidLength {
+                .map_err(|value| RadixEngineToolkitError::InvalidLength {
                     expected: NativeEd25519Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
@@ -76,7 +54,7 @@ impl TryFrom<Signature> for NativeSignature {
                 .try_into()
                 .map(NativeSecp256k1Signature)
                 .map(Self::Secp256k1)
-                .map_err(|value| CryptographyConversionError::InvalidLength {
+                .map_err(|value| RadixEngineToolkitError::InvalidLength {
                     expected: NativeSecp256k1Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,

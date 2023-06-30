@@ -75,8 +75,10 @@ impl FromStr for SerializableNonFungibleGlobalIdInternal {
                     s.to_owned(),
                 ))?;
 
-        let network_id = network_id_from_address_string(resource_address_string)
-            .ok_or(SerializableNonFungibleGlobalIdError::InvalidResourceAddress)?;
+        let network_id = radix_engine_toolkit_core::utils::network_id_from_address_string(
+            resource_address_string,
+        )
+        .ok_or(SerializableNonFungibleGlobalIdError::InvalidResourceAddress)?;
         let network_definition = network_definition_from_network_id(network_id);
         let bech32_decoder = Bech32Decoder::new(&network_definition);
 

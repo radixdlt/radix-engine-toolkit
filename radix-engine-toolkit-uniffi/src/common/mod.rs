@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//! This module tests the generated bindings to ensure that that they at least compile. If the tests
-//! in this module fails then it means that the generated bindings do not compile.
-
-uniffi::build_foreign_language_testcases!(
-    "tests/bindings/example.swift",
-    "tests/bindings/example.kts",
-);
+pub mod address;
+pub mod entity_type;
+pub mod non_fungible;
+pub mod olympia;

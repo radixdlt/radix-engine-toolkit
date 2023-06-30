@@ -25,6 +25,7 @@ serde_json = { version = "1.0.96", features = ["preserve_order"] }
 # Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
 # computed once.
 lazy_static = { version = "1.4.0" }
+regex = "1.8.4"
 
 [build-dependencies]
 cargo_toml = { version = "0.15.3" }

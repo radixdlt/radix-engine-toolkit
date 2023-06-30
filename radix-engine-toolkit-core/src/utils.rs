@@ -24,6 +24,7 @@ use radix_engine_queries::typed_substate_layout::{
     TypedSubstateKey, TypedSubstateValue,
 };
 use radix_engine_store_interface::interface::DatabaseUpdate;
+use regex::Regex;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
 use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::DynamicGlobalAddress};
@@ -119,6 +120,43 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
             logical_name: "unnamed".to_string(),
             hrp_suffix: format!("tdx_{:x}_", network_id),
         },
+    }
+}
+
+pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Option<u8> {
+    let network_specifier = {
+        let re = Regex::new("_(sim|loc|rdx|test|tdx_[A-Fa-f0-9]{1,2}_)$")
+            .expect("Failed to create Regex. Must panic");
+        re.captures(hrp.as_ref())
+            .and_then(|captures| captures.get(1))
+            .map(|capture| capture.as_str().trim_end_matches('_'))
+    };
+
+    match network_specifier {
+        Some("rdx") => Some(0x01),
+        Some("loc") => Some(0xF0),
+        Some("test") => Some(0xF1),
+        Some("sim") => Some(0xF2),
+        Some(numeric_network_specifier) => {
+            if let Some(network_id_string) = numeric_network_specifier.split('_').nth(1) {
+                if let Ok(num) = u8::from_str_radix(network_id_string, 16) {
+                    Some(num)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }
+        None => None,
+    }
+}
+
+pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Option<u8> {
+    if let Ok((hrp, ..)) = bech32::decode(address.as_ref()) {
+        network_id_from_hrp(hrp)
+    } else {
+        None
     }
 }
 

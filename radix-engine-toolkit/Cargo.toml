@@ -20,9 +20,6 @@ serde_json = { version = "1.0.96", features = ["preserve_order"] }
 serde_with = { version = "3.0.0", features = ["hex"] }
 schemars = { version = "0.8.12", features = ["preserve_order"] }
 
-# Regex needed to extract the network specifier from addresses
-regex = { version = "1.8.4" }
-
 # Bech32 for encoding and decoding addresses
 bech32 = { version = "0.9.1" }
 

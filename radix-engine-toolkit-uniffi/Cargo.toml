@@ -24,8 +24,12 @@ thiserror = "1.0.40"
 # The UniFFI crate for generating bindings to other languages
 uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["build"] }
 
+[dev-dependencies]
+# The UniFFI crate for generating bindings to other languages
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["bindgen-tests"] }
+
 [lib]
-crate-type = ["staticlib", "cdylib", "rlib"]
+crate-type = ["staticlib", "cdylib", "lib"]
 
 [profile.release]
 incremental = false

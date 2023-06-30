@@ -16,7 +16,9 @@
 // under the License.
 
 pub mod build;
+pub mod common;
 pub mod cryptography;
+pub mod derive;
 pub mod error;
 
 pub(crate) mod internal_prelude;
@@ -24,11 +26,16 @@ pub(crate) mod internal_prelude;
 // Everything is imported at the root of the crate. This is to support some of the needs of the
 // UniFFI toolkit.
 pub mod prelude {
+    /* Common */
+    pub use crate::common::address::*;
+    pub use crate::common::entity_type::*;
+    pub use crate::common::non_fungible::*;
+    pub use crate::common::olympia::*;
+
     /* Errors */
     pub use crate::error::*;
 
     /* Cryptography */
-    pub use crate::cryptography::curve::*;
     pub use crate::cryptography::public_key::*;
     pub use crate::cryptography::public_key_hash::*;
     pub use crate::cryptography::signature::*;
@@ -37,10 +44,14 @@ pub mod prelude {
     /* Build */
     pub use crate::build::functions::*;
 
+    /* Derive */
+    pub use crate::derive::functions::*;
+
     /* Internal Prelude */
     pub(crate) use crate::internal_prelude::*;
 
     /* Often needed */
+    pub(crate) use std::sync::Arc;
     pub(crate) use thiserror::Error as ThisError;
     pub(crate) use uniffi::{Enum, Error, Object, Record};
 }

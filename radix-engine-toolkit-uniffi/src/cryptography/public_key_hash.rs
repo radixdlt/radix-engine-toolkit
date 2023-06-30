@@ -17,32 +17,10 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum, Object)]
+#[derive(Clone, Enum)]
 pub enum PublicKeyHash {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },
-}
-
-#[uniffi::export]
-impl PublicKeyHash {
-    pub fn bytes(&self) -> Vec<u8> {
-        match self {
-            Self::Ed25519 { value } => value.clone(),
-            Self::Secp256k1 { value } => value.clone(),
-        }
-    }
-
-    pub fn hex(&self) -> String {
-        let bytes = self.bytes();
-        hex::encode(bytes)
-    }
-
-    pub fn curve(&self) -> Curve {
-        match self {
-            Self::Ed25519 { .. } => Curve::Ed25519,
-            Self::Secp256k1 { .. } => Curve::Secp256k1,
-        }
-    }
 }
 
 impl From<NativePublicKeyHash> for PublicKeyHash {
@@ -61,15 +39,15 @@ impl From<NativePublicKeyHash> for PublicKeyHash {
 }
 
 impl TryFrom<PublicKeyHash> for NativePublicKeyHash {
-    type Error = CryptographyConversionError;
+    type Error = RadixEngineToolkitError;
 
-    fn try_from(value: PublicKeyHash) -> Result<Self, Self::Error> {
+    fn try_from(value: PublicKeyHash) -> Result<Self> {
         match value {
             PublicKeyHash::Ed25519 { value } => value
                 .try_into()
                 .map(NativeEd25519PublicKeyHash)
                 .map(Self::Ed25519)
-                .map_err(|value| CryptographyConversionError::InvalidLength {
+                .map_err(|value| RadixEngineToolkitError::InvalidLength {
                     expected: NativeNodeId::RID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
@@ -78,7 +56,7 @@ impl TryFrom<PublicKeyHash> for NativePublicKeyHash {
                 .try_into()
                 .map(NativeSecp256k1PublicKeyHash)
                 .map(Self::Secp256k1)
-                .map_err(|value| CryptographyConversionError::InvalidLength {
+                .map_err(|value| RadixEngineToolkitError::InvalidLength {
                     expected: NativeNodeId::RID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,

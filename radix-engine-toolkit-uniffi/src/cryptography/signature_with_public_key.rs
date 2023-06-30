@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum, Object)]
+#[derive(Clone, Enum)]
 pub enum SignatureWithPublicKey {
     Secp256k1 {
         signature: Vec<u8>,
@@ -26,27 +26,6 @@ pub enum SignatureWithPublicKey {
         signature: Vec<u8>,
         public_key: Vec<u8>,
     },
-}
-
-#[uniffi::export]
-impl SignatureWithPublicKey {
-    pub fn curve(&self) -> Curve {
-        match self {
-            Self::Ed25519 { .. } => Curve::Ed25519,
-            Self::Secp256k1 { .. } => Curve::Secp256k1,
-        }
-    }
-
-    pub fn signature(&self) -> Signature {
-        match self {
-            Self::Ed25519 { signature, .. } => Signature::Ed25519 {
-                value: signature.clone(),
-            },
-            Self::Secp256k1 { signature } => Signature::Secp256k1 {
-                value: signature.clone(),
-            },
-        }
-    }
 }
 
 impl From<NativeSignatureWithPublicKey> for SignatureWithPublicKey {
@@ -69,9 +48,9 @@ impl From<NativeSignatureWithPublicKey> for SignatureWithPublicKey {
 }
 
 impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
-    type Error = CryptographyConversionError;
+    type Error = RadixEngineToolkitError;
 
-    fn try_from(value: SignatureWithPublicKey) -> Result<Self, Self::Error> {
+    fn try_from(value: SignatureWithPublicKey) -> Result<Self> {
         match value {
             SignatureWithPublicKey::Ed25519 {
                 signature,
@@ -81,7 +60,7 @@ impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
                     public_key
                         .try_into()
                         .map(NativeEd25519PublicKey)
-                        .map_err(|public_key| CryptographyConversionError::InvalidLength {
+                        .map_err(|public_key| RadixEngineToolkitError::InvalidLength {
                             expected: NativeEd25519PublicKey::LENGTH as u64,
                             actual: public_key.len() as u64,
                             data: public_key,
@@ -90,7 +69,7 @@ impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
                     signature
                         .try_into()
                         .map(NativeEd25519Signature)
-                        .map_err(|signature| CryptographyConversionError::InvalidLength {
+                        .map_err(|signature| RadixEngineToolkitError::InvalidLength {
                             expected: NativeEd25519Signature::LENGTH as u64,
                             actual: signature.len() as u64,
                             data: signature,
@@ -104,7 +83,7 @@ impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
                 .try_into()
                 .map(NativeSecp256k1Signature)
                 .map(|signature| Self::Secp256k1 { signature })
-                .map_err(|signature| CryptographyConversionError::InvalidLength {
+                .map_err(|signature| RadixEngineToolkitError::InvalidLength {
                     expected: NativeSecp256k1Signature::LENGTH as u64,
                     actual: signature.len() as u64,
                     data: signature,

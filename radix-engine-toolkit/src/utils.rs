@@ -17,47 +17,9 @@
 
 use std::fmt::Debug;
 
-use regex::Regex;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{error::InvocationInterpretationError, memory::Pointer};
-
-pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Option<u8> {
-    let network_specifier = {
-        let re = Regex::new("_(sim|loc|rdx|test|tdx_[A-Fa-f0-9]{1,2}_)$")
-            .expect("Failed to create Regex. Must panic");
-        re.captures(hrp.as_ref())
-            .and_then(|captures| captures.get(1))
-            .map(|capture| capture.as_str().trim_end_matches('_'))
-    };
-
-    match network_specifier {
-        Some("rdx") => Some(0x01),
-        Some("loc") => Some(0xF0),
-        Some("test") => Some(0xF1),
-        Some("sim") => Some(0xF2),
-        Some(numeric_network_specifier) => {
-            if let Some(network_id_string) = numeric_network_specifier.split('_').nth(1) {
-                if let Ok(num) = u8::from_str_radix(network_id_string, 16) {
-                    Some(num)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        }
-        None => None,
-    }
-}
-
-pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Option<u8> {
-    if let Ok((hrp, ..)) = bech32::decode(address.as_ref()) {
-        network_id_from_hrp(hrp)
-    } else {
-        None
-    }
-}
 
 pub fn debug_string<T: Debug>(object: T) -> String {
     format!("{:?}", object)

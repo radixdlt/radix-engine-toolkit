@@ -70,12 +70,13 @@ impl FromStr for SerializableNodeIdInternal {
     type Err = SerializableNodeIdError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let network_id = crate::utils::network_id_from_address_string(s).map_or(
-            Err(SerializableNodeIdError::FailedToParseStringAsAddress(
-                s.to_owned(),
-            )),
-            Ok,
-        )?;
+        let network_id = radix_engine_toolkit_core::utils::network_id_from_address_string(s)
+            .map_or(
+                Err(SerializableNodeIdError::FailedToParseStringAsAddress(
+                    s.to_owned(),
+                )),
+                Ok,
+            )?;
 
         let network_definition =
             radix_engine_toolkit_core::utils::network_definition_from_network_id(network_id);
