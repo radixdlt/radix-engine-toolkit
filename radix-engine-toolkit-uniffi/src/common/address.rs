@@ -104,6 +104,10 @@ impl Address {
         bech32_encoder.encode(&self.0 .0).unwrap()
     }
 
+    pub fn as_str(&self) -> String {
+        self.address()
+    }
+
     pub fn entity_type(&self) -> EntityType {
         self.0.entity_type().unwrap().into()
     }

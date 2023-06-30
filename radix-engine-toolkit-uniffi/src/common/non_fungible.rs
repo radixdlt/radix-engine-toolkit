@@ -78,6 +78,13 @@ impl NonFungibleGlobalId {
     pub fn local_id(&self) -> NonFungibleLocalId {
         self.0.local_id().clone().into()
     }
+
+    pub fn as_str(&self) -> String {
+        let network_id = self.1;
+        let network_definition = core_network_definition_from_network_id(network_id);
+        let bech32_encoder = NativeBech32Encoder::new(&network_definition);
+        self.0.to_canonical_string(&bech32_encoder)
+    }
 }
 
 #[derive(Clone, Debug, Enum)]
