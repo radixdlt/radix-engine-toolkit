@@ -20,6 +20,7 @@ pub mod common;
 pub mod cryptography;
 pub mod derive;
 pub mod error;
+pub mod manifest;
 pub mod utils;
 
 pub(crate) mod internal_prelude;
@@ -29,6 +30,7 @@ pub(crate) mod internal_prelude;
 pub mod prelude {
     /* Common */
     pub use crate::common::address::*;
+    pub use crate::common::decimal::*;
     pub use crate::common::entity_type::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
@@ -37,10 +39,20 @@ pub mod prelude {
     pub use crate::error::*;
 
     /* Cryptography */
+    pub use crate::cryptography::hash::*;
     pub use crate::cryptography::public_key::*;
     pub use crate::cryptography::public_key_hash::*;
     pub use crate::cryptography::signature::*;
     pub use crate::cryptography::signature_with_public_key::*;
+
+    /* Manifest */
+    pub use crate::manifest::address::*;
+    pub use crate::manifest::address_reservation::*;
+    pub use crate::manifest::blob::*;
+    pub use crate::manifest::bucket::*;
+    pub use crate::manifest::expression::*;
+    pub use crate::manifest::proof::*;
+    pub use crate::manifest::value::*;
 
     /* Build */
     pub use crate::build::functions::*;

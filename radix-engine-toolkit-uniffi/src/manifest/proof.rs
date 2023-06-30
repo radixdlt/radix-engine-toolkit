@@ -15,8 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Debug, Clone, Record, Copy)]
+pub struct ManifestProof {
+    pub value: u32,
+}
+
+impl From<NativeManifestProof> for ManifestProof {
+    fn from(value: NativeManifestProof) -> Self {
+        Self { value: value.0 }
+    }
+}
+
+impl From<ManifestProof> for NativeManifestProof {
+    fn from(value: ManifestProof) -> Self {
+        Self(value.value)
+    }
+}

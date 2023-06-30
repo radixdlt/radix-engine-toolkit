@@ -16,7 +16,9 @@
 // under the License.
 
 pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+pub mod address_reservation;
+pub mod blob;
+pub mod bucket;
+pub mod expression;
+pub mod proof;
+pub mod value;

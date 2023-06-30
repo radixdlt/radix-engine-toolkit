@@ -15,8 +15,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Clone, Debug, Enum, Copy)]
+pub enum ManifestExpression {
+    EntireWorktop,
+    EntireAuthZone,
+}
+
+impl From<NativeManifestExpression> for ManifestExpression {
+    fn from(value: NativeManifestExpression) -> Self {
+        match value {
+            NativeManifestExpression::EntireAuthZone => Self::EntireAuthZone,
+            NativeManifestExpression::EntireWorktop => Self::EntireWorktop,
+        }
+    }
+}
+
+impl From<ManifestExpression> for NativeManifestExpression {
+    fn from(value: ManifestExpression) -> Self {
+        match value {
+            ManifestExpression::EntireAuthZone => Self::EntireAuthZone,
+            ManifestExpression::EntireWorktop => Self::EntireWorktop,
+        }
+    }
+}

@@ -91,6 +91,8 @@ impl_parse_error! { scrypto::prelude::Decimal, scrypto::prelude::ParseDecimalErr
 impl_parse_error! { scrypto::prelude::PreciseDecimal, scrypto::prelude::ParsePreciseDecimalError }
 impl_parse_error! { scrypto::prelude::NonFungibleGlobalId, scrypto::prelude::ParseNonFungibleGlobalIdError }
 impl_parse_error! { scrypto::prelude::NonFungibleLocalId, scrypto::prelude::ParseNonFungibleLocalIdError }
+impl_parse_error! { scrypto::prelude::Hash, scrypto::prelude::ParseHashError }
+impl_parse_error! { u128, std::num::ParseIntError } // TODO: can we continue making the u128 assumption?
 
 impl_dbg_str_from! { NativeContentValidationError, NonFungibleContentValidationError }
 impl_dbg_str_from! { CoreDerivationError, DerivationError }

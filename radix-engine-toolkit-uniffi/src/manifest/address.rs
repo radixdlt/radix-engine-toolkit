@@ -15,8 +15,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Clone, Debug, Enum)]
+pub enum ManifestAddress {
+    Named { value: u32 },
+    Static { value: Arc<Address> },
+}
+
+impl From<ManifestAddress> for NativeManifestAddress {
+    fn from(value: ManifestAddress) -> Self {
+        match value {
+            ManifestAddress::Named { value } => Self::Named(value),
+            ManifestAddress::Static { value } => Self::Static(value.0),
+        }
+    }
+}
+
+impl ManifestAddress {
+    pub fn new(native: NativeManifestAddress, network_id: u8) -> Self {
+        match native {
+            NativeManifestAddress::Named(value) => Self::Named { value },
+            NativeManifestAddress::Static(value) => Self::Static {
+                value: Arc::new(Address(value, network_id)),
+            },
+        }
+    }
+}

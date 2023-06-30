@@ -15,8 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Debug, Clone, Record, Copy)]
+pub struct ManifestBucket {
+    pub value: u32,
+}
+
+impl From<NativeManifestBucket> for ManifestBucket {
+    fn from(value: NativeManifestBucket) -> Self {
+        Self { value: value.0 }
+    }
+}
+
+impl From<ManifestBucket> for NativeManifestBucket {
+    fn from(value: ManifestBucket) -> Self {
+        Self(value.value)
+    }
+}

@@ -15,8 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Clone, Debug, Record)]
+pub struct ManifestBlobRef {
+    pub value: Arc<Hash>,
+}
+
+impl From<NativeManifestBlobRef> for ManifestBlobRef {
+    fn from(value: NativeManifestBlobRef) -> Self {
+        Self {
+            value: Arc::new(NativeHash(value.0).into()),
+        }
+    }
+}
+
+impl From<ManifestBlobRef> for NativeManifestBlobRef {
+    fn from(value: ManifestBlobRef) -> Self {
+        Self(value.value.0 .0)
+    }
+}

@@ -97,8 +97,14 @@ mod native {
         ParsePreciseDecimalError as NativeParsePreciseDecimalError,
         ParseNonFungibleLocalIdError as NativeParseNonFungibleLocalIdError,
         ParseNonFungibleGlobalIdError as NativeParseNonFungibleGlobalIdError,
+        ParseHashError as NativeParseHashError,
+
+        Hash as NativeHash,
+        hash as native_hash,
 
         Decimal as NativeDecimal,
+        PreciseDecimal as NativePreciseDecimal,
+        RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,
         SECP256K1_SIGNATURE_VIRTUAL_BADGE as NATIVE_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
@@ -131,6 +137,23 @@ mod native {
         GENESIS_HELPER as NATIVE_GENESIS_HELPER,
         FAUCET as NATIVE_FAUCET,
         TRANSACTION_TRACKER as NATIVE_TRANSACTION_TRACKER,
+
+        ManifestValue as NativeManifestValue,
+        ManifestCustomValue as NativeManifestCustomValue,
+        ManifestValueKind as NativeManifestValueKind,
+        ManifestCustomValueKind as NativeManifestCustomValueKind,
+        
+        ScryptoValue as NativeScryptoValue,
+        ScryptoCustomValue as NativeScryptoCustomValue,
+        ScryptoValueKind as NativeScryptoValueKind,
+        ScryptoCustomValueKind as NativeScryptoCustomValueKind,
+
+        ManifestAddress as NativeManifestAddress,
+        ManifestBucket as NativeManifestBucket,
+        ManifestProof as NativeManifestProof,
+        ManifestExpression as NativeManifestExpression,
+        ManifestBlobRef as NativeManifestBlobRef,
+        ManifestAddressReservation as NativeManifestAddressReservation,
     };
     pub use scrypto::address::{
         Bech32Decoder as NativeBech32Decoder,
@@ -138,6 +161,14 @@ mod native {
     };
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError
+    };
+    pub use radix_engine_common::data::manifest::converter::{
+        from_decimal as native_from_decimal,
+        from_precise_decimal as native_from_precise_decimal,
+        from_non_fungible_local_id as native_from_non_fungible_local_id,
+        to_decimal as native_to_decimal,
+        to_precise_decimal as native_to_precise_decimal,
+        to_non_fungible_local_id as native_to_non_fungible_local_id,
     };
 }
 

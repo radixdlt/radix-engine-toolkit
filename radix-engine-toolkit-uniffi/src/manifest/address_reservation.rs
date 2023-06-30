@@ -15,8 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Debug, Clone, Record, Copy)]
+pub struct ManifestAddressReservation {
+    pub value: u32,
+}
+
+impl From<NativeManifestAddressReservation> for ManifestAddressReservation {
+    fn from(value: NativeManifestAddressReservation) -> Self {
+        Self { value: value.0 }
+    }
+}
+
+impl From<ManifestAddressReservation> for NativeManifestAddressReservation {
+    fn from(value: ManifestAddressReservation) -> Self {
+        Self(value.value)
+    }
+}
