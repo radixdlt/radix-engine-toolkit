@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#![allow(clippy::should_implement_trait)]
+
 macro_rules! define_uniffi_decimal {
     ($type: ty) => {
         paste::paste!{
@@ -115,6 +117,30 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn nth_root(&self, n: u32) -> Option<$crate::prelude::Arc<Self>> {
                     self.0.nth_root(n).map(|value| $crate::prelude::Arc::new(Self(value)))
+                }
+
+                pub fn equal(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.eq(&other.0)
+                }
+
+                pub fn not_equal(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.ne(&other.0)
+                }
+
+                pub fn greater_than(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.gt(&other.0)
+                }
+
+                pub fn greater_than_or_equal(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.ge(&other.0)
+                }
+
+                pub fn less_than(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.lt(&other.0)
+                }
+
+                pub fn less_than_or_equal(&self, other: $crate::prelude::Arc<Self>) -> bool {
+                    self.0.le(&other.0)
                 }
             }
         }
