@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum)]
+#[derive(Clone, Debug, Enum)]
 pub enum PublicKeyHash {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },

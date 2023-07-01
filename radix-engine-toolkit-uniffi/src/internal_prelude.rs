@@ -41,6 +41,57 @@ mod core {
         DerivationError as CoreDerivationError,
         OlympiaNetwork as CoreOlympiaNetwork,
     };
+    pub use radix_engine_toolkit_core::functions::instructions::{
+        hash as core_instructions_hash,
+        compile as core_instructions_compile,
+        decompile as core_instructions_decompile,
+        statically_validate as core_instructions_statically_validate,
+        extract_addresses as core_instructions_extract_addresses,
+        InstructionValidationError as CoreInstructionValidationError,
+    };
+    pub use radix_engine_toolkit_core::functions::manifest::{
+        hash as core_manifest_hash,
+        compile as core_manifest_compile,
+        decompile as core_manifest_decompile,
+        statically_validate as core_manifest_statically_validate,
+    };
+    pub use radix_engine_toolkit_core::functions::intent::{
+        hash as core_intent_hash,
+        compile as core_intent_compile,
+        decompile as core_intent_decompile,
+        statically_validate as core_intent_statically_validate,
+    };
+    pub use radix_engine_toolkit_core::functions::signed_intent::{
+        hash as core_signed_intent_hash,
+        compile as core_signed_intent_compile,
+        decompile as core_signed_intent_decompile,
+        statically_validate as core_signed_intent_statically_validate,
+    };
+    pub use radix_engine_toolkit_core::functions::notarized_transaction::{
+        hash as core_notarized_transaction_hash,
+        compile as core_notarized_transaction_compile,
+        decompile as core_notarized_transaction_decompile,
+        statically_validate as core_notarized_transaction_statically_validate,
+    };
+    pub use radix_engine_toolkit_core::functions::execution::{
+        analyze as core_execution_analyze,
+        ExecutionAnalysis as CoreExecutionExecutionAnalysis,
+        FeeSummary as CoreExecutionFeeSummary,
+        FeeLocks as CoreExecutionFeeLocks,
+        SimpleTransferTransactionType as CoreExecutionSimpleTransferTransactionType,
+        TransferTransactionType as CoreExecutionTransferTransactionType,
+        GeneralTransactionType as CoreExecutionGeneralTransactionType,
+        TransactionType as CoreExecutionTransactionType,
+        ExecutionModuleError as CoreExecutionExecutionModuleError,
+    };
+
+    /* Visitors */
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
+        Resources as CoreResources,
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
+        Source as CoreSource,
+    };
 
     /* Utils */
     pub use radix_engine_toolkit_core::utils::{
@@ -78,6 +129,17 @@ mod native {
         Secp256k1Signature as NativeSecp256k1Signature, 
 
         SignatureWithPublicKeyV1 as NativeSignatureWithPublicKey,
+    };
+    pub use transaction::manifest::{
+        compile as native_compile,
+        decompile as native_decompile,
+        
+        IsBlobProvider as NativeIsBlobProvider,
+        BlobProvider as NativeBlobProvider,
+        MockBlobProvider as NativeMockBlobProvider,
+
+        CompileError as NativeCompileError,
+        DecompileError as NativeDecompileError
     };
 
     pub use scrypto::prelude::{
@@ -158,6 +220,11 @@ mod native {
         ManifestExpression as NativeManifestExpression,
         ManifestBlobRef as NativeManifestBlobRef,
         ManifestAddressReservation as NativeManifestAddressReservation,
+
+        scrypto_encode as native_scrypto_encode,
+        scrypto_decode as native_scrypto_decode,
+        manifest_encode as native_manifest_encode,
+        manifest_decode as native_manifest_decode,
     };
     pub use scrypto::address::{
         Bech32Decoder as NativeBech32Decoder,
@@ -168,9 +235,46 @@ mod native {
         InstructionsV1 as NativeInstructions,
         DynamicGlobalAddress as NativeDynamicGlobalAddress,
         DynamicPackageAddress as NativeDynamicPackageAddress,
+
+        TransactionHeaderV1 as NativeTransactionHeader,
+        TransactionManifestV1 as NativeTransactionManifest,
+        IntentV1 as NativeIntent,
+        SignedIntentV1 as NativeSignedIntent,
+        NotarizedTransactionV1 as NativeNotarizedTransaction,
+        BlobV1 as NativeBlob,
+        BlobsV1 as NativeBlobs,
+
+        Epoch as NativeEpoch,
+
+        AesGcmPayload as NativeAesGcmPayload,
+        AesWrapped128BitKey as NativeAesWrapped128BitKey,
+        CurveType as NativeCurveType,
+        DecryptorsByCurve as NativeDecryptorsByCurve,
+        EncryptedMessageV1 as NativeEncryptedMessage,
+        MessageContentsV1 as NativeMessageContents,
+        MessageV1 as NativeMessage,
+        PlaintextMessageV1 as NativePlaintextMessage,
+        PublicKeyFingerprint as NativePublicKeyFingerprint,
+
+        TransactionPayload as NativeTransactionPayload,
+        PrepareError as NativePrepareError,
+        HasIntentHash as NativeHasIntentHash,
+        HasSignedIntentHash as NativeHasSignedIntentHash,
+        HasNotarizedTransactionHash as NativeHasNotarizedTransactionHash,
+
+        IntentSignatureV1 as NativeIntentSignature,
+        IntentSignaturesV1 as NativeIntentSignatures,
+        NotarySignatureV1 as NativeNotarySignature,
+    };
+    pub use transaction::validation::{ 
+        ValidationConfig as NativeValidationConfig,
+        MessageValidationConfig as NativeMessageValidationConfig,
+    };
+    pub use transaction::errors::{
+        TransactionValidationError as NativeTransactionValidationError,
     };
     pub use radix_engine_common::data::scrypto::model::{
-        ContentValidationError as NativeContentValidationError
+        ContentValidationError as NativeContentValidationError,
     };
     pub use radix_engine_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
@@ -179,6 +283,16 @@ mod native {
         to_decimal as native_to_decimal,
         to_precise_decimal as native_to_precise_decimal,
         to_non_fungible_local_id as native_to_non_fungible_local_id,
+    };
+    pub use scrypto::api::node_modules::metadata::{
+        MetadataValue as NativeMetadataValue
+    };
+    pub use sbor::prelude::{
+        EncodeError as NativeEncodeError,
+        DecodeError as NativeDecodeError
+    };
+    pub use radix_engine::system::system_modules::execution_trace::{
+        ResourceSpecifier as NativeResourceSpecifier,
     };
 }
 

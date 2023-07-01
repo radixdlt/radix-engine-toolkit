@@ -87,7 +87,7 @@ impl NonFungibleGlobalId {
     }
 }
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, Enum, Hash, PartialEq, Eq)]
 pub enum NonFungibleLocalId {
     Integer { value: u64 },
     Str { value: String },

@@ -40,6 +40,11 @@ impl Hash {
             .map_err(Into::into)
     }
 
+    #[uniffi::constructor]
+    pub fn from_unhashed_bytes(bytes: Vec<u8>) -> Arc<Self> {
+        Arc::new(Self(native_hash(bytes)))
+    }
+
     pub fn bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }

@@ -16,18 +16,18 @@ radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", ta
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
 
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["cli"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "4f39e5d4046d301d75fb4f16457a996bbda05447", features = ["cli"] }
 hex = "0.4.3"
 thiserror = "1.0.40"
 paste = "1.0.12"
 
 [build-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["build"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "4f39e5d4046d301d75fb4f16457a996bbda05447", features = ["build"] }
 
 [dev-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "2218a19b24e260549d1ef7ce72538d2b3d499a32", features = ["bindgen-tests"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs", rev = "4f39e5d4046d301d75fb4f16457a996bbda05447", features = ["bindgen-tests"] }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]

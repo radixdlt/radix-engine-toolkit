@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum)]
+#[derive(Clone, Enum, Debug)]
 pub enum SignatureWithPublicKey {
     Secp256k1 {
         signature: Vec<u8>,

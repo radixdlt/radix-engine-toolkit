@@ -23,7 +23,7 @@ macro_rules! define_uniffi_decimal {
     };
     ($ident: ident, $native_type: ty) => {
         paste::paste! {
-            #[derive(Clone, Debug, crate::prelude::Object)]
+            #[derive(Clone, Debug, crate::prelude::Object, Default)]
             pub struct $ident(pub(crate) $native_type);
 
             #[uniffi::export]

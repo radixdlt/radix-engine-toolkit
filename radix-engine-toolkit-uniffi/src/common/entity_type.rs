@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, Enum)]
+#[derive(Clone, Copy, Debug, Enum, Hash, PartialEq, Eq)]
 pub enum EntityType {
     GlobalPackage,
     GlobalFungibleResourceManager,

@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Copy, Object)]
+#[derive(Debug, Clone, Copy, Object, Hash, PartialEq, Eq)]
 pub struct Address(pub(crate) NativeNodeId, pub(crate) u8);
 
 #[uniffi::export]

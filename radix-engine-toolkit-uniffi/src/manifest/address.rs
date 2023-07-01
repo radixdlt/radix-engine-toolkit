@@ -73,12 +73,9 @@ impl TryFrom<ManifestAddress> for NativeDynamicPackageAddress {
     fn try_from(value: ManifestAddress) -> std::result::Result<Self, Self::Error> {
         match value {
             ManifestAddress::Named { value } => Ok(Self::Named(value)),
-            ManifestAddress::Static { value } => value
-                .0
-                 .0
-                .try_into()
-                .map(|value| Self::Static(value))
-                .map_err(Into::into),
+            ManifestAddress::Static { value } => {
+                value.0 .0.try_into().map(Self::Static).map_err(Into::into)
+            }
         }
     }
 }
@@ -89,12 +86,9 @@ impl TryFrom<ManifestAddress> for NativeDynamicGlobalAddress {
     fn try_from(value: ManifestAddress) -> std::result::Result<Self, Self::Error> {
         match value {
             ManifestAddress::Named { value } => Ok(Self::Named(value)),
-            ManifestAddress::Static { value } => value
-                .0
-                 .0
-                .try_into()
-                .map(|value| Self::Static(value))
-                .map_err(Into::into),
+            ManifestAddress::Static { value } => {
+                value.0 .0.try_into().map(Self::Static).map_err(Into::into)
+            }
         }
     }
 }

@@ -17,10 +17,20 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum)]
+#[derive(Clone, Enum, Debug)]
 pub enum PublicKey {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },
+}
+
+#[derive(Clone, Record, Debug)]
+pub struct Ed25519PublicKey {
+    value: Vec<u8>,
+}
+
+#[derive(Clone, Record, Debug)]
+pub struct Secp256k1PublicKey {
+    value: Vec<u8>,
 }
 
 impl From<NativePublicKey> for PublicKey {
@@ -60,5 +70,53 @@ impl TryFrom<PublicKey> for NativePublicKey {
                     data: value,
                 }),
         }
+    }
+}
+
+impl From<NativeEd25519PublicKey> for Ed25519PublicKey {
+    fn from(value: NativeEd25519PublicKey) -> Self {
+        Self {
+            value: value.0.to_vec(),
+        }
+    }
+}
+
+impl TryFrom<Ed25519PublicKey> for NativeEd25519PublicKey {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Ed25519PublicKey) -> Result<Self> {
+        value
+            .value
+            .try_into()
+            .map(NativeEd25519PublicKey)
+            .map_err(|value| RadixEngineToolkitError::InvalidLength {
+                expected: NativeSecp256k1PublicKey::LENGTH as u64,
+                actual: value.len() as u64,
+                data: value,
+            })
+    }
+}
+
+impl From<NativeSecp256k1PublicKey> for Secp256k1PublicKey {
+    fn from(value: NativeSecp256k1PublicKey) -> Self {
+        Self {
+            value: value.0.to_vec(),
+        }
+    }
+}
+
+impl TryFrom<Secp256k1PublicKey> for NativeSecp256k1PublicKey {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Secp256k1PublicKey) -> Result<Self> {
+        value
+            .value
+            .try_into()
+            .map(NativeSecp256k1PublicKey)
+            .map_err(|value| RadixEngineToolkitError::InvalidLength {
+                expected: NativeSecp256k1PublicKey::LENGTH as u64,
+                actual: value.len() as u64,
+                data: value,
+            })
     }
 }

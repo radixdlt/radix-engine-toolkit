@@ -51,6 +51,27 @@ pub enum RadixEngineToolkitError {
 
     #[error("Public key is not valid for a given operation")]
     InvalidPublicKey,
+
+    #[error("Manifest compilation errored out")]
+    CompileError { error: String },
+
+    #[error("Manifest decompilation errored out")]
+    DecompileError { error: String },
+
+    #[error("Failed while trying to prepare transaction part")]
+    PrepareError { error: String },
+
+    #[error("Failed to SBOR encode some data")]
+    EncodeError { error: String },
+
+    #[error("Failed to SBOR decode some payload")]
+    DecodeError { error: String },
+
+    #[error("Static validation of transaction part has failed")]
+    TransactionValidationFailed { error: String },
+
+    #[error("Execution analysis failed")]
+    ExecutionModuleError { error: String },
 }
 
 macro_rules! dbg_str {
@@ -101,3 +122,11 @@ impl_parse_error! { scrypto::prelude::InternalAddress, scrypto::prelude::ParseIn
 
 impl_dbg_str_from! { NativeContentValidationError, NonFungibleContentValidationError }
 impl_dbg_str_from! { CoreDerivationError, DerivationError }
+impl_dbg_str_from! { NativeCompileError, CompileError }
+impl_dbg_str_from! { NativeDecompileError, DecompileError }
+impl_dbg_str_from! { NativePrepareError, PrepareError }
+impl_dbg_str_from! { NativeEncodeError, EncodeError }
+impl_dbg_str_from! { NativeDecodeError, DecodeError }
+impl_dbg_str_from! { NativeTransactionValidationError, TransactionValidationFailed }
+impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed }
+impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }

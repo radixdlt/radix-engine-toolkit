@@ -18,10 +18,8 @@
 use radix_engine::system::system_modules::costing::transmute_u128_as_decimal;
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
-use radix_engine::utils::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
-use transaction::errors::*;
 use transaction::prelude::*;
 
 use crate::instruction_visitor::core::error::*;
@@ -184,12 +182,6 @@ pub struct GeneralTransactionType {
     pub metadata_of_newly_created_entities: HashMap<GlobalAddress, HashMap<String, MetadataValue>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>,
-}
-
-#[derive(Clone, Debug)]
-pub enum InstructionValidationError {
-    TransactionValidationError(TransactionValidationError),
-    LocatedInstructionSchemaValidationError(LocatedInstructionSchemaValidationError),
 }
 
 #[derive(Clone, Debug)]

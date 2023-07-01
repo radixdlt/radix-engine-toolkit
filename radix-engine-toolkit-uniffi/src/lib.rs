@@ -33,6 +33,7 @@ pub mod prelude {
     pub use crate::common::address::*;
     pub use crate::common::decimal::*;
     pub use crate::common::entity_type::*;
+    pub use crate::common::metadata::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
 
@@ -56,7 +57,16 @@ pub mod prelude {
     pub use crate::manifest::value::*;
 
     /* Transaction */
+    pub use crate::transaction::hash::*;
+    pub use crate::transaction::header::*;
     pub use crate::transaction::instruction::*;
+    pub use crate::transaction::instructions::*;
+    pub use crate::transaction::intent::*;
+    pub use crate::transaction::manifest::*;
+    pub use crate::transaction::message::*;
+    pub use crate::transaction::notarized_transaction::*;
+    pub use crate::transaction::signed_intent::*;
+    pub use crate::transaction::validation::*;
 
     /* Build */
     pub use crate::build::functions::*;
@@ -71,6 +81,7 @@ pub mod prelude {
     pub(crate) use crate::internal_prelude::*;
 
     /* Often needed */
+    pub(crate) use std::collections::{BTreeMap, HashMap};
     pub(crate) use std::sync::Arc;
     pub(crate) use thiserror::Error as ThisError;
     pub(crate) use uniffi::{Enum, Error, Object, Record};

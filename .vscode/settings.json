@@ -33,6 +33,7 @@
         "Sandpitnet",
         "testcases",
         "thiserror",
+        "unhashed",
         "uniffi",
         "unstake",
         "walkdir"

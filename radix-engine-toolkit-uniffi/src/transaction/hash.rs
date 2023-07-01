@@ -15,9 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod decimal;
-pub mod entity_type;
-pub mod metadata;
-pub mod non_fungible;
-pub mod olympia;
+use crate::prelude::*;
+
+#[derive(Clone, Debug, Object)]
+pub struct TransactionHash(pub(crate) NativeHash, pub(crate) String);
+
+#[uniffi::export]
+impl TransactionHash {
+    pub fn as_str(&self) -> String {
+        self.1.to_owned()
+    }
+
+    pub fn bytes(&self) -> Vec<u8> {
+        self.0.to_vec()
+    }
+}
+
+// TODO: Implement fully once the Scrypto dependency is updated.
