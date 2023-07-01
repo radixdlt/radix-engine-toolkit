@@ -259,8 +259,8 @@ pub struct SerializableFeeLocks {
     pub contingent_lock: SerializableDecimal,
 }
 
-impl From<FeeLocks> for SerializableFeeLocks {
-    fn from(value: FeeLocks) -> Self {
+impl From<radix_engine_toolkit_core::functions::execution::FeeLocks> for SerializableFeeLocks {
+    fn from(value: radix_engine_toolkit_core::functions::execution::FeeLocks) -> Self {
         Self {
             lock: value.lock.into(),
             contingent_lock: value.contingent_lock.into(),

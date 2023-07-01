@@ -33,7 +33,7 @@ impl NonFungibleGlobalId {
                 error: "Failed to obtain network id from non-fungible global id".to_owned(),
             })?;
         let network_definition = core_network_definition_from_network_id(network_id);
-        let bech32_decoder = NativeBech32Decoder::new(&network_definition);
+        let bech32_decoder = NativeAddressBech32Decoder::new(&network_definition);
 
         let non_fungible_global_id = NativeNonFungibleGlobalId::try_from_canonical_string(
             &bech32_decoder,
@@ -82,7 +82,7 @@ impl NonFungibleGlobalId {
     pub fn as_str(&self) -> String {
         let network_id = self.1;
         let network_definition = core_network_definition_from_network_id(network_id);
-        let bech32_encoder = NativeBech32Encoder::new(&network_definition);
+        let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
         self.0.to_canonical_string(&bech32_encoder)
     }
 }

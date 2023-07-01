@@ -15,67 +15,65 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::blueprints::package::*;
 use radix_engine_common::prelude::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 
-#[derive(ScryptoSbor, ManifestSbor, Clone, Debug)]
+#[derive(ScryptoSbor, Clone, Debug)]
 pub struct NonFungibleResourceManagerCreateIndexMapInput {
+    pub owner_role: OwnerRole,
     pub id_type: NonFungibleIdType,
     pub track_total_supply: bool,
     pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<GlobalAddressReservation>,
 }
 
 #[derive(ManifestSbor, Clone, Debug)]
-pub struct NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
+pub struct NonFungibleResourceManagerCreateManifestIndexMapInput {
+    pub owner_role: OwnerRole,
     pub id_type: NonFungibleIdType,
     pub track_total_supply: bool,
     pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
-    pub entries: IndexMap<NonFungibleLocalId, (ManifestValue,)>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<ManifestAddressReservation>,
 }
 
 #[derive(ScryptoSbor, Clone, Debug)]
 pub struct NonFungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
+    pub owner_role: OwnerRole,
     pub id_type: NonFungibleIdType,
     pub track_total_supply: bool,
     pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
     pub entries: IndexMap<NonFungibleLocalId, (ScryptoValue,)>,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct NonFungibleResourceManagerCreateWithAddressIndexMapInput {
-    pub id_type: NonFungibleIdType,
-    pub track_total_supply: bool,
-    pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
-    pub resource_address: GlobalAddressReservation,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<GlobalAddressReservation>,
 }
 
 #[derive(ManifestSbor, Clone, Debug)]
-pub struct NonFungibleResourceManagerCreateWithAddressManifestIndexMapInput {
+pub struct NonFungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
+    pub owner_role: OwnerRole,
     pub id_type: NonFungibleIdType,
     pub track_total_supply: bool,
     pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
-    pub resource_address: ManifestAddressReservation,
+    pub entries: IndexMap<NonFungibleLocalId, (ManifestValue,)>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<ManifestAddressReservation>,
 }
 
 #[derive(ScryptoSbor, Clone, Debug)]
-pub struct NonFungibleResourceManagerCreateUuidWithInitialSupplyIndexMapInput {
+pub struct NonFungibleResourceManagerCreateRuidWithInitialSupplyIndexMapInput {
+    pub owner_role: OwnerRole,
     pub track_total_supply: bool,
     pub non_fungible_schema: NonFungibleDataSchema,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
     pub entries: Vec<(ScryptoValue,)>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<GlobalAddressReservation>,
 }
 
 #[derive(ManifestSbor, Clone, Debug)]
@@ -88,92 +86,50 @@ pub struct NonFungibleResourceManagerMintIndexMapInput {
     pub entries: IndexMap<NonFungibleLocalId, (ScryptoValue,)>,
 }
 
-#[derive(ScryptoSbor, ManifestSbor, Clone, Debug)]
+#[derive(ScryptoSbor, Clone, Debug)]
 pub struct FungibleResourceManagerCreateIndexMapInput {
+    pub owner_role: OwnerRole,
     pub track_total_supply: bool,
     pub divisibility: u8,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<GlobalAddressReservation>,
 }
 
-#[derive(ScryptoSbor, ManifestSbor, Clone, Debug)]
+#[derive(ManifestSbor, Clone, Debug)]
+pub struct FungibleResourceManagerCreateManifestIndexMapInput {
+    pub owner_role: OwnerRole,
+    pub track_total_supply: bool,
+    pub divisibility: u8,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<ManifestAddressReservation>,
+}
+
+#[derive(ScryptoSbor, Clone, Debug)]
 pub struct FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
+    pub owner_role: OwnerRole,
     pub track_total_supply: bool,
     pub divisibility: u8,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
     pub initial_supply: Decimal,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<GlobalAddressReservation>,
 }
 
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct FungibleResourceManagerCreateWithInitialSupplyAndAddressIndexMapInput {
+#[derive(ManifestSbor, Clone, Debug)]
+pub struct FungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
+    pub owner_role: OwnerRole,
     pub track_total_supply: bool,
     pub divisibility: u8,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
     pub initial_supply: Decimal,
-    pub resource_address: GlobalAddressReservation,
-}
-
-#[derive(ManifestSbor, Clone, Debug)]
-pub struct FungibleResourceManagerCreateWithInitialSupplyAndAddressManifestIndexMapInput {
-    pub track_total_supply: bool,
-    pub divisibility: u8,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub access_rules: IndexMap<ResourceMethodAuthKey, (AccessRule, AccessRule)>,
-    pub initial_supply: Decimal,
-    pub resource_address: ManifestAddressReservation,
-}
-
-#[derive(ScryptoSbor, ManifestSbor, Clone, Debug)]
-pub struct PackagePublishWasmIndexMapInput {
-    pub code: Vec<u8>,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
-}
-
-#[derive(ManifestSbor, Clone, Debug)]
-pub struct PackagePublishWasmManifestIndexMapInput {
-    pub code: ManifestBlobRef,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
+    pub access_rules: IndexMap<ResourceAction, (AccessRule, AccessRule)>,
+    pub metadata: ModuleConfig<MetadataInit>,
+    pub address_reservation: Option<ManifestAddressReservation>,
 }
 
 #[derive(ScryptoSbor, Clone, Debug)]
-pub struct PackagePublishWasmAdvancedIndexMapInput {
-    pub package_address: Option<GlobalAddressReservation>,
-    pub code: Vec<u8>,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub owner_rule: OwnerRole,
-}
-
-#[derive(ManifestSbor, Clone, Debug)]
-pub struct PackagePublishWasmAdvancedManifestIndexMapInput {
-    pub package_address: Option<ManifestAddressReservation>,
-    pub code: ManifestBlobRef,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
-    pub owner_rule: OwnerRole,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct PackagePublishNativeIndexMapInput {
-    pub package_address: Option<GlobalAddressReservation>,
-    pub native_package_code_id: u8,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
-}
-
-#[derive(ManifestSbor, Clone, Debug)]
-pub struct PackagePublishNativeManifestIndexMapInput {
-    pub package_address: Option<ManifestAddressReservation>,
-    pub native_package_code_id: u8,
-    pub setup: PackageDefinition,
-    pub metadata: IndexMap<String, MetadataValue>,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct MetadataCreateWithDataIndexMapInput {
-    pub data: IndexMap<String, MetadataValue>,
+pub struct AccessRulesCreateIndexMapInput {
+    pub owner_role: OwnerRole,
+    pub roles: IndexMap<scrypto::api::ObjectModuleId, RolesInit>,
 }

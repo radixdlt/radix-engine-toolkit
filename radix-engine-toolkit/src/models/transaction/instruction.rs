@@ -19,7 +19,6 @@ use crate::prelude::*;
 
 use radix_engine::blueprints::package::*;
 use radix_engine::types::*;
-use radix_engine_common::prelude::*;
 use radix_engine_toolkit_core::utils::*;
 use schemars::*;
 use scrypto::api::node_modules::auth::*;
@@ -183,9 +182,11 @@ pub enum SerializableInstruction {
     },
     FreezeVault {
         vault_id: SerializableManifestValue,
+        to_freeze: SerializableManifestValue,
     },
     UnfreezeVault {
         vault_id: SerializableManifestValue,
+        to_unfreeze: SerializableManifestValue,
     },
 
     PublishPackage {
@@ -198,15 +199,19 @@ pub enum SerializableInstruction {
         code: SerializableManifestValue,
         setup: SerializableManifestValue,
         metadata: SerializableManifestValue,
-        owner_rule: SerializableManifestValue,
+        owner_role: SerializableManifestValue,
     },
     CreateFungibleResource {
+        owner_role: SerializableManifestValue,
+        address_reservation: SerializableManifestValue,
         track_total_supply: SerializableManifestValue,
         divisibility: SerializableManifestValue,
         metadata: SerializableManifestValue,
         access_rules: SerializableManifestValue,
     },
     CreateFungibleResourceWithInitialSupply {
+        owner_role: SerializableManifestValue,
+        address_reservation: SerializableManifestValue,
         track_total_supply: SerializableManifestValue,
         divisibility: SerializableManifestValue,
         metadata: SerializableManifestValue,
@@ -214,6 +219,8 @@ pub enum SerializableInstruction {
         initial_supply: SerializableManifestValue,
     },
     CreateNonFungibleResource {
+        owner_role: SerializableManifestValue,
+        address_reservation: SerializableManifestValue,
         id_type: SerializableManifestValue,
         track_total_supply: SerializableManifestValue,
         non_fungible_schema: SerializableManifestValue,
@@ -221,6 +228,8 @@ pub enum SerializableInstruction {
         access_rules: SerializableManifestValue,
     },
     CreateNonFungibleResourceWithInitialSupply {
+        owner_role: SerializableManifestValue,
+        address_reservation: SerializableManifestValue,
         id_type: SerializableManifestValue,
         track_total_supply: SerializableManifestValue,
         non_fungible_schema: SerializableManifestValue,
@@ -259,12 +268,11 @@ pub enum SerializableInstruction {
     ClaimComponentRoyalty {
         address: SerializableManifestValue,
     },
-    UpdateRole {
+    SetRole {
         address: SerializableManifestValue,
         module: SerializableManifestValue,
         role_key: SerializableManifestValue,
         rule: SerializableManifestValue,
-        mutability: SerializableManifestValue,
     },
 
     ClaimPackageRoyalty {
@@ -285,6 +293,7 @@ pub enum SerializableInstruction {
     CreateValidator {
         key: SerializableManifestValue,
         fee_factor: SerializableManifestValue,
+        xrd_payment: SerializableManifestValue,
     },
 }
 
@@ -634,7 +643,7 @@ impl SerializableInstruction {
                         method_name,
                         args,
                         network_id,
-                        [UpdateRoleAlias]
+                        [SetRoleAlias]
                     )
                 } else {
                     None
@@ -861,15 +870,25 @@ impl SerializableInstruction {
                 method_name: VAULT_RECALL_IDENT.to_string(),
                 args: manifest_args!(amount.to_manifest_value()?),
             },
-            Self::FreezeVault { vault_id } => InstructionV1::CallDirectVaultMethod {
+            Self::FreezeVault {
+                vault_id,
+                to_freeze,
+            } => InstructionV1::CallDirectVaultMethod {
                 address: vault_id.to_typed()?,
                 method_name: VAULT_FREEZE_IDENT.to_string(),
-                args: manifest_args!(),
+                args: to_manifest_value_or_panic(&VaultFreezeInput {
+                    to_freeze: to_freeze.to_typed()?,
+                }),
             },
-            Self::UnfreezeVault { vault_id } => InstructionV1::CallDirectVaultMethod {
+            Self::UnfreezeVault {
+                vault_id,
+                to_unfreeze,
+            } => InstructionV1::CallDirectVaultMethod {
                 address: vault_id.to_typed()?,
                 method_name: VAULT_UNFREEZE_IDENT.to_string(),
-                args: manifest_args!(),
+                args: to_manifest_value_or_panic(&VaultUnfreezeInput {
+                    to_unfreeze: to_unfreeze.to_typed()?,
+                }),
             },
             Self::PublishPackage {
                 code,
@@ -879,7 +898,7 @@ impl SerializableInstruction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_IDENT.to_string(),
-                args: to_manifest_value_or_panic(&PackagePublishWasmManifestIndexMapInput {
+                args: to_manifest_value_or_panic(&PackagePublishWasmManifestInput {
                     code: code.to_typed()?,
                     metadata: metadata.to_typed()?,
                     setup: resolve_encoded_type(setup)
@@ -890,38 +909,42 @@ impl SerializableInstruction {
                 code,
                 setup,
                 metadata,
-                owner_rule,
+                owner_role,
                 package_address,
             } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(PACKAGE_PACKAGE),
                 blueprint_name: PACKAGE_BLUEPRINT.to_string(),
                 function_name: PACKAGE_PUBLISH_WASM_ADVANCED_IDENT.to_string(),
-                args: to_manifest_value_or_panic(
-                    &PackagePublishWasmAdvancedManifestIndexMapInput {
-                        code: code.to_typed()?,
-                        metadata: metadata.to_typed()?,
-                        setup: resolve_encoded_type(setup)
-                            .ok_or(InstructionConversionError::FailedToResolveSetup)?,
-                        owner_rule: owner_rule.to_typed()?,
-                        package_address: package_address.to_typed()?,
-                    },
-                ),
+                args: to_manifest_value_or_panic(&PackagePublishWasmAdvancedManifestInput {
+                    code: code.to_typed()?,
+                    metadata: metadata.to_typed()?,
+                    setup: resolve_encoded_type(setup)
+                        .ok_or(InstructionConversionError::FailedToResolveSetup)?,
+                    owner_role: owner_role.to_typed()?,
+                    package_address: package_address.to_typed()?,
+                }),
             },
             Self::CreateFungibleResource {
                 access_rules,
                 divisibility,
                 metadata,
                 track_total_supply,
+                address_reservation,
+                owner_role,
             } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value_or_panic(&FungibleResourceManagerCreateIndexMapInput {
-                    access_rules: access_rules.to_typed()?,
-                    divisibility: divisibility.to_typed()?,
-                    metadata: metadata.to_typed()?,
-                    track_total_supply: track_total_supply.to_typed()?,
-                }),
+                args: to_manifest_value_or_panic(
+                    &FungibleResourceManagerCreateManifestIndexMapInput {
+                        access_rules: access_rules.to_typed()?,
+                        divisibility: divisibility.to_typed()?,
+                        metadata: metadata.to_typed()?,
+                        track_total_supply: track_total_supply.to_typed()?,
+                        address_reservation: address_reservation.to_typed()?,
+                        owner_role: owner_role.to_typed()?,
+                    },
+                ),
             },
             Self::CreateFungibleResourceWithInitialSupply {
                 access_rules,
@@ -929,18 +952,22 @@ impl SerializableInstruction {
                 metadata,
                 track_total_supply,
                 initial_supply,
+                owner_role,
+                address_reservation,
             } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                     .to_string(),
                 args: to_manifest_value_or_panic(
-                    &FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
+                    &FungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
                         access_rules: access_rules.to_typed()?,
                         divisibility: divisibility.to_typed()?,
                         metadata: metadata.to_typed()?,
                         track_total_supply: track_total_supply.to_typed()?,
                         initial_supply: initial_supply.to_typed()?,
+                        owner_role: owner_role.to_typed()?,
+                        address_reservation: address_reservation.to_typed()?,
                     },
                 ),
             },
@@ -950,17 +977,23 @@ impl SerializableInstruction {
                 metadata,
                 non_fungible_schema,
                 track_total_supply,
+                owner_role,
+                address_reservation,
             } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
                 function_name: NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT.to_string(),
-                args: to_manifest_value_or_panic(&NonFungibleResourceManagerCreateIndexMapInput {
-                    access_rules: access_rules.to_typed()?,
-                    metadata: metadata.to_typed()?,
-                    track_total_supply: track_total_supply.to_typed()?,
-                    id_type: id_type.to_typed()?,
-                    non_fungible_schema: non_fungible_schema.to_typed()?,
-                }),
+                args: to_manifest_value_or_panic(
+                    &NonFungibleResourceManagerCreateManifestIndexMapInput {
+                        access_rules: access_rules.to_typed()?,
+                        metadata: metadata.to_typed()?,
+                        track_total_supply: track_total_supply.to_typed()?,
+                        id_type: id_type.to_typed()?,
+                        non_fungible_schema: non_fungible_schema.to_typed()?,
+                        owner_role: owner_role.to_typed()?,
+                        address_reservation: address_reservation.to_typed()?,
+                    },
+                ),
             },
             Self::CreateNonFungibleResourceWithInitialSupply {
                 access_rules,
@@ -969,6 +1002,8 @@ impl SerializableInstruction {
                 non_fungible_schema,
                 track_total_supply,
                 entries,
+                owner_role,
+                address_reservation,
             } => InstructionV1::CallFunction {
                 package_address: DynamicPackageAddress::Static(RESOURCE_PACKAGE),
                 blueprint_name: NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
@@ -982,6 +1017,8 @@ impl SerializableInstruction {
                         id_type: id_type.to_typed()?,
                         non_fungible_schema: non_fungible_schema.to_typed()?,
                         entries: entries.to_typed()?,
+                        owner_role: owner_role.to_typed()?,
+                        address_reservation: address_reservation.to_typed()?,
                     },
                 ),
             },
@@ -1063,20 +1100,18 @@ impl SerializableInstruction {
                 method_name: COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT.to_string(),
                 args: to_manifest_value_or_panic(&ComponentClaimRoyaltiesInput {}),
             },
-            Self::UpdateRole {
+            Self::SetRole {
                 address,
                 module,
                 role_key,
                 rule,
-                mutability,
             } => InstructionV1::CallAccessRulesMethod {
                 address: address.to_typed()?,
-                method_name: ACCESS_RULES_UPDATE_ROLE_IDENT.to_string(),
-                args: to_manifest_value_or_panic(&AccessRulesUpdateRoleInput {
+                method_name: ACCESS_RULES_SET_ROLE_IDENT.to_string(),
+                args: to_manifest_value_or_panic(&AccessRulesSetRoleInput {
                     module: module.to_typed()?,
                     role_key: role_key.to_typed()?,
                     rule: rule.to_typed()?,
-                    mutability: mutability.to_typed()?,
                 }),
             },
             Self::ClaimPackageRoyalty { address } => InstructionV1::CallMethod {
@@ -1109,12 +1144,17 @@ impl SerializableInstruction {
                     },
                 ),
             },
-            Self::CreateValidator { key, fee_factor } => InstructionV1::CallMethod {
+            Self::CreateValidator {
+                key,
+                fee_factor,
+                xrd_payment,
+            } => InstructionV1::CallMethod {
                 address: DynamicGlobalAddress::Static(CONSENSUS_MANAGER.into()),
                 method_name: CONSENSUS_MANAGER_CREATE_VALIDATOR_IDENT.to_string(),
-                args: to_manifest_value_or_panic(&ConsensusManagerCreateValidatorInput {
+                args: to_manifest_value_or_panic(&ConsensusManagerCreateValidatorManifestInput {
                     key: key.to_typed()?,
                     fee_factor: fee_factor.to_typed()?,
+                    xrd_payment: xrd_payment.to_typed()?,
                 }),
             },
         };
@@ -1219,12 +1259,13 @@ impl CallMethodAlias for FreezeVaultAlias {
 
     fn handle_aliasing(
         node_id: &NodeId,
-        VaultFreezeInput {}: &Self::ManifestInput,
+        VaultFreezeInput { to_freeze }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let vault_address = InternalAddress::new_or_panic(node_id.0);
         let instruction = SerializableInstruction::FreezeVault {
             vault_id: SerializableManifestValue::from_typed(&vault_address, network_id)?,
+            to_freeze: SerializableManifestValue::from_typed(&to_freeze, network_id)?,
         };
         Ok(instruction)
     }
@@ -1243,12 +1284,13 @@ impl CallMethodAlias for UnfreezeVaultAlias {
 
     fn handle_aliasing(
         node_id: &NodeId,
-        VaultUnfreezeInput {}: &Self::ManifestInput,
+        VaultUnfreezeInput { to_unfreeze }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let vault_address = InternalAddress::new_or_panic(node_id.0);
         let instruction = SerializableInstruction::UnfreezeVault {
             vault_id: SerializableManifestValue::from_typed(&vault_address, network_id)?,
+            to_unfreeze: SerializableManifestValue::from_typed(&to_unfreeze, network_id)?,
         };
         Ok(instruction)
     }
@@ -1355,11 +1397,11 @@ impl CallMethodAlias for ClaimComponentRoyaltyAlias {
     }
 }
 
-struct UpdateRoleAlias;
-impl CallMethodAlias for UpdateRoleAlias {
-    type ScryptoInput = AccessRulesUpdateRoleInput;
-    type ManifestInput = AccessRulesUpdateRoleInput;
-    const METHOD_NAME: &'static str = ACCESS_RULES_UPDATE_ROLE_IDENT;
+struct SetRoleAlias;
+impl CallMethodAlias for SetRoleAlias {
+    type ScryptoInput = AccessRulesSetRoleInput;
+    type ManifestInput = AccessRulesSetRoleInput;
+    const METHOD_NAME: &'static str = ACCESS_RULES_SET_ROLE_IDENT;
     const MODULE: ObjectModuleId = ObjectModuleId::AccessRules;
 
     fn is_valid_address(node_id: &NodeId) -> bool {
@@ -1368,21 +1410,19 @@ impl CallMethodAlias for UpdateRoleAlias {
 
     fn handle_aliasing(
         node_id: &NodeId,
-        AccessRulesUpdateRoleInput {
+        AccessRulesSetRoleInput {
             module,
             role_key,
             rule,
-            mutability,
         }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let address = DynamicGlobalAddress::Static(GlobalAddress::new_or_panic(node_id.0));
-        let instruction = SerializableInstruction::UpdateRole {
+        let instruction = SerializableInstruction::SetRole {
             address: SerializableManifestValue::from_typed(&address, network_id)?,
             module: SerializableManifestValue::from_typed(&module, network_id)?,
             role_key: SerializableManifestValue::from_typed(&role_key, network_id)?,
             rule: SerializableManifestValue::from_typed(&rule, network_id)?,
-            mutability: SerializableManifestValue::from_typed(&mutability, network_id)?,
         };
         Ok(instruction)
     }
@@ -1490,7 +1530,7 @@ impl CallMethodAlias for MintRuidNonFungibleAlias {
 struct CreateValidatorAlias;
 impl CallMethodAlias for CreateValidatorAlias {
     type ScryptoInput = ConsensusManagerCreateValidatorInput;
-    type ManifestInput = ConsensusManagerCreateValidatorInput;
+    type ManifestInput = ConsensusManagerCreateValidatorManifestInput;
     const METHOD_NAME: &'static str = CONSENSUS_MANAGER_CREATE_VALIDATOR_IDENT;
     const MODULE: ObjectModuleId = ObjectModuleId::Main;
 
@@ -1500,12 +1540,17 @@ impl CallMethodAlias for CreateValidatorAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        Self::ManifestInput { key, fee_factor }: &Self::ManifestInput,
+        Self::ManifestInput {
+            key,
+            fee_factor,
+            xrd_payment,
+        }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
         let instruction = SerializableInstruction::CreateValidator {
             key: SerializableManifestValue::from_typed(&key, network_id)?,
             fee_factor: SerializableManifestValue::from_typed(&fee_factor, network_id)?,
+            xrd_payment: SerializableManifestValue::from_typed(&xrd_payment, network_id)?,
         };
         Ok(instruction)
     }
@@ -1547,7 +1592,14 @@ trait CallFunctionAlias {
             )
             .is_ok()
             {
-                Self::handle_aliasing(node_id, &to_manifest_type(args).unwrap(), network_id).ok()
+                // Self::handle_aliasing(node_id, &to_manifest_type(args).unwrap_or_else(||
+                // panic!("Failed to perform the conversion for: {blueprint_name}
+                // {function_name}")), network_id).ok()
+                Self::handle_aliasing(
+                    node_id,
+                    &manifest_decode(&manifest_encode(args).unwrap()).unwrap_or_else(|error| panic!("{error:?} => Failed to perform the conversion for: {blueprint_name} {function_name}")), 
+                    network_id
+                ).ok()
             } else {
                 None
             }
@@ -1559,8 +1611,8 @@ trait CallFunctionAlias {
 
 struct PublishPackageAlias;
 impl CallFunctionAlias for PublishPackageAlias {
-    type ScryptoInput = PackagePublishWasmIndexMapInput;
-    type ManifestInput = PackagePublishWasmManifestIndexMapInput;
+    type ScryptoInput = PackagePublishWasmInput;
+    type ManifestInput = PackagePublishWasmManifestInput;
     const FUNCTION_NAME: &'static str = PACKAGE_PUBLISH_WASM_IDENT;
     const BLUEPRINT_NAME: &'static str = PACKAGE_BLUEPRINT;
 
@@ -1570,7 +1622,7 @@ impl CallFunctionAlias for PublishPackageAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        PackagePublishWasmManifestIndexMapInput {
+        PackagePublishWasmManifestInput {
             code,
             setup,
             metadata,
@@ -1591,8 +1643,8 @@ impl CallFunctionAlias for PublishPackageAlias {
 
 struct PublishPackageAdvancedAlias;
 impl CallFunctionAlias for PublishPackageAdvancedAlias {
-    type ScryptoInput = PackagePublishWasmAdvancedIndexMapInput;
-    type ManifestInput = PackagePublishWasmAdvancedManifestIndexMapInput;
+    type ScryptoInput = PackagePublishWasmAdvancedInput;
+    type ManifestInput = PackagePublishWasmAdvancedManifestInput;
     const FUNCTION_NAME: &'static str = PACKAGE_PUBLISH_WASM_ADVANCED_IDENT;
     const BLUEPRINT_NAME: &'static str = PACKAGE_BLUEPRINT;
 
@@ -1602,10 +1654,10 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        PackagePublishWasmAdvancedManifestIndexMapInput {
+        PackagePublishWasmAdvancedManifestInput {
             code,
             metadata,
-            owner_rule,
+            owner_role,
             package_address,
             setup,
         }: &Self::ManifestInput,
@@ -1619,7 +1671,7 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
                 network_id,
             )?,
             metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
-            owner_rule: SerializableManifestValue::from_typed(&owner_rule, network_id)?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
         };
         Ok(instruction)
     }
@@ -1628,7 +1680,7 @@ impl CallFunctionAlias for PublishPackageAdvancedAlias {
 struct CreateFungibleResourceAlias;
 impl CallFunctionAlias for CreateFungibleResourceAlias {
     type ScryptoInput = FungibleResourceManagerCreateIndexMapInput;
-    type ManifestInput = FungibleResourceManagerCreateIndexMapInput;
+    type ManifestInput = FungibleResourceManagerCreateManifestIndexMapInput;
     const FUNCTION_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT;
     const BLUEPRINT_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1638,11 +1690,13 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        FungibleResourceManagerCreateIndexMapInput {
+        FungibleResourceManagerCreateManifestIndexMapInput {
             access_rules,
             divisibility,
             metadata,
             track_total_supply,
+            owner_role,
+            address_reservation,
         }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
@@ -1654,6 +1708,11 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
             divisibility: SerializableManifestValue::from_typed(&divisibility, network_id)?,
             metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
             access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
+            address_reservation: SerializableManifestValue::from_typed(
+                &address_reservation,
+                network_id,
+            )?,
         };
         Ok(instruction)
     }
@@ -1662,7 +1721,7 @@ impl CallFunctionAlias for CreateFungibleResourceAlias {
 struct CreateFungibleResourceWithInitialSupplyAlias;
 impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
     type ScryptoInput = FungibleResourceManagerCreateWithInitialSupplyIndexMapInput;
-    type ManifestInput = FungibleResourceManagerCreateWithInitialSupplyIndexMapInput;
+    type ManifestInput = FungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput;
     const FUNCTION_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT;
     const BLUEPRINT_NAME: &'static str = FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1672,12 +1731,14 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        FungibleResourceManagerCreateWithInitialSupplyIndexMapInput {
+        FungibleResourceManagerCreateWithInitialSupplyManifestIndexMapInput {
             access_rules,
             divisibility,
             initial_supply,
             metadata,
             track_total_supply,
+            owner_role,
+            address_reservation,
         }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
@@ -1690,6 +1751,11 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
             metadata: SerializableManifestValue::from_typed(&metadata, network_id)?,
             access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
             initial_supply: SerializableManifestValue::from_typed(&initial_supply, network_id)?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
+            address_reservation: SerializableManifestValue::from_typed(
+                &address_reservation,
+                network_id,
+            )?,
         };
         Ok(instruction)
     }
@@ -1698,7 +1764,7 @@ impl CallFunctionAlias for CreateFungibleResourceWithInitialSupplyAlias {
 struct CreateNonFungibleResourceAlias;
 impl CallFunctionAlias for CreateNonFungibleResourceAlias {
     type ScryptoInput = NonFungibleResourceManagerCreateIndexMapInput;
-    type ManifestInput = NonFungibleResourceManagerCreateIndexMapInput;
+    type ManifestInput = NonFungibleResourceManagerCreateManifestIndexMapInput;
     const FUNCTION_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT;
     const BLUEPRINT_NAME: &'static str = NON_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT;
 
@@ -1708,12 +1774,14 @@ impl CallFunctionAlias for CreateNonFungibleResourceAlias {
 
     fn handle_aliasing(
         _: &NodeId,
-        NonFungibleResourceManagerCreateIndexMapInput {
+        NonFungibleResourceManagerCreateManifestIndexMapInput {
             access_rules,
             metadata,
             track_total_supply,
             id_type,
             non_fungible_schema,
+            owner_role,
+            address_reservation,
         }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
@@ -1727,6 +1795,11 @@ impl CallFunctionAlias for CreateNonFungibleResourceAlias {
             access_rules: SerializableManifestValue::from_typed(&access_rules, network_id)?,
             non_fungible_schema: SerializableManifestValue::from_typed(
                 &non_fungible_schema,
+                network_id,
+            )?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
+            address_reservation: SerializableManifestValue::from_typed(
+                &address_reservation,
                 network_id,
             )?,
         };
@@ -1755,6 +1828,8 @@ impl CallFunctionAlias for CreateNonFungibleResourceWithInitialSupplyAlias {
             id_type,
             non_fungible_schema,
             entries,
+            owner_role,
+            address_reservation,
         }: &Self::ManifestInput,
         network_id: u8,
     ) -> Result<SerializableInstruction, ValueConversionError> {
@@ -1771,6 +1846,11 @@ impl CallFunctionAlias for CreateNonFungibleResourceWithInitialSupplyAlias {
                 network_id,
             )?,
             entries: SerializableManifestValue::from_typed(&entries, network_id)?,
+            owner_role: SerializableManifestValue::from_typed(&owner_role, network_id)?,
+            address_reservation: SerializableManifestValue::from_typed(
+                &address_reservation,
+                network_id,
+            )?,
         };
         Ok(instruction)
     }

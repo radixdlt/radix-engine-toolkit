@@ -19,13 +19,11 @@ use lazy_static::lazy_static;
 use radix_engine::blueprints::native_schema::*;
 use radix_engine::blueprints::package::*;
 use radix_engine::types::*;
-use radix_engine_common::prelude::*;
 use scrypto::api::node_modules::auth::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::api::node_modules::royalty::*;
 use scrypto::blueprints::account::*;
 use scrypto::blueprints::identity::*;
-use scrypto::schema::*;
 
 use crate::schema_visitor::core::traverser::traverse;
 use crate::schema_visitor::visitors::bucket_in_path_visitor::BucketInPathVisitor;
@@ -213,29 +211,27 @@ fn royalty_methods_that_require_auth() -> Vec<MethodKey> {
 }
 
 fn methods_that_require_auth(blueprint_schema: &BlueprintDefinitionInit) -> Vec<MethodKey> {
-    method_auth_template_static_or_panic(&blueprint_schema.auth_config.method_auth)
-        .iter()
-        .filter_map(|(key, value)| {
-            if let MethodPermission::Public = value {
-                None
-            } else {
-                Some(key.clone())
-            }
-        })
-        .collect()
+    if let MethodAuthTemplate::StaticRoles(StaticRoles { ref methods, .. }) =
+        blueprint_schema.auth_config.method_auth
+    {
+        methods
+            .iter()
+            .filter_map(|(key, value)| {
+                if let MethodAccessibility::Public = value {
+                    None
+                } else {
+                    Some(key.clone())
+                }
+            })
+            .collect()
+    } else {
+        vec![]
+    }
 }
 
 fn type_ref_static_or_panic<T>(type_ref: &TypeRef<T>) -> &T {
     match type_ref {
         TypeRef::Static(item) => item,
         TypeRef::Generic(_) => panic!("TypeRef is not static!"),
-    }
-}
-
-fn method_auth_template_static_or_panic(
-    method_auth_template: &MethodAuthTemplate,
-) -> &BTreeMap<MethodKey, MethodPermission> {
-    match method_auth_template {
-        MethodAuthTemplate::Static { auth, .. } => auth,
     }
 }

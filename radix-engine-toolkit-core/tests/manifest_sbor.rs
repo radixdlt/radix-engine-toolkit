@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::{
-    manifest_encode, Bech32Encoder, ManifestValue, ScryptoCustomSchema,
+    manifest_encode, AddressBech32Encoder, ManifestValue, ScryptoCustomSchema,
 };
 use radix_engine_common::{ManifestSbor, ScryptoSbor};
 use radix_engine_toolkit_core::functions::manifest_sbor::ManifestSborStringRepresentation;
@@ -64,7 +64,7 @@ fn manifest_value_can_be_represented_as_a_string() {
         ManifestSborStringRepresentation::JSON(SerializationMode::Programmatic),
     ];
     let schema_params = [None, Some((local_type_index, schema))];
-    let bech32_encoder = Bech32Encoder::for_simulator();
+    let bech32_encoder = AddressBech32Encoder::for_simulator();
 
     for representation in serialization_modes_params {
         for schema in schema_params.clone() {

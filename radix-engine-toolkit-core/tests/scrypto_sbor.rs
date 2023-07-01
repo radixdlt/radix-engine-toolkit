@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::{
-    scrypto_encode, Bech32Encoder, ScryptoCustomSchema, ScryptoValue,
+    scrypto_encode, AddressBech32Encoder, ScryptoCustomSchema, ScryptoValue,
 };
 use radix_engine_common::ScryptoSbor;
 use sbor::{generate_full_schema_from_single_type, representations::SerializationMode};
@@ -62,7 +62,7 @@ fn scrypto_value_can_be_represented_as_a_string() {
         SerializationMode::Programmatic,
     ];
     let schema_params = [None, Some((local_type_index, schema))];
-    let bech32_encoder = Bech32Encoder::for_simulator();
+    let bech32_encoder = AddressBech32Encoder::for_simulator();
 
     for representation in serialization_modes_params {
         for schema in schema_params.clone() {

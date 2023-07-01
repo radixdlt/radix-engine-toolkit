@@ -227,8 +227,8 @@ mod native {
         manifest_decode as native_manifest_decode,
     };
     pub use scrypto::address::{
-        Bech32Decoder as NativeBech32Decoder,
-        Bech32Encoder as NativeBech32Encoder,
+        AddressBech32Decoder as NativeAddressBech32Decoder,
+        AddressBech32Encoder as NativeAddressBech32Encoder,
     };
     pub use transaction::prelude::{
         InstructionV1 as NativeInstruction,

@@ -35,7 +35,7 @@ where
 pub fn decode_to_string_representation<T>(
     value: T,
     representation: SerializationMode,
-    bech32_encoder: &Bech32Encoder,
+    bech32_encoder: &AddressBech32Encoder,
     schema: Option<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>,
 ) -> Result<String, ScryptoSborError>
 where

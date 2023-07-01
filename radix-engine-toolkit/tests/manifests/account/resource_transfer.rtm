@@ -10,7 +10,7 @@
 CALL_METHOD 
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") 
     "lock_fee"
-    Decimal("10");
+    Decimal("500");
 
 # Withdrawing 100 XRD from the account component
 CALL_METHOD 

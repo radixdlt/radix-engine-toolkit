@@ -260,7 +260,7 @@ fn account_set_metadata_interactions_count_as_auth_requiring_interactions() {
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .set_metadata(account.into(), "x".into(), MetadataValue::Bool(true))
+        .set_metadata(account.into(), "x", MetadataValue::Bool(true))
         .build();
 
     // Act
@@ -296,7 +296,7 @@ fn identity_set_metadata_interactions_count_as_auth_requiring_interactions() {
     // Arrange
     let identity = identity();
     let manifest = ManifestBuilder::new()
-        .set_metadata(identity.into(), "x".into(), MetadataValue::Bool(true))
+        .set_metadata(identity.into(), "x", MetadataValue::Bool(true))
         .build();
 
     // Act

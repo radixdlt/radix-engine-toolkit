@@ -1,6 +1,6 @@
 [package]
 name = "uniffi-bindgen"
-version = "0.10.0-damson.1"
+version = "0.10.0-elm.1"
 edition = "2021"
 
 [dependencies]

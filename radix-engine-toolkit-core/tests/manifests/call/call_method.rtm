@@ -8,7 +8,7 @@ CALL_ROYALTY_METHOD
     Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
     "set_royalty"
     "my_method"
-    Enum<RoyaltyAmount::Free>();
+    Enum<0u8>();
 
 CALL_METADATA_METHOD
     Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")

@@ -66,7 +66,7 @@ impl<'f> Function<'f> for ScryptoSborDecodeToString {
             None
         };
         let network_definition = network_definition_from_network_id(network_id);
-        let bech32_encoder = Bech32Encoder::new(&network_definition);
+        let bech32_encoder = AddressBech32Encoder::new(&network_definition);
 
         let string =
             radix_engine_toolkit_core::functions::scrypto_sbor::decode_to_string_representation(

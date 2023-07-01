@@ -4,4 +4,4 @@ import uniffi.radix_engine_toolkit_uniffi.*;
 val information = buildInformation();
 
 // Assert
-assert(information.version == "0.10.0-damson.1");
+assert(information.version == "0.10.0-elm.1");

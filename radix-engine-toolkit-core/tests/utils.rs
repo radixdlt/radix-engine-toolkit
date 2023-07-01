@@ -16,7 +16,9 @@
 // under the License.
 
 use radix_engine::types::*;
+use radix_engine_interface::metadata_init;
 use scrypto::api::node_modules::metadata::MetadataValue;
+use scrypto::prelude::ModuleConfig;
 use scrypto::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
@@ -29,11 +31,15 @@ fn extraction_of_metadata_from_receipts_succeeds() {
     // Act
     let manifest = ManifestBuilder::new()
         .create_fungible_resource::<AccessRule>(
+            OwnerRole::None,
             true,
             18,
-            btreemap!(
-                "name".to_string() => MetadataValue::Bool(true),
-            ),
+            ModuleConfig {
+                init: metadata_init!(
+                    "name" => true, locked;
+                ),
+                roles: RolesInit::default(),
+            },
             BTreeMap::new(),
             None,
         )
@@ -69,10 +75,16 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
     // Act
     let manifest = ManifestBuilder::new()
         .create_non_fungible_resource(
+            OwnerRole::None,
             NonFungibleIdType::Integer,
             true,
-            Default::default(),
-            BTreeMap::<ResourceMethodAuthKey, (AccessRule, AccessRule)>::new(),
+            ModuleConfig {
+                init: metadata_init!(
+                    "name" => true, locked;
+                ),
+                roles: RolesInit::default(),
+            },
+            BTreeMap::<ResourceAction, (AccessRule, AccessRule)>::new(),
             Some(btreemap!(
                 NonFungibleLocalId::integer(1) => Owl {
                     name: "an example name".to_string(),

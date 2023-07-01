@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system_modules::costing::transmute_u128_as_decimal;
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use scrypto::api::node_modules::metadata::*;
@@ -198,5 +197,5 @@ impl From<InstructionVisitorError> for ExecutionModuleError {
 }
 
 fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    transmute_u128_as_decimal(DEFAULT_COST_UNIT_PRICE) * cost_units
+    Decimal::from_str(DEFAULT_COST_UNIT_PRICE).unwrap() * cost_units
 }

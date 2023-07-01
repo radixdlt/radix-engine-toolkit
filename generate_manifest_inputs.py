@@ -4,7 +4,7 @@ import re
 
 SCRIPT_DIRECTORY: str = os.path.dirname(os.path.realpath(__file__))
 REPOSITORY_URL: str = "https://github.com/radixdlt/radixdlt-scrypto"
-OUTPUT_PATH: str = os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "src", "models", "manifest_inputs.rs")
+OUTPUT_PATH: str = os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "src", "models", "manifest", "inputs.rs")
 
 def main() -> None:
     # Get the tag or branch of the Scrypto dependency being used.

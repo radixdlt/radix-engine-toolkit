@@ -22,7 +22,6 @@ use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::package::*;
 use radix_engine_toolkit::prelude::*;
-use scrypto::api::node_modules::auth::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::api::node_modules::royalty::*;
 use scrypto::prelude::*;
@@ -122,29 +121,25 @@ impl<'f> HasExamples<'f> for SerializableInstruction {
                     .0
                     .add_instruction(InstructionV1::CallAccessRulesMethod {
                         address: DynamicGlobalAddress::Static(FAUCET.into()),
-                        method_name: ACCESS_RULES_UPDATE_ROLE_IDENT.to_string(),
-                        args: to_manifest_value(&AccessRulesUpdateRoleInput {
+                        method_name: ACCESS_RULES_SET_ROLE_IDENT.to_string(),
+                        args: to_manifest_value(&AccessRulesSetRoleInput {
                             module: scrypto::api::ObjectModuleId::Main,
                             role_key: RoleKey {
                                 key: "free".to_string(),
                             },
-                            rule: Some(rule!(allow_all)),
-                            mutability: Some((
-                                RoleList {
-                                    list: vec![RoleKey {
-                                        key: "_owner_".to_string(),
-                                    }],
-                                },
-                                true,
-                            )),
+                            rule: rule!(allow_all),
                         })
                         .unwrap(),
                     })
                     .0
                     .drop_all_proofs()
                     .recall(vault_id(), 10.into())
-                    .freeze(vault_id())
-                    .unfreeze(vault_id())
+                    .freeze_withdraw(vault_id())
+                    .freeze_deposit(vault_id())
+                    .freeze_burn(vault_id())
+                    .unfreeze_withdraw(vault_id())
+                    .unfreeze_deposit(vault_id())
+                    .unfreeze_burn(vault_id())
                     .create_identity()
                     .create_identity_advanced(OwnerRole::None)
                     .call_function(
@@ -165,6 +160,7 @@ impl<'f> HasExamples<'f> for SerializableInstruction {
                     .create_validator(
                         Secp256k1PrivateKey::from_u64(1).unwrap().public_key(),
                         10.into(),
+                        ManifestBucket(1),
                     )
                     .mint_ruid_non_fungible(
                         RADIX_TOKEN,
@@ -197,7 +193,7 @@ impl<'f> HasExamples<'f> for SerializableInstruction {
                         },
                     )
                     .mint_fungible(RADIX_TOKEN, 10.into())
-                    .claim_package_royalty(ACCOUNT_PACKAGE)
+                    .claim_package_royalties(ACCOUNT_PACKAGE)
                     .claim_component_royalties(FAUCET)
                     .set_component_royalty(FAUCET, "free", RoyaltyAmount::Free)
                     .add_instruction(InstructionV1::CallMetadataMethod {
@@ -222,31 +218,55 @@ impl<'f> HasExamples<'f> for SerializableInstruction {
                         Some(10),
                     )
                     .create_fungible_resource::<AccessRule>(
+                        OwnerRole::None,
                         true,
                         18,
-                        BTreeMap::new(),
+                        ModuleConfig {
+                            init: metadata_init!(
+                                "name" => true, locked;
+                            ),
+                            roles: RolesInit::default(),
+                        },
                         BTreeMap::new(),
                         Some(10.into()),
                     )
                     .create_fungible_resource::<AccessRule>(
+                        OwnerRole::None,
                         true,
                         18,
-                        BTreeMap::new(),
+                        ModuleConfig {
+                            init: metadata_init!(
+                                "name" => true, locked;
+                            ),
+                            roles: RolesInit::default(),
+                        },
                         BTreeMap::new(),
                         None,
                     )
                     .create_non_fungible_resource(
+                        OwnerRole::None,
                         NonFungibleIdType::Integer,
                         true,
-                        Default::default(),
-                        BTreeMap::<ResourceMethodAuthKey, (AccessRule, AccessRule)>::new(),
+                        ModuleConfig {
+                            init: metadata_init!(
+                                "name" => true, locked;
+                            ),
+                            roles: RolesInit::default(),
+                        },
+                        BTreeMap::<ResourceAction, (AccessRule, AccessRule)>::new(),
                         None::<BTreeMap<NonFungibleLocalId, Human>>,
                     )
                     .create_non_fungible_resource(
+                        OwnerRole::None,
                         NonFungibleIdType::Integer,
                         true,
-                        Default::default(),
-                        BTreeMap::<ResourceMethodAuthKey, (AccessRule, AccessRule)>::new(),
+                        ModuleConfig {
+                            init: metadata_init!(
+                                "name" => true, locked;
+                            ),
+                            roles: RolesInit::default(),
+                        },
+                        BTreeMap::<ResourceAction, (AccessRule, AccessRule)>::new(),
                         Some(btreemap! {
                             NonFungibleLocalId::integer(1) => Human {
                                 name: "Jack".into(),
@@ -269,9 +289,12 @@ impl<'f> HasExamples<'f> for SerializableInstruction {
                     )
                     .publish_package(code.clone(), setup.clone())
                     .publish_package_advanced(
+                        None,
                         code.clone(),
                         setup.clone(),
-                        Default::default(),
+                        metadata_init!(
+                            "name" => true, locked;
+                        ),
                         OwnerRole::None,
                     )
                     .build()
@@ -362,9 +385,11 @@ fn example_package() -> (Vec<u8>, PackageDefinition) {
             min_validator_reliability: 0.into(),
             num_owner_stake_units_unlock_epochs: 0,
             num_fee_increase_delay_epochs: 0,
+            validator_creation_xrd_cost: 0.into(),
         },
         0,
         None,
+        0.into(),
     );
 
     for instruction in instructions.0.into_iter() {
@@ -378,7 +403,7 @@ fn example_package() -> (Vec<u8>, PackageDefinition) {
                 && blueprint_name == PACKAGE_BLUEPRINT
                 && function_name == PACKAGE_PUBLISH_WASM_IDENT =>
             {
-                let PackagePublishWasmManifestIndexMapInput { code, setup, .. } =
+                let PackagePublishWasmManifestInput { code, setup, .. } =
                     manifest_decode(&manifest_encode(&args).unwrap()).unwrap();
 
                 (code, setup)
@@ -392,7 +417,7 @@ fn example_package() -> (Vec<u8>, PackageDefinition) {
                 && blueprint_name == PACKAGE_BLUEPRINT
                 && function_name == PACKAGE_PUBLISH_WASM_ADVANCED_IDENT =>
             {
-                let PackagePublishWasmAdvancedManifestIndexMapInput { code, setup, .. } =
+                let PackagePublishWasmAdvancedManifestInput { code, setup, .. } =
                     manifest_decode(&manifest_encode(&args).unwrap()).unwrap();
 
                 (code, setup)

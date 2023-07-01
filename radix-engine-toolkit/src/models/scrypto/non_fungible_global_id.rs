@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-use radix_engine_common::prelude::{Bech32Decoder, Bech32Encoder};
+use radix_engine_common::prelude::{AddressBech32Decoder, AddressBech32Encoder};
 use radix_engine_toolkit_core::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -54,7 +54,7 @@ pub struct SerializableNonFungibleGlobalIdInternal {
 impl Display for SerializableNonFungibleGlobalIdInternal {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let network_definition = network_definition_from_network_id(self.network_id);
-        let bech32_encoder = Bech32Encoder::new(&network_definition);
+        let bech32_encoder = AddressBech32Encoder::new(&network_definition);
         write!(
             f,
             "{}",
@@ -80,7 +80,7 @@ impl FromStr for SerializableNonFungibleGlobalIdInternal {
         )
         .ok_or(SerializableNonFungibleGlobalIdError::InvalidResourceAddress)?;
         let network_definition = network_definition_from_network_id(network_id);
-        let bech32_decoder = Bech32Decoder::new(&network_definition);
+        let bech32_decoder = AddressBech32Decoder::new(&network_definition);
 
         let non_fungible_global_id =
             NonFungibleGlobalId::try_from_canonical_string(&bech32_decoder, s).map_err(

@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::converter::*;
 use radix_engine_common::prelude::*;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
+use transaction::data::*;
 use transaction::prelude::*;
 
 use crate::prelude::*;
@@ -317,12 +317,12 @@ impl SerializableManifestValue {
             ManifestValue::Custom {
                 value: ManifestCustomValue::Decimal(value),
             } => SerializableManifestValue::Decimal {
-                value: into!(to_decimal(value)),
+                value: into!(to_decimal(value.clone())),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::PreciseDecimal(value),
             } => SerializableManifestValue::PreciseDecimal {
-                value: into!(to_precise_decimal(value)),
+                value: into!(to_precise_decimal(value.clone())),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::NonFungibleLocalId(value),
@@ -411,10 +411,10 @@ impl SerializableManifestValue {
                 value: ManifestCustomValue::Blob(ManifestBlobRef((**value).0)),
             },
             Self::Decimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Decimal(from_decimal(value)),
+                value: ManifestCustomValue::Decimal(from_decimal(**value)),
             },
             Self::PreciseDecimal { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(value)),
+                value: ManifestCustomValue::PreciseDecimal(from_precise_decimal(**value)),
             },
             Self::NonFungibleLocalId { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::NonFungibleLocalId(from_non_fungible_local_id(

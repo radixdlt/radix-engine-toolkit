@@ -188,6 +188,18 @@ SET_METADATA
         )
     );
 
+LOCK_METADATA
+    Address("package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk")
+    "field_name";
+
+LOCK_METADATA
+    Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
+    "field_name";
+
+LOCK_METADATA
+    Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez")
+    "field_name";
+
 REMOVE_METADATA
     Address("package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk")
     "field_name";

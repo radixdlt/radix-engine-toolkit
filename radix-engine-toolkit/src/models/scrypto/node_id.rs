@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::{Bech32Decoder, Bech32Encoder, DecodeBech32AddressError};
+use radix_engine_common::prelude::{
+    AddressBech32DecodeError, AddressBech32Decoder, AddressBech32Encoder,
+};
 use schemars::JsonSchema;
 use scrypto::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -58,7 +60,7 @@ impl Display for SerializableNodeIdInternal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let network_definition =
             radix_engine_toolkit_core::utils::network_definition_from_network_id(self.network_id);
-        let bech32_encoder = Bech32Encoder::new(&network_definition);
+        let bech32_encoder = AddressBech32Encoder::new(&network_definition);
         let string = bech32_encoder
             .encode(&self.node_id.0)
             .map_err(|_| fmt::Error)?;
@@ -80,7 +82,7 @@ impl FromStr for SerializableNodeIdInternal {
 
         let network_definition =
             radix_engine_toolkit_core::utils::network_definition_from_network_id(network_id);
-        let bech32_decoder = Bech32Decoder::new(&network_definition);
+        let bech32_decoder = AddressBech32Decoder::new(&network_definition);
         let (_, data) = bech32_decoder.validate_and_decode(s)?;
 
         data.try_into()
@@ -106,8 +108,8 @@ pub enum SerializableNodeIdError {
     InvalidAddressLength,
 }
 
-impl From<DecodeBech32AddressError> for SerializableNodeIdError {
-    fn from(value: DecodeBech32AddressError) -> Self {
+impl From<AddressBech32DecodeError> for SerializableNodeIdError {
+    fn from(value: AddressBech32DecodeError) -> Self {
         Self::Bech32DecodingError(format!("{:?}", value))
     }
 }
