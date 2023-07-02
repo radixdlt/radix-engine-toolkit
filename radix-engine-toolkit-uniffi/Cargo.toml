@@ -1,5 +1,5 @@
 [package]
-name = "radix_engine_toolkit_uniffi"
+name = "radix-engine-toolkit-uniffi"
 version = "0.10.0-elm.1"
 edition = "2021"
 build = "build.rs"
