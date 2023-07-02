@@ -230,7 +230,12 @@ jobs:
               cd $BUILD_PATH
 
               BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
-              tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+
+              if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
+                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+              else
+                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
+              fi
             )
           )
 
