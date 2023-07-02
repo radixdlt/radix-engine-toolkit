@@ -22,132 +22,132 @@ jobs:
       matrix:
         build-target:
           # radix-engine-toolkit Crate
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
+          # - crate: radix-engine-toolkit
+          #   target-triple: aarch64-apple-darwin
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: x86_64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: x86_64-apple-darwin
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: aarch64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: aarch64-apple-ios-sim
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: x86_64-pc-windows-gnu
+          #   custom-linker: ""
+          #   custom-compiler: x86_64-w64-mingw32-gcc
+          #   custom-archiver: x86_64-w64-mingw32-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   custom-linker: x86_64-unknown-linux-gnu-gcc
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   custom-linker: aarch64-unknown-linux-gnu-gcc
+          #   custom-compiler: aarch64-unknown-linux-gnu-gcc
+          #   custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: i686-unknown-linux-gnu
+          #   custom-linker: i686-unknown-linux-gnu-gcc
+          #   custom-compiler: i686-unknown-linux-gnu-gcc
+          #   custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: wasm32-unknown-unknown
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: aarch64-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: armv7-linux-androideabi
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # - crate: radix-engine-toolkit
+          #   target-triple: i686-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # # radix-engine-toolkit-uniffi Crate
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-darwin
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-apple-darwin
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-ios-sim
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit
-            target-triple: wasm32-unknown-unknown
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          # radix-engine-toolkit-uniffi Crate
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-ios-sim
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-ios
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-apple-ios-sim
+          #   custom-linker: ""
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-pc-windows-gnu
+          #   custom-linker: ""
+          #   custom-compiler: x86_64-w64-mingw32-gcc
+          #   custom-archiver: x86_64-w64-mingw32-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: x86_64-unknown-linux-gnu
+          #   custom-linker: x86_64-unknown-linux-gnu-gcc
+          #   custom-compiler: /usr/local/opt/llvm/bin/clang
+          #   custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-unknown-linux-gnu
+          #   custom-linker: aarch64-unknown-linux-gnu-gcc
+          #   custom-compiler: aarch64-unknown-linux-gnu-gcc
+          #   custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: i686-unknown-linux-gnu
+          #   custom-linker: i686-unknown-linux-gnu-gcc
+          #   custom-compiler: i686-unknown-linux-gnu-gcc
+          #   custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: aarch64-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: armv7-linux-androideabi
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # - crate: radix-engine-toolkit-uniffi
+          #   target-triple: i686-linux-android
+          #   custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+          #   custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -283,120 +283,6 @@ jobs:
           name: "UniFFI-Bindings.tar.gz"
           path: "./artifacts/extracted/UniFFI-Bindings.tar.gz"
   
-  build-xc-framework:
-    needs: [build]
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-      - name: Extract Artifacts
-        working-directory: artifacts
-        run: |
-          mkdir native
-          
-          for d in radix-engine-toolkit-*.tar.gz; do
-            mv ./$d/* ./native/
-          done
-          
-          cd native
-          
-          for f in *.tar.gz; do 
-            fn=`echo "$f" | cut -d'.' -f 1`
-            mkdir "$fn"
-            tar -xvzf "$f" --directory="$fn";
-          done
-
-      - name: Building XCFramework
-        working-directory: artifacts
-        run: |
-          cd native
-
-          # The name of the crate that we are building
-          CRATE_NAME="radix-engine-toolkit"
-
-          # Creating the two directories where the temporary FAT libraries will be stored
-          mkdir ./macos-arm64_x86_64/
-          mkdir ./ios-simulator-arm64_x86_64
-
-          # Creating the fat libraries
-          lipo -create \
-              "./aarch64-apple-darwin/libradix_engine_toolkit.a" \
-              "./x86_64-apple-darwin/libradix_engine_toolkit.a" \
-              -o "./macos-arm64_x86_64/libradix_engine_toolkit.a"
-          lipo -create \
-              "./aarch64-apple-ios-sim/libradix_engine_toolkit.a" \
-              "./x86_64-apple-ios/libradix_engine_toolkit.a" \
-              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a"
-
-          # Copying the "include" directory from its origin into the fat library directory
-          cp -r ./aarch64-apple-darwin/include ./macos-arm64_x86_64/
-          cp -r ./aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
-
-          # Creating the XC Framework
-          xcodebuild -create-xcframework \
-            -library "./aarch64-apple-ios/libradix_engine_toolkit.a" \
-            -headers "./aarch64-apple-ios/include" \
-            -library "./macos-arm64_x86_64/libradix_engine_toolkit.a" \
-            -headers "./macos-arm64_x86_64/include" \
-            -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit.a" \
-            -headers "./ios-simulator-arm64_x86_64/include" \
-            -output "./RadixEngineToolkit.xcframework"
-
-          tar -czf "./RadixEngineToolkit.xcframework.tar.gz" ./RadixEngineToolkit.xcframework
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: "RadixEngineToolkit.xcframework.tar.gz"
-          path: "./artifacts/native/RadixEngineToolkit.xcframework.tar.gz"
-
-      - name: Building UniFFI XCFramework
-        working-directory: artifacts
-        run: |
-          cd native
-
-          # The name of the crate that we are building
-          CRATE_NAME="radix-engine-toolkit-uniffi"
-
-          # Creating the two directories where the temporary FAT libraries will be stored
-          mkdir ./macos-arm64_x86_64/
-          mkdir ./ios-simulator-arm64_x86_64
-
-          # Creating the fat libraries
-          lipo -create \
-              "./aarch64-apple-darwin/libradix_engine_toolkit_uniffi.a" \
-              "./x86_64-apple-darwin/libradix_engine_toolkit_uniffi.a" \
-              -o "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.a"
-          lipo -create \
-              "./aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.a" \
-              "./x86_64-apple-ios/libradix_engine_toolkit_uniffi.a" \
-              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.a"
-
-          # Copying the "include" directory from its origin into the fat library directory
-          cp -r ./aarch64-apple-darwin/include ./macos-arm64_x86_64/
-          cp -r ./aarch64-apple-ios-sim/include ./ios-simulator-arm64_x86_64/
-
-          # Creating the XC Framework
-          xcodebuild -create-xcframework \
-            -library "./aarch64-apple-ios/libradix_engine_toolkit_uniffi.a" \
-            -headers "./aarch64-apple-ios/include" \
-            -library "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.a" \
-            -headers "./macos-arm64_x86_64/include" \
-            -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.a" \
-            -headers "./ios-simulator-arm64_x86_64/include" \
-            -output "./RadixEngineToolkitUniffi.xcframework"
-
-          tar -czf "./RadixEngineToolkitUniffi.xcframework.tar.gz" ./RadixEngineToolkitUniffi.xcframework
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: "RadixEngineToolkitUniffi.xcframework.tar.gz"
-          path: "./artifacts/native/RadixEngineToolkitUniffi.xcframework.tar.gz"
-
   build-test-kit:
     needs: [build]
     runs-on: macos-latest
