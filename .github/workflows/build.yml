@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - release/*
+      - feature/*
       - develop
       - main
   pull_request:
     branches:
       - release/*
+      - feature/*
       - develop
       - main
 
@@ -131,11 +133,6 @@ jobs:
             custom-linker: i686-unknown-linux-gnu-gcc
             custom-compiler: i686-unknown-linux-gnu-gcc
             custom-archiver: i686-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: wasm32-unknown-unknown
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-linux-android
             custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
