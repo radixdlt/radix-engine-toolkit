@@ -245,6 +245,44 @@ jobs:
           name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}.tar.gz"
           path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
 
+  create-uniffi-bindings:
+    needs: [build]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Extracting the Library
+        run: tar -xvzf radix-engine-toolkit-uniffi-x86_64-apple-darwin.tar.gz --directory="extracted"
+        working-directory: artifacts
+      - name: Generate the Bindings
+        run: |
+          cargo run \
+            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --language swift \
+            --out-dir ./output \
+            --lib-file ./libradix_engine_toolkit_uniffi.a
+          
+          cargo run \
+            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --language kotlin \
+            --out-dir ./output \
+            --lib-file ./libradix_engine_toolkit_uniffi.a
+        working-directory: artifacts/extracted
+      - name: Compress Artifacts
+        run: |
+          tar -czf "./UniFFI-Bindings.tar.gz" ./output
+        working-directory: artifacts/extracted
+      - name: Upload Bindings
+        uses: actions/upload-artifact@v3
+        with:
+          name: "UniFFI-Bindings.tar.gz"
+          path: "./artifacts/extracted/UniFFI-Bindings.tar.gz"
+  
   build-xc-framework:
     needs: [build]
     runs-on: macos-latest
