@@ -22,6 +22,9 @@ use transaction::errors::*;
 use transaction::prelude::*;
 use transaction::validation::*;
 
+use crate::instruction_visitor::core::traverser::traverse;
+use crate::instruction_visitor::visitors::account_interactions_visitor::*;
+use crate::instruction_visitor::visitors::identity_interactions_visitor::IdentityInteractionsVisitor;
 use crate::sbor::indexed_manifest_value::*;
 
 pub fn hash(instructions: &[InstructionV1]) -> Result<Hash, EncodeError> {
@@ -64,6 +67,33 @@ pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<NodeId>, Ha
             .cloned()
             .collect(),
     )
+}
+
+pub fn identities_requiring_auth(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {
+    let mut visitor = IdentityInteractionsVisitor::default();
+    traverse(instructions, &mut [&mut visitor]).expect("This visitor can't fail");
+    visitor.output()
+}
+
+pub fn accounts_requiring_auth(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {
+    let mut visitor = AccountInteractionsVisitor::default();
+    traverse(instructions, &mut [&mut visitor]).expect("This visitor can't fail");
+    let (accounts_requiring_auth, _, _) = visitor.output();
+    accounts_requiring_auth
+}
+
+pub fn accounts_withdrawn_from(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {
+    let mut visitor = AccountInteractionsVisitor::default();
+    traverse(instructions, &mut [&mut visitor]).expect("This visitor can't fail");
+    let (_, accounts_withdrawn_from, _) = visitor.output();
+    accounts_withdrawn_from
+}
+
+pub fn accounts_deposited_into(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {
+    let mut visitor = AccountInteractionsVisitor::default();
+    traverse(instructions, &mut [&mut visitor]).expect("This visitor can't fail");
+    let (_, _, accounts_deposited_into) = visitor.output();
+    accounts_deposited_into
 }
 
 #[derive(Clone, Debug)]

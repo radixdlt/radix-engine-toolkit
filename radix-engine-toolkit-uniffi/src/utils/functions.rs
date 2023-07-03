@@ -26,6 +26,11 @@ pub fn utils_known_addresses(network_id: u8) -> KnownAddresses {
     }
 }
 
+#[uniffi::export]
+pub fn hash(data: Vec<u8>) -> Arc<Hash> {
+    Hash::from_unhashed_bytes(data)
+}
+
 #[derive(Clone, Debug, Record)]
 pub struct KnownAddresses {
     pub resource_addresses: ResourceAddresses,

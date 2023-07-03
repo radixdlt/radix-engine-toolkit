@@ -59,6 +59,34 @@ impl TransactionManifest {
         }
         map
     }
+
+    pub fn identities_requiring_auth(&self) -> Vec<Arc<Address>> {
+        core_instructions_identities_requiring_auth(&self.instructions.0)
+            .into_iter()
+            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .collect()
+    }
+
+    pub fn accounts_requiring_auth(&self) -> Vec<Arc<Address>> {
+        core_instructions_accounts_requiring_auth(&self.instructions.0)
+            .into_iter()
+            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .collect()
+    }
+
+    pub fn accounts_withdrawn_from(&self) -> Vec<Arc<Address>> {
+        core_instructions_accounts_withdrawn_from(&self.instructions.0)
+            .into_iter()
+            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .collect()
+    }
+
+    pub fn accounts_deposited_into(&self) -> Vec<Arc<Address>> {
+        core_instructions_accounts_deposited_into(&self.instructions.0)
+            .into_iter()
+            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .collect()
+    }
 }
 
 impl TransactionManifest {

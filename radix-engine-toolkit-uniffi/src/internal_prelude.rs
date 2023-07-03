@@ -47,6 +47,10 @@ mod core {
         decompile as core_instructions_decompile,
         statically_validate as core_instructions_statically_validate,
         extract_addresses as core_instructions_extract_addresses,
+        identities_requiring_auth as core_instructions_identities_requiring_auth,
+        accounts_requiring_auth as core_instructions_accounts_requiring_auth,
+        accounts_withdrawn_from as core_instructions_accounts_withdrawn_from,
+        accounts_deposited_into as core_instructions_accounts_deposited_into,
         InstructionValidationError as CoreInstructionValidationError,
     };
     pub use radix_engine_toolkit_core::functions::manifest::{
