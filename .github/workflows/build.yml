@@ -192,10 +192,10 @@ jobs:
             then
               export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
             fi
-            
+
             export CC=${{ matrix.build-target.custom-compiler }}
             export AR=${{ matrix.build-target.custom-archiver }}
-            
+
             cargo +nightly build \
               -Z build-std=std,panic_abort \
               -Z build-std-features=panic_immediate_abort \
@@ -209,18 +209,18 @@ jobs:
             if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
               INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
               mkdir $INCLUDE_DIRECTORY_PATH
-              
+
               rustup default nightly
               cbindgen \
                 --lang c \
                 --config cbindgen.toml \
-                --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
+                --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
               rustup default stable
 
-              echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-              echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-              echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
-              echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+              echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
             fi
 
             (
@@ -266,7 +266,7 @@ jobs:
             --language swift \
             --out-dir ./output \
             --lib-file ./libradix_engine_toolkit_uniffi.a
-          
+
           cargo run \
             --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
             generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
@@ -283,7 +283,7 @@ jobs:
         with:
           name: "UniFFI-Bindings"
           path: "./artifacts/extracted/UniFFI-Bindings.tar.gz"
-  
+
   build-test-kit:
     needs: [build]
     runs-on: macos-latest
@@ -313,6 +313,8 @@ jobs:
           path: artifacts
       - name: Build XCFramework
         working-directory: artifacts
+        env:
+          BRANCH: ${{env.GITHUB_REF_NAME}}
         run: |
           # The name of the crate that we will be creating the XCFramework and the bindings for.
           CRATE_NAME="radix-engine-toolkit-uniffi"
@@ -365,8 +367,20 @@ jobs:
               -headers "./$EXTRACTED/include" \
               -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
 
-          # TODO: We have now built the XCFramework and we're ready to build a Swift package of it 
-          #       + the UniFFI bindings
+          # Push changes to Swift Engine Toolkit
+          SWIFT_ENGINE_TOOLKIT = https://github.com/radixdlt/swift-engine-toolkit
+          git clone $SWIFT_ENGINE_TOOLKIT
+          git checkout $BRANCH || git checkout -b $BRANCH
+
+          cd swift-engine-toolkit
+          git checkout -b $BRANCH_NAME
+          cp -R ../$EXTRACTED/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkit/RadixEngineToolkitUniFFI.xcframework
+          cp -R ../$EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi
+
+          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
+          git commit -am "Update RET from $LAST_COMMIT_SHA"
+          git push origin -b $BRANCH_NAME
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
