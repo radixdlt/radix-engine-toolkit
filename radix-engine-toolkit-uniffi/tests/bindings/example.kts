@@ -1,4 +1,4 @@
-import uniffi.radix_engine_toolkit_uniffi.*;
+import org.radixdlt.ret.*;
 
 // Act
 val information = buildInformation();
