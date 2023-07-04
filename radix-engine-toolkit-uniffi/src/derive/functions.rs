@@ -81,7 +81,7 @@ pub fn derive_public_key_from_olympia_account_address(
 ) -> Result<PublicKey> {
     core_public_key_from_olympia_account_address(&olympia_resource_address.0)
         .map(
-            |NativeSecp256k1PublicKey(public_key)| PublicKey::Secp256k1 {
+            |NativeEcdsaSecp256k1PublicKey(public_key)| PublicKey::EcdsaSecp256k1 {
                 value: public_key.to_vec(),
             },
         )
@@ -94,8 +94,8 @@ pub fn derive_olympia_account_address_from_public_key(
     olympia_network: OlympiaNetwork,
 ) -> Result<Arc<OlympiaAddress>> {
     let public_key = match NativePublicKey::try_from(public_key)? {
-        NativePublicKey::Secp256k1(pk) => Ok(pk),
-        NativePublicKey::Ed25519(..) => Err(RadixEngineToolkitError::InvalidPublicKey),
+        NativePublicKey::EcdsaSecp256k1(pk) => Ok(pk),
+        NativePublicKey::EddsaEd25519(..) => Err(RadixEngineToolkitError::InvalidPublicKey),
     }?;
     let address = core_olympia_account_address_from_public_key(&public_key, olympia_network.into());
     Ok(Arc::new(OlympiaAddress(address)))

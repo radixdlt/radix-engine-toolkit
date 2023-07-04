@@ -22,15 +22,14 @@ use sbor::rust::cell::Ref;
 use sbor::rust::prelude::*;
 use sbor::traversal::*;
 use sbor::*;
-use transaction::prelude::{ManifestAddress, ManifestBucket, ManifestExpression};
+use transaction::prelude::{ManifestBucket, ManifestExpression};
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {
     bytes: Vec<u8>,
     manifest_value: RefCell<Option<ManifestValue>>,
 
-    static_addresses: Vec<NodeId>,
-    named_addresses: Vec<u32>,
+    addresses: Vec<NodeId>,
     buckets: Vec<ManifestBucket>,
     expressions: Vec<ManifestExpression>,
 }
@@ -43,8 +42,7 @@ impl IndexedManifestValue {
             ExpectedStart::PayloadPrefix(MANIFEST_SBOR_V1_PAYLOAD_PREFIX),
             true,
         );
-        let mut static_addresses = Vec::new();
-        let mut named_addresses = Vec::new();
+        let mut addresses = Vec::new();
         let mut buckets = Vec::new();
         let mut expressions = Vec::new();
         loop {
@@ -55,10 +53,7 @@ impl IndexedManifestValue {
                 TraversalEvent::TerminalValue(r) => {
                     if let traversal::TerminalValueRef::Custom(c) = r {
                         match c.0 {
-                            ManifestCustomValue::Address(address) => match address {
-                                ManifestAddress::Static(node_id) => static_addresses.push(node_id),
-                                ManifestAddress::Named(id) => named_addresses.push(id),
-                            },
+                            ManifestCustomValue::Address(address) => addresses.push(address.0),
                             ManifestCustomValue::Bucket(bucket) => buckets.push(bucket),
                             ManifestCustomValue::Expression(expression) => {
                                 expressions.push(expression)
@@ -67,8 +62,7 @@ impl IndexedManifestValue {
                             | ManifestCustomValue::Blob(_)
                             | ManifestCustomValue::Decimal(_)
                             | ManifestCustomValue::PreciseDecimal(_)
-                            | ManifestCustomValue::NonFungibleLocalId(_)
-                            | ManifestCustomValue::AddressReservation(_) => {}
+                            | ManifestCustomValue::NonFungibleLocalId(_) => {}
                         }
                     }
                 }
@@ -84,8 +78,7 @@ impl IndexedManifestValue {
 
         Ok(Self {
             bytes,
-            static_addresses,
-            named_addresses,
+            addresses,
             buckets,
             expressions,
             manifest_value: RefCell::new(None),
@@ -143,12 +136,8 @@ impl IndexedManifestValue {
         self.bytes.as_slice()
     }
 
-    pub fn static_addresses(&self) -> &Vec<NodeId> {
-        &self.static_addresses
-    }
-
-    pub fn named_addresses(&self) -> &Vec<u32> {
-        &self.named_addresses
+    pub fn addresses(&self) -> &Vec<NodeId> {
+        &self.addresses
     }
 
     pub fn expressions(&self) -> &Vec<ManifestExpression> {

@@ -49,7 +49,7 @@ impl TransactionManifest {
 
     pub fn extract_addresses(&self) -> HashMap<EntityType, Vec<Arc<Address>>> {
         let network_id = self.instructions.1;
-        let (addresses, _) = core_instructions_extract_addresses(&self.instructions.0);
+        let addresses = core_instructions_extract_addresses(&self.instructions.0);
 
         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
         for address in addresses {
@@ -279,7 +279,7 @@ impl TransactionType {
                     account_proofs,
                     account_withdraws,
                     account_deposits,
-                    addresses_in_manifest: (addresses_in_manifest, _),
+                    addresses_in_manifest,
                     metadata_of_newly_created_entities,
                     data_of_newly_minted_non_fungibles,
                 } = value.as_ref();

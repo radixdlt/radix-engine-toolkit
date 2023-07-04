@@ -48,8 +48,6 @@ pub mod prelude {
     pub use crate::cryptography::signature_with_public_key::*;
 
     /* Manifest */
-    pub use crate::manifest::address::*;
-    pub use crate::manifest::address_reservation::*;
     pub use crate::manifest::blob::*;
     pub use crate::manifest::bucket::*;
     pub use crate::manifest::expression::*;
@@ -63,7 +61,6 @@ pub mod prelude {
     pub use crate::transaction::instructions::*;
     pub use crate::transaction::intent::*;
     pub use crate::transaction::manifest::*;
-    pub use crate::transaction::message::*;
     pub use crate::transaction::notarized_transaction::*;
     pub use crate::transaction::signed_intent::*;
     pub use crate::transaction::validation::*;

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::utils::*;
 use sbor::*;
 use scrypto::prelude::*;
 use transaction::errors::*;
@@ -45,28 +44,15 @@ where
 pub fn statically_validate(
     instructions: &[InstructionV1],
 ) -> Result<(), InstructionValidationError> {
-    radix_engine::utils::validate_call_arguments_to_native_components(instructions)
-        .map_err(InstructionValidationError::LocatedInstructionSchemaValidationError)?;
     NotarizedTransactionValidator::validate_instructions_v1(instructions)
         .map_err(InstructionValidationError::TransactionValidationError)?;
     Ok(())
 }
 
-pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<NodeId>, HashSet<u32>) {
+pub fn extract_addresses(instructions: &[InstructionV1]) -> HashSet<NodeId> {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
 
-    (
-        indexed_manifest_value
-            .static_addresses()
-            .iter()
-            .cloned()
-            .collect(),
-        indexed_manifest_value
-            .named_addresses()
-            .iter()
-            .cloned()
-            .collect(),
-    )
+    indexed_manifest_value.addresses().iter().cloned().collect()
 }
 
 pub fn identities_requiring_auth(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {
@@ -99,5 +85,4 @@ pub fn accounts_deposited_into(instructions: &[InstructionV1]) -> HashSet<Compon
 #[derive(Clone, Debug)]
 pub enum InstructionValidationError {
     TransactionValidationError(TransactionValidationError),
-    LocatedInstructionSchemaValidationError(LocatedInstructionSchemaValidationError),
 }

@@ -106,37 +106,31 @@ pub enum Instruction {
     },
 
     CallFunction {
-        package_address: ManifestAddress,
+        package_address: Arc<Address>,
         blueprint_name: String,
         function_name: String,
         args: ManifestValue,
     },
 
     CallMethod {
-        address: ManifestAddress,
+        address: Arc<Address>,
         method_name: String,
         args: ManifestValue,
     },
 
     CallRoyaltyMethod {
-        address: ManifestAddress,
+        address: Arc<Address>,
         method_name: String,
         args: ManifestValue,
     },
 
     CallMetadataMethod {
-        address: ManifestAddress,
+        address: Arc<Address>,
         method_name: String,
         args: ManifestValue,
     },
 
     CallAccessRulesMethod {
-        address: ManifestAddress,
-        method_name: String,
-        args: ManifestValue,
-    },
-
-    CallDirectVaultMethod {
         address: Arc<Address>,
         method_name: String,
         args: ManifestValue,
@@ -144,9 +138,9 @@ pub enum Instruction {
 
     DropAllProofs,
 
-    AllocateGlobalAddress {
-        package_address: Arc<Address>,
-        blueprint_name: String,
+    RecallResource {
+        vault_id: Arc<Address>,
+        amount: Arc<Decimal>,
     },
 }
 
@@ -260,23 +254,13 @@ impl Instruction {
                 proof_id: (*proof_id).into(),
             },
             NativeInstruction::DropAllProofs => Self::DropAllProofs,
-            NativeInstruction::AllocateGlobalAddress {
-                package_address,
-                blueprint_name,
-            } => Self::AllocateGlobalAddress {
-                package_address: Arc::new(Address::from_node_id(*package_address, network_id)),
-                blueprint_name: blueprint_name.clone(),
-            },
             NativeInstruction::CallFunction {
                 package_address,
                 blueprint_name,
                 function_name,
                 args,
             } => Self::CallFunction {
-                package_address: ManifestAddress::from_dynamic_package_address(
-                    package_address,
-                    network_id,
-                ),
+                package_address: Arc::new(Address(package_address.into_node_id(), network_id)),
                 blueprint_name: blueprint_name.to_owned(),
                 function_name: function_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
@@ -286,7 +270,7 @@ impl Instruction {
                 method_name,
                 args,
             } => Self::CallMethod {
-                address: ManifestAddress::from_dynamic_global_address(address, network_id),
+                address: Arc::new(Address(address.into_node_id(), network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
@@ -295,7 +279,7 @@ impl Instruction {
                 method_name,
                 args,
             } => Self::CallMetadataMethod {
-                address: ManifestAddress::from_dynamic_global_address(address, network_id),
+                address: Arc::new(Address(address.into_node_id(), network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
@@ -304,7 +288,7 @@ impl Instruction {
                 method_name,
                 args,
             } => Self::CallAccessRulesMethod {
-                address: ManifestAddress::from_dynamic_global_address(address, network_id),
+                address: Arc::new(Address(address.into_node_id(), network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
@@ -313,18 +297,13 @@ impl Instruction {
                 method_name,
                 args,
             } => Self::CallRoyaltyMethod {
-                address: ManifestAddress::from_dynamic_global_address(address, network_id),
+                address: Arc::new(Address(address.into_node_id(), network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstruction::CallDirectVaultMethod {
-                address,
-                method_name,
-                args,
-            } => Self::CallDirectVaultMethod {
-                address: Arc::new(Address::from_node_id(*address, network_id)),
-                method_name: method_name.to_owned(),
-                args: ManifestValue::from_native(args, network_id),
+            NativeInstruction::RecallResource { vault_id, amount } => Self::RecallResource {
+                vault_id: Arc::new(Address(vault_id.into_node_id(), network_id)),
+                amount: Arc::new(Decimal(*amount)),
             },
         }
     }
@@ -449,7 +428,7 @@ impl Instruction {
                 function_name,
                 args,
             } => NativeInstruction::CallFunction {
-                package_address: package_address.clone().try_into()?,
+                package_address: package_address.0 .0.try_into()?,
                 blueprint_name: blueprint_name.to_string(),
                 function_name: function_name.to_string(),
                 args: args.to_native()?,
@@ -459,7 +438,7 @@ impl Instruction {
                 method_name,
                 args,
             } => NativeInstruction::CallMethod {
-                address: address.clone().try_into()?,
+                address: address.0 .0.try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
@@ -468,7 +447,7 @@ impl Instruction {
                 method_name,
                 args,
             } => NativeInstruction::CallMetadataMethod {
-                address: address.clone().try_into()?,
+                address: address.0 .0.try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
@@ -477,7 +456,7 @@ impl Instruction {
                 method_name,
                 args,
             } => NativeInstruction::CallAccessRulesMethod {
-                address: address.clone().try_into()?,
+                address: address.0 .0.try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
@@ -486,20 +465,14 @@ impl Instruction {
                 method_name,
                 args,
             } => NativeInstruction::CallRoyaltyMethod {
-                address: address.clone().try_into()?,
+                address: address.0 .0.try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
-            Self::CallDirectVaultMethod {
-                address,
-                method_name,
-                args,
-            } => NativeInstruction::CallDirectVaultMethod {
-                address: address.as_ref().0 .0.try_into()?,
-                method_name: method_name.to_owned(),
-                args: args.to_native()?,
+            Self::RecallResource { vault_id, amount } => NativeInstruction::RecallResource {
+                vault_id: vault_id.0 .0.try_into()?,
+                amount: amount.0,
             },
-            _ => todo!(),
         };
         Ok(value)
     }

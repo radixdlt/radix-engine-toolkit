@@ -19,10 +19,10 @@ use crate::prelude::*;
 
 #[derive(Clone, Enum, Debug)]
 pub enum SignatureWithPublicKey {
-    Secp256k1 {
+    EcdsaSecp256k1 {
         signature: Vec<u8>,
     },
-    Ed25519 {
+    EddsaEd25519 {
         signature: Vec<u8>,
         public_key: Vec<u8>,
     },
@@ -31,15 +31,15 @@ pub enum SignatureWithPublicKey {
 impl From<NativeSignatureWithPublicKey> for SignatureWithPublicKey {
     fn from(value: NativeSignatureWithPublicKey) -> Self {
         match value {
-            NativeSignatureWithPublicKey::Secp256k1 {
-                signature: NativeSecp256k1Signature(signature),
-            } => Self::Secp256k1 {
+            NativeSignatureWithPublicKey::EcdsaSecp256k1 {
+                signature: NativeEcdsaSecp256k1Signature(signature),
+            } => Self::EcdsaSecp256k1 {
                 signature: signature.to_vec(),
             },
-            NativeSignatureWithPublicKey::Ed25519 {
-                signature: NativeEd25519Signature(signature),
-                public_key: NativeEd25519PublicKey(public_key),
-            } => Self::Ed25519 {
+            NativeSignatureWithPublicKey::EddsaEd25519 {
+                signature: NativeEddsaEd25519Signature(signature),
+                public_key: NativeEddsaEd25519PublicKey(public_key),
+            } => Self::EddsaEd25519 {
                 signature: signature.to_vec(),
                 public_key: public_key.to_vec(),
             },
@@ -52,39 +52,37 @@ impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
 
     fn try_from(value: SignatureWithPublicKey) -> Result<Self> {
         match value {
-            SignatureWithPublicKey::Ed25519 {
+            SignatureWithPublicKey::EddsaEd25519 {
                 signature,
                 public_key,
             } => {
-                let public_key =
-                    public_key
-                        .try_into()
-                        .map(NativeEd25519PublicKey)
-                        .map_err(|public_key| RadixEngineToolkitError::InvalidLength {
-                            expected: NativeEd25519PublicKey::LENGTH as u64,
-                            actual: public_key.len() as u64,
-                            data: public_key,
-                        })?;
-                let signature =
-                    signature
-                        .try_into()
-                        .map(NativeEd25519Signature)
-                        .map_err(|signature| RadixEngineToolkitError::InvalidLength {
-                            expected: NativeEd25519Signature::LENGTH as u64,
-                            actual: signature.len() as u64,
-                            data: signature,
-                        })?;
-                Ok(Self::Ed25519 {
+                let public_key = public_key
+                    .try_into()
+                    .map(NativeEddsaEd25519PublicKey)
+                    .map_err(|public_key| RadixEngineToolkitError::InvalidLength {
+                        expected: NativeEddsaEd25519PublicKey::LENGTH as u64,
+                        actual: public_key.len() as u64,
+                        data: public_key,
+                    })?;
+                let signature = signature
+                    .try_into()
+                    .map(NativeEddsaEd25519Signature)
+                    .map_err(|signature| RadixEngineToolkitError::InvalidLength {
+                        expected: NativeEddsaEd25519Signature::LENGTH as u64,
+                        actual: signature.len() as u64,
+                        data: signature,
+                    })?;
+                Ok(Self::EddsaEd25519 {
                     public_key,
                     signature,
                 })
             }
-            SignatureWithPublicKey::Secp256k1 { signature } => signature
+            SignatureWithPublicKey::EcdsaSecp256k1 { signature } => signature
                 .try_into()
-                .map(NativeSecp256k1Signature)
-                .map(|signature| Self::Secp256k1 { signature })
+                .map(NativeEcdsaSecp256k1Signature)
+                .map(|signature| Self::EcdsaSecp256k1 { signature })
                 .map_err(|signature| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeSecp256k1Signature::LENGTH as u64,
+                    expected: NativeEcdsaSecp256k1Signature::LENGTH as u64,
                     actual: signature.len() as u64,
                     data: signature,
                 }),

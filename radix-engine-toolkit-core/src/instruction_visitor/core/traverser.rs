@@ -188,27 +188,11 @@ pub fn traverse(
                     visit_call_access_rules_method(address, method_name, args)
                 )
             }
-            InstructionV1::CallDirectVaultMethod {
-                address,
-                method_name,
-                args,
-            } => {
-                for_each_enabled_visitor!(
-                    visitors,
-                    visit_call_direct_vault_method(address, method_name, args)
-                )
+            InstructionV1::RecallResource { vault_id, amount } => {
+                for_each_enabled_visitor!(visitors, visit_recall_resource(vault_id, amount))
             }
             InstructionV1::DropAllProofs => {
                 for_each_enabled_visitor!(visitors, visit_drop_all_proofs())
-            }
-            InstructionV1::AllocateGlobalAddress {
-                package_address,
-                blueprint_name,
-            } => {
-                for_each_enabled_visitor!(
-                    visitors,
-                    visit_allocate_global_address(package_address, blueprint_name)
-                )
             }
         }
 

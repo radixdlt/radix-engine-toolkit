@@ -17,7 +17,7 @@
 
 use sbor::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::DynamicGlobalAddress;
+use transaction::prelude::GlobalAddress;
 
 use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
@@ -37,14 +37,14 @@ impl AccountProofsVisitor {
 impl InstructionVisitor for AccountProofsVisitor {
     fn visit_call_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
-        if is_account(address) && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name.to_owned()) {
+        if is_account(address) && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name) {
             self.0.extend(
                 IndexedManifestValue::from_manifest_value(args)
-                    .static_addresses()
+                    .addresses()
                     .iter()
                     .filter_map(|node_id| {
                         if node_id.is_global_resource_manager() {

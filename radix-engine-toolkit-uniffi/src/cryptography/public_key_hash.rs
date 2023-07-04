@@ -19,21 +19,23 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Enum)]
 pub enum PublicKeyHash {
-    Secp256k1 { value: Vec<u8> },
-    Ed25519 { value: Vec<u8> },
+    EcdsaSecp256k1 { value: Vec<u8> },
+    EddsaEd25519 { value: Vec<u8> },
 }
 
 impl From<NativePublicKeyHash> for PublicKeyHash {
     fn from(value: NativePublicKeyHash) -> Self {
         match value {
-            NativePublicKeyHash::Secp256k1(NativeSecp256k1PublicKeyHash(value)) => {
-                Self::Secp256k1 {
+            NativePublicKeyHash::EcdsaSecp256k1(NativeEcdsaSecp256k1PublicKeyHash(value)) => {
+                Self::EcdsaSecp256k1 {
                     value: value.to_vec(),
                 }
             }
-            NativePublicKeyHash::Ed25519(NativeEd25519PublicKeyHash(value)) => Self::Ed25519 {
-                value: value.to_vec(),
-            },
+            NativePublicKeyHash::EddsaEd25519(NativeEddsaEd25519PublicKeyHash(value)) => {
+                Self::EddsaEd25519 {
+                    value: value.to_vec(),
+                }
+            }
         }
     }
 }
@@ -43,21 +45,21 @@ impl TryFrom<PublicKeyHash> for NativePublicKeyHash {
 
     fn try_from(value: PublicKeyHash) -> Result<Self> {
         match value {
-            PublicKeyHash::Ed25519 { value } => value
+            PublicKeyHash::EddsaEd25519 { value } => value
                 .try_into()
-                .map(NativeEd25519PublicKeyHash)
-                .map(Self::Ed25519)
+                .map(NativeEddsaEd25519PublicKeyHash)
+                .map(Self::EddsaEd25519)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeNodeId::RID_LENGTH as u64,
+                    expected: NativeNodeId::UUID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
-            PublicKeyHash::Secp256k1 { value } => value
+            PublicKeyHash::EcdsaSecp256k1 { value } => value
                 .try_into()
-                .map(NativeSecp256k1PublicKeyHash)
-                .map(Self::Secp256k1)
+                .map(NativeEcdsaSecp256k1PublicKeyHash)
+                .map(Self::EcdsaSecp256k1)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeNodeId::RID_LENGTH as u64,
+                    expected: NativeNodeId::UUID_LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),

@@ -116,21 +116,21 @@ mod core {
 mod native {
     pub use transaction::prelude::{
         /* Cryptography */
-        Ed25519PrivateKey as NativeEd25519PrivateKey,
-        Secp256k1PrivateKey as NativeSecp256k1PrivateKey,
+        EddsaEd25519PrivateKey as NativeEddsaEd25519PrivateKey,
+        EcdsaSecp256k1PrivateKey as NativeEcdsaSecp256k1PrivateKey,
         
         PublicKey as NativePublicKey, 
-        Ed25519PublicKey as NativeEd25519PublicKey,
-        Secp256k1PublicKey as NativeSecp256k1PublicKey,
+        EddsaEd25519PublicKey as NativeEddsaEd25519PublicKey,
+        EcdsaSecp256k1PublicKey as NativeEcdsaSecp256k1PublicKey,
         
         PublicKeyHash as NativePublicKeyHash,
         HasPublicKeyHash as NativeHasPublicKeyHash,
-        Ed25519PublicKeyHash as NativeEd25519PublicKeyHash,
-        Secp256k1PublicKeyHash as NativeSecp256k1PublicKeyHash,
+        EddsaEd25519PublicKeyHash as NativeEddsaEd25519PublicKeyHash,
+        EcdsaSecp256k1PublicKeyHash as NativeEcdsaSecp256k1PublicKeyHash,
 
         SignatureV1 as NativeSignature,
-        Ed25519Signature as NativeEd25519Signature, 
-        Secp256k1Signature as NativeSecp256k1Signature, 
+        EddsaEd25519Signature as NativeEddsaEd25519Signature, 
+        EcdsaSecp256k1Signature as NativeEcdsaSecp256k1Signature, 
 
         SignatureWithPublicKeyV1 as NativeSignatureWithPublicKey,
     };
@@ -138,10 +138,6 @@ mod native {
         compile as native_compile,
         decompile as native_decompile,
         
-        IsBlobProvider as NativeIsBlobProvider,
-        BlobProvider as NativeBlobProvider,
-        MockBlobProvider as NativeMockBlobProvider,
-
         CompileError as NativeCompileError,
         DecompileError as NativeDecompileError
     };
@@ -177,8 +173,8 @@ mod native {
         RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,
-        SECP256K1_SIGNATURE_VIRTUAL_BADGE as NATIVE_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
-        ED25519_SIGNATURE_VIRTUAL_BADGE as NATIVE_ED25519_SIGNATURE_VIRTUAL_BADGE,
+        ECDSA_SECP256K1_SIGNATURE_VIRTUAL_BADGE as NATIVE_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
+        EDDSA_ED25519_SIGNATURE_VIRTUAL_BADGE as NATIVE_ED25519_SIGNATURE_VIRTUAL_BADGE,
         PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE as NATIVE_PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE,
         GLOBAL_CALLER_VIRTUAL_BADGE as NATIVE_GLOBAL_CALLER_VIRTUAL_BADGE,
         SYSTEM_TRANSACTION_BADGE as NATIVE_SYSTEM_TRANSACTION_BADGE,
@@ -192,7 +188,6 @@ mod native {
         IDENTITY_PACKAGE as NATIVE_IDENTITY_PACKAGE,
         CONSENSUS_MANAGER_PACKAGE as NATIVE_CONSENSUS_MANAGER_PACKAGE,
         ACCESS_CONTROLLER_PACKAGE as NATIVE_ACCESS_CONTROLLER_PACKAGE,
-        POOL_PACKAGE as NATIVE_POOL_PACKAGE,
         TRANSACTION_PROCESSOR_PACKAGE as NATIVE_TRANSACTION_PROCESSOR_PACKAGE,
         METADATA_MODULE_PACKAGE as NATIVE_METADATA_MODULE_PACKAGE,
         ROYALTY_MODULE_PACKAGE as NATIVE_ROYALTY_MODULE_PACKAGE,
@@ -201,12 +196,9 @@ mod native {
         GENESIS_HELPER_BLUEPRINT as NATIVE_GENESIS_HELPER_BLUEPRINT,
         FAUCET_PACKAGE as NATIVE_FAUCET_PACKAGE,
         FAUCET_BLUEPRINT as NATIVE_FAUCET_BLUEPRINT,
-        TRANSACTION_TRACKER_PACKAGE as NATIVE_TRANSACTION_TRACKER_PACKAGE,
-        TRANSACTION_TRACKER_BLUEPRINT as NATIVE_TRANSACTION_TRACKER_BLUEPRINT,
         CONSENSUS_MANAGER as NATIVE_CONSENSUS_MANAGER,
         GENESIS_HELPER as NATIVE_GENESIS_HELPER,
         FAUCET as NATIVE_FAUCET,
-        TRANSACTION_TRACKER as NATIVE_TRANSACTION_TRACKER,
 
         ManifestValue as NativeManifestValue,
         ManifestCustomValue as NativeManifestCustomValue,
@@ -223,7 +215,6 @@ mod native {
         ManifestProof as NativeManifestProof,
         ManifestExpression as NativeManifestExpression,
         ManifestBlobRef as NativeManifestBlobRef,
-        ManifestAddressReservation as NativeManifestAddressReservation,
 
         scrypto_encode as native_scrypto_encode,
         scrypto_decode as native_scrypto_decode,
@@ -231,14 +222,12 @@ mod native {
         manifest_decode as native_manifest_decode,
     };
     pub use scrypto::address::{
-        AddressBech32Decoder as NativeAddressBech32Decoder,
-        AddressBech32Encoder as NativeAddressBech32Encoder,
+        Bech32Decoder as NativeBech32Decoder,
+        Bech32Encoder as NativeBech32Encoder,
     };
     pub use transaction::prelude::{
         InstructionV1 as NativeInstruction,
         InstructionsV1 as NativeInstructions,
-        DynamicGlobalAddress as NativeDynamicGlobalAddress,
-        DynamicPackageAddress as NativeDynamicPackageAddress,
 
         TransactionHeaderV1 as NativeTransactionHeader,
         TransactionManifestV1 as NativeTransactionManifest,
@@ -249,16 +238,6 @@ mod native {
         BlobsV1 as NativeBlobs,
 
         Epoch as NativeEpoch,
-
-        AesGcmPayload as NativeAesGcmPayload,
-        AesWrapped128BitKey as NativeAesWrapped128BitKey,
-        CurveType as NativeCurveType,
-        DecryptorsByCurve as NativeDecryptorsByCurve,
-        EncryptedMessageV1 as NativeEncryptedMessage,
-        MessageContentsV1 as NativeMessageContents,
-        MessageV1 as NativeMessage,
-        PlaintextMessageV1 as NativePlaintextMessage,
-        PublicKeyFingerprint as NativePublicKeyFingerprint,
 
         TransactionPayload as NativeTransactionPayload,
         PrepareError as NativePrepareError,
@@ -272,7 +251,6 @@ mod native {
     };
     pub use transaction::validation::{ 
         ValidationConfig as NativeValidationConfig,
-        MessageValidationConfig as NativeMessageValidationConfig,
     };
     pub use transaction::errors::{
         TransactionValidationError as NativeTransactionValidationError,

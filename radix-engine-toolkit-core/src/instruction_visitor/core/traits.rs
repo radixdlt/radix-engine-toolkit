@@ -19,7 +19,7 @@
 
 use super::error::InstructionVisitorError;
 use scrypto::prelude::*;
-use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress, InstructionV1};
+use transaction::prelude::InstructionV1;
 
 pub trait InstructionVisitor {
     //=====
@@ -208,7 +208,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_function(
         &mut self,
-        package_address: &DynamicPackageAddress,
+        package_address: &PackageAddress,
         blueprint_name: &str,
         function_name: &str,
         args: &ManifestValue,
@@ -219,7 +219,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -229,7 +229,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_royalty_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -239,7 +239,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_metadata_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -249,7 +249,7 @@ pub trait InstructionVisitor {
     #[inline]
     fn visit_call_access_rules_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -257,26 +257,16 @@ pub trait InstructionVisitor {
     }
 
     #[inline]
-    fn visit_call_direct_vault_method(
+    fn visit_recall_resource(
         &mut self,
         vault_id: &InternalAddress,
-        method_name: &str,
-        args: &ManifestValue,
+        amount: &Decimal,
     ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
     #[inline]
     fn visit_drop_all_proofs(&mut self) -> Result<(), InstructionVisitorError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn visit_allocate_global_address(
-        &mut self,
-        package_address: &PackageAddress,
-        blueprint_name: &str,
-    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 

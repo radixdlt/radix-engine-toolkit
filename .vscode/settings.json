@@ -2,8 +2,6 @@
     "rust-analyzer.linkedProjects": [
         "radix-engine-toolkit-uniffi/Cargo.toml",
         "radix-engine-toolkit-core/Cargo.toml",
-        "radix-engine-toolkit/Cargo.toml",
-        "generator/Cargo.toml",
         "uniffi-bindgen/Cargo.toml"
     ],
     "cSpell.words": [
@@ -28,7 +26,7 @@
         "radixdlt",
         "RCNet",
         "Releasenet",
-        "Ruid",
+        "UUID",
         "rustfmt",
         "Sandpitnet",
         "testcases",

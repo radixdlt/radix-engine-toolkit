@@ -63,36 +63,36 @@ pub fn manifest() -> TransactionManifestV1 {
     radix_engine_toolkit_core::utils::manifest_from_intent(&intent())
 }
 
-pub fn private_key1() -> Secp256k1PrivateKey {
-    Secp256k1PrivateKey::from_u64(1).unwrap()
+pub fn private_key1() -> EcdsaSecp256k1PrivateKey {
+    EcdsaSecp256k1PrivateKey::from_u64(1).unwrap()
 }
 
-pub fn private_key2() -> Ed25519PrivateKey {
-    Ed25519PrivateKey::from_u64(1).unwrap()
+pub fn private_key2() -> EddsaEd25519PrivateKey {
+    EddsaEd25519PrivateKey::from_u64(1).unwrap()
 }
 
-pub fn private_key3() -> Secp256k1PrivateKey {
-    Secp256k1PrivateKey::from_u64(2).unwrap()
+pub fn private_key3() -> EcdsaSecp256k1PrivateKey {
+    EcdsaSecp256k1PrivateKey::from_u64(2).unwrap()
 }
 
-pub fn private_key4() -> Ed25519PrivateKey {
-    Ed25519PrivateKey::from_u64(2).unwrap()
+pub fn private_key4() -> EddsaEd25519PrivateKey {
+    EddsaEd25519PrivateKey::from_u64(2).unwrap()
 }
 
 pub fn account1() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }
 
 pub fn account2() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(2).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(2).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }
 
 pub fn account3() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(3).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(3).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }

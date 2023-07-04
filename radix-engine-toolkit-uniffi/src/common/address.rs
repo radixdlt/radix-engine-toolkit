@@ -30,7 +30,7 @@ impl Address {
             },
         )?;
         let network_definition = core_network_definition_from_network_id(network_id);
-        let bech32_decoder = NativeAddressBech32Decoder::new(&network_definition);
+        let bech32_decoder = NativeBech32Decoder::new(&network_definition);
 
         let (_, bytes) = bech32_decoder
             .validate_and_decode(&address)
@@ -100,7 +100,7 @@ impl Address {
 
     pub fn address(&self) -> String {
         let network_definition = core_network_definition_from_network_id(self.1);
-        let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
+        let bech32_encoder = NativeBech32Encoder::new(&network_definition);
         bech32_encoder.encode(&self.0 .0).unwrap()
     }
 

@@ -8,13 +8,13 @@
 # that you are using is resim then you can safely ignore this warning.
 # ==================================================================================================
 CALL_METHOD 
-    Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") 
+    Address("${this_account_address}") 
     "lock_fee"
-    Decimal("500");
+    Decimal("10");
 
 # Withdrawing 100 XRD from the account component
 CALL_METHOD 
-    Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") 
+    Address("${this_account_address}") 
     "withdraw"
     Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3")
     Decimal("100");

@@ -6,7 +6,6 @@ SCRIPT_DIRECTORY: str = os.path.dirname(os.path.realpath(__file__))
 REPOSITORY_URL: str = "https://github.com/radixdlt/radixdlt-scrypto"
 OUTPUT_DIRECTORIES: list[str] = [
     os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit-core", "tests", "manifests"),
-    os.path.join(SCRIPT_DIRECTORY, "radix-engine-toolkit", "tests", "manifests"),
 ]
 
 def main() -> None:

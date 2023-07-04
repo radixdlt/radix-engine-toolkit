@@ -15,8 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod address_reservation;
 pub mod blob;
 pub mod bucket;
 pub mod expression;

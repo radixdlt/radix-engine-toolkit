@@ -42,11 +42,12 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
             )
         })
         .build();
-    let receipt = test_runner.preview_manifest(
+    let receipt = test_runner.execute_manifest(
         manifest.clone(),
-        vec![public_key1.into(), public_key2.into()],
-        0,
-        PreviewFlags::default(),
+        vec![public_key1, public_key2]
+            .into_iter()
+            .map(|pk| NonFungibleGlobalId::from_public_key(&pk))
+            .collect::<Vec<_>>(),
     );
     receipt.expect_commit_success();
 
@@ -90,11 +91,12 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
             )
         })
         .build();
-    let receipt = test_runner.preview_manifest(
+    let receipt = test_runner.execute_manifest(
         manifest.clone(),
-        vec![public_key1.into(), public_key2.into(), public_key3.into()],
-        0,
-        PreviewFlags::default(),
+        vec![public_key1, public_key2, public_key3]
+            .into_iter()
+            .map(|pk| NonFungibleGlobalId::from_public_key(&pk))
+            .collect::<Vec<_>>(),
     );
     receipt.expect_commit_success();
 
@@ -145,11 +147,12 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
             )
         })
         .build();
-    let receipt = test_runner.preview_manifest(
+    let receipt = test_runner.execute_manifest(
         manifest.clone(),
-        vec![public_key1.into(), public_key2.into(), public_key3.into()],
-        0,
-        PreviewFlags::default(),
+        vec![public_key1, public_key2, public_key3]
+            .into_iter()
+            .map(|pk| NonFungibleGlobalId::from_public_key(&pk))
+            .collect::<Vec<_>>(),
     );
     receipt.expect_commit_success();
 

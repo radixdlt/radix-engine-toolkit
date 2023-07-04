@@ -145,7 +145,7 @@ impl<'r> InstructionVisitor for GeneralTransactionTypeVisitor<'r> {
             }
 
             /* Direct Vault method and recall put the visitor in illegal state */
-            InstructionV1::BurnResource { .. } | InstructionV1::CallDirectVaultMethod { .. } => {
+            InstructionV1::BurnResource { .. } | InstructionV1::RecallResource { .. } => {
                 self.is_illegal_state = true
             }
 
@@ -166,8 +166,7 @@ impl<'r> InstructionVisitor for GeneralTransactionTypeVisitor<'r> {
             | InstructionV1::CreateProofFromBucketOfAll { .. }
             | InstructionV1::CloneProof { .. }
             | InstructionV1::DropProof { .. }
-            | InstructionV1::DropAllProofs
-            | InstructionV1::AllocateGlobalAddress { .. } => {}
+            | InstructionV1::DropAllProofs => {}
         }
         Ok(())
     }
@@ -181,7 +180,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             account_withdraws: Default::default(),
             account_deposits: Default::default(),
             instruction_index: Default::default(),
-            id_allocator: Default::default(),
+            id_allocator: ManifestIdAllocator::new(),
             bucket_tracker: Default::default(),
         }
     }
@@ -202,7 +201,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
     pub fn handle_call_function(
         &mut self,
-        _: &DynamicPackageAddress,
+        _: &PackageAddress,
         _: &str,
         _: &str,
         args: &ManifestValue,
@@ -220,18 +219,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
     pub fn handle_call_method(
         &mut self,
-        global_address: &DynamicGlobalAddress,
+        global_address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), GeneralTransactionTypeError> {
-        // Filter: We only permit static address - no dynamic or named addresses are allowed
-        let global_address = if let DynamicGlobalAddress::Static(address) = global_address {
-            address
-        } else {
-            self.is_illegal_state = true;
-            return Ok(());
-        };
-
         // Filter: Some method calls to certain objects put the visitor in an illegal state
         if !global_address
             .as_node_id()
@@ -241,9 +232,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 EntityType::GlobalGenericComponent
                 | EntityType::GlobalAccount
                 | EntityType::GlobalIdentity
-                | EntityType::GlobalOneResourcePool
-                | EntityType::GlobalTwoResourcePool
-                | EntityType::GlobalMultiResourcePool
                 | EntityType::GlobalVirtualSecp256k1Account
                 | EntityType::GlobalVirtualSecp256k1Identity
                 | EntityType::GlobalVirtualEd25519Account
@@ -264,8 +252,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 | EntityType::GlobalConsensusManager
                 | EntityType::InternalFungibleVault
                 | EntityType::InternalNonFungibleVault
-                | EntityType::InternalKeyValueStore
-                | EntityType::GlobalTransactionTracker => false,
+                | EntityType::InternalKeyValueStore => false,
             })
         {
             self.is_illegal_state = true;
@@ -274,8 +261,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
         let component_address = ComponentAddress::new_or_panic(global_address.as_node_id().0);
 
-        if ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_string()) && is_account(global_address)
-        {
+        if ACCOUNT_WITHDRAW_METHODS.contains(&method_name) && is_account(global_address) {
             let withdrawn_resources = self
                 .execution_trace
                 .worktop_changes()
@@ -354,7 +340,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         resource_address: &ResourceAddress,
         amount: &Decimal,
     ) -> Result<(), GeneralTransactionTypeError> {
-        let bucket = self.id_allocator.new_bucket_id();
+        let bucket = self.id_allocator.new_bucket_id().unwrap();
         let resource_specifier = ResourceSpecifier::Amount(*resource_address, *amount);
         self.bucket_tracker
             .insert(bucket, Source::Guaranteed(resource_specifier));
@@ -366,7 +352,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         resource_address: &ResourceAddress,
         ids: &BTreeSet<NonFungibleLocalId>,
     ) -> Result<(), GeneralTransactionTypeError> {
-        let bucket = self.id_allocator.new_bucket_id();
+        let bucket = self.id_allocator.new_bucket_id().unwrap();
         let resource_specifier = ResourceSpecifier::Ids(*resource_address, ids.clone());
         self.bucket_tracker
             .insert(bucket, Source::Guaranteed(resource_specifier));
@@ -377,7 +363,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         &mut self,
         _: &ResourceAddress,
     ) -> Result<(), GeneralTransactionTypeError> {
-        let bucket = self.id_allocator.new_bucket_id();
+        let bucket = self.id_allocator.new_bucket_id().unwrap();
         let resource_specifier = self
             .execution_trace
             .worktop_changes()

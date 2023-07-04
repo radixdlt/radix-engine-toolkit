@@ -21,7 +21,7 @@ use crate::utils::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
-use transaction::prelude::{DynamicGlobalAddress, DynamicPackageAddress};
+use transaction::prelude::{GlobalAddress, PackageAddress};
 
 #[derive(Default, Debug, Clone)]
 pub struct SimpleTransactionTypeVisitor {
@@ -51,19 +51,15 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     #[inline]
     fn visit_call_method(
         &mut self,
-        address: &DynamicGlobalAddress,
+        address: &GlobalAddress,
         method_name: &str,
         args: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
         if is_account(address) {
-            let component_address = match address {
-                DynamicGlobalAddress::Static(address) => {
-                    ComponentAddress::new_or_panic(address.as_node_id().0)
-                }
-                DynamicGlobalAddress::Named(_) => {
-                    self.illegal_instruction_encountered = true;
-                    return Ok(());
-                }
+            let Ok(component_address) = ComponentAddress::try_from(address.as_node_id().0)
+            else {
+                self.illegal_instruction_encountered = true;
+                return Ok(())
             };
 
             if method_name == ACCOUNT_LOCK_FEE_IDENT {
@@ -356,7 +352,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     #[inline]
     fn visit_call_function(
         &mut self,
-        _: &DynamicPackageAddress,
+        _: &PackageAddress,
         _: &str,
         _: &str,
         _: &ManifestValue,
@@ -368,7 +364,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     #[inline]
     fn visit_call_royalty_method(
         &mut self,
-        _: &DynamicGlobalAddress,
+        _: &GlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -379,7 +375,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     #[inline]
     fn visit_call_metadata_method(
         &mut self,
-        _: &DynamicGlobalAddress,
+        _: &GlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -390,7 +386,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     #[inline]
     fn visit_call_access_rules_method(
         &mut self,
-        _: &DynamicGlobalAddress,
+        _: &GlobalAddress,
         _: &str,
         _: &ManifestValue,
     ) -> Result<(), InstructionVisitorError> {
@@ -399,11 +395,10 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     }
 
     #[inline]
-    fn visit_call_direct_vault_method(
+    fn visit_recall_resource(
         &mut self,
         _: &InternalAddress,
-        _: &str,
-        _: &ManifestValue,
+        _: &Decimal,
     ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())

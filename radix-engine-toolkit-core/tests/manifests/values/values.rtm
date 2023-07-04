@@ -56,7 +56,7 @@ CALL_METHOD
     Address("package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk")
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
     Address("consensusmanager_sim1scxxxxxxxxxxcnsmgrxxxxxxxxx000999665565xxxxxxxxxxc06cl")
-    Address("validator_sim1svzs2pg9q5zs2pg9q5zs2pg9q5zs2pg9q5zs2pg9q5zs2pg9wr6hj0")
+    Address("validator_sim1sgvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvedzgr3l")
     Address("accesscontroller_sim1cvvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvexaj7at")
 
     Bucket("temp1")
@@ -69,5 +69,5 @@ CALL_METHOD
     NonFungibleLocalId("<SomeId>")
     NonFungibleLocalId("#12#")
     NonFungibleLocalId("[031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f]")
-    NonFungibleLocalId("{1111111111111111-1111111111111111-1111111111111111-1111111111111111}")
+    NonFungibleLocalId("{43968a72-5954-45da-9678-8659dd399faa}")
 ;

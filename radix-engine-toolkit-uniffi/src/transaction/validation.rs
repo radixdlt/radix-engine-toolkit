@@ -26,15 +26,6 @@ pub struct ValidationConfig {
     pub min_tip_percentage: u16,
     pub max_tip_percentage: u16,
     pub max_epoch_range: u64,
-    pub message_validation: Arc<MessageValidationConfig>,
-}
-
-#[derive(Clone, Debug, Object)]
-pub struct MessageValidationConfig {
-    pub max_plaintext_message_length: u64,
-    pub max_encrypted_message_length: u64,
-    pub max_mime_type_length: u64,
-    pub max_decryptors: u64,
 }
 
 #[uniffi::export]
@@ -49,7 +40,6 @@ impl ValidationConfig {
         min_tip_percentage: u16,
         max_tip_percentage: u16,
         max_epoch_range: u64,
-        message_validation: Arc<MessageValidationConfig>,
     ) -> Arc<Self> {
         Arc::new(Self {
             network_id,
@@ -59,7 +49,6 @@ impl ValidationConfig {
             min_tip_percentage,
             max_tip_percentage,
             max_epoch_range,
-            message_validation,
         })
     }
 
@@ -95,50 +84,6 @@ impl ValidationConfig {
     pub fn max_epoch_range(&self) -> u64 {
         self.max_epoch_range
     }
-
-    pub fn message_validation(&self) -> Arc<MessageValidationConfig> {
-        self.message_validation.clone()
-    }
-}
-
-#[uniffi::export]
-impl MessageValidationConfig {
-    #[uniffi::constructor]
-    pub fn new(
-        max_plaintext_message_length: u64,
-        max_encrypted_message_length: u64,
-        max_mime_type_length: u64,
-        max_decryptors: u64,
-    ) -> Arc<Self> {
-        Arc::new(Self {
-            max_plaintext_message_length,
-            max_encrypted_message_length,
-            max_mime_type_length,
-            max_decryptors,
-        })
-    }
-
-    #[allow(clippy::should_implement_trait)]
-    #[uniffi::constructor]
-    pub fn default() -> Arc<Self> {
-        Arc::new(NativeMessageValidationConfig::default().into())
-    }
-
-    pub fn max_plaintext_message_length(&self) -> u64 {
-        self.max_plaintext_message_length
-    }
-
-    pub fn max_encrypted_message_length(&self) -> u64 {
-        self.max_encrypted_message_length
-    }
-
-    pub fn max_mime_type_length(&self) -> u64 {
-        self.max_mime_type_length
-    }
-
-    pub fn max_decryptors(&self) -> u64 {
-        self.max_decryptors
-    }
 }
 
 //============
@@ -155,7 +100,6 @@ impl From<ValidationConfig> for NativeValidationConfig {
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,
-            message_validation: value.message_validation.as_ref().clone().into(),
         }
     }
 }
@@ -170,29 +114,6 @@ impl From<NativeValidationConfig> for ValidationConfig {
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,
-            message_validation: Arc::new(value.message_validation.into()),
-        }
-    }
-}
-
-impl From<MessageValidationConfig> for NativeMessageValidationConfig {
-    fn from(value: MessageValidationConfig) -> Self {
-        Self {
-            max_plaintext_message_length: value.max_plaintext_message_length as usize,
-            max_encrypted_message_length: value.max_encrypted_message_length as usize,
-            max_mime_type_length: value.max_mime_type_length as usize,
-            max_decryptors: value.max_decryptors as usize,
-        }
-    }
-}
-
-impl From<NativeMessageValidationConfig> for MessageValidationConfig {
-    fn from(value: NativeMessageValidationConfig) -> Self {
-        Self {
-            max_plaintext_message_length: value.max_plaintext_message_length as u64,
-            max_encrypted_message_length: value.max_encrypted_message_length as u64,
-            max_mime_type_length: value.max_mime_type_length as u64,
-            max_decryptors: value.max_decryptors as u64,
         }
     }
 }

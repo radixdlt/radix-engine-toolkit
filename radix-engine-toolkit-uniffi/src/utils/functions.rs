@@ -42,8 +42,8 @@ impl_new_from_network! {
     #[derive(Clone, Debug, Record)]
     pub struct ResourceAddresses {
         pub xrd: Arc<Address>,
-        pub secp256k1_signature_virtual_badge: Arc<Address>,
-        pub ed25519_signature_virtual_badge: Arc<Address>,
+        pub ecdsa_secp256k1_signature_virtual_badge: Arc<Address>,
+        pub eddsa_ed25519_signature_virtual_badge: Arc<Address>,
         pub package_of_direct_caller_virtual_badge: Arc<Address>,
         pub global_caller_virtual_badge: Arc<Address>,
         pub system_transaction_badge: Arc<Address>,
@@ -63,7 +63,6 @@ impl_new_from_network! {
         pub identity_package: Arc<Address>,
         pub consensus_manager_package: Arc<Address>,
         pub access_controller_package: Arc<Address>,
-        pub pool_package: Arc<Address>,
         pub transaction_processor_package: Arc<Address>,
         pub metadata_module_package: Arc<Address>,
         pub royalty_module_package: Arc<Address>,

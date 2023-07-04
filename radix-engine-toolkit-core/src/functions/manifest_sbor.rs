@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_common::prelude::Bech32Encoder;
 use sbor::prelude::ContextualSerialize;
 use sbor::representations::{SerializationMode, SerializationParameters};
 use sbor::*;
-use scrypto::address::*;
 use scrypto::prelude::*;
 use transaction::data::{format_manifest_value, ManifestDecompilationDisplayContext};
 
@@ -36,7 +36,7 @@ where
 pub fn decode_to_string_representation<T>(
     value: T,
     representation: ManifestSborStringRepresentation,
-    bech32_encoder: &AddressBech32Encoder,
+    bech32_encoder: &Bech32Encoder,
     schema: Option<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>,
 ) -> Result<String, ManifestSborError>
 where

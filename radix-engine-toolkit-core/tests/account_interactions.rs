@@ -260,7 +260,7 @@ fn account_set_metadata_interactions_count_as_auth_requiring_interactions() {
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .set_metadata(account.into(), "x", MetadataValue::Bool(true))
+        .set_metadata(account.into(), "x".to_owned(), MetadataValue::Bool(true))
         .build();
 
     // Act
@@ -280,7 +280,7 @@ fn identity_set_component_royalty_interactions_count_as_auth_requiring_interacti
     // Arrange
     let identity = identity();
     let manifest = ManifestBuilder::new()
-        .set_component_royalty(identity, "method", RoyaltyAmount::Free)
+        .set_component_royalty_config(identity, RoyaltyConfig::default())
         .build();
 
     // Act
@@ -296,7 +296,7 @@ fn identity_set_metadata_interactions_count_as_auth_requiring_interactions() {
     // Arrange
     let identity = identity();
     let manifest = ManifestBuilder::new()
-        .set_metadata(identity.into(), "x", MetadataValue::Bool(true))
+        .set_metadata(identity.into(), "x".to_owned(), MetadataValue::Bool(true))
         .build();
 
     // Act
@@ -312,7 +312,7 @@ fn identity_claim_component_royalty_counts_as_auth_requiring_interactions() {
     // Arrange
     let identity = identity();
     let manifest = ManifestBuilder::new()
-        .claim_component_royalties(identity)
+        .claim_component_royalty(identity)
         .build();
 
     // Act
@@ -328,13 +328,13 @@ fn non_fungible_ids() -> BTreeSet<NonFungibleLocalId> {
 }
 
 fn account() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }
 
 fn identity() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_identity_from_public_key(&public_key)
 }

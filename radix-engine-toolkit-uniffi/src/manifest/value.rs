@@ -74,7 +74,7 @@ pub enum ManifestValue {
     },
     /* Custom */
     AddressValue {
-        value: ManifestAddress,
+        value: Arc<Address>,
     },
     BucketValue {
         value: ManifestBucket,
@@ -96,9 +96,6 @@ pub enum ManifestValue {
     },
     NonFungibleLocalIdValue {
         value: NonFungibleLocalId,
-    },
-    AddressReservationValue {
-        value: ManifestAddressReservation,
     },
 }
 
@@ -136,7 +133,6 @@ pub enum ManifestValueKind {
     DecimalValue,
     PreciseDecimalValue,
     NonFungibleLocalIdValue,
-    AddressReservationValue,
 }
 
 impl From<ManifestValueKind> for NativeManifestValueKind {
@@ -173,9 +169,6 @@ impl From<ManifestValueKind> for NativeManifestValueKind {
             }
             ManifestValueKind::NonFungibleLocalIdValue => {
                 Self::Custom(NativeManifestCustomValueKind::NonFungibleLocalId)
-            }
-            ManifestValueKind::AddressReservationValue => {
-                Self::Custom(NativeManifestCustomValueKind::AddressReservation)
             }
         }
     }
@@ -223,9 +216,6 @@ impl From<NativeManifestValueKind> for ManifestValueKind {
             }
             NativeManifestValueKind::Custom(NativeManifestCustomValueKind::NonFungibleLocalId) => {
                 Self::NonFungibleLocalIdValue
-            }
-            NativeManifestValueKind::Custom(NativeManifestCustomValueKind::AddressReservation) => {
-                Self::AddressReservationValue
             }
         }
     }
@@ -297,16 +287,13 @@ impl ManifestValue {
                     .collect::<Result<_>>()?,
             },
             Self::AddressValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::Address(value.clone().into()),
+                value: NativeManifestCustomValue::Address(NativeManifestAddress(value.0)),
             },
             Self::BucketValue { value } => NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Bucket((*value).into()),
             },
             Self::ProofValue { value } => NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Proof((*value).into()),
-            },
-            Self::AddressReservationValue { value } => NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::AddressReservation((*value).into()),
             },
             Self::ExpressionValue { value } => NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Expression((*value).into()),
@@ -398,7 +385,7 @@ impl ManifestValue {
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Address(value),
             } => Self::AddressValue {
-                value: ManifestAddress::new(value, network_id),
+                value: Arc::new(Address(value.0, network_id)),
             },
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Bucket(value),
@@ -429,11 +416,6 @@ impl ManifestValue {
                 value: NativeManifestCustomValue::NonFungibleLocalId(value),
             } => Self::NonFungibleLocalIdValue {
                 value: native_to_non_fungible_local_id(value.clone()).into(),
-            },
-            NativeManifestValue::Custom {
-                value: NativeManifestCustomValue::AddressReservation(value),
-            } => Self::AddressReservationValue {
-                value: ManifestAddressReservation { value: value.0 },
             },
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::Blob(value),

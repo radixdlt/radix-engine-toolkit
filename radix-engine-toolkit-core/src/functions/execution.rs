@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::system::system_modules::costing::u128_to_decimal;
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use scrypto::api::node_modules::metadata::*;
@@ -33,13 +34,12 @@ pub fn analyze(
     instructions: &[InstructionV1],
     preview_receipt: &TransactionReceipt,
 ) -> Result<ExecutionAnalysis, ExecutionModuleError> {
-    let (execution_trace, fee_summary) = match preview_receipt.transaction_result {
+    let (execution_trace, fee_summary) = match preview_receipt.result {
         TransactionResult::Commit(CommitResult {
             outcome: TransactionOutcome::Success(..),
-            ref execution_trace,
             ref fee_summary,
             ..
-        }) => Ok((execution_trace, fee_summary)),
+        }) => Ok((&preview_receipt.execution_trace, fee_summary)),
         _ => Err(ExecutionModuleError::IsNotCommitSuccess(
             preview_receipt.clone(),
         )),
@@ -177,7 +177,7 @@ pub struct GeneralTransactionType {
     pub account_proofs: HashSet<ResourceAddress>,
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceSpecifier>>,
     pub account_deposits: HashMap<ComponentAddress, Vec<Source<ResourceSpecifier>>>,
-    pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
+    pub addresses_in_manifest: HashSet<NodeId>,
     pub metadata_of_newly_created_entities: HashMap<GlobalAddress, HashMap<String, MetadataValue>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>,
@@ -197,5 +197,5 @@ impl From<InstructionVisitorError> for ExecutionModuleError {
 }
 
 fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    Decimal::from_str(DEFAULT_COST_UNIT_PRICE).unwrap() * cost_units
+    u128_to_decimal(DEFAULT_COST_UNIT_PRICE) * cost_units
 }

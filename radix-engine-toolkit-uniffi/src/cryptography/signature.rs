@@ -19,19 +19,23 @@ use crate::prelude::*;
 
 #[derive(Clone, Enum, Debug)]
 pub enum Signature {
-    Secp256k1 { value: Vec<u8> },
-    Ed25519 { value: Vec<u8> },
+    EcdsaSecp256k1 { value: Vec<u8> },
+    EddsaEd25519 { value: Vec<u8> },
 }
 
 impl From<NativeSignature> for Signature {
     fn from(value: NativeSignature) -> Self {
         match value {
-            NativeSignature::Secp256k1(NativeSecp256k1Signature(value)) => Self::Secp256k1 {
-                value: value.to_vec(),
-            },
-            NativeSignature::Ed25519(NativeEd25519Signature(value)) => Self::Ed25519 {
-                value: value.to_vec(),
-            },
+            NativeSignature::EcdsaSecp256k1(NativeEcdsaSecp256k1Signature(value)) => {
+                Self::EcdsaSecp256k1 {
+                    value: value.to_vec(),
+                }
+            }
+            NativeSignature::EddsaEd25519(NativeEddsaEd25519Signature(value)) => {
+                Self::EddsaEd25519 {
+                    value: value.to_vec(),
+                }
+            }
         }
     }
 }
@@ -41,21 +45,21 @@ impl TryFrom<Signature> for NativeSignature {
 
     fn try_from(value: Signature) -> Result<Self> {
         match value {
-            Signature::Ed25519 { value } => value
+            Signature::EddsaEd25519 { value } => value
                 .try_into()
-                .map(NativeEd25519Signature)
-                .map(Self::Ed25519)
+                .map(NativeEddsaEd25519Signature)
+                .map(Self::EddsaEd25519)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeEd25519Signature::LENGTH as u64,
+                    expected: NativeEddsaEd25519Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),
-            Signature::Secp256k1 { value } => value
+            Signature::EcdsaSecp256k1 { value } => value
                 .try_into()
-                .map(NativeSecp256k1Signature)
-                .map(Self::Secp256k1)
+                .map(NativeEcdsaSecp256k1Signature)
+                .map(Self::EcdsaSecp256k1)
                 .map_err(|value| RadixEngineToolkitError::InvalidLength {
-                    expected: NativeSecp256k1Signature::LENGTH as u64,
+                    expected: NativeEcdsaSecp256k1Signature::LENGTH as u64,
                     actual: value.len() as u64,
                     data: value,
                 }),

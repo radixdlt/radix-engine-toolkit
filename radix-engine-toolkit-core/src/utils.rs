@@ -15,19 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system::DynSubstate;
 use radix_engine::transaction::TransactionReceipt;
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
-    TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey, TypedMetadataModuleSubstateValue,
-    TypedSubstateKey, TypedSubstateValue,
+    TypedMainModuleSubstateValue, TypedSubstateKey, TypedSubstateValue,
 };
 use radix_engine_store_interface::interface::DatabaseUpdate;
 use regex::Regex;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
 use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
-use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::DynamicGlobalAddress};
+use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::GlobalAddress};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -182,37 +180,31 @@ pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     .map_err(|_| ())
 }
 
-pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
-    match node_id.clone().into() {
-        DynamicGlobalAddress::Named(_) => false,
-        DynamicGlobalAddress::Static(address) => {
-            matches!(
-                address.as_node_id().entity_type(),
-                Some(
-                    EntityType::GlobalAccount
-                        | EntityType::InternalAccount
-                        | EntityType::GlobalVirtualSecp256k1Account
-                        | EntityType::GlobalVirtualEd25519Account
-                )
-            )
-        }
-    }
+pub fn is_account<A: Into<GlobalAddress> + Clone>(node_id: &A) -> bool {
+    matches!(
+        Into::<GlobalAddress>::into(node_id.clone())
+            .as_node_id()
+            .entity_type(),
+        Some(
+            EntityType::GlobalAccount
+                | EntityType::InternalAccount
+                | EntityType::GlobalVirtualSecp256k1Account
+                | EntityType::GlobalVirtualEd25519Account
+        )
+    )
 }
 
-pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
-    match node_id.clone().into() {
-        DynamicGlobalAddress::Named(_) => false,
-        DynamicGlobalAddress::Static(address) => {
-            matches!(
-                address.as_node_id().entity_type(),
-                Some(
-                    EntityType::GlobalIdentity
-                        | EntityType::GlobalVirtualSecp256k1Identity
-                        | EntityType::GlobalVirtualEd25519Identity
-                )
-            )
-        }
-    }
+pub fn is_identity<A: Into<GlobalAddress> + Clone>(node_id: &A) -> bool {
+    matches!(
+        Into::<GlobalAddress>::into(node_id.clone())
+            .as_node_id()
+            .entity_type(),
+        Some(
+            EntityType::GlobalIdentity
+                | EntityType::GlobalVirtualSecp256k1Identity
+                | EntityType::GlobalVirtualEd25519Identity
+        )
+    )
 }
 
 pub fn metadata_of_newly_created_entities(
@@ -250,8 +242,8 @@ pub fn metadata_of_newly_created_entities(
             for (substate_key, database_update) in key_update_map.iter() {
                 if let DatabaseUpdate::Set(data) = database_update {
                     if let Ok((
-                        TypedSubstateKey::MetadataModule(key),
-                        TypedSubstateValue::MetadataModule(value),
+                        TypedSubstateKey::MetadataModuleEntryKey(key),
+                        TypedSubstateValue::MetadataModuleEntryValue(value),
                     )) = to_typed_substate_key(
                         global_address.as_node_id().entity_type().unwrap(),
                         METADATA_KV_STORE_PARTITION,
@@ -261,13 +253,6 @@ pub fn metadata_of_newly_created_entities(
                         to_typed_substate_value(&typed_substate_key, data)
                             .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
                     }) {
-                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
-                        let value = match value {
-                            TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
-                                value,
-                                ..
-                            }) => value,
-                        };
                         map.entry(global_address)
                             .or_default()
                             .insert(key, value.unwrap());
@@ -309,10 +294,7 @@ pub fn data_of_newly_minted_non_fungibles(
                         TypedMainModuleSubstateKey::NonFungibleResourceData(non_fungible_local_id),
                     ),
                     TypedSubstateValue::MainModule(
-                        TypedMainModuleSubstateValue::NonFungibleResourceData(DynSubstate {
-                            value: non_fungible_data,
-                            ..
-                        }),
+                        TypedMainModuleSubstateValue::NonFungibleResourceData(non_fungible_data),
                     ),
                 )) = to_typed_substate_key(
                     node_id.entity_type().unwrap(),

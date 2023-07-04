@@ -23,10 +23,9 @@ pub struct Instructions(pub(crate) Vec<NativeInstruction>, pub(crate) u8);
 #[uniffi::export]
 impl Instructions {
     #[uniffi::constructor]
-    pub fn from_string(string: String, network_id: u8) -> Result<Arc<Self>> {
+    pub fn from_string(string: String, blobs: Vec<Vec<u8>>, network_id: u8) -> Result<Arc<Self>> {
         let network_definition = core_network_definition_from_network_id(network_id);
-        let blob_provider = NativeMockBlobProvider::new();
-        native_compile(&string, &network_definition, blob_provider)
+        native_compile(&string, &network_definition, blobs)
             .map_err(Into::into)
             .map(|manifest| Arc::new(Self(manifest.instructions, network_id)))
     }

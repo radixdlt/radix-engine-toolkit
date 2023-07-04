@@ -21,22 +21,13 @@ use crate::prelude::*;
 pub struct Intent {
     pub header: TransactionHeader,
     pub manifest: Arc<TransactionManifest>,
-    pub message: Message,
 }
 
 #[uniffi::export]
 impl Intent {
     #[uniffi::constructor]
-    pub fn new(
-        header: TransactionHeader,
-        manifest: Arc<TransactionManifest>,
-        message: Message,
-    ) -> Arc<Self> {
-        Arc::new(Self {
-            header,
-            manifest,
-            message,
-        })
+    pub fn new(header: TransactionHeader, manifest: Arc<TransactionManifest>) -> Arc<Self> {
+        Arc::new(Self { header, manifest })
     }
 
     #[uniffi::constructor]
@@ -52,10 +43,6 @@ impl Intent {
 
     pub fn manifest(&self) -> Arc<TransactionManifest> {
         self.manifest.clone()
-    }
-
-    pub fn message(&self) -> Message {
-        self.message.clone()
     }
 
     pub fn hash(&self) -> Result<Arc<Hash>> {
@@ -90,7 +77,7 @@ impl From<NativeIntent> for Intent {
             blobs,
             header,
             instructions,
-            message,
+            ..
         }: NativeIntent,
     ) -> Self {
         let blobs = blobs.blobs;
@@ -109,7 +96,6 @@ impl From<NativeIntent> for Intent {
                 header.network_id,
             )),
             header: header.into(),
-            message: message.into(),
         }
     }
 }
@@ -129,13 +115,12 @@ impl TryFrom<Intent> for NativeIntent {
         };
         let instructions = NativeInstructions(value.manifest.instructions.0.clone());
         let header = value.header.try_into()?;
-        let message = value.message.try_into()?;
 
         Ok(Self {
             blobs,
-            message,
             header,
             instructions,
+            attachments: transaction::prelude::AttachmentsV1 {},
         })
     }
 }

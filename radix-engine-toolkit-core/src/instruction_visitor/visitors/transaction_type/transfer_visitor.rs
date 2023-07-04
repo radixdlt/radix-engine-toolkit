@@ -15,10 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use transaction::{
-    prelude::{DynamicGlobalAddress, InstructionV1},
-    validation::ManifestIdAllocator,
-};
+use transaction::{prelude::InstructionV1, validation::ManifestIdAllocator};
 
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
@@ -77,7 +74,7 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
         match instruction {
             /* Method Calls */
             InstructionV1::CallMethod {
-                address: DynamicGlobalAddress::Static(address),
+                address,
                 method_name,
                 args,
             } => {
@@ -166,8 +163,7 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             InstructionV1::AssertWorktopContains { .. }
             | InstructionV1::AssertWorktopContainsNonFungibles { .. } => {}
             /* Illegal Instructions */
-            InstructionV1::CallMethod { .. }
-            | InstructionV1::PopFromAuthZone
+            InstructionV1::PopFromAuthZone
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::ClearAuthZone
             | InstructionV1::CreateProofFromAuthZone { .. }
@@ -186,9 +182,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             | InstructionV1::CallRoyaltyMethod { .. }
             | InstructionV1::CallMetadataMethod { .. }
             | InstructionV1::CallAccessRulesMethod { .. }
-            | InstructionV1::CallDirectVaultMethod { .. }
-            | InstructionV1::DropAllProofs
-            | InstructionV1::AllocateGlobalAddress { .. } => {
+            | InstructionV1::RecallResource { .. }
+            | InstructionV1::DropAllProofs => {
                 self.is_illegal_state = true;
             }
         }
@@ -332,10 +327,19 @@ impl TransferTransactionTypeVisitor {
     }
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Worktop {
     id_allocator: ManifestIdAllocator,
     worktop: HashMap<ResourceAddress, Resources>,
+}
+
+impl Default for Worktop {
+    fn default() -> Self {
+        Self {
+            id_allocator: ManifestIdAllocator::new(),
+            worktop: Default::default(),
+        }
+    }
 }
 
 impl Worktop {
@@ -346,7 +350,7 @@ impl Worktop {
         self.worktop
             .remove(&resource_address)
             .map(|resources| {
-                let bucket = self.id_allocator.new_bucket_id();
+                let bucket = self.id_allocator.new_bucket_id().unwrap();
                 (bucket, resources)
             })
             .map_or(
@@ -368,7 +372,7 @@ impl Worktop {
                     Resources::Amount(amount),
                 ))?;
 
-        let bucket = self.id_allocator.new_bucket_id();
+        let bucket = self.id_allocator.new_bucket_id().unwrap();
         let resources = match worktop_contents {
             Resources::Amount(worktop_amount) => {
                 if *worktop_amount >= amount {
@@ -420,7 +424,7 @@ impl Worktop {
             .checked_sub_ids(ids)
             .ok_or(WorktopError::TakeError)?;
 
-        let bucket = self.id_allocator.new_bucket_id();
+        let bucket = self.id_allocator.new_bucket_id().unwrap();
         let resources = Resources::Ids(ids.clone());
 
         Ok((bucket, resources))

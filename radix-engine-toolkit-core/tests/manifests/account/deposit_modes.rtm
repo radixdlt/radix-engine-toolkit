@@ -10,7 +10,7 @@
 CALL_METHOD 
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") 
     "lock_fee"
-    Decimal("500");
+    Decimal("10");
 
 # Example 1: Allow All deposits mode
 CALL_METHOD 
@@ -34,19 +34,19 @@ CALL_METHOD
 CALL_METHOD
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
     "configure_resource_deposit_rule"
-    Address("resource_sim1thcgx0f3rwaeetl67cmsssv4p748kd3sjhtge9l4m6ns7cucs97tjv")
+    Address("${second_resource_address}")
     Enum<ResourceDepositRule::Allowed>();
 
 # Example 4a: Adding a resource to the deny list
 CALL_METHOD
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
     "configure_resource_deposit_rule"
-    Address("resource_sim1thcgx0f3rwaeetl67cmsssv4p748kd3sjhtge9l4m6ns7cucs97tjv")
+    Address("${second_resource_address}")
     Enum<ResourceDepositRule::Disallowed>();
 
 # Example 4a: Removing a resource from the allow and deny lists
 CALL_METHOD
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")
     "configure_resource_deposit_rule"
-    Address("resource_sim1thcgx0f3rwaeetl67cmsssv4p748kd3sjhtge9l4m6ns7cucs97tjv")
+    Address("${second_resource_address}")
     Enum<ResourceDepositRule::Neither>();

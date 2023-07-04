@@ -83,7 +83,7 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_non_fungibles() {
 }
 
 fn account() -> ComponentAddress {
-    let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
+    let private_key = EcdsaSecp256k1PrivateKey::from_u64(1).unwrap();
     let public_key = private_key.public_key();
     ComponentAddress::virtual_account_from_public_key(&public_key)
 }
