@@ -27,6 +27,12 @@ jobs:
            repository: radixdlt/swift-engine-toolkit
            token: ${{ secrets.RADIX_BOT_PAT }}
            path: ./swift-engine-toolkit
+      - name: Push trivial file
+        run: |
+          cd swift-engine-toolkit
+          touch emptyFile.txt
+          git commit -am "test commit"
+          git push
              #- name: "Clone spm repo"
              # env:
              #BRANCH: ${{env.GITHUB_REF_NAME}}
