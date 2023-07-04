@@ -15,7 +15,20 @@ on:
       - main
 
 jobs:
+  spm_clone:
+    runs-on: macos-latest
+    env:
+      BRANCH: ${{env.GITHUB_REF_NAME}}
+    run: |
+          echo "deploying on branch $BRANCH"
+          # Push changes to Swift Engine Toolkit
+          SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
+          git clone $SWIFT_ENGINE_TOOLKIT
+          cd swift-engine-toolkit
+          git checkout $BRANCH || git checkout -b $BRANCH
+
   build:
+    needs: [spm_clone]
     runs-on: macos-latest
     continue-on-error: true
     strategy:
@@ -367,19 +380,13 @@ jobs:
               -headers "./$EXTRACTED/include" \
               -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
 
-          # Push changes to Swift Engine Toolkit
-          SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
-          git clone $SWIFT_ENGINE_TOOLKIT
-          git checkout $BRANCH || git checkout -b $BRANCH
 
-          cd swift-engine-toolkit
-          git checkout -b $BRANCH_NAME
-          cp -R ../$EXTRACTED/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkit/RadixEngineToolkitUniFFI.xcframework
-          cp -R ../$EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi
+          #cp -R ../$EXTRACTED/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkit/RadixEngineToolkitUniFFI.xcframework
+          #cp -R ../$EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi
 
-          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          git commit -am "Update RET from $LAST_COMMIT_SHA"
-          git push origin -b $BRANCH_NAME
+          #LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
+          #git commit -am "Update RET from $LAST_COMMIT_SHA"
+          #git push origin -b $BRANCH_NAME
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
