@@ -21,21 +21,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: "Clone spm repo"
-        env:
-          BRANCH: ${{env.GITHUB_REF_NAME}}
-          GIT_USER: ${{ secrets.RADIX_BOT_USERNAME }}
-          GIT_TOKEN: ${{ secrets.RADIX_BOT_PAT }}
-        run: |
-              echo "deploying on branch $BRANCH"
-              git config user.name $GIT_USER
-              git config user.email $GIT_USER
-              # Push changes to Swift Engine Toolkit
-              SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
-              git clone $SWIFT_ENGINE_TOOLKIT
+      - name: Checkout Swift Egine toolkit
+        uses: actions/checkout@v3
+        with:
+           repository: radixdlt/swift-engine-toolkit
+           token: ${{ secrets.RADIX_BOT_PAT }}
+           path: ./swift-engine-toolkit
+             #- name: "Clone spm repo"
+             # env:
+             #BRANCH: ${{env.GITHUB_REF_NAME}}
+             #GIT_USER: ${{ secrets.RADIX_BOT_USERNAME }}
+             #GIT_TOKEN: ${{ secrets.RADIX_BOT_PAT }}
+             #run: |
+             #echo "deploying on branch $BRANCH"
+             # git config user.name $GIT_USER
+             # git config user.email $GIT_USER
+             # # Push changes to Swift Engine Toolkit
+             # SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
+             # git clone $SWIFT_ENGINE_TOOLKIT
 
-              cd swift-engine-toolkit
-              git checkout $BRANCH || git checkout -b $BRANCH
+             # cd swift-engine-toolkit
+             # git checkout $BRANCH || git checkout -b $BRANCH
 
   build:
     needs: [spm_clone]
