@@ -17,15 +17,17 @@ on:
 jobs:
   spm_clone:
     runs-on: macos-latest
-    env:
-      BRANCH: ${{env.GITHUB_REF_NAME}}
-    run: |
-          echo "deploying on branch $BRANCH"
-          # Push changes to Swift Engine Toolkit
-          SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
-          git clone $SWIFT_ENGINE_TOOLKIT
-          cd swift-engine-toolkit
-          git checkout $BRANCH || git checkout -b $BRANCH
+    steps:
+      - name: "Clone spm repo"
+        env:
+          BRANCH: ${{env.GITHUB_REF_NAME}}
+        run: |
+              echo "deploying on branch $BRANCH"
+              # Push changes to Swift Engine Toolkit
+              SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
+              git clone $SWIFT_ENGINE_TOOLKIT
+              cd swift-engine-toolkit
+              git checkout $BRANCH || git checkout -b $BRANCH
 
   build:
     needs: [spm_clone]
