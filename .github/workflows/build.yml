@@ -368,7 +368,7 @@ jobs:
               -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
 
           # Push changes to Swift Engine Toolkit
-          SWIFT_ENGINE_TOOLKIT = https://github.com/radixdlt/swift-engine-toolkit
+          SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
           git clone $SWIFT_ENGINE_TOOLKIT
           git checkout $BRANCH || git checkout -b $BRANCH
 
