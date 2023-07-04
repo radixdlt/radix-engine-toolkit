@@ -300,7 +300,7 @@ jobs:
               -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
 
       - name: Publish to Swift Engine Toolkit
-        working-directory: artifacts
+        working-directory: swift-engine-toolkit
         env:
           BRANCH: ${{env.GITHUB_REF_NAME}}
         run: |
