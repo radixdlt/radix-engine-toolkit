@@ -31,7 +31,8 @@ jobs:
         run: |
           cd swift-engine-toolkit
           touch emptyFile.txt
-          git commit -am "test commit"
+          git add .
+          git commit -m "test commit"
           git push
              #- name: "Clone spm repo"
              # env:
