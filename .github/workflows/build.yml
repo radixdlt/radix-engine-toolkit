@@ -22,8 +22,11 @@ jobs:
       - name: "Clone spm repo"
         env:
           BRANCH: ${{env.GITHUB_REF_NAME}}
+          GIT_USER: ${{ secrets.RADIX_BOT_USERNAME }}
         run: |
               echo "deploying on branch $BRANCH"
+              git config user.name $GIT_USER
+              git config user.email $GIT_USER
               # Push changes to Swift Engine Toolkit
               SWIFT_ENGINE_TOOLKIT="https://github.com/radixdlt/swift-engine-toolkit"
               git clone $SWIFT_ENGINE_TOOLKIT
