@@ -45,7 +45,7 @@ impl Instructions {
         native_decompile(&self.0, &network_definition).map_err(Into::into)
     }
 
-    pub fn instructions(&self) -> Vec<Instruction> {
+    pub fn instructions_list(&self) -> Vec<Instruction> {
         self.0
             .iter()
             .map(|instruction| Instruction::from_native(instruction, self.1))

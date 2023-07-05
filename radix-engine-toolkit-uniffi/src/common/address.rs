@@ -98,14 +98,14 @@ impl Address {
         self.0 .0.to_vec()
     }
 
-    pub fn address(&self) -> String {
+    pub fn address_string(&self) -> String {
         let network_definition = core_network_definition_from_network_id(self.1);
         let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
         bech32_encoder.encode(&self.0 .0).unwrap()
     }
 
     pub fn as_str(&self) -> String {
-        self.address()
+        self.address_string()
     }
 
     pub fn entity_type(&self) -> EntityType {
