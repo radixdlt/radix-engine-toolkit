@@ -209,3 +209,23 @@ impl MetadataValue {
         }
     }
 }
+
+// ==================
+// Exposed "Methods"
+// ==================
+
+#[uniffi::export]
+pub fn sbor_decode_to_metadata_value(bytes: Vec<u8>, network_id: u8) -> Result<MetadataValue> {
+    let native = match bytes.first().copied() {
+        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_scrypto_decode::<NativeMetadataValue>(&bytes).map_err(Into::into)
+        }
+        Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_manifest_decode::<NativeMetadataValue>(&bytes).map_err(Into::into)
+        }
+        v => Err(RadixEngineToolkitError::DecodeError {
+            error: format!("Invalid index byte: {v:?}"),
+        }),
+    }?;
+    Ok(MetadataValue::from_native(&native, network_id))
+}
