@@ -12,6 +12,10 @@ on:
       - develop
       - release/*
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
 
