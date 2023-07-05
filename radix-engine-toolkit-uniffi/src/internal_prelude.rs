@@ -88,6 +88,15 @@ mod core {
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
     };
+    pub use radix_engine_toolkit_core::functions::manifest_sbor::{
+        ManifestSborError as CoreManifestSborError,
+        ManifestSborStringRepresentation as CoreManifestSborStringRepresentation,
+        decode_to_string_representation as core_manifest_decode_to_string_representation,
+    };
+    pub use radix_engine_toolkit_core::functions::scrypto_sbor::{
+        ScryptoSborError as CoreScryptoSborError,
+        decode_to_string_representation as core_scrypto_decode_to_string_representation,
+    };
 
     /* Visitors */
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
@@ -143,7 +152,7 @@ mod native {
         MockBlobProvider as NativeMockBlobProvider,
 
         CompileError as NativeCompileError,
-        DecompileError as NativeDecompileError
+        DecompileError as NativeDecompileError,
     };
 
     pub use scrypto::prelude::{
@@ -293,7 +302,18 @@ mod native {
     };
     pub use sbor::prelude::{
         EncodeError as NativeEncodeError,
-        DecodeError as NativeDecodeError
+        DecodeError as NativeDecodeError,
+    };
+    pub use sbor::schema::{
+        LocalTypeIndex as NativeLocalTypeIndex
+    };
+    pub use sbor::representations::{
+        SerializationMode as NativeSerializationMode
+    };
+    pub use radix_engine_common::prelude::{
+        ScryptoSchema as NativeScryptoSchema,
+        SCRYPTO_SBOR_V1_PAYLOAD_PREFIX as NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
+        MANIFEST_SBOR_V1_PAYLOAD_PREFIX as NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX
     };
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,

@@ -21,6 +21,7 @@ pub mod cryptography;
 pub mod derive;
 pub mod error;
 pub mod manifest;
+pub mod sbor;
 pub mod transaction;
 pub mod utils;
 
@@ -67,6 +68,9 @@ pub mod prelude {
     pub use crate::transaction::notarized_transaction::*;
     pub use crate::transaction::signed_intent::*;
     pub use crate::transaction::validation::*;
+
+    /* SBOR */
+    pub use crate::sbor::functions::*;
 
     /* Build */
     pub use crate::build::functions::*;
