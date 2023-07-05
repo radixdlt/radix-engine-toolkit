@@ -154,8 +154,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Configure Homebrew cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            /usr/local/Homebrew
+          key: brew-cache-${{ github.ref }}
+          restore-keys: brew-cache-
+
       - name: Install Build Dependencies
         run: |
+          export HOMEBREW_NO_AUTO_UPDATE=1
+
           brew tap SergioBenitez/osxct
           brew install llvm
           brew install x86_64-unknown-linux-gnu
@@ -166,76 +176,80 @@ jobs:
           brew install aarch64-unknown-linux-gnu
           brew install i686-unknown-linux-gnu
 
-      - name: Install Rust Toolchain
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
-          chmod +x rustup.sh
-          ./rustup.sh -y
-          rustup update
-          rustup toolchain install nightly
+      # - name: Install Rust Toolchain
+      #   run: |
+      #     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+      #     chmod +x rustup.sh
+      #     ./rustup.sh -y
+      #     rustup update
+      #     rustup toolchain install nightly
 
-      - name: Install Rust Targets
-        run: |
-          rustup target install ${{ matrix.build-target.target-triple }}
-          rustup +nightly target install ${{ matrix.build-target.target-triple }}
-          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
+      # - name: Install Rust Targets
+      #   run: |
+      #     rustup target install ${{ matrix.build-target.target-triple }}
+      #     rustup +nightly target install ${{ matrix.build-target.target-triple }}
+      #     rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
 
-      - name: Building Toolkit
-        run: |
-          (
-            export CURRENT_DIRECTORY=$(pwd)
-            export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
-            cd $CRATE_PATH
+      # - name: Building Toolkit
+      #   run: |
+      #     (
+      #       export CURRENT_DIRECTORY=$(pwd)
+      #       export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
+      #       cd $CRATE_PATH
 
-            export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
-            if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
-            then
-              export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
-            fi
+      #       export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+      #       if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
+      #       then
+      #         export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+      #       fi
+            
+      #       export CC=${{ matrix.build-target.custom-compiler }}
+      #       export AR=${{ matrix.build-target.custom-archiver }}
+            
+      #       if [ -z "${{ matrix.build-target.features }}" ]; 
+      #       then 
+      #         echo "No special feature handling"
+      #         export features="" 
+      #       else 
+      #         export features="--features ${{ matrix.build-target.features }}"
+      #         echo "Special feature handling"
+      #         echo $features
+      #       fi
 
-            export CC=${{ matrix.build-target.custom-compiler }}
-            export AR=${{ matrix.build-target.custom-archiver }}
+      #       cargo +nightly build \
+      #         -Z build-std=std,panic_abort \
+      #         -Z build-std-features=panic_immediate_abort \
+      #         --target ${{ matrix.build-target.target-triple }} \
+      #         --no-default-features \
+      #         --release $features
 
-            cargo +nightly build \
-              -Z build-std=std,panic_abort \
-              -Z build-std-features=panic_immediate_abort \
-              --target ${{ matrix.build-target.target-triple }} \
-              --release
+      #       unset $LINKER_ENVIRONMENT_VARIABLE
+      #       export CC="/usr/local/opt/llvm/bin/clang"
+      #       export AR="/usr/local/opt/llvm/bin/llvm-ar"
 
-            unset $LINKER_ENVIRONMENT_VARIABLE
-            export CC="/usr/local/opt/llvm/bin/clang"
-            export AR="/usr/local/opt/llvm/bin/llvm-ar"
+      #       INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
+      #       mkdir $INCLUDE_DIRECTORY_PATH
 
-            if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-              INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
-              mkdir $INCLUDE_DIRECTORY_PATH
+      #       rustup default nightly
+      #       cbindgen \
+      #         --lang c \
+      #         --config cbindgen.toml \
+      #         --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h" 
+      #       rustup default stable
 
-              rustup default nightly
-              cbindgen \
-                --lang c \
-                --config cbindgen.toml \
-                --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
-              rustup default stable
+      #       echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+      #       echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+      #       echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
+      #       echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap" 
 
-              echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            fi
+      #       (
+      #         BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
+      #         cd $BUILD_PATH
 
-            (
-              BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
-              cd $BUILD_PATH
-
-              BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
-
-              if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
-              else
-                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
-              fi
-            )
-          )
+      #         BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+      #         tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+      #       )
+      #     )
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
