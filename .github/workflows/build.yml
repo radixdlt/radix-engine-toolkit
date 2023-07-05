@@ -243,10 +243,6 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: "14.3.1"
-
       - name: Build XCFramework
         working-directory: artifacts
         env:
@@ -294,9 +290,9 @@ jobs:
               -o "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
 
           # Set proper id, so that Xcode can properly locate the dynamic library
-          instal_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
-          instal_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
-          instal_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
 
           # Creating the XCFramework
           xcodebuild -create-xcframework \
