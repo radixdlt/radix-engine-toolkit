@@ -310,8 +310,8 @@ jobs:
           BRANCH: ${{env.GITHUB_REF_NAME}}
         run: |
           git checkout $BRANCH || git checkout -b $BRANCH
-          cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkit/RadixEngineToolkitUniFFI.xcframework
-          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi
+          cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
+          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi
 
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           git add .
