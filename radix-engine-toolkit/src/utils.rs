@@ -5,9 +5,9 @@
 // to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
-
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-
+//
 // Unless required by applicable law or agreed to in writing,
 // software distributed under the License is distributed on an
 // "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -15,141 +15,76 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Borrow;
+use std::fmt::Debug;
 
-use crate::error::{Error, Result};
-use bech32;
-use scrypto::address::AddressError;
-use scrypto::network::NetworkDefinition;
-use scrypto::prelude::ComponentAddress;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-/// A deterministic function that generates a network definition given a network ID. Implemented
-/// with reference to https://github.com/radixdlt/babylon-node/tree/main/common/src/main/java/com/radixdlt/networks/Network.java#L72-L99
-pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
-    match network_id {
-        0x01 => NetworkDefinition::mainnet(),
-        0x02 => NetworkDefinition {
-            id: network_id,
-            logical_name: "stokenet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
+use crate::{error::InvocationInterpretationError, memory::Pointer};
 
-        0x0A => NetworkDefinition {
-            id: network_id,
-            logical_name: "adapanet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0x0B => NetworkDefinition {
-            id: network_id,
-            logical_name: "nebunet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-
-        0x20 => NetworkDefinition {
-            id: network_id,
-            logical_name: "gilganet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0x21 => NetworkDefinition {
-            id: network_id,
-            logical_name: "enkinet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0x22 => NetworkDefinition {
-            id: network_id,
-            logical_name: "hammunet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0x23 => NetworkDefinition {
-            id: network_id,
-            logical_name: "nergalnet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0x24 => NetworkDefinition {
-            id: network_id,
-            logical_name: "mardunet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-
-        0xF0 => NetworkDefinition {
-            id: network_id,
-            logical_name: "localnet".into(),
-            hrp_suffix: "loc".into(),
-        },
-        0xF1 => NetworkDefinition {
-            id: network_id,
-            logical_name: "inttestnet".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-        0xF2 => NetworkDefinition::simulator(),
-
-        _ => NetworkDefinition {
-            id: network_id,
-            logical_name: "unnamed".into(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
-        },
-    }
+pub fn debug_string<T: Debug>(object: T) -> String {
+    format!("{:?}", object)
 }
 
-pub fn network_id_from_hrp<S: AsRef<str>>(hrp: S) -> Result<u8> {
-    // Getting the network specifier from the given HRP. Bech32 HRPs used in Babylon are structured
-    // as follows:
-    let splitted_hrp = hrp.as_ref().split('_').collect::<Vec<&str>>();
-    let network_specifier = {
-        match splitted_hrp.get(1) {
-            Some(_) => Ok(splitted_hrp
-                .into_iter()
-                .skip(1)
-                .collect::<Vec<&str>>()
-                .join("_")),
-            None => Err(AddressError::InvalidHrp),
-        }
-    }?;
+pub fn serialize_and_write_to_memory<S: Serialize>(
+    object: &S,
+) -> Result<Pointer, InvocationInterpretationError> {
+    serde_json::to_string(object)
+        .map_err(|error| InvocationInterpretationError::SerializationError(debug_string(error)))
+        .map(|string| {
+            let object_bytes = string.as_bytes();
+            let byte_count = object_bytes.len() + 1;
 
-    // Matching the network specifier to obtain the network id from it
-    let network_id = match network_specifier.as_str() {
-        "rdx" => NetworkDefinition::mainnet().id,
-        "sim" => NetworkDefinition::simulator().id,
-        "loc" => 0xF0,
-        numeric_network_specifier => {
-            match numeric_network_specifier.split('_').nth(1) {
-                Some(network_id_string) => Ok(u8::from_str_radix(network_id_string, 16)
-                    .map_err(|_| AddressError::InvalidHrp)?),
-                None => Err(AddressError::InvalidHrp),
+            unsafe {
+                let pointer = crate::memory::toolkit_alloc(byte_count);
+                pointer.copy_from(
+                    [object_bytes, &[0]].concat().as_ptr() as Pointer,
+                    byte_count,
+                );
+
+                pointer
             }
-        }?,
-    };
-    Ok(network_id)
-}
-
-pub fn network_id_from_address_string<S: AsRef<str>>(address: S) -> Result<u8> {
-    // Attempt to Bech32m decode this address to get the hrp and the data type (will not be used).
-    // The decoding process also yields a variant. We will not be verifying that this is bech32m
-    // since this method is not meant to be a validation method.
-    let (hrp, _, _) =
-        bech32::decode(address.as_ref()).map_err(AddressError::Bech32mDecodingError)?;
-    network_id_from_hrp(hrp)
-}
-
-pub fn is_account<A: Borrow<ComponentAddress>>(address: A) -> bool {
-    matches!(
-        address.borrow(),
-        ComponentAddress::Account(..)
-            | ComponentAddress::EcdsaSecp256k1VirtualAccount(..)
-            | ComponentAddress::EddsaEd25519VirtualAccount(..)
-    )
-}
-
-pub fn checked_copy_u8_slice<T: AsRef<[u8]>, const N: usize>(slice: T) -> Result<[u8; N]> {
-    let slice = slice.as_ref();
-    if slice.len() != N {
-        Err(Error::InvalidLength {
-            expected: N,
-            found: slice.len(),
         })
-    } else {
-        let mut bytes = [0u8; N];
-        bytes.copy_from_slice(&slice[0..N]);
-        Ok(bytes)
-    }
+}
+
+pub fn read_and_deserialize_from_memory<'s, D: Deserialize<'s>>(
+    string_pointer: Pointer,
+) -> Result<D, InvocationInterpretationError> {
+    unsafe { std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char) }
+        .to_str()
+        .map_err(|error| InvocationInterpretationError::Utf8Error(debug_string(error)))
+        .and_then(|string| {
+            serde_json::from_str(string).map_err(|error| {
+                InvocationInterpretationError::DeserializationError(debug_string(error))
+            })
+        })
+}
+
+pub fn serialize_to_jstring<S: Serialize>(
+    env: &jni::JNIEnv,
+    object: &S,
+) -> Result<jni::sys::jstring, InvocationInterpretationError> {
+    serde_json::to_string(object)
+        .map_err(|error| InvocationInterpretationError::SerializationError(debug_string(error)))
+        .and_then(|string| {
+            env.new_string(string).map_err(|error| {
+                InvocationInterpretationError::FailedToAllocateJniString(debug_string(error))
+            })
+        })
+        .map(|string| string.into_raw())
+}
+
+pub fn deserialize_from_jstring<D: DeserializeOwned>(
+    env: &mut jni::JNIEnv,
+    jstring: &jni::objects::JString,
+) -> Result<D, InvocationInterpretationError> {
+    let java_str = env.get_string(jstring).map_err(|error| {
+        InvocationInterpretationError::FailedToReadJniString(debug_string(error))
+    })?;
+
+    let string = String::from(java_str);
+    let result = serde_json::from_str(&string).map_err(|error| {
+        InvocationInterpretationError::DeserializationError(debug_string(error))
+    })?;
+
+    Ok(result)
 }

@@ -1,45 +1,43 @@
 [package]
 name = "radix-engine-toolkit"
-version = "0.9.0"
+version = "0.10.0-elm.1"
 edition = "2021"
-build = "build.rs"
 
 [dependencies]
-# Crates for Serde serialization.
-serde = { version = "1.0.152" }
-serde_with = { version = "2.2.0", features = ["hex"] }
+# radixdlt-scrypto dependencies.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
 
-# A library which allows us to generate a JSON schema from Rust models
-schemars = { version = "0.8.11", features = ["preserve_order"] }
+# Core Radix Engine Toolkit
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
 
-# An attribute macro to setup a model to be serializable and also to have a JSON schema. 
-toolkit-derive = { path = "../toolkit-derive" }
+# Serde for JSON serialization
+serde = { version = "1.0.163" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
 
-# Scrypto dependencies required for the core-toolkit
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-scrypto_utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "utils" }
-native_transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", package = "transaction" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148", optional = true }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
-radix-engine-constants = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v1-71c24148" }
+# Bech32 for encoding and decoding addresses
+bech32 = { version = "0.9.1" }
 
-# Hex is used for the internal hex encoding and decoding of values - serde_with::Hex is used for the
-# hex representation during serialization.
-hex = { version = "0.4.3", default-features = false }
+# Used to be able to expose the crate to JVM clients
+jni = { version = "0.21.1" }
 
-# Bech32 is used for the network aware addresses (some additional functionality is required which we
-# don't expose through the Scrypto Bech32 encoder and decoder)
-bech32 = { version = "0.9.0", default-features = false }
-
-# Used for more powerful declarative macros
-paste = { version = "1.0.11" }
-serde_json = "1.0.91"
+# Used to allow for more powerful macros
+paste = { version = "1.0.12" }
+walkdir = "2.3.3"
+indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 
 [dev-dependencies]
-lazy_static = { version = "1.4.0" }
-serde_json = { version = "1.0.91" }
+walkdir = "2.3.3"
 
-[features]
-default = ["radix-engine"]
-radix-engine = ["dep:radix-engine"]
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[profile.release]
+incremental = false
+panic = 'abort'
+codegen-units = 1

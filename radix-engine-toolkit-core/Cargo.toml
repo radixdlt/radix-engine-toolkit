@@ -1,0 +1,37 @@
+[package]
+name = "radix-engine-toolkit-core"
+version = "0.10.0-elm.1"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features= false, features = ["std", "lru"] }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
+
+# Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
+bech32 = { version = "0.9.1" }
+
+# The serde-json dependency without the serde dependency. This is used for the SBOR serialization
+# in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+
+# Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
+# computed once.
+lazy_static = { version = "1.4.0" }
+regex = "1.8.4"
+
+[build-dependencies]
+cargo_toml = { version = "0.15.3" }
+
+[dev-dependencies]
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features = false, features = ["lru", "std", "resource_tracker"] }
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
