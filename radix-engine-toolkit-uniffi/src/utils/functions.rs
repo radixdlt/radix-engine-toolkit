@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[uniffi::export]
-pub fn utils_known_addresses(network_id: u8) -> KnownAddresses {
+pub fn known_addresses(network_id: u8) -> KnownAddresses {
     KnownAddresses {
         resource_addresses: ResourceAddresses::new_from_network(network_id),
         package_addresses: PackageAddresses::new_from_network(network_id),
