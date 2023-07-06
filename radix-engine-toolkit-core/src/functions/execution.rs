@@ -197,5 +197,5 @@ impl From<InstructionVisitorError> for ExecutionModuleError {
 }
 
 fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    Decimal::from_str(DEFAULT_COST_UNIT_PRICE).unwrap() * cost_units
+    Decimal::from_str(DEFAULT_COST_UNIT_PRICE_IN_XRD).unwrap() * cost_units
 }

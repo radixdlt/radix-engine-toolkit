@@ -42,7 +42,6 @@ pub use crate::models::cryptographic::public_key_hash::*;
 pub use crate::models::cryptographic::signature::*;
 pub use crate::models::cryptographic::signature_with_public_key::*;
 pub use crate::models::macros::*;
-pub use crate::models::manifest::inputs::*;
 pub use crate::models::manifest::runtime::*;
 pub use crate::models::olympia::network::*;
 pub use crate::models::sbor::local_type_index::*;

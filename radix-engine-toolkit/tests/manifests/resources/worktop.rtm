@@ -7,6 +7,7 @@ CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cv
 # Buy GUM with XRD
 TAKE_FROM_WORKTOP Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3") Decimal("2.0") Bucket("xrd");
 CALL_METHOD Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu") "buy_gumball" Bucket("xrd");
+ASSERT_WORKTOP_CONTAINS_ANY Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez");
 ASSERT_WORKTOP_CONTAINS Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Decimal("3.0");
 
 # Create a proof from bucket, clone it and drop both

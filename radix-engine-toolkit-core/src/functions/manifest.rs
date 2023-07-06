@@ -17,8 +17,8 @@
 
 use sbor::*;
 use scrypto::prelude::*;
-use transaction::builder::*;
 use transaction::errors::*;
+use transaction::prelude::*;
 use transaction::validation::*;
 
 pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {

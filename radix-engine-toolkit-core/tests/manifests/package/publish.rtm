@@ -14,10 +14,10 @@ CALL_METHOD
 
 # Publishing a new package and setting some of its royalty and access rules.
 PUBLISH_PACKAGE_ADVANCED
-    None
-    Blob("a710f0959d8e139b3c1ca74ac4fcb9a95ada2c82e7f563304c5487e0117095c0")
-    Tuple(
+    Enum<AccessRule::AllowAll>() # Owner AccessRule
+    Tuple(                       # Package Definition
         Map<String, Tuple>()
     )
-    Map<String, Tuple>()        # Metadata
-    Enum<0u8>();               # Owner AccessRule
+    Blob("a710f0959d8e139b3c1ca74ac4fcb9a95ada2c82e7f563304c5487e0117095c0")    # Package Code
+    Map<String, Tuple>()         # Metadata
+    None;                        # Address Reservation

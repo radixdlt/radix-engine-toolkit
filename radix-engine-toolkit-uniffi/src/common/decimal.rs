@@ -99,7 +99,7 @@ macro_rules! define_uniffi_decimal {
                     $crate::prelude::Arc::new(Self(self.0.ceiling()))
                 }
 
-                pub fn round(&self, decimal_places: u32, rounding_mode: crate::prelude::RoundingMode) -> $crate::prelude::Arc<Self> {
+                pub fn round(&self, decimal_places: i32, rounding_mode: crate::prelude::RoundingMode) -> $crate::prelude::Arc<Self> {
                     $crate::prelude::Arc::new(Self(self.0.round(decimal_places, rounding_mode.into())))
                 }
 
@@ -151,26 +151,34 @@ define_uniffi_decimal!(PreciseDecimal);
 
 #[derive(Clone, Debug, crate::prelude::Enum)]
 pub enum RoundingMode {
-    TowardsPositiveInfinity,
-    TowardsNegativeInfinity,
-    TowardsZero,
+    ToPositiveInfinity,
+    ToNegativeInfinity,
+    ToZero,
     AwayFromZero,
-    TowardsNearestAndHalfTowardsZero,
-    TowardsNearestAndHalfAwayFromZero,
+    ToNearestMidpointTowardZero,
+    ToNearestMidpointAwayFromZero,
+    ToNearestMidpointToEven,
 }
 
 impl From<RoundingMode> for crate::prelude::NativeRoundingMode {
     fn from(value: RoundingMode) -> Self {
         match value {
-            RoundingMode::TowardsPositiveInfinity => Self::TowardsPositiveInfinity,
-            RoundingMode::TowardsNegativeInfinity => Self::TowardsNegativeInfinity,
-            RoundingMode::TowardsZero => Self::TowardsZero,
-            RoundingMode::AwayFromZero => Self::AwayFromZero,
-            RoundingMode::TowardsNearestAndHalfTowardsZero => {
-                Self::TowardsNearestAndHalfTowardsZero
+            RoundingMode::ToPositiveInfinity => {
+                crate::prelude::NativeRoundingMode::ToPositiveInfinity
             }
-            RoundingMode::TowardsNearestAndHalfAwayFromZero => {
-                Self::TowardsNearestAndHalfAwayFromZero
+            RoundingMode::ToNegativeInfinity => {
+                crate::prelude::NativeRoundingMode::ToNegativeInfinity
+            }
+            RoundingMode::ToZero => crate::prelude::NativeRoundingMode::ToZero,
+            RoundingMode::AwayFromZero => crate::prelude::NativeRoundingMode::AwayFromZero,
+            RoundingMode::ToNearestMidpointTowardZero => {
+                crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero
+            }
+            RoundingMode::ToNearestMidpointAwayFromZero => {
+                crate::prelude::NativeRoundingMode::ToNearestMidpointAwayFromZero
+            }
+            RoundingMode::ToNearestMidpointToEven => {
+                crate::prelude::NativeRoundingMode::ToNearestMidpointToEven
             }
         }
     }
@@ -179,19 +187,22 @@ impl From<RoundingMode> for crate::prelude::NativeRoundingMode {
 impl From<crate::prelude::NativeRoundingMode> for RoundingMode {
     fn from(value: crate::prelude::NativeRoundingMode) -> Self {
         match value {
-            crate::prelude::NativeRoundingMode::TowardsPositiveInfinity => {
-                Self::TowardsPositiveInfinity
+            crate::prelude::NativeRoundingMode::ToPositiveInfinity => {
+                RoundingMode::ToPositiveInfinity
             }
-            crate::prelude::NativeRoundingMode::TowardsNegativeInfinity => {
-                Self::TowardsNegativeInfinity
+            crate::prelude::NativeRoundingMode::ToNegativeInfinity => {
+                RoundingMode::ToNegativeInfinity
             }
-            crate::prelude::NativeRoundingMode::TowardsZero => Self::TowardsZero,
-            crate::prelude::NativeRoundingMode::AwayFromZero => Self::AwayFromZero,
-            crate::prelude::NativeRoundingMode::TowardsNearestAndHalfTowardsZero => {
-                Self::TowardsNearestAndHalfTowardsZero
+            crate::prelude::NativeRoundingMode::ToZero => RoundingMode::ToZero,
+            crate::prelude::NativeRoundingMode::AwayFromZero => RoundingMode::AwayFromZero,
+            crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero => {
+                RoundingMode::ToNearestMidpointTowardZero
             }
-            crate::prelude::NativeRoundingMode::TowardsNearestAndHalfAwayFromZero => {
-                Self::TowardsNearestAndHalfAwayFromZero
+            crate::prelude::NativeRoundingMode::ToNearestMidpointAwayFromZero => {
+                RoundingMode::ToNearestMidpointAwayFromZero
+            }
+            crate::prelude::NativeRoundingMode::ToNearestMidpointToEven => {
+                RoundingMode::ToNearestMidpointToEven
             }
         }
     }

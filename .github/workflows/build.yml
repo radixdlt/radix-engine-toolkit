@@ -246,7 +246,7 @@ jobs:
       - name: Clone uniffi-bindgen-cs
         uses: actions/checkout@v3
         with:
-          repository: 0xOmarA/uniffi-bindgen-cs
+          repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
       - uses: actions/download-artifact@v3

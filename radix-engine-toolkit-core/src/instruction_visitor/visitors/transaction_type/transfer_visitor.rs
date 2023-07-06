@@ -164,18 +164,17 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             }
             /* Allowed Instructions */
             InstructionV1::AssertWorktopContains { .. }
+            | InstructionV1::AssertWorktopContainsAny { .. }
             | InstructionV1::AssertWorktopContainsNonFungibles { .. } => {}
             /* Illegal Instructions */
             InstructionV1::CallMethod { .. }
             | InstructionV1::PopFromAuthZone
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::ClearAuthZone
-            | InstructionV1::CreateProofFromAuthZone { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
             | InstructionV1::ClearSignatureProofs
-            | InstructionV1::CreateProofFromBucket { .. }
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }

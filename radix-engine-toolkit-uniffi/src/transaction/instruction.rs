@@ -42,6 +42,10 @@ pub enum Instruction {
         amount: Arc<Decimal>,
     },
 
+    AssertWorktopContainsAny {
+        resource_address: Arc<Address>,
+    },
+
     AssertWorktopContainsNonFungibles {
         resource_address: Arc<Address>,
         ids: Vec<NonFungibleLocalId>,
@@ -54,10 +58,6 @@ pub enum Instruction {
     },
 
     ClearAuthZone,
-
-    CreateProofFromAuthZone {
-        resource_address: Arc<Address>,
-    },
 
     CreateProofFromAuthZoneOfAmount {
         resource_address: Arc<Address>,
@@ -74,10 +74,6 @@ pub enum Instruction {
     },
 
     ClearSignatureProofs,
-
-    CreateProofFromBucket {
-        bucket_id: ManifestBucket,
-    },
 
     CreateProofFromBucketOfAmount {
         bucket_id: ManifestBucket,
@@ -187,6 +183,14 @@ impl Instruction {
                 resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
                 amount: Arc::new(Decimal(*amount)),
             },
+            NativeInstruction::AssertWorktopContainsAny { resource_address } => {
+                Self::AssertWorktopContainsAny {
+                    resource_address: Arc::new(Address::from_node_id(
+                        *resource_address,
+                        network_id,
+                    )),
+                }
+            }
             NativeInstruction::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
@@ -200,14 +204,6 @@ impl Instruction {
             },
             NativeInstruction::ClearAuthZone => Self::ClearAuthZone,
             NativeInstruction::ClearSignatureProofs => Self::ClearSignatureProofs,
-            NativeInstruction::CreateProofFromAuthZone { resource_address } => {
-                Self::CreateProofFromAuthZone {
-                    resource_address: Arc::new(Address::from_node_id(
-                        *resource_address,
-                        network_id,
-                    )),
-                }
-            }
             NativeInstruction::CreateProofFromAuthZoneOfAll { resource_address } => {
                 Self::CreateProofFromAuthZoneOfAll {
                     resource_address: Arc::new(Address::from_node_id(
@@ -229,9 +225,6 @@ impl Instruction {
             } => Self::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
                 ids: ids.iter().cloned().map(Into::into).collect(),
-            },
-            NativeInstruction::CreateProofFromBucket { bucket_id } => Self::CreateProofFromBucket {
-                bucket_id: (*bucket_id).into(),
             },
             NativeInstruction::CreateProofFromBucketOfAll { bucket_id } => {
                 Self::CreateProofFromBucketOfAll {
@@ -364,6 +357,11 @@ impl Instruction {
                 resource_address: (*resource_address.as_ref()).try_into()?,
                 amount: amount.0,
             },
+            Self::AssertWorktopContainsAny { resource_address } => {
+                NativeInstruction::AssertWorktopContainsAny {
+                    resource_address: (*resource_address.as_ref()).try_into()?,
+                }
+            }
             Self::AssertWorktopContainsNonFungibles {
                 resource_address,
                 ids,
@@ -380,11 +378,6 @@ impl Instruction {
                 proof_id: (*proof_id).into(),
             },
             Self::ClearAuthZone => NativeInstruction::ClearAuthZone,
-            Self::CreateProofFromAuthZone { resource_address } => {
-                NativeInstruction::CreateProofFromAuthZone {
-                    resource_address: (*resource_address.as_ref()).try_into()?,
-                }
-            }
             Self::CreateProofFromAuthZoneOfAll { resource_address } => {
                 NativeInstruction::CreateProofFromAuthZoneOfAll {
                     resource_address: (*resource_address.as_ref()).try_into()?,
@@ -409,9 +402,6 @@ impl Instruction {
                     .collect::<Result<_>>()?,
             },
             Self::ClearSignatureProofs => NativeInstruction::ClearSignatureProofs,
-            Self::CreateProofFromBucket { bucket_id } => NativeInstruction::CreateProofFromBucket {
-                bucket_id: (*bucket_id).into(),
-            },
             Self::CreateProofFromBucketOfAll { bucket_id } => {
                 NativeInstruction::CreateProofFromBucketOfAll {
                     bucket_id: (*bucket_id).into(),

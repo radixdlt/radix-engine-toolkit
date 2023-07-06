@@ -20,7 +20,7 @@ use radix_engine_toolkit::prelude::*;
 use transaction::manifest::*;
 use walkdir::WalkDir;
 
-pub const NUMBER_OF_MANIFESTS: usize = 25;
+pub const NUMBER_OF_MANIFESTS: usize = 26;
 pub const NUMBER_OF_MANIFESTS_DOUBLE: usize = NUMBER_OF_MANIFESTS * 2;
 
 pub fn get_serializable_instructions() -> [SerializableInstructions; NUMBER_OF_MANIFESTS_DOUBLE] {

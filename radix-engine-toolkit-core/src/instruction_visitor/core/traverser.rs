@@ -50,6 +50,12 @@ pub fn traverse(
             InstructionV1::ReturnToWorktop { bucket_id } => {
                 for_each_enabled_visitor!(visitors, visit_return_to_worktop(bucket_id))
             }
+            InstructionV1::AssertWorktopContainsAny { resource_address } => {
+                for_each_enabled_visitor!(
+                    visitors,
+                    visit_assert_worktop_contains_any(resource_address)
+                )
+            }
             InstructionV1::AssertWorktopContains {
                 resource_address,
                 amount,
@@ -77,12 +83,7 @@ pub fn traverse(
             InstructionV1::ClearAuthZone => {
                 for_each_enabled_visitor!(visitors, visit_clear_auth_zone())
             }
-            InstructionV1::CreateProofFromAuthZone { resource_address } => {
-                for_each_enabled_visitor!(
-                    visitors,
-                    visit_create_proof_from_auth_zone(resource_address)
-                )
-            }
+
             InstructionV1::CreateProofFromAuthZoneOfAmount {
                 resource_address,
                 amount,
@@ -109,9 +110,6 @@ pub fn traverse(
             }
             InstructionV1::ClearSignatureProofs {} => {
                 for_each_enabled_visitor!(visitors, visit_clear_signature_proofs())
-            }
-            InstructionV1::CreateProofFromBucket { bucket_id } => {
-                for_each_enabled_visitor!(visitors, visit_create_proof_from_bucket(bucket_id))
             }
             InstructionV1::CreateProofFromBucketOfAmount { bucket_id, amount } => {
                 for_each_enabled_visitor!(

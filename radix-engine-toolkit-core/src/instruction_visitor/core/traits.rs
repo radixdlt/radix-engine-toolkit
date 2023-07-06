@@ -82,6 +82,14 @@ pub trait InstructionVisitor {
     }
 
     #[inline]
+    fn visit_assert_worktop_contains_any(
+        &mut self,
+        resource_address: &ResourceAddress,
+    ) -> Result<(), InstructionVisitorError> {
+        Ok(())
+    }
+
+    #[inline]
     fn visit_assert_worktop_contains_non_fungibles(
         &mut self,
         resource_address: &ResourceAddress,
@@ -105,14 +113,6 @@ pub trait InstructionVisitor {
 
     #[inline]
     fn visit_clear_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn visit_create_proof_from_auth_zone(
-        &mut self,
-        resource_address: &ResourceAddress,
-    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -144,14 +144,6 @@ pub trait InstructionVisitor {
 
     #[inline]
     fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
-        Ok(())
-    }
-
-    #[inline]
-    fn visit_create_proof_from_bucket(
-        &mut self,
-        bucket_id: &ManifestBucket,
-    ) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 

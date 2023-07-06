@@ -1,7 +1,7 @@
 TAKE_ALL_FROM_WORKTOP
     Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez")
     Bucket("temp1");
-CREATE_PROOF_FROM_AUTH_ZONE
+CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL
     Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez")
     Proof("temp2");
 

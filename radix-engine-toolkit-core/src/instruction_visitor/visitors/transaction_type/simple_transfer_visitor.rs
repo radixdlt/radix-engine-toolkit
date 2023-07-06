@@ -254,15 +254,6 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     }
 
     #[inline]
-    fn visit_create_proof_from_auth_zone(
-        &mut self,
-        _: &ResourceAddress,
-    ) -> Result<(), InstructionVisitorError> {
-        self.illegal_instruction_encountered = true;
-        Ok(())
-    }
-
-    #[inline]
     fn visit_create_proof_from_auth_zone_of_amount(
         &mut self,
         _: &ResourceAddress,
@@ -293,15 +284,6 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
 
     #[inline]
     fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
-        self.illegal_instruction_encountered = true;
-        Ok(())
-    }
-
-    #[inline]
-    fn visit_create_proof_from_bucket(
-        &mut self,
-        _: &ManifestBucket,
-    ) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }

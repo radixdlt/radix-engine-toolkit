@@ -24,8 +24,8 @@ use transaction::prelude::*;
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
     // Arrange
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account(account(), RADIX_TOKEN)
-        .create_proof_from_account(account(), ACCOUNT_OWNER_BADGE)
+        .create_proof_from_account_of_amount(account(), RADIX_TOKEN, dec!("1"))
+        .create_proof_from_account_of_amount(account(), ACCOUNT_OWNER_BADGE, dec!("1"))
         .build();
 
     // Act
@@ -42,8 +42,8 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_amount() {
     // Arrange
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account(), RADIX_TOKEN, 10.into())
-        .create_proof_from_account_of_amount(account(), ACCOUNT_OWNER_BADGE, 10.into())
+        .create_proof_from_account_of_amount(account(), RADIX_TOKEN, dec!("10"))
+        .create_proof_from_account_of_amount(account(), ACCOUNT_OWNER_BADGE, dec!("10"))
         .build();
 
     // Act

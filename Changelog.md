@@ -1,6 +1,6 @@
-# 0.10.0-elm.1 (WIP)
+# 0.10.0 (6 July 2023)
 
-Still a work in progress
+* The instruction model of the `radix-engine-toolkit` crate no longer performs any aliasing of instructions. All aliasing is to be handled by transaction manifest builders.
 
 # 0.10.0-damson.1 (26-June-2023)
 

@@ -27,7 +27,8 @@ use radix_engine_store_interface::interface::DatabaseUpdate;
 use regex::Regex;
 use sbor::{generate_full_schema_from_single_type, validate_payload_against_schema};
 use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
-use transaction::{builder::TransactionManifestV1, model::IntentV1, prelude::DynamicGlobalAddress};
+use transaction::model::IntentV1;
+use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {

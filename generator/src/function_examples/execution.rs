@@ -31,9 +31,10 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
             let (public_key2, _, account2) = test_runner.new_account(true);
 
             let manifest = ManifestBuilder::new()
-                .lock_fee(account1, 10.into())
-                .withdraw_from_account(account1, RADIX_TOKEN, 10.into())
-                .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, RADIX_TOKEN, "10")
+                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
@@ -59,16 +60,18 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
             let (public_key3, _, account3) = test_runner.new_account(true);
 
             let manifest = ManifestBuilder::new()
-                .lock_fee(account1, 10.into())
-                .withdraw_from_account(account1, RADIX_TOKEN, 20.into())
-                .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, RADIX_TOKEN, "20")
+                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                         manifest_args!(bucket),
                     )
                 })
-                .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+                .take_from_worktop(RADIX_TOKEN, "10", "bucket1")
+                .with_bucket("bucket1", |builder, bucket| {
                     builder.call_method(
                         account3,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
@@ -94,17 +97,19 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
             let (public_key3, _, account3) = test_runner.new_account(true);
 
             let manifest = ManifestBuilder::new()
-                .lock_fee(account1, 10.into())
-                .withdraw_from_account(account1, RADIX_TOKEN, 10.into())
-                .withdraw_from_account(account2, RADIX_TOKEN, 10.into())
-                .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, RADIX_TOKEN, "10")
+                .withdraw_from_account(account2, RADIX_TOKEN, "10")
+                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                         manifest_args!(bucket),
                     )
                 })
-                .take_from_worktop(RADIX_TOKEN, 10.into(), |builder, bucket| {
+                .take_from_worktop(RADIX_TOKEN, "10", "bucket1")
+                .with_bucket("bucket1", |builder, bucket| {
                     builder.call_method(
                         account3,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,

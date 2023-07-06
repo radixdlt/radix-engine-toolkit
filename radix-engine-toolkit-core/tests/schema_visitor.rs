@@ -75,8 +75,10 @@ fn bucket_in_path_visitor_does_not_detect_non_existent_buckets() {
 #[test]
 fn proof_in_path_visitor_can_detect_a_proof_in_the_schema() {
     // Arrange
-    let (local_type_index, schema) =
-        generate_full_schema_from_single_type::<AccountCreateProofOutput, ScryptoCustomSchema>();
+    let (local_type_index, schema) = generate_full_schema_from_single_type::<
+        AccountCreateProofOfAmountOutput,
+        ScryptoCustomSchema,
+    >();
 
     // Act
     let mut visitor = ProofInPathVisitor::default();

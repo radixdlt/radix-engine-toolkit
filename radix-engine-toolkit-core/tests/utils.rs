@@ -30,17 +30,16 @@ fn extraction_of_metadata_from_receipts_succeeds() {
 
     // Act
     let manifest = ManifestBuilder::new()
-        .create_fungible_resource::<AccessRule>(
+        .create_fungible_resource(
             OwnerRole::None,
             true,
             18,
-            ModuleConfig {
-                init: metadata_init!(
+            FungibleResourceRoles::default(),
+            metadata! {
+                init {
                     "name" => true, locked;
-                ),
-                roles: RolesInit::default(),
+                }
             },
-            BTreeMap::new(),
             None,
         )
         .build();
@@ -78,13 +77,12 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
             OwnerRole::None,
             NonFungibleIdType::Integer,
             true,
-            ModuleConfig {
-                init: metadata_init!(
+            NonFungibleResourceRoles::default(),
+            metadata! {
+                init {
                     "name" => true, locked;
-                ),
-                roles: RolesInit::default(),
+                }
             },
-            BTreeMap::<ResourceAction, (AccessRule, AccessRule)>::new(),
             Some(btreemap!(
                 NonFungibleLocalId::integer(1) => Owl {
                     name: "an example name".to_string(),

@@ -20,7 +20,6 @@ use radix_engine::blueprints::native_schema::*;
 use radix_engine::blueprints::package::*;
 use radix_engine::types::*;
 use scrypto::api::node_modules::auth::*;
-use scrypto::api::node_modules::metadata::*;
 use scrypto::api::node_modules::royalty::*;
 use scrypto::blueprints::account::*;
 use scrypto::blueprints::identity::*;

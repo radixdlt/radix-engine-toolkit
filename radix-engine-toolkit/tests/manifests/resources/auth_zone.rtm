@@ -6,13 +6,12 @@ CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cv
 
 # Create a proof from bucket, clone it and drop both
 TAKE_ALL_FROM_WORKTOP Address("resource_sim1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxakj8n3") Bucket("some_xrd");
-CREATE_PROOF_FROM_BUCKET Bucket("some_xrd") Proof("proof1");
 CREATE_PROOF_FROM_BUCKET_OF_AMOUNT Bucket("some_xrd") Decimal("1") Proof("proof1a");
 CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES Bucket("some_xrd") Array<NonFungibleLocalId>(NonFungibleLocalId("#123#")) Proof("proof1b");
 CREATE_PROOF_FROM_BUCKET_OF_ALL Bucket("some_xrd") Proof("proof1c");
-CLONE_PROOF Proof("proof1") Proof("proof2");
-DROP_PROOF Proof("proof1");
-DROP_PROOF Proof("proof2");
+CLONE_PROOF Proof("proof1c") Proof("proof1d");
+DROP_PROOF Proof("proof1d");
+DROP_PROOF Proof("proof1c");
 CLEAR_AUTH_ZONE;
 
 # Create a proof from account and drop it
@@ -22,7 +21,6 @@ DROP_PROOF Proof("proof3");
 
 # Compose proofs
 CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") "create_proof_of_amount" Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Decimal("5.0");
-CREATE_PROOF_FROM_AUTH_ZONE Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Proof("Proof Name");
 CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Decimal("1") Proof("proof4");
 CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha") Array<NonFungibleLocalId>(NonFungibleLocalId("#123#")) Proof("proof5");
 CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha") Proof("proof6");
