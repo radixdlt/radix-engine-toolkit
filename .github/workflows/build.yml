@@ -363,7 +363,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 8.0.2
-          arguments: wrapper -p ret-kotlin
+          arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
@@ -400,7 +400,7 @@ jobs:
         with:
           # The same with interop/android/build.gradle.kts
           gradle-version: 8.0.2
-          arguments: wrapper -p ret-android
+          arguments: wrapper -p interop/android/ret-android
       - name: Build and publish Android
         uses: gradle/gradle-build-action@v2
         with:
