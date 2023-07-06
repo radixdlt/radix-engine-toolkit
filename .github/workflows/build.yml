@@ -142,10 +142,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            /usr/local/Cellar/mingw-w64
-            /usr/local/Cellar/aarch64-unknown-linux-gnu
-            /usr/local/Cellar/x86_64-unknown-linux-gnu
-            /usr/local/Homebrew/Library/Taps/messense
+            /usr/local/Cellar
+            /usr/local/Homebrew
           key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-brewcache
 
       - name: Install Build Dependencies
@@ -172,7 +170,7 @@ jobs:
           brew install aarch64-unknown-linux-gnu
 
       - name: Install Linux Dependencies
-        if: contains(matrix.build-target.custom-compiler, 'linux')
+        if: contains(matrix.build-target.custom-linker, 'linux')
         run: |
           export HOMEBREW_NO_AUTO_UPDATE=1
 
