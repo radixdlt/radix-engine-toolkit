@@ -4,4 +4,4 @@ version = "0.10.0-elm.1"
 edition = "2021"
 
 [dependencies]
-uniffi = { git = "https://github.com/0xOmarA/uniffi-rs/", rev = "2795d19745989f68396ea6fe1d50c1df1ad87528", features = ["cli"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "fe0d47ab23267415d118e5318feb282cc99ed5d0", features = ["cli"] }
