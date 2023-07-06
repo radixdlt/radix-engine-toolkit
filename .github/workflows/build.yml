@@ -14,10 +14,6 @@ on:
       - develop
       - main
 
-# concurrency:
-#   group: ${{ github.ref }}
-#   cancel-in-progress: true
-
 jobs:
   build:
     runs-on: macos-latest
@@ -138,15 +134,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Configure Homebrew cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            /usr/local/Cellar
-            /usr/local/Homebrew
-            /usr/local/opt
-          key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-brew
-
       - name: Install Build Dependencies
         run: |
           export HOMEBREW_NO_AUTO_UPDATE=1
@@ -179,16 +166,14 @@ jobs:
           brew install x86_64-unknown-linux-gnu
           brew install aarch64-unknown-linux-gnu
 
-      - name: Cache Rust dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            radix-engine-toolkit/target
-            radix-engine-toolkit-core/target
-            radix-engine-toolkit-uniffi/target
-          key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-rust-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.build-target.target-triple }}-rust-
+      # - name: Cache Rust dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       radix-engine-toolkit/target
+      #       radix-engine-toolkit-core/target
+      #       radix-engine-toolkit-uniffi/target
+      #     key: ${{ matrix.build-target.target-triple }}-rust
 
       - name: Install Rust Toolchain
         run: |
