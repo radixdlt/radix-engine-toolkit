@@ -424,6 +424,9 @@ jobs:
   publish-kotlin-maven:
     needs: [ build, create-uniffi-bindings ]
     runs-on: macos-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -437,6 +440,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
+          gradle-version: 8.0.2
           arguments: wrapper -p ret-kotlin
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
@@ -449,6 +453,9 @@ jobs:
   publish-android-maven:
     needs: [ build, create-uniffi-bindings ]
     runs-on: macos-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -466,6 +473,12 @@ jobs:
         working-directory: interop/android
         run:
           ./bootstrap.sh
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          # The same with interop/android/build.gradle.kts
+          gradle-version: 8.0.2
+          arguments: wrapper -p ret-kotlin
       - name: Build and publish Android
         uses: gradle/gradle-build-action@v2
         with:
