@@ -37,20 +37,19 @@ jobs:
           SPM_VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
           SET_UPSTREAM_FLAG=""
 
-
           echo $(git ls-remote --heads origin $BRANCH | grep $BRANCH)
           REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
           if [ -z "$REMOTE_BRANCH" ]
           then
-            git fetch origin $BRANCH
-            git checkout $BRANCH
-            git pull origin $BRANCH
-            echo "Pulled latest branch state"
-          else
             git checkout -b $BRANCH
             # Allows creating branch on remote
             SET_UPSTREAM_FLAG="-u"
             echo "New branch"
+          else
+            git fetch origin $BRANCH
+            git checkout $BRANCH
+            git pull origin $BRANCH
+            echo "Pulled latest branch state"
           fi
 
           touch dummy.txt
