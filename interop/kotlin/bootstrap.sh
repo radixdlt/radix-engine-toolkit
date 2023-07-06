@@ -3,7 +3,7 @@
 library_name="ret-kotlin"
 src=$library_name/lib/src/main/kotlin
 res=$library_name/lib/src/main/resources
-package=org/radixdlt/ret
+package=com/radixdlt/ret
 
 artifacts=../../artifacts
 

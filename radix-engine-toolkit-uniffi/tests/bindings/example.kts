@@ -1,4 +1,4 @@
-import org.radixdlt.ret.*;
+import com.radixdlt.ret.*;
 
 // Act
 val information = buildInformation();

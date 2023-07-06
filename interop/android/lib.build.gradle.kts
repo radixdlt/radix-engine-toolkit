@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "org.radixdlt.ret"
+    namespace = "com.radixdlt.ret"
     compileSdk = 33
 
     defaultConfig {
