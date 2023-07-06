@@ -368,7 +368,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
-          gradle-executable: interop/kotlin/ret-kotlin
+          build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -405,6 +405,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build
-          gradle-executable: interop/android/ret-android
+          build-root-directory: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
