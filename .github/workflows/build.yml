@@ -314,7 +314,7 @@ jobs:
           SET_UPSTREAM_FLAG=""
 
           cd swift-engine-toolkit
-          REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
+          REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH)
 
           if [ -z "$REMOTE_BRANCH" ]
           then
