@@ -28,5 +28,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Cache Rust dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          radix-engine-toolkit/target
+          radix-engine-toolkit-core/target
+        key: ${{ runner.os }}-${{ matrix.crate.target-triple }}-rust-test-${{ hashFiles('**/Cargo.lock') }}
     - name: Run tests
       run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose

@@ -144,7 +144,8 @@ jobs:
           path: |
             /usr/local/Cellar
             /usr/local/Homebrew
-          key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-brewcache
+            /usr/local/opt
+          key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-brew
 
       - name: Install Build Dependencies
         run: |
@@ -177,6 +178,17 @@ jobs:
           brew tap messense/macos-cross-toolchains
           brew install x86_64-unknown-linux-gnu
           brew install aarch64-unknown-linux-gnu
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            radix-engine-toolkit/target
+            radix-engine-toolkit-core/target
+            radix-engine-toolkit-uniffi/target
+          key: ${{ runner.os }}-${{ matrix.build-target.target-triple }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.build-target.target-triple }}-rust-
 
       - name: Install Rust Toolchain
         run: |
