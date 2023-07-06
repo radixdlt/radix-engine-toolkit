@@ -23,7 +23,7 @@ java {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "org.radixdlt"
+            groupId = "com.radixdlt"
             artifactId = "radix-engine-toolkit-kotlin"
             version = providers.gradleProperty("ret-version").getOrNull()
 
