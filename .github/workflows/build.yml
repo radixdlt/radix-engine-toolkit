@@ -26,7 +26,7 @@ jobs:
           BRANCH: ${{env.GITHUB_REF}}
         run: |
           echo "Branch name: $BRANCH"
-          VERSION=$(cargo read-manifest --manifest-path ./radix-engine-toolkit-uniffi/Cargo.toml | grep -o '"version": *"[^"]*"' | grep -o '"[^"]*"$')
+          VERSION=$(cargo read-manifest --manifest-path ./radix-engine-toolkit-uniffi/Cargo.toml | jq -r 'version')
           echo "Crate version: $VERSION"
 
   build:
