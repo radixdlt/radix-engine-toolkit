@@ -34,13 +34,13 @@ jobs:
           BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
           CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
+          SPM_VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
           SET_UPSTREAM_FLAG=""
 
 
           echo $(git ls-remote --heads origin $BRANCH | grep $BRANCH)
           REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
-          if [ -z "$REMOTE_BRANCH"]
+          if [ -z "$REMOTE_BRANCH" ]
           then
             git fetch origin $BRANCH
             git checkout $BRANCH
