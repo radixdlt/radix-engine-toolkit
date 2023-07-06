@@ -16,8 +16,22 @@ on:
       - main
 
 jobs:
+  version_test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Branch abd version
+        env:
+          BRANCH: ${{env.GITHUB_REF_NAME}}
+        run: |
+          echo "Branch name: $BRANCH"
+          VERSION=$(cargo pkgid --manifest-path ./radix-engine-toolkit-uniffi/Cargo.toml | cut -d "#" -f2)
+          echo "Crate version: $VERSION"
+
   build:
     runs-on: macos-latest
+    needs: [version_test]
     continue-on-error: true
     strategy:
       matrix:
@@ -311,7 +325,7 @@ jobs:
         run: |
           git checkout $BRANCH || git checkout -b $BRANCH
           cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
-          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi
+          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
 
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           git add .
