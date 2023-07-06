@@ -249,6 +249,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Clone uniffi-bindgen-cs
+        uses: actions/checkout@v3
+        with:
+          repository: 0xOmarA/uniffi-bindgen-cs
+          path: uniffi-bindgen-cs
+          submodules: 'recursive'
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -271,6 +277,12 @@ jobs:
             --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
             generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --language kotlin \
+            --out-dir ./output \
+            --lib-file ./libradix_engine_toolkit_uniffi.a
+          
+          cargo run \
+            --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
+            ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --out-dir ./output \
             --lib-file ./libradix_engine_toolkit_uniffi.a
         working-directory: artifacts/extracted
