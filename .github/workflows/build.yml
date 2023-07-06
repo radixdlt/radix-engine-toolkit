@@ -44,7 +44,9 @@ jobs:
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
           git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
-          git push || git push --set-upstream origin $BRANCH
+          # Allow creating branch if missing
+          git config --global --add --bool push.autoSetupRemote true
+          git push
 
   build:
     runs-on: macos-latest
