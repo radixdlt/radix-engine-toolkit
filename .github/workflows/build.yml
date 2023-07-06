@@ -16,55 +16,8 @@ on:
       - main
 
 jobs:
-  version_test:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Checkout Swift Engine toolkit
-        uses: actions/checkout@v3
-        with:
-           repository: radixdlt/swift-engine-toolkit
-           token: ${{ secrets.RADIX_BOT_PAT }}
-           path: ./swift-engine-toolkit
-      - name: Branch abd version
-        working-directory: swift-engine-toolkit
-        run: |
-          BRANCH=${{ github.ref_name }}
-          BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
-          CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
-          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          SPM_VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
-          SET_UPSTREAM_FLAG=""
-
-          echo $(git ls-remote --heads origin $BRANCH | grep $BRANCH)
-          REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
-          if [ -z "$REMOTE_BRANCH" ]
-          then
-            git checkout -b $BRANCH
-            # Allows creating branch on remote
-            SET_UPSTREAM_FLAG="-u"
-            echo "New branch"
-          else
-            git fetch origin $BRANCH
-            git checkout $BRANCH
-            git pull origin $BRANCH
-            echo "Pulled latest branch state"
-          fi
-
-          touch dummy.txt
-          #  cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
-          # cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
-
-          git add .
-          git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
-          git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
-          git push $SET_UPSTREAM_FLAG origin $BRANCH
-          git push origin $SPM_VERSION
-
   build:
     runs-on: macos-latest
-    needs: [version_test]
     continue-on-error: true
     strategy:
       matrix:
@@ -358,17 +311,29 @@ jobs:
           BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
           CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
+          SPM_VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
+          SET_UPSTREAM_FLAG=""
+          REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
 
-          git checkout $BRANCH || git checkout -b $BRANCH
+          if [ -z "$REMOTE_BRANCH" ]
+          then
+            git checkout -b $BRANCH
+            # Allows creating branch on remote
+            SET_UPSTREAM_FLAG="-u"
+          else
+            git fetch origin $BRANCH
+            git checkout $BRANCH
+            git pull origin $BRANCH
+          fi
+
           cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
           cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
           git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
-          git push || git push --set-upstream origin $BRANCH
-
+          git push $SET_UPSTREAM_FLAG origin $BRANCH
+          git push origin $SPM_VERSION
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
