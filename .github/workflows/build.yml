@@ -430,18 +430,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Create Kotlin Library
         working-directory: interop/kotlin
         run:
           ./bootstrap.sh
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: wrapper -p ret-kotlin
       - name: Build and publish Kotlin
-        working-directory: interop/kotlin/ret-kotlin
-        run:
-          ./gradlew build
-  #        env:
-  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+          gradle-executable: interop/kotlin/ret-kotlin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-android-maven:
     needs: [ build, create-uniffi-bindings ]
@@ -452,21 +455,21 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
       - name: Set up JDK 1.8
         uses: actions/setup-java@v3
         with:
-          java-version: 1.8
+          distribution: 'adopt'
+          java-version: '8'
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
       - name: Create Android Library
         working-directory: interop/android
         run:
           ./bootstrap.sh
-      - name: Build and publish Kotlin
-        working-directory: interop/android/ret-android
-        run:
-          ./gradlew build
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish Android
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: buildRelease
+          gradle-executable: interop/android/ret-android
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

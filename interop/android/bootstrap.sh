@@ -55,5 +55,3 @@ ret_version=$(grep -m 1 version $toml | awk -F= '{print $2}' | tr -d '" ')
 commit_hash=$(git rev-parse --short HEAD)
 version="$ret_version-$commit_hash"
 echo -e "ret-version=$version" >> $library_name/gradle.properties
-
-gradle wrapper -p $library_name
