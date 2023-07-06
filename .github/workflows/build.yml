@@ -22,12 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Branch abd version
-        env:
-          BRANCH: ${{env.GITHUB_REF}}
         run: |
+          BRANCH=${{ github.ref_name }}
           echo "Branch name: $BRANCH"
           VERSION=$(cargo read-manifest --manifest-path ./radix-engine-toolkit-uniffi/Cargo.toml | jq -r '.version')
-          echo "Crate version: $VERSION"
+          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
+          echo "Crate version: $VERSION.$LAST_COMMIT_SHA"
 
   build:
     runs-on: macos-latest
