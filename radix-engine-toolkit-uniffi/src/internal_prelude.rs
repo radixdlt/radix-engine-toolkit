@@ -238,6 +238,10 @@ mod native {
         scrypto_decode as native_scrypto_decode,
         manifest_encode as native_manifest_encode,
         manifest_decode as native_manifest_decode,
+
+        Instant as NativeInstant,
+        Origin as NativeOrigin,
+        Url as NativeUrl,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -330,6 +334,14 @@ mod native {
     pub use radix_engine::transaction::{
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
+    };
+    pub use radix_engine::blueprints::account::{
+        AccountNativePackage as NativeAccountNativePackage,
+        AccountBlueprint as NativeAccountBlueprint
+    };
+    pub use radix_engine::blueprints::identity::{
+        IdentityNativePackage as NativeIdentityNativePackage,
+        IdentityBlueprint as NativeIdentityBlueprint
     };
 }
 
