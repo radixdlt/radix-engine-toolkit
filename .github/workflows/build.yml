@@ -27,11 +27,11 @@ jobs:
 #            custom-linker: ""
 #            custom-compiler: /usr/local/opt/llvm/bin/clang
 #            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-#          - crate: radix-engine-toolkit-uniffi
-#            target-triple: x86_64-apple-darwin
-#            custom-linker: ""
-#            custom-compiler: /usr/local/opt/llvm/bin/clang
-#            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-apple-darwin
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
 #          - crate: radix-engine-toolkit-uniffi
 #            target-triple: aarch64-apple-ios
 #            custom-linker: ""
