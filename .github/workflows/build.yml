@@ -454,6 +454,8 @@ jobs:
           path: artifacts
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
       - name: Create Android Library
         working-directory: interop/android
         run:
