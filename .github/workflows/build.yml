@@ -35,8 +35,18 @@ jobs:
           CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
+          SET_UPSTREAM_FLAG=""
 
-          git checkout $BRANCH || git checkout -b $BRANCH
+          if git show-ref --verify --quiet "refs/remotes/origin/spm_deploy"; then
+            git fetch origin $BRANCH
+            git checkout $BRANCH
+            git pull origin $BRANCH
+          else
+            git checkout -b $BRANCH
+            # Allows creating branch on remote
+            SET_UPSTREAM_FLAG="-u"
+          fi
+
           touch dummy.txt
           #  cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
           # cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
@@ -44,9 +54,7 @@ jobs:
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
           git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
-          # Allow creating branch if missing
-          git config --global --add --bool push.autoSetupRemote true
-          git push
+          git push $SET_UPSTREAM_FLAG origin $BRANCH
 
   build:
     runs-on: macos-latest
