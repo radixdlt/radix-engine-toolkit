@@ -41,10 +41,12 @@ jobs:
             git fetch origin $BRANCH
             git checkout $BRANCH
             git pull origin $BRANCH
+            echo "Pulled latest branch state"
           else
             git checkout -b $BRANCH
             # Allows creating branch on remote
             SET_UPSTREAM_FLAG="-u"
+            echo "New branch"
           fi
 
           touch dummy.txt
