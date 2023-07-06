@@ -391,7 +391,7 @@ jobs:
       - name: Build and publish Android
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: buildRelease
+          arguments: build
           gradle-executable: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
