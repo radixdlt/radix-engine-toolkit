@@ -37,7 +37,9 @@ jobs:
           SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
           SET_UPSTREAM_FLAG=""
 
-          if git show-ref --verify --quiet "refs/remotes/origin/spm_deploy"; then
+
+          echo $(git ls-remote --heads origin $BRANCH | grep $BRANCH)
+          if git ls-remote --heads $REMOTE_REPO $BRANCH_NAME | grep $BRANCH_NAME; then
             git fetch origin $BRANCH
             git checkout $BRANCH
             git pull origin $BRANCH
