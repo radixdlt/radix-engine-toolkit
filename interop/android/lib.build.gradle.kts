@@ -39,7 +39,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "org.radixdlt"
+            groupId = "com.radixdlt"
             artifactId = "radix-engine-toolkit-android"
             version = providers.gradleProperty("ret-version").getOrNull()
 
