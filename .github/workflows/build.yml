@@ -245,8 +245,6 @@ jobs:
           path: artifacts
       - name: Build XCFramework
         working-directory: artifacts
-        env:
-          BRANCH: ${{env.GITHUB_REF_NAME}}
         run: |
           # The name of the crate that we will be creating the XCFramework and the bindings for.
           CRATE_NAME="radix-engine-toolkit-uniffi"
@@ -305,14 +303,15 @@ jobs:
               -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
 
       - name: Publish to Swift Engine Toolkit
-        working-directory: swift-engine-toolkit
         run: |
           BRANCH=${{ github.ref_name }}
-          BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
+          BUILD_CRATE_MANIFEST="./radix-engine-toolkit-uniffi/Cargo.toml"
           CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           SPM_VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
           SET_UPSTREAM_FLAG=""
+
+          cd swift-engine-toolkit
           REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
 
           if [ -z "$REMOTE_BRANCH" ]
