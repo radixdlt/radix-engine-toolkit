@@ -367,7 +367,7 @@ jobs:
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build
+          arguments: build publish
           build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -404,7 +404,7 @@ jobs:
       - name: Build and publish Android
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build
+          arguments: build publish
           build-root-directory: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
