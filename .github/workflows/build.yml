@@ -21,13 +21,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Checkout Swift Engine toolkit
+        uses: actions/checkout@v3
+        with:
+           repository: radixdlt/swift-engine-toolkit
+           token: ${{ secrets.RADIX_BOT_PAT }}
+           path: ./swift-engine-toolkit
       - name: Branch abd version
+        working-directory: swift-engine-toolkit
         run: |
           BRANCH=${{ github.ref_name }}
-          echo "Branch name: $BRANCH"
-          VERSION=$(cargo read-manifest --manifest-path ./radix-engine-toolkit-uniffi/Cargo.toml | jq -r '.version')
+          BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
+          CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          echo "Crate version: $VERSION.$LAST_COMMIT_SHA"
+          SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
+
+          git checkout $BRANCH || git checkout -b $BRANCH
+          git touch dummy.txt
+          #  cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
+          # cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
+
+          git add .
+          git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
+          git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
+          git push || git push --set-upstream origin $BRANCH
 
   build:
     runs-on: macos-latest
@@ -320,17 +337,22 @@ jobs:
 
       - name: Publish to Swift Engine Toolkit
         working-directory: swift-engine-toolkit
-        env:
-          BRANCH: ${{env.GITHUB_REF_NAME}}
         run: |
+          BRANCH=${{ github.ref_name }}
+          BUILD_CRATE_MANIFEST="../radix-engine-toolkit-uniffi/Cargo.toml"
+          CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
+          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
+          SPM_VERSION=$CRATE_VERSION.$LAST_COMMIT_SHA
+
           git checkout $BRANCH || git checkout -b $BRANCH
           cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI/RadixEngineToolkitUniFFI.xcframework
           cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
 
-          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           git add .
-          git commit -m "Update RET from $LAST_COMMIT_SHA"
+          git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
+          git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
           git push || git push --set-upstream origin $BRANCH
+
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
