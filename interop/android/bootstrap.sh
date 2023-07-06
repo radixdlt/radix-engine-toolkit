@@ -3,7 +3,7 @@
 library_name="ret-android"
 src=$library_name/lib/src/main/kotlin
 jni=$library_name/lib/src/main/jniLibs
-package=org/radixdlt/ret
+package=com/radixdlt/ret
 
 artifacts=../../artifacts
 
