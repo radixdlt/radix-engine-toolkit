@@ -40,7 +40,8 @@ jobs:
 
           echo $(git ls-remote --heads origin $BRANCH | grep $BRANCH)
           REMOTE_BRANCH=$(git ls-remote --heads origin $BRANCH | grep $BRANCH)
-          if [ -z "$REMOTE_BRANCH"] then
+          if [ -z "$REMOTE_BRANCH"]
+          then
             git fetch origin $BRANCH
             git checkout $BRANCH
             git pull origin $BRANCH
