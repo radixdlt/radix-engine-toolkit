@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionHash(pub(crate) NativeHash, pub(crate) String);
+pub struct TransactionHash(pub(crate) NativeHash, pub(crate) String, pub(crate) u8);
 
 #[uniffi::export]
 impl TransactionHash {
@@ -29,6 +29,22 @@ impl TransactionHash {
     pub fn bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }
+
+    pub fn network_id(&self) -> u8 {
+        self.2
+    }
 }
 
-// TODO: Implement fully once the Scrypto dependency is updated.
+impl TransactionHash {
+    pub fn new<T>(hash: &T, network_id: u8) -> Self
+    where
+        T: NativeHashHasHrp + NativeIsHash,
+    {
+        let network_definition = core_network_definition_from_network_id(network_id);
+        let bech32_encoder = NativeTransactionHashBech32Encoder::new(&network_definition);
+        let encoded = bech32_encoder
+            .encode(hash)
+            .expect("Bech32m encoding tx hashes cant fail");
+        Self(*hash.as_hash(), encoded, network_id)
+    }
+}

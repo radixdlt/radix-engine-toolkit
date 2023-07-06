@@ -48,19 +48,25 @@ impl SignedIntent {
         self.intent_signatures.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<Hash>> {
+    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         NativeSignedIntent::try_from(self.clone()).and_then(|signed_intent| {
             core_signed_intent_hash(&signed_intent)
                 .map_err(Into::into)
-                .map(|hash| Arc::new(Hash(hash)))
+                .map(|hash| {
+                    let signed_intent_hash = NativeSignedIntentHash(hash);
+                    Arc::new(TransactionHash::new(
+                        &signed_intent_hash,
+                        self.intent.header.network_id,
+                    ))
+                })
         })
     }
 
-    pub fn signed_intent_hash(&self) -> Result<Arc<Hash>> {
+    pub fn signed_intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.hash()
     }
 
-    pub fn intent_hash(&self) -> Result<Arc<Hash>> {
+    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.intent.hash()
     }
 

@@ -278,6 +278,15 @@ mod native {
         IntentSignatureV1 as NativeIntentSignature,
         IntentSignaturesV1 as NativeIntentSignatures,
         NotarySignatureV1 as NativeNotarySignature,
+
+        IntentHash as NativeIntentHash,
+        SignedIntentHash as NativeSignedIntentHash,
+        NotarizedTransactionHash as NativeNotarizedTransactionHash,
+
+        IsHash as NativeIsHash,
+        HashHasHrp as NativeHashHasHrp,
+        TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
+        TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
     };
     pub use transaction::validation::{ 
         ValidationConfig as NativeValidationConfig,

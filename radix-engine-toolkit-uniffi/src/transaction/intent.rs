@@ -58,15 +58,16 @@ impl Intent {
         self.message.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<Hash>> {
+    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         NativeIntent::try_from(self.clone()).and_then(|intent| {
-            core_intent_hash(&intent)
-                .map_err(Into::into)
-                .map(|hash| Arc::new(Hash(hash)))
+            core_intent_hash(&intent).map_err(Into::into).map(|hash| {
+                let intent_hash = NativeIntentHash(hash);
+                Arc::new(TransactionHash::new(&intent_hash, self.header.network_id))
+            })
         })
     }
 
-    pub fn intent_hash(&self) -> Result<Arc<Hash>> {
+    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.hash()
     }
 

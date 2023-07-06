@@ -48,23 +48,29 @@ impl NotarizedTransaction {
         self.notary_signature.clone()
     }
 
-    pub fn hash(&self) -> Result<Arc<Hash>> {
+    pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         NativeNotarizedTransaction::try_from(self.clone()).and_then(|notarized_transaction| {
             core_notarized_transaction_hash(&notarized_transaction)
                 .map_err(Into::into)
-                .map(|hash| Arc::new(Hash(hash)))
+                .map(|hash| {
+                    let notarized_transaction_hash = NativeNotarizedTransactionHash(hash);
+                    Arc::new(TransactionHash::new(
+                        &notarized_transaction_hash,
+                        self.signed_intent.intent.header.network_id,
+                    ))
+                })
         })
     }
 
-    pub fn notarized_transaction_hash(&self) -> Result<Arc<Hash>> {
+    pub fn notarized_transaction_hash(&self) -> Result<Arc<TransactionHash>> {
         self.hash()
     }
 
-    pub fn signed_intent_hash(&self) -> Result<Arc<Hash>> {
+    pub fn signed_intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.signed_intent.hash()
     }
 
-    pub fn intent_hash(&self) -> Result<Arc<Hash>> {
+    pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
         self.signed_intent.intent.hash()
     }
 
