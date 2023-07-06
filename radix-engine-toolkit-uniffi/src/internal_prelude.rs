@@ -276,6 +276,10 @@ mod native {
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,
     };
+    pub use radix_engine::transaction::{
+        TransactionReceipt as NativeTransactionReceipt,
+        CommitResult as NativeCommitResult
+    };
 }
 
 pub use self::core::*;
