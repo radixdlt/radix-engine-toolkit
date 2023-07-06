@@ -83,16 +83,16 @@ jobs:
             custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
             custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           # radix-engine-toolkit-uniffi Crate
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+#          - crate: radix-engine-toolkit-uniffi
+#            target-triple: aarch64-apple-darwin
+#            custom-linker: ""
+#            custom-compiler: /usr/local/opt/llvm/bin/clang
+#            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+#          - crate: radix-engine-toolkit-uniffi
+#            target-triple: x86_64-apple-ios
+#            custom-linker: ""
+#            custom-compiler: /usr/local/opt/llvm/bin/clang
+#            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
 #          - crate: radix-engine-toolkit-uniffi
 #            target-triple: x86_64-apple-darwin
 #            custom-linker: ""
@@ -128,21 +128,21 @@ jobs:
 #            custom-linker: i686-unknown-linux-gnu-gcc
 #            custom-compiler: i686-unknown-linux-gnu-gcc
 #            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-#          - crate: radix-engine-toolkit-uniffi
-#            target-triple: aarch64-linux-android
-#            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-#            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-#            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-#          - crate: radix-engine-toolkit-uniffi
-#            target-triple: armv7-linux-androideabi
-#            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-#            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-#            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-#          - crate: radix-engine-toolkit-uniffi
-#            target-triple: i686-linux-android
-#            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-#            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-#            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: armv7-linux-androideabi
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: i686-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -420,3 +420,47 @@ jobs:
         with:
           name: "RadixEngineToolkitUniFFI.xcframework"
           path: "./artifacts/extracted/RadixEngineToolkitUniFFI.xcframework"
+
+  publish-kotlin-maven:
+    needs: [ build, create-uniffi-bindings ]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run:
+          ./bootstrap.sh
+      - name: Build and publish Kotlin
+        working-directory: interop/kotlin/ret-kotlin
+        run:
+          ./gradlew build
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-android-maven:
+    needs: [ build, create-uniffi-bindings ]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Create Android Library
+        working-directory: interop/android
+        run:
+          ./bootstrap.sh
+      - name: Build and publish Kotlin
+        working-directory: interop/android/ret-android
+        run:
+          ./gradlew build
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
