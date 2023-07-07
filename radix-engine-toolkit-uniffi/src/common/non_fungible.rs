@@ -148,7 +148,7 @@ impl std::str::FromStr for NonFungibleLocalId {
 // ==================
 
 #[uniffi::export]
-pub fn sbor_decode_to_non_fungible_local_id_value(bytes: Vec<u8>) -> Result<NonFungibleLocalId> {
+pub fn non_fungible_local_id_sbor_decode(bytes: Vec<u8>) -> Result<NonFungibleLocalId> {
     let native = match bytes.first().copied() {
         Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
             native_scrypto_decode::<NativeNonFungibleLocalId>(&bytes).map_err(Into::into)
@@ -164,7 +164,12 @@ pub fn sbor_decode_to_non_fungible_local_id_value(bytes: Vec<u8>) -> Result<NonF
 }
 
 #[uniffi::export]
-pub fn sbor_encode_non_fungible_local_id_value(value: NonFungibleLocalId) -> Result<Vec<u8>> {
+pub fn non_fungible_local_id_sbor_encode(value: NonFungibleLocalId) -> Result<Vec<u8>> {
     let native = NativeNonFungibleLocalId::try_from(value)?;
     Ok(native_scrypto_encode(&native).expect("Can't fail"))
+}
+
+#[uniffi::export]
+pub fn non_fungible_local_id_as_str(value: NonFungibleLocalId) -> Result<String> {
+    NativeNonFungibleLocalId::try_from(value).map(|value| value.to_string())
 }

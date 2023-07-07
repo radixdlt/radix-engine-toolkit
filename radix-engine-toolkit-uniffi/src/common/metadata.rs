@@ -308,7 +308,7 @@ impl MetadataValue {
 // ==================
 
 #[uniffi::export]
-pub fn sbor_decode_to_metadata_value(bytes: Vec<u8>, network_id: u8) -> Result<MetadataValue> {
+pub fn metadata_sbor_decode(bytes: Vec<u8>, network_id: u8) -> Result<MetadataValue> {
     let native = match bytes.first().copied() {
         Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
             native_scrypto_decode::<NativeMetadataValue>(&bytes).map_err(Into::into)
@@ -324,7 +324,7 @@ pub fn sbor_decode_to_metadata_value(bytes: Vec<u8>, network_id: u8) -> Result<M
 }
 
 #[uniffi::export]
-pub fn sbor_encode_metadata_value(value: MetadataValue) -> Result<Vec<u8>> {
+pub fn metadata_sbor_encode(value: MetadataValue) -> Result<Vec<u8>> {
     let native = value.to_native()?;
     Ok(native_scrypto_encode(&native).expect("Can't fail"))
 }
