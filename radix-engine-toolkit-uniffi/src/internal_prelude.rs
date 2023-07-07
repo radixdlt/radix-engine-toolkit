@@ -128,7 +128,9 @@ mod native {
         Ed25519PrivateKey as NativeEd25519PrivateKey,
         Secp256k1PrivateKey as NativeSecp256k1PrivateKey,
         
+        Signer as NativeSigner, 
         PublicKey as NativePublicKey, 
+        PrivateKey as NativePrivateKey, 
         Ed25519PublicKey as NativeEd25519PublicKey,
         Secp256k1PublicKey as NativeSecp256k1PublicKey,
         

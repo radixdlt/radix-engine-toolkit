@@ -42,7 +42,9 @@ pub mod prelude {
     pub use crate::error::*;
 
     /* Cryptography */
+    pub use crate::cryptography::curve::*;
     pub use crate::cryptography::hash::*;
+    pub use crate::cryptography::private_key::*;
     pub use crate::cryptography::public_key::*;
     pub use crate::cryptography::public_key_hash::*;
     pub use crate::cryptography::signature::*;

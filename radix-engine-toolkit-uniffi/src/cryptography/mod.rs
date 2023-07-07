@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod curve;
 pub mod hash;
+pub mod private_key;
 pub mod public_key;
 pub mod public_key_hash;
 pub mod signature;
