@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[derive(Object)]
-pub struct PrivateKey(NativePrivateKey);
+pub struct PrivateKey(pub(crate) NativePrivateKey);
 
 #[uniffi::export]
 impl PrivateKey {
@@ -50,9 +50,24 @@ impl PrivateKey {
             })
             .map(|value| Arc::new(Self(NativePrivateKey::Ed25519(value))))
     }
+
+    fn sign(&self, hash: Arc<Hash>) -> Vec<u8> {
+        Signer::sign(self, hash)
+    }
+
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature {
+        Signer::sign_to_signature(self, hash)
+    }
+
+    fn sign_to_signature_with_public_key(&self, hash: Arc<Hash>) -> SignatureWithPublicKey {
+        Signer::sign_to_signature_with_public_key(self, hash)
+    }
+
+    fn public_key(&self) -> PublicKey {
+        Signer::public_key(self)
+    }
 }
 
-#[uniffi::export]
 impl Signer for PrivateKey {
     fn sign(&self, hash: Arc<Hash>) -> Vec<u8> {
         match self.sign_to_signature(hash) {
@@ -74,7 +89,7 @@ impl Signer for PrivateKey {
 }
 
 #[uniffi::export(callback_interface)]
-pub trait Signer {
+pub trait Signer: Send + Sync {
     fn sign(&self, hash: Arc<Hash>) -> Vec<u8>;
     fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature;
     fn sign_to_signature_with_public_key(&self, hash: Arc<Hash>) -> SignatureWithPublicKey;
