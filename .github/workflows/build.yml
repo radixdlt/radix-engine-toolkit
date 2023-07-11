@@ -276,6 +276,13 @@ jobs:
             --lib-file ./libradix_engine_toolkit_uniffi.a
           
           cargo run \
+            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --language python \
+            --out-dir ./output \
+            --lib-file ./libradix_engine_toolkit_uniffi.a
+          
+          cargo run \
             --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
             ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --out-dir ./output \
