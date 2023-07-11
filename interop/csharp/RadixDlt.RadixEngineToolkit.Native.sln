@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadixDlt.RadixEngineToolkit.Native", "RadixDlt.RadixEngineToolkit.Native.csproj", "{1B245774-30FA-425D-8808-7E0AD85456AB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1B245774-30FA-425D-8808-7E0AD85456AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B245774-30FA-425D-8808-7E0AD85456AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B245774-30FA-425D-8808-7E0AD85456AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B245774-30FA-425D-8808-7E0AD85456AB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
