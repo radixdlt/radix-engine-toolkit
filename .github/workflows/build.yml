@@ -279,7 +279,7 @@ jobs:
             --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
             ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --out-dir ./output \
-            --lib-file ./libradix_engine_toolkit_uniffi.a
+            --lib-file ./libradix_engine_toolkit_uniffi.dylib
         working-directory: artifacts/extracted
       - name: Compress Artifacts
         run: |
