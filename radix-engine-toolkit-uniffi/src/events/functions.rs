@@ -83,13 +83,19 @@ pub struct CancelBadgeWithdrawAttemptEvent {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct LockPrimaryRoleEvent;
+pub struct LockPrimaryRoleEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
-pub struct UnlockPrimaryRoleEvent;
+pub struct UnlockPrimaryRoleEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
-pub struct StopTimedRecoveryEvent;
+pub struct StopTimedRecoveryEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
 pub struct RoundChangeEvent {
@@ -97,10 +103,14 @@ pub struct RoundChangeEvent {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct RegisterValidatorEvent;
+pub struct RegisterValidatorEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
-pub struct UnregisterValidatorEvent;
+pub struct UnregisterValidatorEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
 pub struct StakeEvent {
@@ -291,7 +301,9 @@ pub struct SetOwnerRoleEvent {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct LockOwnerRoleEvent {}
+pub struct LockOwnerRoleEvent {
+    pub placeholder_field: bool,
+}
 
 #[derive(Clone, Debug, Record)]
 pub struct SetAndLockOwnerRoleEvent {
@@ -773,7 +785,9 @@ impl NativeConvertible for UnregisterValidatorEvent {
     type Native = NativeUnregisterValidatorEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 
@@ -781,7 +795,9 @@ impl NativeConvertible for RegisterValidatorEvent {
     type Native = NativeRegisterValidatorEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 
@@ -799,7 +815,9 @@ impl NativeConvertible for StopTimedRecoveryEvent {
     type Native = NativeStopTimedRecoveryEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 
@@ -807,7 +825,9 @@ impl NativeConvertible for UnlockPrimaryRoleEvent {
     type Native = NativeUnlockPrimaryRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 
@@ -815,7 +835,9 @@ impl NativeConvertible for LockPrimaryRoleEvent {
     type Native = NativeLockPrimaryRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 
@@ -937,7 +959,9 @@ impl NativeConvertible for LockOwnerRoleEvent {
     type Native = NativeLockOwnerRoleEvent;
 
     fn from_native(_: Self::Native) -> Self {
-        Self {}
+        Self {
+            placeholder_field: true,
+        }
     }
 }
 

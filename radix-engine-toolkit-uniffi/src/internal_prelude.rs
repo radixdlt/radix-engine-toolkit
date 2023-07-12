@@ -21,9 +21,8 @@
 //! We choose the types in this crate to have short un-prefixed names since those are the names that
 //! the types will be generated with when using UniFFI
 
-#![allow(unused_braces)]
-
 #[rustfmt::skip]
+#[allow(unused_braces)]
 mod core {
     /* Modules */
     pub use radix_engine_toolkit_core::functions::information::{
@@ -127,6 +126,7 @@ mod core {
 }
 
 #[rustfmt::skip]
+#[allow(unused_braces)]
 mod native {
     pub use transaction::prelude::{
         /* Cryptography */
