@@ -21,6 +21,8 @@
 //! We choose the types in this crate to have short un-prefixed names since those are the names that
 //! the types will be generated with when using UniFFI
 
+#![allow(unused_braces)]
+
 #[rustfmt::skip]
 mod core {
     /* Modules */
@@ -96,6 +98,9 @@ mod core {
     pub use radix_engine_toolkit_core::functions::scrypto_sbor::{
         ScryptoSborError as CoreScryptoSborError,
         decode_to_string_representation as core_scrypto_decode_to_string_representation,
+    };
+    pub use radix_engine_toolkit_core::functions::events::{
+        sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
     };
 
     /* Visitors */
@@ -344,6 +349,98 @@ mod native {
     pub use radix_engine::blueprints::identity::{
         IdentityNativePackage as NativeIdentityNativePackage,
         IdentityBlueprint as NativeIdentityBlueprint
+    };
+
+    pub use scrypto::blueprints::access_controller::{
+        Role as NativeRole,
+        Proposer as NativeProposer,
+        RuleSet as NativeRuleSet,
+        RecoveryProposal as NativeRecoveryProposal
+    };
+
+    pub use radix_engine::blueprints::consensus_manager::{
+        Validator as NativeValidator,
+        ActiveValidatorSet as NativeActiveValidatorSet
+    };
+
+    pub use radix_engine::blueprints::access_controller::{
+        InitiateRecoveryEvent as NativeInitiateRecoveryEvent,
+        InitiateBadgeWithdrawAttemptEvent as NativeInitiateBadgeWithdrawAttemptEvent,
+        RuleSetUpdateEvent as NativeRuleSetUpdateEvent,
+        BadgeWithdrawEvent as NativeBadgeWithdrawEvent,
+        CancelRecoveryProposalEvent as NativeCancelRecoveryProposalEvent,
+        CancelBadgeWithdrawAttemptEvent as NativeCancelBadgeWithdrawAttemptEvent,
+        LockPrimaryRoleEvent as NativeLockPrimaryRoleEvent,
+        UnlockPrimaryRoleEvent as NativeUnlockPrimaryRoleEvent,
+        StopTimedRecoveryEvent as NativeStopTimedRecoveryEvent,
+    };
+    pub use radix_engine::blueprints::consensus_manager::{
+        RoundChangeEvent as NativeRoundChangeEvent,
+        EpochChangeEvent as NativeEpochChangeEvent,
+        RegisterValidatorEvent as NativeRegisterValidatorEvent,
+        UnregisterValidatorEvent as NativeUnregisterValidatorEvent,
+        StakeEvent as NativeStakeEvent,
+        UnstakeEvent as NativeUnstakeEvent,
+        ClaimXrdEvent as NativeClaimXrdEvent,
+        UpdateAcceptingStakeDelegationStateEvent as NativeUpdateAcceptingStakeDelegationStateEvent,
+        ProtocolUpdateReadinessSignalEvent as NativeProtocolUpdateReadinessSignalEvent,
+        ValidatorEmissionAppliedEvent as NativeValidatorEmissionAppliedEvent,
+        ValidatorRewardAppliedEvent as NativeValidatorRewardAppliedEvent,
+    };
+    pub use radix_engine::blueprints::pool::one_resource_pool::{
+        ContributionEvent as NativeOneResourcePoolContributionEvent,
+        RedemptionEvent as NativeOneResourcePoolRedemptionEvent,
+        WithdrawEvent as NativeOneResourcePoolWithdrawEvent,
+        DepositEvent as NativeOneResourcePoolDepositEvent,
+    };
+    pub use radix_engine::blueprints::pool::two_resource_pool::{
+        ContributionEvent as NativeTwoResourcePoolContributionEvent,
+        RedemptionEvent as NativeTwoResourcePoolRedemptionEvent,
+        WithdrawEvent as NativeTwoResourcePoolWithdrawEvent,
+        DepositEvent as NativeTwoResourcePoolDepositEvent,
+    };
+    pub use radix_engine::blueprints::pool::multi_resource_pool::{
+        ContributionEvent as NativeMultiResourcePoolContributionEvent,
+        RedemptionEvent as NativeMultiResourcePoolRedemptionEvent,
+        WithdrawEvent as NativeMultiResourcePoolWithdrawEvent,
+        DepositEvent as NativeMultiResourcePoolDepositEvent,
+    };
+    pub use radix_engine::blueprints::resource::{
+        VaultCreationEvent as NativeVaultCreationEvent,
+        MintFungibleResourceEvent as NativeMintFungibleResourceEvent,
+        BurnFungibleResourceEvent as NativeBurnFungibleResourceEvent,
+        MintNonFungibleResourceEvent as NativeMintNonFungibleResourceEvent,
+        BurnNonFungibleResourceEvent as NativeBurnNonFungibleResourceEvent,
+        LockFeeEvent as NativeLockFeeEvent,
+        WithdrawResourceEvent as NativeWithdrawResourceEvent,
+        DepositResourceEvent as NativeDepositResourceEvent,
+        RecallResourceEvent as NativeRecallResourceEvent,
+    };
+    pub use radix_engine::system::node_modules::access_rules::{
+        SetRoleEvent as NativeSetRoleEvent,
+        LockRoleEvent as NativeLockRoleEvent,
+        SetAndLockRoleEvent as NativeSetAndLockRoleEvent,
+        SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
+        LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
+        SetAndLockOwnerRoleEvent as NativeSetAndLockOwnerRoleEvent,
+    };
+    pub use radix_engine::system::node_modules::metadata::{
+        SetMetadataEvent as NativeSetMetadataEvent,
+        RemoveMetadataEvent as NativeRemoveMetadataEvent,
+    };
+    pub use radix_engine_queries::typed_native_events::{
+        TypedNativeEvent as NativeTypedNativeEvent,
+        TypedNativeEventError as NativeTypedNativeEventError
+    };
+    pub use radix_engine_interface::blueprints::package::{
+        TypePointer as NativeTypePointer,
+    };
+    pub use radix_engine_interface::prelude::{
+        EventTypeIdentifier as NativeEventTypeIdentifier,
+        Emitter as NativeEmitter,
+    };
+    pub use radix_engine_interface::api::{
+        ObjectModuleId as NativeObjectModuleId
     };
 }
 

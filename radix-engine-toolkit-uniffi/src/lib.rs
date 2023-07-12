@@ -23,6 +23,7 @@ pub mod common;
 pub mod cryptography;
 pub mod derive;
 pub mod error;
+pub mod events;
 pub mod manifest;
 pub mod sbor;
 pub mod transaction;
@@ -38,6 +39,7 @@ pub mod prelude {
     pub use crate::common::decimal::*;
     pub use crate::common::entity_type::*;
     pub use crate::common::metadata::*;
+    pub use crate::common::module_id::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
 
@@ -46,6 +48,9 @@ pub mod prelude {
 
     /* Errors */
     pub use crate::error::*;
+
+    /* Events */
+    pub use crate::events::*;
 
     /* Cryptography */
     pub use crate::cryptography::curve::*;

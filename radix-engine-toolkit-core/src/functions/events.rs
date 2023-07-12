@@ -21,7 +21,7 @@ use radix_engine_queries::typed_native_events::*;
 
 /// Attempts to decode the passed in event into a structured [`TypedNativeEvent`] if the event is
 /// emitted from a native blueprint of a well-defined schema.
-pub fn events_sbor_decode_to_native_event(
+pub fn sbor_decode_to_native_event(
     event_type_identifier: &EventTypeIdentifier,
     event_data: &[u8],
 ) -> Result<TypedNativeEvent, TypedNativeEventError> {
