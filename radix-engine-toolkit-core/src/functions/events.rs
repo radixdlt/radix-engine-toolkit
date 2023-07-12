@@ -15,18 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod information;
+use radix_engine_common::prelude::*;
+use radix_engine_interface::prelude::*;
+use radix_engine_queries::typed_native_events::*;
 
-pub mod derive;
-
-pub mod execution;
-pub mod instructions;
-pub mod intent;
-pub mod manifest;
-pub mod notarized_transaction;
-pub mod signed_intent;
-
-pub mod manifest_sbor;
-pub mod scrypto_sbor;
-
-pub mod events;
+/// Attempts to decode the passed in event into a structured [`TypedNativeEvent`] if the event is
+/// emitted from a native blueprint of a well-defined schema.
+pub fn events_sbor_decode_to_native_event(
+    event_type_identifier: &EventTypeIdentifier,
+    event_data: &[u8],
+) -> Result<TypedNativeEvent, TypedNativeEventError> {
+    to_typed_native_event(event_type_identifier, event_data)
+}
