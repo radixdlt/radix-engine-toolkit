@@ -142,3 +142,34 @@ impl std::str::FromStr for NonFungibleLocalId {
         NativeNonFungibleLocalId::from_str(s).map(Into::into)
     }
 }
+
+// ==================
+// Exposed "Methods"
+// ==================
+
+#[uniffi::export]
+pub fn non_fungible_local_id_sbor_decode(bytes: Vec<u8>) -> Result<NonFungibleLocalId> {
+    let native = match bytes.first().copied() {
+        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_scrypto_decode::<NativeNonFungibleLocalId>(&bytes).map_err(Into::into)
+        }
+        Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_manifest_decode::<NativeNonFungibleLocalId>(&bytes).map_err(Into::into)
+        }
+        v => Err(RadixEngineToolkitError::DecodeError {
+            error: format!("Invalid index byte: {v:?}"),
+        }),
+    }?;
+    Ok(NonFungibleLocalId::from(native))
+}
+
+#[uniffi::export]
+pub fn non_fungible_local_id_sbor_encode(value: NonFungibleLocalId) -> Result<Vec<u8>> {
+    let native = NativeNonFungibleLocalId::try_from(value)?;
+    Ok(native_scrypto_encode(&native).expect("Can't fail"))
+}
+
+#[uniffi::export]
+pub fn non_fungible_local_id_as_str(value: NonFungibleLocalId) -> Result<String> {
+    NativeNonFungibleLocalId::try_from(value).map(|value| value.to_string())
+}

@@ -15,10 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod curve;
-pub mod hash;
-pub mod private_key;
-pub mod public_key;
-pub mod public_key_hash;
-pub mod signature;
-pub mod signature_with_public_key;
+use radix_engine_common::prelude::*;
+use radix_engine_interface::prelude::*;
+use radix_engine_queries::typed_native_events::*;
+
+/// Attempts to decode the passed in event into a structured [`TypedNativeEvent`] if the event is
+/// emitted from a native blueprint of a well-defined schema.
+pub fn sbor_decode_to_native_event(
+    event_type_identifier: &EventTypeIdentifier,
+    event_data: &[u8],
+) -> Result<TypedNativeEvent, TypedNativeEventError> {
+    to_typed_native_event(event_type_identifier, event_data)
+}

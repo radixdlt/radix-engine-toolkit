@@ -190,7 +190,7 @@ fn metadata_blueprint_schema() -> BlueprintDefinitionInit {
 }
 
 fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
-    ROYALTIES_PACKAGE_DEFINITION
+    ROYALTY_PACKAGE_DEFINITION
         .blueprints
         .get(COMPONENT_ROYALTY_BLUEPRINT)
         .unwrap()

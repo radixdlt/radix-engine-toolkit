@@ -87,6 +87,15 @@ impl TransactionManifest {
             .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
             .collect()
     }
+
+    pub fn analyze_execution(&self, transaction_receipt: Vec<u8>) -> Result<ExecutionAnalysis> {
+        let receipt = native_scrypto_decode::<NativeTransactionReceipt>(&transaction_receipt)?;
+        let analysis = core_execution_analyze(&self.instructions.0, &receipt)?;
+        Ok(ExecutionAnalysis::from_native(
+            &analysis,
+            self.instructions.1,
+        ))
+    }
 }
 
 impl TransactionManifest {
@@ -189,6 +198,23 @@ pub enum Source {
 pub enum Resources {
     Amount { amount: Arc<Decimal> },
     Ids { ids: Vec<NonFungibleLocalId> },
+}
+
+impl ExecutionAnalysis {
+    pub fn from_native(
+        CoreExecutionExecutionAnalysis {
+            fee_locks,
+            fee_summary,
+            transaction_type,
+        }: &CoreExecutionExecutionAnalysis,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            transaction_type: TransactionType::from_native(transaction_type, network_id),
+            fee_locks: FeeLocks::from_native(fee_locks),
+            fee_summary: FeeSummary::from_native(fee_summary),
+        }
+    }
 }
 
 impl Resources {

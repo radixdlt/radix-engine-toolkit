@@ -13,6 +13,5 @@ cargo build
 bindgen swift
 bindgen kotlin
 bindgen python
-bindgen ruby
 
 uniffi-bindgen-cs src/radix_engine_toolkit_uniffi.udl --lib-file ./target/debug/libradix_engine_toolkit_uniffi.a --out-dir output
