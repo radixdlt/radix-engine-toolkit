@@ -108,6 +108,7 @@ mod core {
     };
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
+        ResourceTracker as CoreResourceTracker
     };
 
     /* Utils */

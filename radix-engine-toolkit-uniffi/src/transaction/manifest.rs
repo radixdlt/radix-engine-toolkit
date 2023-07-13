@@ -162,8 +162,8 @@ pub enum TransactionType {
     },
     GeneralTransaction {
         account_proofs: Vec<Arc<Address>>,
-        account_withdraws: HashMap<String, Vec<ResourceSpecifier>>,
-        account_deposits: HashMap<String, Vec<Source>>,
+        account_withdraws: HashMap<String, Vec<ResourceTracker>>,
+        account_deposits: HashMap<String, Vec<ResourceTracker>>,
         addresses_in_manifest: HashMap<EntityType, Vec<Arc<Address>>>,
         metadata_of_newly_created_entities: HashMap<String, HashMap<String, MetadataValue>>,
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
@@ -180,17 +180,6 @@ pub enum ResourceSpecifier {
     Ids {
         resource_address: Arc<Address>,
         ids: Vec<NonFungibleLocalId>,
-    },
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum Source {
-    Guaranteed {
-        value: ResourceSpecifier,
-    },
-    Predicted {
-        instruction_index: u64,
-        value: ResourceSpecifier,
     },
 }
 
@@ -240,20 +229,6 @@ impl ResourceSpecifier {
             NativeResourceSpecifier::Ids(resource_address, ids) => Self::Ids {
                 resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
                 ids: ids.iter().cloned().map(Into::into).collect(),
-            },
-        }
-    }
-}
-
-impl Source {
-    pub fn from_native(native: &CoreSource<NativeResourceSpecifier>, network_id: u8) -> Self {
-        match native {
-            CoreSource::Guaranteed(value) => Source::Guaranteed {
-                value: ResourceSpecifier::from_native(value, network_id),
-            },
-            CoreSource::Predicted(instruction_index, value) => Source::Predicted {
-                instruction_index: *instruction_index as u64,
-                value: ResourceSpecifier::from_native(value, network_id),
             },
         }
     }
@@ -322,7 +297,7 @@ impl TransactionType {
                                 Address::from_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
-                                    .map(|value| ResourceSpecifier::from_native(value, network_id))
+                                    .map(|value| ResourceTracker::from_native(value, network_id))
                                     .collect(),
                             )
                         })
@@ -334,7 +309,7 @@ impl TransactionType {
                                 Address::from_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
-                                    .map(|value| Source::from_native(value, network_id))
+                                    .map(|value| ResourceTracker::from_native(value, network_id))
                                     .collect(),
                             )
                         })
@@ -409,3 +384,85 @@ impl FeeSummary {
         }
     }
 }
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourceTracker {
+    Fungible {
+        resource_address: Arc<Address>,
+        amount: DecimalSource,
+    },
+    NonFungible {
+        resource_address: Arc<Address>,
+        amount: DecimalSource,
+        ids: NonFungibleLocalIdVecSource,
+    },
+}
+
+impl ResourceTracker {
+    pub fn from_native(resource_tracker: &CoreResourceTracker, network_id: u8) -> Self {
+        match resource_tracker {
+            CoreResourceTracker::Fungible {
+                resource_address,
+                amount,
+            } => Self::Fungible {
+                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                amount: match amount {
+                    CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
+                        value: Arc::new(Decimal(*value)),
+                    },
+                    CoreSource::Predicted(index, value) => DecimalSource::Predicted {
+                        instruction_index: *index as u64,
+                        value: Arc::new(Decimal(*value)),
+                    },
+                },
+            },
+            CoreResourceTracker::NonFungible {
+                resource_address,
+                amount,
+                ids,
+            } => Self::NonFungible {
+                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                amount: match amount {
+                    CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
+                        value: Arc::new(Decimal(*value)),
+                    },
+                    CoreSource::Predicted(index, value) => DecimalSource::Predicted {
+                        instruction_index: *index as u64,
+                        value: Arc::new(Decimal(*value)),
+                    },
+                },
+                ids: match ids {
+                    CoreSource::Guaranteed(value) => NonFungibleLocalIdVecSource::Guaranteed {
+                        value: value.iter().cloned().map(Into::into).collect(),
+                    },
+                    CoreSource::Predicted(index, value) => NonFungibleLocalIdVecSource::Predicted {
+                        instruction_index: *index as u64,
+                        value: value.iter().cloned().map(Into::into).collect(),
+                    },
+                },
+            },
+        }
+    }
+}
+
+macro_rules! define_source_enum {
+    ($type: ty) => {
+        paste::paste! {
+            define_source_enum!($type, [< $type Source >])
+        }
+    };
+    ($type: ty, $type_ident: ident) => {
+        #[derive(Clone, Debug, Enum)]
+        pub enum $type_ident {
+            Guaranteed {
+                value: $type,
+            },
+            Predicted {
+                instruction_index: u64,
+                value: $type,
+            },
+        }
+    };
+}
+define_source_enum!(Arc<Decimal>, DecimalSource);
+define_source_enum!(Vec<NonFungibleLocalId>, NonFungibleLocalIdVecSource);
