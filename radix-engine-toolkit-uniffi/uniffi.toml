@@ -1,5 +1,5 @@
 [bindings.kotlin]
-package_name = "org.radixdlt.ret"
+package_name = "com.radixdlt.ret"
 
 [bindings.csharp]
 namespace_name = "RadixEngineToolkit"

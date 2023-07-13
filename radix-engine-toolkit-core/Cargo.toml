@@ -1,19 +1,19 @@
 [package]
 name = "radix-engine-toolkit-core"
-version = "0.10.0-elm.1"
+version = "0.10.0"
 edition = "2021"
 build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", features = ["serde"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features= false, features = ["std", "lru"] }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events" }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", default-features= false, features = ["std", "lru"] }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
@@ -31,7 +31,7 @@ regex = "1.8.4"
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-8fdd53b3e", default-features = false, features = ["lru", "std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/typed-native-events", default-features = false, features = ["lru", "std", "resource_tracker"] }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]

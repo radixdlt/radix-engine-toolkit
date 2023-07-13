@@ -15,11 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#![feature(get_mut_unchecked)]
+
 pub mod build;
+pub mod builder;
 pub mod common;
 pub mod cryptography;
 pub mod derive;
 pub mod error;
+pub mod events;
 pub mod manifest;
 pub mod sbor;
 pub mod transaction;
@@ -35,14 +39,23 @@ pub mod prelude {
     pub use crate::common::decimal::*;
     pub use crate::common::entity_type::*;
     pub use crate::common::metadata::*;
+    pub use crate::common::module_id::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
+
+    /* Builders */
+    pub use crate::builder::transaction_builder::*;
 
     /* Errors */
     pub use crate::error::*;
 
+    /* Events */
+    pub use crate::events::*;
+
     /* Cryptography */
+    pub use crate::cryptography::curve::*;
     pub use crate::cryptography::hash::*;
+    pub use crate::cryptography::private_key::*;
     pub use crate::cryptography::public_key::*;
     pub use crate::cryptography::public_key_hash::*;
     pub use crate::cryptography::signature::*;

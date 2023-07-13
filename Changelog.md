@@ -4,12 +4,8 @@
 
 # 0.10.0-damson.1 (26-June-2023)
 
-No interface changes were made with this internal release, just internal changes to the toolkit as a result of bumping the version of the Scrypto Dependency.
-
-# 0.10.0 (26-June-2023)
-
 * All builds of the Radix Engine Toolkit now come with a `test-kit.tar.gz` file containing many test vectors to use when updating the toolkit wrappers to be compatible with the toolkit. More specifically, it includes the following:
-    * The JSON Schema of all of the models used by the toolkit.
+    * The JSON Schema of all the models used by the toolkit.
     * Test vectors of serialized models to include as part of the toolkit wrappers to ensure correct serialization/deserialization of models.
     * Test vectors for the input and output of functions to include as part of toolkit wrappers to ensure that the wrappers are able to invoke methods on the toolkit and receive expected responses.
 * All across the Radix Engine Toolkit all types which are serialized as discriminated unions now have a discriminator called `kind` instead of `type` and a value field of `value`. There are some exceptions to this where the value is not a single value but multiple such as `SignatureWithPublicKey`.
