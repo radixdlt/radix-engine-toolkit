@@ -273,7 +273,7 @@ jobs:
             --language kotlin \
             --out-dir ./output \
             --lib-file ./libradix_engine_toolkit_uniffi.a
-          
+
           cargo run \
             --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
             ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
@@ -380,7 +380,7 @@ jobs:
               -headers "./$EXTRACTED/include" \
               -library "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
               -headers "./$EXTRACTED/include" \
-              -output "./$EXTRACTED/RadixEngineToolkitUniFFI.xcframework"
+              -output "./$EXTRACTED/RadixEngineToolkit.xcframework"
 
       - name: Publish to Swift Engine Toolkit
         run: |
@@ -405,8 +405,8 @@ jobs:
             git pull origin $BRANCH
           fi
 
-          cp -R ../artifacts/extracted/RadixEngineToolkitUniFFI.xcframework ./Sources/RadixEngineToolkitUniFFI
-          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkitUniFFI/radix_engine_toolkit_uniffi.swift
+          cp -R ../artifacts/extracted/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
+          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
@@ -417,5 +417,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "RadixEngineToolkitUniFFI.xcframework"
-          path: "./artifacts/extracted/RadixEngineToolkitUniFFI.xcframework"
+          name: "RadixEngineToolkit.xcframework"
+          path: "./artifacts/extracted/RadixEngineToolkit.xcframework"
