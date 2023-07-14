@@ -290,19 +290,54 @@ jobs:
               "./$EXTRACTED/x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
               -o "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
 
-          # Set proper id, so that Xcode can properly locate the dynamic library
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
+          for TARGET_TRIPLE in "aarch64-apple-ios"  "macos-arm64_x86_64" "ios-simulator-arm64_x86_64"
+          do
+            FRAMEWORK_PATH="$EXTRACTED/$TARGET_TRIPLE/RadixEngineToolkit.framework"
+            mkdir -p $FRAMEWORK_PATH/Headers
+            mkdir -p $FRAMEWORK_PATH/Modules
+
+             # Move the dylib into the framework, renaming it to match the framework name
+            mv $EXTRACTED/$TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib $FRAMEWORK_PATH
+
+            # Copy headers to Headers folder and modulemap to Modules folder
+            cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
+            cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.modulemap $FRAMEWORK_PATH/Modules/module.modulemap
+
+
+            /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
+                            -c "Add :CFBundleName string RadixEngineToolkit" \
+                            -c "Add :CFBundleDisplayName string RadixEngineToolkit" \
+                            -c "Add :CFBundleVersion string 1.0.0" \
+                            -c "Add :CFBundleShortVersionString string 1.0.0" \
+                            -c "Add :CFBundlePackageType string FMWK" \
+                            -c "Add :CFBundleExecutable string libradix_engine_toolkit_uniffi" \
+                            -c "Add :MinimumOSVersion string 16.4" \
+                            -c "Add :CFBundleSupportedPlatforms array" \
+                            $FRAMEWORK_PATH/Info.plist
+
+            case $TARGET_TRIPLE in
+              aarch64-apple-ios)
+                  /usr/lib/PlistBuddy -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" $FRAMEWORK_PATH/Info.plist
+              ;;
+              ios-simulator-arm64_x86_64)
+                  /usr/lib/PlistBuddy -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" \
+                                      -c "Add :CFBundleSupportedPlatforms:1 string iPhoneSimulator" \
+                                      $FRAMEWORK_PATH/Info.plist
+              ;;
+              macos-arm64_x86_64)
+                  /usr/lib/PlistBuddy -c "Add :CFBundleSupportedPlatforms:0 string MacOSX" $FRAMEWORK_PATH/Info.plist
+              ;;
+              *)
+              ;;
+
+            install_name_tool -id @rpath/RadixEngineToolkit.framework/libradix_engine_toolkit_uniffi.dylib $EXTRACTED/$TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylibe
+          done
 
           # Creating the XCFramework
           xcodebuild -create-xcframework \
-              -library "./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
-              -library "./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
-              -library "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
+              -framework "./$EXTRACTED/aarch64-apple-ios/RadixEngineToolkit.framework" \
+              -framework "./$EXTRACTED/macos-arm64_x86_64/RadixEngineToolkit.framework" \
+              -framework "./$EXTRACTED/ios-simulator-arm64_x86_64/RadixEngineToolkit.framework" \
               -output "./$EXTRACTED/RadixEngineToolkit.xcframework"
 
       - name: Publish to Swift Engine Toolkit
