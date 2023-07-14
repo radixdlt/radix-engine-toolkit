@@ -8,7 +8,6 @@ on:
       - develop
       - main
       - kotlin-deploy
-      - DO-1622-split-ci
 
 jobs:
   build:
