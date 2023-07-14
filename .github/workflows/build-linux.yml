@@ -91,14 +91,14 @@ jobs:
             export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
             cd $CRATE_PATH
 
-            export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
-            if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
-            then
-              export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
-            fi
+            # export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+            # if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
+            # then
+            #   export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+            # fi
 
-            export CC=${{ matrix.build-target.custom-compiler }}
-            export AR=${{ matrix.build-target.custom-archiver }}
+            # export CC=${{ matrix.build-target.custom-compiler }}
+            # export AR=${{ matrix.build-target.custom-archiver }}
 
             cargo +nightly build \
               -Z build-std=std,panic_abort \
@@ -106,7 +106,7 @@ jobs:
               --target ${{ matrix.build-target.target-triple }} \
               --release
 
-            unset $LINKER_ENVIRONMENT_VARIABLE
+            # unset $LINKER_ENVIRONMENT_VARIABLE
             # export CC="/usr/local/opt/llvm/bin/clang"
             # export AR="/usr/local/opt/llvm/bin/llvm-ar"
 
