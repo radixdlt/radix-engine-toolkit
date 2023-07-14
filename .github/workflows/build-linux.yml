@@ -1,0 +1,291 @@
+name: Linux
+
+on:
+  push:
+    branches:
+      - release/*
+      - feature/*
+      - develop
+      - main
+      - kotlin-deploy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        build-target:
+          # radix-engine-toolkit Crate
+          - crate: radix-engine-toolkit
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          - crate: radix-engine-toolkit
+            target-triple: wasm32-unknown-unknown
+            custom-linker: ""
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit
+            target-triple: aarch64-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit
+            target-triple: armv7-linux-androideabi
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          # radix-engine-toolkit-uniffi Crate
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-unknown-linux-gnu
+            custom-linker: x86_64-unknown-linux-gnu-gcc
+            custom-compiler: /usr/local/opt/llvm/bin/clang
+            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-unknown-linux-gnu
+            custom-linker: aarch64-unknown-linux-gnu-gcc
+            custom-compiler: aarch64-unknown-linux-gnu-gcc
+            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-linux-android
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: armv7-linux-androideabi
+            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
+            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+
+    steps:
+      - uses: FranzDiebold/github-env-vars-action@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Install Rust Toolchain
+      #   run: |
+      #     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
+      #     chmod +x rustup.sh
+      #     ./rustup.sh -y
+      #     rustup update
+      #     rustup toolchain install nightly
+
+      # - name: Install Rust Targets
+      #   run: |
+      #     rustup target install ${{ matrix.build-target.target-triple }}
+      #     rustup +nightly target install ${{ matrix.build-target.target-triple }}
+      #     rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
+
+      # - name: Building Toolkit
+      #   run: |
+      #     (
+      #       export CURRENT_DIRECTORY=$(pwd)
+      #       export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
+      #       cd $CRATE_PATH
+
+      #       export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
+      #       if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
+      #       then
+      #         export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
+      #       fi
+
+      #       export CC=${{ matrix.build-target.custom-compiler }}
+      #       export AR=${{ matrix.build-target.custom-archiver }}
+
+      #       cargo +nightly build \
+      #         -Z build-std=std,panic_abort \
+      #         -Z build-std-features=panic_immediate_abort \
+      #         --target ${{ matrix.build-target.target-triple }} \
+      #         --release
+
+      #       unset $LINKER_ENVIRONMENT_VARIABLE
+      #       export CC="/usr/local/opt/llvm/bin/clang"
+      #       export AR="/usr/local/opt/llvm/bin/llvm-ar"
+
+      #       if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
+      #         INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
+      #         mkdir $INCLUDE_DIRECTORY_PATH
+
+      #         rustup default nightly
+      #         cbindgen \
+      #           --lang c \
+      #           --config cbindgen.toml \
+      #           --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
+      #         rustup default stable
+
+      #         echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+      #         echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+      #         echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+      #         echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+      #       fi
+
+      #       (
+      #         BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
+      #         cd $BUILD_PATH
+
+      #         BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+
+      #         if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
+      #           tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+      #         else
+      #           tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
+      #         fi
+      #       )
+      #     )
+
+      # - name: Upload Build Artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}"
+      #     path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
+
+  # create-uniffi-bindings:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Clone uniffi-bindgen-cs
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: radixdlt/uniffi-bindgen-cs
+  #         path: uniffi-bindgen-cs
+  #         submodules: 'recursive'
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         path: artifacts
+  #     - name: Extracting the Library
+  #       run: |
+  #         mkdir extracted
+  #         cd radix-engine-toolkit-uniffi-x86_64-apple-darwin
+  #         tar -xvzf x86_64-apple-darwin.tar.gz --directory="../extracted"
+  #       working-directory: artifacts
+  #     - name: Generate the Bindings
+  #       run: |
+  #         cargo run \
+  #           --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+  #           generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+  #           --language swift \
+  #           --out-dir ./output \
+  #           --lib-file ./libradix_engine_toolkit_uniffi.a
+
+  #         cargo run \
+  #           --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+  #           generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+  #           --language kotlin \
+  #           --out-dir ./output \
+  #           --lib-file ./libradix_engine_toolkit_uniffi.a
+
+  #         cargo run \
+  #           --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
+  #           generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+  #           --language python \
+  #           --out-dir ./output \
+  #           --lib-file ./libradix_engine_toolkit_uniffi.a
+          
+  #         cargo run \
+  #           --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
+  #           ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+  #           --out-dir ./output \
+  #           --lib-file ./libradix_engine_toolkit_uniffi.dylib
+  #       working-directory: artifacts/extracted
+  #     - name: Compress Artifacts
+  #       run: |
+  #         tar -czf "./UniFFI-Bindings.tar.gz" ./output
+  #       working-directory: artifacts/extracted
+  #     - name: Upload Bindings
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: "UniFFI-Bindings"
+  #         path: "./artifacts/extracted/UniFFI-Bindings.tar.gz"
+
+  # build-test-kit:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - name: Run Generator
+  #       run: cargo run
+  #       working-directory: generator
+  #     - name: Compress Generated
+  #       run: tar -czf "./test-kit.tar.gz" ./output
+  #       working-directory: generator
+  #     - name: Upload Generated Artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: "test-kit.tar.gz"
+  #         path: "./generator/test-kit.tar.gz"
+
+  # publish-kotlin-maven:
+  #   needs: [ build, create-uniffi-bindings ]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         path: artifacts
+  #     - name: Create Kotlin Library
+  #       working-directory: interop/kotlin
+  #       run:
+  #         ./bootstrap.sh
+  #     - name: Setup Gradle
+  #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         gradle-version: 8.0.2
+  #         arguments: wrapper -p interop/kotlin/ret-kotlin
+  #     - name: Build and publish Kotlin
+  #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         arguments: build publish
+  #         build-root-directory: interop/kotlin/ret-kotlin
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # publish-android-maven:
+  #   needs: [ build, create-uniffi-bindings ]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #     - uses: actions/download-artifact@v3
+  #       with:
+  #         path: artifacts
+  #     - name: Set up JDK 1.8
+  #       uses: actions/setup-java@v3
+  #       with:
+  #         distribution: 'adopt'
+  #         java-version: '17'
+  #     - name: Setup Android SDK
+  #       uses: android-actions/setup-android@v2
+  #     - name: Create Android Library
+  #       working-directory: interop/android
+  #       run:
+  #         ./bootstrap.sh
+  #     - name: Setup Gradle
+  #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         # The same with interop/android/build.gradle.kts
+  #         gradle-version: 8.0.2
+  #         arguments: wrapper -p interop/android/ret-android
+  #     - name: Build and publish Android
+  #       uses: gradle/gradle-build-action@v2
+  #       with:
+  #         arguments: build publish
+  #         build-root-directory: interop/android/ret-android
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

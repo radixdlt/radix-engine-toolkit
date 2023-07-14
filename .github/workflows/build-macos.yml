@@ -1,4 +1,4 @@
-name: Build
+name: macOS
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     continue-on-error: true
     strategy:
       matrix:
@@ -42,46 +42,6 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit
-            target-triple: wasm32-unknown-unknown
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
           # radix-engine-toolkit-uniffi Crate
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-apple-darwin
@@ -108,41 +68,6 @@ jobs:
             custom-linker: ""
             custom-compiler: /usr/local/opt/llvm/bin/clang
             custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
 
     steps:
       - uses: FranzDiebold/github-env-vars-action@v2
@@ -150,16 +75,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Build Dependencies
-        run: |
-          brew tap SergioBenitez/osxct
-          brew install llvm
-          brew install x86_64-unknown-linux-gnu
-          brew install mingw-w64
-          brew install --cask android-ndk
-
-          brew tap messense/macos-cross-toolchains
-          brew install aarch64-unknown-linux-gnu
-          brew install i686-unknown-linux-gnu
+        run: brew install llvm
 
       - name: Install Rust Toolchain
         run: |
@@ -427,69 +343,3 @@ jobs:
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/extracted/RadixEngineToolkit.xcframework"
-
-  publish-kotlin-maven:
-    needs: [ build, create-uniffi-bindings ]
-    runs-on: macos-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-      - name: Create Kotlin Library
-        working-directory: interop/kotlin
-        run:
-          ./bootstrap.sh
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 8.0.2
-          arguments: wrapper -p interop/kotlin/ret-kotlin
-      - name: Build and publish Kotlin
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build publish
-          build-root-directory: interop/kotlin/ret-kotlin
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish-android-maven:
-    needs: [ build, create-uniffi-bindings ]
-    runs-on: macos-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-      - name: Create Android Library
-        working-directory: interop/android
-        run:
-          ./bootstrap.sh
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          # The same with interop/android/build.gradle.kts
-          gradle-version: 8.0.2
-          arguments: wrapper -p interop/android/ret-android
-      - name: Build and publish Android
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build publish
-          build-root-directory: interop/android/ret-android
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
