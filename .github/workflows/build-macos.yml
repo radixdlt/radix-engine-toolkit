@@ -8,10 +8,11 @@ on:
       - develop
       - main
       - kotlin-deploy
+      - DO-1622-split-ci
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
     continue-on-error: true
     strategy:
       matrix:
