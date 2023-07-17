@@ -234,7 +234,7 @@ jobs:
           echo "framework module RadixEngineToolkit {" > "$EXTRACTED/include/module.modulemap"
           echo "  umbrella header \"radix_engine_toolkit_uniffiFFI.h\"" >> "$EXTRACTED/include/module.modulemap"
           echo "  export *" >> "$EXTRACTED/include/module.modulemap"
-          echo "  module * { export * }" >> "$EXTRACTED/includ/module.modulemap"
+          echo "  module * { export * }" >> "$EXTRACTED/include/module.modulemap"
           echo "}" >> "$EXTRACTED/include/module.modulemap"
 
           # Extract the builds of the targets that we need. All of them have a common known pattern which
@@ -338,7 +338,7 @@ jobs:
 
           cp -R ../artifacts/extracted/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
           cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
-          sed -i "s/radix_engine_toolkit_uniffiFFI/RadixEngineToolkit/"  ./Sources/EngineToolkit/radix_engine_toolkit_uniffiFFI.swift
+          sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' "radix_engine_toolkit_uniffi.swift"
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
