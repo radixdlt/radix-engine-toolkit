@@ -294,6 +294,7 @@ jobs:
               ;;
               *)
               ;;
+            esac
 
             install_name_tool -id @rpath/RadixEngineToolkit.framework/libradix_engine_toolkit_uniffi.dylib $EXTRACTED/$TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib
           done
