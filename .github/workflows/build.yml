@@ -297,7 +297,7 @@ jobs:
               ;;
             esac
 
-            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/
+            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/RadixEngineToolkit
           done
 
           # Creating the XCFramework
