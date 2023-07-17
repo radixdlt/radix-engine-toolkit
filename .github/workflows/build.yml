@@ -338,7 +338,7 @@ jobs:
 
           cp -R ../artifacts/extracted/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
           cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
-          sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' "radix_engine_toolkit_uniffi.swift"
+          sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
