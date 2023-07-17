@@ -270,7 +270,7 @@ jobs:
             cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.modulemap $FRAMEWORK_PATH/Modules/module.modulemap
 
 
-            "$PLISTBUDDY_EXEC"" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
+            "$PLISTBUDDY_EXEC" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
                             -c "Add :CFBundleName string RadixEngineToolkit" \
                             -c "Add :CFBundleDisplayName string RadixEngineToolkit" \
                             -c "Add :CFBundleVersion string 1.0.0" \
@@ -297,7 +297,7 @@ jobs:
               ;;
             esac
 
-            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/RadixEngineToolkit
+            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/
           done
 
           # Creating the XCFramework
