@@ -228,8 +228,14 @@ jobs:
 
           # Creating the include directory - this will be used in the XCFramework build steps
           mkdir $EXTRACTED/include
-          cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.modulemap $EXTRACTED/include/module.modulemap
           cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.h $EXTRACTED/include/radix_engine_toolkit_uniffiFFI.h
+
+          # Replace the generated module map with the one we actually want.
+          echo "framework module RadixEngineToolkit {" > "$EXTRACTED/include/module.modulemap"
+          echo "  umbrella header \"radix_engine_toolkit_uniffiFFI.h\"" >> "$EXTRACTED/include/module.modulemap"
+          echo "  export *" >> "$EXTRACTED/include/module.modulemap"
+          echo "  module * { export * }" >> "$EXTRACTED/includ/module.modulemap"
+          echo "}" >> "$EXTRACTED/include/module.modulemap"
 
           # Extract the builds of the targets that we need. All of them have a common known pattern which
           # we depend on for the extraction: `${CRATE_NAME}-${TARGET_TRIPLE}`.
@@ -332,6 +338,7 @@ jobs:
 
           cp -R ../artifacts/extracted/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
           cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
+          sed -i "s/radix_engine_toolkit_uniffiFFI/RadixEngineToolkit/"  ./Sources/EngineToolkit/radix_engine_toolkit_uniffiFFI.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
