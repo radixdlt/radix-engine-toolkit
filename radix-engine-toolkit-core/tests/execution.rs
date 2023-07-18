@@ -22,6 +22,7 @@ use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use scrypto_unit::*;
+use transaction::manifest::decompile;
 use transaction::prelude::*;
 
 #[test]
@@ -166,6 +167,61 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
         transaction_type,
         TransactionType::GeneralTransaction(..)
     ))
+}
+
+#[test]
+fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
+    // Arrange
+    let mut test_runner = TestRunner::builder().without_trace().build();
+    let (public_key1, _, account1) = test_runner.new_account(false);
+    let (public_key2, _, account2) = test_runner.new_account(false);
+    let manifest = ManifestBuilder::new()
+        .create_non_fungible_resource(
+            OwnerRole::None,
+            NonFungibleIdType::Integer,
+            true,
+            NonFungibleResourceRoles::default(),
+            metadata! {
+                init {
+                    "name" => true, locked;
+                }
+            },
+            Some(btreemap!(
+                NonFungibleLocalId::integer(1) => (),
+                NonFungibleLocalId::integer(2) => (),
+            )),
+        )
+        .try_deposit_batch_or_abort(account1)
+        .build();
+    let resource_address = *test_runner
+        .execute_manifest_ignoring_fee(manifest, vec![])
+        .expect_commit_success()
+        .new_resource_addresses()
+        .first()
+        .unwrap();
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_and_withdraw(account1, 10, resource_address, 2)
+        .take_from_worktop(resource_address, 2, "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.try_deposit_or_abort(account2, bucket)
+        })
+        .drop_all_proofs()
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![public_key1.into(), public_key2.into()],
+        0,
+        PreviewFlags::default(),
+    );
+    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+
+    println!(
+        "{}",
+        decompile(&manifest.instructions, &NetworkDefinition::simulator()).unwrap()
+    );
+    println!("{transaction_type:#?}");
 }
 
 fn transaction_type(

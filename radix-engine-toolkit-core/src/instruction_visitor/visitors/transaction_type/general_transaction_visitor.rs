@@ -15,6 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// TODO: There are a few asserts and panics in this module for cases when the RET encounters some
+// form of an illegal state that is impossible to work with (e.g., take from worktop putting
+// resources in the worktop). Is it reasonable to do that, or should this be a [`Result`] and error?
+
 #![allow(clippy::match_like_matches_macro)]
 
 use crate::instruction_visitor::core::error::InstructionVisitorError;
@@ -41,16 +45,16 @@ pub struct GeneralTransactionTypeVisitor<'r> {
     is_illegal_state: bool,
 
     /// The withdraws from the account
-    account_withdraws: HashMap<ComponentAddress, Vec<ResourceSpecifier>>,
+    account_withdraws: HashMap<ComponentAddress, Vec<ResourceTracker>>,
 
     /// The deposits to the accounts
-    account_deposits: HashMap<ComponentAddress, Vec<Source<ResourceSpecifier>>>,
+    account_deposits: HashMap<ComponentAddress, Vec<ResourceTracker>>,
 
     /// Used to allocate new ids
     id_allocator: ManifestIdAllocator,
 
     /// Tracks the buckets and their contents
-    bucket_tracker: HashMap<ManifestBucket, Source<ResourceSpecifier>>,
+    bucket_tracker: HashMap<ManifestBucket, ResourceTracker>,
 
     /// The index of the current instruction
     instruction_index: usize,
@@ -189,8 +193,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     pub fn output(
         self,
     ) -> Option<(
-        HashMap<ComponentAddress, Vec<ResourceSpecifier>>,
-        HashMap<ComponentAddress, Vec<Source<ResourceSpecifier>>>,
+        HashMap<ComponentAddress, Vec<ResourceTracker>>,
+        HashMap<ComponentAddress, Vec<ResourceTracker>>,
     )> {
         if self.is_illegal_state {
             None
@@ -275,7 +279,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
         if ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_string()) && is_account(global_address)
         {
-            let withdrawn_resources = self
+            let worktop_puts = self
                 .execution_trace
                 .worktop_changes()
                 .get(&self.instruction_index)
@@ -286,10 +290,130 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 })
                 .ok_or(GeneralTransactionTypeError::WorktopChangesError)
                 .cloned()?;
+
+            let resource_tracker = if method_name == ACCOUNT_WITHDRAW_IDENT {
+                if let Ok(AccountWithdrawInput {
+                    resource_address,
+                    amount,
+                }) = manifest_decode(&manifest_encode(&args).unwrap())
+                {
+                    match worktop_puts {
+                        ResourceSpecifier::Amount(changes_resource_address, changes_amount) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(changes_amount, amount);
+
+                            ResourceTracker::Fungible {
+                                resource_address,
+                                amount: Source::Guaranteed(amount),
+                            }
+                        }
+                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(usize_to_decimal(changes_ids.len()), amount);
+
+                            ResourceTracker::NonFungible {
+                                resource_address,
+                                amount: Source::Guaranteed(amount),
+                                ids: Source::Predicted(self.instruction_index, changes_ids),
+                            }
+                        }
+                    }
+                } else {
+                    self.is_illegal_state = true;
+                    return Ok(());
+                }
+            } else if method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT {
+                if let Ok(AccountLockFeeAndWithdrawInput {
+                    resource_address,
+                    amount,
+                    ..
+                }) = manifest_decode(&manifest_encode(&args).unwrap())
+                {
+                    match worktop_puts {
+                        ResourceSpecifier::Amount(changes_resource_address, changes_amount) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(changes_amount, amount);
+
+                            ResourceTracker::Fungible {
+                                resource_address,
+                                amount: Source::Guaranteed(amount),
+                            }
+                        }
+                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(usize_to_decimal(changes_ids.len()), amount);
+
+                            ResourceTracker::NonFungible {
+                                resource_address,
+                                amount: Source::Guaranteed(amount),
+                                ids: Source::Predicted(self.instruction_index, changes_ids),
+                            }
+                        }
+                    }
+                } else {
+                    self.is_illegal_state = true;
+                    return Ok(());
+                }
+            } else if method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT {
+                if let Ok(AccountWithdrawNonFungiblesInput {
+                    resource_address,
+                    ids,
+                }) = manifest_decode(&manifest_encode(&args).unwrap())
+                {
+                    match worktop_puts {
+                        ResourceSpecifier::Amount(..) => {
+                            panic!("Account withdraw non-fungibles returned an amount!")
+                        }
+                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(ids, changes_ids);
+
+                            ResourceTracker::NonFungible {
+                                resource_address,
+                                amount: Source::Guaranteed(usize_to_decimal(ids.len())),
+                                ids: Source::Guaranteed(ids),
+                            }
+                        }
+                    }
+                } else {
+                    self.is_illegal_state = true;
+                    return Ok(());
+                }
+            } else if method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT {
+                if let Ok(AccountLockFeeAndWithdrawNonFungiblesInput {
+                    resource_address,
+                    ids,
+                    ..
+                }) = manifest_decode(&manifest_encode(&args).unwrap())
+                {
+                    match worktop_puts {
+                        ResourceSpecifier::Amount(..) => {
+                            panic!("Account withdraw non-fungibles returned an amount!")
+                        }
+                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
+                            assert_eq!(changes_resource_address, resource_address);
+                            assert_eq!(ids, changes_ids);
+
+                            ResourceTracker::NonFungible {
+                                resource_address,
+                                amount: Source::Guaranteed(usize_to_decimal(ids.len())),
+                                ids: Source::Guaranteed(ids),
+                            }
+                        }
+                    }
+                } else {
+                    self.is_illegal_state = true;
+                    return Ok(());
+                }
+            } else {
+                self.is_illegal_state = true;
+                return Ok(());
+            };
+
             self.account_withdraws
                 .entry(component_address)
                 .or_default()
-                .push(withdrawn_resources);
+                .push(resource_tracker)
         } else if [
             ACCOUNT_DEPOSIT_IDENT,
             ACCOUNT_DEPOSIT_BATCH_IDENT,
@@ -313,9 +437,24 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                             .iter()
                             .filter_map(|worktop_change| match worktop_change {
                                 WorktopChange::Put(..) => None,
-                                WorktopChange::Take(take) => {
-                                    Some(Source::Predicted(self.instruction_index, take.clone()))
-                                }
+                                WorktopChange::Take(ResourceSpecifier::Amount(
+                                    resource_address,
+                                    amount,
+                                )) => Some(ResourceTracker::Fungible {
+                                    resource_address: *resource_address,
+                                    amount: Source::Predicted(self.instruction_index, *amount),
+                                }),
+                                WorktopChange::Take(ResourceSpecifier::Ids(
+                                    resource_address,
+                                    ids,
+                                )) => Some(ResourceTracker::NonFungible {
+                                    resource_address: *resource_address,
+                                    amount: Source::Predicted(
+                                        self.instruction_index,
+                                        usize_to_decimal(ids.len()),
+                                    ),
+                                    ids: Source::Predicted(self.instruction_index, ids.clone()),
+                                }),
                             })
                             .collect::<Vec<_>>()
                     })
@@ -353,10 +492,63 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         resource_address: &ResourceAddress,
         amount: &Decimal,
     ) -> Result<(), GeneralTransactionTypeError> {
+        // This depends on whether the resource is fungible or non-fungible. If the resource is
+        // fungible, then we can just construct a ResourceTracker::Fungible of the amount given
+        // here as guaranteed and move on. If it's non-fungible however, then the amount in here
+        // is guaranteed but the non-fungible local ids are not guaranteed since we obtain them
+        // by looking at the bucket snapshot from the receipt.
+        let resource_tracker = match self
+            .execution_trace
+            .worktop_changes()
+            .get(&self.instruction_index)
+            .and_then(|worktop_changes| worktop_changes.first())
+        {
+            Some(WorktopChange::Put(..)) => {
+                panic!("How did a call to TAKE from worktop PUT resources in the worktop?")
+            }
+            Some(WorktopChange::Take(ResourceSpecifier::Amount(_, changes_amount))) => {
+                assert!(resource_address.is_fungible());
+                assert_eq!(amount, changes_amount);
+
+                ResourceTracker::Fungible {
+                    resource_address: *resource_address,
+                    amount: Source::Guaranteed(*amount),
+                }
+            }
+            Some(WorktopChange::Take(ResourceSpecifier::Ids(_, ids))) => {
+                assert!(resource_address
+                    .as_node_id()
+                    .is_global_non_fungible_resource_manager());
+                assert_eq!(*amount, Decimal::from_str(&ids.len().to_string()).unwrap());
+
+                ResourceTracker::NonFungible {
+                    resource_address: *resource_address,
+                    amount: Source::Guaranteed(*amount),
+                    ids: Source::Predicted(self.instruction_index, ids.clone()),
+                }
+            }
+            None if amount.is_zero() => {
+                if resource_address.is_fungible() {
+                    ResourceTracker::Fungible {
+                        resource_address: *resource_address,
+                        amount: Source::Guaranteed(Decimal::ZERO),
+                    }
+                } else {
+                    ResourceTracker::NonFungible {
+                        resource_address: *resource_address,
+                        amount: Source::Guaranteed(Decimal::ZERO),
+                        ids: Source::Guaranteed(Default::default()),
+                    }
+                }
+            }
+            None => {
+                panic!("How can the worktop changes be None if the amount specified is not zero?")
+            }
+        };
+
         let bucket = self.id_allocator.new_bucket_id();
-        let resource_specifier = ResourceSpecifier::Amount(*resource_address, *amount);
-        self.bucket_tracker
-            .insert(bucket, Source::Guaranteed(resource_specifier));
+        self.bucket_tracker.insert(bucket, resource_tracker);
+
         Ok(())
     }
 
@@ -365,33 +557,75 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         resource_address: &ResourceAddress,
         ids: &BTreeSet<NonFungibleLocalId>,
     ) -> Result<(), GeneralTransactionTypeError> {
+        // In this case, the resource is non-fungible and the take from worktop is of a known set of
+        // ids, which we can also say of a known set of amounts. Thus, everything about this can be
+        // found statically and we can straight away map this to a resource tracker without the need
+        // to look at the worktop changes.
+        let resource_tracker = ResourceTracker::NonFungible {
+            resource_address: *resource_address,
+            amount: Source::Guaranteed(usize_to_decimal(ids.len())),
+            ids: Source::Guaranteed(ids.clone()),
+        };
+
         let bucket = self.id_allocator.new_bucket_id();
-        let resource_specifier = ResourceSpecifier::Ids(*resource_address, ids.clone());
-        self.bucket_tracker
-            .insert(bucket, Source::Guaranteed(resource_specifier));
+        self.bucket_tracker.insert(bucket, resource_tracker);
         Ok(())
     }
 
     pub fn handle_take_all_from_worktop(
         &mut self,
-        _: &ResourceAddress,
+        resource_address: &ResourceAddress,
     ) -> Result<(), GeneralTransactionTypeError> {
-        let bucket = self.id_allocator.new_bucket_id();
-        let resource_specifier = self
+        // This case changes slightly between fungible and non-fungible resources. However, all of
+        // the cases result in everything being predicted and nothing being guaranteed. We observe
+        // the worktop changes and then based on that construct the resource tracker of whatever
+        // the observed bucket amounts/ids were.
+        let resource_tracker = match self
             .execution_trace
             .worktop_changes()
             .get(&self.instruction_index)
             .and_then(|worktop_changes| worktop_changes.first())
-            .and_then(|worktop_change| match worktop_change {
-                WorktopChange::Take(take) => Some(take),
-                WorktopChange::Put(..) => None,
-            })
-            .ok_or(GeneralTransactionTypeError::WorktopChangesError)
-            .cloned()?;
-        self.bucket_tracker.insert(
-            bucket,
-            Source::Predicted(self.instruction_index, resource_specifier),
-        );
+        {
+            Some(WorktopChange::Put(..)) => {
+                panic!("How did a call to TAKE from worktop PUT resources in the worktop?")
+            }
+            Some(WorktopChange::Take(ResourceSpecifier::Amount(resource_address, amount))) => {
+                assert!(resource_address.is_fungible());
+
+                ResourceTracker::Fungible {
+                    resource_address: *resource_address,
+                    amount: Source::Predicted(self.instruction_index, *amount),
+                }
+            }
+            Some(WorktopChange::Take(ResourceSpecifier::Ids(resource_address, ids))) => {
+                assert!(resource_address
+                    .as_node_id()
+                    .is_global_non_fungible_resource_manager());
+
+                ResourceTracker::NonFungible {
+                    resource_address: *resource_address,
+                    amount: Source::Predicted(self.instruction_index, usize_to_decimal(ids.len())),
+                    ids: Source::Predicted(self.instruction_index, ids.clone()),
+                }
+            }
+            None => {
+                if resource_address.is_fungible() {
+                    ResourceTracker::Fungible {
+                        resource_address: *resource_address,
+                        amount: Source::Predicted(self.instruction_index, Decimal::ZERO),
+                    }
+                } else {
+                    ResourceTracker::NonFungible {
+                        resource_address: *resource_address,
+                        amount: Source::Predicted(self.instruction_index, Decimal::ZERO),
+                        ids: Source::Predicted(self.instruction_index, Default::default()),
+                    }
+                }
+            }
+        };
+
+        let bucket = self.id_allocator.new_bucket_id();
+        self.bucket_tracker.insert(bucket, resource_tracker);
         Ok(())
     }
 
@@ -441,4 +675,26 @@ pub enum GeneralTransactionTypeError {
 pub struct LocatedGeneralTransactionTypeError {
     pub instruction_index: usize,
     pub error: GeneralTransactionTypeError,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ResourceTracker {
+    /// An account deposit of a fungible resources where the amount can either be guaranteed or
+    /// predicted.
+    Fungible {
+        resource_address: ResourceAddress,
+        amount: Source<Decimal>,
+    },
+    /// A set of tracked non-fungible resources. In this case, the amount and ids may be guaranteed
+    /// or predicted. A valid non-fungible tracker may have a guaranteed amount but a
+    /// non-guaranteed set of ids.
+    NonFungible {
+        resource_address: ResourceAddress,
+        amount: Source<Decimal>,
+        ids: Source<BTreeSet<NonFungibleLocalId>>,
+    },
+}
+
+fn usize_to_decimal(num: usize) -> Decimal {
+    num.to_string().parse().unwrap()
 }
