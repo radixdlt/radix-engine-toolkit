@@ -272,8 +272,8 @@ jobs:
             mv $EXTRACTED/$TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib $FRAMEWORK_PATH/RadixEngineToolkit
 
             # Copy headers to Headers folder and modulemap to Modules folder
-            cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
-            cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.modulemap $FRAMEWORK_PATH/Modules/module.modulemap
+            cp $EXTRACTED/include/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
+            cp $EXTRACTED/include/module.modulemap $FRAMEWORK_PATH/Modules/
 
 
             "$PLISTBUDDY_EXEC" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
