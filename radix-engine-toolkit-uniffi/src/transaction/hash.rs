@@ -41,6 +41,10 @@ impl TransactionHash {
         }
     }
 
+    pub fn as_hash(&self) -> Arc<Hash> {
+        Arc::new(Hash(self.0))
+    }
+
     pub fn as_str(&self) -> String {
         self.1.to_owned()
     }
