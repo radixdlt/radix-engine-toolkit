@@ -81,6 +81,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error occurred when trying to convert native event data to typed")]
     TypedNativeEventError { error: String },
+
+    #[error("An error occurred when trying to decode the transaction hash")]
+    FailedToDecodeTransactionHash,
 }
 
 macro_rules! dbg_str {

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::str::FromStr;
+
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Object)]
@@ -172,4 +174,11 @@ pub fn non_fungible_local_id_sbor_encode(value: NonFungibleLocalId) -> Result<Ve
 #[uniffi::export]
 pub fn non_fungible_local_id_as_str(value: NonFungibleLocalId) -> Result<String> {
     NativeNonFungibleLocalId::try_from(value).map(|value| value.to_string())
+}
+
+#[uniffi::export]
+pub fn non_fungible_local_id_from_str(string: String) -> Result<NonFungibleLocalId> {
+    NativeNonFungibleLocalId::from_str(&string)
+        .map_err(Into::into)
+        .map(Into::into)
 }
