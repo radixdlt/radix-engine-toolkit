@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadixDlt.RadixEngineToolkit.Native", "RadixDlt.RadixEngineToolkit.Native.csproj", "{1B245774-30FA-425D-8808-7E0AD85456AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadixDlt.RadixEngineToolkit", "RadixDlt.RadixEngineToolkit.csproj", "{1B245774-30FA-425D-8808-7E0AD85456AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
