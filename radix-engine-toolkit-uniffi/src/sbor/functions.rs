@@ -149,7 +149,7 @@ impl TryFrom<Schema> for (NativeLocalTypeIndex, NativeScryptoSchema) {
         }: Schema,
     ) -> Result<Self> {
         let local_type_index = local_type_index.into();
-        let schema = native_manifest_decode(&schema)?;
+        let schema = native_scrypto_decode(&schema)?;
         Ok((local_type_index, schema))
     }
 }
