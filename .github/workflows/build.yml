@@ -581,9 +581,8 @@ jobs:
 
       - name: DEBUG
         run: |
-          sudo apt-get install tree
+          brew install tree
           tree interop
-
       - name: NuGet Pack
         working-directory: interop/csharp/
         run: dotnet pack --configuration Release --output .
