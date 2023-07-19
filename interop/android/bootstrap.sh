@@ -42,6 +42,7 @@ done
 cp build.gradle.kts $library_name/build.gradle.kts
 cp settings.gradle.kts $library_name/settings.gradle.kts
 cp lib.build.gradle.kts $library_name/lib/build.gradle.kts
+cp consumer-rules.pro $library_name/lib/consumer-rules.pro
 
 # Extract version from Cargo.toml
 toml=../../radix-engine-toolkit-uniffi/Cargo.toml
