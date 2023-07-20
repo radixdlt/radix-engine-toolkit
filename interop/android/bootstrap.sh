@@ -20,12 +20,10 @@ crate_name=radix-engine-toolkit-uniffi
 jna_architectures=(
   "arm64-v8a"
   "armeabi-v7a"
-  "x86"
 )
 ret_names=(
   "aarch64-linux-android"
   "armv7-linux-androideabi"
-  "i686-linux-android"
 )
 
 for (( i=0; i<${#jna_architectures[@]}; i++ ));
