@@ -541,7 +541,7 @@ jobs:
           BUILD_CRATE_MANIFEST="./radix-engine-toolkit-uniffi/Cargo.toml"
           CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
-          VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
+          VERSION="$CRATE_VERSION-commit-$LAST_COMMIT_SHA"
 
           # This is a MacOS runner so we need to keep this in mind when using sed as some of the 
           # options are different between MacOS and Linux. 
