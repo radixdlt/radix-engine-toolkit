@@ -14,7 +14,7 @@ mkdir -p $src/$package
 mkdir -p $jni
 
 # Extracting .kt file
-tar -xzf $artifacts/UniFFI-Bindings/UniFFI-Bindings.tar.gz --directory=extracted
+tar -xzf $artifacts/uniffi-bindings/*.tar.gz --directory=extracted
 mv extracted/output/$package/*.kt $src/$package/RET.kt
 test -e $src/$package/RET.kt || exit 1
 
