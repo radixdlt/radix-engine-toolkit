@@ -493,3 +493,99 @@ jobs:
           build-root-directory: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  publish-dotnet-nuget:
+    needs: [ build, create-uniffi-bindings ]
+    runs-on: macos-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
+        with:
+          dotnet-version: 7.0.x
+      - name: Extract Artifacts
+        working-directory: artifacts
+        run: |
+          # The name of the crate that we will be creating the XCFramework and the bindings for.
+          CRATE_NAME="radix-engine-toolkit-uniffi"
+
+          # The name of the directory to write the extracted libraries in.
+          EXTRACTED="extracted"
+          mkdir $EXTRACTED
+
+          # Extract the UniFFI Bindings
+          mkdir $EXTRACTED/UniFFI-Bindings
+          tar -xvzf "UniFFI-Bindings/UniFFI-Bindings.tar.gz" --directory="./$EXTRACTED/UniFFI-Bindings"
+
+          # Extract the builds of the targets that we need. All of them have a common known pattern which
+          # we depend on for the extraction: `${CRATE_NAME}-${TARGET_TRIPLE}`.
+          for TARGET_TRIPLE in "x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "x86_64-apple-darwin" "aarch64-apple-darwin" "x86_64-pc-windows-gnu"
+          do
+              # Create a new directory for the target
+              mkdir $EXTRACTED/$TARGET_TRIPLE;
+
+              BUILD_ARTIFACT="$CRATE_NAME-$TARGET_TRIPLE"
+              tar -xvzf "$BUILD_ARTIFACT/$TARGET_TRIPLE.tar.gz" --directory="./$EXTRACTED/$TARGET_TRIPLE"
+          done
+          rm -rf ./$EXTRACTED/*.tar.gz
+      - name: Configure Version
+        run: |
+          BRANCH=${{ github.ref_name }}
+          BUILD_CRATE_MANIFEST="./radix-engine-toolkit-uniffi/Cargo.toml"
+          CRATE_VERSION=$(cargo read-manifest --manifest-path $BUILD_CRATE_MANIFEST |  jq -r '.version')
+          LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
+          VERSION="$CRATE_VERSION-$LAST_COMMIT_SHA"
+
+          # This is a MacOS runner so we need to keep this in mind when using sed as some of the 
+          # options are different between MacOS and Linux. 
+          sed -i "" "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
+
+          echo "Configured Version: $VERSION"
+      - name: Copying UniFFI Bindings
+        run: |
+          # We copy the UniFFI bindings to the interop/csharp/generated/ directory
+          mkdir ./interop/csharp/generated
+          cp ./artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.cs ./interop/csharp/generated
+
+          #Copy uniffi c# binding to directory interop\csharp\generated\
+          #Copy uniffi native libraries to platform specific directories in interop\csharp\native
+      - name: Copying Libraries
+        run: |
+          # We copy the UniFFI bindings to the interop/csharp/native directory
+          mkdir ./interop/csharp/native
+
+          mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
+          cp ./artifacts/extracted/x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
+          
+          mkdir ./interop/csharp/native/i686-unknown-linux-gnu
+          cp ./artifacts/extracted/i686-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/i686-unknown-linux-gnu
+          
+          mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
+          cp ./artifacts/extracted/aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
+          
+          mkdir ./interop/csharp/native/x86_64-apple-darwin
+          cp ./artifacts/extracted/x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
+          
+          mkdir ./interop/csharp/native/aarch64-apple-darwin
+          cp ./artifacts/extracted/aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
+          
+          mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
+          cp ./artifacts/extracted/x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
+
+      - name: DEBUG
+        run: |
+          brew install tree
+          tree interop
+      - name: NuGet Pack
+        working-directory: interop/csharp/
+        run: dotnet pack --configuration Release --output .
+      - name: Publish Packages
+        working-directory: interop/csharp/
+        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
