@@ -48,8 +48,8 @@ do
   echo "Extracting for architecture $arch_name"
 
   mkdir $res/"$arch_name"
-  mv $artifacts/"$crate_name"-"$ret_name"/*."$suffix" $res/"$arch_name"/libradix_engine_toolkit_uniffi."$suffix"
-  test -e $res/"$arch_name"/libradix_engine_toolkit_uniffi."$suffix" || exit 1
+  mv $artifacts/"$crate_name"-"$ret_name"/*."$suffix" $res/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi."$suffix"
+  test -e $res/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi."$suffix" || exit 1
 done
 
 # Initialise Gradle project

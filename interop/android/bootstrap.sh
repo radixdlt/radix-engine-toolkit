@@ -34,8 +34,8 @@ do
   echo "Extracting for architecture $arch_name"
 
   mkdir $jni/"$arch_name"
-  mv $artifacts/"$crate_name"-"$ret_name"/*.so $jni/"$arch_name"/libradix_engine_toolkit_uniffi.so
-  test -e $jni/"$arch_name"/libradix_engine_toolkit_uniffi.so || exit 1
+  mv $artifacts/"$crate_name"-"$ret_name"/*.so $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so
+  test -e $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so || exit 1
 done
 
 # Initialise Gradle project
