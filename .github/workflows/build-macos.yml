@@ -103,9 +103,6 @@ jobs:
               --target ${{ matrix.build-target.target-triple }} \
               --release
 
-            ls -l target
-            ls -l target/${{ matrix.build-target.target-triple }} || true
-
             if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
               INCLUDE_DIRECTORY_PATH="target/${{ matrix.build-target.target-triple }}/release/include"
               mkdir $INCLUDE_DIRECTORY_PATH
