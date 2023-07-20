@@ -85,8 +85,8 @@ jobs:
           # Install the nightly toolchain of the target of this machine.
           DEFAULT_TARGET=$(rustc -vV | sed -n 's|host: ||p')
           rustup component add rust-src --toolchain nightly-$DEFAULT_TARGET
-      - name: Cache Dependencies
-        uses: mozilla-actions/sccache-action@v0.0.3
+      # - name: Cache Dependencies
+      #   uses: mozilla-actions/sccache-action@v0.0.3
       # Installing Build Dependencies
       - name: Build Dependencies (aarch64 linux)
         if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
@@ -126,9 +126,9 @@ jobs:
           echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
       - name: Build
         working-directory: ${{ matrix.build-target.crate }}
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
+        # env:
+        #   SCCACHE_GHA_ENABLED: "true"
+        #   RUSTC_WRAPPER: "sccache"
         run: |
           cargo +nightly build \
             -Z build-std=std,panic_abort \
