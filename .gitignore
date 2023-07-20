@@ -5,7 +5,6 @@ examples/dotnet/obj
 .mypy_cache
 openapi-generator-cli-6.0.1.jar
 .DS_Store
-Cargo.lock
 .idea
 output
 ./radixdlt-scrypto/

@@ -1,246 +1,150 @@
 name: Build
-
 on:
   push:
     branches:
-      - release/*
+      - fix/*
       - feature/*
+      - release/*
       - develop
       - main
-      - kotlin-deploy
-
 jobs:
   build:
-    runs-on: macos-latest
-    continue-on-error: true
+    runs-on: ${{ matrix.build-target.runner }}
+    continue-on-error: false
     strategy:
       matrix:
         build-target:
-          # radix-engine-toolkit Crate
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-apple-ios-sim
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
-          - crate: radix-engine-toolkit
-            target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+          # =============
+          # JSON Toolkit
+          # =============
+
+          # WASM Targets
           - crate: radix-engine-toolkit
             target-triple: wasm32-unknown-unknown
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          - crate: radix-engine-toolkit
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-          # radix-engine-toolkit-uniffi Crate
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-apple-darwin
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-ios
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: aarch64-apple-ios-sim
-            custom-linker: ""
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
-          - crate: radix-engine-toolkit-uniffi
-            target-triple: x86_64-pc-windows-gnu
-            custom-linker: ""
-            custom-compiler: x86_64-w64-mingw32-gcc
-            custom-archiver: x86_64-w64-mingw32-ar
+            runner: ubuntu-latest
+          
+          # ===============
+          # UniFFI Toolkit
+          # ===============
+
+          # Linux Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-unknown-linux-gnu
-            custom-linker: x86_64-unknown-linux-gnu-gcc
-            custom-compiler: /usr/local/opt/llvm/bin/clang
-            custom-archiver: /usr/local/opt/llvm/bin/llvm-ar
+            runner: ubuntu-latest
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-unknown-linux-gnu
-            custom-linker: aarch64-unknown-linux-gnu-gcc
-            custom-compiler: aarch64-unknown-linux-gnu-gcc
-            custom-archiver: aarch64-unknown-linux-gnu-gcc-ar
+            runner: ubuntu-latest
+          
+          # PC Targets
           - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-unknown-linux-gnu
-            custom-linker: i686-unknown-linux-gnu-gcc
-            custom-compiler: i686-unknown-linux-gnu-gcc
-            custom-archiver: i686-unknown-linux-gnu-gcc-ar
+            target-triple: x86_64-pc-windows-gnu
+            runner: ubuntu-latest
+          
+          # Android Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android21-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            runner: ubuntu-latest
           - crate: radix-engine-toolkit-uniffi
             target-triple: armv7-linux-androideabi
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
+            runner: ubuntu-latest
+          
+          # MacOS Targets
           - crate: radix-engine-toolkit-uniffi
-            target-triple: i686-linux-android
-            custom-linker: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-compiler: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android19-clang
-            custom-archiver: /usr/local/share/android-ndk/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar
-
+            target-triple: aarch64-apple-darwin
+            runner: macos-latest
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-apple-darwin
+            runner: macos-latest
+          
+          # iOS Targets
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-apple-ios
+            runner: macos-latest
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-apple-ios
+            runner: macos-latest
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: aarch64-apple-ios-sim
+            runner: macos-latest
     steps:
-      - uses: FranzDiebold/github-env-vars-action@v2
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Install Build Dependencies
+      - name: Install Rust Target
         run: |
-          brew tap SergioBenitez/osxct
-          brew install llvm
-          brew install x86_64-unknown-linux-gnu
-          brew install mingw-w64
-          brew install --cask android-ndk
-
-          brew tap messense/macos-cross-toolchains
-          brew install aarch64-unknown-linux-gnu
-          brew install i686-unknown-linux-gnu
-
-      - name: Install Rust Toolchain
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh
-          chmod +x rustup.sh
-          ./rustup.sh -y
-          rustup update
+          # Install Nightly 
           rustup toolchain install nightly
 
-      - name: Install Rust Targets
-        run: |
+          # Update both toolchains
+          rustup update stable
+          rustup update nightly
+
+          # Add target
           rustup target install ${{ matrix.build-target.target-triple }}
           rustup +nightly target install ${{ matrix.build-target.target-triple }}
-          rustup component add rust-src --toolchain nightly-x86_64-apple-darwin
 
-      - name: Building Toolkit
+          # Install the nightly toolchain of the target of this machine.
+          DEFAULT_TARGET=$(rustc -vV | sed -n 's|host: ||p')
+          rustup component add rust-src --toolchain nightly-$DEFAULT_TARGET
+      - name: Cache Dependencies
+        uses: mozilla-actions/sccache-action@v0.0.3
+      # Installing Build Dependencies
+      - name: Build Dependencies (aarch64 linux)
+        if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
+        run: | 
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+          echo "AR=aarch64-linux-gnu-gcc-ar" >> $GITHUB_ENV
+      - name: Build Dependencies (android)
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' || matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
+        with:
+          ndk-version: r25b
+      - name: Build Dependencies (aarch64 android)
+        if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: | 
+          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
+          echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang" >> $GITHUB_ENV
+          echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
+      - name: Build Dependencies (armv7 android)
+        if: ${{ matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: | 
+          echo "CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
+          echo "CC=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi19-clang" >> $GITHUB_ENV
+          echo "AR=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
+      - name: Build Dependencies (aarch64/x86_64 windows)
+        if: ${{ matrix.build-target.target-triple == 'x86_64-pc-windows-gnu' }}
+        run: | 
+          sudo apt-get install -y mingw-w64
+          echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
+      - name: Build
+        working-directory: ${{ matrix.build-target.crate }}
+        env:
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         run: |
-          (
-            export CURRENT_DIRECTORY=$(pwd)
-            export CRATE_PATH="$CURRENT_DIRECTORY/${{matrix.build-target.crate}}"
-            cd $CRATE_PATH
-
-            export LINKER_ENVIRONMENT_VARIABLE="CARGO_TARGET_"$(echo ${{ matrix.build-target.target-triple }} | tr '[:lower:]' '[:upper:]' | sed 's/-/_/g')"_LINKER"
-            if [ ! -z "${{ matrix.build-target.custom-linker }}" ]
-            then
-              export $LINKER_ENVIRONMENT_VARIABLE=${{ matrix.build-target.custom-linker }}
-            fi
-
-            export CC=${{ matrix.build-target.custom-compiler }}
-            export AR=${{ matrix.build-target.custom-archiver }}
-
-            cargo +nightly build \
-              -Z build-std=std,panic_abort \
-              -Z build-std-features=panic_immediate_abort \
-              --target ${{ matrix.build-target.target-triple }} \
-              --release
-
-            unset $LINKER_ENVIRONMENT_VARIABLE
-            export CC="/usr/local/opt/llvm/bin/clang"
-            export AR="/usr/local/opt/llvm/bin/llvm-ar"
-
-            if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-              INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
-              mkdir $INCLUDE_DIRECTORY_PATH
-
-              rustup default nightly
-              cbindgen \
-                --lang c \
-                --config cbindgen.toml \
-                --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
-              rustup default stable
-
-              echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-              echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            fi
-
-            (
-              BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
-              cd $BUILD_PATH
-
-              BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
-
-              if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
-              else
-                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
-              fi
-            )
-          )
-
-      - name: Upload Build Artifacts
+          cargo +nightly build \
+            -Z build-std=std,panic_abort \
+            -Z build-std-features=panic_immediate_abort \
+            --target ${{ matrix.build-target.target-triple }} \
+            --release
+      - name: Clean Build Artifacts
+        run: find "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}"
-          path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
-
-  create-uniffi-bindings:
+          name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
+          path: "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release"
+  generate-uniffi-bindings:
     needs: [build]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -253,81 +157,58 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
-      - name: Extracting the Library
-        run: |
-          mkdir extracted
-          cd radix-engine-toolkit-uniffi-x86_64-apple-darwin
-          tar -xvzf x86_64-apple-darwin.tar.gz --directory="../extracted"
-        working-directory: artifacts
       - name: Generate the Bindings
         run: |
-          cargo run \
-            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
-            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-            --language swift \
-            --out-dir ./output \
-            --lib-file ./libradix_engine_toolkit_uniffi.a
+          # Generating the path of the dynamic library
+          DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
+          OUTPUT_DIRECTORY="./uniffi-bindings"
+
+          for LANGUAGE in "swift" "kotlin" "python" 
+          do
+            cargo run \
+              --manifest-path="./uniffi-bindgen/Cargo.toml" -- \
+              generate ./radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+              --language $LANGUAGE \
+              --out-dir $OUTPUT_DIRECTORY \
+              --lib-file $DYNAMIC_LIBRARY_PATH
+          done
 
           cargo run \
-            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
-            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-            --language kotlin \
-            --out-dir ./output \
-            --lib-file ./libradix_engine_toolkit_uniffi.a
-
-          cargo run \
-            --manifest-path="../../uniffi-bindgen/Cargo.toml" -- \
-            generate ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-            --language python \
-            --out-dir ./output \
-            --lib-file ./libradix_engine_toolkit_uniffi.a
-          
-          cargo run \
-            --manifest-path="../../uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
-            ../../radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
-            --out-dir ./output \
-            --lib-file ./libradix_engine_toolkit_uniffi.dylib
-        working-directory: artifacts/extracted
-      - name: Compress Artifacts
-        run: |
-          tar -czf "./UniFFI-Bindings.tar.gz" ./output
-        working-directory: artifacts/extracted
-      - name: Upload Bindings
+            --manifest-path="./uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
+            ./radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "UniFFI-Bindings"
-          path: "./artifacts/extracted/UniFFI-Bindings.tar.gz"
-
+          name: uniffi-bindings
+          path: uniffi-bindings
   build-test-kit:
     needs: [build]
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Run Generator
+      - name: Generate Test Kit
         run: cargo run
-        working-directory: generator
-      - name: Compress Generated
-        run: tar -czf "./test-kit.tar.gz" ./output
         working-directory: generator
       - name: Upload Generated Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: "test-kit.tar.gz"
-          path: "./generator/test-kit.tar.gz"
-
+          name: "test-kit"
+          path: "./generator/output"
   publish-swift-spm:
-    needs: [build, create-uniffi-bindings]
+    needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Checkout Swift Egine toolkit
+      - name: Checkout Swift Engine Toolkit
         uses: actions/checkout@v3
         with:
-           repository: radixdlt/swift-engine-toolkit
-           token: ${{ secrets.RADIX_BOT_PAT }}
-           path: ./swift-engine-toolkit
+          repository: radixdlt/swift-engine-toolkit
+          token: ${{ secrets.RADIX_BOT_PAT }}
+          path: ./swift-engine-toolkit
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -337,59 +218,38 @@ jobs:
           # The name of the crate that we will be creating the XCFramework and the bindings for.
           CRATE_NAME="radix-engine-toolkit-uniffi"
 
-          # The name of the directory to write the extracted libraries in.
-          EXTRACTED="extracted"
-          mkdir $EXTRACTED
-
-          # Extract the UniFFI Bindings
-          mkdir $EXTRACTED/UniFFI-Bindings
-          tar -xvzf "UniFFI-Bindings/UniFFI-Bindings.tar.gz" --directory="./$EXTRACTED/UniFFI-Bindings"
-
           # Creating the include directory - this will be used in the XCFramework build steps
-          mkdir $EXTRACTED/include
-          cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.modulemap $EXTRACTED/include/module.modulemap
-          cp $EXTRACTED/UniFFI-Bindings/output/radix_engine_toolkit_uniffiFFI.h $EXTRACTED/include/radix_engine_toolkit_uniffiFFI.h
-
-          # Extract the builds of the targets that we need. All of them have a common known pattern which
-          # we depend on for the extraction: `${CRATE_NAME}-${TARGET_TRIPLE}`.
-          for TARGET_TRIPLE in "aarch64-apple-darwin" "x86_64-apple-darwin" "aarch64-apple-ios-sim" "x86_64-apple-ios" "aarch64-apple-ios"
-          do
-              # Create a new directory for the target
-              mkdir $EXTRACTED/$TARGET_TRIPLE;
-
-              BUILD_ARTIFACT="$CRATE_NAME-$TARGET_TRIPLE"
-              tar -xvzf "$BUILD_ARTIFACT/$TARGET_TRIPLE.tar.gz" --directory="./$EXTRACTED/$TARGET_TRIPLE"
-          done
-          rm -rf ./$EXTRACTED/*.tar.gz
+          mkdir include
+          cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.modulemap include/module.modulemap
+          cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.h include/radix_engine_toolkit_uniffiFFI.h
 
           # Using Lipo to combine some of the libraries into fat libraries.
-          mkdir ./$EXTRACTED/macos-arm64_x86_64/
-          mkdir ./$EXTRACTED/ios-simulator-arm64_x86_64
+          mkdir ./macos-arm64_x86_64/
+          mkdir ./ios-simulator-arm64_x86_64
 
           lipo -create \
-              "./$EXTRACTED/aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
-              "./$EXTRACTED/x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
-              -o "./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
+              "./$CRATE_NAME-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
+              "./$CRATE_NAME-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" \
+              -o "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
           lipo -create \
-              "./$EXTRACTED/aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.dylib" \
-              "./$EXTRACTED/x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
-              -o "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
+              "./$CRATE_NAME-aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.dylib" \
+              "./$CRATE_NAME-x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
+              -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
 
           # Set proper id, so that Xcode can properly locate the dynamic library
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$CRATE_NAME-aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
+          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
 
           # Creating the XCFramework
           xcodebuild -create-xcframework \
-              -library "./$EXTRACTED/aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
-              -library "./$EXTRACTED/macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
-              -library "./$EXTRACTED/ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./$EXTRACTED/include" \
-              -output "./$EXTRACTED/RadixEngineToolkit.xcframework"
-
+              -library "./$CRATE_NAME-aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
+              -headers "./include" \
+              -library "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
+              -headers "./include" \
+              -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
+              -headers "./include" \
+              -output "./RadixEngineToolkit.xcframework"
       - name: Publish to Swift Engine Toolkit
         run: |
           BRANCH=${{ github.ref_name }}
@@ -413,23 +273,21 @@ jobs:
             git pull origin $BRANCH
           fi
 
-          cp -R ../artifacts/extracted/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
-          cp -R ../artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
+          cp -R ../artifacts/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
+          cp -R ../artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
           git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
           git push $SET_UPSTREAM_FLAG origin $BRANCH
           git push origin $SPM_VERSION
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: "RadixEngineToolkit.xcframework"
-          path: "./artifacts/extracted/RadixEngineToolkit.xcframework"
-
+          path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven:
-    needs: [ build, create-uniffi-bindings ]
+    needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
       contents: read
@@ -456,9 +314,8 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish-android-maven:
-    needs: [ build, create-uniffi-bindings ]
+    needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
       contents: read
@@ -483,7 +340,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          # The same with interop/android/build.gradle.kts
           gradle-version: 8.0.2
           arguments: wrapper -p interop/android/ret-android
       - name: Build and publish Android
@@ -493,10 +349,9 @@ jobs:
           build-root-directory: interop/android/ret-android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
   publish-dotnet-nuget:
-    needs: [ build, create-uniffi-bindings ]
-    runs-on: macos-latest
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -510,31 +365,6 @@ jobs:
         uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
         with:
           dotnet-version: 7.0.x
-      - name: Extract Artifacts
-        working-directory: artifacts
-        run: |
-          # The name of the crate that we will be creating the XCFramework and the bindings for.
-          CRATE_NAME="radix-engine-toolkit-uniffi"
-
-          # The name of the directory to write the extracted libraries in.
-          EXTRACTED="extracted"
-          mkdir $EXTRACTED
-
-          # Extract the UniFFI Bindings
-          mkdir $EXTRACTED/UniFFI-Bindings
-          tar -xvzf "UniFFI-Bindings/UniFFI-Bindings.tar.gz" --directory="./$EXTRACTED/UniFFI-Bindings"
-
-          # Extract the builds of the targets that we need. All of them have a common known pattern which
-          # we depend on for the extraction: `${CRATE_NAME}-${TARGET_TRIPLE}`.
-          for TARGET_TRIPLE in "x86_64-unknown-linux-gnu" "i686-unknown-linux-gnu" "aarch64-unknown-linux-gnu" "x86_64-apple-darwin" "aarch64-apple-darwin" "x86_64-pc-windows-gnu"
-          do
-              # Create a new directory for the target
-              mkdir $EXTRACTED/$TARGET_TRIPLE;
-
-              BUILD_ARTIFACT="$CRATE_NAME-$TARGET_TRIPLE"
-              tar -xvzf "$BUILD_ARTIFACT/$TARGET_TRIPLE.tar.gz" --directory="./$EXTRACTED/$TARGET_TRIPLE"
-          done
-          rm -rf ./$EXTRACTED/*.tar.gz
       - name: Configure Version
         run: |
           BRANCH=${{ github.ref_name }}
@@ -543,46 +373,33 @@ jobs:
           LAST_COMMIT_SHA=$(git rev-parse --short HEAD)
           VERSION="$CRATE_VERSION-commit-$LAST_COMMIT_SHA"
 
-          # This is a MacOS runner so we need to keep this in mind when using sed as some of the 
-          # options are different between MacOS and Linux. 
-          sed -i "" "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
+          sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
 
           echo "Configured Version: $VERSION"
       - name: Copying UniFFI Bindings
         run: |
           # We copy the UniFFI bindings to the interop/csharp/generated/ directory
           mkdir ./interop/csharp/generated
-          cp ./artifacts/extracted/UniFFI-Bindings/output/radix_engine_toolkit_uniffi.cs ./interop/csharp/generated
-
-          #Copy uniffi c# binding to directory interop\csharp\generated\
-          #Copy uniffi native libraries to platform specific directories in interop\csharp\native
+          cp ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.cs ./interop/csharp/generated
       - name: Copying Libraries
         run: |
           # We copy the UniFFI bindings to the interop/csharp/native directory
           mkdir ./interop/csharp/native
 
           mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
-          cp ./artifacts/extracted/x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
-          
-          mkdir ./interop/csharp/native/i686-unknown-linux-gnu
-          cp ./artifacts/extracted/i686-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/i686-unknown-linux-gnu
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
           
           mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
-          cp ./artifacts/extracted/aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
+          cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
           
           mkdir ./interop/csharp/native/x86_64-apple-darwin
-          cp ./artifacts/extracted/x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
           
           mkdir ./interop/csharp/native/aarch64-apple-darwin
-          cp ./artifacts/extracted/aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
+          cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
           
           mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
-          cp ./artifacts/extracted/x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
-
-      - name: DEBUG
-        run: |
-          brew install tree
-          tree interop
+          cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
       - name: NuGet Pack
         working-directory: interop/csharp/
         run: dotnet pack --configuration Release --output .

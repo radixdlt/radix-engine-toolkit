@@ -12,13 +12,15 @@
     <tags>radix sbor</tags>
   </metadata>
   <files>
+    <!-- Linux Targets -->
     <file src="native/x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so" target="runtimes/linux-x64/native/libradix_engine_toolkit_uniffi.so" />
-    <file src="native/i686-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so" target="runtimes/linux-x32/native/libradix_engine_toolkit_uniffi.so" />
     <file src="native/aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so" target="runtimes/linux-arm64/native/libradix_engine_toolkit_uniffi.so" />
     
+    <!-- MacOS Targets -->
     <file src="native/x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" target="runtimes/osx-x64/native/libradix_engine_toolkit_uniffi.dylib" />
     <file src="native/aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" target="runtimes/osx-arm64/native/libradix_engine_toolkit_uniffi.dylib" />
     
+    <!-- Windows Targets -->
     <file src="native/x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll" target="runtimes/win-x64/native/radix_engine_toolkit_uniffi.dll" />
     
     <file src="bin\Release\net7.0\RadixDlt.RadixEngineToolkit.dll" target="lib\net7.0" />
