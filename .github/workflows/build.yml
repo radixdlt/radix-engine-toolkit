@@ -215,14 +215,21 @@ jobs:
       - name: Build XCFramework
         working-directory: artifacts
         run: |
+          PLISTBUDDY_EXEC="/usr/libexec/PlistBuddy"
           # The name of the crate that we will be creating the XCFramework and the bindings for.
           CRATE_NAME="radix-engine-toolkit-uniffi"
-
+          
           # Creating the include directory - this will be used in the XCFramework build steps
           mkdir include
-          cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.modulemap include/module.modulemap
           cp uniffi-bindings/radix_engine_toolkit_uniffiFFI.h include/radix_engine_toolkit_uniffiFFI.h
 
+          # Replace the generated module map with the one we actually want.
+          echo "framework module RadixEngineToolkit {" > "./include/module.modulemap"
+          echo "  umbrella header \"radix_engine_toolkit_uniffiFFI.h\"" >> "./include/module.modulemap"
+          echo "  export *" >> "./include/module.modulemap"
+          echo "  module * { export * }" >> "./include/module.modulemap"
+          echo "}" >> "./include/module.modulemap"
+          
           # Using Lipo to combine some of the libraries into fat libraries.
           mkdir ./macos-arm64_x86_64/
           mkdir ./ios-simulator-arm64_x86_64
@@ -235,21 +242,53 @@ jobs:
               "./$CRATE_NAME-aarch64-apple-ios-sim/libradix_engine_toolkit_uniffi.dylib" \
               "./$CRATE_NAME-x86_64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
               -o "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib"
-
-          # Set proper id, so that Xcode can properly locate the dynamic library
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./$CRATE_NAME-aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
-          install_name_tool -id @rpath/libradix_engine_toolkit_uniffi.dylib ./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib
-
+              
+          for TARGET_TRIPLE in "$CRATE_NAME-aarch64-apple-ios"  "macos-arm64_x86_64" "ios-simulator-arm64_x86_64"
+          do
+            FRAMEWORK_PATH="$TARGET_TRIPLE/RadixEngineToolkit.framework"
+            mkdir -p $FRAMEWORK_PATH/Headers
+            mkdir -p $FRAMEWORK_PATH/Modules
+             # Move the dylib into the framework, renaming it to match the framework name
+            mv $TARGET_TRIPLE/libradix_engine_toolkit_uniffi.dylib $FRAMEWORK_PATH/RadixEngineToolkit
+            # Copy headers to Headers folder and modulemap to Modules folder
+            cp include/radix_engine_toolkit_uniffiFFI.h $FRAMEWORK_PATH/Headers/
+            cp include/module.modulemap $FRAMEWORK_PATH/Modules/
+            "$PLISTBUDDY_EXEC" -c "Add :CFBundleIdentifier string com.radixpublishing.RadixEngineToolkit" \
+                            -c "Add :CFBundleName string RadixEngineToolkit" \
+                            -c "Add :CFBundleDisplayName string RadixEngineToolkit" \
+                            -c "Add :CFBundleVersion string 1.0.0" \
+                            -c "Add :CFBundleShortVersionString string 1.0.0" \
+                            -c "Add :CFBundlePackageType string FMWK" \
+                            -c "Add :CFBundleExecutable string RadixEngineToolkit" \
+                            -c "Add :MinimumOSVersion string 16.4" \
+                            -c "Add :CFBundleSupportedPlatforms array" \
+                            $FRAMEWORK_PATH/Info.plist
+            case $TARGET_TRIPLE in
+              aarch64-apple-ios)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" $FRAMEWORK_PATH/Info.plist
+              ;;
+              ios-simulator-arm64_x86_64)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string iPhoneOS" \
+                                     -c "Add :CFBundleSupportedPlatforms:1 string iPhoneSimulator" \
+                                      $FRAMEWORK_PATH/Info.plist
+              ;;
+              macos-arm64_x86_64)
+                  "$PLISTBUDDY_EXEC" -c "Add :CFBundleSupportedPlatforms:0 string MacOSX" $FRAMEWORK_PATH/Info.plist
+              ;;
+              *)
+              ;;
+            esac
+            
+            install_name_tool -id @rpath/RadixEngineToolkit.framework/RadixEngineToolkit $FRAMEWORK_PATH/RadixEngineToolkit
+          done
+              
           # Creating the XCFramework
           xcodebuild -create-xcframework \
-              -library "./$CRATE_NAME-aarch64-apple-ios/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./include" \
-              -library "./macos-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./include" \
-              -library "./ios-simulator-arm64_x86_64/libradix_engine_toolkit_uniffi.dylib" \
-              -headers "./include" \
-              -output "./RadixEngineToolkit.xcframework"
+              -framework "./$CRATE_NAME-aarch64-apple-ios/RadixEngineToolkit.framework" \
+              -framework "./macos-arm64_x86_64/RadixEngineToolkit.framework" \
+              -framework "./ios-simulator-arm64_x86_64/RadixEngineToolkit.framework" \
+              -output "RadixEngineToolkit.xcframework"
+
       - name: Publish to Swift Engine Toolkit
         run: |
           BRANCH=${{ github.ref_name }}
@@ -275,6 +314,8 @@ jobs:
 
           cp -R ../artifacts/RadixEngineToolkit.xcframework ./Sources/RadixEngineToolkit
           cp -R ../artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.swift ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
+          
+          sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
 
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
