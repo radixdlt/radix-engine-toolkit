@@ -12,9 +12,8 @@ mkdir $library_name
 mkdir -p $src/$package
 mkdir -p $res
 
-# Extracting .kt file
-tar -xzf $artifacts/uniffi-bindings/*.tar.gz --directory=extracted
-mv extracted/output/$package/*.kt $src/$package/RET.kt
+# Copying .kt file
+mv $artifacts/uniffi-bindings/$package/*.kt $src/$package/RET.kt
 test -e $src/$package/RET.kt || exit 1
 
 crate_name=radix-engine-toolkit-uniffi
@@ -48,14 +47,10 @@ do
 
   echo "Extracting for architecture $arch_name"
 
-  mkdir extracted/"$arch_name"
-  tar -xzf $artifacts/"$crate_name"-"$ret_name"/"$ret_name".tar.gz --directory=extracted/"$arch_name"
   mkdir $res/"$arch_name"
-  mv extracted/"$arch_name"/*."$suffix" $res/"$arch_name"/libradix_engine_toolkit_uniffi."$suffix"
+  mv $artifacts/"$crate_name"-"$ret_name"/*."$suffix" $res/"$arch_name"/libradix_engine_toolkit_uniffi."$suffix"
   test -e $res/"$arch_name"/libradix_engine_toolkit_uniffi."$suffix" || exit 1
 done
-
-rm -rf extracted
 
 # Initialise Gradle project
 cp build.gradle.kts $library_name/lib/build.gradle.kts
