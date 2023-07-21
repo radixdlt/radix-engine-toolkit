@@ -125,45 +125,41 @@ jobs:
               --target ${{ matrix.build-target.target-triple }} \
               --release
 
-            # unset $LINKER_ENVIRONMENT_VARIABLE
-            # export CC="/usr/local/opt/llvm/bin/clang"
-            # export AR="/usr/local/opt/llvm/bin/llvm-ar"
+            if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
+              INCLUDE_DIRECTORY_PATH=target/${{ matrix.build-target.target-triple }}/release/include"
+              mkdir $INCLUDE_DIRECTORY_PATH
 
-            # if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-            #   INCLUDE_DIRECTORY_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release/include"
-            #   mkdir $INCLUDE_DIRECTORY_PATH
+              rustup default nightly
+              cbindgen \
+                --lang c \
+                --config cbindgen.toml \
+                --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
+              rustup default stable
 
-            #   rustup default nightly
-            #   cbindgen \
-            #     --lang c \
-            #     --config cbindgen.toml \
-            #     --output "$INCLUDE_DIRECTORY_PATH/libradix_engine_toolkit.h"
-            #   rustup default stable
+              echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+              echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
+            fi
 
-            #   echo "module RadixEngineToolkit {" > "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            #   echo "  umbrella header \"libradix_engine_toolkit.h\"" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            #   echo "  export *" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            #   echo "}" >> "$INCLUDE_DIRECTORY_PATH/module.modulemap"
-            # fi
+            (
+              BUILD_PATH="target/${{ matrix.build-target.target-triple }}/release"
+              cd $BUILD_PATH
 
-            # (
-            #   BUILD_PATH="$CRATE_PATH/target/${{ matrix.build-target.target-triple }}/release"
-            #   cd $BUILD_PATH
+              BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
 
-            #   BUILD_ARTIFACTS_PATH=$(find . -type f \( -name "*.a" -o -name "*.dylib" -o -name "*.dll" -o -name "*.so" -o -name "*.d" -o -name "*.wasm" \) -maxdepth 1)
+              if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
+                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
+              else
+                tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
+              fi
+            )
 
-            #   if [ "${{matrix.build-target.crate}}" == "radix-engine-toolkit" ]; then
-            #     tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH ./include
-            #   else
-            #     tar -czf "./${{ matrix.build-target.target-triple }}.tar.gz" $BUILD_ARTIFACTS_PATH
-            #   fi
-            # )
-
-      # - name: Upload Build Artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}"
-      #     path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}"
+          path: "./${{matrix.build-target.crate}}/target/${{ matrix.build-target.target-triple }}/release/${{ matrix.build-target.target-triple }}.tar.gz"
 
   # create-uniffi-bindings:
   #   needs: [build]
