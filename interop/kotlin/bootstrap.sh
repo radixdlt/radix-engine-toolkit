@@ -32,11 +32,18 @@ target_triples=(
   "x86_64-pc-windows-gnu"
 )
 file_names=(
-  "libuniffi_radix_engine_toolkit_uniffi.dylib"
-  "libuniffi_radix_engine_toolkit_uniffi.dylib"
-  "libuniffi_radix_engine_toolkit_uniffi.so"
-  "libuniffi_radix_engine_toolkit_uniffi.so"
-  "radix_engine_toolkit_uniffi.dll"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "radix_engine_toolkit_uniffi"
+)
+suffixes=(
+  "dylib"
+  "dylib"
+  "so"
+  "so"
+  "dll"
 )
 
 for (( i=0; i<${#jna_architectures[@]}; i++ ));
@@ -44,12 +51,13 @@ do
   arch_name=${jna_architectures[$i]}
   target_triple=${target_triples[$i]}
   file_name=${file_names[$i]}
+  suffix=${suffixes[$i]}
 
   echo "Extracting for architecture $arch_name"
 
   mkdir $res/"$arch_name"
-  mv $artifacts/"$crate_name"-"$target_triple"/"$file_name" $res/"$arch_name"/"$file_name"
-  test -e $res/"$arch_name"/"$file_name" || exit 1
+  mv $artifacts/"$crate_name"-"$target_triple"/*."$suffix" $res/"$arch_name"/"$file_name"."$suffix"
+  test -e $res/"$arch_name"/"$file_name"."$suffix" || exit 1
 done
 
 # Initialise Gradle project
