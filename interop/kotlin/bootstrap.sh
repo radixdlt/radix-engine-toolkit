@@ -12,8 +12,9 @@ mkdir $library_name
 mkdir -p $src/$package
 mkdir -p $res
 
-# Extracting .kt file
+# Copying .kt file
 mv $artifacts/uniffi-bindings/$package/*.kt $src/$package/RET.kt
+test -e $src/$package/RET.kt || exit 1
 
 crate_name=radix-engine-toolkit-uniffi
 jna_architectures=(
@@ -31,24 +32,32 @@ target_triples=(
   "x86_64-pc-windows-gnu"
 )
 file_names=(
-  "libuniffi_radix_engine_toolkit_uniffi.dylib"
-  "libuniffi_radix_engine_toolkit_uniffi.dylib"
-  "libuniffi_radix_engine_toolkit_uniffi.so"
-  "libuniffi_radix_engine_toolkit_uniffi.so"
-  "radix_engine_toolkit_uniffi.dll"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "libuniffi_radix_engine_toolkit_uniffi"
+  "radix_engine_toolkit_uniffi"
 )
-
+suffixes=(
+  "dylib"
+  "dylib"
+  "so"
+  "so"
+  "dll"
+)
 
 for (( i=0; i<${#jna_architectures[@]}; i++ ));
 do
   arch_name=${jna_architectures[$i]}
   target_triple=${target_triples[$i]}
   file_name=${file_names[$i]}
+  suffix=${suffixes[$i]}
 
   echo "Extracting for architecture $arch_name"
 
   mkdir $res/"$arch_name"
-  mv $artifacts/$crate_name-$target_triple/$file_name $jni/"$arch_name"/$file_name
+  mv $artifacts/"$crate_name"-"$target_triple"/*."$suffix" $res/"$arch_name"/"$file_name"."$suffix"
+  test -e $res/"$arch_name"/"$file_name"."$suffix" || exit 1
 done
 
 # Initialise Gradle project
