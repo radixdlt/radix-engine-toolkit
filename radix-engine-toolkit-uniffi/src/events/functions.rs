@@ -1047,15 +1047,6 @@ define_structure! {
             StopTimedRecoveryEvent,
         ],
     },
-    Account => {
-        Account => []
-    },
-    Identity => {
-        Identity => []
-    },
-    Package => {
-        Package => []
-    },
     ConsensusManager => {
         ConsensusManager => [
             RoundChangeEvent,
@@ -1117,12 +1108,6 @@ define_structure! {
             BurnNonFungibleResourceEvent,
         ]
     },
-    TransactionProcessor => {
-        TransactionProcessor => []
-    },
-    TransactionTracker => {
-        TransactionTracker => []
-    },
 
     /* Node Module Packages */
     AccessRules => {
@@ -1140,9 +1125,6 @@ define_structure! {
             SetMetadataEvent,
             RemoveMetadataEvent,
         ]
-    },
-    Royalty => {
-        ComponentRoyalty => []
     },
 }
 
