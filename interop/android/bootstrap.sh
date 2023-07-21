@@ -21,7 +21,7 @@ jna_architectures=(
   "arm64-v8a"
   "armeabi-v7a"
 )
-ret_names=(
+target_triples=(
   "aarch64-linux-android"
   "armv7-linux-androideabi"
 )
@@ -29,12 +29,12 @@ ret_names=(
 for (( i=0; i<${#jna_architectures[@]}; i++ ));
 do
   arch_name=${jna_architectures[$i]}
-  ret_name=${ret_names[$i]}
+  target_triple=${target_triples[$i]}
 
   echo "Extracting for architecture $arch_name"
 
   mkdir $jni/"$arch_name"
-  mv $artifacts/"$crate_name"-"$ret_name"/*.so $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so
+  mv $artifacts/"$crate_name"-"$target_triple"/*.so $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so
   test -e $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so || exit 1
 done
 
