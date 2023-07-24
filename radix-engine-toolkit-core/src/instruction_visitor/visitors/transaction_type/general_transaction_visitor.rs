@@ -210,6 +210,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         _: &str,
         args: &ManifestValue,
     ) -> Result<(), GeneralTransactionTypeError> {
+        // TODO: Should we check for permitted functions here as well?
+
         // Handle passed buckets
         let indexed_manifest_value = IndexedManifestValue::from_manifest_value(args);
         for bucket in indexed_manifest_value.buckets() {
@@ -235,40 +237,13 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             return Ok(());
         };
 
-        // Filter: Some method calls to certain objects put the visitor in an illegal state
+        // Pass the entity type and the function name through the functions filter to determine if
+        // this is a method that the general transaction type allows for or not.
         if !global_address
             .as_node_id()
             .entity_type()
-            .map_or(false, |entity_type| match entity_type {
-                /* Allowed */
-                EntityType::GlobalGenericComponent
-                | EntityType::GlobalAccount
-                | EntityType::GlobalIdentity
-                | EntityType::GlobalOneResourcePool
-                | EntityType::GlobalTwoResourcePool
-                | EntityType::GlobalMultiResourcePool
-                | EntityType::GlobalVirtualSecp256k1Account
-                | EntityType::GlobalVirtualSecp256k1Identity
-                | EntityType::GlobalVirtualEd25519Account
-                | EntityType::GlobalVirtualEd25519Identity
-                | EntityType::InternalGenericComponent => true,
-
-                /* Some are allowed */
-                EntityType::GlobalAccessController => {
-                    method_name == ACCESS_CONTROLLER_CREATE_PROOF_IDENT
-                }
-
-                /* Not Allowed */
-                EntityType::GlobalPackage
-                | EntityType::GlobalValidator
-                | EntityType::GlobalFungibleResourceManager
-                | EntityType::GlobalNonFungibleResourceManager
-                | EntityType::InternalAccount
-                | EntityType::GlobalConsensusManager
-                | EntityType::InternalFungibleVault
-                | EntityType::InternalNonFungibleVault
-                | EntityType::InternalKeyValueStore
-                | EntityType::GlobalTransactionTracker => false,
+            .map_or(false, |entity_type| {
+                is_fn_permitted(entity_type, method_name)
             })
         {
             self.is_illegal_state = true;
@@ -697,4 +672,119 @@ pub enum ResourceTracker {
 
 fn usize_to_decimal(num: usize) -> Decimal {
     num.to_string().parse().unwrap()
+}
+
+/// A struct that stores information on the methods that the general transaction visitor allows and
+/// does not allow.
+struct FnRules {
+    allowed: Vec<&'static str>,
+    disallowed: Vec<&'static str>,
+    default: FnRule,
+}
+
+enum FnRule {
+    Allowed,
+    Disallowed,
+}
+
+/// Given an entity type and the name of a method or function on that entity, this method determines
+/// if this method is permitted in general transaction or not.
+fn is_fn_permitted(entity_type: EntityType, fn_name: &str) -> bool {
+    let FnRules {
+        allowed,
+        disallowed,
+        default,
+    } = construct_fn_rules(entity_type);
+
+    if allowed.contains(&fn_name) {
+        true
+    } else if disallowed.contains(&fn_name) {
+        false
+    } else {
+        match default {
+            FnRule::Allowed => true,
+            FnRule::Disallowed => false,
+        }
+    }
+}
+
+fn construct_fn_rules(entity_type: EntityType) -> FnRules {
+    match entity_type {
+        EntityType::GlobalAccount
+        | EntityType::InternalAccount
+        | EntityType::GlobalVirtualSecp256k1Account
+        | EntityType::GlobalVirtualEd25519Account => FnRules {
+            allowed: vec![
+                /* All withdraw methods */
+                ACCOUNT_WITHDRAW_IDENT,
+                ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                /* All deposit methods */
+                ACCOUNT_DEPOSIT_IDENT,
+                ACCOUNT_DEPOSIT_BATCH_IDENT,
+                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
+                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
+                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                ACCOUNT_TRY_AUTHORIZED_DEPOSIT_OR_REFUND_IDENT,
+                ACCOUNT_TRY_AUTHORIZED_DEPOSIT_BATCH_OR_REFUND_IDENT,
+                ACCOUNT_TRY_AUTHORIZED_DEPOSIT_OR_ABORT_IDENT,
+                ACCOUNT_TRY_AUTHORIZED_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                /* All proof creation methods */
+                ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
+                ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
+                /* All fee locking methods */
+                ACCOUNT_LOCK_FEE_IDENT,
+                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+            ],
+            disallowed: vec![
+                /* Securification */
+                ACCOUNT_SECURIFY_IDENT,
+                /* Direct Burn from Account */
+                ACCOUNT_BURN_IDENT,
+                ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
+                /* Manipulation of the Authorized Depositors list */
+                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                /* Manipulation of the Resource Preferences */
+                ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT,
+                ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT,
+            ],
+            default: FnRule::Disallowed,
+        },
+        /* For access controller, we only permit calls to create proof in the general tx type */
+        EntityType::GlobalAccessController => FnRules {
+            allowed: vec![ACCESS_CONTROLLER_CREATE_PROOF_IDENT],
+            disallowed: vec![],
+            default: FnRule::Disallowed,
+        },
+        /* Calls to methods of the following entity types is all disallowed */
+        EntityType::GlobalPackage
+        | EntityType::GlobalValidator
+        | EntityType::GlobalFungibleResourceManager
+        | EntityType::GlobalNonFungibleResourceManager
+        | EntityType::GlobalConsensusManager
+        | EntityType::InternalFungibleVault
+        | EntityType::InternalNonFungibleVault
+        | EntityType::InternalKeyValueStore
+        | EntityType::GlobalTransactionTracker => FnRules {
+            allowed: vec![],
+            disallowed: vec![],
+            default: FnRule::Disallowed,
+        },
+        /* All method calls to the following entity types are permitted */
+        EntityType::GlobalGenericComponent
+        | EntityType::GlobalIdentity
+        | EntityType::GlobalOneResourcePool
+        | EntityType::GlobalTwoResourcePool
+        | EntityType::GlobalMultiResourcePool
+        | EntityType::GlobalVirtualSecp256k1Identity
+        | EntityType::GlobalVirtualEd25519Identity
+        | EntityType::InternalGenericComponent => FnRules {
+            allowed: vec![],
+            disallowed: vec![],
+            default: FnRule::Allowed,
+        },
+    }
 }
