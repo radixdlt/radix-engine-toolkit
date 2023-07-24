@@ -718,8 +718,6 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
                 /* All withdraw methods */
                 ACCOUNT_WITHDRAW_IDENT,
                 ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
-                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
-                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
                 /* All deposit methods */
                 ACCOUNT_DEPOSIT_IDENT,
                 ACCOUNT_DEPOSIT_BATCH_IDENT,
@@ -734,9 +732,6 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
                 /* All proof creation methods */
                 ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
                 ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
-                /* All fee locking methods */
-                ACCOUNT_LOCK_FEE_IDENT,
-                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
             ],
             disallowed: vec![
                 /* Securification */
@@ -750,6 +745,11 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
                 /* Manipulation of the Resource Preferences */
                 ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT,
                 ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT,
+                /* All fee locking methods */
+                ACCOUNT_LOCK_FEE_IDENT,
+                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
             ],
             default: FnRule::Disallowed,
         },
