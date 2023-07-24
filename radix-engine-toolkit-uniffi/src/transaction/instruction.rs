@@ -126,7 +126,7 @@ pub enum Instruction {
         args: ManifestValue,
     },
 
-    CallAccessRulesMethod {
+    CallRoleAssignmentMethod {
         address: ManifestAddress,
         method_name: String,
         args: ManifestValue,
@@ -292,11 +292,11 @@ impl Instruction {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstruction::CallAccessRulesMethod {
+            NativeInstruction::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
-            } => Self::CallAccessRulesMethod {
+            } => Self::CallRoleAssignmentMethod {
                 address: ManifestAddress::from_dynamic_global_address(address, network_id),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
@@ -462,11 +462,11 @@ impl Instruction {
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
-            Self::CallAccessRulesMethod {
+            Self::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
-            } => NativeInstruction::CallAccessRulesMethod {
+            } => NativeInstruction::CallRoleAssignmentMethod {
                 address: address.clone().try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,

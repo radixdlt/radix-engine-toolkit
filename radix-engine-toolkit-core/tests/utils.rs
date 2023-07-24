@@ -26,7 +26,7 @@ use transaction::prelude::*;
 #[test]
 fn extraction_of_metadata_from_receipts_succeeds() {
     // Arrange
-    let mut test_runner = TestRunner::builder().without_trace().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
 
     // Act
     let manifest = ManifestBuilder::new()
@@ -68,7 +68,7 @@ fn extraction_of_metadata_from_receipts_succeeds() {
 #[test]
 fn extraction_of_non_fungible_data_from_receipts_succeeds() {
     // Arrange
-    let mut test_runner = TestRunner::builder().without_trace().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_account(false);
 
     // Act

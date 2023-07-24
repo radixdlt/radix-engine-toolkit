@@ -42,7 +42,7 @@ impl<'f> HasExamples<'f> for SerializableNodeId {
             TRANSACTION_PROCESSOR_PACKAGE.as_node_id(),
             METADATA_MODULE_PACKAGE.as_node_id(),
             ROYALTY_MODULE_PACKAGE.as_node_id(),
-            ACCESS_RULES_MODULE_PACKAGE.as_node_id(),
+            ROLE_ASSIGNMENT_MODULE_PACKAGE.as_node_id(),
             GENESIS_HELPER_PACKAGE.as_node_id(),
             FAUCET_PACKAGE.as_node_id(),
             CONSENSUS_MANAGER.as_node_id(),

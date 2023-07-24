@@ -26,7 +26,7 @@ use super::traits::HasExamples;
 impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
     fn example_inputs() -> [Self::Input; 3] {
         let op1 = {
-            let mut test_runner = TestRunner::builder().without_trace().build();
+            let mut test_runner = TestRunnerBuilder::new().without_trace().build();
             let (public_key1, _, account1) = test_runner.new_account(true);
             let (public_key2, _, account2) = test_runner.new_account(true);
 
@@ -54,7 +54,7 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
         };
 
         let op2 = {
-            let mut test_runner = TestRunner::builder().without_trace().build();
+            let mut test_runner = TestRunnerBuilder::new().without_trace().build();
             let (public_key1, _, account1) = test_runner.new_account(true);
             let (public_key2, _, account2) = test_runner.new_account(true);
             let (public_key3, _, account3) = test_runner.new_account(true);
@@ -91,7 +91,7 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
         };
 
         let op3 = {
-            let mut test_runner = TestRunner::builder().without_trace().build();
+            let mut test_runner = TestRunnerBuilder::new().without_trace().build();
             let (public_key1, _, account1) = test_runner.new_account(true);
             let (public_key2, _, account2) = test_runner.new_account(true);
             let (public_key3, _, account3) = test_runner.new_account(true);

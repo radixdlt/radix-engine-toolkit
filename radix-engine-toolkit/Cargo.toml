@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/account-allowed-depositers", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/account-allowed-depositers", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/account-allowed-depositers" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/account-allowed-depositers", default-features= false, features = ["std", "lru"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", branch = "feature/account-allowed-depositers", features = ["serde"] }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }

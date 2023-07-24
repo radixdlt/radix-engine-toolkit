@@ -28,7 +28,7 @@ use transaction::prelude::*;
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
 
@@ -69,7 +69,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
 #[test]
 fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
@@ -125,7 +125,7 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
 #[test]
 fn complex_transfer_is_picked_up_as_an_general_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
@@ -172,7 +172,7 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
 #[test]
 fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
     // Arrange
-    let mut test_runner = TestRunner::builder().without_trace().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (public_key1, _, account1) = test_runner.new_account(false);
     let (public_key2, _, account2) = test_runner.new_account(false);
     let manifest = ManifestBuilder::new()

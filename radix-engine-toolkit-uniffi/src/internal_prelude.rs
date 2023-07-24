@@ -213,7 +213,7 @@ mod native {
         TRANSACTION_PROCESSOR_PACKAGE as NATIVE_TRANSACTION_PROCESSOR_PACKAGE,
         METADATA_MODULE_PACKAGE as NATIVE_METADATA_MODULE_PACKAGE,
         ROYALTY_MODULE_PACKAGE as NATIVE_ROYALTY_MODULE_PACKAGE,
-        ACCESS_RULES_MODULE_PACKAGE as NATIVE_ACCESS_RULES_MODULE_PACKAGE,
+        ROLE_ASSIGNMENT_MODULE_PACKAGE as NATIVE_ROLE_ASSIGNMENT_MODULE_PACKAGE,
         GENESIS_HELPER_PACKAGE as NATIVE_GENESIS_HELPER_PACKAGE,
         GENESIS_HELPER_BLUEPRINT as NATIVE_GENESIS_HELPER_BLUEPRINT,
         FAUCET_PACKAGE as NATIVE_FAUCET_PACKAGE,
@@ -417,7 +417,7 @@ mod native {
         DepositResourceEvent as NativeDepositResourceEvent,
         RecallResourceEvent as NativeRecallResourceEvent,
     };
-    pub use radix_engine::system::node_modules::access_rules::{
+    pub use radix_engine::system::node_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
         LockRoleEvent as NativeLockRoleEvent,
         SetAndLockRoleEvent as NativeSetAndLockRoleEvent,

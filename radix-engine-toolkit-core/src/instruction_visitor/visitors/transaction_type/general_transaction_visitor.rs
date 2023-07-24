@@ -144,7 +144,7 @@ impl<'r> InstructionVisitor for GeneralTransactionTypeVisitor<'r> {
             /* Non-main module method put the visitor in illegal state */
             InstructionV1::CallRoyaltyMethod { .. }
             | InstructionV1::CallMetadataMethod { .. }
-            | InstructionV1::CallAccessRulesMethod { .. } => {
+            | InstructionV1::CallRoleAssignmentMethod { .. } => {
                 self.is_illegal_state = true;
             }
 

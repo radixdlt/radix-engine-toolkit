@@ -67,7 +67,7 @@ impl_new_from_network! {
         pub transaction_processor_package: Arc<Address>,
         pub metadata_module_package: Arc<Address>,
         pub royalty_module_package: Arc<Address>,
-        pub access_rules_module_package: Arc<Address>,
+        pub role_assignment_module_package: Arc<Address>,
         pub genesis_helper_package: Arc<Address>,
         pub faucet_package: Arc<Address>,
     }

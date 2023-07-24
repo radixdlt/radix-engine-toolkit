@@ -46,11 +46,11 @@ lazy_static! {
     pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = identity_methods_that_require_auth();
 
     // Modules Package
-    pub static ref ACCESS_RULES_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = access_rules_blueprint_schema();
+    pub static ref ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = role_assignment_blueprint_schema();
     pub static ref METADATA_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = metadata_blueprint_schema();
     pub static ref ROYALTY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = royalty_blueprint_schema();
 
-    pub static ref ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = access_rules_methods_that_require_auth();
+    pub static ref ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = role_assignment_methods_that_require_auth();
     pub static ref METADATA_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = metadata_methods_that_require_auth();
     pub static ref ROYALTY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = royalty_methods_that_require_auth();
 }
@@ -173,10 +173,10 @@ fn identity_methods_that_require_auth() -> Vec<MethodKey> {
     methods_that_require_auth(&IDENTITY_BLUEPRINT_SCHEMA)
 }
 
-fn access_rules_blueprint_schema() -> BlueprintDefinitionInit {
-    ACCESS_RULES_PACKAGE_DEFINITION
+fn role_assignment_blueprint_schema() -> BlueprintDefinitionInit {
+    ROLE_ASSIGNMENT_PACKAGE_DEFINITION
         .blueprints
-        .get(ACCESS_RULES_BLUEPRINT)
+        .get(ROLE_ASSIGNMENT_BLUEPRINT)
         .unwrap()
         .clone()
 }
@@ -197,8 +197,8 @@ fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
         .clone()
 }
 
-fn access_rules_methods_that_require_auth() -> Vec<MethodKey> {
-    methods_that_require_auth(&ACCESS_RULES_BLUEPRINT_SCHEMA)
+fn role_assignment_methods_that_require_auth() -> Vec<MethodKey> {
+    methods_that_require_auth(&ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA)
 }
 
 fn metadata_methods_that_require_auth() -> Vec<MethodKey> {

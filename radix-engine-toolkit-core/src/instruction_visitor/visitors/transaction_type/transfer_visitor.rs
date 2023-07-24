@@ -184,7 +184,7 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             | InstructionV1::CallFunction { .. }
             | InstructionV1::CallRoyaltyMethod { .. }
             | InstructionV1::CallMetadataMethod { .. }
-            | InstructionV1::CallAccessRulesMethod { .. }
+            | InstructionV1::CallRoleAssignmentMethod { .. }
             | InstructionV1::CallDirectVaultMethod { .. }
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => {

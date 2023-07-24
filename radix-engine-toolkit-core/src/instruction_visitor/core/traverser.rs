@@ -176,14 +176,14 @@ pub fn traverse(
                     visit_call_metadata_method(address, method_name, args)
                 )
             }
-            InstructionV1::CallAccessRulesMethod {
+            InstructionV1::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
             } => {
                 for_each_enabled_visitor!(
                     visitors,
-                    visit_call_access_rules_method(address, method_name, args)
+                    visit_call_role_assignment_method(address, method_name, args)
                 )
             }
             InstructionV1::CallDirectVaultMethod {

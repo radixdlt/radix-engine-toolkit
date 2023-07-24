@@ -370,7 +370,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     }
 
     #[inline]
-    fn visit_call_access_rules_method(
+    fn visit_call_role_assignment_method(
         &mut self,
         _: &DynamicGlobalAddress,
         _: &str,

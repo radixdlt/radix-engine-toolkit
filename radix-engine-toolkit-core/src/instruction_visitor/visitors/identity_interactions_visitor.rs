@@ -57,7 +57,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
         Ok(())
     }
 
-    fn visit_call_access_rules_method(
+    fn visit_call_role_assignment_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
@@ -73,7 +73,7 @@ impl InstructionVisitor for IdentityInteractionsVisitor {
                 }
             };
 
-            if crate::statics::ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .any(|MethodKey { ident }| ident.as_str() == method_name)
             {

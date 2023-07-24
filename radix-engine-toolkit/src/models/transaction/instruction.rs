@@ -145,7 +145,7 @@ pub enum SerializableInstruction {
         args: SerializableManifestValue,
     },
 
-    CallAccessRulesMethod {
+    CallRoleAssignmentMethod {
         address: SerializableManifestValue,
         method_name: SerializableManifestValue,
         args: SerializableManifestValue,
@@ -381,11 +381,11 @@ impl SerializableInstruction {
                 method_name: SerializableManifestValue::from_typed(method_name, network_id)?,
                 args: SerializableManifestValue::from_typed(args, network_id)?,
             },
-            InstructionV1::CallAccessRulesMethod {
+            InstructionV1::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
-            } => Self::CallAccessRulesMethod {
+            } => Self::CallRoleAssignmentMethod {
                 address: SerializableManifestValue::from_typed(address, network_id)?,
                 method_name: SerializableManifestValue::from_typed(method_name, network_id)?,
                 args: SerializableManifestValue::from_typed(args, network_id)?,
@@ -566,11 +566,11 @@ impl SerializableInstruction {
                 method_name: method_name.to_typed()?,
                 args: args.to_typed()?,
             },
-            Self::CallAccessRulesMethod {
+            Self::CallRoleAssignmentMethod {
                 address,
                 method_name,
                 args,
-            } => InstructionV1::CallAccessRulesMethod {
+            } => InstructionV1::CallRoleAssignmentMethod {
                 address: address.to_typed()?,
                 method_name: method_name.to_typed()?,
                 args: args.to_typed()?,

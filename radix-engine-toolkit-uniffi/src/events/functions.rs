@@ -1125,8 +1125,8 @@ define_structure! {
     },
 
     /* Node Module Packages */
-    AccessRules => {
-        AccessRules => [
+    RoleAssignment => {
+        RoleAssignment => [
             SetRoleEvent,
             LockRoleEvent,
             SetAndLockRoleEvent,

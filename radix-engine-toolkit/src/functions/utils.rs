@@ -66,7 +66,7 @@ impl<'f> Function<'f> for UtilsKnownAddress {
                 transaction_processor_package,
                 metadata_module_package,
                 royalty_module_package,
-                access_rules_module_package,
+                role_assignment_module_package,
                 genesis_helper_package,
                 faucet_package,
             ]
@@ -115,7 +115,7 @@ pub struct PackageAddresses {
     pub transaction_processor_package: SerializableNodeId,
     pub metadata_module_package: SerializableNodeId,
     pub royalty_module_package: SerializableNodeId,
-    pub access_rules_module_package: SerializableNodeId,
+    pub role_assignment_module_package: SerializableNodeId,
     pub genesis_helper_package: SerializableNodeId,
     pub faucet_package: SerializableNodeId,
 }

@@ -239,7 +239,7 @@ pub trait InstructionVisitor {
     }
 
     #[inline]
-    fn visit_call_access_rules_method(
+    fn visit_call_role_assignment_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
