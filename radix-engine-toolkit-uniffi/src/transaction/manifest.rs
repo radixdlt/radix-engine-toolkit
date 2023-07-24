@@ -130,13 +130,6 @@ impl TransactionManifest {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct ExecutionAnalysis {
-    pub fee_locks: FeeLocks,
-    pub fee_summary: FeeSummary,
-    pub transaction_type: TransactionType,
-}
-
-#[derive(Clone, Debug, Record)]
 pub struct FeeSummary {
     pub network_fee: Arc<Decimal>,
     pub royalty_fee: Arc<Decimal>,
@@ -160,6 +153,11 @@ pub enum TransactionType {
         from: Arc<Address>,
         transfers: HashMap<String, HashMap<String, Resources>>,
     },
+    AccountDepositSettings {
+        resource_preference_changes: HashMap<String, HashMap<String, ResourceDepositRule>>,
+        default_deposit_rule_changes: HashMap<String, AccountDefaultDepositRule>,
+        authorized_depositors_changes: HashMap<String, AuthorizedDepositorsChanges>,
+    },
     GeneralTransaction {
         account_proofs: Vec<Arc<Address>>,
         account_withdraws: HashMap<String, Vec<ResourceTracker>>,
@@ -168,7 +166,6 @@ pub enum TransactionType {
         metadata_of_newly_created_entities: HashMap<String, HashMap<String, MetadataValue>>,
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
     },
-    NonConforming,
 }
 
 #[derive(Clone, Debug, Enum)]
@@ -189,17 +186,27 @@ pub enum Resources {
     Ids { ids: Vec<NonFungibleLocalId> },
 }
 
+#[derive(Clone, Debug, Record)]
+pub struct ExecutionAnalysis {
+    pub fee_locks: FeeLocks,
+    pub fee_summary: FeeSummary,
+    pub transaction_types: Vec<TransactionType>,
+}
+
 impl ExecutionAnalysis {
     pub fn from_native(
         CoreExecutionExecutionAnalysis {
             fee_locks,
             fee_summary,
-            transaction_type,
+            transaction_types,
         }: &CoreExecutionExecutionAnalysis,
         network_id: u8,
     ) -> Self {
         Self {
-            transaction_type: TransactionType::from_native(transaction_type, network_id),
+            transaction_types: transaction_types
+                .iter()
+                .map(|transaction_type| TransactionType::from_native(transaction_type, network_id))
+                .collect(),
             fee_locks: FeeLocks::from_native(fee_locks),
             fee_summary: FeeSummary::from_native(fee_summary),
         }
@@ -237,7 +244,6 @@ impl ResourceSpecifier {
 impl TransactionType {
     pub fn from_native(native: &CoreExecutionTransactionType, network_id: u8) -> Self {
         match native {
-            CoreExecutionTransactionType::NonConforming => Self::NonConforming,
             CoreExecutionTransactionType::SimpleTransfer(value) => {
                 let CoreExecutionSimpleTransferTransactionType {
                     from,
@@ -270,6 +276,59 @@ impl TransactionType {
                                         )
                                     })
                                     .collect(),
+                            )
+                        })
+                        .collect(),
+                }
+            }
+            CoreExecutionTransactionType::AccountDepositSettings(value) => {
+                let CoreExecutionAccountDepositSettingsTransactionType {
+                    resource_preference_changes,
+                    default_deposit_rule_changes,
+                    authorized_depositors_changes,
+                } = value.as_ref();
+
+                Self::AccountDepositSettings {
+                    resource_preference_changes: resource_preference_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                value
+                                    .iter()
+                                    .map(|(key, value)| {
+                                        (
+                                            Arc::new(Address::from_node_id(*key, network_id))
+                                                .as_str(),
+                                            <ResourceDepositRule as NativeConvertible>::from_native(
+                                                *value,
+                                            ),
+                                        )
+                                    })
+                                    .collect(),
+                            )
+                        })
+                        .collect(),
+                    default_deposit_rule_changes: default_deposit_rule_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                <AccountDefaultDepositRule as NativeConvertible>::from_native(
+                                    value.clone(),
+                                ),
+                            )
+                        })
+                        .collect(),
+                        authorized_depositors_changes: authorized_depositors_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                <AuthorizedDepositorsChanges as NativeConvertibleWithNetworkContext>::from_native(
+                                    value.clone(),
+                                    network_id
+                                ),
                             )
                         })
                         .collect(),
@@ -440,6 +499,90 @@ impl ResourceTracker {
                         value: value.iter().cloned().map(Into::into).collect(),
                     },
                 },
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourceDepositRule {
+    Neither,
+    Allowed,
+    Disallowed,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountDefaultDepositRule {
+    Accept,
+    Reject,
+    AllowExisting,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AuthorizedDepositorsChanges {
+    pub added: Vec<ResourceOrNonFungible>,
+    pub removed: Vec<ResourceOrNonFungible>,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourceOrNonFungible {
+    NonFungible { value: Arc<NonFungibleGlobalId> },
+    Resource { value: Arc<Address> },
+}
+
+impl NativeConvertible for ResourceDepositRule {
+    type Native = NativeResourceDepositRule;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            NativeResourceDepositRule::Allowed => Self::Allowed,
+            NativeResourceDepositRule::Disallowed => Self::Disallowed,
+            NativeResourceDepositRule::Neither => Self::Neither,
+        }
+    }
+}
+
+impl NativeConvertible for AccountDefaultDepositRule {
+    type Native = NativeAccountDefaultDepositRule;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            NativeAccountDefaultDepositRule::Accept => Self::Accept,
+            NativeAccountDefaultDepositRule::Reject => Self::Reject,
+            NativeAccountDefaultDepositRule::AllowExisting => Self::AllowExisting,
+        }
+    }
+}
+
+impl NativeConvertibleWithNetworkContext for AuthorizedDepositorsChanges {
+    type Native = CoreAuthorizedDepositorsChanges;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            added: native
+                .added
+                .into_iter()
+                .map(|value| NativeConvertibleWithNetworkContext::from_native(value, network_id))
+                .collect(),
+            removed: native
+                .removed
+                .into_iter()
+                .map(|value| NativeConvertibleWithNetworkContext::from_native(value, network_id))
+                .collect(),
+        }
+    }
+}
+
+impl NativeConvertibleWithNetworkContext for ResourceOrNonFungible {
+    type Native = NativeResourceOrNonFungible;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            NativeResourceOrNonFungible::Resource(resource_address) => Self::Resource {
+                value: Arc::new(Address::from_node_id(resource_address, network_id)),
+            },
+            NativeResourceOrNonFungible::NonFungible(non_fungible_global_id) => Self::NonFungible {
+                value: Arc::new(NonFungibleGlobalId(non_fungible_global_id, network_id)),
             },
         }
     }

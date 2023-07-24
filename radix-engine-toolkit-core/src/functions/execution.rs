@@ -18,6 +18,7 @@
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::AccountDefaultDepositRule;
+use radix_engine_interface::blueprints::account::ResourceDepositRule;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
@@ -64,48 +65,57 @@ pub fn analyze(
         ],
     )?;
 
-    let transaction_type = if let Some((from_account_address, to_account_address, transfer)) =
+    let mut transaction_types = vec![];
+    if let Some((from_account_address, to_account_address, transfer)) =
         simple_transfer_visitor.output()
     {
-        TransactionType::SimpleTransfer(Box::new(SimpleTransferTransactionType {
-            from: from_account_address,
-            to: to_account_address,
-            transferred: transfer,
-        }))
+        transaction_types.push(TransactionType::SimpleTransfer(Box::new(
+            SimpleTransferTransactionType {
+                from: from_account_address,
+                to: to_account_address,
+                transferred: transfer,
+            },
+        )))
     } else if let Some((from_account_address, transfers)) = transfer_visitor.output() {
-        TransactionType::Transfer(Box::new(TransferTransactionType {
-            from: from_account_address,
-            transfers,
-        }))
+        transaction_types.push(TransactionType::Transfer(Box::new(
+            TransferTransactionType {
+                from: from_account_address,
+                transfers,
+            },
+        )))
     } else if let Some((
         resource_preference_changes,
         default_deposit_rule_changes,
         authorized_depositors_changes,
     )) = account_deposit_settings_visitor.output()
     {
-        TransactionType::AccountDepositSettings(Box::new(AccountDepositSettingsTransactionType {
-            resource_preference_changes,
-            default_deposit_rule_changes,
-            authorized_depositors_changes,
-        }))
+        transaction_types.push(TransactionType::AccountDepositSettings(Box::new(
+            AccountDepositSettingsTransactionType {
+                resource_preference_changes,
+                default_deposit_rule_changes,
+                authorized_depositors_changes,
+            },
+        )))
     } else if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output()
     {
-        TransactionType::GeneralTransaction(Box::new(GeneralTransactionType {
-            account_proofs: account_proofs_visitor.output(),
-            account_withdraws,
-            account_deposits,
-            addresses_in_manifest: crate::functions::instructions::extract_addresses(instructions),
-            metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
-                preview_receipt,
-            )
-            .unwrap(),
-            data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
-                preview_receipt,
-            )
-            .unwrap(),
-        }))
-    } else {
-        TransactionType::NonConforming
+        transaction_types.push(TransactionType::GeneralTransaction(Box::new(
+            GeneralTransactionType {
+                account_proofs: account_proofs_visitor.output(),
+                account_withdraws,
+                account_deposits,
+                addresses_in_manifest: crate::functions::instructions::extract_addresses(
+                    instructions,
+                ),
+                metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
+                    preview_receipt,
+                )
+                .unwrap(),
+                data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
+                    preview_receipt,
+                )
+                .unwrap(),
+            },
+        )))
     };
 
     let mut fee_locks = FeeLocks::default();
@@ -143,7 +153,7 @@ pub fn analyze(
     Ok(ExecutionAnalysis {
         fee_locks,
         fee_summary,
-        transaction_type,
+        transaction_types,
     })
 }
 
@@ -151,7 +161,7 @@ pub fn analyze(
 pub struct ExecutionAnalysis {
     pub fee_locks: FeeLocks,
     pub fee_summary: FeeSummary,
-    pub transaction_type: TransactionType,
+    pub transaction_types: Vec<TransactionType>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -172,7 +182,6 @@ pub enum TransactionType {
     Transfer(Box<TransferTransactionType>),
     AccountDepositSettings(Box<AccountDepositSettingsTransactionType>),
     GeneralTransaction(Box<GeneralTransactionType>),
-    NonConforming,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -190,7 +199,8 @@ pub struct TransferTransactionType {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AccountDepositSettingsTransactionType {
-    pub resource_preference_changes: HashMap<ComponentAddress, ResourcePreferencesChanges>,
+    pub resource_preference_changes:
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
     pub default_deposit_rule_changes: HashMap<ComponentAddress, AccountDefaultDepositRule>,
     pub authorized_depositors_changes: HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
 }

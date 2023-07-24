@@ -26,6 +26,7 @@ pub mod error;
 pub mod events;
 pub mod manifest;
 pub mod sbor;
+pub mod traits;
 pub mod transaction;
 pub mod utils;
 
@@ -42,6 +43,9 @@ pub mod prelude {
     pub use crate::common::module_id::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
+
+    /* Traits */
+    pub use crate::traits::*;
 
     /* Builders */
     pub use crate::builder::transaction_builder::*;

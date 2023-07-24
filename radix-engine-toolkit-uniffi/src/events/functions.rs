@@ -1009,18 +1009,6 @@ impl From<EventTypeIdentifier> for NativeEventTypeIdentifier {
     }
 }
 
-trait NativeConvertible {
-    type Native;
-
-    fn from_native(native: Self::Native) -> Self;
-}
-
-trait NativeConvertibleWithNetworkContext {
-    type Native;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self;
-}
-
 impl<T> NativeConvertibleWithNetworkContext for T
 where
     T: NativeConvertible,

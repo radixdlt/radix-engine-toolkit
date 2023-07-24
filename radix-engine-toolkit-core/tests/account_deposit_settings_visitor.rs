@@ -103,11 +103,9 @@ fn account_deposit_settings_visitor_functions_as_expected() {
     assert_eq!(
         resource_preference_changes,
         hashmap! {
-            account1 => ResourcePreferencesChanges {
-                allowed: vec![XRD],
-                disallowed: vec![XRD],
-                preference_removed: vec![XRD]
-            },
+            account1 => hashmap! {
+                XRD => ResourceDepositRule::Neither
+            }
         }
     );
     assert_eq!(

@@ -31,7 +31,6 @@ use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::system::system_modules::execution_trace::WorktopChange;
 use radix_engine::transaction::*;
 use radix_engine_common::prelude::*;
-use scrypto::blueprints::access_controller::*;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;

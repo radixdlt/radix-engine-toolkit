@@ -18,11 +18,11 @@
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::TransactionReceipt;
 use radix_engine_toolkit_core::functions::execution::{self, *};
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
 use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use scrypto_unit::*;
-use transaction::manifest::decompile;
 use transaction::prelude::*;
 
 #[test]
@@ -53,7 +53,10 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| matches!(transaction_type, TransactionType::SimpleTransfer(..)))
+        .unwrap();
 
     // Assert
     assert_eq!(
@@ -103,7 +106,10 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| matches!(transaction_type, TransactionType::Transfer(..)))
+        .unwrap();
 
     // Assert
     assert_eq!(
@@ -131,7 +137,6 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
     let (public_key3, _, account3) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
         .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
         .withdraw_from_account(account2, RADIX_TOKEN, dec!("10"))
         .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
@@ -155,12 +160,21 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
         manifest.clone(),
         vec![public_key1.into(), public_key2.into(), public_key3.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| {
+            matches!(transaction_type, TransactionType::GeneralTransaction(..))
+        })
+        .unwrap();
 
     // Assert
     assert!(matches!(
@@ -202,7 +216,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
 
     // Act
     let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw(account1, 10, resource_address, 2)
+        .withdraw_from_account(account1, resource_address, 2)
         .take_from_worktop(resource_address, 2, "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.try_deposit_or_abort(account2, bucket)
@@ -213,21 +227,57 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
         manifest.clone(),
         vec![public_key1.into(), public_key2.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find_map(|transaction_type| match transaction_type {
+            TransactionType::GeneralTransaction(general_transaction) => Some(general_transaction),
+            _ => None,
+        })
+        .unwrap();
 
-    println!(
-        "{}",
-        decompile(&manifest.instructions, &NetworkDefinition::simulator()).unwrap()
+    // Assert
+    assert_eq!(
+        transaction_type.account_withdraws,
+        hashmap! {
+            account1 => vec![
+                ResourceTracker::NonFungible {
+                    resource_address,
+                    amount: Source::Guaranteed(dec!("2")),
+                    ids: Source::Predicted(0, btreeset!(
+                        NonFungibleLocalId::integer(1),
+                        NonFungibleLocalId::integer(2),
+                    ))
+                }
+            ]
+        }
     );
-    println!("{transaction_type:#?}");
+    assert_eq!(
+        transaction_type.account_deposits,
+        hashmap! {
+            account2 => vec![
+                ResourceTracker::NonFungible {
+                    resource_address,
+                    amount: Source::Guaranteed(dec!("2")),
+                    ids: Source::Predicted(1, btreeset!(
+                        NonFungibleLocalId::integer(1),
+                        NonFungibleLocalId::integer(2),
+                    ))
+                }
+            ]
+        }
+    );
 }
 
-fn transaction_type(
+fn transaction_types(
     manifest_instructions: &[InstructionV1],
     receipt: &TransactionReceipt,
-) -> TransactionType {
+) -> Vec<TransactionType> {
     let analysis = execution::analyze(manifest_instructions, receipt).unwrap();
-    analysis.transaction_type
+    analysis.transaction_types
 }

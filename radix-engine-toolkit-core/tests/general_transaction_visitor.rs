@@ -33,14 +33,17 @@ fn account_create_proof_method_is_allowed_in_general_transaction() {
     let (pk, _, account) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account, 10)
         .create_proof_from_account_of_amount(account, RADIX_TOKEN, 1)
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
         vec![pk.into()],
         Default::default(),
-        Default::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
 
     // Act

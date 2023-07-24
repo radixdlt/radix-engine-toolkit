@@ -86,6 +86,7 @@ mod core {
         SimpleTransferTransactionType as CoreExecutionSimpleTransferTransactionType,
         TransferTransactionType as CoreExecutionTransferTransactionType,
         GeneralTransactionType as CoreExecutionGeneralTransactionType,
+        AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
     };
@@ -101,10 +102,13 @@ mod core {
     pub use radix_engine_toolkit_core::functions::events::{
         sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
     };
-
+    
     /* Visitors */
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
         Resources as CoreResources,
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::{
+        AuthorizedDepositorsChanges as CoreAuthorizedDepositorsChanges
     };
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
@@ -250,6 +254,8 @@ mod native {
         Instant as NativeInstant,
         Origin as NativeOrigin,
         Url as NativeUrl,
+
+        ResourceOrNonFungible as NativeResourceOrNonFungible
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -432,6 +438,10 @@ mod native {
     pub use radix_engine_queries::typed_native_events::{
         TypedNativeEvent as NativeTypedNativeEvent,
         TypedNativeEventError as NativeTypedNativeEventError
+    };
+    pub use radix_engine_interface::blueprints::account::{
+        ResourceDepositRule as NativeResourceDepositRule,
+        AccountDefaultDepositRule as NativeAccountDefaultDepositRule
     };
     pub use radix_engine_interface::blueprints::package::{
         TypePointer as NativeTypePointer,

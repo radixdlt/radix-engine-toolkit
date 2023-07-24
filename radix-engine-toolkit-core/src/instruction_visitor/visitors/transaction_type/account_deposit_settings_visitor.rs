@@ -28,7 +28,8 @@ use crate::{
 pub struct AccountDepositSettingsVisitor {
     /// Maps the account address to the changes in resource preferences encountered in the
     /// transaction.
-    resource_preference_changes: HashMap<ComponentAddress, ResourcePreferencesChanges>,
+    resource_preference_changes:
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
     /// Maps the account address to the updated default deposit rule encountered in the
     /// transaction.
     default_deposit_rule_changes: HashMap<ComponentAddress, AccountDefaultDepositRule>,
@@ -43,7 +44,7 @@ impl AccountDepositSettingsVisitor {
     pub fn output(
         self,
     ) -> Option<(
-        HashMap<ComponentAddress, ResourcePreferencesChanges>,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
         HashMap<ComponentAddress, AccountDefaultDepositRule>,
         HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
     )> {
@@ -99,21 +100,10 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
                             resource_deposit_configuration,
                         }) = to_manifest_type(args)
                         {
-                            let changes = self
-                                .resource_preference_changes
+                            self.resource_preference_changes
                                 .entry(component_address)
-                                .or_default();
-                            match resource_deposit_configuration {
-                                ResourceDepositRule::Allowed => {
-                                    changes.allowed.push(resource_address)
-                                }
-                                ResourceDepositRule::Disallowed => {
-                                    changes.disallowed.push(resource_address)
-                                }
-                                ResourceDepositRule::Neither => {
-                                    changes.preference_removed.push(resource_address)
-                                }
-                            }
+                                .or_default()
+                                .insert(resource_address, resource_deposit_configuration);
                         }
                     }
                     ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT => {
@@ -187,16 +177,6 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
             }
         }
     }
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct ResourcePreferencesChanges {
-    /// Resources that have been added to the allow list in this transaction.
-    pub allowed: Vec<ResourceAddress>,
-    /// Resources that have been added to the deny list in this transaction.
-    pub disallowed: Vec<ResourceAddress>,
-    /// Resources that have had the preference removed in this transaction.
-    pub preference_removed: Vec<ResourceAddress>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
