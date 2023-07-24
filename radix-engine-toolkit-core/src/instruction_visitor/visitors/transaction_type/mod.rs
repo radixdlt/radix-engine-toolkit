@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod account_deposit_settings_visitor;
 pub mod general_transaction_visitor;
 pub mod simple_transfer_visitor;
 pub mod transfer_visitor;

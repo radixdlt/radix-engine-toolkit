@@ -17,6 +17,7 @@
 
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
+use radix_engine_interface::blueprints::account::AccountDefaultDepositRule;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
@@ -24,6 +25,7 @@ use transaction::prelude::*;
 use crate::instruction_visitor::core::error::*;
 use crate::instruction_visitor::core::traverser::*;
 use crate::instruction_visitor::visitors::account_proofs_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
@@ -48,6 +50,7 @@ pub fn analyze(
     let mut account_proofs_visitor = AccountProofsVisitor::default();
     let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let mut transfer_visitor = TransferTransactionTypeVisitor::default();
+    let mut account_deposit_settings_visitor = AccountDepositSettingsVisitor::default();
     let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
 
     traverse(
@@ -56,6 +59,7 @@ pub fn analyze(
             &mut simple_transfer_visitor,
             &mut transfer_visitor,
             &mut account_proofs_visitor,
+            &mut account_deposit_settings_visitor,
             &mut general_transaction_visitor,
         ],
     )?;
@@ -72,6 +76,17 @@ pub fn analyze(
         TransactionType::Transfer(Box::new(TransferTransactionType {
             from: from_account_address,
             transfers,
+        }))
+    } else if let Some((
+        resource_preference_changes,
+        default_deposit_rule_changes,
+        authorized_depositors_changes,
+    )) = account_deposit_settings_visitor.output()
+    {
+        TransactionType::AccountDepositSettings(Box::new(AccountDepositSettingsTransactionType {
+            resource_preference_changes,
+            default_deposit_rule_changes,
+            authorized_depositors_changes,
         }))
     } else if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output()
     {
@@ -155,6 +170,7 @@ pub struct FeeLocks {
 pub enum TransactionType {
     SimpleTransfer(Box<SimpleTransferTransactionType>),
     Transfer(Box<TransferTransactionType>),
+    AccountDepositSettings(Box<AccountDepositSettingsTransactionType>),
     GeneralTransaction(Box<GeneralTransactionType>),
     NonConforming,
 }
@@ -170,6 +186,13 @@ pub struct SimpleTransferTransactionType {
 pub struct TransferTransactionType {
     pub from: ComponentAddress,
     pub transfers: HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AccountDepositSettingsTransactionType {
+    pub resource_preference_changes: HashMap<ComponentAddress, ResourcePreferencesChanges>,
+    pub default_deposit_rule_changes: HashMap<ComponentAddress, AccountDefaultDepositRule>,
+    pub authorized_depositors_changes: HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
