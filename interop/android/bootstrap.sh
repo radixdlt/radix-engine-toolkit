@@ -12,19 +12,18 @@ mkdir $library_name
 mkdir -p $src/$package
 mkdir -p $jni
 
-# Extracting .kt file
+# Copying .kt file
 mv $artifacts/uniffi-bindings/$package/*.kt $src/$package/RET.kt
+test -e $src/$package/RET.kt || exit 1
 
 crate_name=radix-engine-toolkit-uniffi
 jna_architectures=(
   "arm64-v8a"
   "armeabi-v7a"
-  "x86"
 )
 target_triples=(
   "aarch64-linux-android"
   "armv7-linux-androideabi"
-  "i686-linux-android"
 )
 
 for (( i=0; i<${#jna_architectures[@]}; i++ ));
@@ -35,7 +34,8 @@ do
   echo "Extracting for architecture $arch_name"
 
   mkdir $jni/"$arch_name"
-  mv $artifacts/$crate_name-$target_triple/*.so $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so
+  mv $artifacts/"$crate_name"-"$target_triple"/*.so $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so
+  test -e $jni/"$arch_name"/libuniffi_radix_engine_toolkit_uniffi.so || exit 1
 done
 
 # Initialise Gradle project
