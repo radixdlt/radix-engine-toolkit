@@ -753,12 +753,6 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
             ],
             default: FnRule::Disallowed,
         },
-        /* For access controller, we only permit calls to create proof in the general tx type */
-        EntityType::GlobalAccessController => FnRules {
-            allowed: vec![ACCESS_CONTROLLER_CREATE_PROOF_IDENT],
-            disallowed: vec![],
-            default: FnRule::Disallowed,
-        },
         /* Calls to methods of the following entity types is all disallowed */
         EntityType::GlobalPackage
         | EntityType::GlobalValidator
@@ -768,7 +762,8 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
         | EntityType::InternalFungibleVault
         | EntityType::InternalNonFungibleVault
         | EntityType::InternalKeyValueStore
-        | EntityType::GlobalTransactionTracker => FnRules {
+        | EntityType::GlobalTransactionTracker
+        | EntityType::GlobalAccessController => FnRules {
             allowed: vec![],
             disallowed: vec![],
             default: FnRule::Disallowed,
