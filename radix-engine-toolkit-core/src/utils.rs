@@ -218,12 +218,12 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
 
 pub fn metadata_of_newly_created_entities(
     receipt: &TransactionReceipt,
-) -> Option<HashMap<GlobalAddress, HashMap<String, MetadataValue>>> {
+) -> Option<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>> {
     if !receipt.is_commit_success() {
         return None;
     }
 
-    let mut map = HashMap::<GlobalAddress, HashMap<String, MetadataValue>>::new();
+    let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
     let commit_success = receipt.expect_commit_success();
     for global_address in commit_success
         .new_component_addresses()
@@ -269,9 +269,7 @@ pub fn metadata_of_newly_created_entities(
                                 ..
                             }) => value,
                         };
-                        map.entry(global_address)
-                            .or_default()
-                            .insert(key, value.unwrap());
+                        map.entry(global_address).or_default().insert(key, value);
                     }
                 } else {
                     continue;

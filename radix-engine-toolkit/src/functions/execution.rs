@@ -200,7 +200,14 @@ impl SerializableTransactionType {
                                     value
                                         .into_iter()
                                         .map(|(key, value)| {
-                                            (key, SerializableMetadataValue::new(value, network_id))
+                                            (
+                                                key,
+                                                value.map(|value| {
+                                                    SerializableMetadataValue::new(
+                                                        value, network_id,
+                                                    )
+                                                }),
+                                            )
                                         })
                                         .collect(),
                                 )
@@ -386,7 +393,7 @@ pub struct SerializableGeneralTransactionType {
     pub account_deposits: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
     pub addresses_in_manifest: InstructionsExtractAddressesOutput,
     pub metadata_of_newly_created_entities:
-        HashMap<SerializableNodeId, HashMap<String, SerializableMetadataValue>>,
+        HashMap<SerializableNodeId, HashMap<String, Option<SerializableMetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<SerializableNodeId, HashMap<SerializableNonFungibleLocalId, SerializableBytes>>,
 }

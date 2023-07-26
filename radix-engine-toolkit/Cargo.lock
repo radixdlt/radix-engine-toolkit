@@ -791,8 +791,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "radix-engine-stores"
+version = "0.11.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v2-phase-2-f9a4ef37ff#f9a4ef37ff8e90b30a71a244b7f25b810aa22bf1"
+dependencies = [
+ "hex",
+ "itertools",
+ "radix-engine-common",
+ "radix-engine-derive",
+ "radix-engine-store-interface",
+ "sbor",
+ "utils",
+]
+
+[[package]]
 name = "radix-engine-toolkit"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "bech32",
  "indexmap 1.9.3",
@@ -813,7 +827,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-core"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "bech32",
  "cargo_toml",
@@ -823,6 +837,7 @@ dependencies = [
  "radix-engine-interface",
  "radix-engine-queries",
  "radix-engine-store-interface",
+ "radix-engine-stores",
  "regex",
  "sbor",
  "scrypto",
