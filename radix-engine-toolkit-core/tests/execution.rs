@@ -34,8 +34,8 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
 
     let manifest = ManifestBuilder::new()
         .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(
                 account2,
@@ -64,7 +64,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
         TransactionType::SimpleTransfer(Box::new(SimpleTransferTransactionType {
             from: account1,
             to: account2,
-            transferred: ResourceSpecifier::Amount(RADIX_TOKEN, dec!("10"))
+            transferred: ResourceSpecifier::Amount(XRD, dec!("10"))
         }))
     )
 }
@@ -79,8 +79,8 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
 
     let manifest = ManifestBuilder::new()
         .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("20"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("20"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(
                 account2,
@@ -88,7 +88,7 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
                 manifest_args!(bucket),
             )
         })
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket2")
+        .take_from_worktop(XRD, dec!("10"), "bucket2")
         .with_bucket("bucket2", |builder, bucket| {
             builder.call_method(
                 account3,
@@ -118,10 +118,10 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
             from: account1,
             transfers: hashmap! {
                 account2 => hashmap! {
-                    RADIX_TOKEN => Resources::Amount(dec!("10")),
+                    XRD => Resources::Amount(dec!("10")),
                 },
                 account3 => hashmap! {
-                    RADIX_TOKEN => Resources::Amount(dec!("10")),
+                    XRD => Resources::Amount(dec!("10")),
                 }
             }
         }))
@@ -137,9 +137,9 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
     let (public_key3, _, account3) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .withdraw_from_account(account2, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .withdraw_from_account(account2, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(
                 account2,
@@ -147,7 +147,7 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
                 manifest_args!(bucket),
             )
         })
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket1")
+        .take_from_worktop(XRD, dec!("10"), "bucket1")
         .with_bucket("bucket1", |builder, bucket| {
             builder.call_method(
                 account3,

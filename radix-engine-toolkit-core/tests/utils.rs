@@ -18,7 +18,7 @@
 use radix_engine::system::bootstrap::{Bootstrapper, GenesisReceipts};
 use radix_engine::types::*;
 use radix_engine::vm::wasm::{DefaultWasmEngine, WasmValidatorConfigV1};
-use radix_engine::vm::ScryptoVm;
+use radix_engine::vm::{DefaultNativeVm, ScryptoVm, Vm};
 use radix_engine_interface::metadata_init;
 use radix_engine_stores::memory_db::InMemorySubstateDatabase;
 use scrypto::api::node_modules::metadata::MetadataValue;
@@ -147,13 +147,14 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
 #[test]
 fn able_to_extract_metadata_of_new_entities_in_genesis() {
     // Arrange
-    let scrypto_interpreter = ScryptoVm {
+    let scrypto_vm = ScryptoVm {
         wasm_engine: DefaultWasmEngine::default(),
         wasm_validator_config: WasmValidatorConfigV1::new(),
     };
+    let native_vm = DefaultNativeVm::new();
+    let vm = Vm::new(&scrypto_vm, native_vm.clone());
     let mut substate_db = InMemorySubstateDatabase::standard();
-
-    let mut bootstrapper = Bootstrapper::new(&mut substate_db, &scrypto_interpreter, false);
+    let mut bootstrapper = Bootstrapper::new(&mut substate_db, vm, false);
     let GenesisReceipts {
         system_bootstrap_receipt,
         data_ingestion_receipts,
@@ -176,7 +177,7 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
 #[test]
 fn empty_metadata_can_be_processed_by_ret() {
     // Arrange
-    let mut test_runner = TestRunner::builder().without_trace().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
 
     let manifest = ManifestBuilder::new()
         .create_fungible_resource(

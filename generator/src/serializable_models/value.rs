@@ -140,7 +140,7 @@ impl<'f> HasExamples<'f> for SerializableManifestValue {
             },
             Self::Address {
                 value: SerializableManifestAddress::Static {
-                    value: SerializableNodeId::from_global_address(RADIX_TOKEN, 0xf2),
+                    value: SerializableNodeId::from_global_address(XRD, 0xf2),
                 },
             },
             Self::Address {

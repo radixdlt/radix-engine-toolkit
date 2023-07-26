@@ -79,7 +79,7 @@ where
     let length = data.len();
 
     let node_id = match (prefix, length) {
-        (Some(0x01), 1) => Ok(scrypto::prelude::RADIX_TOKEN.into_node_id()),
+        (Some(0x01), 1) => Ok(scrypto::prelude::XRD.into_node_id()),
         (Some(0x03), 27) => {
             let hash = scrypto::prelude::hash(&data);
 

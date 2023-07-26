@@ -26,7 +26,7 @@ fn account_withdraw_fungibles_interactions_count_as_withdraws_and_auth_requiring
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account, RADIX_TOKEN, dec!("1"))
+        .withdraw_from_account(account, XRD, dec!("1"))
         .build();
 
     // Act
@@ -49,7 +49,7 @@ fn account_withdraw_non_fungibles_interactions_count_as_withdraws_and_auth_requi
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .withdraw_non_fungibles_from_account(account, RADIX_TOKEN, &ids)
+        .withdraw_non_fungibles_from_account(account, XRD, &ids)
         .build();
 
     // Act
@@ -71,7 +71,7 @@ fn account_lock_fee_and_withdraw_fungibles_interactions_count_as_withdraws_and_a
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw(account, dec!("1"), RADIX_TOKEN, dec!("1"))
+        .lock_fee_and_withdraw(account, dec!("1"), XRD, dec!("1"))
         .build();
 
     // Act
@@ -94,7 +94,7 @@ fn account_lock_fee_and_withdraw_non_fungibles_interactions_count_as_withdraws_a
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw_non_fungibles(account, dec!("1"), RADIX_TOKEN, &ids)
+        .lock_fee_and_withdraw_non_fungibles(account, dec!("1"), XRD, &ids)
         .build();
 
     // Act
@@ -153,7 +153,7 @@ fn account_create_proof_interactions_count_as_auth_requiring_interactions() {
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account, RADIX_TOKEN, dec!("10"))
+        .create_proof_from_account_of_amount(account, XRD, dec!("10"))
         .build();
 
     // Act
@@ -173,7 +173,7 @@ fn account_create_proof_by_amount_interactions_count_as_auth_requiring_interacti
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account, RADIX_TOKEN, dec!("1"))
+        .create_proof_from_account_of_amount(account, XRD, dec!("1"))
         .build();
 
     // Act
@@ -194,7 +194,7 @@ fn account_create_proof_by_ids_interactions_count_as_auth_requiring_interactions
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_non_fungibles(account, RADIX_TOKEN, &ids)
+        .create_proof_from_account_of_non_fungibles(account, XRD, &ids)
         .build();
 
     // Act
@@ -214,7 +214,7 @@ fn account_deposit_interactions_count_as_deposit_interactions() {
     // Arrange
     let account = account();
     let manifest = ManifestBuilder::new()
-        .take_all_from_worktop(RADIX_TOKEN, "bucket")
+        .take_all_from_worktop(XRD, "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account, "deposit", manifest_args!(bucket))
         })

@@ -622,7 +622,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 [[package]]
 name = "native-sdk"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "radix-engine-common",
  "radix-engine-derive",
@@ -728,7 +728,7 @@ dependencies = [
 [[package]]
 name = "radix-engine"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bitflags 1.3.2",
  "colored",
@@ -740,7 +740,6 @@ dependencies = [
  "parity-wasm",
  "paste",
  "radix-engine-common",
- "radix-engine-constants",
  "radix-engine-interface",
  "radix-engine-store-interface",
  "resources-tracker-macro",
@@ -757,7 +756,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-common"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bech32",
  "blake2",
@@ -768,7 +767,6 @@ dependencies = [
  "num-integer",
  "num-traits",
  "paste",
- "radix-engine-constants",
  "radix-engine-derive",
  "sbor",
  "serde",
@@ -777,14 +775,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "radix-engine-constants"
-version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
-
-[[package]]
 name = "radix-engine-derive"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -795,7 +788,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-interface"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bitflags 1.3.2",
  "const-sha1",
@@ -814,7 +807,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-profiling"
 version = "0.9.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "fixedstr",
 ]
@@ -822,13 +815,12 @@ dependencies = [
 [[package]]
 name = "radix-engine-queries"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "hex",
  "itertools",
  "paste",
  "radix-engine",
- "radix-engine-constants",
  "radix-engine-interface",
  "radix-engine-store-interface",
  "sbor",
@@ -839,7 +831,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-store-interface"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "hex",
  "itertools",
@@ -853,7 +845,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-stores"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v2-phase-2-f9a4ef37ff#f9a4ef37ff8e90b30a71a244b7f25b810aa22bf1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "hex",
  "itertools",
@@ -975,7 +967,7 @@ checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
 [[package]]
 name = "resources-tracker-macro"
 version = "0.1.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1011,7 +1003,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 [[package]]
 name = "sbor"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "const-sha1",
  "hex",
@@ -1025,7 +1017,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "proc-macro2",
  "sbor-derive-common",
@@ -1034,7 +1026,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive-common"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "const-sha1",
  "itertools",
@@ -1066,7 +1058,7 @@ dependencies = [
 [[package]]
 name = "scrypto"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bech32",
  "const-sha1",
@@ -1088,7 +1080,7 @@ dependencies = [
 [[package]]
 name = "scrypto-derive"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1103,7 +1095,7 @@ dependencies = [
 [[package]]
 name = "scrypto-schema"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bitflags 1.3.2",
  "radix-engine-common",
@@ -1338,14 +1330,13 @@ dependencies = [
 [[package]]
 name = "transaction"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "bech32",
  "ed25519-dalek",
  "hex",
  "lazy_static",
  "radix-engine-common",
- "radix-engine-constants",
  "radix-engine-interface",
  "sbor",
  "secp256k1",
@@ -1510,7 +1501,7 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 [[package]]
 name = "utils"
 version = "0.11.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?branch=feature/account-allowed-depositers#e79371d1b0e9a195c46fd4515c1cef0555da468e"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=develop-0e5d82a0#0e5d82a0a0dd92dbc9756cb61746ac7afb831939"
 dependencies = [
  "indexmap 2.0.0-pre",
  "serde",

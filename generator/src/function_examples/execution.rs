@@ -32,8 +32,8 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
 
             let manifest = ManifestBuilder::new()
                 .lock_fee(account1, "10")
-                .withdraw_from_account(account1, RADIX_TOKEN, "10")
-                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .withdraw_from_account(account1, XRD, "10")
+                .take_from_worktop(XRD, "10", "bucket")
                 .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
@@ -61,8 +61,8 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
 
             let manifest = ManifestBuilder::new()
                 .lock_fee(account1, "10")
-                .withdraw_from_account(account1, RADIX_TOKEN, "20")
-                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .withdraw_from_account(account1, XRD, "20")
+                .take_from_worktop(XRD, "10", "bucket")
                 .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
@@ -70,7 +70,7 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
                         manifest_args!(bucket),
                     )
                 })
-                .take_from_worktop(RADIX_TOKEN, "10", "bucket1")
+                .take_from_worktop(XRD, "10", "bucket1")
                 .with_bucket("bucket1", |builder, bucket| {
                     builder.call_method(
                         account3,
@@ -98,9 +98,9 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
 
             let manifest = ManifestBuilder::new()
                 .lock_fee(account1, "10")
-                .withdraw_from_account(account1, RADIX_TOKEN, "10")
-                .withdraw_from_account(account2, RADIX_TOKEN, "10")
-                .take_from_worktop(RADIX_TOKEN, "10", "bucket")
+                .withdraw_from_account(account1, XRD, "10")
+                .withdraw_from_account(account2, XRD, "10")
+                .take_from_worktop(XRD, "10", "bucket")
                 .with_bucket("bucket", |builder, bucket| {
                     builder.call_method(
                         account2,
@@ -108,7 +108,7 @@ impl<'f> HasExamples<'f, 3> for ExecutionAnalyze {
                         manifest_args!(bucket),
                     )
                 })
-                .take_from_worktop(RADIX_TOKEN, "10", "bucket1")
+                .take_from_worktop(XRD, "10", "bucket1")
                 .with_bucket("bucket1", |builder, bucket| {
                     builder.call_method(
                         account3,

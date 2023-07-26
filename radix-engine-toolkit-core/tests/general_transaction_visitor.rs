@@ -33,7 +33,7 @@ fn account_create_proof_method_is_allowed_in_general_transaction() {
     let (pk, _, account) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account, RADIX_TOKEN, 1)
+        .create_proof_from_account_of_amount(account, XRD, 1)
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),

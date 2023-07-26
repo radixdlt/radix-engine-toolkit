@@ -99,7 +99,7 @@ impl
         let length = data.len();
 
         let resource_address = match (prefix, length) {
-            (0x01, 0) => Ok(scrypto::prelude::RADIX_TOKEN),
+            (0x01, 0) => Ok(scrypto::prelude::XRD),
             (0x03, 26) => Ok(scrypto::prelude::ResourceAddress::Fungible(
                 data.try_into().unwrap(),
             )),
