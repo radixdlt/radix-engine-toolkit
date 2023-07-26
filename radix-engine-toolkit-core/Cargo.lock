@@ -609,7 +609,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-core"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "bech32",
  "cargo_toml",
