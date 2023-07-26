@@ -173,6 +173,35 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
     }
 }
 
+#[test]
+fn empty_metadata_can_be_processed_by_ret() {
+    // Arrange
+    let mut test_runner = TestRunner::builder().without_trace().build();
+
+    let manifest = ManifestBuilder::new()
+        .create_fungible_resource(
+            OwnerRole::None,
+            false,
+            18,
+            Default::default(),
+            metadata! {
+                init {
+                    "key" => EMPTY, locked;
+                }
+            },
+            None,
+        )
+        .build();
+    let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
+    receipt.expect_commit_success();
+
+    // Act
+    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(&receipt);
+
+    // Assert
+    let _ = metadata.expect("Should be able to get metadata");
+}
+
 #[derive(NonFungibleData, ScryptoSbor, ManifestSbor)]
 struct Owl {
     name: String,
