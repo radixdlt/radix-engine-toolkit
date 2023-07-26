@@ -178,7 +178,8 @@ pub struct GeneralTransactionType {
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub account_deposits: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
-    pub metadata_of_newly_created_entities: HashMap<GlobalAddress, HashMap<String, MetadataValue>>,
+    pub metadata_of_newly_created_entities:
+        HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>,
 }

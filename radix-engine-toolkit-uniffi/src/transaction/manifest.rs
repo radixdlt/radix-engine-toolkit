@@ -165,7 +165,7 @@ pub enum TransactionType {
         account_withdraws: HashMap<String, Vec<ResourceTracker>>,
         account_deposits: HashMap<String, Vec<ResourceTracker>>,
         addresses_in_manifest: HashMap<EntityType, Vec<Arc<Address>>>,
-        metadata_of_newly_created_entities: HashMap<String, HashMap<String, MetadataValue>>,
+        metadata_of_newly_created_entities: HashMap<String, HashMap<String, Option<MetadataValue>>>,
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
     },
     NonConforming,
@@ -331,7 +331,12 @@ impl TransactionType {
                                 value
                                     .iter()
                                     .map(|(key, value)| {
-                                        (key.clone(), MetadataValue::from_native(value, network_id))
+                                        (
+                                            key.clone(),
+                                            value.as_ref().map(|value| {
+                                                MetadataValue::from_native(value, network_id)
+                                            }),
+                                        )
                                     })
                                     .collect(),
                             )
