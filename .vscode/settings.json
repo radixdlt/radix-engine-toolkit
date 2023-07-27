@@ -7,9 +7,11 @@
         "uniffi-bindgen/Cargo.toml"
     ],
     "cSpell.words": [
+        "aarch",
         "adapanet",
         "ansharnet",
         "archiver",
+        "bootstrapper",
         "cbrt",
         "decryptors",
         "Devopsnet",
@@ -29,8 +31,11 @@
         "RCNet",
         "Releasenet",
         "Ruid",
+        "rustc",
         "rustfmt",
+        "rustup",
         "Sandpitnet",
+        "Swatinem",
         "testcases",
         "thiserror",
         "unhashed",

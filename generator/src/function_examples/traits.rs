@@ -38,7 +38,7 @@ where
         unwrap_or_panic(
             Self::example_inputs()
                 .into_iter()
-                .zip(Self::example_outputs().into_iter())
+                .zip(Self::example_outputs())
                 .map(|(input, output)| FunctionExample { input, output })
                 .collect::<Vec<_>>()
                 .try_into(),

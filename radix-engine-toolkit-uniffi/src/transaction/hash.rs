@@ -22,6 +22,29 @@ pub struct TransactionHash(pub(crate) NativeHash, pub(crate) String, pub(crate) 
 
 #[uniffi::export]
 impl TransactionHash {
+    #[uniffi::constructor]
+    pub fn from_str(string: String, network_id: u8) -> Result<Arc<Self>> {
+        let network_definition = core_network_definition_from_network_id(network_id);
+        let bech32_decoder = NativeTransactionHashBech32Decoder::new(&network_definition);
+        if let Ok(hash) = bech32_decoder.validate_and_decode::<NativeIntentHash>(&string) {
+            Ok(Arc::new(Self::new(&hash, network_id)))
+        } else if let Ok(hash) =
+            bech32_decoder.validate_and_decode::<NativeSignedIntentHash>(&string)
+        {
+            Ok(Arc::new(Self::new(&hash, network_id)))
+        } else if let Ok(hash) =
+            bech32_decoder.validate_and_decode::<NativeNotarizedTransactionHash>(&string)
+        {
+            Ok(Arc::new(Self::new(&hash, network_id)))
+        } else {
+            Err(RadixEngineToolkitError::FailedToDecodeTransactionHash)
+        }
+    }
+
+    pub fn as_hash(&self) -> Arc<Hash> {
+        Arc::new(Hash(self.0))
+    }
+
     pub fn as_str(&self) -> String {
         self.1.to_owned()
     }

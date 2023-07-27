@@ -78,6 +78,12 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error occurred during doing a Scrypto SBOR encode/decode")]
     ScryptoSborError { error: String },
+
+    #[error("An error occurred when trying to convert native event data to typed")]
+    TypedNativeEventError { error: String },
+
+    #[error("An error occurred when trying to decode the transaction hash")]
+    FailedToDecodeTransactionHash,
 }
 
 macro_rules! dbg_str {
@@ -138,3 +144,4 @@ impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed
 impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
+impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }

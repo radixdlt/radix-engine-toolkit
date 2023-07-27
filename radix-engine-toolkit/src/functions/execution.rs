@@ -130,7 +130,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                                     value
                                         .into_iter()
                                         .map(|value| {
-                                            SerializableResourceSpecifier::new(value, *network_id)
+                                            SerializableResourceTracker::new(value, *network_id)
                                         })
                                         .collect(),
                                 )
@@ -144,25 +144,8 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                                     SerializableNodeId::new(key.into_node_id(), *network_id),
                                     value
                                         .into_iter()
-                                        .map(|value| match value {
-                                            Source::Guaranteed(value) => {
-                                                SerializableSource::Guaranteed {
-                                                    value: SerializableResourceSpecifier::new(
-                                                        value,
-                                                        *network_id,
-                                                    ),
-                                                }
-                                            }
-                                            Source::Predicted(instruction_index, value) => {
-                                                SerializableSource::Predicted {
-                                                    instruction_index: (instruction_index as u64)
-                                                        .into(),
-                                                    value: SerializableResourceSpecifier::new(
-                                                        value,
-                                                        *network_id,
-                                                    ),
-                                                }
-                                            }
+                                        .map(|value| {
+                                            SerializableResourceTracker::new(value, *network_id)
                                         })
                                         .collect(),
                                 )
@@ -188,7 +171,12 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                                         .map(|(key, value)| {
                                             (
                                                 key,
-                                                SerializableMetadataValue::new(value, *network_id),
+                                                value.map(|value| {
+                                                    SerializableMetadataValue::new(
+                                                        value,
+                                                        *network_id,
+                                                    )
+                                                }),
                                             )
                                         })
                                         .collect(),
@@ -334,12 +322,11 @@ pub struct SerializableTransferTransactionType {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableGeneralTransactionType {
     pub account_proofs: HashSet<SerializableNodeId>,
-    pub account_withdraws: HashMap<SerializableNodeId, Vec<SerializableResourceSpecifier>>,
-    pub account_deposits:
-        HashMap<SerializableNodeId, Vec<SerializableSource<SerializableResourceSpecifier>>>,
+    pub account_withdraws: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
+    pub account_deposits: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
     pub addresses_in_manifest: InstructionsExtractAddressesOutput,
     pub metadata_of_newly_created_entities:
-        HashMap<SerializableNodeId, HashMap<String, SerializableMetadataValue>>,
+        HashMap<SerializableNodeId, HashMap<String, Option<SerializableMetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<SerializableNodeId, HashMap<SerializableNonFungibleLocalId, SerializableBytes>>,
 }
@@ -483,6 +470,66 @@ pub enum SerializableSource<T> {
         value: T,
         instruction_index: SerializableU64,
     },
+}
+
+impl<T> SerializableSource<T> {
+    pub fn new<F, I>(source: Source<I>, callback: F) -> SerializableSource<T>
+    where
+        F: FnOnce(I) -> T,
+    {
+        match source {
+            Source::Guaranteed(value) => Self::Guaranteed {
+                value: callback(value),
+            },
+            Source::Predicted(instruction_index, value) => Self::Predicted {
+                instruction_index: (instruction_index as u64).into(),
+                value: callback(value),
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind")]
+pub enum SerializableResourceTracker {
+    Fungible {
+        resource_address: SerializableNodeId,
+        amount: SerializableSource<SerializableDecimal>,
+    },
+    NonFungible {
+        resource_address: SerializableNodeId,
+        amount: SerializableSource<SerializableDecimal>,
+        ids: SerializableSource<Vec<SerializableNonFungibleLocalId>>,
+    },
+}
+
+impl SerializableResourceTracker {
+    pub fn new(resource_tracker: ResourceTracker, network_id: u8) -> Self {
+        match resource_tracker {
+            ResourceTracker::Fungible {
+                resource_address,
+                amount,
+            } => Self::Fungible {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: SerializableSource::new(amount, Into::into),
+            },
+            ResourceTracker::NonFungible {
+                resource_address,
+                amount,
+                ids,
+            } => Self::NonFungible {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: SerializableSource::new(amount, Into::into),
+                ids: SerializableSource::new(ids, |ids| ids.into_iter().map(Into::into).collect()),
+            },
+        }
+    }
 }
 
 macro_rules! array_into {
