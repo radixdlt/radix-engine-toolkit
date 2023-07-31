@@ -165,6 +165,7 @@ pub enum TransactionType {
         addresses_in_manifest: HashMap<EntityType, Vec<Arc<Address>>>,
         metadata_of_newly_created_entities: HashMap<String, HashMap<String, Option<MetadataValue>>>,
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
+        addresses_of_newly_created_entities: Vec<Arc<Address>>,
     },
 }
 
@@ -342,6 +343,7 @@ impl TransactionType {
                     addresses_in_manifest: (addresses_in_manifest, _),
                     metadata_of_newly_created_entities,
                     data_of_newly_minted_non_fungibles,
+                    addresses_of_newly_created_entities,
                 } = value.as_ref();
 
                 Self::GeneralTransaction {
@@ -414,6 +416,10 @@ impl TransactionType {
                                     .collect(),
                             )
                         })
+                        .collect(),
+                    addresses_of_newly_created_entities: addresses_of_newly_created_entities
+                        .iter()
+                        .map(|node_id| Arc::new(Address(*node_id, network_id)))
                         .collect(),
                 }
             }
