@@ -80,6 +80,10 @@ pub fn analyze(
             account_withdraws,
             account_deposits,
             addresses_in_manifest: crate::functions::instructions::extract_addresses(instructions),
+            addresses_of_newly_created_entities: utils::addresses_of_newly_created_entities(
+                preview_receipt,
+            )
+            .unwrap(),
             metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
                 preview_receipt,
             )
@@ -178,6 +182,7 @@ pub struct GeneralTransactionType {
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub account_deposits: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
+    pub addresses_of_newly_created_entities: HashSet<NodeId>,
     pub metadata_of_newly_created_entities:
         HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
