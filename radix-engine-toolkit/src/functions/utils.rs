@@ -20,7 +20,10 @@ use schemars::JsonSchema;
 use scrypto::prelude::*;
 use serde::{Deserialize, Serialize};
 
+#[typeshare::typeshare]
 pub type UtilsKnownAddressesInput = SerializableU8;
+
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct UtilsKnownAddressesOutput {
     pub resource_addresses: ResourceAddresses,
@@ -89,6 +92,7 @@ impl<'f> Function<'f> for UtilsKnownAddress {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ResourceAddresses {
     pub xrd: SerializableNodeId,
@@ -103,6 +107,7 @@ pub struct ResourceAddresses {
     pub identity_owner_badge: SerializableNodeId,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct PackageAddresses {
     pub package_package: SerializableNodeId,
@@ -120,6 +125,7 @@ pub struct PackageAddresses {
     pub faucet_package: SerializableNodeId,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ComponentAddresses {
     pub consensus_manager: SerializableNodeId,
@@ -139,3 +145,6 @@ macro_rules! construct_addresses {
     };
 }
 use construct_addresses;
+
+export_function!(UtilsKnownAddress as utils_known_addresses);
+export_jni_function!(UtilsKnownAddress as utilsKnownAddresses);

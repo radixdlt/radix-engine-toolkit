@@ -30,8 +30,10 @@ use transaction::prelude::NonFungibleGlobalId;
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 #[schemars(transparent)]
+#[typeshare::typeshare(serialized_as = "String")]
 pub struct SerializableNonFungibleGlobalId(
     #[schemars(with = "String")]
+    #[typeshare(serialized_as = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub SerializableNonFungibleGlobalIdInternal,
 );

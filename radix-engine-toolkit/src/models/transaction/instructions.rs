@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 use transaction::manifest::*;
 use transaction::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableInstructions {
@@ -30,6 +31,7 @@ pub enum SerializableInstructions {
     Parsed(Vec<SerializableInstruction>),
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub enum SerializableInstructionsKind {
     String,

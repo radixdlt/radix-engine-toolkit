@@ -19,6 +19,7 @@ use sbor::representations::SerializationMode;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub enum SerializableSerializationMode {
     Programmatic,

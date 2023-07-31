@@ -22,8 +22,10 @@ use transaction::prelude::TransactionHeaderV1;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 type SerializableEpoch = SerializableU64;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableTransactionHeader {
     pub network_id: SerializableU8,

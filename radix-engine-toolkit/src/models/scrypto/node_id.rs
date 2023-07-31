@@ -23,14 +23,18 @@ use scrypto::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
+use crate::prelude::debug_string;
+
 #[serde_as]
 #[derive(
-    Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash,
+    Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Copy,
 )]
 #[serde(transparent)]
 #[schemars(transparent)]
+#[typeshare::typeshare(serialized_as = "String")]
 pub struct SerializableNodeId(
     #[schemars(with = "String")]
+    #[typeshare(serialized_as = "String")]
     #[serde_as(as = "serde_with::DisplayFromStr")]
     pub SerializableNodeIdInternal,
 );
@@ -50,7 +54,7 @@ impl SerializableNodeId {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Copy)]
 pub struct SerializableNodeIdInternal {
     pub node_id: NodeId,
     pub network_id: u8,
@@ -105,6 +109,7 @@ impl AsRef<NodeId> for SerializableNodeIdInternal {
 pub enum SerializableNodeIdError {
     FailedToParseStringAsAddress(String),
     Bech32DecodingError(String),
+    ParseAddressError(String),
     InvalidAddressLength,
 }
 
@@ -119,3 +124,28 @@ impl Display for SerializableNodeIdError {
         Debug::fmt(&self, f)
     }
 }
+
+macro_rules! impl_from_address {
+    ($address: ty) => {
+        paste::paste! {
+            impl TryFrom<SerializableNodeId> for $address {
+                type Error = SerializableNodeIdError;
+
+                fn try_from(value: SerializableNodeId) -> Result<Self, Self::Error> {
+                    Self::try_from(value.0.node_id.0).map_err(From::from)
+                }
+            }
+
+            impl From<[< Parse $address Error >]> for SerializableNodeIdError {
+                fn from(value: [< Parse $address Error >]) -> Self {
+                    Self::ParseAddressError(debug_string(value))
+                }
+            }
+        }
+    };
+}
+impl_from_address! { PackageAddress }
+impl_from_address! { ResourceAddress }
+impl_from_address! { ComponentAddress }
+impl_from_address! { InternalAddress }
+impl_from_address! { GlobalAddress }

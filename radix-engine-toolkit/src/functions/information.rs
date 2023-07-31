@@ -21,15 +21,18 @@ use radix_engine_toolkit_core::functions::information::DependencyInformation;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct BuildInformationInput {}
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct BuildInformationOutput {
     pub version: String,
     pub scrypto_dependency: SerializableDependencyInformation,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableDependencyInformation {

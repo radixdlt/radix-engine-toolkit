@@ -21,6 +21,7 @@ use transaction::prelude::*;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableIntent {
     pub header: SerializableTransactionHeader,

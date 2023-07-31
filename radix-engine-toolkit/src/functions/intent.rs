@@ -24,7 +24,9 @@ use crate::prelude::*;
 // Intent Hash
 //=============
 
+#[typeshare::typeshare]
 pub type IntentHashInput = SerializableIntent;
+#[typeshare::typeshare]
 pub type IntentHashOutput = SerializableHash;
 
 pub struct IntentHash;
@@ -49,7 +51,9 @@ export_jni_function!(IntentHash as intentHash);
 // Intent Compile
 //================
 
+#[typeshare::typeshare]
 pub type IntentCompileInput = SerializableIntent;
+#[typeshare::typeshare]
 pub type IntentCompileOutput = SerializableBytes;
 
 pub struct IntentCompile;
@@ -74,11 +78,13 @@ export_jni_function!(IntentCompile as intentCompile);
 // Intent Decompile
 //==================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct IntentDecompileInput {
     pub compiled: SerializableBytes,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type IntentDecompileOutput = SerializableIntent;
 
 pub struct IntentDecompile;
@@ -112,12 +118,14 @@ export_jni_function!(IntentDecompile as intentDecompile);
 // Intent Statically Validate
 //============================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct IntentStaticallyValidateInput {
     pub intent: SerializableIntent,
     pub validation_config: SerializableValidationConfig,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum IntentStaticallyValidateOutput {

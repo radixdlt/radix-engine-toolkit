@@ -16,4 +16,5 @@
 // under the License.
 
 pub mod local_type_index;
+pub mod schema;
 pub mod serialization_mode;

@@ -24,7 +24,9 @@ use crate::prelude::*;
 // Signed Intent Hash
 //====================
 
+#[typeshare::typeshare]
 pub type SignedIntentHashInput = SerializableSignedIntent;
+#[typeshare::typeshare]
 pub type SignedIntentHashOutput = SerializableHash;
 
 pub struct SignedIntentHash;
@@ -54,7 +56,9 @@ export_jni_function!(SignedIntentHash as signedIntentHash);
 // Signed Intent Compile
 //=======================
 
+#[typeshare::typeshare]
 pub type SignedIntentCompileInput = SerializableSignedIntent;
+#[typeshare::typeshare]
 pub type SignedIntentCompileOutput = SerializableBytes;
 
 pub struct SignedIntentCompile;
@@ -84,11 +88,13 @@ export_jni_function!(SignedIntentCompile as signedIntentCompile);
 // Signed Intent Decompile
 //=========================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SignedIntentDecompileInput {
     pub compiled: SerializableBytes,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type SignedIntentDecompileOutput = SerializableSignedIntent;
 
 pub struct SignedIntentDecompile;
@@ -126,12 +132,14 @@ export_jni_function!(SignedIntentDecompile as signedIntentDecompile);
 // Signed Intent Statically Validate
 //===================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SignedIntentStaticallyValidateInput {
     pub signed_intent: SerializableSignedIntent,
     pub validation_config: SerializableValidationConfig,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SignedIntentStaticallyValidateOutput {

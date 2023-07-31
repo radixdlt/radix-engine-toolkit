@@ -26,11 +26,13 @@ use serde::{Deserialize, Serialize};
 // Instructions Hash
 //===================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsHashInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type InstructionsHashOutput = SerializableHash;
 
 pub struct InstructionsHash;
@@ -65,12 +67,14 @@ export_jni_function!(InstructionsHash as instructionsHash);
 // Instructions Convert
 //======================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsConvertInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type InstructionsConvertOutput = SerializableInstructions;
 
 pub struct InstructionsConvert;
@@ -97,11 +101,13 @@ export_jni_function!(InstructionsConvert as instructionsConvert);
 // Instructions Compile
 //======================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsCompileInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type InstructionsCompileOutput = SerializableBytes;
 
 pub struct InstructionsCompile;
@@ -133,12 +139,14 @@ export_jni_function!(InstructionsCompile as instructionsCompile);
 // Instructions Decompile
 //========================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsDecompileInput {
     pub compiled: SerializableBytes,
     pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type InstructionsDecompileOutput = SerializableInstructions;
 
 pub struct InstructionsDecompile;
@@ -174,12 +182,14 @@ export_jni_function!(InstructionsDecompile as instructionsDecompile);
 // Instructions Statically Validate
 //==================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsStaticallyValidateInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum InstructionsStaticallyValidateOutput {
@@ -215,15 +225,18 @@ export_jni_function!(InstructionsStaticallyValidate as instructionsStaticallyVal
 // Instructions Extract Addresses
 //================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsExtractAddressesInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsExtractAddressesOutput {
     pub addresses: HashMap<SerializableEntityType, Vec<SerializableNodeId>>,
+    #[typeshare(serialized_as = "Vec<SerializableU32>")]
     pub named_addresses: HashSet<SerializableU32>,
 }
 
@@ -255,6 +268,7 @@ impl<'a> Function<'a> for InstructionsExtractAddresses {
 export_function!(InstructionsExtractAddresses as instructions_extract_addresses);
 export_jni_function!(InstructionsExtractAddresses as instructionsExtractAddresses);
 
+#[typeshare::typeshare]
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]

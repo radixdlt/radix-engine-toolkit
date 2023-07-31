@@ -32,6 +32,7 @@ define_prefixed_id!(
 
 pub struct ManifestNamedAddress(u32);
 
+#[typeshare::typeshare]
 #[serde_with::serde_as]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum SerializableExpression {
@@ -58,11 +59,12 @@ impl From<SerializableExpression> for ManifestExpression {
 }
 
 #[serde_with::serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableManifestAddress {
-    Static { value: SerializableNodeId },
-    Named { value: SerializableNamedAddress },
+    Static(SerializableNodeId),
+    Named(SerializableU32),
 }
 
 macro_rules! define_prefixed_id {

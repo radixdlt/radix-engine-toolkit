@@ -489,7 +489,13 @@ impl Instruction {
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
-            _ => todo!(),
+            Self::AllocateGlobalAddress {
+                package_address,
+                blueprint_name,
+            } => NativeInstruction::AllocateGlobalAddress {
+                package_address: package_address.as_ref().0 .0.try_into()?,
+                blueprint_name: blueprint_name.to_string(),
+            },
         };
         Ok(value)
     }

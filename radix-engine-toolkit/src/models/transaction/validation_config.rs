@@ -21,6 +21,7 @@ use transaction::validation::{MessageValidationConfig, ValidationConfig};
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableValidationConfig {
     pub network_id: SerializableU8,
@@ -33,6 +34,7 @@ pub struct SerializableValidationConfig {
     pub message_validation: SerializableMessageValidationConfig,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableMessageValidationConfig {
     pub max_plaintext_message_length: SerializableU64,

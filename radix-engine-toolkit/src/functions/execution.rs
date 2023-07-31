@@ -35,6 +35,7 @@ use serde::*;
 // Execution Analyze
 //===================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalyzeInput {
     pub instructions: SerializableInstructions,
@@ -42,6 +43,7 @@ pub struct ExecutionAnalyzeInput {
     pub preview_receipt: SerializableBytes,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalyzeOutput {
     pub fee_locks: SerializableFeeLocks,
@@ -91,6 +93,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
 export_function!(ExecutionAnalyze as execution_analyze);
 export_jni_function!(ExecutionAnalyze as executionAnalyze);
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableTransactionType {
@@ -283,6 +286,7 @@ impl SerializableTransactionType {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableFeeSummary {
     pub network_fee: SerializableDecimal,
@@ -298,6 +302,7 @@ impl From<FeeSummary> for SerializableFeeSummary {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableFeeLocks {
     pub lock: SerializableDecimal,
@@ -313,8 +318,9 @@ impl From<radix_engine_toolkit_core::functions::execution::FeeLocks> for Seriali
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableResourceSpecifier {
     Amount {
         resource_address: SerializableNodeId,
@@ -322,6 +328,7 @@ pub enum SerializableResourceSpecifier {
     },
     Ids {
         resource_address: SerializableNodeId,
+        #[typeshare(serialized_as = "Vec<SerializableNonFungibleLocalId>")]
         ids: HashSet<SerializableNonFungibleLocalId>,
     },
 }
@@ -347,11 +354,15 @@ impl SerializableResourceSpecifier {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableResources {
     Amount(SerializableDecimal),
-    Ids(HashSet<SerializableNonFungibleLocalId>),
+    Ids(
+        #[typeshare(serialized_as = "Vec<SerializableNonFungibleLocalId>")]
+        HashSet<SerializableNonFungibleLocalId>,
+    ),
 }
 
 impl From<Resources> for SerializableResources {
@@ -363,6 +374,7 @@ impl From<Resources> for SerializableResources {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableSimpleTransferTransactionType {
     pub from: SerializableNodeId,
@@ -370,12 +382,14 @@ pub struct SerializableSimpleTransferTransactionType {
     pub transferred: SerializableResourceSpecifier,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableTransferTransactionType {
     pub from: SerializableNodeId,
     pub transfers: HashMap<SerializableNodeId, HashMap<SerializableNodeId, SerializableResources>>,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableAccountDepositSettingsTransactionType {
     pub resource_preference_changes:
@@ -386,8 +400,10 @@ pub struct SerializableAccountDepositSettingsTransactionType {
         HashMap<SerializableNodeId, SerializableAuthorizedDepositorsChanges>,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableGeneralTransactionType {
+    #[typeshare(serialized_as = "Vec<SerializableNodeId>")]
     pub account_proofs: HashSet<SerializableNodeId>,
     pub account_withdraws: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
     pub account_deposits: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
@@ -398,6 +414,7 @@ pub struct SerializableGeneralTransactionType {
         HashMap<SerializableNodeId, HashMap<SerializableNonFungibleLocalId, SerializableBytes>>,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableAuthorizedDepositorsChanges {
     pub added: Vec<SerializableResourceOrNonFungible>,
@@ -421,6 +438,7 @@ impl SerializableAuthorizedDepositorsChanges {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableResourceOrNonFungible {
@@ -441,6 +459,7 @@ impl SerializableResourceOrNonFungible {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub enum SerializableResourceDepositRule {
     Neither,
@@ -468,6 +487,7 @@ impl From<ResourceDepositRule> for SerializableResourceDepositRule {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub enum SerializableAccountDefaultDepositRule {
     Accept,
@@ -499,6 +519,7 @@ impl From<AccountDefaultDepositRule> for SerializableAccountDefaultDepositRule {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableMetadataValue {
@@ -521,11 +542,11 @@ pub enum SerializableMetadataValue {
 
     StringArray(Vec<String>),
     BoolArray(Vec<bool>),
-    U8Array(Vec<u8>),
-    U32Array(Vec<u32>),
-    U64Array(Vec<u64>),
-    I32Array(Vec<i32>),
-    I64Array(Vec<i64>),
+    U8Array(Vec<SerializableU8>),
+    U32Array(Vec<SerializableU32>),
+    U64Array(Vec<SerializableU64>),
+    I32Array(Vec<SerializableI32>),
+    I64Array(Vec<SerializableI64>),
     DecimalArray(Vec<SerializableDecimal>),
     GlobalAddressArray(Vec<SerializableNodeId>),
     PublicKeyArray(Vec<SerializablePublicKey>),
@@ -628,8 +649,9 @@ impl SerializableMetadataValue {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableSource<T> {
     Guaranteed {
         value: T,
@@ -657,8 +679,9 @@ impl<T> SerializableSource<T> {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableResourceTracker {
     Fungible {
         resource_address: SerializableNodeId,

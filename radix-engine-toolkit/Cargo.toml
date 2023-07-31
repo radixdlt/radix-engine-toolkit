@@ -31,6 +31,9 @@ paste = { version = "1.0.12" }
 walkdir = "2.3.3"
 indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 
+# 1password's library for codesharing.
+typeshare = "1.0.1"
+
 [dev-dependencies]
 walkdir = "2.3.3"
 

@@ -21,15 +21,19 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use transaction::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableSignatureWithPublicKey {
     Secp256k1 {
-        signature: AsHex<[u8; Secp256k1Signature::LENGTH]>,
+        #[typeshare(serialized_as = "String")]
+        signature: AsHex<[u8; 65]>,
     },
     Ed25519 {
-        signature: AsHex<[u8; Ed25519Signature::LENGTH]>,
-        public_key: AsHex<[u8; Ed25519PublicKey::LENGTH]>,
+        #[typeshare(serialized_as = "String")]
+        signature: AsHex<[u8; 64]>,
+        #[typeshare(serialized_as = "String")]
+        public_key: AsHex<[u8; 32]>,
     },
 }
 

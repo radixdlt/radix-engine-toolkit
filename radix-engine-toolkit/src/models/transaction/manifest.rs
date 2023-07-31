@@ -23,6 +23,7 @@ use transaction::prelude::TransactionManifestV1;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableTransactionManifest {
     pub instructions: SerializableInstructions,

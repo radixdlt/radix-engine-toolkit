@@ -24,11 +24,13 @@ use crate::prelude::*;
 // Manifest Hash
 //===============
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ManifestHashInput {
     pub manifest: SerializableTransactionManifest,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type ManifestHashOutput = SerializableHash;
 
 pub struct ManifestHash;
@@ -58,11 +60,13 @@ export_jni_function!(ManifestHash as manifestHash);
 // Manifest Compile
 //==================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ManifestCompileInput {
     pub manifest: SerializableTransactionManifest,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type ManifestCompileOutput = SerializableBytes;
 
 pub struct ManifestCompile;
@@ -93,12 +97,14 @@ export_jni_function!(ManifestCompile as manifestCompile);
 // Manifest Decompile
 //====================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ManifestDecompileInput {
     pub compiled: SerializableBytes,
     pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type ManifestDecompileOutput = SerializableTransactionManifest;
 
 pub struct ManifestDecompile;
@@ -135,12 +141,14 @@ export_jni_function!(ManifestDecompile as manifestDecompile);
 // Manifest Statically Validate
 //==============================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ManifestStaticallyValidateInput {
     pub manifest: SerializableTransactionManifest,
     pub network_id: SerializableU8,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum ManifestStaticallyValidateOutput {

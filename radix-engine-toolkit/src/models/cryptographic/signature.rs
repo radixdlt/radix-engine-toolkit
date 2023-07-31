@@ -24,26 +24,19 @@ use transaction::prelude::*;
 use crate::prelude::*;
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableSignature {
-    Secp256k1 {
-        value: AsHex<[u8; Secp256k1Signature::LENGTH]>,
-    },
-    Ed25519 {
-        value: AsHex<[u8; Ed25519Signature::LENGTH]>,
-    },
+    Secp256k1(#[typeshare(serialized_as = "String")] AsHex<[u8; 65]>),
+    Ed25519(#[typeshare(serialized_as = "String")] AsHex<[u8; 64]>),
 }
 
 impl From<SignatureV1> for SerializableSignature {
     fn from(value: SignatureV1) -> Self {
         match value {
-            SignatureV1::Secp256k1(signature) => Self::Secp256k1 {
-                value: signature.0.into(),
-            },
-            SignatureV1::Ed25519(signature) => Self::Ed25519 {
-                value: signature.0.into(),
-            },
+            SignatureV1::Secp256k1(signature) => Self::Secp256k1(signature.0.into()),
+            SignatureV1::Ed25519(signature) => Self::Ed25519(signature.0.into()),
         }
     }
 }
@@ -51,10 +44,8 @@ impl From<SignatureV1> for SerializableSignature {
 impl From<SerializableSignature> for SignatureV1 {
     fn from(value: SerializableSignature) -> Self {
         match value {
-            SerializableSignature::Secp256k1 { value } => {
-                Self::Secp256k1(Secp256k1Signature(*value))
-            }
-            SerializableSignature::Ed25519 { value } => Self::Ed25519(Ed25519Signature(*value)),
+            SerializableSignature::Secp256k1(value) => Self::Secp256k1(Secp256k1Signature(*value)),
+            SerializableSignature::Ed25519(value) => Self::Ed25519(Ed25519Signature(*value)),
         }
     }
 }
