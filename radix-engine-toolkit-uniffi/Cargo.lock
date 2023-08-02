@@ -1376,7 +1376,7 @@ checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
 [[package]]
 name = "uniffi"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "camino",
@@ -1390,7 +1390,7 @@ dependencies = [
 [[package]]
 name = "uniffi_bindgen"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "askama",
@@ -1414,7 +1414,7 @@ dependencies = [
 [[package]]
 name = "uniffi_build"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "camino",
@@ -1424,7 +1424,7 @@ dependencies = [
 [[package]]
 name = "uniffi_checksum_derive"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "quote",
  "syn 2.0.26",
@@ -1433,7 +1433,7 @@ dependencies = [
 [[package]]
 name = "uniffi_core"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1448,7 +1448,7 @@ dependencies = [
 [[package]]
 name = "uniffi_macros"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "bincode",
  "camino",
@@ -1466,20 +1466,19 @@ dependencies = [
 [[package]]
 name = "uniffi_meta"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "bytes",
  "serde",
  "siphasher",
  "uniffi_checksum_derive",
- "uniffi_core",
 ]
 
 [[package]]
 name = "uniffi_testing"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "camino",
@@ -1493,7 +1492,7 @@ dependencies = [
 [[package]]
 name = "uniffi_udl"
 version = "0.24.1"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "anyhow",
  "uniffi_meta",
@@ -1585,7 +1584,7 @@ dependencies = [
 [[package]]
 name = "weedle2"
 version = "4.0.0"
-source = "git+https://github.com/mozilla/uniffi-rs/?rev=fe0d47ab23267415d118e5318feb282cc99ed5d0#fe0d47ab23267415d118e5318feb282cc99ed5d0"
+source = "git+https://github.com/mozilla/uniffi-rs/?rev=7b18fa787336aa738f205a44f7b2df728e83a097#7b18fa787336aa738f205a44f7b2df728e83a097"
 dependencies = [
  "nom",
 ]

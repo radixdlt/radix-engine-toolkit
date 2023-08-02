@@ -207,3 +207,19 @@ impl TryFrom<Address> for NativePackageAddress {
         value.0 .0.try_into().map_err(Into::into)
     }
 }
+
+impl TryFrom<Address> for NativeInternalAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0 .0.try_into().map_err(Into::into)
+    }
+}
+
+impl TryFrom<Address> for NativeGlobalAddress {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Address) -> Result<Self> {
+        value.0 .0.try_into().map_err(Into::into)
+    }
+}

@@ -15,5 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod manifest_builder;
-pub mod transaction_builder;
+pub mod metadata;
+pub mod resource_manager;
