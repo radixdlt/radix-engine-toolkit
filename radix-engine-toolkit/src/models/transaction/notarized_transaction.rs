@@ -28,7 +28,7 @@ pub struct SerializableNotarizedTransaction {
     pub notary_signature: SerializableSignature,
 }
 
-impl NativeConvertible for SerializableNotarizedTransaction {
+impl FromNative for SerializableNotarizedTransaction {
     type Native = NotarizedTransactionV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

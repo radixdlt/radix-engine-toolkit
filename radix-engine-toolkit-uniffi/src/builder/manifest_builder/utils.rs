@@ -17,44 +17,11 @@
 
 use crate::prelude::*;
 
-pub trait FromNative {
-    type Native;
-
-    fn from_native(native: Self::Native) -> Self;
-}
-
-pub trait FromNativeWithNetworkContext {
-    type Native;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self;
-}
-
-impl<T> FromNativeWithNetworkContext for T
+pub(crate) fn builder_arc_map<T, F>(arc: Arc<T>, callback: F) -> Result<Arc<T>>
 where
-    T: FromNative,
+    T: Clone,
+    F: FnOnce(&mut T) -> Result<()>,
 {
-    type Native = <T as FromNative>::Native;
-
-    fn from_native(native: Self::Native, _: u8) -> Self {
-        <T as FromNative>::from_native(native)
-    }
-}
-
-pub trait ToNative {
-    type Native;
-
-    fn to_native(self) -> Result<Self::Native>;
-}
-
-impl<T> ToNative for Vec<T>
-where
-    T: ToNative,
-{
-    type Native = Vec<<T as ToNative>::Native>;
-
-    fn to_native(self) -> Result<Self::Native> {
-        self.into_iter()
-            .map(T::to_native)
-            .collect::<Result<Vec<_>>>()
-    }
+    let mut this = Arc::try_unwrap(arc).unwrap_or_else(|x| (*x).clone());
+    callback(&mut this).map(|_| Arc::new(this))
 }

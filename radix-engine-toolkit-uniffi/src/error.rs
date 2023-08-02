@@ -84,6 +84,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error occurred when trying to decode the transaction hash")]
     FailedToDecodeTransactionHash,
+
+    #[error("An error ocurred when building the manifest due to the naming of objects")]
+    ManifestBuilderNameRecordError { error: NameRecordError },
 }
 
 macro_rules! dbg_str {
@@ -145,3 +148,9 @@ impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
+
+impl From<NameRecordError> for RadixEngineToolkitError {
+    fn from(value: NameRecordError) -> Self {
+        Self::ManifestBuilderNameRecordError { error: value }
+    }
+}

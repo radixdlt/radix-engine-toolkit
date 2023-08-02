@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod access_rules;
 pub mod address;
 pub mod decimal;
 pub mod entity_type;

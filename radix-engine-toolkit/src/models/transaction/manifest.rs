@@ -30,7 +30,7 @@ pub struct SerializableTransactionManifest {
     pub blobs: Vec<SerializableBytes>,
 }
 
-impl NativeConvertible for SerializableTransactionManifest {
+impl FromNative for SerializableTransactionManifest {
     type Native = TransactionManifestV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

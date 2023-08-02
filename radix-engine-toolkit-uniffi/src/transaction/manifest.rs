@@ -301,7 +301,7 @@ impl TransactionType {
                                         (
                                             Arc::new(Address::from_node_id(*key, network_id))
                                                 .as_str(),
-                                            <ResourceDepositRule as NativeConvertible>::from_native(
+                                            <ResourceDepositRule as FromNative>::from_native(
                                                 *value,
                                             ),
                                         )
@@ -315,7 +315,7 @@ impl TransactionType {
                         .map(|(key, value)| {
                             (
                                 Arc::new(Address::from_node_id(*key, network_id)).as_str(),
-                                <AccountDefaultDepositRule as NativeConvertible>::from_native(
+                                <AccountDefaultDepositRule as FromNative>::from_native(
                                     value.clone(),
                                 ),
                             )
@@ -326,7 +326,7 @@ impl TransactionType {
                         .map(|(key, value)| {
                             (
                                 Arc::new(Address::from_node_id(*key, network_id)).as_str(),
-                                <AuthorizedDepositorsChanges as NativeConvertibleWithNetworkContext>::from_native(
+                                <AuthorizedDepositorsChanges as FromNativeWithNetworkContext>::from_native(
                                     value.clone(),
                                     network_id
                                 ),
@@ -535,13 +535,7 @@ pub struct AuthorizedDepositorsChanges {
     pub removed: Vec<ResourceOrNonFungible>,
 }
 
-#[derive(Clone, Debug, Enum)]
-pub enum ResourceOrNonFungible {
-    NonFungible { value: Arc<NonFungibleGlobalId> },
-    Resource { value: Arc<Address> },
-}
-
-impl NativeConvertible for ResourceDepositRule {
+impl FromNative for ResourceDepositRule {
     type Native = NativeResourceDepositRule;
 
     fn from_native(native: Self::Native) -> Self {
@@ -553,7 +547,7 @@ impl NativeConvertible for ResourceDepositRule {
     }
 }
 
-impl NativeConvertible for AccountDefaultDepositRule {
+impl FromNative for AccountDefaultDepositRule {
     type Native = NativeAccountDefaultDepositRule;
 
     fn from_native(native: Self::Native) -> Self {
@@ -565,7 +559,7 @@ impl NativeConvertible for AccountDefaultDepositRule {
     }
 }
 
-impl NativeConvertibleWithNetworkContext for AuthorizedDepositorsChanges {
+impl FromNativeWithNetworkContext for AuthorizedDepositorsChanges {
     type Native = CoreAuthorizedDepositorsChanges;
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
@@ -573,28 +567,13 @@ impl NativeConvertibleWithNetworkContext for AuthorizedDepositorsChanges {
             added: native
                 .added
                 .into_iter()
-                .map(|value| NativeConvertibleWithNetworkContext::from_native(value, network_id))
+                .map(|value| FromNativeWithNetworkContext::from_native(value, network_id))
                 .collect(),
             removed: native
                 .removed
                 .into_iter()
-                .map(|value| NativeConvertibleWithNetworkContext::from_native(value, network_id))
+                .map(|value| FromNativeWithNetworkContext::from_native(value, network_id))
                 .collect(),
-        }
-    }
-}
-
-impl NativeConvertibleWithNetworkContext for ResourceOrNonFungible {
-    type Native = NativeResourceOrNonFungible;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self {
-        match native {
-            NativeResourceOrNonFungible::Resource(resource_address) => Self::Resource {
-                value: Arc::new(Address::from_node_id(resource_address, network_id)),
-            },
-            NativeResourceOrNonFungible::NonFungible(non_fungible_global_id) => Self::NonFungible {
-                value: Arc::new(NonFungibleGlobalId(non_fungible_global_id, network_id)),
-            },
         }
     }
 }

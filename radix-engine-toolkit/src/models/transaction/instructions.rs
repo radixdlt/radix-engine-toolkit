@@ -132,7 +132,7 @@ impl From<LocatedInstructionConversionError> for SerializableInstructionsError {
     }
 }
 
-impl NativeConvertible for SerializableInstructions {
+impl FromNative for SerializableInstructions {
     type Native = Vec<InstructionV1>;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

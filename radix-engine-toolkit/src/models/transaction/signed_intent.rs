@@ -28,7 +28,7 @@ pub struct SerializableSignedIntent {
     pub intent_signatures: Vec<SerializableSignatureWithPublicKey>,
 }
 
-impl NativeConvertible for SerializableSignedIntent {
+impl FromNative for SerializableSignedIntent {
     type Native = SignedIntentV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;
