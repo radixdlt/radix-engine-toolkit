@@ -76,14 +76,16 @@ pub fn analyze(
                 transferred: transfer,
             },
         )))
-    } else if let Some((from_account_address, transfers)) = transfer_visitor.output() {
+    }
+    if let Some((from_account_address, transfers)) = transfer_visitor.output() {
         transaction_types.push(TransactionType::Transfer(Box::new(
             TransferTransactionType {
                 from: from_account_address,
                 transfers,
             },
         )))
-    } else if let Some((
+    }
+    if let Some((
         resource_preference_changes,
         default_deposit_rule_changes,
         authorized_depositors_changes,
@@ -96,8 +98,8 @@ pub fn analyze(
                 authorized_depositors_changes,
             },
         )))
-    } else if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output()
-    {
+    }
+    if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output() {
         transaction_types.push(TransactionType::GeneralTransaction(Box::new(
             GeneralTransactionType {
                 account_proofs: account_proofs_visitor.output(),
