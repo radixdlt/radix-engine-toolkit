@@ -115,6 +115,7 @@ pub mod prelude {
 
     /* Often needed */
     pub(crate) use std::collections::{BTreeMap, HashMap};
+    pub(crate) use std::str::FromStr;
     pub(crate) use std::sync::Arc;
     pub(crate) use thiserror::Error as ThisError;
     pub(crate) use uniffi::{Enum, Error, Object, Record};

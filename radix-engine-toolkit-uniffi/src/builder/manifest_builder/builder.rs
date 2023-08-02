@@ -563,12 +563,25 @@ impl ManifestBuilder {
     //=====================
 
     /* Faucet */
-    pub fn free_xrd_from_faucet(self: Arc<Self>) -> Result<Arc<Self>> {
+
+    pub fn faucet_free_xrd(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(NATIVE_FAUCET.into()),
                 method_name: "free".to_owned(),
                 args: manifest_args!().into(),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    pub fn faucet_lock_fee(self: Arc<Self>) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(NATIVE_FAUCET.into()),
+                method_name: "lock_fee".to_owned(),
+                args: manifest_args!(NativeDecimal::from_str("100").unwrap()).into(),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -835,6 +848,57 @@ impl ManifestBuilder {
                 args,
             };
             builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    pub fn mint_fungible(
+        self: Arc<Self>,
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount = amount.0;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(resource_address.into()),
+                method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeFungibleResourceManagerMintInput { amount }
+                ),
+            };
+            builder.instructions.push(instruction);
+
+            Ok(())
+        })
+    }
+
+    /* Access Rule */
+
+    pub fn set_role(
+        self: Arc<Self>,
+        address: Arc<Address>,
+        module: ObjectModuleId,
+        role_key: String,
+        rule: Arc<AccessRule>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*address)?;
+            let module = NativeObjectModuleId::from(module);
+            let rule = rule.0.clone();
+
+            let instruction = NativeInstruction::CallAccessRulesMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCESS_RULES_SET_ROLE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccessRulesSetRoleInput {
+                    module,
+                    role_key: NativeRoleKey { key: role_key },
+                    rule
+                }),
+            };
+            builder.instructions.push(instruction);
+
             Ok(())
         })
     }

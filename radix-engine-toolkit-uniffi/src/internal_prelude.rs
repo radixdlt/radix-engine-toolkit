@@ -267,7 +267,7 @@ mod native {
         RoleDefinition as NativeRoleDefinition,
         manifest_args as native_manifest_args,
         rule as native_rule,
-        require as native_require
+        require as native_require,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -459,6 +459,19 @@ mod native {
     };
     pub use radix_engine_interface::types::{
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
+    };
+    pub use radix_engine_interface::api::node_modules::auth::{
+        AccessRulesCreateInput as NativeAccessRulesCreateInput,
+        AccessRulesSetRoleInput as NativeAccessRulesSetRoleInput,
+        AccessRulesSetOwnerRoleInput as NativeAccessRulesSetOwnerRoleInput,
+        AccessRulesLockOwnerRoleInput as NativeAccessRulesLockOwnerRoleInput,
+        AccessRulesGetRoleInput as NativeAccessRulesGetRoleInput,
+        ACCESS_RULES_BLUEPRINT as NATIVE_ACCESS_RULES_BLUEPRINT,
+        ACCESS_RULES_CREATE_IDENT as NATIVE_ACCESS_RULES_CREATE_IDENT,
+        ACCESS_RULES_SET_ROLE_IDENT as NATIVE_ACCESS_RULES_SET_ROLE_IDENT,
+        ACCESS_RULES_SET_OWNER_ROLE_IDENT as NATIVE_ACCESS_RULES_SET_OWNER_ROLE_IDENT,
+        ACCESS_RULES_LOCK_OWNER_ROLE_IDENT as NATIVE_ACCESS_RULES_LOCK_OWNER_ROLE_IDENT,
+        ACCESS_RULES_GET_ROLE_IDENT as NATIVE_ACCESS_RULES_GET_ROLE_IDENT,
     };
     pub use radix_engine_interface::blueprints::access_controller::{
         AccessControllerCreateGlobalInput as NativeAccessControllerCreateGlobalInput,

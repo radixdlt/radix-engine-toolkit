@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::types::FromPublicKey;
+
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
@@ -61,6 +63,24 @@ impl AccessRule {
             NativeProofRule::AnyOf(resources.to_native()?),
         ));
         Ok(Arc::new(Self(access_rule)))
+    }
+
+    #[uniffi::constructor]
+    pub fn require_virtual_signature(public_key: PublicKey) -> Result<Arc<Self>> {
+        let public_key = NativePublicKey::try_from(public_key)?;
+        let non_fungible_global_id = NativeNonFungibleGlobalId::from_public_key(&public_key);
+        let access_rule = native_rule!(native_require(non_fungible_global_id));
+        Ok(Arc::new(Self(access_rule)))
+    }
+
+    #[uniffi::constructor]
+    pub fn allow_all() -> Arc<Self> {
+        Arc::new(Self(NativeAccessRule::AllowAll))
+    }
+
+    #[uniffi::constructor]
+    pub fn deny_all() -> Arc<Self> {
+        Arc::new(Self(NativeAccessRule::DenyAll))
     }
 
     pub fn or(&self, other: Arc<Self>) -> Arc<Self> {
