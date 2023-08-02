@@ -150,11 +150,13 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
             | InstructionV1::AssertWorktopContainsNonFungibles { .. }
             | InstructionV1::PopFromAuthZone
             | InstructionV1::PushToAuthZone { .. }
-            | InstructionV1::ClearAuthZone
+            | InstructionV1::DropNamedProofs
+            | InstructionV1::DropAuthZoneProofs
+            | InstructionV1::DropAuthZoneRegularProofs
+            | InstructionV1::DropAuthZoneSignatureProofs
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::ClearSignatureProofs
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }

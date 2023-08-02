@@ -80,8 +80,17 @@ pub fn traverse(
             InstructionV1::PushToAuthZone { proof_id } => {
                 for_each_enabled_visitor!(visitors, visit_push_to_auth_zone(proof_id))
             }
-            InstructionV1::ClearAuthZone => {
-                for_each_enabled_visitor!(visitors, visit_clear_auth_zone())
+            InstructionV1::DropNamedProofs => {
+                for_each_enabled_visitor!(visitors, visit_drop_named_proofs())
+            }
+            InstructionV1::DropAuthZoneProofs => {
+                for_each_enabled_visitor!(visitors, visit_drop_auth_zone_proofs())
+            }
+            InstructionV1::DropAuthZoneSignatureProofs {} => {
+                for_each_enabled_visitor!(visitors, visit_drop_auth_zone_signature_proofs())
+            }
+            InstructionV1::DropAuthZoneRegularProofs {} => {
+                for_each_enabled_visitor!(visitors, visit_drop_auth_zone_regular_proofs())
             }
 
             InstructionV1::CreateProofFromAuthZoneOfAmount {
@@ -107,9 +116,6 @@ pub fn traverse(
                     visitors,
                     visit_create_proof_from_auth_zone_of_all(resource_address)
                 )
-            }
-            InstructionV1::ClearSignatureProofs {} => {
-                for_each_enabled_visitor!(visitors, visit_clear_signature_proofs())
             }
             InstructionV1::CreateProofFromBucketOfAmount { bucket_id, amount } => {
                 for_each_enabled_visitor!(

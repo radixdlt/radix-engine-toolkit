@@ -1,20 +1,20 @@
 [package]
 name = "radix-engine-toolkit-core"
-version = "0.12.0"
+version = "0.12.0-fig.1"
 edition = "2021"
 build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", default-features= false, features = ["std", "lru"] }
-radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", default-features= false, features = ["std", "lru"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0" }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std", "lru"] }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std", "lru"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
@@ -32,7 +32,7 @@ regex = "1.8.4"
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-0e5d82a0", default-features = false, features = ["lru", "std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features = false, features = ["lru", "std", "resource_tracker"] }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]

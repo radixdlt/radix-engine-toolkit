@@ -66,8 +66,6 @@ pub enum SerializableInstruction {
         proof_id: SerializableU32,
     },
 
-    ClearAuthZone,
-
     CreateProofFromAuthZoneOfAmount {
         resource_address: SerializableNodeId,
         amount: SerializableDecimal,
@@ -82,7 +80,11 @@ pub enum SerializableInstruction {
         resource_address: SerializableNodeId,
     },
 
-    ClearSignatureProofs,
+    DropAllProofs,
+    DropNamedProofs,
+    DropAuthZoneProofs,
+    DropAuthZoneRegularProofs,
+    DropAuthZoneSignatureProofs,
 
     CreateProofFromBucketOfAmount {
         bucket_id: SerializableU32,
@@ -146,8 +148,6 @@ pub enum SerializableInstruction {
         method_name: String,
         args: SerializableManifestValue,
     },
-
-    DropAllProofs,
 
     AllocateGlobalAddress {
         package_address: SerializableNodeId,
@@ -228,7 +228,7 @@ impl SerializableInstruction {
             InstructionV1::PushToAuthZone { proof_id } => Self::PushToAuthZone {
                 proof_id: SerializableU32::from(proof_id.0),
             },
-            InstructionV1::ClearAuthZone => Self::ClearAuthZone,
+            InstructionV1::DropAuthZoneProofs => Self::DropAuthZoneProofs,
             InstructionV1::CreateProofFromAuthZoneOfAll { resource_address } => {
                 Self::CreateProofFromAuthZoneOfAll {
                     resource_address: SerializableNodeId::new(
@@ -260,7 +260,9 @@ impl SerializableInstruction {
                     .map(|local_id| SerializableNonFungibleLocalId::from(local_id.clone()))
                     .collect(),
             },
-            InstructionV1::ClearSignatureProofs => Self::ClearSignatureProofs,
+            InstructionV1::DropNamedProofs => Self::DropNamedProofs,
+            InstructionV1::DropAuthZoneRegularProofs => Self::DropAuthZoneRegularProofs,
+            InstructionV1::DropAuthZoneSignatureProofs => Self::DropAuthZoneSignatureProofs,
             InstructionV1::CreateProofFromBucketOfAll { bucket_id } => {
                 Self::CreateProofFromBucketOfAll {
                     bucket_id: SerializableU32::from(bucket_id.0),
@@ -460,8 +462,10 @@ impl SerializableInstruction {
             Self::PushToAuthZone { proof_id } => InstructionV1::PushToAuthZone {
                 proof_id: ManifestProof(**proof_id),
             },
-            Self::ClearAuthZone => InstructionV1::ClearAuthZone,
-            Self::ClearSignatureProofs => InstructionV1::ClearSignatureProofs,
+            Self::DropNamedProofs => InstructionV1::DropNamedProofs,
+            Self::DropAuthZoneProofs => InstructionV1::DropAuthZoneProofs,
+            Self::DropAuthZoneRegularProofs => InstructionV1::DropAuthZoneRegularProofs,
+            Self::DropAuthZoneSignatureProofs => InstructionV1::DropAuthZoneSignatureProofs,
             Self::CreateProofFromAuthZoneOfAll {
                 resource_address, ..
             } => InstructionV1::CreateProofFromAuthZoneOfAll {

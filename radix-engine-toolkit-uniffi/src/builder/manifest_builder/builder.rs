@@ -180,17 +180,17 @@ impl ManifestBuilder {
         })
     }
 
-    pub fn clear_auth_zone(self: Arc<Self>) -> Result<Arc<Self>> {
+    pub fn drop_auth_zone_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::ClearAuthZone;
+            let instruction = NativeInstruction::DropAuthZoneProofs;
             builder.instructions.push(instruction);
             Ok(())
         })
     }
 
-    pub fn clear_signature_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
+    pub fn drop_auth_zone_signature_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::ClearSignatureProofs;
+            let instruction = NativeInstruction::DropAuthZoneSignatureProofs;
             builder.instructions.push(instruction);
             Ok(())
         })

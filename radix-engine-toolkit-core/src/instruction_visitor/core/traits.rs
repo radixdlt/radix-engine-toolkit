@@ -112,7 +112,7 @@ pub trait InstructionVisitor {
     }
 
     #[inline]
-    fn visit_clear_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
+    fn visit_drop_auth_zone_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 
@@ -143,7 +143,17 @@ pub trait InstructionVisitor {
     }
 
     #[inline]
-    fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
+    fn visit_drop_named_proofs(&mut self) -> Result<(), InstructionVisitorError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn visit_drop_auth_zone_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
+        Ok(())
+    }
+
+    #[inline]
+    fn visit_drop_auth_zone_regular_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         Ok(())
     }
 

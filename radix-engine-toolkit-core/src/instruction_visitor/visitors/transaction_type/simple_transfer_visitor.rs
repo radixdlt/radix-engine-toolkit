@@ -248,7 +248,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     }
 
     #[inline]
-    fn visit_clear_auth_zone(&mut self) -> Result<(), InstructionVisitorError> {
+    fn visit_drop_auth_zone_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }
@@ -283,7 +283,7 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
     }
 
     #[inline]
-    fn visit_clear_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
+    fn visit_drop_auth_zone_signature_proofs(&mut self) -> Result<(), InstructionVisitorError> {
         self.illegal_instruction_encountered = true;
         Ok(())
     }

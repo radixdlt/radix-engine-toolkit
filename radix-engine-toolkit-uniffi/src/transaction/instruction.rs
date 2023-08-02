@@ -57,8 +57,6 @@ pub enum Instruction {
         proof_id: ManifestProof,
     },
 
-    ClearAuthZone,
-
     CreateProofFromAuthZoneOfAmount {
         resource_address: Arc<Address>,
         amount: Arc<Decimal>,
@@ -73,7 +71,11 @@ pub enum Instruction {
         resource_address: Arc<Address>,
     },
 
-    ClearSignatureProofs,
+    DropAllProofs,
+    DropNamedProofs,
+    DropAuthZoneProofs,
+    DropAuthZoneRegularProofs,
+    DropAuthZoneSignatureProofs,
 
     CreateProofFromBucketOfAmount {
         bucket_id: ManifestBucket,
@@ -138,8 +140,6 @@ pub enum Instruction {
         args: ManifestValue,
     },
 
-    DropAllProofs,
-
     AllocateGlobalAddress {
         package_address: Arc<Address>,
         blueprint_name: String,
@@ -202,8 +202,10 @@ impl Instruction {
             NativeInstruction::PushToAuthZone { proof_id } => Self::PushToAuthZone {
                 proof_id: (*proof_id).into(),
             },
-            NativeInstruction::ClearAuthZone => Self::ClearAuthZone,
-            NativeInstruction::ClearSignatureProofs => Self::ClearSignatureProofs,
+            NativeInstruction::DropNamedProofs => Self::DropNamedProofs,
+            NativeInstruction::DropAuthZoneProofs => Self::DropAuthZoneProofs,
+            NativeInstruction::DropAuthZoneRegularProofs => Self::DropAuthZoneRegularProofs,
+            NativeInstruction::DropAuthZoneSignatureProofs => Self::DropAuthZoneSignatureProofs,
             NativeInstruction::CreateProofFromAuthZoneOfAll { resource_address } => {
                 Self::CreateProofFromAuthZoneOfAll {
                     resource_address: Arc::new(Address::from_node_id(
@@ -377,7 +379,9 @@ impl Instruction {
             Self::PushToAuthZone { proof_id } => NativeInstruction::PushToAuthZone {
                 proof_id: (*proof_id).into(),
             },
-            Self::ClearAuthZone => NativeInstruction::ClearAuthZone,
+            Self::DropNamedProofs => NativeInstruction::DropNamedProofs,
+            Self::DropAuthZoneProofs => NativeInstruction::DropAuthZoneProofs,
+            Self::DropAuthZoneRegularProofs => NativeInstruction::DropAuthZoneRegularProofs,
             Self::CreateProofFromAuthZoneOfAll { resource_address } => {
                 NativeInstruction::CreateProofFromAuthZoneOfAll {
                     resource_address: (*resource_address.as_ref()).try_into()?,
@@ -401,7 +405,7 @@ impl Instruction {
                     .map(TryInto::try_into)
                     .collect::<Result<_>>()?,
             },
-            Self::ClearSignatureProofs => NativeInstruction::ClearSignatureProofs,
+            Self::DropAuthZoneSignatureProofs => NativeInstruction::DropAuthZoneSignatureProofs,
             Self::CreateProofFromBucketOfAll { bucket_id } => {
                 NativeInstruction::CreateProofFromBucketOfAll {
                     bucket_id: (*bucket_id).into(),
