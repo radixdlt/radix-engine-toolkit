@@ -101,7 +101,6 @@ pub enum SerializableTransactionType {
     Transfer(Box<SerializableTransferTransactionType>),
     AccountDepositSettings(Box<SerializableAccountDepositSettingsTransactionType>),
     GeneralTransaction(Box<SerializableGeneralTransactionType>),
-    NonConforming,
 }
 
 impl SerializableTransactionType {
