@@ -15,6 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#[cfg(not(any(feature = "moka", feature = "lru")))]
+compile_error!("Either feature `moka` or `lru` must be enabled for this crate.");
+#[cfg(all(feature = "moka", feature = "lru"))]
+compile_error!("Feature `moka` and `lru` can't be enabled at the same time.");
+
 pub mod functions;
 pub mod instruction_visitor;
 pub mod sbor;

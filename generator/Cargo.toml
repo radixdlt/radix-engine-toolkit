@@ -7,15 +7,17 @@ edition = "2021"
 # radixdlt-scrypto dependencies.
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features = false, features = ["lru", "std"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std", "lru"] }
+transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
-radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
-radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false, features = ["moka"]}
+radix-engine-toolkit = { path = "../radix-engine-toolkit", default-features = false, features = ["moka"]}
 
 # Serde dependencies
 serde = { version = "1.0.163" }

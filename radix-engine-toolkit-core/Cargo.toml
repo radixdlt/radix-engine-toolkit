@@ -9,10 +9,10 @@ build = "build.rs"
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std", "lru"] }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std"] }
 radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std", "lru"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features= false, features = ["std"] }
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
 
@@ -32,7 +32,12 @@ regex = "1.8.4"
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features = false, features = ["lru", "std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", default-features = false, features = ["std", "resource_tracker"] }
+
+[features]
+default = ["lru"]
+moka = ["radix-engine/moka", "radix-engine-queries/moka", "scrypto-unit/moka"]
+lru = ["radix-engine/lru", "radix-engine-queries/lru", "scrypto-unit/lru"]
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
