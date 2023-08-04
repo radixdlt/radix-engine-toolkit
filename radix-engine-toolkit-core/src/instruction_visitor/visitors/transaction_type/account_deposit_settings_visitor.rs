@@ -24,15 +24,21 @@ use crate::{
     utils::{is_account, to_manifest_type},
 };
 
+#[derive(Clone, Debug, PartialEq, Eq, Copy)]
+pub enum ResourcePreferenceAction {
+    Set(ResourcePreference),
+    Remove,
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct AccountDepositSettingsVisitor {
     /// Maps the account address to the changes in resource preferences encountered in the
     /// transaction.
     resource_preference_changes:
-        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourcePreferenceAction>>,
     /// Maps the account address to the updated default deposit rule encountered in the
     /// transaction.
-    default_deposit_rule_changes: HashMap<ComponentAddress, AccountDefaultDepositRule>,
+    default_deposit_rule_changes: HashMap<ComponentAddress, DefaultDepositRule>,
     /// Maps the account address to the changes in the authorized depositors in the transaction.
     authorized_depositors_changes: HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
     /// Tracks if the visitor is currently in an illegal state or not.
@@ -44,8 +50,8 @@ impl AccountDepositSettingsVisitor {
     pub fn output(
         self,
     ) -> Option<(
-        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
-        HashMap<ComponentAddress, AccountDefaultDepositRule>,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourcePreferenceAction>>,
+        HashMap<ComponentAddress, DefaultDepositRule>,
         HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
     )> {
         if !self.is_illegal_state {
@@ -94,25 +100,37 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
                 // Process the calls to the appropriate account methods, any other method that is
                 // encountered is not permitted
                 match method_name.as_str() {
-                    ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT => {
-                        if let Some(AccountConfigureResourceDepositRuleInput {
+                    ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT => {
+                        if let Some(AccountSetResourcePreferenceInput {
                             resource_address,
-                            resource_deposit_configuration,
+                            resource_preference,
                         }) = to_manifest_type(args)
                         {
                             self.resource_preference_changes
                                 .entry(component_address)
                                 .or_default()
-                                .insert(resource_address, resource_deposit_configuration);
+                                .insert(
+                                    resource_address,
+                                    ResourcePreferenceAction::Set(resource_preference),
+                                );
                         }
                     }
-                    ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT => {
-                        if let Some(AccountChangeDefaultDepositRuleInput {
-                            default_deposit_rule,
-                        }) = to_manifest_type(args)
+                    ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT => {
+                        if let Some(AccountRemoveResourcePreferenceInput { resource_address }) =
+                            to_manifest_type(args)
+                        {
+                            self.resource_preference_changes
+                                .entry(component_address)
+                                .or_default()
+                                .insert(resource_address, ResourcePreferenceAction::Remove);
+                        }
+                    }
+                    ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT => {
+                        if let Some(AccountSetDefaultDepositRuleInput { default }) =
+                            to_manifest_type(args)
                         {
                             self.default_deposit_rule_changes
-                                .insert(component_address, default_deposit_rule);
+                                .insert(component_address, default);
                         }
                     }
                     ACCOUNT_ADD_AUTHORIZED_DEPOSITOR => {

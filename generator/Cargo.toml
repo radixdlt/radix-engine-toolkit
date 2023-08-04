@@ -5,15 +5,15 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07", features = ["serde"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-d663d07" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false, features = ["moka"]}

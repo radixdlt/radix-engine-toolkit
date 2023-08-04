@@ -100,7 +100,7 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
                 },
             )),
         )
-        .try_deposit_batch_or_abort(account)
+        .try_deposit_batch_or_abort(account, None)
         .build();
     let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
     let new_non_fungibles =

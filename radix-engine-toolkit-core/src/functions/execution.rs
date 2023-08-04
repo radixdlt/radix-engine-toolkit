@@ -17,8 +17,7 @@
 
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
-use radix_engine_interface::blueprints::account::AccountDefaultDepositRule;
-use radix_engine_interface::blueprints::account::ResourceDepositRule;
+use radix_engine_interface::blueprints::account::DefaultDepositRule;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
@@ -206,8 +205,8 @@ pub struct TransferTransactionType {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AccountDepositSettingsTransactionType {
     pub resource_preference_changes:
-        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourceDepositRule>>,
-    pub default_deposit_rule_changes: HashMap<ComponentAddress, AccountDefaultDepositRule>,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourcePreferenceAction>>,
+    pub default_deposit_rule_changes: HashMap<ComponentAddress, DefaultDepositRule>,
     pub authorized_depositors_changes: HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
 }
 

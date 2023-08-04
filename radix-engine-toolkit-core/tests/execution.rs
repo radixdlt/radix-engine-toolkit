@@ -20,7 +20,6 @@ use radix_engine::transaction::TransactionReceipt;
 use radix_engine_toolkit_core::functions::execution::{self, *};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
-use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
@@ -36,13 +35,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
         .lock_fee(account1, dec!("10"))
         .withdraw_from_account(account1, XRD, dec!("10"))
         .take_from_worktop(XRD, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .try_deposit_or_abort(account2, None, "bucket")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
@@ -81,21 +74,9 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
         .lock_fee(account1, dec!("10"))
         .withdraw_from_account(account1, XRD, dec!("20"))
         .take_from_worktop(XRD, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .try_deposit_or_abort(account2, None, "bucket")
         .take_from_worktop(XRD, dec!("10"), "bucket2")
-        .with_bucket("bucket2", |builder, bucket| {
-            builder.call_method(
-                account3,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .try_deposit_or_abort(account3, None, "bucket2")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
@@ -140,21 +121,9 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
         .withdraw_from_account(account1, XRD, dec!("10"))
         .withdraw_from_account(account2, XRD, dec!("10"))
         .take_from_worktop(XRD, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .try_deposit_or_abort(account2, None, "bucket")
         .take_from_worktop(XRD, dec!("10"), "bucket1")
-        .with_bucket("bucket1", |builder, bucket| {
-            builder.call_method(
-                account3,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .try_deposit_or_abort(account3, None, "bucket1")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
@@ -205,7 +174,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 NonFungibleLocalId::integer(2) => (),
             )),
         )
-        .try_deposit_batch_or_abort(account1)
+        .try_deposit_batch_or_abort(account1, None)
         .build();
     let resource_address = *test_runner
         .execute_manifest_ignoring_fee(manifest, vec![])
@@ -219,7 +188,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
         .withdraw_from_account(account1, resource_address, 2)
         .take_from_worktop(resource_address, 2, "bucket")
         .with_bucket("bucket", |builder, bucket| {
-            builder.try_deposit_or_abort(account2, bucket)
+            builder.try_deposit_or_abort(account2, None, bucket)
         })
         .drop_all_proofs()
         .build();

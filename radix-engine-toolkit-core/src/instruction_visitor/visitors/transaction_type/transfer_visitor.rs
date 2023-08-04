@@ -289,6 +289,10 @@ impl TransferTransactionTypeVisitor {
         let matches_deposit_schema = [
             utils::validate_manifest_value_against_schema::<AccountDepositInput>(args),
             utils::validate_manifest_value_against_schema::<AccountDepositBatchInput>(args),
+            utils::validate_manifest_value_against_schema::<AccountTryDepositOrAbortInput>(args),
+            utils::validate_manifest_value_against_schema::<AccountTryDepositBatchOrAbortInput>(
+                args,
+            ),
         ]
         .into_iter()
         .any(|result| result.is_ok());

@@ -18,6 +18,7 @@
 use radix_engine::transaction::{
     execute_and_commit_transaction, ExecutionConfig, FeeReserveConfig, TransactionReceipt,
 };
+use radix_engine::types::ResourceOrNonFungible;
 use radix_engine::vm::Vm;
 use radix_engine::vm::{wasm::DefaultWasmEngine, DefaultNativeVm, NoExtension, ScryptoVm};
 use radix_engine_common::prelude::*;
@@ -47,7 +48,7 @@ impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                        manifest_args!(bucket),
+                        manifest_args!(bucket, Option::<ResourceOrNonFungible>::None),
                     )
                 })
                 .build();
@@ -76,7 +77,7 @@ impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                        manifest_args!(bucket),
+                        manifest_args!(bucket, Option::<ResourceOrNonFungible>::None),
                     )
                 })
                 .take_from_worktop(XRD, "10", "bucket1")
@@ -84,7 +85,7 @@ impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
                     builder.call_method(
                         account3,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                        manifest_args!(bucket),
+                        manifest_args!(bucket, Option::<ResourceOrNonFungible>::None),
                     )
                 })
                 .build();
@@ -114,7 +115,7 @@ impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
                     builder.call_method(
                         account2,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                        manifest_args!(bucket),
+                        manifest_args!(bucket, Option::<ResourceOrNonFungible>::None),
                     )
                 })
                 .take_from_worktop(XRD, "10", "bucket1")
@@ -122,7 +123,7 @@ impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
                     builder.call_method(
                         account3,
                         ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                        manifest_args!(bucket),
+                        manifest_args!(bucket, Option::<ResourceOrNonFungible>::None),
                     )
                 })
                 .build();

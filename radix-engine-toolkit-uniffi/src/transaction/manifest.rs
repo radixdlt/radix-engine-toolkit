@@ -154,7 +154,7 @@ pub enum TransactionType {
         transfers: HashMap<String, HashMap<String, Resources>>,
     },
     AccountDepositSettings {
-        resource_preference_changes: HashMap<String, HashMap<String, ResourceDepositRule>>,
+        resource_preference_changes: HashMap<String, HashMap<String, ResourcePreferenceAction>>,
         default_deposit_rule_changes: HashMap<String, AccountDefaultDepositRule>,
         authorized_depositors_changes: HashMap<String, AuthorizedDepositorsChanges>,
     },
@@ -301,7 +301,7 @@ impl TransactionType {
                                         (
                                             Arc::new(Address::from_node_id(*key, network_id))
                                                 .as_str(),
-                                            <ResourceDepositRule as FromNative>::from_native(
+                                            <ResourcePreferenceAction as FromNative>::from_native(
                                                 *value,
                                             ),
                                         )
@@ -516,8 +516,13 @@ impl ResourceTracker {
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum ResourceDepositRule {
-    Neither,
+pub enum ResourcePreferenceAction {
+    Set { value: ResourcePreference },
+    Remove,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourcePreference {
     Allowed,
     Disallowed,
 }
@@ -535,26 +540,38 @@ pub struct AuthorizedDepositorsChanges {
     pub removed: Vec<ResourceOrNonFungible>,
 }
 
-impl FromNative for ResourceDepositRule {
-    type Native = NativeResourceDepositRule;
+impl FromNative for ResourcePreferenceAction {
+    type Native = CoreResourcePreferenceAction;
 
     fn from_native(native: Self::Native) -> Self {
         match native {
-            NativeResourceDepositRule::Allowed => Self::Allowed,
-            NativeResourceDepositRule::Disallowed => Self::Disallowed,
-            NativeResourceDepositRule::Neither => Self::Neither,
+            Self::Native::Set(value) => Self::Set {
+                value: <ResourcePreference as FromNative>::from_native(value),
+            },
+            Self::Native::Remove => Self::Remove,
+        }
+    }
+}
+
+impl FromNative for ResourcePreference {
+    type Native = NativeResourcePreference;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            NativeResourcePreference::Allowed => Self::Allowed,
+            NativeResourcePreference::Disallowed => Self::Disallowed,
         }
     }
 }
 
 impl FromNative for AccountDefaultDepositRule {
-    type Native = NativeAccountDefaultDepositRule;
+    type Native = NativeDefaultDepositRule;
 
     fn from_native(native: Self::Native) -> Self {
         match native {
-            NativeAccountDefaultDepositRule::Accept => Self::Accept,
-            NativeAccountDefaultDepositRule::Reject => Self::Reject,
-            NativeAccountDefaultDepositRule::AllowExisting => Self::AllowExisting,
+            NativeDefaultDepositRule::Accept => Self::Accept,
+            NativeDefaultDepositRule::Reject => Self::Reject,
+            NativeDefaultDepositRule::AllowExisting => Self::AllowExisting,
         }
     }
 }

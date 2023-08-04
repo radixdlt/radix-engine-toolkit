@@ -23,4 +23,5 @@ CALL_METHOD
 CALL_METHOD
     Address("account_sim1cyzfj6p254jy6lhr237s7pcp8qqz6c8ahq9mn6nkdjxxxat5syrgz9") 
     "try_deposit_batch_or_abort"
-    Expression("ENTIRE_WORKTOP");
+    Expression("ENTIRE_WORKTOP")
+    None;

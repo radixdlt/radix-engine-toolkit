@@ -629,16 +629,22 @@ impl ManifestBuilder {
     pub fn account_try_deposit_or_abort(
         self: Arc<Self>,
         account_address: Arc<Address>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
         bucket: ManifestBuilderBucket,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
             let bucket = builder.name_record.get_bucket(&bucket.name)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT.to_owned(),
-                args: manifest_args!(*bucket).into(),
+                args: manifest_args!(*bucket, authorized_depositor_badge).into(),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -648,16 +654,22 @@ impl ManifestBuilder {
     pub fn account_try_deposit_or_refund(
         self: Arc<Self>,
         account_address: Arc<Address>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
         bucket: ManifestBuilderBucket,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
             let bucket = builder.name_record.get_bucket(&bucket.name)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT.to_owned(),
-                args: manifest_args!(*bucket).into(),
+                args: manifest_args!(*bucket, authorized_depositor_badge).into(),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -674,7 +686,7 @@ impl ManifestBuilder {
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
-                args: manifest_args!(NativeManifestExpression::EntireWorktop).into(),
+                args: manifest_args!(NativeManifestExpression::EntireWorktop,).into(),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -684,14 +696,24 @@ impl ManifestBuilder {
     pub fn account_try_deposit_batch_or_abort(
         self: Arc<Self>,
         account_address: Arc<Address>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT.to_owned(),
-                args: manifest_args!(NativeManifestExpression::EntireWorktop).into(),
+                args: manifest_args!(
+                    NativeManifestExpression::EntireWorktop,
+                    authorized_depositor_badge
+                )
+                .into(),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -701,14 +723,24 @@ impl ManifestBuilder {
     pub fn account_try_deposit_batch_or_refund(
         self: Arc<Self>,
         account_address: Arc<Address>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT.to_owned(),
-                args: manifest_args!(NativeManifestExpression::EntireWorktop).into(),
+                args: manifest_args!(
+                    NativeManifestExpression::EntireWorktop,
+                    authorized_depositor_badge
+                )
+                .into(),
             };
             builder.instructions.push(instruction);
             Ok(())

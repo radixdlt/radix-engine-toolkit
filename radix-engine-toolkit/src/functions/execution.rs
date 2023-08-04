@@ -23,12 +23,12 @@ use radix_engine::types::ResourceOrNonFungible;
 use radix_engine_common::prelude::*;
 use radix_engine_toolkit_core::functions::execution::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::AuthorizedDepositorsChanges;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::ResourcePreferenceAction;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use schemars::*;
 use scrypto::api::node_modules::metadata::*;
-use scrypto::blueprints::account::AccountDefaultDepositRule;
-use scrypto::blueprints::account::ResourceDepositRule;
+use scrypto::blueprints::account::{ResourcePreference, DefaultDepositRule};
 use serde::*;
 
 //===================
@@ -251,7 +251,7 @@ impl SerializableTransactionType {
                                                     key.into_node_id(),
                                                     network_id,
                                                 ),
-                                                SerializableResourceDepositRule::from(value),
+                                                SerializableResourcePreferenceAction::from(value),
                                             )
                                         })
                                         .collect(),
@@ -264,7 +264,7 @@ impl SerializableTransactionType {
                             .map(|(key, value)| {
                                 (
                                     SerializableNodeId::new(key.into_node_id(), network_id),
-                                    SerializableAccountDefaultDepositRule::from(value),
+                                    SerializableDefaultDepositRule::from(value),
                                 )
                             })
                             .collect(),
@@ -391,10 +391,11 @@ pub struct SerializableTransferTransactionType {
 #[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableAccountDepositSettingsTransactionType {
-    pub resource_preference_changes:
-        HashMap<SerializableNodeId, HashMap<SerializableNodeId, SerializableResourceDepositRule>>,
-    pub default_deposit_rule_changes:
-        HashMap<SerializableNodeId, SerializableAccountDefaultDepositRule>,
+    pub resource_preference_changes: HashMap<
+        SerializableNodeId,
+        HashMap<SerializableNodeId, SerializableResourcePreferenceAction>,
+    >,
+    pub default_deposit_rule_changes: HashMap<SerializableNodeId, SerializableDefaultDepositRule>,
     pub authorized_depositors_changes:
         HashMap<SerializableNodeId, SerializableAuthorizedDepositorsChanges>,
 }
@@ -460,60 +461,82 @@ impl SerializableResourceOrNonFungible {
 
 #[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub enum SerializableResourceDepositRule {
-    Neither,
-    Allowed,
-    Disallowed,
+pub enum SerializableResourcePreferenceAction {
+    Set {
+        value: SerializableResourcePreference,
+    },
+    Remove,
 }
 
-impl From<SerializableResourceDepositRule> for ResourceDepositRule {
-    fn from(value: SerializableResourceDepositRule) -> Self {
+impl From<ResourcePreferenceAction> for SerializableResourcePreferenceAction {
+    fn from(value: ResourcePreferenceAction) -> Self {
         match value {
-            SerializableResourceDepositRule::Allowed => ResourceDepositRule::Allowed,
-            SerializableResourceDepositRule::Disallowed => ResourceDepositRule::Disallowed,
-            SerializableResourceDepositRule::Neither => ResourceDepositRule::Neither,
+            ResourcePreferenceAction::Remove => Self::Remove,
+            ResourcePreferenceAction::Set(value) => Self::Set {
+                value: value.into(),
+            },
         }
     }
 }
 
-impl From<ResourceDepositRule> for SerializableResourceDepositRule {
-    fn from(value: ResourceDepositRule) -> Self {
+impl From<SerializableResourcePreferenceAction> for ResourcePreferenceAction {
+    fn from(value: SerializableResourcePreferenceAction) -> Self {
         match value {
-            ResourceDepositRule::Allowed => SerializableResourceDepositRule::Allowed,
-            ResourceDepositRule::Disallowed => SerializableResourceDepositRule::Disallowed,
-            ResourceDepositRule::Neither => SerializableResourceDepositRule::Neither,
+            SerializableResourcePreferenceAction::Remove => Self::Remove,
+            SerializableResourcePreferenceAction::Set { value } => Self::Set(value.into()),
         }
     }
 }
 
 #[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub enum SerializableAccountDefaultDepositRule {
+pub enum SerializableResourcePreference {
+    Allowed,
+    Disallowed,
+}
+
+impl From<SerializableResourcePreference> for ResourcePreference {
+    fn from(value: SerializableResourcePreference) -> Self {
+        match value {
+            SerializableResourcePreference::Allowed => ResourcePreference::Allowed,
+            SerializableResourcePreference::Disallowed => ResourcePreference::Disallowed,
+        }
+    }
+}
+
+impl From<ResourcePreference> for SerializableResourcePreference {
+    fn from(value: ResourcePreference) -> Self {
+        match value {
+            ResourcePreference::Allowed => SerializableResourcePreference::Allowed,
+            ResourcePreference::Disallowed => SerializableResourcePreference::Disallowed,
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub enum SerializableDefaultDepositRule {
     Accept,
     Reject,
     AllowExisting,
 }
 
-impl From<SerializableAccountDefaultDepositRule> for AccountDefaultDepositRule {
-    fn from(value: SerializableAccountDefaultDepositRule) -> Self {
+impl From<SerializableDefaultDepositRule> for DefaultDepositRule {
+    fn from(value: SerializableDefaultDepositRule) -> Self {
         match value {
-            SerializableAccountDefaultDepositRule::Accept => AccountDefaultDepositRule::Accept,
-            SerializableAccountDefaultDepositRule::Reject => AccountDefaultDepositRule::Reject,
-            SerializableAccountDefaultDepositRule::AllowExisting => {
-                AccountDefaultDepositRule::AllowExisting
-            }
+            SerializableDefaultDepositRule::Accept => DefaultDepositRule::Accept,
+            SerializableDefaultDepositRule::Reject => DefaultDepositRule::Reject,
+            SerializableDefaultDepositRule::AllowExisting => DefaultDepositRule::AllowExisting,
         }
     }
 }
 
-impl From<AccountDefaultDepositRule> for SerializableAccountDefaultDepositRule {
-    fn from(value: AccountDefaultDepositRule) -> Self {
+impl From<DefaultDepositRule> for SerializableDefaultDepositRule {
+    fn from(value: DefaultDepositRule) -> Self {
         match value {
-            AccountDefaultDepositRule::Accept => SerializableAccountDefaultDepositRule::Accept,
-            AccountDefaultDepositRule::Reject => SerializableAccountDefaultDepositRule::Reject,
-            AccountDefaultDepositRule::AllowExisting => {
-                SerializableAccountDefaultDepositRule::AllowExisting
-            }
+            DefaultDepositRule::Accept => SerializableDefaultDepositRule::Accept,
+            DefaultDepositRule::Reject => SerializableDefaultDepositRule::Reject,
+            DefaultDepositRule::AllowExisting => SerializableDefaultDepositRule::AllowExisting,
         }
     }
 }

@@ -42,40 +42,39 @@ fn account_deposit_settings_visitor_functions_as_expected() {
         )
         .call_method(
             account1,
-            ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT,
-            AccountConfigureResourceDepositRuleInput {
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
                 resource_address: XRD,
-                resource_deposit_configuration: ResourceDepositRule::Allowed,
+                resource_preference: ResourcePreference::Allowed,
             },
         )
         .call_method(
             account1,
-            ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT,
-            AccountConfigureResourceDepositRuleInput {
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
                 resource_address: XRD,
-                resource_deposit_configuration: ResourceDepositRule::Disallowed,
+                resource_preference: ResourcePreference::Disallowed,
             },
         )
         .call_method(
             account1,
-            ACCOUNT_CONFIGURE_RESOURCE_DEPOSIT_RULE_IDENT,
-            AccountConfigureResourceDepositRuleInput {
+            ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+            AccountRemoveResourcePreferenceInput {
                 resource_address: XRD,
-                resource_deposit_configuration: ResourceDepositRule::Neither,
             },
         )
         .call_method(
             account1,
-            ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT,
-            AccountChangeDefaultDepositRuleInput {
-                default_deposit_rule: AccountDefaultDepositRule::Accept,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Accept,
             },
         )
         .call_method(
             account1,
-            ACCOUNT_CHANGE_DEFAULT_DEPOSIT_RULE_IDENT,
-            AccountChangeDefaultDepositRuleInput {
-                default_deposit_rule: AccountDefaultDepositRule::Reject,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Reject,
             },
         )
         .build();
@@ -104,14 +103,14 @@ fn account_deposit_settings_visitor_functions_as_expected() {
         resource_preference_changes,
         hashmap! {
             account1 => hashmap! {
-                XRD => ResourceDepositRule::Neither
+                XRD => ResourcePreferenceAction::Remove
             }
         }
     );
     assert_eq!(
         default_deposit_rule_changes,
         hashmap! {
-            account1 => AccountDefaultDepositRule::Reject
+            account1 => DefaultDepositRule::Reject
         }
     )
 }

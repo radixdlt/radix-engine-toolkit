@@ -146,9 +146,15 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
                     .map_err(|_| {
                         self.illegal_instruction_encountered = true;
                     });
-            } else if let (ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT, Ok(())) = (
+            } else if let (
+                ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                (Ok(()), _) | (_, Ok(())),
+            ) = (
                 method_name,
-                validate_manifest_value_against_schema::<AccountDepositInput>(args),
+                (
+                    validate_manifest_value_against_schema::<AccountDepositInput>(args),
+                    validate_manifest_value_against_schema::<AccountTryDepositOrAbortInput>(args),
+                ),
             ) {
                 let _ = self
                     .state_machine

@@ -32,7 +32,7 @@ pub fn notarized_transaction() -> NotarizedTransactionV1 {
         .manifest(
             ManifestBuilder::new()
                 .withdraw_from_account(account1, XRD, dec!("10"))
-                .try_deposit_batch_or_abort(account2)
+                .try_deposit_batch_or_abort(account2, None)
                 .build(),
         )
         .header(TransactionHeaderV1 {
