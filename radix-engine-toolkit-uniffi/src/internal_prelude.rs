@@ -334,6 +334,9 @@ mod native {
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError,
     };
+    pub use radix_engine_common::types::{
+        TypeIdentifier as NativeTypeIdentifier
+    };
     pub use radix_engine_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
         from_precise_decimal as native_from_precise_decimal,
@@ -464,6 +467,7 @@ mod native {
     };
     pub use radix_engine_interface::types::{
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
+        BlueprintId as NativeBlueprintId
     };
     pub use radix_engine_interface::api::node_modules::auth::{
         RoleAssignmentCreateInput as NativeRoleAssignmentCreateInput,

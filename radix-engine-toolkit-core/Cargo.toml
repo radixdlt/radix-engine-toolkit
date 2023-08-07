@@ -6,15 +6,15 @@ build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", default-features= false, features = ["std"] }
-radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", default-features= false, features = ["std"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", default-features= false, features = ["std"] }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", default-features= false, features = ["std"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65" }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
@@ -32,7 +32,7 @@ regex = "1.8.4"
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", default-features = false, features = ["std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", default-features = false, features = ["std", "resource_tracker"] }
 
 [features]
 default = ["lru"]

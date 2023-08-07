@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", default-features= false, features = ["std"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "develop-2da5b66", features = ["serde"] }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", default-features= false, features = ["std"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "fig-715722bf65", features = ["serde"] }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false }

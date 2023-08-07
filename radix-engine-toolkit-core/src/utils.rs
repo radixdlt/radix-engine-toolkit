@@ -235,7 +235,7 @@ pub fn metadata_of_newly_created_entities(
                 .expect_commit_success()
                 .state_updates
                 .system_updates
-                .get(&(*global_address.as_node_id(), METADATA_KV_STORE_PARTITION))
+                .get(&(*global_address.as_node_id(), METADATA_BASE_PARTITION))
             {
                 for (substate_key, database_update) in key_update_map.iter() {
                     if let DatabaseUpdate::Set(data) = database_update {
@@ -244,7 +244,7 @@ pub fn metadata_of_newly_created_entities(
                             TypedSubstateValue::MetadataModule(value),
                         )) = to_typed_substate_key(
                             global_address.as_node_id().entity_type().unwrap(),
-                            METADATA_KV_STORE_PARTITION,
+                            METADATA_BASE_PARTITION,
                             substate_key,
                         )
                         .and_then(|typed_substate_key| {

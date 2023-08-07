@@ -56,7 +56,7 @@ fn extraction_of_metadata_from_receipts_succeeds() {
         *receipt
             .expect_commit_success()
             .new_resource_addresses()
-            .get(0)
+            .first()
             .unwrap(),
     );
     assert_eq!(
@@ -111,7 +111,7 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
     let resource_address = *receipt
         .expect_commit_success()
         .new_resource_addresses()
-        .get(0)
+        .first()
         .unwrap();
     assert_eq!(
         non_fungible_data,

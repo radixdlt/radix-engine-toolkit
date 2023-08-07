@@ -222,7 +222,7 @@ fn get_enum(item: &mut Value) -> Option<IndexMap<String, (&mut Value, String)>> 
                     .and_then(|value| value.get_mut("enum"))
                 {
                     if enum_discriminators.len() == 1 {
-                        if let Some(Value::String(enum_discriminator)) = enum_discriminators.get(0)
+                        if let Some(Value::String(enum_discriminator)) = enum_discriminators.first()
                         {
                             variants_map
                                 .insert(enum_discriminator.to_string(), (value, "kind".to_owned()));

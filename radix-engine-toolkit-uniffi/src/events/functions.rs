@@ -25,7 +25,7 @@ pub fn sbor_decode_to_typed_native_event(
     event_data: Vec<u8>,
     network_id: u8,
 ) -> Result<TypedNativeEvent> {
-    core_events_sbor_decode_to_native_event(&event_type_identifier.into(), &event_data)
+    core_events_sbor_decode_to_native_event(&event_type_identifier.try_into()?, &event_data)
         .map(|typed_event| TypedNativeEvent::from_native(typed_event, network_id))
         .map_err(Into::into)
 }
@@ -41,7 +41,6 @@ pub struct EventTypeIdentifier {
 pub enum Emitter {
     Function {
         address: Arc<Address>,
-        object_module_id: ObjectModuleId,
         blueprint_name: String,
     },
     Method {
@@ -984,28 +983,37 @@ impl FromNative for RemoveMetadataEvent {
     }
 }
 
-impl From<Emitter> for NativeEmitter {
-    fn from(value: Emitter) -> Self {
+impl TryFrom<Emitter> for NativeEmitter {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: Emitter) -> Result<Self> {
         match value {
             Emitter::Function {
                 address,
-                object_module_id,
                 blueprint_name,
-            } => Self::Function(address.0, object_module_id.into(), blueprint_name),
+            } => Ok(Self::Function(NativeBlueprintId::new(
+                &NativePackageAddress::try_from(*address)?,
+                blueprint_name,
+            ))),
             Emitter::Method {
                 address,
                 object_module_id,
-            } => Self::Method(address.0, object_module_id.into()),
+            } => Ok(Self::Method(address.0, object_module_id.into())),
         }
     }
 }
 
-impl From<EventTypeIdentifier> for NativeEventTypeIdentifier {
-    fn from(value: EventTypeIdentifier) -> Self {
-        Self(
-            value.emitter.into(),
-            NativeTypePointer::Package(value.schema_hash.0, value.local_type_index.into()),
-        )
+impl TryFrom<EventTypeIdentifier> for NativeEventTypeIdentifier {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: EventTypeIdentifier) -> Result<Self> {
+        Ok(Self(
+            value.emitter.try_into()?,
+            NativeTypePointer::Package(NativeTypeIdentifier(
+                value.schema_hash.0,
+                value.local_type_index.into(),
+            )),
+        ))
     }
 }
 
