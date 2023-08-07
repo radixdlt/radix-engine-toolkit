@@ -16,7 +16,7 @@
 // under the License.
 
 use indexmap::{indexmap, IndexMap};
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit::{functions::address::AddressEntityType, prelude::*};
 use schemars::schema::RootSchema;
 
 pub fn generate_function_schema(
@@ -78,6 +78,9 @@ pub fn generate_function_schema(
         ],
         "manifest_sbor" => function_schema![
             ManifestSborDecodeToString
+        ],
+        "address" => function_schema![
+            AddressEntityType
         ]
     )
 }

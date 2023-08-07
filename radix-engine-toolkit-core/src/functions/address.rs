@@ -15,19 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod information;
+use radix_engine_common::types::{EntityType, NodeId};
 
-pub mod derive;
-
-pub mod execution;
-pub mod instructions;
-pub mod intent;
-pub mod manifest;
-pub mod notarized_transaction;
-pub mod signed_intent;
-
-pub mod manifest_sbor;
-pub mod scrypto_sbor;
-
-pub mod address;
-pub mod events;
+pub fn entity_type(node_id: NodeId) -> Option<EntityType> {
+    node_id.entity_type()
+}

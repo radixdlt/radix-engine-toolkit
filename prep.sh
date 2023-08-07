@@ -5,5 +5,5 @@ python3 add_license.py
 ./format.sh
 ./test.sh
 ./uniffi_bindgen.sh
-./typeshare
+./typeshare.sh
 (cd generator; cargo run)

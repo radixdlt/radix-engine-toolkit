@@ -15,19 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod information;
+use crate::prelude::*;
+use scrypto::prelude::*;
 
-pub mod derive;
+#[typeshare::typeshare]
+pub type AddressEntityTypeInput = SerializableNodeId;
 
-pub mod execution;
-pub mod instructions;
-pub mod intent;
-pub mod manifest;
-pub mod notarized_transaction;
-pub mod signed_intent;
+#[typeshare::typeshare]
+pub type AddressEntityTypeOutput = SerializableEntityType;
 
-pub mod manifest_sbor;
-pub mod scrypto_sbor;
+pub struct AddressEntityType;
+impl<'f> Function<'f> for AddressEntityType {
+    type Input = AddressEntityTypeInput;
+    type Output = AddressEntityTypeOutput;
 
-pub mod address;
-pub mod events;
+    fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let node_id = input.0.node_id;
+        let entity_type = radix_engine_toolkit_core::functions::address::entity_type(node_id)
+            .ok_or(InvocationHandlingError::InvalidAddress(input.0.to_string()))?;
+        Ok(entity_type.into())
+    }
+}

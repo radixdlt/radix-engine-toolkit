@@ -75,6 +75,9 @@ pub fn generate_function_examples() -> IndexMap<
         ],
         "utils" => function_examples![
             UtilsKnownAddress
+        ],
+        "address" => function_examples![
+            AddressEntityType
         ]
     )
 }

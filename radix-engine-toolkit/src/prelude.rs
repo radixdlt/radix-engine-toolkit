@@ -21,6 +21,7 @@ pub use crate::error::*;
 pub use crate::memory::*;
 pub use crate::utils::*;
 
+pub use crate::functions::address::*;
 pub use crate::functions::derive::*;
 pub use crate::functions::execution::*;
 pub use crate::functions::handler::*;

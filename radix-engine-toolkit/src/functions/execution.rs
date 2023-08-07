@@ -461,10 +461,9 @@ impl SerializableResourceOrNonFungible {
 
 #[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableResourcePreferenceAction {
-    Set {
-        value: SerializableResourcePreference,
-    },
+    Set(SerializableResourcePreference),
     Remove,
 }
 
@@ -472,9 +471,7 @@ impl From<ResourcePreferenceAction> for SerializableResourcePreferenceAction {
     fn from(value: ResourcePreferenceAction) -> Self {
         match value {
             ResourcePreferenceAction::Remove => Self::Remove,
-            ResourcePreferenceAction::Set(value) => Self::Set {
-                value: value.into(),
-            },
+            ResourcePreferenceAction::Set(value) => Self::Set(value.into()),
         }
     }
 }
@@ -483,7 +480,7 @@ impl From<SerializableResourcePreferenceAction> for ResourcePreferenceAction {
     fn from(value: SerializableResourcePreferenceAction) -> Self {
         match value {
             SerializableResourcePreferenceAction::Remove => Self::Remove,
-            SerializableResourcePreferenceAction::Set { value } => Self::Set(value.into()),
+            SerializableResourcePreferenceAction::Set(value) => Self::Set(value.into()),
         }
     }
 }
