@@ -36,3 +36,6 @@ impl<'f> Function<'f> for AddressEntityType {
         Ok(entity_type.into())
     }
 }
+
+export_function!(AddressEntityType as address_entity_type);
+export_jni_function!(AddressEntityType as addressEntityType);
