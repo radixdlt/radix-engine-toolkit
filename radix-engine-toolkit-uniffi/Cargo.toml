@@ -36,5 +36,5 @@ crate-type = ["staticlib", "cdylib", "lib"]
 
 [profile.release]
 incremental = false
-panic = 'abort'
+panic = 'unwind'
 codegen-units = 1

@@ -131,9 +131,7 @@ jobs:
         #   SCCACHE_GHA_ENABLED: "true"
         #   RUSTC_WRAPPER: "sccache"
         run: |
-          cargo +nightly build \
-            -Z build-std=std,panic_abort \
-            -Z build-std-features=panic_immediate_abort \
+          cargo build \
             --target ${{ matrix.build-target.target-triple }} \
             --release
       - name: Clean Build Artifacts
