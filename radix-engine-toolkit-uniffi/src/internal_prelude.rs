@@ -89,6 +89,7 @@ mod core {
         AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
+        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt
     };
     pub use radix_engine_toolkit_core::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,

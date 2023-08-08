@@ -68,11 +68,11 @@ impl<'f> Function<'f> for ExecutionAnalyze {
             InvocationHandlingError::DecodeError(debug_string(error), debug_string(preview_receipt))
         })?;
 
-        let execution_analysis =
-            radix_engine_toolkit_core::functions::execution::analyze(&instructions, &receipt)
-                .map_err(|error| {
-                    InvocationHandlingError::InstructionVisitorError(debug_string(error))
-                })?;
+        let execution_analysis = ExecutionAnalysisTransactionReceipt::new(&receipt)
+            .and_then(|receipt| {
+                radix_engine_toolkit_core::functions::execution::analyze(&instructions, &receipt)
+            })
+            .map_err(|error| InvocationHandlingError::ExecutionModuleError(debug_string(error)))?;
 
         let transaction_types = execution_analysis
             .transaction_types

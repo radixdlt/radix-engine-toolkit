@@ -16,7 +16,6 @@
 // under the License.
 
 use radix_engine::system::system::DynSubstate;
-use radix_engine::transaction::TransactionReceipt;
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
@@ -29,6 +28,8 @@ use sbor::{generate_full_schema_from_single_type, validate_payload_against_schem
 use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 use transaction::model::IntentV1;
 use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
+
+use crate::functions::execution::ExecutionAnalysisTransactionReceipt;
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -222,7 +223,7 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
 //       This reduces the surface area of panic-able code.
 
 pub fn metadata_of_newly_created_entities(
-    receipt: &TransactionReceipt,
+    receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Option<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>> {
     if let Some(addresses) = addresses_of_newly_created_entities(receipt) {
         let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
@@ -275,7 +276,7 @@ pub fn metadata_of_newly_created_entities(
 }
 
 pub fn addresses_of_newly_created_entities(
-    receipt: &TransactionReceipt,
+    receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Option<HashSet<NodeId>> {
     if !receipt.is_commit_success() {
         return None;
@@ -304,7 +305,7 @@ pub fn addresses_of_newly_created_entities(
 }
 
 pub fn data_of_newly_minted_non_fungibles(
-    receipt: &TransactionReceipt,
+    receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Option<HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>> {
     if !receipt.is_commit_success() {
         return None;

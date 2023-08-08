@@ -21,6 +21,7 @@ use radix_engine::vm::wasm::{DefaultWasmEngine, WasmValidatorConfigV1};
 use radix_engine::vm::{DefaultNativeVm, ScryptoVm, Vm};
 use radix_engine_interface::metadata_init;
 use radix_engine_stores::memory_db::InMemorySubstateDatabase;
+use radix_engine_toolkit_core::functions::execution::ExecutionAnalysisTransactionReceipt;
 use scrypto::api::node_modules::metadata::MetadataValue;
 use scrypto::prelude::ModuleConfig;
 use scrypto::*;
@@ -48,7 +49,9 @@ fn extraction_of_metadata_from_receipts_succeeds() {
         )
         .build();
     let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
-    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(&receipt);
+    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
+        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+    );
 
     // Assert
     let metadata = metadata.expect("Cant be none");
@@ -103,8 +106,9 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
         .try_deposit_batch_or_abort(account, None)
         .build();
     let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
-    let new_non_fungibles =
-        radix_engine_toolkit_core::utils::data_of_newly_minted_non_fungibles(&receipt);
+    let new_non_fungibles = radix_engine_toolkit_core::utils::data_of_newly_minted_non_fungibles(
+        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+    );
 
     // Assert
     let non_fungible_data = new_non_fungibles.expect("Cant be none");
@@ -166,8 +170,9 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
         .into_iter()
         .chain(vec![system_bootstrap_receipt, wrap_up_receipt])
     {
-        let metadata =
-            radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(&receipt);
+        let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
+            &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        );
 
         // Assert
         let _ = metadata.expect("Should be able to get metadata");
@@ -197,7 +202,9 @@ fn empty_metadata_can_be_processed_by_ret() {
     receipt.expect_commit_success();
 
     // Act
-    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(&receipt);
+    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
+        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+    );
 
     // Assert
     let _ = metadata.expect("Should be able to get metadata");

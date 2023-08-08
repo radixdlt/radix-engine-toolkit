@@ -247,6 +247,10 @@ fn transaction_types(
     manifest_instructions: &[InstructionV1],
     receipt: &TransactionReceipt,
 ) -> Vec<TransactionType> {
-    let analysis = execution::analyze(manifest_instructions, receipt).unwrap();
+    let analysis = execution::analyze(
+        manifest_instructions,
+        &ExecutionAnalysisTransactionReceipt::new(receipt).unwrap(),
+    )
+    .unwrap();
     analysis.transaction_types
 }

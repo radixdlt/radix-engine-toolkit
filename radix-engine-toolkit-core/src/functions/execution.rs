@@ -33,19 +33,13 @@ use crate::utils;
 
 pub fn analyze(
     instructions: &[InstructionV1],
-    preview_receipt: &TransactionReceipt,
+    preview_receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Result<ExecutionAnalysis, ExecutionModuleError> {
-    let (execution_trace, fee_summary) = match preview_receipt.transaction_result {
-        TransactionResult::Commit(CommitResult {
-            outcome: TransactionOutcome::Success(..),
-            ref execution_trace,
-            ref fee_summary,
-            ..
-        }) => Ok((execution_trace, fee_summary)),
-        _ => Err(ExecutionModuleError::IsNotCommitSuccess(
-            preview_receipt.clone(),
-        )),
-    }?;
+    let CommitResult {
+        execution_trace,
+        fee_summary,
+        ..
+    } = &preview_receipt.as_ref();
 
     let mut account_proofs_visitor = AccountProofsVisitor::default();
     let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
@@ -162,6 +156,48 @@ pub fn analyze(
     })
 }
 
+/// A transaction receipt used for execution analysis. This struct maintains the invariant that the
+/// execution of the transaction succeeded and that the transaction was committed to the ledger.
+pub struct ExecutionAnalysisTransactionReceipt<'r>(&'r TransactionReceipt);
+
+impl<'r> ExecutionAnalysisTransactionReceipt<'r> {
+    pub fn new(transaction_receipt: &'r TransactionReceipt) -> Result<Self, ExecutionModuleError> {
+        if let TransactionResult::Commit(CommitResult {
+            outcome: TransactionOutcome::Success(..),
+            ..
+        }) = transaction_receipt.transaction_result
+        {
+            Ok(Self(transaction_receipt))
+        } else {
+            Err(
+                ExecutionModuleError::TransactionWasNotCommittedSuccessfully(
+                    transaction_receipt.clone(),
+                ),
+            )
+        }
+    }
+}
+
+impl<'r> AsRef<TransactionReceipt> for ExecutionAnalysisTransactionReceipt<'r> {
+    fn as_ref(&self) -> &TransactionReceipt {
+        self.0
+    }
+}
+
+impl<'r> AsRef<CommitResult> for ExecutionAnalysisTransactionReceipt<'r> {
+    fn as_ref(&self) -> &CommitResult {
+        self.0.expect_commit_success()
+    }
+}
+
+impl<'r> std::ops::Deref for ExecutionAnalysisTransactionReceipt<'r> {
+    type Target = TransactionReceipt;
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalysis {
     pub fee_locks: FeeLocks,
@@ -225,7 +261,7 @@ pub struct GeneralTransactionType {
 
 #[derive(Clone, Debug)]
 pub enum ExecutionModuleError {
-    IsNotCommitSuccess(TransactionReceipt),
+    TransactionWasNotCommittedSuccessfully(TransactionReceipt),
     InstructionVisitorError(InstructionVisitorError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
 }
