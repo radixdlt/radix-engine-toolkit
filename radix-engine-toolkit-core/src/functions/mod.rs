@@ -31,3 +31,4 @@ pub mod scrypto_sbor;
 
 pub mod address;
 pub mod events;
+pub mod utils;

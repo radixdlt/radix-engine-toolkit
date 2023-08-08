@@ -25,20 +25,9 @@ impl TransactionHash {
     #[uniffi::constructor]
     pub fn from_str(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition = core_network_definition_from_network_id(network_id);
-        let bech32_decoder = NativeTransactionHashBech32Decoder::new(&network_definition);
-        if let Ok(hash) = bech32_decoder.validate_and_decode::<NativeIntentHash>(&string) {
-            Ok(Arc::new(Self::new(&hash, network_id)))
-        } else if let Ok(hash) =
-            bech32_decoder.validate_and_decode::<NativeSignedIntentHash>(&string)
-        {
-            Ok(Arc::new(Self::new(&hash, network_id)))
-        } else if let Ok(hash) =
-            bech32_decoder.validate_and_decode::<NativeNotarizedTransactionHash>(&string)
-        {
-            Ok(Arc::new(Self::new(&hash, network_id)))
-        } else {
-            Err(RadixEngineToolkitError::FailedToDecodeTransactionHash)
-        }
+        let hash = core_decode_transaction_id(&string, &network_definition)
+            .map_err(|_| RadixEngineToolkitError::FailedToDecodeTransactionHash)?;
+        Ok(Arc::new(Self(hash, string, network_id)))
     }
 
     pub fn as_hash(&self) -> Arc<Hash> {

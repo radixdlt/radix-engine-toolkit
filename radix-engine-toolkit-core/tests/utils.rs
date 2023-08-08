@@ -22,6 +22,7 @@ use radix_engine::vm::{DefaultNativeVm, ScryptoVm, Vm};
 use radix_engine_interface::metadata_init;
 use radix_engine_stores::memory_db::InMemorySubstateDatabase;
 use radix_engine_toolkit_core::functions::execution::ExecutionAnalysisTransactionReceipt;
+use radix_engine_toolkit_core::functions::utils::decode_transaction_id;
 use scrypto::api::node_modules::metadata::MetadataValue;
 use scrypto::prelude::ModuleConfig;
 use scrypto::*;
@@ -208,6 +209,25 @@ fn empty_metadata_can_be_processed_by_ret() {
 
     // Assert
     let _ = metadata.expect("Should be able to get metadata");
+}
+
+#[test]
+fn decoding_transaction_id_succeeds() {
+    // Arrange
+    let ids = [
+        "txid_sim1vrjkzlt8pekg5s46tum5na8lzpulvc3p72p92nkdm2dd8p0vkx2svr7ejr",
+        "signedintent_sim1c3f6q287pvw2pfs2extnh4yfmtc6ephgga7shf23nck85467026qrzn64x",
+        "notarizedtransaction_sim16aya9aqejr35u23g4gklcs3mya5nllxyy4y2y4yw9lur3wq6cdfsgpgkww",
+    ];
+    let network_definition = NetworkDefinition::simulator();
+
+    for id in ids {
+        // Act
+        let decoded = decode_transaction_id(id, &network_definition);
+
+        // Assert
+        decoded.expect("Failed to decode transaction id");
+    }
 }
 
 #[derive(NonFungibleData, ScryptoSbor, ManifestSbor)]

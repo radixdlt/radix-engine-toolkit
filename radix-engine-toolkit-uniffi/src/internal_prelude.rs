@@ -54,6 +54,9 @@ mod core {
         accounts_deposited_into as core_instructions_accounts_deposited_into,
         InstructionValidationError as CoreInstructionValidationError,
     };
+    pub use radix_engine_toolkit_core::functions::utils::{
+        decode_transaction_id as core_decode_transaction_id
+    };
     pub use radix_engine_toolkit_core::functions::manifest::{
         hash as core_manifest_hash,
         compile as core_manifest_compile,
