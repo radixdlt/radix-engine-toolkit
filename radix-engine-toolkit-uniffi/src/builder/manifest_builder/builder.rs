@@ -820,6 +820,35 @@ impl ManifestBuilder {
         })
     }
 
+    pub fn create_access_controller_with_securify_structure(
+        self: Arc<Self>,
+        controlled_asset: ManifestBuilderBucket,
+        primary_role: SecurityStructureRole,
+        recovery_role: SecurityStructureRole,
+        confirmation_role: SecurityStructureRole,
+        timed_recovery_delay_in_minutes: Option<u32>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let bucket = builder.name_record.get_bucket(&controlled_asset.name)?;
+            let rule_set = NativeRuleSet {
+                primary_role: NativeAccessRule::try_from(primary_role)?,
+                recovery_role: NativeAccessRule::try_from(recovery_role)?,
+                confirmation_role: NativeAccessRule::try_from(confirmation_role)?,
+            };
+
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(
+                    NATIVE_ACCESS_CONTROLLER_PACKAGE,
+                ),
+                blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
+                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT.to_owned(),
+                args: manifest_args!(bucket, rule_set, timed_recovery_delay_in_minutes).into(),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
     /* Resources */
 
     pub fn create_fungible_resource_manager(
@@ -947,6 +976,48 @@ impl ManifestBuilder {
     }
 }
 
+#[derive(Debug, Clone, Record)]
+pub struct SecurityStructureRole {
+    pub super_admin_factors: Vec<PublicKey>,
+    pub threshold_factors: Vec<PublicKey>,
+    pub threshold: u8,
+}
+
+impl TryFrom<SecurityStructureRole> for NativeAccessRule {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: SecurityStructureRole) -> std::result::Result<Self, Self::Error> {
+        let super_admin_factors = value
+            .super_admin_factors
+            .into_iter()
+            .map(|pk| {
+                NativePublicKey::try_from(pk)
+                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
+                    .map(NativeResourceOrNonFungible::NonFungible)
+            })
+            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
+        let threshold_factors = value
+            .threshold_factors
+            .into_iter()
+            .map(|pk| {
+                NativePublicKey::try_from(pk)
+                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
+                    .map(NativeResourceOrNonFungible::NonFungible)
+            })
+            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
+
+        Ok(NativeAccessRule::Protected(NativeAccessRuleNode::AnyOf(
+            vec![
+                NativeAccessRuleNode::ProofRule(NativeProofRule::CountOf(
+                    value.threshold,
+                    threshold_factors,
+                )),
+                NativeAccessRuleNode::ProofRule(NativeProofRule::AnyOf(super_admin_factors)),
+            ],
+        )))
+    }
+}
+
 macro_rules! manifest_args {
     ($($args: expr),*$(,)?) => {{
         use ::sbor::Encoder;
@@ -972,4 +1043,3 @@ macro_rules! manifest_args {
     }};
 }
 use manifest_args;
-use radix_engine::types::FromPublicKey;

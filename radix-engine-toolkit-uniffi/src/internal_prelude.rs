@@ -261,6 +261,7 @@ mod native {
         Url as NativeUrl,
 
         ResourceOrNonFungible as NativeResourceOrNonFungible,
+        ResourceOrNonFungibleList as NativeResourceOrNonFungibleList,
         ProofRule as NativeProofRule,
         AccessRule as NativeAccessRule,
         AccessRuleNode as NativeAccessRuleNode,
@@ -378,6 +379,9 @@ mod native {
     pub use radix_engine::transaction::{
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
+    };
+    pub use radix_engine::types::{
+        FromPublicKey as NativeFromPublicKey
     };
     pub use radix_engine::blueprints::account::{
         AccountNativePackage as NativeAccountNativePackage,
