@@ -97,26 +97,12 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                         .and_then(|value| {
                             self.handle_account_withdraw_non_fungibles(component_address, value)
                         })?,
-                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT => to_manifest_type(args)
-                        .ok_or(TransferTransactionTypeError::InvalidArgs)
-                        .and_then(|value| {
-                            self.handle_account_lock_fee_and_withdraw(component_address, value)
-                        })?,
-                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT => to_manifest_type(args)
-                        .ok_or(TransferTransactionTypeError::InvalidArgs)
-                        .and_then(|value| {
-                            self.handle_account_lock_fee_and_withdraw_non_fungibles(
-                                component_address,
-                                value,
-                            )
-                        })?,
                     ACCOUNT_DEPOSIT_IDENT
                     | ACCOUNT_DEPOSIT_BATCH_IDENT
                     | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
                     | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                         self.handle_validation_and_account_deposits(component_address, args)?
                     }
-                    ACCOUNT_LOCK_FEE_IDENT => {}
                     _ => {
                         self.is_illegal_state = true;
                     }
@@ -240,42 +226,6 @@ impl TransferTransactionTypeVisitor {
 
         self.worktop.put(resource_address, Resources::Ids(ids))?;
         Ok(())
-    }
-
-    fn handle_account_lock_fee_and_withdraw(
-        &mut self,
-        component_address: ComponentAddress,
-        AccountLockFeeAndWithdrawInput {
-            resource_address,
-            amount,
-            ..
-        }: AccountLockFeeAndWithdrawInput,
-    ) -> Result<(), TransferTransactionTypeError> {
-        self.handle_account_withdraw(
-            component_address,
-            AccountWithdrawInput {
-                resource_address,
-                amount,
-            },
-        )
-    }
-
-    fn handle_account_lock_fee_and_withdraw_non_fungibles(
-        &mut self,
-        component_address: ComponentAddress,
-        AccountLockFeeAndWithdrawNonFungiblesInput {
-            resource_address,
-            ids,
-            ..
-        }: AccountLockFeeAndWithdrawNonFungiblesInput,
-    ) -> Result<(), TransferTransactionTypeError> {
-        self.handle_account_withdraw_non_fungibles(
-            component_address,
-            AccountWithdrawNonFungiblesInput {
-                resource_address,
-                ids,
-            },
-        )
     }
 
     fn handle_validation_and_account_deposits(

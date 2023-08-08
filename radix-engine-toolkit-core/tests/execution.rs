@@ -17,6 +17,7 @@
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::TransactionReceipt;
+use radix_engine_interface::blueprints::account::{ACCOUNT_LOCK_FEE_IDENT, AccountLockFeeInput, ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, AccountLockContingentFeeInput};
 use radix_engine_toolkit_core::functions::execution::{self, *};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
@@ -32,7 +33,6 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     let (public_key2, _, account2) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
         .withdraw_from_account(account1, XRD, dec!("10"))
         .take_from_worktop(XRD, dec!("10"), "bucket")
         .try_deposit_or_abort(account2, None, "bucket")
@@ -41,7 +41,11 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
         manifest.clone(),
         vec![public_key1.into(), public_key2.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
@@ -71,7 +75,6 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     let (public_key3, _, account3) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
         .withdraw_from_account(account1, XRD, dec!("20"))
         .take_from_worktop(XRD, dec!("10"), "bucket")
         .try_deposit_or_abort(account2, None, "bucket")
@@ -82,7 +85,11 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
         manifest.clone(),
         vec![public_key1.into(), public_key2.into(), public_key3.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
@@ -241,6 +248,58 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
             ]
         }
     );
+}
+
+fn test_manifest_with_lock_fee(
+    method_name: impl Into<String>,
+    arguments: impl ResolvableArguments,
+) {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (pk, _, account) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new()
+        .call_method(account, method_name, arguments)
+        .withdraw_from_account(account, XRD, 10)
+        .take_from_worktop(XRD, 10, "bucket")
+        .try_deposit_or_abort(account, None, "bucket")
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![pk.into()],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    receipt.expect_commit_success();
+
+    // Act
+    let transaction_types = transaction_types(
+        &manifest.instructions,
+        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+    );
+
+    // Assert
+    assert_eq!(transaction_types.len(), 0)
+}
+
+#[test]
+fn manifest_with_a_lock_fee_should_not_be_conforming() {
+    test_manifest_with_lock_fee(
+        ACCOUNT_LOCK_FEE_IDENT,
+        AccountLockFeeInput { amount: dec!("1") },
+    )
+}
+
+#[test]
+fn manifest_with_a_lock_contingent_fee_should_not_be_conforming() {
+    test_manifest_with_lock_fee(
+        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+        AccountLockContingentFeeInput { amount: dec!("1") },
+    )
 }
 
 fn transaction_types(
