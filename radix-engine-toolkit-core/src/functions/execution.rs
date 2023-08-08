@@ -27,6 +27,8 @@ use crate::instruction_visitor::core::traverser::*;
 use crate::instruction_visitor::visitors::account_proofs_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
+use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
 use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use crate::utils;
@@ -46,6 +48,7 @@ pub fn analyze(
     let mut transfer_visitor = TransferTransactionTypeVisitor::default();
     let mut account_deposit_settings_visitor = AccountDepositSettingsVisitor::default();
     let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
+    let mut reserved_instructions_visitor = ReservedInstructionsVisitor::default();
 
     traverse(
         instructions,
@@ -55,6 +58,7 @@ pub fn analyze(
             &mut account_proofs_visitor,
             &mut account_deposit_settings_visitor,
             &mut general_transaction_visitor,
+            &mut reserved_instructions_visitor,
         ],
     )?;
 
@@ -148,11 +152,13 @@ pub fn analyze(
             royalty_fee,
         }
     };
+    let reserved_instructions = reserved_instructions_visitor.output();
 
     Ok(ExecutionAnalysis {
         fee_locks,
         fee_summary,
         transaction_types,
+        reserved_instructions,
     })
 }
 
@@ -203,6 +209,7 @@ pub struct ExecutionAnalysis {
     pub fee_locks: FeeLocks,
     pub fee_summary: FeeSummary,
     pub transaction_types: Vec<TransactionType>,
+    pub reserved_instructions: HashSet<ReservedInstruction>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]

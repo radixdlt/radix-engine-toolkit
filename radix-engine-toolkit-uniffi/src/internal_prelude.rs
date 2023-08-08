@@ -105,6 +105,9 @@ mod core {
     };
     
     /* Visitors */
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::reserved_instructions::{
+        ReservedInstruction as CoreReservedInstruction,
+    };
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
         Resources as CoreResources,
     };

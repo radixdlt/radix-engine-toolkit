@@ -195,6 +195,7 @@ pub struct ExecutionAnalysis {
     pub fee_locks: FeeLocks,
     pub fee_summary: FeeSummary,
     pub transaction_types: Vec<TransactionType>,
+    pub reserved_instructions: Vec<ReservedInstruction>,
 }
 
 impl ExecutionAnalysis {
@@ -203,6 +204,7 @@ impl ExecutionAnalysis {
             fee_locks,
             fee_summary,
             transaction_types,
+            reserved_instructions,
         }: &CoreExecutionExecutionAnalysis,
         network_id: u8,
     ) -> Self {
@@ -213,6 +215,10 @@ impl ExecutionAnalysis {
                 .collect(),
             fee_locks: FeeLocks::from_native(fee_locks),
             fee_summary: FeeSummary::from_native(fee_summary),
+            reserved_instructions: reserved_instructions
+                .iter()
+                .map(|value| (*value).into())
+                .collect(),
         }
     }
 }
@@ -594,6 +600,39 @@ impl FromNativeWithNetworkContext for AuthorizedDepositorsChanges {
                 .into_iter()
                 .map(|value| FromNativeWithNetworkContext::from_native(value, network_id))
                 .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessController,
+}
+
+impl From<ReservedInstruction> for CoreReservedInstruction {
+    fn from(value: ReservedInstruction) -> Self {
+        match value {
+            ReservedInstruction::AccessController => Self::AccessController,
+            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            ReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
+        }
+    }
+}
+
+impl From<CoreReservedInstruction> for ReservedInstruction {
+    fn from(value: CoreReservedInstruction) -> Self {
+        match value {
+            CoreReservedInstruction::AccessController => Self::AccessController,
+            CoreReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            CoreReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            CoreReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            CoreReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
         }
     }
 }

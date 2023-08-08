@@ -24,6 +24,7 @@ use radix_engine_common::prelude::*;
 use radix_engine_toolkit_core::functions::execution::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::AuthorizedDepositorsChanges;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::ResourcePreferenceAction;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use schemars::*;
@@ -49,6 +50,7 @@ pub struct ExecutionAnalyzeOutput {
     pub fee_locks: SerializableFeeLocks,
     pub fee_summary: SerializableFeeSummary,
     pub transaction_types: Vec<SerializableTransactionType>,
+    pub reserved_instructions: Vec<SerializableReservedInstruction>,
 }
 
 pub struct ExecutionAnalyze;
@@ -86,6 +88,11 @@ impl<'f> Function<'f> for ExecutionAnalyze {
             fee_locks,
             fee_summary,
             transaction_types,
+            reserved_instructions: execution_analysis
+                .reserved_instructions
+                .into_iter()
+                .map(From::from)
+                .collect(),
         })
     }
 }
@@ -738,6 +745,40 @@ impl SerializableResourceTracker {
                 amount: SerializableSource::new(amount, Into::into),
                 ids: SerializableSource::new(ids, |ids| ids.into_iter().map(Into::into).collect()),
             },
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub enum SerializableReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessController,
+}
+
+impl From<SerializableReservedInstruction> for ReservedInstruction {
+    fn from(value: SerializableReservedInstruction) -> Self {
+        match value {
+            SerializableReservedInstruction::AccessController => Self::AccessController,
+            SerializableReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            SerializableReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            SerializableReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            SerializableReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
+        }
+    }
+}
+
+impl From<ReservedInstruction> for SerializableReservedInstruction {
+    fn from(value: ReservedInstruction) -> Self {
+        match value {
+            ReservedInstruction::AccessController => Self::AccessController,
+            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            ReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
         }
     }
 }
