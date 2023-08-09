@@ -280,7 +280,7 @@ pub enum RecallResourceEvent {
 #[derive(Clone, Debug, Record)]
 pub struct SetRoleEvent {
     pub role_key: String,
-    pub rule: Vec<u8>,
+    pub rule: Arc<AccessRule>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -291,12 +291,12 @@ pub struct LockRoleEvent {
 #[derive(Clone, Debug, Record)]
 pub struct SetAndLockRoleEvent {
     pub role_key: String,
-    pub rule: Vec<u8>,
+    pub rule: Arc<AccessRule>,
 }
 
 #[derive(Clone, Debug, Record)]
 pub struct SetOwnerRoleEvent {
-    pub rule: Vec<u8>,
+    pub rule: Arc<AccessRule>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -306,7 +306,7 @@ pub struct LockOwnerRoleEvent {
 
 #[derive(Clone, Debug, Record)]
 pub struct SetAndLockOwnerRoleEvent {
-    pub rule: Vec<u8>,
+    pub rule: Arc<AccessRule>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -908,7 +908,7 @@ impl FromNative for SetRoleEvent {
     fn from_native(native: Self::Native) -> Self {
         Self {
             role_key: native.role_key.key,
-            rule: native_scrypto_encode(&native.rule).unwrap(),
+            rule: Arc::new(AccessRule(native.rule)),
         }
     }
 }
@@ -929,7 +929,7 @@ impl FromNative for SetAndLockRoleEvent {
     fn from_native(native: Self::Native) -> Self {
         Self {
             role_key: native.role_key.key,
-            rule: native_scrypto_encode(&native.rule).unwrap(),
+            rule: Arc::new(AccessRule(native.rule)),
         }
     }
 }
@@ -939,7 +939,7 @@ impl FromNative for SetOwnerRoleEvent {
 
     fn from_native(native: Self::Native) -> Self {
         Self {
-            rule: native_scrypto_encode(&native.rule).unwrap(),
+            rule: Arc::new(AccessRule(native.rule)),
         }
     }
 }
@@ -949,7 +949,7 @@ impl FromNative for SetAndLockOwnerRoleEvent {
 
     fn from_native(native: Self::Native) -> Self {
         Self {
-            rule: native_scrypto_encode(&native.rule).unwrap(),
+            rule: Arc::new(AccessRule(native.rule)),
         }
     }
 }
