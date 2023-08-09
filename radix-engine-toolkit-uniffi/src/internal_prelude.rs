@@ -62,6 +62,10 @@ mod core {
         compile as core_manifest_compile,
         decompile as core_manifest_decompile,
         statically_validate as core_manifest_statically_validate,
+        modify as core_manifest_modify,
+        TransactionManifestModifications as CoreManifestTransactionManifestModifications,
+        Assertion as CoreManifestAssertion,
+        ManifestModificationError as CoreManifestModificationError
     };
     pub use radix_engine_toolkit_core::functions::intent::{
         hash as core_intent_hash,

@@ -99,6 +99,13 @@ impl TransactionManifest {
             self.instructions.1,
         ))
     }
+
+    pub fn modify(&self, modifications: TransactionManifestModifications) -> Result<Arc<Self>> {
+        let modifications = modifications.to_native()?;
+        let native_manifest = core_manifest_modify(&self.to_native(), modifications)?;
+        let manifest = Self::from_native(&native_manifest, self.instructions.network_id());
+        Ok(Arc::new(manifest))
+    }
 }
 
 impl TransactionManifest {
@@ -664,3 +671,92 @@ macro_rules! define_source_enum {
 }
 define_source_enum!(Arc<Decimal>, DecimalSource);
 define_source_enum!(Vec<NonFungibleLocalId>, NonFungibleLocalIdVecSource);
+
+#[derive(Clone, Debug, Record)]
+pub struct TransactionManifestModifications {
+    pub add_access_controller_proofs: Vec<Arc<Address>>,
+    pub add_lock_fee: Option<LockFeeModification>,
+    pub add_assertions: Vec<IndexedAssertion>,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum Assertion {
+    Amount {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    Ids {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct IndexedAssertion {
+    pub index: u64,
+    pub assertion: Assertion,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct LockFeeModification {
+    pub account_address: Arc<Address>,
+    pub amount: Arc<Decimal>,
+}
+
+impl ToNative for TransactionManifestModifications {
+    type Native = CoreManifestTransactionManifestModifications;
+
+    fn to_native(self) -> Result<Self::Native> {
+        Ok(Self::Native {
+            add_access_controller_proofs: self
+                .add_access_controller_proofs
+                .into_iter()
+                .map(|value| (*value).try_into())
+                .collect::<Result<_>>()?,
+            add_assertions: self
+                .add_assertions
+                .into_iter()
+                .map(|IndexedAssertion { index, assertion }| {
+                    assertion
+                        .to_native()
+                        .map(|assertion| (index as usize, assertion))
+                })
+                .collect::<Result<_>>()?,
+            add_lock_fee: if let Some(LockFeeModification {
+                account_address,
+                amount,
+            }) = self.add_lock_fee
+            {
+                Some(((*account_address).try_into()?, amount.0))
+            } else {
+                None
+            },
+        })
+    }
+}
+
+impl ToNative for Assertion {
+    type Native = CoreManifestAssertion;
+
+    fn to_native(self) -> Result<Self::Native> {
+        match self {
+            Self::Amount {
+                resource_address,
+                amount,
+            } => Ok(Self::Native::Amount {
+                resource_address: (*resource_address).try_into()?,
+                amount: amount.0,
+            }),
+            Self::Ids {
+                resource_address,
+                ids,
+            } => Ok(Self::Native::Ids {
+                resource_address: (*resource_address).try_into()?,
+                ids: ids
+                    .into_iter()
+                    .map(NativeNonFungibleLocalId::try_from)
+                    .collect::<Result<_>>()?,
+            }),
+        }
+    }
+}

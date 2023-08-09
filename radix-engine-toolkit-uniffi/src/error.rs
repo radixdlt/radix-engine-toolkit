@@ -87,6 +87,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error ocurred when building the manifest due to the naming of objects")]
     ManifestBuilderNameRecordError { error: NameRecordError },
+
+    #[error("An error ocurred when trying to modify the manifest")]
+    ManifestModificationError { error: String },
 }
 
 macro_rules! dbg_str {
@@ -148,6 +151,7 @@ impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
+impl_dbg_str_from! { CoreManifestModificationError, ManifestModificationError }
 
 impl From<NameRecordError> for RadixEngineToolkitError {
     fn from(value: NameRecordError) -> Self {
