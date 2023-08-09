@@ -94,6 +94,8 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
                     self.is_illegal_state = true;
                     return Ok(());
                 }
+                // This never panics. We have already checked that this is an account when we
+                // called `is_account`.
                 let component_address =
                     ComponentAddress::new_or_panic(global_address.as_node_id().0);
 

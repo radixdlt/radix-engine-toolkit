@@ -86,6 +86,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                     return Ok(());
                 }
 
+                // This never panics. We have already checked that this is an account when we
+                // called `is_account`.
                 let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
                 match method_name.as_str() {

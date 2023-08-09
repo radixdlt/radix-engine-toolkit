@@ -48,6 +48,8 @@ impl InstructionVisitor for AccountProofsVisitor {
                     .iter()
                     .filter_map(|node_id| {
                         if node_id.is_global_resource_manager() {
+                            // This never panics. We have already checked that this is a global
+                            // fungible resource manager.
                             Some(ResourceAddress::new_or_panic(node_id.0))
                         } else {
                             None

@@ -251,10 +251,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             return Ok(());
         }
 
-        let component_address = ComponentAddress::new_or_panic(global_address.as_node_id().0);
-
         if ACCOUNT_WITHDRAW_METHODS.contains(&method_name.to_string()) && is_account(global_address)
         {
+            // This never panics. We have already checked that this is an account when we called
+            // `is_account`.
+            let component_address = ComponentAddress::new_or_panic(global_address.as_node_id().0);
+
             let worktop_puts = self
                 .execution_trace
                 .worktop_changes()
@@ -271,38 +273,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 if let Ok(AccountWithdrawInput {
                     resource_address,
                     amount,
-                }) = manifest_decode(&manifest_encode(&args).unwrap())
-                {
-                    match worktop_puts {
-                        ResourceSpecifier::Amount(changes_resource_address, changes_amount) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(changes_amount, amount);
-
-                            ResourceTracker::Fungible {
-                                resource_address,
-                                amount: Source::Guaranteed(amount),
-                            }
-                        }
-                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(usize_to_decimal(changes_ids.len()), amount);
-
-                            ResourceTracker::NonFungible {
-                                resource_address,
-                                amount: Source::Guaranteed(amount),
-                                ids: Source::Predicted(self.instruction_index, changes_ids),
-                            }
-                        }
-                    }
-                } else {
-                    self.is_illegal_state = true;
-                    return Ok(());
-                }
-            } else if method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT {
-                if let Ok(AccountLockFeeAndWithdrawInput {
-                    resource_address,
-                    amount,
-                    ..
                 }) = manifest_decode(&manifest_encode(&args).unwrap())
                 {
                     match worktop_puts {
@@ -355,32 +325,6 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                     self.is_illegal_state = true;
                     return Ok(());
                 }
-            } else if method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT {
-                if let Ok(AccountLockFeeAndWithdrawNonFungiblesInput {
-                    resource_address,
-                    ids,
-                    ..
-                }) = manifest_decode(&manifest_encode(&args).unwrap())
-                {
-                    match worktop_puts {
-                        ResourceSpecifier::Amount(..) => {
-                            panic!("Account withdraw non-fungibles returned an amount!")
-                        }
-                        ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(ids, changes_ids);
-
-                            ResourceTracker::NonFungible {
-                                resource_address,
-                                amount: Source::Guaranteed(usize_to_decimal(ids.len())),
-                                ids: Source::Guaranteed(ids),
-                            }
-                        }
-                    }
-                } else {
-                    self.is_illegal_state = true;
-                    return Ok(());
-                }
             } else {
                 self.is_illegal_state = true;
                 return Ok(());
@@ -399,6 +343,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         .contains(&method_name)
             && is_account(global_address)
         {
+            // This never panics. We have already checked that this is an account when we called
+            // `is_account`.
+            let component_address = ComponentAddress::new_or_panic(global_address.as_node_id().0);
+
             let indexed_manifest_value = IndexedManifestValue::from_manifest_value(args);
 
             let buckets = indexed_manifest_value.buckets();

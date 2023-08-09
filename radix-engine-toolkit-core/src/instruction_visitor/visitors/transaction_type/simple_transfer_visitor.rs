@@ -58,6 +58,8 @@ impl InstructionVisitor for SimpleTransactionTypeVisitor {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
+                    // This never panics. We have already checked that this is an account when we
+                    // called `is_account`.
                     ComponentAddress::new_or_panic(address.as_node_id().0)
                 }
                 DynamicGlobalAddress::Named(_) => {

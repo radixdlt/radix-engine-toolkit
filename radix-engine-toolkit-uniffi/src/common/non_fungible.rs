@@ -57,6 +57,8 @@ impl NonFungibleGlobalId {
             }),
         }?;
         let network_id = resource_address.1;
+        // This never panics. We have already checked that this is a global non-fungible resource
+        // manager.
         let resource_address = NativeResourceAddress::new_or_panic(resource_address.0 .0);
         let non_fungible_local_id = NativeNonFungibleLocalId::try_from(non_fungible_local_id)?;
 
