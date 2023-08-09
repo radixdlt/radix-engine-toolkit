@@ -144,7 +144,7 @@ pub fn analyze(
         }
         let execution_cost = cost_units_to_xrd(network_fees);
 
-        let royalty_fee = fee_summary
+        let royalty_cost = fee_summary
             .royalty_cost_breakdown
             .values()
             .map(|(_, v)| *v)
@@ -152,7 +152,7 @@ pub fn analyze(
 
         FeeSummary {
             execution_cost,
-            royalty_fee,
+            royalty_cost,
             finalization_cost: dec!("0.01"),
             storage_expansion_cost: dec!("0.01"),
         }
@@ -222,7 +222,7 @@ pub struct FeeSummary {
     pub execution_cost: Decimal,
     pub finalization_cost: Decimal,
     pub storage_expansion_cost: Decimal,
-    pub royalty_fee: Decimal,
+    pub royalty_cost: Decimal,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]

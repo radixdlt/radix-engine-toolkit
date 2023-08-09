@@ -298,7 +298,7 @@ pub struct SerializableFeeSummary {
     pub execution_cost: SerializableDecimal,
     pub finalization_cost: SerializableDecimal,
     pub storage_expansion_cost: SerializableDecimal,
-    pub royalty_fee: SerializableDecimal,
+    pub royalty_cost: SerializableDecimal,
 }
 
 impl From<FeeSummary> for SerializableFeeSummary {
@@ -307,7 +307,7 @@ impl From<FeeSummary> for SerializableFeeSummary {
             execution_cost: value.execution_cost.into(),
             finalization_cost: value.finalization_cost.into(),
             storage_expansion_cost: value.storage_expansion_cost.into(),
-            royalty_fee: value.royalty_fee.into(),
+            royalty_cost: value.royalty_cost.into(),
         }
     }
 }

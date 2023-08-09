@@ -137,7 +137,7 @@ pub struct FeeSummary {
     pub execution_cost: Arc<Decimal>,
     pub finalization_cost: Arc<Decimal>,
     pub storage_expansion_cost: Arc<Decimal>,
-    pub royalty_fee: Arc<Decimal>,
+    pub royalty_cost: Arc<Decimal>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -456,14 +456,14 @@ impl FeeSummary {
     pub fn from_native(
         CoreExecutionFeeSummary {
             execution_cost,
-            royalty_fee,
+            royalty_cost,
             finalization_cost,
             storage_expansion_cost,
         }: &CoreExecutionFeeSummary,
     ) -> Self {
         Self {
             execution_cost: Arc::new(Decimal(*execution_cost)),
-            royalty_fee: Arc::new(Decimal(*royalty_fee)),
+            royalty_cost: Arc::new(Decimal(*royalty_cost)),
             finalization_cost: Arc::new(Decimal(*finalization_cost)),
             storage_expansion_cost: Arc::new(Decimal(*storage_expansion_cost)),
         }
