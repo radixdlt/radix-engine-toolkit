@@ -131,6 +131,9 @@ pub fn analyze(
         }
     }
 
+    // TODO: Do not calculate based on the cost unit price, we should use the XRD values from the
+    // fee summary.
+
     let fee_summary = {
         // Previews sometimes reports a cost unit price of zero. So, we will:
         // * Calculate all fees in XRD from the cost units.
@@ -139,7 +142,7 @@ pub fn analyze(
         for value in fee_summary.execution_cost_breakdown.values() {
             network_fees += *value as u128;
         }
-        let network_fee = cost_units_to_xrd(network_fees);
+        let execution_cost = cost_units_to_xrd(network_fees);
 
         let royalty_fee = fee_summary
             .royalty_cost_breakdown
@@ -148,8 +151,10 @@ pub fn analyze(
             .sum();
 
         FeeSummary {
-            network_fee,
+            execution_cost,
             royalty_fee,
+            finalization_cost: dec!("0.01"),
+            storage_expansion_cost: dec!("0.01"),
         }
     };
     let reserved_instructions = reserved_instructions_visitor.output();
@@ -214,7 +219,9 @@ pub struct ExecutionAnalysis {
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct FeeSummary {
-    pub network_fee: Decimal,
+    pub execution_cost: Decimal,
+    pub finalization_cost: Decimal,
+    pub storage_expansion_cost: Decimal,
     pub royalty_fee: Decimal,
 }
 

@@ -295,14 +295,18 @@ impl SerializableTransactionType {
 #[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableFeeSummary {
-    pub network_fee: SerializableDecimal,
+    pub execution_cost: SerializableDecimal,
+    pub finalization_cost: SerializableDecimal,
+    pub storage_expansion_cost: SerializableDecimal,
     pub royalty_fee: SerializableDecimal,
 }
 
 impl From<FeeSummary> for SerializableFeeSummary {
     fn from(value: FeeSummary) -> Self {
         Self {
-            network_fee: value.network_fee.into(),
+            execution_cost: value.execution_cost.into(),
+            finalization_cost: value.finalization_cost.into(),
+            storage_expansion_cost: value.storage_expansion_cost.into(),
             royalty_fee: value.royalty_fee.into(),
         }
     }
