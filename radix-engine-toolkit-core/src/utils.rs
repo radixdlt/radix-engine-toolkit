@@ -168,13 +168,14 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
         .and_then(|encoded| manifest_decode(&encoded).ok())
 }
 
+// TODO: This should return a `bool`.
 #[allow(clippy::result_unit_err)]
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
     let (local_type_index, schema) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
-    let encoded_payload = manifest_encode(&value).unwrap();
+    let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
         &schema,

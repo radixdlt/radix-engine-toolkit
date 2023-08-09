@@ -341,9 +341,9 @@ pub enum Proposer {
 
 #[derive(Clone, Debug, Record)]
 pub struct RuleSet {
-    pub primary_role: Vec<u8>,
-    pub recovery_role: Vec<u8>,
-    pub confirmation_role: Vec<u8>,
+    pub primary_role: Arc<AccessRule>,
+    pub recovery_role: Arc<AccessRule>,
+    pub confirmation_role: Arc<AccessRule>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -357,9 +357,9 @@ impl FromNative for RuleSet {
 
     fn from_native(value: NativeRuleSet) -> Self {
         Self {
-            primary_role: native_scrypto_encode(&value.primary_role).unwrap(),
-            recovery_role: native_scrypto_encode(&value.recovery_role).unwrap(),
-            confirmation_role: native_scrypto_encode(&value.confirmation_role).unwrap(),
+            primary_role: Arc::new(AccessRule(value.primary_role)),
+            recovery_role: Arc::new(AccessRule(value.recovery_role)),
+            confirmation_role: Arc::new(AccessRule(value.confirmation_role)),
         }
     }
 }
