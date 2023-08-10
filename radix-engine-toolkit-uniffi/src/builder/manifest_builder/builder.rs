@@ -581,7 +581,7 @@ impl ManifestBuilder {
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(NATIVE_FAUCET.into()),
                 method_name: "lock_fee".to_owned(),
-                args: manifest_args!(NativeDecimal::from_str("100").unwrap()).into(),
+                args: manifest_args!(native_dec!("100")).into(),
             };
             builder.instructions.push(instruction);
             Ok(())

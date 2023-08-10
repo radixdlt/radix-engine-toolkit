@@ -59,7 +59,7 @@ pub fn modify(
     // instruction index so that we avoid worrying about the instruction shift as we insert them.
     modifications
         .add_assertions
-        .sort_by(|(b, _), (a, _)| a.partial_cmp(b).unwrap());
+        .sort_by(|(b, _), (a, _)| a.cmp(b));
 
     // Vec::insert panics if the insertion index is larger than the length of the vector. So, we
     // check for this and handle is gracefully.
@@ -78,9 +78,6 @@ pub fn modify(
         })?;
 
     // Adding the assertions.
-    modifications
-        .add_assertions
-        .sort_by(|(b, _), (a, _)| a.partial_cmp(b).unwrap());
     for (instruction_index, assertion) in modifications.add_assertions.into_iter() {
         let assertion_instruction = InstructionV1::from(assertion);
         instructions.insert(instruction_index, assertion_instruction);

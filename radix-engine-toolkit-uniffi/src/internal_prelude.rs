@@ -285,6 +285,8 @@ mod native {
         manifest_args as native_manifest_args,
         rule as native_rule,
         require as native_require,
+
+        dec as native_dec
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,

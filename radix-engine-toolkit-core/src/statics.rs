@@ -59,7 +59,7 @@ fn account_blueprint_schema() -> BlueprintDefinitionInit {
     ACCOUNT_PACKAGE_DEFINITION
         .blueprints
         .get(ACCOUNT_BLUEPRINT)
-        .unwrap()
+        .expect("Account package has no schema for the account blueprint?")
         .clone()
 }
 
@@ -165,7 +165,7 @@ fn identity_blueprint_schema() -> BlueprintDefinitionInit {
     IDENTITY_PACKAGE_DEFINITION
         .blueprints
         .get(IDENTITY_BLUEPRINT)
-        .unwrap()
+        .expect("Identity package has no schema for the identity blueprint?")
         .clone()
 }
 
@@ -177,7 +177,7 @@ fn role_assignment_blueprint_schema() -> BlueprintDefinitionInit {
     ROLE_ASSIGNMENT_PACKAGE_DEFINITION
         .blueprints
         .get(ROLE_ASSIGNMENT_BLUEPRINT)
-        .unwrap()
+        .expect("RoleAssignment package has no schema for the RoleAssignment blueprint?")
         .clone()
 }
 
@@ -185,7 +185,7 @@ fn metadata_blueprint_schema() -> BlueprintDefinitionInit {
     METADATA_PACKAGE_DEFINITION
         .blueprints
         .get(METADATA_BLUEPRINT)
-        .unwrap()
+        .expect("Metadata package has no schema for the Metadata blueprint?")
         .clone()
 }
 
@@ -193,7 +193,7 @@ fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
     ROYALTY_PACKAGE_DEFINITION
         .blueprints
         .get(COMPONENT_ROYALTY_BLUEPRINT)
-        .unwrap()
+        .expect("ComponentRoyalty package has no schema for the ComponentRoyalty blueprint?")
         .clone()
 }
 
