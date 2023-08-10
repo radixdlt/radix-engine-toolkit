@@ -83,10 +83,11 @@ where
         (Some(0x03), 27) => {
             let hash = scrypto::prelude::hash(&data);
 
-            let mut bytes = vec![EntityType::GlobalFungibleResourceManager as u8];
-            bytes.extend(hash.0[..29].iter());
+            let mut bytes = [0u8; 30];
+            bytes[0] = EntityType::GlobalFungibleResourceManager as u8;
+            bytes[1..].copy_from_slice(&hash.0[..29]);
 
-            Ok(NodeId(bytes.try_into().unwrap()))
+            Ok(NodeId(bytes))
         }
         _ => Err(DerivationError::InvalidOlympiaAddressLength {
             expected: 27,
