@@ -964,6 +964,29 @@ impl ManifestBuilder {
         })
     }
 
+    /* Metadata Module */
+
+    pub fn set_metadata(
+        self: Arc<Self>,
+        address: Arc<Address>,
+        key: String,
+        value: MetadataValue,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*address)?;
+            let value = value.to_native()?;
+
+            let instruction = NativeInstruction::CallMetadataMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_METADATA_SET_IDENT.to_string(),
+                args: native_to_manifest_value_and_unwrap!(&NativeMetadataSetInput { key, value }),
+            };
+            builder.instructions.push(instruction);
+
+            Ok(())
+        })
+    }
+
     //=================
     // Builder Methods
     //=================
