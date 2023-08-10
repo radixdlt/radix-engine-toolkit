@@ -31,7 +31,8 @@ impl<'f> Function<'f> for AddressEntityType {
 
     fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let node_id = input.0.node_id;
-        let entity_type = radix_engine_toolkit_core::functions::address::entity_type(node_id)
+        let entity_type = node_id
+            .entity_type()
             .ok_or(InvocationHandlingError::InvalidAddress(input.0.to_string()))?;
         Ok(entity_type.into())
     }

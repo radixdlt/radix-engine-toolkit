@@ -18,6 +18,7 @@
 use crate::prelude::*;
 
 use radix_engine_common::types::EntityType;
+use radix_engine_toolkit_core::models::node_id::TypedNodeId;
 use sbor::prelude::{HashMap, HashSet};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -397,15 +398,15 @@ impl From<SerializableEntityType> for EntityType {
 }
 
 pub(crate) fn transform_addresses_set_to_map(
-    addresses: HashSet<scrypto::prelude::NodeId>,
+    addresses: HashSet<TypedNodeId>,
     network_id: u8,
 ) -> HashMap<SerializableEntityType, Vec<SerializableNodeId>> {
     let mut addresses_map = HashMap::<SerializableEntityType, Vec<SerializableNodeId>>::new();
     for node_id in addresses.into_iter() {
         addresses_map
-            .entry(node_id.entity_type().unwrap().into())
+            .entry(node_id.entity_type().into())
             .or_default()
-            .push(SerializableNodeId::new(node_id, network_id))
+            .push(SerializableNodeId::new(*node_id.as_node_id(), network_id))
     }
     for entity_type in SerializableEntityType::all() {
         addresses_map.entry(entity_type).or_default();
