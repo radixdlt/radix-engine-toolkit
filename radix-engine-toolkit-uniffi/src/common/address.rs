@@ -17,8 +17,8 @@
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Copy, Object, Hash, PartialEq, Eq)]
-pub struct Address(pub(crate) NativeNodeId, pub(crate) u8);
+#[derive(Debug, Clone, Copy, Object, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Address(CoreTypedNodeId, u8);
 
 #[uniffi::export]
 impl Address {
@@ -38,15 +38,7 @@ impl Address {
                 error: format!("{error:?}"),
             })?;
 
-        let node_id = bytes.try_into().map(NativeNodeId).map_err(|bytes| {
-            RadixEngineToolkitError::InvalidLength {
-                expected: NativeNodeId::LENGTH as u64,
-                actual: bytes.len() as u64,
-                data: bytes,
-            }
-        })?;
-
-        Ok(Arc::new(Self(node_id, network_id)))
+        Self::from_raw(bytes, network_id)
     }
 
     #[uniffi::constructor]
@@ -59,8 +51,9 @@ impl Address {
                 actual: bytes.len() as u64,
                 data: bytes,
             })?;
+        let typed_node_id = CoreTypedNodeId::new(node_id)?;
 
-        Ok(Arc::new(Self(node_id, network_id)))
+        Ok(Arc::new(Self(typed_node_id, network_id)))
     }
 
     #[uniffi::constructor]
@@ -103,13 +96,15 @@ impl Address {
     }
 
     pub fn bytes(&self) -> Vec<u8> {
-        self.0 .0.to_vec()
+        self.0.to_vec()
     }
 
     pub fn address_string(&self) -> String {
         let network_definition = core_network_definition_from_network_id(self.1);
         let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
-        bech32_encoder.encode(&self.0 .0).unwrap()
+        bech32_encoder
+            .encode(self.0.as_bytes())
+            .expect("Safe to unwrap here. Node id has a valid entity type byte.")
     }
 
     pub fn as_str(&self) -> String {
@@ -117,95 +112,68 @@ impl Address {
     }
 
     pub fn entity_type(&self) -> EntityType {
-        self.0.entity_type().unwrap().into()
+        self.0.entity_type().into()
     }
 
     pub fn is_global(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_global())
+        self.0.entity_type().is_global()
     }
-
     pub fn is_internal(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_internal())
+        self.0.entity_type().is_internal()
     }
-
     pub fn is_global_component(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_global_component())
+        self.0.entity_type().is_global_component()
     }
-
     pub fn is_global_package(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_global_package())
+        self.0.entity_type().is_global_package()
     }
-
     pub fn is_global_consensus_manager(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_global_consensus_manager()
-        })
+        self.0.entity_type().is_global_consensus_manager()
     }
-
     pub fn is_global_resource_manager(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_global_resource_manager()
-        })
+        self.0.entity_type().is_global_resource_manager()
     }
-
     pub fn is_global_fungible_resource_manager(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_global_fungible_resource_manager()
-        })
+        self.0.entity_type().is_global_fungible_resource_manager()
     }
-
     pub fn is_global_non_fungible_resource_manager(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_global_non_fungible_resource_manager()
-        })
+        self.0
+            .entity_type()
+            .is_global_non_fungible_resource_manager()
     }
-
     pub fn is_global_virtual(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_global_virtual())
+        self.0.entity_type().is_global_virtual()
     }
-
     pub fn is_internal_kv_store(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_internal_kv_store())
+        self.0.entity_type().is_internal_kv_store()
     }
-
     pub fn is_internal_fungible_vault(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_internal_fungible_vault()
-        })
+        self.0.entity_type().is_internal_fungible_vault()
     }
-
     pub fn is_internal_non_fungible_vault(&self) -> bool {
-        self.0.entity_type().map_or(false, |entity_type| {
-            entity_type.is_internal_non_fungible_vault()
-        })
+        self.0.entity_type().is_internal_non_fungible_vault()
     }
-
     pub fn is_internal_vault(&self) -> bool {
-        self.0
-            .entity_type()
-            .map_or(false, |entity_type| entity_type.is_internal_vault())
+        self.0.entity_type().is_internal_vault()
     }
 }
 
 impl Address {
-    pub fn from_node_id<T>(node_id: T, network_id: u8) -> Self
+    pub fn from_typed_node_id<T>(node_id: T, network_id: u8) -> Self
     where
-        T: Into<NativeNodeId>,
+        T: Into<CoreTypedNodeId>,
     {
-        let node_id = Into::<NativeNodeId>::into(node_id);
-        Self(node_id, network_id)
+        Self(node_id.into(), network_id)
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+}
+
+impl From<Address> for NativeNodeId {
+    fn from(value: Address) -> Self {
+        *value.0.as_node_id()
     }
 }
 
@@ -213,7 +181,7 @@ impl TryFrom<Address> for NativeResourceAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
-        value.0 .0.try_into().map_err(Into::into)
+        value.0.try_into().map_err(Into::into)
     }
 }
 
@@ -221,7 +189,7 @@ impl TryFrom<Address> for NativeComponentAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
-        value.0 .0.try_into().map_err(Into::into)
+        value.0.try_into().map_err(Into::into)
     }
 }
 
@@ -229,7 +197,7 @@ impl TryFrom<Address> for NativePackageAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
-        value.0 .0.try_into().map_err(Into::into)
+        value.0.try_into().map_err(Into::into)
     }
 }
 
@@ -237,7 +205,7 @@ impl TryFrom<Address> for NativeInternalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
-        value.0 .0.try_into().map_err(Into::into)
+        value.0.try_into().map_err(Into::into)
     }
 }
 
@@ -245,6 +213,6 @@ impl TryFrom<Address> for NativeGlobalAddress {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: Address) -> Result<Self> {
-        value.0 .0.try_into().map_err(Into::into)
+        value.0.try_into().map_err(Into::into)
     }
 }

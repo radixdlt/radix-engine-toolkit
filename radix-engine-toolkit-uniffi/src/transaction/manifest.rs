@@ -53,8 +53,8 @@ impl TransactionManifest {
 
         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
         for address in addresses {
-            let entity_type = EntityType::from(address.entity_type().unwrap());
-            let address = Arc::new(Address(address, network_id));
+            let entity_type = EntityType::from(address.entity_type());
+            let address = Arc::new(Address::from_typed_node_id(address, network_id));
             map.entry(entity_type).or_default().push(address);
         }
         map
@@ -63,28 +63,28 @@ impl TransactionManifest {
     pub fn identities_requiring_auth(&self) -> Vec<Arc<Address>> {
         core_instructions_identities_requiring_auth(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_requiring_auth(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_requiring_auth(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_withdrawn_from(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_withdrawn_from(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_deposited_into(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_deposited_into(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
@@ -249,11 +249,17 @@ impl ResourceSpecifier {
     pub fn from_native(native: &NativeResourceSpecifier, network_id: u8) -> ResourceSpecifier {
         match native {
             NativeResourceSpecifier::Amount(resource_address, amount) => Self::Amount {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: Arc::new(Decimal(*amount)),
             },
             NativeResourceSpecifier::Ids(resource_address, ids) => Self::Ids {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
         }
@@ -271,8 +277,8 @@ impl TransactionType {
                 } = value.as_ref();
 
                 Self::SimpleTransfer {
-                    from: Arc::new(Address::from_node_id(*from, network_id)),
-                    to: Arc::new(Address::from_node_id(*to, network_id)),
+                    from: Arc::new(Address::from_typed_node_id(*from, network_id)),
+                    to: Arc::new(Address::from_typed_node_id(*to, network_id)),
                     transferred: ResourceSpecifier::from_native(transferred, network_id),
                 }
             }
@@ -280,17 +286,17 @@ impl TransactionType {
                 let CoreExecutionTransferTransactionType { from, transfers } = value.as_ref();
 
                 Self::Transfer {
-                    from: Arc::new(Address::from_node_id(*from, network_id)),
+                    from: Arc::new(Address::from_typed_node_id(*from, network_id)),
                     transfers: transfers
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
                                         (
-                                            Address::from_node_id(*key, network_id).as_str(),
+                                            Address::from_typed_node_id(*key, network_id).as_str(),
                                             Resources::from_native(value),
                                         )
                                     })
@@ -312,12 +318,12 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
                                         (
-                                            Arc::new(Address::from_node_id(*key, network_id))
+                                            Arc::new(Address::from_typed_node_id(*key, network_id))
                                                 .as_str(),
                                             <ResourcePreferenceAction as FromNative>::from_native(
                                                 *value,
@@ -332,7 +338,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
                                 <AccountDefaultDepositRule as FromNative>::from_native(
                                     value.clone(),
                                 ),
@@ -343,7 +349,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Arc::new(Address::from_node_id(*key, network_id)).as_str(),
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
                                 <AuthorizedDepositorsChanges as FromNativeWithNetworkContext>::from_native(
                                     value.clone(),
                                     network_id
@@ -367,13 +373,13 @@ impl TransactionType {
                 Self::GeneralTransaction {
                     account_proofs: account_proofs
                         .iter()
-                        .map(|value| Arc::new(Address::from_node_id(*value, network_id)))
+                        .map(|value| Arc::new(Address::from_typed_node_id(*value, network_id)))
                         .collect(),
                     account_withdraws: account_withdraws
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|value| ResourceTracker::from_native(value, network_id))
@@ -385,7 +391,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|value| ResourceTracker::from_native(value, network_id))
@@ -396,8 +402,9 @@ impl TransactionType {
                     addresses_in_manifest: {
                         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
                         for address in addresses_in_manifest {
-                            let entity_type = EntityType::from(address.entity_type().unwrap());
-                            let address = Arc::new(Address(*address, network_id));
+                            let entity_type = EntityType::from(address.entity_type());
+                            let address =
+                                Arc::new(Address::from_typed_node_id(*address, network_id));
                             map.entry(entity_type).or_default().push(address);
                         }
                         map
@@ -406,7 +413,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
@@ -425,7 +432,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
@@ -437,7 +444,7 @@ impl TransactionType {
                         .collect(),
                     addresses_of_newly_created_entities: addresses_of_newly_created_entities
                         .iter()
-                        .map(|node_id| Arc::new(Address(*node_id, network_id)))
+                        .map(|node_id| Arc::new(Address::from_typed_node_id(*node_id, network_id)))
                         .collect(),
                 }
             }
@@ -497,7 +504,10 @@ impl ResourceTracker {
                 resource_address,
                 amount,
             } => Self::Fungible {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: match amount {
                     CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
                         value: Arc::new(Decimal(*value)),
@@ -513,7 +523,10 @@ impl ResourceTracker {
                 amount,
                 ids,
             } => Self::NonFungible {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: match amount {
                     CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
                         value: Arc::new(Decimal(*value)),

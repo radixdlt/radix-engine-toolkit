@@ -44,7 +44,7 @@ impl InstructionVisitor for AccountProofsVisitor {
         if is_account(address) && ACCOUNT_PROOF_CREATION_METHODS.contains(&method_name.to_owned()) {
             self.0.extend(
                 IndexedManifestValue::from_manifest_value(args)
-                    .static_addresses()?
+                    .static_addresses()
                     .iter()
                     .filter_map(|node_id| ResourceAddress::try_from(*node_id).ok()),
             )

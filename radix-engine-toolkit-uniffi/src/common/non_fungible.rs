@@ -49,17 +49,14 @@ impl NonFungibleGlobalId {
         resource_address: Arc<Address>,
         non_fungible_local_id: NonFungibleLocalId,
     ) -> Result<Arc<Self>> {
-        match resource_address.entity_type() {
-            EntityType::GlobalNonFungibleResourceManager => Ok(()),
-            actual => Err(RadixEngineToolkitError::EntityTypeMismatchError {
+        let network_id = resource_address.network_id();
+        let resource_address = match NativeResourceAddress::try_from(*resource_address) {
+            Ok(resource_address) if !resource_address.is_fungible() => Ok(resource_address),
+            _ => Err(RadixEngineToolkitError::EntityTypeMismatchError {
                 expected: vec![EntityType::GlobalNonFungibleResourceManager],
-                actual,
+                actual: resource_address.entity_type(),
             }),
         }?;
-        let network_id = resource_address.1;
-        // This never panics. We have already checked that this is a global non-fungible resource
-        // manager.
-        let resource_address = NativeResourceAddress::new_or_panic(resource_address.0 .0);
         let non_fungible_local_id = NativeNonFungibleLocalId::try_from(non_fungible_local_id)?;
 
         Ok(Arc::new(Self(
@@ -75,8 +72,7 @@ impl NonFungibleGlobalId {
 
     pub fn resource_address(&self) -> Arc<Address> {
         let address = self.0.resource_address();
-        let node_id = address.as_node_id();
-        Arc::new(Address(*node_id, self.1))
+        Arc::new(Address::from_typed_node_id(address, self.1))
     }
 
     pub fn local_id(&self) -> NonFungibleLocalId {

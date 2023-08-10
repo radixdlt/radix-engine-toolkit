@@ -24,6 +24,11 @@
 #[rustfmt::skip]
 #[allow(unused_braces)]
 mod core {
+    /* Models */
+    pub use radix_engine_toolkit_core::models::node_id::{
+        TypedNodeId as CoreTypedNodeId,
+        InvalidEntityTypeIdError as CoreInvalidEntityTypeIdError
+    };
     /* Modules */
     pub use radix_engine_toolkit_core::functions::information::{
         information as core_information, 

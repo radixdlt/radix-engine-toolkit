@@ -151,7 +151,7 @@ impl Instruction {
         match native {
             NativeInstruction::TakeAllFromWorktop { resource_address } => {
                 Self::TakeAllFromWorktop {
-                    resource_address: Arc::new(Address::from_node_id(
+                    resource_address: Arc::new(Address::from_typed_node_id(
                         *resource_address,
                         network_id,
                     )),
@@ -161,14 +161,20 @@ impl Instruction {
                 resource_address,
                 amount,
             } => Self::TakeFromWorktop {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: Arc::new(Decimal(*amount)),
             },
             NativeInstruction::TakeNonFungiblesFromWorktop {
                 resource_address,
                 ids,
             } => Self::TakeNonFungiblesFromWorktop {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
 
@@ -180,12 +186,15 @@ impl Instruction {
                 resource_address,
                 amount,
             } => Self::AssertWorktopContains {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: Arc::new(Decimal(*amount)),
             },
             NativeInstruction::AssertWorktopContainsAny { resource_address } => {
                 Self::AssertWorktopContainsAny {
-                    resource_address: Arc::new(Address::from_node_id(
+                    resource_address: Arc::new(Address::from_typed_node_id(
                         *resource_address,
                         network_id,
                     )),
@@ -195,7 +204,10 @@ impl Instruction {
                 resource_address,
                 ids,
             } => Self::AssertWorktopContainsNonFungibles {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
             NativeInstruction::PopFromAuthZone => Self::PopFromAuthZone,
@@ -208,7 +220,7 @@ impl Instruction {
             NativeInstruction::DropAuthZoneSignatureProofs => Self::DropAuthZoneSignatureProofs,
             NativeInstruction::CreateProofFromAuthZoneOfAll { resource_address } => {
                 Self::CreateProofFromAuthZoneOfAll {
-                    resource_address: Arc::new(Address::from_node_id(
+                    resource_address: Arc::new(Address::from_typed_node_id(
                         *resource_address,
                         network_id,
                     )),
@@ -218,14 +230,20 @@ impl Instruction {
                 resource_address,
                 amount,
             } => Self::CreateProofFromAuthZoneOfAmount {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: Arc::new(Decimal(*amount)),
             },
             NativeInstruction::CreateProofFromAuthZoneOfNonFungibles {
                 resource_address,
                 ids,
             } => Self::CreateProofFromAuthZoneOfNonFungibles {
-                resource_address: Arc::new(Address::from_node_id(*resource_address, network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
             NativeInstruction::CreateProofFromBucketOfAll { bucket_id } => {
@@ -259,7 +277,10 @@ impl Instruction {
                 package_address,
                 blueprint_name,
             } => Self::AllocateGlobalAddress {
-                package_address: Arc::new(Address::from_node_id(*package_address, network_id)),
+                package_address: Arc::new(Address::from_typed_node_id(
+                    *package_address,
+                    network_id,
+                )),
                 blueprint_name: blueprint_name.clone(),
             },
             NativeInstruction::CallFunction {
@@ -317,7 +338,7 @@ impl Instruction {
                 method_name,
                 args,
             } => Self::CallDirectVaultMethod {
-                address: Arc::new(Address::from_node_id(*address, network_id)),
+                address: Arc::new(Address::from_typed_node_id(*address, network_id)),
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
@@ -489,7 +510,7 @@ impl Instruction {
                 method_name,
                 args,
             } => NativeInstruction::CallDirectVaultMethod {
-                address: address.as_ref().0 .0.try_into()?,
+                address: (**address).try_into()?,
                 method_name: method_name.to_owned(),
                 args: args.to_native()?,
             },
@@ -497,7 +518,7 @@ impl Instruction {
                 package_address,
                 blueprint_name,
             } => NativeInstruction::AllocateGlobalAddress {
-                package_address: package_address.as_ref().0 .0.try_into()?,
+                package_address: (**package_address).try_into()?,
                 blueprint_name: blueprint_name.to_string(),
             },
         };

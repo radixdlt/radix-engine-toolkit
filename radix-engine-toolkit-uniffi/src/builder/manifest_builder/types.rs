@@ -91,7 +91,7 @@ impl NameRecordConvertible for ManifestBuilderAddress {
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         match self {
             Self::Named { value } => value.to_native(name_record).map(Self::Native::Named),
-            Self::Static { value } => Ok(Self::Native::Static(value.0)),
+            Self::Static { value } => Ok(Self::Native::Static((**value).into())),
         }
     }
 }

@@ -509,7 +509,10 @@ impl FromNativeWithNetworkContext for VaultCreationEvent {
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            vault_id: Arc::new(Address(native.vault_id, network_id)),
+            vault_id: Arc::new(Address::from_typed_node_id(
+                NativeInternalAddress::try_from(native.vault_id).expect("Should be valid"),
+                network_id,
+            )),
         }
     }
 }
@@ -519,7 +522,10 @@ impl FromNativeWithNetworkContext for MultiResourcePoolDepositEvent {
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address(native.resource_address.into_node_id(), network_id)),
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
             amount: Arc::new(Decimal(native.amount)),
         }
     }
@@ -530,7 +536,10 @@ impl FromNativeWithNetworkContext for MultiResourcePoolWithdrawEvent {
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address(native.resource_address.into_node_id(), network_id)),
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
             amount: Arc::new(Decimal(native.amount)),
         }
     }
@@ -547,7 +556,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolRedemptionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address(key.into_node_id(), network_id).as_str(),
+                        Address::from_typed_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -567,7 +576,7 @@ impl FromNativeWithNetworkContext for MultiResourcePoolContributionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address(key.into_node_id(), network_id).as_str(),
+                        Address::from_typed_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -581,7 +590,10 @@ impl FromNativeWithNetworkContext for TwoResourcePoolDepositEvent {
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address(native.resource_address.into_node_id(), network_id)),
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
             amount: Arc::new(Decimal(native.amount)),
         }
     }
@@ -592,7 +604,10 @@ impl FromNativeWithNetworkContext for TwoResourcePoolWithdrawEvent {
 
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         Self {
-            resource_address: Arc::new(Address(native.resource_address.into_node_id(), network_id)),
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
             amount: Arc::new(Decimal(native.amount)),
         }
     }
@@ -609,7 +624,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolRedemptionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address(key.into_node_id(), network_id).as_str(),
+                        Address::from_typed_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -629,7 +644,7 @@ impl FromNativeWithNetworkContext for TwoResourcePoolContributionEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address(key.into_node_id(), network_id).as_str(),
+                        Address::from_typed_node_id(key, network_id).as_str(),
                         Arc::new(Decimal(value)),
                     )
                 })
@@ -694,7 +709,7 @@ impl FromNativeWithNetworkContext for EpochChangeEvent {
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Address(key.into_node_id(), network_id).as_str(),
+                        Address::from_typed_node_id(key, network_id).as_str(),
                         <ValidatorInfo as FromNative>::from_native(value),
                     )
                 })
@@ -998,7 +1013,7 @@ impl TryFrom<Emitter> for NativeEmitter {
             Emitter::Method {
                 address,
                 object_module_id,
-            } => Ok(Self::Method(address.0, object_module_id.into())),
+            } => Ok(Self::Method((*address).into(), object_module_id.into())),
         }
     }
 }

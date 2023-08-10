@@ -25,7 +25,6 @@ use transaction::validation::*;
 use crate::instruction_visitor::core::traverser::traverse;
 use crate::instruction_visitor::visitors::account_interactions_visitor::*;
 use crate::instruction_visitor::visitors::identity_interactions_visitor::IdentityInteractionsVisitor;
-use crate::models::node_id::InvalidEntityTypeIdError;
 use crate::models::node_id::TypedNodeId;
 use crate::sbor::indexed_manifest_value::*;
 
@@ -54,12 +53,10 @@ pub fn statically_validate(
     Ok(())
 }
 
-pub fn extract_addresses(
-    instructions: &[InstructionV1],
-) -> Result<(HashSet<TypedNodeId>, HashSet<u32>), InvalidEntityTypeIdError> {
+pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<TypedNodeId>, HashSet<u32>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
     let static_addresses = indexed_manifest_value
-        .static_addresses()?
+        .static_addresses()
         .into_iter()
         .collect();
     let named_addresses = indexed_manifest_value
@@ -68,7 +65,7 @@ pub fn extract_addresses(
         .cloned()
         .collect();
 
-    Ok((static_addresses, named_addresses))
+    (static_addresses, named_addresses)
 }
 
 pub fn identities_requiring_auth(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {

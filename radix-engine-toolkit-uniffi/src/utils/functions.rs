@@ -67,7 +67,7 @@ macro_rules! define_known_addresses {
                     pub fn new_from_network(network_id: u8) -> Self {
                         Self {
                             $(
-                                $ident: $crate::prelude::Arc::new(Address( scrypto::prelude::[< $ident: upper >].into_node_id(), network_id )),
+                                $ident: $crate::prelude::Arc::new(Address::from_typed_node_id( scrypto::prelude::[< $ident: upper >], network_id )),
                             )*
                         }
                     }

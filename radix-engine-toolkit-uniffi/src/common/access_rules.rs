@@ -138,12 +138,8 @@ impl ToNative for ResourceOrNonFungible {
 
     fn to_native(self) -> Result<Self::Native> {
         match self {
-            Self::Resource { value } => value
-                .0
-                 .0
-                .try_into()
-                .map(Self::Native::Resource)
-                .map_err(Into::into),
+            // Self::Resource { value } => value.try_into().map(Self::Native::Resource),
+            Self::Resource { value } => (*value).try_into().map(Self::Native::Resource),
             Self::NonFungible { value } => Ok(Self::Native::NonFungible(value.0.clone())),
         }
     }
@@ -155,7 +151,7 @@ impl FromNativeWithNetworkContext for ResourceOrNonFungible {
     fn from_native(native: Self::Native, network_id: u8) -> Self {
         match native {
             NativeResourceOrNonFungible::Resource(resource_address) => Self::Resource {
-                value: Arc::new(Address::from_node_id(resource_address, network_id)),
+                value: Arc::new(Address::from_typed_node_id(resource_address, network_id)),
             },
             NativeResourceOrNonFungible::NonFungible(non_fungible_global_id) => Self::NonFungible {
                 value: Arc::new(NonFungibleGlobalId(non_fungible_global_id, network_id)),

@@ -106,7 +106,7 @@ pub fn analyze(
                 account_deposits,
                 addresses_in_manifest: crate::functions::instructions::extract_addresses(
                     instructions,
-                )?,
+                ),
                 metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
                     preview_receipt,
                 )?,
