@@ -24,6 +24,8 @@ use sbor::traversal::*;
 use sbor::*;
 use transaction::prelude::{ManifestAddress, ManifestBucket, ManifestExpression};
 
+use crate::models::node_id::{InvalidEntityTypeIdError, TypedNodeId};
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {
     bytes: Vec<u8>,
@@ -143,8 +145,11 @@ impl IndexedManifestValue {
         self.bytes.as_slice()
     }
 
-    pub fn static_addresses(&self) -> &Vec<NodeId> {
-        &self.static_addresses
+    pub fn static_addresses(&self) -> Result<Vec<TypedNodeId>, InvalidEntityTypeIdError> {
+        self.static_addresses
+            .iter()
+            .map(|node_id| TypedNodeId::new(*node_id))
+            .collect::<Result<Vec<_>, _>>()
     }
 
     pub fn named_addresses(&self) -> &Vec<u32> {

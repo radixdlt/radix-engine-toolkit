@@ -31,6 +31,8 @@ use crate::instruction_visitor::visitors::transaction_type::reserved_instruction
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
 use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
+use crate::models::node_id::InvalidEntityTypeIdError;
+use crate::models::node_id::TypedNodeId;
 use crate::utils;
 
 pub fn analyze(
@@ -104,16 +106,16 @@ pub fn analyze(
                 account_deposits,
                 addresses_in_manifest: crate::functions::instructions::extract_addresses(
                     instructions,
-                ),
+                )?,
                 metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
                     preview_receipt,
-                ),
+                )?,
                 data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
                     preview_receipt,
                 ),
                 addresses_of_newly_created_entities: utils::addresses_of_newly_created_entities(
                     preview_receipt,
-                ),
+                )?,
             },
         )))
     };
@@ -242,8 +244,8 @@ pub struct GeneralTransactionType {
     pub account_proofs: HashSet<ResourceAddress>,
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub account_deposits: HashMap<ComponentAddress, Vec<ResourceTracker>>,
-    pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
-    pub addresses_of_newly_created_entities: HashSet<NodeId>,
+    pub addresses_in_manifest: (HashSet<TypedNodeId>, HashSet<u32>),
+    pub addresses_of_newly_created_entities: HashSet<TypedNodeId>,
     pub metadata_of_newly_created_entities:
         HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
@@ -255,10 +257,17 @@ pub enum ExecutionModuleError {
     TransactionWasNotCommittedSuccessfully(TransactionReceipt),
     InstructionVisitorError(InstructionVisitorError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
+    InvalidEntityTypeIdError(InvalidEntityTypeIdError),
 }
 
 impl From<InstructionVisitorError> for ExecutionModuleError {
     fn from(value: InstructionVisitorError) -> Self {
         Self::InstructionVisitorError(value)
+    }
+}
+
+impl From<InvalidEntityTypeIdError> for ExecutionModuleError {
+    fn from(value: InvalidEntityTypeIdError) -> Self {
+        Self::InvalidEntityTypeIdError(value)
     }
 }

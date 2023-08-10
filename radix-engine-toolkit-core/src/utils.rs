@@ -31,6 +31,7 @@ use transaction::model::IntentV1;
 use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
 
 use crate::functions::execution::ExecutionAnalysisTransactionReceipt;
+use crate::models::node_id::{InvalidEntityTypeIdError, TypedNodeId};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -233,13 +234,16 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
 
 pub fn metadata_of_newly_created_entities(
     receipt: &ExecutionAnalysisTransactionReceipt,
-) -> HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>> {
-    let addresses = addresses_of_newly_created_entities(receipt);
+) -> Result<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>, InvalidEntityTypeIdError>
+{
+    let addresses = addresses_of_newly_created_entities(receipt)?;
     let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
-    for global_address in addresses
-        .into_iter()
-        .map(|node_id| GlobalAddress::new_or_panic(node_id.0))
-    {
+    for typed_node_id in addresses.into_iter() {
+        let Ok(global_address) = GlobalAddress::try_from(typed_node_id) else {
+            // Ignore all addresses that are not of global entities.
+            continue;
+        };
+
         let entry = map.entry(global_address).or_default();
         if let Some(key_update_map) = receipt
             .expect_commit_success()
@@ -277,12 +281,12 @@ pub fn metadata_of_newly_created_entities(
         }
     }
 
-    map
+    Ok(map)
 }
 
 pub fn addresses_of_newly_created_entities(
     receipt: &ExecutionAnalysisTransactionReceipt,
-) -> HashSet<NodeId> {
+) -> Result<HashSet<TypedNodeId>, InvalidEntityTypeIdError> {
     let commit_result = AsRef::<CommitResult>::as_ref(receipt);
     commit_result
         .new_component_addresses()
@@ -300,7 +304,8 @@ pub fn addresses_of_newly_created_entities(
                 .iter()
                 .map(|address| address.into_node_id()),
         )
-        .collect()
+        .map(|value| TypedNodeId::new(value))
+        .collect::<Result<HashSet<_>, _>>()
 }
 
 pub fn data_of_newly_minted_non_fungibles(

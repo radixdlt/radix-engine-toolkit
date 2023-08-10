@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::types::{EntityType, NodeId};
+use radix_engine_common::types::EntityType;
 
-pub fn entity_type(node_id: NodeId) -> Option<EntityType> {
+use crate::models::node_id::TypedNodeId;
+
+pub fn entity_type(node_id: TypedNodeId) -> EntityType {
     node_id.entity_type()
 }

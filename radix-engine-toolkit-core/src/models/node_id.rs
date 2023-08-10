@@ -1,0 +1,67 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+use radix_engine_common::types::*;
+
+/// Defines a typed NodeId type which is a NodeId guaranteed to have an EntityType and guaranteed to
+/// be Bech32m encodable. The stored [`EntityType`] always matches that of the stored [`NodeId`].
+/// This type is to be used everywhere in the core toolkit whether as arguments, returns, or part
+/// of other structs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct TypedNodeId(EntityType, NodeId);
+
+impl TypedNodeId {
+    pub fn new<T>(node_id: T) -> Result<Self, InvalidEntityTypeIdError>
+    where
+        T: Into<NodeId>,
+    {
+        let node_id = node_id.into();
+        if let Some(entity_type) = node_id.entity_type() {
+            Ok(Self(entity_type, node_id))
+        } else {
+            Err(InvalidEntityTypeIdError(node_id))
+        }
+    }
+}
+
+impl TypedNodeId {
+    pub fn entity_type(&self) -> EntityType {
+        self.0
+    }
+}
+
+typed_node_id_to_typed_address_try_from! {GlobalAddress, ParseGlobalAddressError}
+typed_node_id_to_typed_address_try_from! {PackageAddress, ParsePackageAddressError}
+typed_node_id_to_typed_address_try_from! {InternalAddress, ParseInternalAddressError}
+typed_node_id_to_typed_address_try_from! {ResourceAddress, ParseResourceAddressError}
+typed_node_id_to_typed_address_try_from! {ComponentAddress, ParseComponentAddressError}
+
+#[derive(Clone, Debug)]
+pub struct InvalidEntityTypeIdError(NodeId);
+
+macro_rules! typed_node_id_to_typed_address_try_from {
+    ($type: ty, $err: ty) => {
+        impl TryFrom<TypedNodeId> for $type {
+            type Error = $err;
+
+            fn try_from(value: TypedNodeId) -> Result<Self, Self::Error> {
+                value.1.try_into()
+            }
+        }
+    };
+}
+use typed_node_id_to_typed_address_try_from;

@@ -52,10 +52,10 @@ fn extraction_of_metadata_from_receipts_succeeds() {
     let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
     let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
         &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
-    );
+    )
+    .unwrap();
 
     // Assert
-    let metadata = metadata;
     let global_address = GlobalAddress::from(
         *receipt
             .expect_commit_success()

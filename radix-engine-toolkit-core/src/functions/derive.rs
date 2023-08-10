@@ -78,8 +78,8 @@ where
     let prefix = data.first();
     let length = data.len();
 
-    let node_id = match (prefix, length) {
-        (Some(0x01), 1) => Ok(scrypto::prelude::XRD.into_node_id()),
+    match (prefix, length) {
+        (Some(0x01), 1) => Ok(scrypto::prelude::XRD),
         (Some(0x03), 27) => {
             let hash = scrypto::prelude::hash(&data);
 
@@ -87,15 +87,13 @@ where
             bytes[0] = EntityType::GlobalFungibleResourceManager as u8;
             bytes[1..].copy_from_slice(&hash.0[..29]);
 
-            Ok(NodeId(bytes))
+            Ok(ResourceAddress::new_or_panic(bytes))
         }
         _ => Err(DerivationError::InvalidOlympiaAddressLength {
             expected: 27,
             actual: length,
         }),
-    }?;
-
-    Ok(ResourceAddress::new_or_panic(node_id.0))
+    }
 }
 
 pub fn public_key_from_olympia_account_address<S>(
