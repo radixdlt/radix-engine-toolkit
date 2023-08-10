@@ -304,7 +304,7 @@ pub fn addresses_of_newly_created_entities(
                 .iter()
                 .map(|address| address.into_node_id()),
         )
-        .map(|value| TypedNodeId::new(value))
+        .map(TypedNodeId::new)
         .collect::<Result<HashSet<_>, _>>()
 }
 

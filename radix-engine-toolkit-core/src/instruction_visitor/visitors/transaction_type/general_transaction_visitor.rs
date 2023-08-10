@@ -461,10 +461,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                         .as_node_id()
                         .is_global_non_fungible_resource_manager(),
                 )?;
-                self.assert_eq_or_error(
-                    amount,
-                    &Decimal::from_str(&ids.len().to_string()).unwrap(),
-                )?;
+                self.assert_eq_or_error(amount, &btree_set_decimal_len(ids))?;
 
                 ResourceTracker::NonFungible {
                     resource_address: *resource_address,
