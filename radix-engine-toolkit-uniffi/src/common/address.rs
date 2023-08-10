@@ -38,7 +38,15 @@ impl Address {
                 error: format!("{error:?}"),
             })?;
 
-        Self::from_raw(bytes, network_id)
+        let node_id = bytes.try_into().map(NativeNodeId).map_err(|bytes| {
+            RadixEngineToolkitError::InvalidLength {
+                expected: NativeNodeId::LENGTH as u64,
+                actual: bytes.len() as u64,
+                data: bytes,
+            }
+        })?;
+
+        Ok(Arc::new(Self(node_id, network_id)))
     }
 
     #[uniffi::constructor]
@@ -113,64 +121,81 @@ impl Address {
     }
 
     pub fn is_global(&self) -> bool {
-        self.0.entity_type().unwrap().is_global()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_global())
     }
 
     pub fn is_internal(&self) -> bool {
-        self.0.entity_type().unwrap().is_internal()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_internal())
     }
 
     pub fn is_global_component(&self) -> bool {
-        self.0.entity_type().unwrap().is_global_component()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_global_component())
     }
 
     pub fn is_global_package(&self) -> bool {
-        self.0.entity_type().unwrap().is_global_package()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_global_package())
     }
 
     pub fn is_global_consensus_manager(&self) -> bool {
-        self.0.entity_type().unwrap().is_global_consensus_manager()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_global_consensus_manager()
+        })
     }
 
     pub fn is_global_resource_manager(&self) -> bool {
-        self.0.entity_type().unwrap().is_global_resource_manager()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_global_resource_manager()
+        })
     }
 
     pub fn is_global_fungible_resource_manager(&self) -> bool {
-        self.0
-            .entity_type()
-            .unwrap()
-            .is_global_fungible_resource_manager()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_global_fungible_resource_manager()
+        })
     }
 
     pub fn is_global_non_fungible_resource_manager(&self) -> bool {
-        self.0
-            .entity_type()
-            .unwrap()
-            .is_global_non_fungible_resource_manager()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_global_non_fungible_resource_manager()
+        })
     }
 
     pub fn is_global_virtual(&self) -> bool {
-        self.0.entity_type().unwrap().is_global_virtual()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_global_virtual())
     }
 
     pub fn is_internal_kv_store(&self) -> bool {
-        self.0.entity_type().unwrap().is_internal_kv_store()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_internal_kv_store())
     }
 
     pub fn is_internal_fungible_vault(&self) -> bool {
-        self.0.entity_type().unwrap().is_internal_fungible_vault()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_internal_fungible_vault()
+        })
     }
 
     pub fn is_internal_non_fungible_vault(&self) -> bool {
-        self.0
-            .entity_type()
-            .unwrap()
-            .is_internal_non_fungible_vault()
+        self.0.entity_type().map_or(false, |entity_type| {
+            entity_type.is_internal_non_fungible_vault()
+        })
     }
 
     pub fn is_internal_vault(&self) -> bool {
-        self.0.entity_type().unwrap().is_internal_vault()
+        self.0
+            .entity_type()
+            .map_or(false, |entity_type| entity_type.is_internal_vault())
     }
 }
 

@@ -171,7 +171,7 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
         .chain(vec![system_bootstrap_receipt, wrap_up_receipt])
     {
         // Act & Assert
-        let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
+        let _metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
             &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
         );
     }
@@ -200,7 +200,7 @@ fn empty_metadata_can_be_processed_by_ret() {
     receipt.expect_commit_success();
 
     // Act & Assert
-    let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
+    let _metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
         &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
     );
 }
