@@ -590,6 +590,59 @@ impl ManifestBuilder {
 
     /* Account */
 
+    pub fn withdraw_from_account(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount = amount.0;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_WITHDRAW_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountWithdrawInput {
+                    resource_address,
+                    amount
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    pub fn withdraw_non_fungibles_from_account(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let ids = ids
+                .into_iter()
+                .map(TryFrom::try_from)
+                .collect::<Result<_>>()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountWithdrawNonFungiblesInput {
+                        resource_address,
+                        ids
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
     pub fn create_account_advanced(self: Arc<Self>, owner_role: OwnerRole) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let owner_role = owner_role.to_native()?;
