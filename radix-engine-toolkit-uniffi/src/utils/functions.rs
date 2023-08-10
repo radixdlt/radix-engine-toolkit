@@ -110,3 +110,8 @@ define_known_addresses! {
         faucet,
     ]
 }
+
+#[uniffi::export]
+pub fn test_panic(message: String) {
+    panic!("{}", message)
+}
