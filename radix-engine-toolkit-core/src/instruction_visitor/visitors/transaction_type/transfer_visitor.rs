@@ -15,19 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use transaction::{
-    prelude::{DynamicGlobalAddress, InstructionV1},
-    validation::ManifestIdAllocator,
-};
+use transaction::prelude::*;
+use transaction::validation::*;
 
 use scrypto::blueprints::account::*;
-use scrypto::prelude::*;
 
-use crate::{
-    instruction_visitor::core::{error::InstructionVisitorError, traits::InstructionVisitor},
-    sbor::indexed_manifest_value::IndexedManifestValue,
-    utils::{self, is_account, to_manifest_type},
-};
+use crate::instruction_visitor::core::error::*;
+use crate::instruction_visitor::core::traits::*;
+use crate::sbor::indexed_manifest_value::*;
+use crate::utils::*;
 
 #[derive(Default, Clone, Debug)]
 pub struct TransferTransactionTypeVisitor {
@@ -57,8 +53,12 @@ impl TransferTransactionTypeVisitor {
     )> {
         if self.is_illegal_state {
             None
-        } else if self.account_withdrawn_from.is_some() && !self.account_deposits.is_empty() {
-            Some((self.account_withdrawn_from.unwrap(), self.account_deposits))
+        } else if let Some(account_withdrawn_from) = self.account_withdrawn_from {
+            if !self.account_deposits.is_empty() {
+                Some((account_withdrawn_from, self.account_deposits))
+            } else {
+                None
+            }
         } else {
             None
         }
@@ -239,12 +239,10 @@ impl TransferTransactionTypeVisitor {
         // extract all buckets and expressions and deal with them.
 
         let matches_deposit_schema = [
-            utils::validate_manifest_value_against_schema::<AccountDepositInput>(args),
-            utils::validate_manifest_value_against_schema::<AccountDepositBatchInput>(args),
-            utils::validate_manifest_value_against_schema::<AccountTryDepositOrAbortInput>(args),
-            utils::validate_manifest_value_against_schema::<AccountTryDepositBatchOrAbortInput>(
-                args,
-            ),
+            validate_manifest_value_against_schema::<AccountDepositInput>(args),
+            validate_manifest_value_against_schema::<AccountDepositBatchInput>(args),
+            validate_manifest_value_against_schema::<AccountTryDepositOrAbortInput>(args),
+            validate_manifest_value_against_schema::<AccountTryDepositBatchOrAbortInput>(args),
         ]
         .into_iter()
         .any(|result| result.is_ok());

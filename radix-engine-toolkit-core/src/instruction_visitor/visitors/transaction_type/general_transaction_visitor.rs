@@ -15,9 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// TODO: There are a few asserts and panics in this module for cases when the RET encounters some
-// form of an illegal state that is impossible to work with (e.g., take from worktop putting
-// resources in the worktop). Is it reasonable to do that, or should this be a [`Result`] and error?
+// =================================================================================================
+// Note: There is a chance that the receipt that has been passed doesn't belong to the same manifest
+// or transaction. Therefore, we do not do unwraps or panics in this module at all. As an example,
+// in this module, it's totally normal to come across a `TakeFromWorktop` instruction that has
+// worktop changes of `Worktop::Put` because the receipt is actually of a totally different manifest
+// that does different things. When we encounter such cases we simply return an error letting the
+// caller know of the fact that there is a mismatch. We do not need to be too clear about what the
+// mismatch is.
+// =================================================================================================
 
 #![allow(clippy::match_like_matches_macro)]
 
@@ -277,8 +283,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 {
                     match worktop_puts {
                         ResourceSpecifier::Amount(changes_resource_address, changes_amount) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(changes_amount, amount);
+                            self.assert_eq_or_error(&changes_resource_address, &resource_address)?;
+                            self.assert_eq_or_error(&changes_amount, &amount)?;
 
                             ResourceTracker::Fungible {
                                 resource_address,
@@ -286,8 +292,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                             }
                         }
                         ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(usize_to_decimal(changes_ids.len()), amount);
+                            self.assert_eq_or_error(&changes_resource_address, &resource_address)?;
+                            self.assert_eq_or_error(&btree_set_decimal_len(&changes_ids), &amount)?;
 
                             ResourceTracker::NonFungible {
                                 resource_address,
@@ -308,15 +314,16 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 {
                     match worktop_puts {
                         ResourceSpecifier::Amount(..) => {
-                            panic!("Account withdraw non-fungibles returned an amount!")
+                            self.is_illegal_state = true;
+                            return Err(GeneralTransactionTypeError::ReceiptManifestMismatch);
                         }
                         ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
-                            assert_eq!(changes_resource_address, resource_address);
-                            assert_eq!(ids, changes_ids);
+                            self.assert_eq_or_error(&changes_resource_address, &resource_address)?;
+                            self.assert_eq_or_error(&ids, &changes_ids)?;
 
                             ResourceTracker::NonFungible {
                                 resource_address,
-                                amount: Source::Guaranteed(usize_to_decimal(ids.len())),
+                                amount: Source::Guaranteed(btree_set_decimal_len(&ids)),
                                 ids: Source::Guaranteed(ids),
                             }
                         }
@@ -375,7 +382,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                                     resource_address: *resource_address,
                                     amount: Source::Predicted(
                                         self.instruction_index,
-                                        usize_to_decimal(ids.len()),
+                                        btree_set_decimal_len(ids),
                                     ),
                                     ids: Source::Predicted(self.instruction_index, ids.clone()),
                                 }),
@@ -428,11 +435,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             .and_then(|worktop_changes| worktop_changes.first())
         {
             Some(WorktopChange::Put(..)) => {
-                panic!("How did a call to TAKE from worktop PUT resources in the worktop?")
+                self.is_illegal_state = true;
+                return Err(GeneralTransactionTypeError::ReceiptManifestMismatch);
             }
             Some(WorktopChange::Take(ResourceSpecifier::Amount(_, changes_amount))) => {
-                assert!(resource_address.is_fungible());
-                assert_eq!(amount, changes_amount);
+                self.assert_or_error(resource_address.is_fungible())?;
+                self.assert_eq_or_error(amount, changes_amount)?;
 
                 ResourceTracker::Fungible {
                     resource_address: *resource_address,
@@ -440,10 +448,15 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 }
             }
             Some(WorktopChange::Take(ResourceSpecifier::Ids(_, ids))) => {
-                assert!(resource_address
-                    .as_node_id()
-                    .is_global_non_fungible_resource_manager());
-                assert_eq!(*amount, Decimal::from_str(&ids.len().to_string()).unwrap());
+                self.assert_or_error(
+                    resource_address
+                        .as_node_id()
+                        .is_global_non_fungible_resource_manager(),
+                )?;
+                self.assert_eq_or_error(
+                    amount,
+                    &Decimal::from_str(&ids.len().to_string()).unwrap(),
+                )?;
 
                 ResourceTracker::NonFungible {
                     resource_address: *resource_address,
@@ -466,7 +479,8 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 }
             }
             None => {
-                panic!("How can the worktop changes be None if the amount specified is not zero?")
+                self.is_illegal_state = true;
+                return Err(GeneralTransactionTypeError::ReceiptManifestMismatch);
             }
         };
 
@@ -487,7 +501,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         // to look at the worktop changes.
         let resource_tracker = ResourceTracker::NonFungible {
             resource_address: *resource_address,
-            amount: Source::Guaranteed(usize_to_decimal(ids.len())),
+            amount: Source::Guaranteed(btree_set_decimal_len(ids)),
             ids: Source::Guaranteed(ids.clone()),
         };
 
@@ -511,10 +525,11 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             .and_then(|worktop_changes| worktop_changes.first())
         {
             Some(WorktopChange::Put(..)) => {
-                panic!("How did a call to TAKE from worktop PUT resources in the worktop?")
+                self.is_illegal_state = true;
+                return Err(GeneralTransactionTypeError::ReceiptManifestMismatch);
             }
             Some(WorktopChange::Take(ResourceSpecifier::Amount(resource_address, amount))) => {
-                assert!(resource_address.is_fungible());
+                self.assert_or_error(resource_address.is_fungible())?;
 
                 ResourceTracker::Fungible {
                     resource_address: *resource_address,
@@ -522,13 +537,15 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 }
             }
             Some(WorktopChange::Take(ResourceSpecifier::Ids(resource_address, ids))) => {
-                assert!(resource_address
-                    .as_node_id()
-                    .is_global_non_fungible_resource_manager());
+                self.assert_or_error(
+                    resource_address
+                        .as_node_id()
+                        .is_global_non_fungible_resource_manager(),
+                )?;
 
                 ResourceTracker::NonFungible {
                     resource_address: *resource_address,
-                    amount: Source::Predicted(self.instruction_index, usize_to_decimal(ids.len())),
+                    amount: Source::Predicted(self.instruction_index, btree_set_decimal_len(ids)),
                     ids: Source::Predicted(self.instruction_index, ids.clone()),
                 }
             }
@@ -562,6 +579,31 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             .ok_or(GeneralTransactionTypeError::UnknownBucket(*bucket))?;
         Ok(())
     }
+
+    pub fn assert_or_error(&mut self, expression: bool) -> Result<(), GeneralTransactionTypeError> {
+        if !expression {
+            self.is_illegal_state = true;
+            Err(GeneralTransactionTypeError::ReceiptManifestMismatch)
+        } else {
+            Ok(())
+        }
+    }
+
+    pub fn assert_eq_or_error<T>(
+        &mut self,
+        item1: &T,
+        item2: &T,
+    ) -> Result<(), GeneralTransactionTypeError>
+    where
+        T: Eq,
+    {
+        if item1 != item2 {
+            self.is_illegal_state = true;
+            Err(GeneralTransactionTypeError::ReceiptManifestMismatch)
+        } else {
+            Ok(())
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -593,6 +635,7 @@ pub enum GeneralTransactionTypeError {
     ReceiptOfAFailedOrRejectedTransaction,
     WorktopChangesError,
     UnknownBucket(ManifestBucket),
+    ReceiptManifestMismatch,
 }
 
 #[derive(Debug, Clone)]
@@ -619,8 +662,11 @@ pub enum ResourceTracker {
     },
 }
 
-fn usize_to_decimal(num: usize) -> Decimal {
-    num.to_string().parse().unwrap()
+fn btree_set_decimal_len<T>(set: &BTreeSet<T>) -> Decimal {
+    set.len()
+        .to_string()
+        .parse()
+        .expect("A usize is always a valid decimal")
 }
 
 /// A struct that stores information on the methods that the general transaction visitor allows and
