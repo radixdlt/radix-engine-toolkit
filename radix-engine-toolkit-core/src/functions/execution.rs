@@ -107,16 +107,13 @@ pub fn analyze(
                 ),
                 metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
                     preview_receipt,
-                )
-                .unwrap(),
+                ),
                 data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
                     preview_receipt,
-                )
-                .unwrap(),
+                ),
                 addresses_of_newly_created_entities: utils::addresses_of_newly_created_entities(
                     preview_receipt,
-                )
-                .unwrap(),
+                ),
             },
         )))
     };
@@ -131,31 +128,11 @@ pub fn analyze(
         }
     }
 
-    // TODO: Do not calculate based on the cost unit price, we should use the XRD values from the
-    // fee summary.
-
-    let fee_summary = {
-        // Previews sometimes reports a cost unit price of zero. So, we will:
-        // * Calculate all fees in XRD from the cost units.
-        // * Calculate all fees based on the current cost unit price.
-        let mut network_fees = 0u128;
-        for value in fee_summary.execution_cost_breakdown.values() {
-            network_fees += *value as u128;
-        }
-        let execution_cost = cost_units_to_xrd(network_fees);
-
-        let royalty_cost = fee_summary
-            .royalty_cost_breakdown
-            .values()
-            .map(|(_, v)| *v)
-            .sum();
-
-        FeeSummary {
-            execution_cost,
-            royalty_cost,
-            finalization_cost: dec!("0.01"),
-            storage_expansion_cost: dec!("0.01"),
-        }
+    let fee_summary = FeeSummary {
+        execution_cost: fee_summary.total_execution_cost_xrd,
+        royalty_cost: fee_summary.total_royalty_cost_xrd,
+        finalization_cost: dec!("0.01"),
+        storage_expansion_cost: fee_summary.total_state_expansion_cost_xrd,
     };
     let reserved_instructions = reserved_instructions_visitor.output();
 
@@ -284,8 +261,4 @@ impl From<InstructionVisitorError> for ExecutionModuleError {
     fn from(value: InstructionVisitorError) -> Self {
         Self::InstructionVisitorError(value)
     }
-}
-
-fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    Decimal::from_str(COST_UNIT_PRICE_IN_XRD).unwrap() * cost_units
 }
