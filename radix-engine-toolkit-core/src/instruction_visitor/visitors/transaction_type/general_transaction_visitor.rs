@@ -279,8 +279,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 if let Ok(AccountWithdrawInput {
                     resource_address,
                     amount,
-                }) = manifest_decode(&manifest_encode(&args).unwrap())
-                {
+                }) = manifest_decode(&manifest_encode(args).map_err(|error| {
+                    GeneralTransactionTypeError::SborEncodeError {
+                        value: args.clone(),
+                        error,
+                    }
+                })?) {
                     match worktop_puts {
                         ResourceSpecifier::Amount(changes_resource_address, changes_amount) => {
                             self.assert_eq_or_error(&changes_resource_address, &resource_address)?;
@@ -310,8 +314,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 if let Ok(AccountWithdrawNonFungiblesInput {
                     resource_address,
                     ids,
-                }) = manifest_decode(&manifest_encode(&args).unwrap())
-                {
+                }) = manifest_decode(&manifest_encode(args).map_err(|error| {
+                    GeneralTransactionTypeError::SborEncodeError {
+                        value: args.clone(),
+                        error,
+                    }
+                })?) {
                     match worktop_puts {
                         ResourceSpecifier::Amount(..) => {
                             self.is_illegal_state = true;
@@ -636,6 +644,10 @@ pub enum GeneralTransactionTypeError {
     WorktopChangesError,
     UnknownBucket(ManifestBucket),
     ReceiptManifestMismatch,
+    SborEncodeError {
+        value: ManifestValue,
+        error: EncodeError,
+    },
 }
 
 #[derive(Debug, Clone)]

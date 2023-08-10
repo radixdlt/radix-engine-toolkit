@@ -21,9 +21,9 @@ use std::path::Path;
 
 fn main() {
     let manifest_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml");
-    let manifest = Manifest::from_path(manifest_path).unwrap();
+    let manifest = Manifest::from_path(manifest_path).expect("Can't panic");
 
-    let scrypto_dependency = manifest.dependencies.get("scrypto").unwrap();
+    let scrypto_dependency = manifest.dependencies.get("scrypto").expect("Can't panic");
     let string = match scrypto_dependency {
         Dependency::Simple(version) => format!("version={version}"),
         Dependency::Inherited(_) => panic!("Inherited dependency is not supported"),

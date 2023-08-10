@@ -55,7 +55,7 @@ fn extraction_of_metadata_from_receipts_succeeds() {
     );
 
     // Assert
-    let metadata = metadata.expect("Cant be none");
+    let metadata = metadata;
     let global_address = GlobalAddress::from(
         *receipt
             .expect_commit_success()
@@ -112,7 +112,7 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
     );
 
     // Assert
-    let non_fungible_data = new_non_fungibles.expect("Cant be none");
+    let non_fungible_data = new_non_fungibles;
     let resource_address = *receipt
         .expect_commit_success()
         .new_resource_addresses()
@@ -166,17 +166,14 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
         wrap_up_receipt,
     } = bootstrapper.bootstrap_test_default().unwrap();
 
-    // Act
     for receipt in data_ingestion_receipts
         .into_iter()
         .chain(vec![system_bootstrap_receipt, wrap_up_receipt])
     {
+        // Act & Assert
         let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
             &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
         );
-
-        // Assert
-        let _ = metadata.expect("Should be able to get metadata");
     }
 }
 
@@ -202,13 +199,10 @@ fn empty_metadata_can_be_processed_by_ret() {
     let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
     receipt.expect_commit_success();
 
-    // Act
+    // Act & Assert
     let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
         &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
     );
-
-    // Assert
-    let _ = metadata.expect("Should be able to get metadata");
 }
 
 #[test]

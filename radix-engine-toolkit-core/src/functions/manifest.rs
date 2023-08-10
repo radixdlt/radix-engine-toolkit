@@ -103,12 +103,19 @@ pub fn modify(
                         let AccountWithdrawInput {
                             amount: withdraw_amount,
                             resource_address: withdraw_resource_address,
-                        } = manifest_decode(&manifest_encode(args).unwrap()).map_err(|_| {
-                            ManifestModificationError::InvalidArguments {
-                                method_name: method_name.to_owned(),
-                                arguments: args.clone(),
-                            }
-                        })?;
+                        } = manifest_encode(args)
+                            .map_err(|error| ManifestModificationError::SborEncodeError {
+                                value: args.clone(),
+                                error,
+                            })
+                            .and_then(|encoded| {
+                                manifest_decode(&encoded).map_err(|_| {
+                                    ManifestModificationError::InvalidArguments {
+                                        method_name: method_name.to_owned(),
+                                        arguments: args.clone(),
+                                    }
+                                })
+                            })?;
 
                         *method_name = ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT.to_owned();
                         *args = to_manifest_value_and_unwrap!(&AccountLockFeeAndWithdrawInput {
@@ -121,12 +128,19 @@ pub fn modify(
                         let AccountWithdrawNonFungiblesInput {
                             ids: withdraw_ids,
                             resource_address: withdraw_resource_address,
-                        } = manifest_decode(&manifest_encode(args).unwrap()).map_err(|_| {
-                            ManifestModificationError::InvalidArguments {
-                                method_name: method_name.to_owned(),
-                                arguments: args.clone(),
-                            }
-                        })?;
+                        } = manifest_encode(args)
+                            .map_err(|error| ManifestModificationError::SborEncodeError {
+                                value: args.clone(),
+                                error,
+                            })
+                            .and_then(|encoded| {
+                                manifest_decode(&encoded).map_err(|_| {
+                                    ManifestModificationError::InvalidArguments {
+                                        method_name: method_name.to_owned(),
+                                        arguments: args.clone(),
+                                    }
+                                })
+                            })?;
 
                         *method_name = ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT.to_owned();
                         *args = to_manifest_value_and_unwrap!(
@@ -235,5 +249,9 @@ pub enum ManifestModificationError {
     AssertionIndexOutOfBounds {
         assertion_index: usize,
         instructions_length: usize,
+    },
+    SborEncodeError {
+        value: ManifestValue,
+        error: EncodeError,
     },
 }

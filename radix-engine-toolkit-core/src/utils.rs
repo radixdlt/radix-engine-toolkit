@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine::system::system::DynSubstate;
+use radix_engine::transaction::CommitResult;
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
@@ -230,105 +231,85 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
     }
 }
 
-// TODO: Refactor all functions that accept a transaction receipt that require it to be committed
-//       successfully to accept a new type that adds this guarantee. This saves us from needing to
-//       do the check multiple times and from needing to call `expect_commit_success` a few times.
-//       This reduces the surface area of panic-able code.
-
 pub fn metadata_of_newly_created_entities(
     receipt: &ExecutionAnalysisTransactionReceipt,
-) -> Option<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>> {
-    if let Some(addresses) = addresses_of_newly_created_entities(receipt) {
-        let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
-        for global_address in addresses
-            .into_iter()
-            .map(|node_id| GlobalAddress::new_or_panic(node_id.0))
+) -> HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>> {
+    let addresses = addresses_of_newly_created_entities(receipt);
+    let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
+    for global_address in addresses
+        .into_iter()
+        .map(|node_id| GlobalAddress::new_or_panic(node_id.0))
+    {
+        let entry = map.entry(global_address).or_default();
+        if let Some(key_update_map) = receipt
+            .expect_commit_success()
+            .state_updates
+            .system_updates
+            .get(&(*global_address.as_node_id(), METADATA_BASE_PARTITION))
         {
-            let entry = map.entry(global_address).or_default();
-            if let Some(key_update_map) = receipt
-                .expect_commit_success()
-                .state_updates
-                .system_updates
-                .get(&(*global_address.as_node_id(), METADATA_BASE_PARTITION))
-            {
-                for (substate_key, database_update) in key_update_map.iter() {
-                    if let DatabaseUpdate::Set(data) = database_update {
-                        if let Ok((
-                            TypedSubstateKey::MetadataModule(key),
-                            TypedSubstateValue::MetadataModule(value),
-                        )) = to_typed_substate_key(
-                            global_address.as_node_id().entity_type().unwrap(),
-                            METADATA_BASE_PARTITION,
-                            substate_key,
-                        )
-                        .and_then(|typed_substate_key| {
-                            to_typed_substate_value(&typed_substate_key, data).map(
-                                |typed_substate_value| (typed_substate_key, typed_substate_value),
-                            )
-                        }) {
-                            let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
-                            let value = match value {
-                                TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
-                                    value,
-                                    ..
-                                }) => value,
-                            };
-                            entry.insert(key, value);
-                        }
-                    } else {
-                        continue;
+            for (substate_key, database_update) in key_update_map.iter() {
+                if let DatabaseUpdate::Set(data) = database_update {
+                    if let Ok((
+                        TypedSubstateKey::MetadataModule(key),
+                        TypedSubstateValue::MetadataModule(value),
+                    )) = to_typed_substate_key(
+                        global_address.as_node_id().entity_type().unwrap(),
+                        METADATA_BASE_PARTITION,
+                        substate_key,
+                    )
+                    .and_then(|typed_substate_key| {
+                        to_typed_substate_value(&typed_substate_key, data)
+                            .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
+                    }) {
+                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
+                        let value = match value {
+                            TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
+                                value,
+                                ..
+                            }) => value,
+                        };
+                        entry.insert(key, value);
                     }
+                } else {
+                    continue;
                 }
             }
         }
-
-        Some(map)
-    } else {
-        None
     }
+
+    map
 }
 
 pub fn addresses_of_newly_created_entities(
     receipt: &ExecutionAnalysisTransactionReceipt,
-) -> Option<HashSet<NodeId>> {
-    if !receipt.is_commit_success() {
-        return None;
-    }
-
-    let commit_success = receipt.expect_commit_success();
-    Some(
-        commit_success
-            .new_component_addresses()
-            .iter()
-            .map(|address| address.into_node_id())
-            .chain(
-                commit_success
-                    .new_package_addresses()
-                    .iter()
-                    .map(|address| address.into_node_id()),
-            )
-            .chain(
-                commit_success
-                    .new_resource_addresses()
-                    .iter()
-                    .map(|address| address.into_node_id()),
-            )
-            .collect(),
-    )
+) -> HashSet<NodeId> {
+    let commit_result = AsRef::<CommitResult>::as_ref(receipt);
+    commit_result
+        .new_component_addresses()
+        .iter()
+        .map(|address| address.into_node_id())
+        .chain(
+            commit_result
+                .new_package_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .chain(
+            commit_result
+                .new_resource_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .collect()
 }
 
 pub fn data_of_newly_minted_non_fungibles(
     receipt: &ExecutionAnalysisTransactionReceipt,
-) -> Option<HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>> {
-    if !receipt.is_commit_success() {
-        return None;
-    }
-
+) -> HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>> {
     let mut map = HashMap::<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>::new();
-    let commit_success = receipt.expect_commit_success();
-
+    let commit_result = receipt.expect_commit_success();
     for ((node_id, partition_number), database_update_map) in
-        commit_success.state_updates.system_updates.iter()
+        commit_result.state_updates.system_updates.iter()
     {
         // Only care about non-fungible resource manager nodes, ignore everything else
         if !node_id.entity_type().map_or(false, |entity_type| {
@@ -374,6 +355,5 @@ pub fn data_of_newly_minted_non_fungibles(
             }
         }
     }
-
-    Some(map)
+    map
 }
