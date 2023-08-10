@@ -112,6 +112,6 @@ define_known_addresses! {
 }
 
 #[uniffi::export]
-pub fn test_panic(message: String) {
+pub fn test_panic(message: String) -> Result<()> {
     panic!("{}", message)
 }
