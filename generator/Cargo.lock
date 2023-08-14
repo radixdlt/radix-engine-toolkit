@@ -1524,7 +1524,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit"
-version = "0.12.0-fig.1"
+version = "0.12.0-grape.1"
 dependencies = [
  "bech32",
  "indexmap 1.9.3",
@@ -1546,7 +1546,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-core"
-version = "0.12.0-fig.1"
+version = "0.12.0-grape.1"
 dependencies = [
  "bech32",
  "cargo_toml",
