@@ -16,7 +16,6 @@
 // under the License.
 
 use radix_engine::system::system::DynSubstate;
-use radix_engine::transaction::CommitResult;
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
@@ -287,7 +286,7 @@ pub fn metadata_of_newly_created_entities(
 pub fn addresses_of_newly_created_entities(
     receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Result<HashSet<TypedNodeId>, InvalidEntityTypeIdError> {
-    let commit_result = AsRef::<CommitResult>::as_ref(receipt);
+    let commit_result = receipt.commit_result();
     commit_result
         .new_component_addresses()
         .iter()

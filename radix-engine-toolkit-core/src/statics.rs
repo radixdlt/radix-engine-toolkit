@@ -210,7 +210,7 @@ fn royalty_methods_that_require_auth() -> Vec<MethodKey> {
 }
 
 fn methods_that_require_auth(blueprint_schema: &BlueprintDefinitionInit) -> Vec<MethodKey> {
-    if let MethodAuthTemplate::StaticRoles(StaticRoles { ref methods, .. }) =
+    if let MethodAuthTemplate::StaticRoleDefinition(StaticRoleDefinition { ref methods, .. }) =
         blueprint_schema.auth_config.method_auth
     {
         methods

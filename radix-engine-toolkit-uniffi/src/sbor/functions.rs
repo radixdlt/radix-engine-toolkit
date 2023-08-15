@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor::WellKnownTypeIndex;
+
 use crate::prelude::*;
 
 #[uniffi::export]
@@ -133,7 +135,7 @@ impl From<SerializationMode> for NativeSerializationMode {
 impl From<LocalTypeIndex> for NativeLocalTypeIndex {
     fn from(value: LocalTypeIndex) -> Self {
         match value {
-            LocalTypeIndex::WellKnown { value } => Self::WellKnown(value),
+            LocalTypeIndex::WellKnown { value } => Self::WellKnown(WellKnownTypeIndex::of(value)),
             LocalTypeIndex::SchemaLocalIndex { value } => Self::SchemaLocalIndex(value as usize),
         }
     }

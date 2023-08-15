@@ -305,11 +305,6 @@ pub struct LockOwnerRoleEvent {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct SetAndLockOwnerRoleEvent {
-    pub rule: Arc<AccessRule>,
-}
-
-#[derive(Clone, Debug, Record)]
 pub struct SetMetadataEvent {
     pub key: String,
     pub value: MetadataValue,
@@ -350,6 +345,103 @@ pub struct RuleSet {
 pub struct RecoveryProposal {
     pub rule_set: RuleSet,
     pub timed_recovery_delay_in_minutes: Option<u32>,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountWithdrawEvent {
+    Fungible {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    NonFungible {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountDepositEvent {
+    Fungible {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    NonFungible {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountRejectedDepositEvent {
+    Fungible {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    NonFungible {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountSetResourcePreferenceEvent {
+    pub resource_address: Arc<Address>,
+    pub preference: ResourcePreference,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountRemoveResourcePreferenceEvent {
+    pub resource_address: Arc<Address>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountSetDefaultDepositRuleEvent {
+    pub default_deposit_rule: AccountDefaultDepositRule,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountAddAuthorizedDepositorEvent {
+    pub authorized_depositor_badge: ResourceOrNonFungible,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AccountRemoveAuthorizedDepositorEvent {
+    pub authorized_depositor_badge: ResourceOrNonFungible,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct FungibleVaultLockFeeEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct FungibleVaultWithdrawEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct FungibleVaultDepositEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct FungibleVaultRecallEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct NonFungibleVaultWithdrawEvent {
+    pub ids: Vec<NonFungibleLocalId>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct NonFungibleVaultDepositEvent {
+    pub ids: Vec<NonFungibleLocalId>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct NonFungibleVaultRecallEvent {
+    pub ids: Vec<NonFungibleLocalId>,
 }
 
 impl FromNative for RuleSet {
@@ -405,51 +497,6 @@ impl FromNative for ValidatorInfo {
         Self {
             key: value.key.into(),
             stake: Arc::new(Decimal(value.stake)),
-        }
-    }
-}
-
-impl FromNative for RecallResourceEvent {
-    type Native = NativeRecallResourceEvent;
-
-    fn from_native(value: NativeRecallResourceEvent) -> Self {
-        match value {
-            NativeRecallResourceEvent::Amount(value) => Self::Amount {
-                value: Arc::new(Decimal(value)),
-            },
-            NativeRecallResourceEvent::Ids(value) => Self::Ids {
-                value: value.into_iter().map(Into::into).collect(),
-            },
-        }
-    }
-}
-
-impl FromNative for DepositResourceEvent {
-    type Native = NativeDepositResourceEvent;
-
-    fn from_native(value: NativeDepositResourceEvent) -> Self {
-        match value {
-            NativeDepositResourceEvent::Amount(value) => Self::Amount {
-                value: Arc::new(Decimal(value)),
-            },
-            NativeDepositResourceEvent::Ids(value) => Self::Ids {
-                value: value.into_iter().map(Into::into).collect(),
-            },
-        }
-    }
-}
-
-impl FromNative for WithdrawResourceEvent {
-    type Native = NativeWithdrawResourceEvent;
-
-    fn from_native(value: NativeWithdrawResourceEvent) -> Self {
-        match value {
-            NativeWithdrawResourceEvent::Amount(value) => Self::Amount {
-                value: Arc::new(Decimal(value)),
-            },
-            NativeWithdrawResourceEvent::Ids(value) => Self::Ids {
-                value: value.into_iter().map(Into::into).collect(),
-            },
         }
     }
 }
@@ -928,39 +975,8 @@ impl FromNative for SetRoleEvent {
     }
 }
 
-impl FromNative for LockRoleEvent {
-    type Native = NativeLockRoleEvent;
-
-    fn from_native(native: Self::Native) -> Self {
-        Self {
-            role_key: native.role_key.key,
-        }
-    }
-}
-
-impl FromNative for SetAndLockRoleEvent {
-    type Native = NativeSetAndLockRoleEvent;
-
-    fn from_native(native: Self::Native) -> Self {
-        Self {
-            role_key: native.role_key.key,
-            rule: Arc::new(AccessRule(native.rule)),
-        }
-    }
-}
-
 impl FromNative for SetOwnerRoleEvent {
     type Native = NativeSetOwnerRoleEvent;
-
-    fn from_native(native: Self::Native) -> Self {
-        Self {
-            rule: Arc::new(AccessRule(native.rule)),
-        }
-    }
-}
-
-impl FromNative for SetAndLockOwnerRoleEvent {
-    type Native = NativeSetAndLockOwnerRoleEvent;
 
     fn from_native(native: Self::Native) -> Self {
         Self {
@@ -995,6 +1011,212 @@ impl FromNative for RemoveMetadataEvent {
 
     fn from_native(native: Self::Native) -> Self {
         Self { key: native.key }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountWithdrawEvent {
+    type Native = NativeAccountWithdrawEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            Self::Native::Fungible(resource_address, amount) => Self::Fungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                amount: Arc::new(Decimal(amount)),
+            },
+            Self::Native::NonFungible(resource_address, ids) => Self::NonFungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                ids: ids.into_iter().map(From::from).collect::<Vec<_>>(),
+            },
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountDepositEvent {
+    type Native = NativeAccountDepositEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            Self::Native::Fungible(resource_address, amount) => Self::Fungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                amount: Arc::new(Decimal(amount)),
+            },
+            Self::Native::NonFungible(resource_address, ids) => Self::NonFungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                ids: ids.into_iter().map(From::from).collect::<Vec<_>>(),
+            },
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountRejectedDepositEvent {
+    type Native = NativeAccountRejectedDepositEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            Self::Native::Fungible(resource_address, amount) => Self::Fungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                amount: Arc::new(Decimal(amount)),
+            },
+            Self::Native::NonFungible(resource_address, ids) => Self::NonFungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    resource_address,
+                    network_id,
+                )),
+                ids: ids.into_iter().map(From::from).collect::<Vec<_>>(),
+            },
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountSetResourcePreferenceEvent {
+    type Native = NativeAccountSetResourcePreferenceEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
+            preference: <ResourcePreference as FromNative>::from_native(native.preference),
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountRemoveResourcePreferenceEvent {
+    type Native = NativeAccountRemoveResourcePreferenceEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            resource_address: Arc::new(Address::from_typed_node_id(
+                native.resource_address,
+                network_id,
+            )),
+        }
+    }
+}
+
+impl FromNative for AccountSetDefaultDepositRuleEvent {
+    type Native = NativeAccountSetDefaultDepositRuleEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            default_deposit_rule: <AccountDefaultDepositRule as FromNative>::from_native(
+                native.default_deposit_rule,
+            ),
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountAddAuthorizedDepositorEvent {
+    type Native = NativeAccountAddAuthorizedDepositorEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            authorized_depositor_badge:
+                <ResourceOrNonFungible as FromNativeWithNetworkContext>::from_native(
+                    native.authorized_depositor_badge,
+                    network_id,
+                ),
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AccountRemoveAuthorizedDepositorEvent {
+    type Native = NativeAccountRemoveAuthorizedDepositorEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            authorized_depositor_badge:
+                <ResourceOrNonFungible as FromNativeWithNetworkContext>::from_native(
+                    native.authorized_depositor_badge,
+                    network_id,
+                ),
+        }
+    }
+}
+
+impl FromNative for FungibleVaultLockFeeEvent {
+    type Native = NativeFungibleVaultLockFeeEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
+impl FromNative for FungibleVaultWithdrawEvent {
+    type Native = NativeFungibleVaultWithdrawEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
+impl FromNative for FungibleVaultDepositEvent {
+    type Native = NativeFungibleVaultDepositEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
+impl FromNative for FungibleVaultRecallEvent {
+    type Native = NativeFungibleVaultRecallEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
+impl FromNative for NonFungibleVaultWithdrawEvent {
+    type Native = NativeNonFungibleVaultWithdrawEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            ids: native.ids.into_iter().map(From::from).collect(),
+        }
+    }
+}
+
+impl FromNative for NonFungibleVaultDepositEvent {
+    type Native = NativeNonFungibleVaultDepositEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            ids: native.ids.into_iter().map(From::from).collect(),
+        }
+    }
+}
+
+impl FromNative for NonFungibleVaultRecallEvent {
+    type Native = NativeNonFungibleVaultRecallEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            ids: native.ids.into_iter().map(From::from).collect(),
+        }
     }
 }
 
@@ -1047,6 +1269,18 @@ define_structure! {
             StopTimedRecoveryEvent,
         ],
     },
+    Account => {
+        Account => [
+            AccountWithdrawEvent,
+            AccountDepositEvent,
+            AccountRejectedDepositEvent,
+            AccountSetResourcePreferenceEvent,
+            AccountRemoveResourcePreferenceEvent,
+            AccountSetDefaultDepositRuleEvent,
+            AccountAddAuthorizedDepositorEvent,
+            AccountRemoveAuthorizedDepositorEvent,
+        ]
+    },
     ConsensusManager => {
         ConsensusManager => [
             RoundChangeEvent,
@@ -1086,16 +1320,15 @@ define_structure! {
     },
     Resource => {
         FungibleVault => [
-            LockFeeEvent,
-            WithdrawResourceEvent,
-            DepositResourceEvent,
-            RecallResourceEvent,
+            FungibleVaultLockFeeEvent,
+            FungibleVaultWithdrawEvent,
+            FungibleVaultDepositEvent,
+            FungibleVaultRecallEvent,
         ],
         NonFungibleVault => [
-            LockFeeEvent,
-            WithdrawResourceEvent,
-            DepositResourceEvent,
-            RecallResourceEvent,
+            NonFungibleVaultWithdrawEvent,
+            NonFungibleVaultDepositEvent,
+            NonFungibleVaultRecallEvent,
         ],
         FungibleResourceManager => [
             VaultCreationEvent,
@@ -1113,11 +1346,8 @@ define_structure! {
     RoleAssignment => {
         RoleAssignment => [
             SetRoleEvent,
-            LockRoleEvent,
-            SetAndLockRoleEvent,
             SetOwnerRoleEvent,
             LockOwnerRoleEvent,
-            SetAndLockOwnerRoleEvent,
         ]
     },
     Metadata => {

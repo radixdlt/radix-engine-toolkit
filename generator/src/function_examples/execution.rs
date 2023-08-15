@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine::transaction::{
-    execute_and_commit_transaction, ExecutionConfig, FeeReserveConfig, TransactionReceipt,
+    execute_and_commit_transaction, CostingParameters, ExecutionConfig, TransactionReceipt,
 };
 use radix_engine::types::ResourceOrNonFungible;
 use radix_engine::vm::Vm;
@@ -181,7 +181,7 @@ pub fn execute_scenarios(
         let scrypto_vm = ScryptoVm::<DefaultWasmEngine>::default();
         let native_vm = DefaultNativeVm::new();
         let vm = Vm::new(&scrypto_vm, native_vm);
-        let fee_reserve_config = FeeReserveConfig::default();
+        let fee_reserve_config = CostingParameters::default();
         let execution_config = ExecutionConfig::for_preview();
 
         let mut previous = None;

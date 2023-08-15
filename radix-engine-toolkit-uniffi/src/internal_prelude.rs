@@ -278,7 +278,7 @@ mod native {
         AccessRule as NativeAccessRule,
         AccessRuleNode as NativeAccessRuleNode,
         OwnerRole as NativeOwnerRole,
-        RolesInit as NativeRolesInit,
+        RoleAssignmentInit as NativeRoleAssignmentInit,
         RoleKey as NativeRoleKey,
         MintRoles as NativeMintRoles,
         BurnRoles as NativeBurnRoles,
@@ -399,7 +399,15 @@ mod native {
     };
     pub use radix_engine::blueprints::account::{
         AccountNativePackage as NativeAccountNativePackage,
-        AccountBlueprint as NativeAccountBlueprint
+        AccountBlueprint as NativeAccountBlueprint,
+        WithdrawEvent as NativeAccountWithdrawEvent,
+        DepositEvent as NativeAccountDepositEvent,
+        RejectedDepositEvent as NativeAccountRejectedDepositEvent,
+        SetResourcePreferenceEvent as NativeAccountSetResourcePreferenceEvent,
+        RemoveResourcePreferenceEvent as NativeAccountRemoveResourcePreferenceEvent,
+        SetDefaultDepositRuleEvent as NativeAccountSetDefaultDepositRuleEvent,
+        AddAuthorizedDepositorEvent as NativeAccountAddAuthorizedDepositorEvent,
+        RemoveAuthorizedDepositorEvent as NativeAccountRemoveAuthorizedDepositorEvent,
     };
     pub use radix_engine::blueprints::identity::{
         IdentityNativePackage as NativeIdentityNativePackage,
@@ -467,17 +475,18 @@ mod native {
         MintNonFungibleResourceEvent as NativeMintNonFungibleResourceEvent,
         BurnNonFungibleResourceEvent as NativeBurnNonFungibleResourceEvent,
         LockFeeEvent as NativeLockFeeEvent,
-        WithdrawResourceEvent as NativeWithdrawResourceEvent,
-        DepositResourceEvent as NativeDepositResourceEvent,
-        RecallResourceEvent as NativeRecallResourceEvent,
+        fungible_vault::LockFeeEvent as NativeFungibleVaultLockFeeEvent,
+        fungible_vault::WithdrawEvent as NativeFungibleVaultWithdrawEvent,
+        fungible_vault::DepositEvent as NativeFungibleVaultDepositEvent,
+        fungible_vault::RecallEvent as NativeFungibleVaultRecallEvent,
+        non_fungible_vault::WithdrawEvent as NativeNonFungibleVaultWithdrawEvent,
+        non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
+        non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,
     };
     pub use radix_engine::system::node_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
-        LockRoleEvent as NativeLockRoleEvent,
-        SetAndLockRoleEvent as NativeSetAndLockRoleEvent,
         SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
         LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
-        SetAndLockOwnerRoleEvent as NativeSetAndLockOwnerRoleEvent,
     };
     pub use radix_engine::system::node_modules::metadata::{
         SetMetadataEvent as NativeSetMetadataEvent,
@@ -667,7 +676,7 @@ mod native {
         PackageDefinition as NativePackageDefinition,
         BlueprintDefinitionInit as NativeBlueprintDefinitionInit,
         AuthConfig as NativeAuthConfig,
-        StaticRoles as NativeStaticRoles,
+        StaticRoleDefinition as NativeStaticRoleDefinition,
         TypePointer as NativeTypePointer,
         PACKAGE_BLUEPRINT as NATIVE_PACKAGE_BLUEPRINT,
         PACKAGE_PUBLISH_WASM_IDENT as NATIVE_PACKAGE_PUBLISH_WASM_IDENT,

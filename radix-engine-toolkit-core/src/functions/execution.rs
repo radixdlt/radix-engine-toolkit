@@ -39,11 +39,7 @@ pub fn analyze(
     instructions: &[InstructionV1],
     preview_receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Result<ExecutionAnalysis, ExecutionModuleError> {
-    let CommitResult {
-        execution_trace,
-        fee_summary,
-        ..
-    } = &preview_receipt.as_ref();
+    let execution_trace = preview_receipt.execution_trace();
 
     let mut account_proofs_visitor = AccountProofsVisitor::default();
     let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
@@ -120,22 +116,17 @@ pub fn analyze(
         )))
     };
 
-    let mut fee_locks = FeeLocks::default();
-    for (_, amount, is_contingent) in fee_summary.locked_fees.iter() {
-        let amount = amount.amount();
-        if *is_contingent {
-            fee_locks.contingent_lock += amount;
-        } else {
-            fee_locks.lock += amount;
-        }
-    }
-
-    let fee_summary = FeeSummary {
-        execution_cost: fee_summary.total_execution_cost_xrd,
-        royalty_cost: fee_summary.total_royalty_cost_xrd,
-        finalization_cost: dec!("0.01"),
-        storage_expansion_cost: fee_summary.total_state_expansion_cost_xrd,
+    let fee_locks = FeeLocks {
+        lock: execution_trace.fee_locks.lock,
+        contingent_lock: execution_trace.fee_locks.contingent_lock,
     };
+    let fee_summary = FeeSummary {
+        execution_cost: preview_receipt.fee_summary.total_execution_cost_in_xrd,
+        finalization_cost: preview_receipt.fee_summary.total_finalization_cost_in_xrd,
+        storage_expansion_cost: preview_receipt.fee_summary.total_storage_cost_in_xrd,
+        royalty_cost: preview_receipt.fee_summary.total_royalty_cost_in_xrd,
+    };
+
     let reserved_instructions = reserved_instructions_visitor.output();
 
     Ok(ExecutionAnalysis {
@@ -147,17 +138,29 @@ pub fn analyze(
 }
 
 /// A transaction receipt used for execution analysis. This struct maintains the invariant that the
-/// execution of the transaction succeeded and that the transaction was committed to the ledger.
-pub struct ExecutionAnalysisTransactionReceipt<'r>(&'r TransactionReceipt);
+/// execution of the transaction succeeded and was committed to ledger state and that there is an
+/// execution trace output.
+pub struct ExecutionAnalysisTransactionReceipt<'r>(
+    &'r TransactionReceipt,
+    &'r TransactionExecutionTrace,
+    &'r CommitResult,
+);
 
 impl<'r> ExecutionAnalysisTransactionReceipt<'r> {
     pub fn new(transaction_receipt: &'r TransactionReceipt) -> Result<Self, ExecutionModuleError> {
-        if let TransactionResult::Commit(CommitResult {
-            outcome: TransactionOutcome::Success(..),
-            ..
-        }) = transaction_receipt.transaction_result
+        if let TransactionResult::Commit(
+            commit_result @ CommitResult {
+                outcome: TransactionOutcome::Success(..),
+                execution_trace,
+                ..
+            },
+        ) = &transaction_receipt.result
         {
-            Ok(Self(transaction_receipt))
+            if let Some(ref execution_trace) = execution_trace {
+                Ok(Self(transaction_receipt, execution_trace, commit_result))
+            } else {
+                Err(ExecutionModuleError::NoExecutionTrace)
+            }
         } else {
             Err(
                 ExecutionModuleError::TransactionWasNotCommittedSuccessfully(
@@ -166,17 +169,19 @@ impl<'r> ExecutionAnalysisTransactionReceipt<'r> {
             )
         }
     }
+
+    pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
+        self.1
+    }
+
+    pub fn commit_result(&self) -> &'r CommitResult {
+        self.2
+    }
 }
 
 impl<'r> AsRef<TransactionReceipt> for ExecutionAnalysisTransactionReceipt<'r> {
     fn as_ref(&self) -> &TransactionReceipt {
         self.0
-    }
-}
-
-impl<'r> AsRef<CommitResult> for ExecutionAnalysisTransactionReceipt<'r> {
-    fn as_ref(&self) -> &CommitResult {
-        self.0.expect_commit_success()
     }
 }
 
@@ -258,6 +263,7 @@ pub enum ExecutionModuleError {
     InstructionVisitorError(InstructionVisitorError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
     InvalidEntityTypeIdError(InvalidEntityTypeIdError),
+    NoExecutionTrace,
 }
 
 impl From<InstructionVisitorError> for ExecutionModuleError {

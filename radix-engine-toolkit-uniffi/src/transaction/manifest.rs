@@ -340,7 +340,7 @@ impl TransactionType {
                             (
                                 Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
                                 <AccountDefaultDepositRule as FromNative>::from_native(
-                                    value.clone(),
+                                    *value,
                                 ),
                             )
                         })

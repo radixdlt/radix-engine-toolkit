@@ -47,8 +47,13 @@ fn account_create_proof_method_is_allowed_in_general_transaction() {
     );
 
     // Act
-    let mut visitor =
-        GeneralTransactionTypeVisitor::new(&receipt.expect_commit_success().execution_trace);
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
     traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
 
     // Assert
@@ -79,8 +84,13 @@ fn account_burn_resources_method_is_disallowed_in_general_transaction() {
     );
 
     // Act
-    let mut visitor =
-        GeneralTransactionTypeVisitor::new(&receipt.expect_commit_success().execution_trace);
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
     traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
 
     // Assert
@@ -111,8 +121,13 @@ fn account_add_authorized_depositor_method_is_disallowed_in_general_transaction(
     );
 
     // Act
-    let mut visitor =
-        GeneralTransactionTypeVisitor::new(&receipt.expect_commit_success().execution_trace);
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
     traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
 
     // Assert

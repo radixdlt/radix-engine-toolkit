@@ -63,7 +63,7 @@ impl ToNative for MetadataModuleConfig {
     fn to_native(self) -> Result<Self::Native> {
         Ok(NativeModuleConfig::<NativeMetadataInit> {
             init: self.init.to_native()?,
-            roles: NativeRolesInit {
+            roles: NativeRoleAssignmentInit {
                 data: self
                     .roles
                     .into_iter()

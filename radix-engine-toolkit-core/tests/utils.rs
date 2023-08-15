@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine::system::bootstrap::{Bootstrapper, GenesisReceipts};
+use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionResult};
 use radix_engine::types::*;
 use radix_engine::vm::wasm::{DefaultWasmEngine, WasmValidatorConfigV1};
 use radix_engine::vm::{DefaultNativeVm, ScryptoVm, Vm};
@@ -49,7 +50,7 @@ fn extraction_of_metadata_from_receipts_succeeds() {
             None,
         )
         .build();
-    let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
+    let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
         &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
     )
@@ -106,7 +107,7 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
         )
         .try_deposit_batch_or_abort(account, None)
         .build();
-    let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
+    let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     let new_non_fungibles = radix_engine_toolkit_core::utils::data_of_newly_minted_non_fungibles(
         &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
     );
@@ -169,6 +170,7 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
     for receipt in data_ingestion_receipts
         .into_iter()
         .chain(vec![system_bootstrap_receipt, wrap_up_receipt])
+        .map(add_execution_trace)
     {
         // Act & Assert
         let _metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
@@ -196,7 +198,7 @@ fn empty_metadata_can_be_processed_by_ret() {
             None,
         )
         .build();
-    let receipt = test_runner.execute_manifest_ignoring_fee(manifest, vec![]);
+    let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     receipt.expect_commit_success();
 
     // Act & Assert
@@ -229,4 +231,17 @@ struct Owl {
     name: String,
     age: u32,
     country: String,
+}
+
+fn add_execution_trace(transaction_receipt: TransactionReceipt) -> TransactionReceipt {
+    TransactionReceipt {
+        result: match transaction_receipt.result {
+            TransactionResult::Commit(commit_result) => TransactionResult::Commit(CommitResult {
+                execution_trace: Some(Default::default()),
+                ..commit_result
+            }),
+            result => result,
+        },
+        ..transaction_receipt
+    }
 }
