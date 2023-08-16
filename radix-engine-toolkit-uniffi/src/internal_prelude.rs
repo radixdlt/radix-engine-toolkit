@@ -291,7 +291,12 @@ mod native {
         rule as native_rule,
         require as native_require,
 
-        dec as native_dec
+        dec as native_dec,
+        SafeAdd as NativeSafeAdd,
+        SafeSub as NativeSafeSub,
+        SafeMul as NativeSafeMul,
+        SafeDiv as NativeSafeDiv,
+        SafeNeg as NativeSafeNeg,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -677,7 +682,6 @@ mod native {
         BlueprintDefinitionInit as NativeBlueprintDefinitionInit,
         AuthConfig as NativeAuthConfig,
         StaticRoleDefinition as NativeStaticRoleDefinition,
-        TypePointer as NativeTypePointer,
         PACKAGE_BLUEPRINT as NATIVE_PACKAGE_BLUEPRINT,
         PACKAGE_PUBLISH_WASM_IDENT as NATIVE_PACKAGE_PUBLISH_WASM_IDENT,
         PACKAGE_PUBLISH_WASM_ADVANCED_IDENT as NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT,

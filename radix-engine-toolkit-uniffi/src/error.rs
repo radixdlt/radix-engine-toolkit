@@ -93,6 +93,11 @@ pub enum RadixEngineToolkitError {
 
     #[error("The node id has no valid entity type")]
     InvalidEntityTypeIdError { error: String },
+
+    #[error(
+        "An error encountered when doing decimal arithmetic pertaining to overflow and underflow"
+    )]
+    DecimalError,
 }
 
 macro_rules! dbg_str {

@@ -33,8 +33,7 @@ pub fn sbor_decode_to_typed_native_event(
 #[derive(Clone, Debug, Record)]
 pub struct EventTypeIdentifier {
     pub emitter: Emitter,
-    pub schema_hash: Arc<Hash>,
-    pub local_type_index: LocalTypeIndex,
+    pub event_name: String,
 }
 
 #[derive(Clone, Debug, Enum)]
@@ -1244,13 +1243,7 @@ impl TryFrom<EventTypeIdentifier> for NativeEventTypeIdentifier {
     type Error = RadixEngineToolkitError;
 
     fn try_from(value: EventTypeIdentifier) -> Result<Self> {
-        Ok(Self(
-            value.emitter.try_into()?,
-            NativeTypePointer::Package(NativeTypeIdentifier(
-                value.schema_hash.0,
-                value.local_type_index.into(),
-            )),
-        ))
+        Ok(Self(value.emitter.try_into()?, value.event_name))
     }
 }
 
