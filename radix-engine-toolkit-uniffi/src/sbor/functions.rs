@@ -69,6 +69,13 @@ pub fn scrypto_sbor_decode_to_string_representation(
 }
 
 #[uniffi::export]
+pub fn scrypto_sbor_encode_string_representation(
+    representation: ScryptoSborString,
+) -> Result<Vec<u8>> {
+    core_scrypto_encode_string_representation(representation.into()).map_err(Into::into)
+}
+
+#[uniffi::export]
 pub fn manifest_sbor_decode_to_string_representation(
     bytes: Vec<u8>,
     representation: ManifestSborStringRepresentation,
@@ -114,6 +121,11 @@ pub struct Schema {
     pub schema: Vec<u8>,
 }
 
+#[derive(Clone, Debug, Enum)]
+pub enum ScryptoSborString {
+    ProgrammaticJson { value: String },
+}
+
 impl From<ManifestSborStringRepresentation> for CoreManifestSborStringRepresentation {
     fn from(value: ManifestSborStringRepresentation) -> Self {
         match value {
@@ -153,5 +165,15 @@ impl TryFrom<Schema> for (NativeLocalTypeIndex, NativeScryptoSchema) {
         let local_type_index = local_type_index.into();
         let schema = native_scrypto_decode(&schema)?;
         Ok((local_type_index, schema))
+    }
+}
+
+impl From<ScryptoSborString> for CoreScryptoStringRepresentation {
+    fn from(value: ScryptoSborString) -> Self {
+        match value {
+            ScryptoSborString::ProgrammaticJson { value } => {
+                CoreScryptoStringRepresentation::ProgrammaticJson(value)
+            }
+        }
     }
 }

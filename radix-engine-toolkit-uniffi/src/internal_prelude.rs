@@ -110,7 +110,9 @@ mod core {
     };
     pub use radix_engine_toolkit_core::functions::scrypto_sbor::{
         ScryptoSborError as CoreScryptoSborError,
+        StringRepresentation as CoreScryptoStringRepresentation,
         decode_to_string_representation as core_scrypto_decode_to_string_representation,
+        encode_string_representation as core_scrypto_encode_string_representation,
     };
     pub use radix_engine_toolkit_core::functions::events::{
         sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
