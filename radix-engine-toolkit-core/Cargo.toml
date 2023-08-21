@@ -28,6 +28,9 @@ serde_json = { version = "1.0.96", features = ["preserve_order"] }
 lazy_static = { version = "1.4.0" }
 regex = "1.8.4"
 
+# A crate that implements the various sbor-json formats.
+sbor-json = { path = "../sbor-json" }
+
 [build-dependencies]
 cargo_toml = { version = "0.15.3" }
 

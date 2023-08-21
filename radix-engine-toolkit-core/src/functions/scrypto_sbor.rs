@@ -18,6 +18,8 @@
 use sbor::prelude::ContextualSerialize;
 use sbor::representations::{SerializationMode, SerializationParameters};
 use sbor::*;
+use sbor_json::scrypto::programmatic::utils::value_contains_network_mismatch;
+use sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue;
 use scrypto::address::*;
 use scrypto::prelude::*;
 
@@ -79,8 +81,33 @@ where
     Ok(serialized)
 }
 
+pub fn encode_string_representation(
+    representation: StringRepresentation,
+) -> Result<Vec<u8>, ScryptoSborError> {
+    match representation {
+        StringRepresentation::ProgrammaticJson(value) => {
+            let value = serde_json::from_str::<ProgrammaticScryptoValue>(&value)
+                .map_err(ScryptoSborError::SerdeDeserializationFailed)?;
+            if value_contains_network_mismatch(&value) {
+                return Err(ScryptoSborError::ValueContainsNetworkMismatch);
+            }
+
+            let value = value.to_scrypto_value();
+            scrypto_encode(&value).map_err(ScryptoSborError::EncodeError)
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
+pub enum StringRepresentation {
+    ProgrammaticJson(String),
+}
+
+#[derive(Debug)]
 pub enum ScryptoSborError {
     SchemaValidationError,
     DecodeError(DecodeError),
+    EncodeError(EncodeError),
+    SerdeDeserializationFailed(serde_json::Error),
+    ValueContainsNetworkMismatch,
 }

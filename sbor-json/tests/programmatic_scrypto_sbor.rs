@@ -17,9 +17,14 @@
 
 use radix_engine_common::prelude::*;
 use sbor::{generate_full_schema_from_single_type, representations::*};
+use sbor_json::common::address::SerializableNodeId;
+use sbor_json::scrypto::programmatic::utils::value_contains_network_mismatch;
+use sbor_json::scrypto::programmatic::value::{
+    ProgrammaticScryptoValue, ProgrammaticScryptoValueKind,
+};
 use std::fmt::Debug;
 
-test! {
+serialization_tests! {
     programmatic_json_serialization_of_bool_false: false,
     programmatic_json_serialization_of_bool_true: true,
 
@@ -91,21 +96,94 @@ pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programma
     };
 
     // Act
-    let deserialized = serde_json::from_str::<
-        sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue,
-    >(&programmatic_json)
-    .unwrap();
+    let deserialized =
+        serde_json::from_str::<ProgrammaticScryptoValue>(&programmatic_json).unwrap();
 
     // Assert
     assert_eq!(
         deserialized,
-        sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue::Enum {
+        ProgrammaticScryptoValue::Enum {
             discriminator: 2,
-            fields: vec![
-                sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue::U8 { value: 1 }
-            ]
+            fields: vec![ProgrammaticScryptoValue::U8 { value: 1 }]
         }
     )
+}
+
+#[test]
+pub fn value_with_no_address_has_no_network_mismatch() {
+    // Arrange
+    let value = ProgrammaticScryptoValue::Array {
+        element_value_kind: ProgrammaticScryptoValueKind::Reference,
+        elements: vec![],
+    };
+
+    // Act
+    let contains_network_mismatch = value_contains_network_mismatch(&value);
+
+    // Assert
+    assert!(!contains_network_mismatch)
+}
+
+#[test]
+pub fn value_with_one_address_has_no_network_mismatch() {
+    // Arrange
+    let value = ProgrammaticScryptoValue::Array {
+        element_value_kind: ProgrammaticScryptoValueKind::Reference,
+        elements: vec![ProgrammaticScryptoValue::Reference {
+            value: SerializableNodeId(XRD.into_node_id(), 1),
+        }],
+    };
+
+    // Act
+    let contains_network_mismatch = value_contains_network_mismatch(&value);
+
+    // Assert
+    assert!(!contains_network_mismatch)
+}
+
+#[test]
+pub fn value_with_two_address_of_the_same_network_has_no_network_mismatch() {
+    // Arrange
+    let value = ProgrammaticScryptoValue::Array {
+        element_value_kind: ProgrammaticScryptoValueKind::Reference,
+        elements: vec![
+            ProgrammaticScryptoValue::Reference {
+                value: SerializableNodeId(XRD.into_node_id(), 1),
+            },
+            ProgrammaticScryptoValue::Reference {
+                value: SerializableNodeId(ACCESS_CONTROLLER_PACKAGE.into_node_id(), 1),
+            },
+        ],
+    };
+
+    // Act
+    let contains_network_mismatch = value_contains_network_mismatch(&value);
+    println!("{}", serde_json::to_string(&value).unwrap());
+
+    // Assert
+    assert!(!contains_network_mismatch)
+}
+
+#[test]
+pub fn value_with_two_address_of_the_differing_networks_has_a_network_mismatch() {
+    // Arrange
+    let value = ProgrammaticScryptoValue::Array {
+        element_value_kind: ProgrammaticScryptoValueKind::Reference,
+        elements: vec![
+            ProgrammaticScryptoValue::Reference {
+                value: SerializableNodeId(XRD.into_node_id(), 1),
+            },
+            ProgrammaticScryptoValue::Reference {
+                value: SerializableNodeId(ACCESS_CONTROLLER_PACKAGE.into_node_id(), 2),
+            },
+        ],
+    };
+
+    // Act
+    let contains_network_mismatch = value_contains_network_mismatch(&value);
+
+    // Assert
+    assert!(contains_network_mismatch)
 }
 
 /// Tests that the programmatic JSON representation from the radixdlt/radixdlt-scrypto repo and the
@@ -131,11 +209,7 @@ where
     // Act
     let actual = {
         let scrypto_value = scrypto_decode::<ScryptoValue>(&payload).unwrap();
-        let value =
-            sbor_json::scrypto::programmatic::value::ProgrammaticScryptoValue::from_scrypto_value(
-                &scrypto_value,
-                0xF2,
-            );
+        let value = ProgrammaticScryptoValue::from_scrypto_value(&scrypto_value, 0xF2);
         serde_json::to_value(value).unwrap()
     };
 
@@ -147,7 +221,7 @@ where
     )
 }
 
-macro_rules! test {
+macro_rules! serialization_tests {
     (
         $(
             $fn_ident: ident: $value: expr
@@ -161,7 +235,7 @@ macro_rules! test {
         )*
     };
 }
-use test;
+use serialization_tests;
 
 #[derive(ScryptoSbor, Debug, Clone)]
 pub enum MyEnum {
