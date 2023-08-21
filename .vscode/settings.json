@@ -3,6 +3,7 @@
         "radix-engine-toolkit-uniffi/Cargo.toml",
         "radix-engine-toolkit-core/Cargo.toml",
         "radix-engine-toolkit/Cargo.toml",
+        "sbor-json/Cargo.toml",
         "generator/Cargo.toml",
         "uniffi-bindgen/Cargo.toml"
     ],
