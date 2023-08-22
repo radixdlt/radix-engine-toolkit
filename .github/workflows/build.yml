@@ -7,6 +7,7 @@ on:
       - release/*
       - develop
       - main
+      - linux-builds-fix
 jobs:
   build:
     runs-on: ${{ matrix.build-target.runner }}
@@ -30,7 +31,7 @@ jobs:
           # Linux Targets
           - crate: radix-engine-toolkit-uniffi
             target-triple: x86_64-unknown-linux-gnu
-            runner: ubuntu-latest
+            runner: ubuntu-20.04
           - crate: radix-engine-toolkit-uniffi
             target-triple: aarch64-unknown-linux-gnu
             runner: ubuntu-latest
