@@ -15,6 +15,7 @@
     <!-- Linux Targets -->
     <file src="native/x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so" target="runtimes/linux-x64/native/libradix_engine_toolkit_uniffi.so" />
     <file src="native/aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so" target="runtimes/linux-arm64/native/libradix_engine_toolkit_uniffi.so" />
+    <file src="/lib/x86_64-linux-gnu/libc.so.6" target="runtimes/linux-x64/native/libc.so.6" />
     
     <!-- MacOS Targets -->
     <file src="native/x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib" target="runtimes/osx-x64/native/libradix_engine_toolkit_uniffi.dylib" />
