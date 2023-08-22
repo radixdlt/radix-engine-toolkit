@@ -7,7 +7,6 @@ on:
       - release/*
       - develop
       - main
-      - linux-builds-fix
 jobs:
   build:
     runs-on: ${{ matrix.build-target.runner }}
