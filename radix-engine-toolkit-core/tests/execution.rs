@@ -250,6 +250,31 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
     );
 }
 
+#[test]
+pub fn deposit_and_deposit_batch_of_nothing_should_not_result_in_an_error() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new().deposit_batch(account).build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+
+    // Act
+    let tx_types = transaction_types(&manifest.instructions, &receipt);
+
+    // Assert
+    assert!(!tx_types.is_empty());
+}
+
 fn test_manifest_with_lock_fee(
     method_name: impl Into<String>,
     arguments: impl ResolvableArguments,

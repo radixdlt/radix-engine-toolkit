@@ -263,6 +263,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             // `is_account`.
             let component_address = ComponentAddress::new_or_panic(global_address.as_node_id().0);
 
+            // If some amount if withdrawn from the account but we encounter no worktop changes then
+            // we MUST error out! This is because a withdraw of 0 will return a bucket which must be
+            // seen in the worktop changes here. Thus, the choice to return a `WorktopChangesError`
+            // error instead of continuing to the next instruction is deliberate here.
             let worktop_puts = self
                 .execution_trace
                 .worktop_changes()
@@ -367,7 +371,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
             let buckets = indexed_manifest_value.buckets();
             let expressions = indexed_manifest_value.expressions();
             if !expressions.is_empty() {
-                let worktop_changes = self
+                // There are cases when even through there is an expression such as EntireWorktop
+                // we may have no worktop changes and thus no work or handling to do. As an example,
+                // in the case that we do a single instruction manifest that does a deposit all into
+                // an account from an empty worktop, there is already nothing in the worktop. So, we
+                // can't assume that there will be worktop changes all of the time.
+                let Some(worktop_changes) = self
                     .execution_trace
                     .worktop_changes()
                     .get(&self.instruction_index)
@@ -397,7 +406,9 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                             })
                             .collect::<Vec<_>>()
                     })
-                    .ok_or(GeneralTransactionTypeError::WorktopChangesError)?;
+                else {
+                    return Ok(());
+                };
                 self.account_deposits
                     .entry(component_address)
                     .or_default()
