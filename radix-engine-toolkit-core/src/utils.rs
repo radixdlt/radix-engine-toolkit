@@ -15,12 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system::DynSubstate;
+use radix_engine::system::system_substates::{KeyValueEntrySubstate, KeyValueEntrySubstateV1};
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
-    to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
-    TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey, TypedMetadataModuleSubstateValue,
-    TypedSubstateKey, TypedSubstateValue,
+    to_typed_substate_key, to_typed_substate_value, NonFungibleResourceManagerDataEntryPayload,
+    NonFungibleResourceManagerDataEntrySubstate, NonFungibleResourceManagerDataKeyPayload,
+    NonFungibleResourceManagerTypedSubstateKey, NonFungibleResourceManagerTypedSubstateValue,
+    TypedMainModuleSubstateKey, TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey,
+    TypedMetadataModuleSubstateValue, TypedSubstateKey, TypedSubstateValue, VersionedMetadataEntry,
 };
 use radix_engine_store_interface::interface::DatabaseUpdate;
 use regex::Regex;
@@ -174,7 +176,7 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
-    let (local_type_index, schema) =
+    let (local_type_index, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
     let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
@@ -182,6 +184,7 @@ pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
         &schema,
         local_type_index,
         &(),
+        SCRYPTO_SBOR_V1_MAX_DEPTH,
     )
     .map_err(|_| ())
 }
@@ -266,12 +269,19 @@ pub fn metadata_of_newly_created_entities(
                     }) {
                         let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
                         let value = match value {
-                            TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
-                                value,
-                                ..
-                            }) => value,
+                            TypedMetadataModuleSubstateValue::MetadataEntry(
+                                KeyValueEntrySubstate::V1(KeyValueEntrySubstateV1 {
+                                    value, ..
+                                }),
+                            ) => value,
                         };
-                        entry.insert(key, value);
+                        entry.insert(
+                            key,
+                            value.map(|metadata_entry| {
+                                let VersionedMetadataEntry::V1(metadata) = metadata_entry.content;
+                                metadata
+                            }),
+                        );
                     }
                 } else {
                     continue;
@@ -326,13 +336,28 @@ pub fn data_of_newly_minted_non_fungibles(
             if let DatabaseUpdate::Set(data) = database_update {
                 if let Ok((
                     TypedSubstateKey::MainModule(
-                        TypedMainModuleSubstateKey::NonFungibleResourceData(non_fungible_local_id),
+                        TypedMainModuleSubstateKey::NonFungibleResourceManager(
+                            NonFungibleResourceManagerTypedSubstateKey::DataKeyValueEntry(
+                                NonFungibleResourceManagerDataKeyPayload {
+                                    content: non_fungible_local_id,
+                                },
+                            ),
+                        ),
                     ),
                     TypedSubstateValue::MainModule(
-                        TypedMainModuleSubstateValue::NonFungibleResourceData(DynSubstate {
-                            value: non_fungible_data,
-                            ..
-                        }),
+                        TypedMainModuleSubstateValue::NonFungibleResourceManager(
+                            NonFungibleResourceManagerTypedSubstateValue::DataKeyValue(
+                                NonFungibleResourceManagerDataEntrySubstate::V1(
+                                    KeyValueEntrySubstateV1 {
+                                        value:
+                                            Some(NonFungibleResourceManagerDataEntryPayload {
+                                                content: non_fungible_data,
+                                            }),
+                                        ..
+                                    },
+                                ),
+                            ),
+                        ),
                     ),
                 )) = to_typed_substate_key(
                     node_id.entity_type().unwrap(),
@@ -346,7 +371,7 @@ pub fn data_of_newly_minted_non_fungibles(
                     let resource_address = ResourceAddress::new_or_panic(node_id.0);
                     let non_fungible_local_id = non_fungible_local_id;
                     let non_fungible_data = scrypto_decode::<ScryptoValue>(
-                        &scrypto_encode(&non_fungible_data.unwrap()).unwrap(),
+                        &scrypto_encode(&non_fungible_data).unwrap(),
                     )
                     .unwrap();
 

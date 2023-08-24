@@ -540,7 +540,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi-bindgen"
-version = "0.12.0-grape.1"
+version = "0.12.0-rcnetv3.1"
 dependencies = [
  "uniffi",
 ]

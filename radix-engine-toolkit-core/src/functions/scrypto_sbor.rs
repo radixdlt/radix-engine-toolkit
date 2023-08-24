@@ -53,6 +53,7 @@ where
             schema,
             *local_type_index,
             &(),
+            SCRYPTO_SBOR_V1_MAX_DEPTH,
         )
         .map_err(|_| ScryptoSborError::SchemaValidationError)?;
     } else {
@@ -66,11 +67,13 @@ where
             custom_context: context,
             schema,
             type_index: *local_type_index,
+            depth_limit: SCRYPTO_SBOR_V1_MAX_DEPTH,
         }
     } else {
         SerializationParameters::Schemaless {
             mode: representation,
             custom_context: context,
+            depth_limit: SCRYPTO_SBOR_V1_MAX_DEPTH,
         }
     };
 

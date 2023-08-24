@@ -239,8 +239,10 @@ impl MetadataValue {
             Self::InstantValue { value } => {
                 NativeMetadataValue::Instant(NativeInstant::new(*value))
             }
-            Self::UrlValue { value } => NativeMetadataValue::Url(NativeUrl::of(value)),
-            Self::OriginValue { value } => NativeMetadataValue::Origin(NativeOrigin::of(value)),
+            Self::UrlValue { value } => NativeMetadataValue::Url(NativeUncheckedUrl::of(value)),
+            Self::OriginValue { value } => {
+                NativeMetadataValue::Origin(NativeUncheckedOrigin::of(value))
+            }
 
             Self::StringArrayValue { value } => NativeMetadataValue::StringArray(value.clone()),
             Self::BoolArrayValue { value } => NativeMetadataValue::BoolArray(value.clone()),
@@ -293,11 +295,11 @@ impl MetadataValue {
                     .collect(),
             ),
             Self::UrlArrayValue { value } => {
-                NativeMetadataValue::UrlArray(value.iter().map(NativeUrl::of).collect())
+                NativeMetadataValue::UrlArray(value.iter().map(NativeUncheckedUrl::of).collect())
             }
-            Self::OriginArrayValue { value } => {
-                NativeMetadataValue::OriginArray(value.iter().map(NativeOrigin::of).collect())
-            }
+            Self::OriginArrayValue { value } => NativeMetadataValue::OriginArray(
+                value.iter().map(NativeUncheckedOrigin::of).collect(),
+            ),
         };
         Ok(value)
     }

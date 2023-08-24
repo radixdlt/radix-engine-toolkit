@@ -271,8 +271,10 @@ mod native {
         manifest_decode as native_manifest_decode,
 
         Instant as NativeInstant,
-        Origin as NativeOrigin,
-        Url as NativeUrl,
+        UncheckedOrigin as NativeUncheckedOrigin,
+        UncheckedUrl as NativeUncheckedUrl,
+        CheckedOrigin as NativeCheckedOrigin,
+        CheckedUrl as NativeCheckedUrl,
 
         ResourceOrNonFungible as NativeResourceOrNonFungible,
         ResourceOrNonFungibleList as NativeResourceOrNonFungibleList,
@@ -390,7 +392,9 @@ mod native {
     };
     pub use radix_engine_common::prelude::{
         to_manifest_value_and_unwrap as native_to_manifest_value_and_unwrap,
-        ScryptoSchema as NativeScryptoSchema,
+        Schema as NativeSchema,
+        VersionedSchema as NativeVersionedSchema,
+        ScryptoCustomSchema as NativeScryptoCustomSchema,
         SCRYPTO_SBOR_V1_PAYLOAD_PREFIX as NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
         MANIFEST_SBOR_V1_PAYLOAD_PREFIX as NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
     };
@@ -573,7 +577,7 @@ mod native {
         MetadataRemoveInput as NativeMetadataRemoveInput,
     };
     pub use radix_engine_interface::blueprints::access_controller::{
-        AccessControllerCreateGlobalInput as NativeAccessControllerCreateGlobalInput,
+        AccessControllerCreateInput as NativeAccessControllerCreateInput,
         AccessControllerCreateProofInput as NativeAccessControllerCreateProofInput,
         AccessControllerInitiateRecoveryAsPrimaryInput as NativeAccessControllerInitiateRecoveryAsPrimaryInput,
         AccessControllerInitiateRecoveryAsRecoveryInput as NativeAccessControllerInitiateRecoveryAsRecoveryInput,
@@ -593,7 +597,7 @@ mod native {
         AccessControllerStopTimedRecoveryInput as NativeAccessControllerStopTimedRecoveryInput,
         AccessControllerMintRecoveryBadgesInput as NativeAccessControllerMintRecoveryBadgesInput,
         ACCESS_CONTROLLER_BLUEPRINT as NATIVE_ACCESS_CONTROLLER_BLUEPRINT,
-        ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT as NATIVE_ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT,
+        ACCESS_CONTROLLER_CREATE_IDENT as NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
         ACCESS_CONTROLLER_CREATE_PROOF_IDENT as NATIVE_ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
         ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
         ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
@@ -617,6 +621,7 @@ mod native {
         ResourcePreference as NativeResourcePreference,
         DefaultDepositRule as NativeDefaultDepositRule,
         AccountCreateAdvancedInput as NativeAccountCreateAdvancedInput,
+        AccountCreateAdvancedManifestInput as NativeAccountCreateAdvancedManifestInput,
         AccountCreateInput as NativeAccountCreateInput,
         AccountSecurifyInput as NativeAccountSecurifyInput,
         AccountLockFeeInput as NativeAccountLockFeeInput,
@@ -691,11 +696,6 @@ mod native {
         PACKAGE_CLAIM_ROYALTIES_IDENT as NATIVE_PACKAGE_CLAIM_ROYALTIES_IDENT,
     };
     pub use radix_engine_interface::blueprints::resource::{
-        TRACK_TOTAL_SUPPLY_FEATURE as NATIVE_TRACK_TOTAL_SUPPLY_FEATURE,
-        VAULT_FREEZE_FEATURE as NATIVE_VAULT_FREEZE_FEATURE,
-        VAULT_RECALL_FEATURE as NATIVE_VAULT_RECALL_FEATURE,
-        MINT_FEATURE as NATIVE_MINT_FEATURE,
-        BURN_FEATURE as NATIVE_BURN_FEATURE,
         MINTER_ROLE as NATIVE_MINTER_ROLE,
         MINTER_UPDATER_ROLE as NATIVE_MINTER_UPDATER_ROLE,
         BURNER_ROLE as NATIVE_BURNER_ROLE,

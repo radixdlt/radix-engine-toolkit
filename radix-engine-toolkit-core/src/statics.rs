@@ -145,8 +145,9 @@ fn account_proof_creation_methods() -> Vec<String> {
 
 fn path_contains_a_bucket(
     local_type_index: LocalTypeIndex,
-    schema: &Schema<ScryptoCustomSchema>,
+    schema: &VersionedScryptoSchema,
 ) -> bool {
+    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = BucketInPathVisitor::default();
     traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
     visitor.path_contains_bucket()
@@ -154,8 +155,9 @@ fn path_contains_a_bucket(
 
 fn path_contains_a_proof(
     local_type_index: LocalTypeIndex,
-    schema: &Schema<ScryptoCustomSchema>,
+    schema: &VersionedScryptoSchema,
 ) -> bool {
+    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = ProofInPathVisitor::default();
     traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
     visitor.path_contains_proof()

@@ -153,7 +153,12 @@ impl From<LocalTypeIndex> for NativeLocalTypeIndex {
     }
 }
 
-impl TryFrom<Schema> for (NativeLocalTypeIndex, NativeScryptoSchema) {
+impl TryFrom<Schema>
+    for (
+        NativeLocalTypeIndex,
+        NativeSchema<NativeScryptoCustomSchema>,
+    )
+{
     type Error = RadixEngineToolkitError;
 
     fn try_from(

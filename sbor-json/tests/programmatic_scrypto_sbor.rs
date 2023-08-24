@@ -78,7 +78,7 @@ pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programma
     // Arrange
     let value = MyEnum::VariantWithFieldNames { field: 1 };
     let payload = scrypto_encode(&value).unwrap();
-    let (local_type_index, schema) =
+    let (local_type_index, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<MyEnum, ScryptoCustomSchema>();
 
     let programmatic_json = {
@@ -88,6 +88,7 @@ pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programma
             custom_context: ScryptoValueDisplayContext::with_optional_bech32(Some(&encoder)),
             schema: &schema,
             type_index: local_type_index,
+            depth_limit: SCRYPTO_SBOR_V1_MAX_DEPTH,
         };
 
         let payload = ScryptoRawPayload::new_from_valid_slice(&payload);
@@ -199,6 +200,7 @@ where
         let serialization_parameters = SerializationParameters::Schemaless {
             mode: SerializationMode::Programmatic,
             custom_context: ScryptoValueDisplayContext::with_optional_bech32(Some(&encoder)),
+            depth_limit: SCRYPTO_SBOR_V1_MAX_DEPTH,
         };
 
         let payload = ScryptoRawPayload::new_from_valid_slice(&payload);

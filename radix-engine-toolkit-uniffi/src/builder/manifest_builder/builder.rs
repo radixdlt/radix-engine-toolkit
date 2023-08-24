@@ -651,9 +651,12 @@ impl ManifestBuilder {
                 package_address: NativeDynamicPackageAddress::Static(NATIVE_ACCOUNT_PACKAGE),
                 blueprint_name: NATIVE_ACCOUNT_BLUEPRINT.to_owned(),
                 function_name: NATIVE_ACCOUNT_CREATE_ADVANCED_IDENT.to_owned(),
-                args: native_to_manifest_value_and_unwrap!(&NativeAccountCreateAdvancedInput {
-                    owner_role,
-                }),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountCreateAdvancedManifestInput {
+                        owner_role,
+                        address_reservation: None
+                    }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -864,7 +867,7 @@ impl ManifestBuilder {
                     NATIVE_ACCESS_CONTROLLER_PACKAGE,
                 ),
                 blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
-                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT.to_owned(),
+                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
                 args: manifest_args!(bucket, rule_set, timed_recovery_delay_in_minutes).into(),
             };
             builder.instructions.push(instruction);
@@ -894,7 +897,7 @@ impl ManifestBuilder {
                     NATIVE_ACCESS_CONTROLLER_PACKAGE,
                 ),
                 blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
-                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_GLOBAL_IDENT.to_owned(),
+                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
                 args: manifest_args!(bucket, rule_set, timed_recovery_delay_in_minutes).into(),
             };
             builder.instructions.push(instruction);
