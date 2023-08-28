@@ -38,7 +38,7 @@ cargo_toml = { version = "0.15.3" }
 scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", default-features = false, features = ["std", "resource_tracker"] }
 
 [features]
-default = ["lru"]
+default = ["moka"]
 moka = ["radix-engine/moka", "radix-engine-queries/moka", "scrypto-unit/moka"]
 lru = ["radix-engine/lru", "radix-engine-queries/lru", "scrypto-unit/lru"]
 

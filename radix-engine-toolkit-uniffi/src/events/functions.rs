@@ -1367,7 +1367,7 @@ define_structure! {
     },
 }
 
-/// This enum uses some special syntax to define the structure of events. This makes the code for
+/// This macro uses some special syntax to define the structure of events. This makes the code for
 /// model definitions very compact, allows for very easy addition of more packages, blueprints or
 /// events in the future, keeps various models all in sync, and implements various functions and
 /// methods on appropriate types.
