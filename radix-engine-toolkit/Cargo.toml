@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", default-features= false, features = ["std"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", features = ["serde"] }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", default-features= false, features = ["std"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", features = ["serde"] }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false }

@@ -6,9 +6,9 @@ description = "The implementation of the SBOR JSON representations"
 
 [dependencies]
 # The Scrypto dependencies needed.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", features = ["serde"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1", features = ["serde"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a31effd1" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", features = ["serde"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895", features = ["serde"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-a74271b895" }
 
 # The serde dependenices used for the serialization and deserialization of the JSON representations.
 serde = { version = "1.0.185", features = ["derive"] }

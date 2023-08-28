@@ -490,6 +490,7 @@ mod native {
         fungible_vault::WithdrawEvent as NativeFungibleVaultWithdrawEvent,
         fungible_vault::DepositEvent as NativeFungibleVaultDepositEvent,
         fungible_vault::RecallEvent as NativeFungibleVaultRecallEvent,
+        fungible_vault::PayFeeEvent as NativeFungibleVaultPayFeeEvent,
         non_fungible_vault::WithdrawEvent as NativeNonFungibleVaultWithdrawEvent,
         non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
         non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,

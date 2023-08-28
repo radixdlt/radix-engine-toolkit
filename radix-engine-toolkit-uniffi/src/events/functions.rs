@@ -429,6 +429,11 @@ pub struct FungibleVaultRecallEvent {
 }
 
 #[derive(Clone, Debug, Record)]
+pub struct FungibleVaultPayFeeEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
 pub struct NonFungibleVaultWithdrawEvent {
     pub ids: Vec<NonFungibleLocalId>,
 }
@@ -1189,6 +1194,16 @@ impl FromNative for FungibleVaultRecallEvent {
     }
 }
 
+impl FromNative for FungibleVaultPayFeeEvent {
+    type Native = NativeFungibleVaultPayFeeEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
 impl FromNative for NonFungibleVaultWithdrawEvent {
     type Native = NativeNonFungibleVaultWithdrawEvent;
 
@@ -1317,6 +1332,7 @@ define_structure! {
             FungibleVaultWithdrawEvent,
             FungibleVaultDepositEvent,
             FungibleVaultRecallEvent,
+            FungibleVaultPayFeeEvent,
         ],
         NonFungibleVault => [
             NonFungibleVaultWithdrawEvent,
