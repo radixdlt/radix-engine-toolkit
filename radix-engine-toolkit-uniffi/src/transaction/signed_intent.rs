@@ -53,7 +53,7 @@ impl SignedIntent {
             core_signed_intent_hash(&signed_intent)
                 .map_err(Into::into)
                 .map(|hash| {
-                    let signed_intent_hash = NativeSignedIntentHash(hash);
+                    let signed_intent_hash = NativeSignedIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
                         self.intent.header.network_id,

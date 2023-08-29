@@ -21,10 +21,20 @@ use transaction::errors::*;
 use transaction::model::*;
 use transaction::validation::*;
 
-pub fn hash(notarized_transaction: &NotarizedTransactionV1) -> Result<Hash, PrepareError> {
+use crate::models::transaction_hash::TransactionHash;
+
+pub fn hash(
+    notarized_transaction: &NotarizedTransactionV1,
+) -> Result<TransactionHash, PrepareError> {
     notarized_transaction
         .prepare()
-        .map(|prepared| prepared.notarized_transaction_hash().0)
+        .map(|prepared| prepared.notarized_transaction_hash())
+        .map(|hash| {
+            TransactionHash::new(
+                hash,
+                notarized_transaction.signed_intent.intent.header.network_id,
+            )
+        })
 }
 
 pub fn compile(notarized_transaction: &NotarizedTransactionV1) -> Result<Vec<u8>, EncodeError> {

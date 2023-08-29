@@ -15,5 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod node_id;
-pub mod transaction_hash;
+use scrypto::prelude::*;
+use transaction::prelude::{HashHasHrp, TransactionHashBech32Encoder};
+
+pub struct TransactionHash {
+    pub hash: Hash,
+    pub id: String,
+}
+
+impl TransactionHash {
+    pub fn new<H>(transaction_hash: H, network_id: u8) -> Self
+    where
+        H: HashHasHrp + IsHash,
+    {
+        let network_definition = crate::utils::network_definition_from_network_id(network_id);
+        let encoder = TransactionHashBech32Encoder::new(&network_definition);
+        let hash = *transaction_hash.as_hash();
+        let id = encoder.encode(&transaction_hash).unwrap();
+        Self { hash, id }
+    }
+}

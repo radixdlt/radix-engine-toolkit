@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod hash;
 pub mod header;
 pub mod instruction;
 pub mod instructions;

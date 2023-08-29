@@ -27,7 +27,7 @@ use crate::prelude::*;
 #[typeshare::typeshare]
 pub type NotarizedTransactionHashInput = SerializableNotarizedTransaction;
 #[typeshare::typeshare]
-pub type NotarizedTransactionHashOutput = SerializableHash;
+pub type NotarizedTransactionHashOutput = SerializableTransactionHash;
 
 pub struct NotarizedTransactionHash;
 impl<'f> Function<'f> for NotarizedTransactionHash {

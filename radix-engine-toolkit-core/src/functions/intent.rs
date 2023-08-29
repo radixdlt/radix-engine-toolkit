@@ -21,8 +21,13 @@ use transaction::errors::*;
 use transaction::model::*;
 use transaction::validation::*;
 
-pub fn hash(intent: &IntentV1) -> Result<Hash, PrepareError> {
-    intent.prepare().map(|prepared| prepared.intent_hash().0)
+use crate::models::transaction_hash::TransactionHash;
+
+pub fn hash(intent: &IntentV1) -> Result<TransactionHash, PrepareError> {
+    intent
+        .prepare()
+        .map(|prepared| prepared.intent_hash())
+        .map(|hash| TransactionHash::new(hash, intent.header.network_id))
 }
 
 pub fn compile(intent: &IntentV1) -> Result<Vec<u8>, EncodeError> {

@@ -15,5 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod node_id;
-pub mod transaction_hash;
+use radix_engine_toolkit_core::models::transaction_hash::TransactionHash;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+
+use crate::prelude::*;
+
+#[typeshare::typeshare]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+pub struct SerializableTransactionHash {
+    pub hash: SerializableHash,
+    pub id: String,
+}
+
+impl From<TransactionHash> for SerializableTransactionHash {
+    fn from(TransactionHash { hash, id }: TransactionHash) -> Self {
+        Self {
+            hash: hash.into(),
+            id,
+        }
+    }
+}

@@ -27,7 +27,7 @@ use crate::prelude::*;
 #[typeshare::typeshare]
 pub type SignedIntentHashInput = SerializableSignedIntent;
 #[typeshare::typeshare]
-pub type SignedIntentHashOutput = SerializableHash;
+pub type SignedIntentHashOutput = SerializableTransactionHash;
 
 pub struct SignedIntentHash;
 impl<'f> Function<'f> for SignedIntentHash {

@@ -61,7 +61,7 @@ impl Intent {
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         NativeIntent::try_from(self.clone()).and_then(|intent| {
             core_intent_hash(&intent).map_err(Into::into).map(|hash| {
-                let intent_hash = NativeIntentHash(hash);
+                let intent_hash = NativeIntentHash(hash.hash);
                 Arc::new(TransactionHash::new(&intent_hash, self.header.network_id))
             })
         })
