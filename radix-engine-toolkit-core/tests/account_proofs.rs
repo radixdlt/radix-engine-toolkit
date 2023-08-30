@@ -63,12 +63,12 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_non_fungibles() {
         .create_proof_from_account_of_non_fungibles(
             account(),
             XRD,
-            &BTreeSet::from([NonFungibleLocalId::integer(1)]),
+            BTreeSet::from([NonFungibleLocalId::integer(1)]),
         )
         .create_proof_from_account_of_non_fungibles(
             account(),
             ACCOUNT_OWNER_BADGE,
-            &BTreeSet::from([NonFungibleLocalId::integer(1)]),
+            BTreeSet::from([NonFungibleLocalId::integer(1)]),
         )
         .build();
 

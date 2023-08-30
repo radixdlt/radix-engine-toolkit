@@ -726,7 +726,6 @@ fn is_fn_permitted(entity_type: EntityType, fn_name: &str) -> bool {
 fn construct_fn_rules(entity_type: EntityType) -> FnRules {
     match entity_type {
         EntityType::GlobalAccount
-        | EntityType::InternalAccount
         | EntityType::GlobalVirtualSecp256k1Account
         | EntityType::GlobalVirtualEd25519Account => FnRules {
             allowed: vec![

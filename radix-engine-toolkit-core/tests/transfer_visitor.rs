@@ -132,7 +132,7 @@ pub fn transfer_visitor_can_pick_up_non_fungible_transfer() {
         .withdraw_non_fungibles_from_account(
             account1,
             XRD,
-            &BTreeSet::from([
+            BTreeSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),

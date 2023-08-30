@@ -105,7 +105,7 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
                 },
             )),
         )
-        .try_deposit_batch_or_abort(account, None)
+        .try_deposit_entire_worktop_or_abort(account, None)
         .build();
     let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     let new_non_fungibles = radix_engine_toolkit_core::utils::data_of_newly_minted_non_fungibles(
@@ -160,7 +160,8 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
     let native_vm = DefaultNativeVm::new();
     let vm = Vm::new(&scrypto_vm, native_vm.clone());
     let mut substate_db = InMemorySubstateDatabase::standard();
-    let mut bootstrapper = Bootstrapper::new(&mut substate_db, vm, false);
+    let mut bootstrapper =
+        Bootstrapper::new(NetworkDefinition::simulator(), &mut substate_db, vm, false);
     let GenesisReceipts {
         system_bootstrap_receipt,
         data_ingestion_receipts,

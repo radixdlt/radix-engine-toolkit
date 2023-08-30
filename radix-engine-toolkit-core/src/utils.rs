@@ -197,7 +197,6 @@ pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
                 address.as_node_id().entity_type(),
                 Some(
                     EntityType::GlobalAccount
-                        | EntityType::InternalAccount
                         | EntityType::GlobalVirtualSecp256k1Account
                         | EntityType::GlobalVirtualEd25519Account
                 )

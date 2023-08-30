@@ -294,7 +294,6 @@ pub enum SerializableEntityType {
     GlobalNonFungibleResourceManager,
     InternalNonFungibleVault,
     InternalGenericComponent,
-    InternalAccount,
     InternalKeyValueStore,
 }
 
@@ -321,7 +320,6 @@ impl SerializableEntityType {
             Self::GlobalNonFungibleResourceManager,
             Self::InternalNonFungibleVault,
             Self::InternalGenericComponent,
-            Self::InternalAccount,
             Self::InternalKeyValueStore,
         ]
     }
@@ -350,7 +348,6 @@ impl From<EntityType> for SerializableEntityType {
             EntityType::GlobalNonFungibleResourceManager => Self::GlobalNonFungibleResourceManager,
             EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             EntityType::InternalGenericComponent => Self::InternalGenericComponent,
-            EntityType::InternalAccount => Self::InternalAccount,
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }
     }
@@ -391,7 +388,6 @@ impl From<SerializableEntityType> for EntityType {
             }
             SerializableEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             SerializableEntityType::InternalGenericComponent => Self::InternalGenericComponent,
-            SerializableEntityType::InternalAccount => Self::InternalAccount,
             SerializableEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }
     }

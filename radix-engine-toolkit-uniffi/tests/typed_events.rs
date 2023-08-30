@@ -96,7 +96,7 @@ pub fn execute_scenarios(
         let native_vm = DefaultNativeVm::new();
         let vm = Vm::new(&scrypto_vm, native_vm);
         let fee_reserve_config = CostingParameters::default();
-        let execution_config = ExecutionConfig::for_preview();
+        let execution_config = ExecutionConfig::for_preview(NetworkDefinition::simulator());
 
         let mut previous = None;
         loop {

@@ -49,7 +49,7 @@ fn account_withdraw_non_fungibles_interactions_count_as_withdraws_and_auth_requi
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .withdraw_non_fungibles_from_account(account, XRD, &ids)
+        .withdraw_non_fungibles_from_account(account, XRD, ids)
         .build();
 
     // Act
@@ -94,7 +94,7 @@ fn account_lock_fee_and_withdraw_non_fungibles_interactions_count_as_withdraws_a
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw_non_fungibles(account, dec!("1"), XRD, &ids)
+        .lock_fee_and_withdraw_non_fungibles(account, dec!("1"), XRD, ids)
         .build();
 
     // Act
@@ -194,7 +194,7 @@ fn account_create_proof_by_ids_interactions_count_as_auth_requiring_interactions
     let account = account();
     let ids = non_fungible_ids();
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_non_fungibles(account, XRD, &ids)
+        .create_proof_from_account_of_non_fungibles(account, XRD, ids)
         .build();
 
     // Act

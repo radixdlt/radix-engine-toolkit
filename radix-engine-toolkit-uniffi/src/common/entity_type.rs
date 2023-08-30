@@ -38,7 +38,6 @@ pub enum EntityType {
     GlobalTransactionTracker,
     InternalFungibleVault,
     InternalNonFungibleVault,
-    InternalAccount,
     InternalGenericComponent,
     InternalKeyValueStore,
 }
@@ -65,7 +64,6 @@ impl From<EntityType> for NativeEntityType {
             EntityType::GlobalTransactionTracker => Self::GlobalTransactionTracker,
             EntityType::InternalFungibleVault => Self::InternalFungibleVault,
             EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
-            EntityType::InternalAccount => Self::InternalAccount,
             EntityType::InternalGenericComponent => Self::InternalGenericComponent,
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }
@@ -98,7 +96,6 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::GlobalTransactionTracker => Self::GlobalTransactionTracker,
             NativeEntityType::InternalFungibleVault => Self::InternalFungibleVault,
             NativeEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
-            NativeEntityType::InternalAccount => Self::InternalAccount,
             NativeEntityType::InternalGenericComponent => Self::InternalGenericComponent,
             NativeEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }

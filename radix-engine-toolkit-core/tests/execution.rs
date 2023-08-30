@@ -181,7 +181,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 NonFungibleLocalId::integer(2) => (),
             )),
         )
-        .try_deposit_batch_or_abort(account1, None)
+        .try_deposit_entire_worktop_or_abort(account1, None)
         .build();
     let resource_address = *test_runner
         .execute_manifest_ignoring_fee(manifest, vec![])
