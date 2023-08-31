@@ -21,13 +21,14 @@ use transaction::prelude::*;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableNotarizedTransaction {
     pub signed_intent: SerializableSignedIntent,
     pub notary_signature: SerializableSignature,
 }
 
-impl NativeConvertible for SerializableNotarizedTransaction {
+impl FromNative for SerializableNotarizedTransaction {
     type Native = NotarizedTransactionV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

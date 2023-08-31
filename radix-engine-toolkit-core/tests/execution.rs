@@ -17,43 +17,43 @@
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::TransactionReceipt;
+use radix_engine_interface::blueprints::account::{ACCOUNT_LOCK_FEE_IDENT, AccountLockFeeInput, ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, AccountLockContingentFeeInput};
 use radix_engine_toolkit_core::functions::execution::{self, *};
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
-use scrypto::blueprints::account::*;
 use scrypto::prelude::*;
 use scrypto_unit::*;
-use transaction::manifest::decompile;
 use transaction::prelude::*;
 
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .try_deposit_or_abort(account2, None, "bucket")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
         vec![public_key1.into(), public_key2.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| matches!(transaction_type, TransactionType::SimpleTransfer(..)))
+        .unwrap();
 
     // Assert
     assert_eq!(
@@ -61,7 +61,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
         TransactionType::SimpleTransfer(Box::new(SimpleTransferTransactionType {
             from: account1,
             to: account2,
-            transferred: ResourceSpecifier::Amount(RADIX_TOKEN, dec!("10"))
+            transferred: ResourceSpecifier::Amount(XRD, dec!("10"))
         }))
     )
 }
@@ -69,41 +69,35 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
 #[test]
 fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("20"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket2")
-        .with_bucket("bucket2", |builder, bucket| {
-            builder.call_method(
-                account3,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .withdraw_from_account(account1, XRD, dec!("20"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .try_deposit_or_abort(account2, None, "bucket")
+        .take_from_worktop(XRD, dec!("10"), "bucket2")
+        .try_deposit_or_abort(account3, None, "bucket2")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
         vec![public_key1.into(), public_key2.into(), public_key3.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| matches!(transaction_type, TransactionType::Transfer(..)))
+        .unwrap();
 
     // Assert
     assert_eq!(
@@ -112,10 +106,10 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
             from: account1,
             transfers: hashmap! {
                 account2 => hashmap! {
-                    RADIX_TOKEN => Resources::Amount(dec!("10")),
+                    XRD => Resources::Amount(dec!("10")),
                 },
                 account3 => hashmap! {
-                    RADIX_TOKEN => Resources::Amount(dec!("10")),
+                    XRD => Resources::Amount(dec!("10")),
                 }
             }
         }))
@@ -125,42 +119,38 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
 #[test]
 fn complex_transfer_is_picked_up_as_an_general_transaction() {
     // Arrange
-    let mut test_runner = TestRunner::builder().build();
+    let mut test_runner = TestRunnerBuilder::new().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
-        .lock_fee(account1, dec!("10"))
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .withdraw_from_account(account2, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
-        .with_bucket("bucket", |builder, bucket| {
-            builder.call_method(
-                account2,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket1")
-        .with_bucket("bucket1", |builder, bucket| {
-            builder.call_method(
-                account3,
-                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                manifest_args!(bucket),
-            )
-        })
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .withdraw_from_account(account2, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .try_deposit_or_abort(account2, None, "bucket")
+        .take_from_worktop(XRD, dec!("10"), "bucket1")
+        .try_deposit_or_abort(account3, None, "bucket1")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
         vec![public_key1.into(), public_key2.into(), public_key3.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
     receipt.expect_commit_success();
 
     // Act
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find(|transaction_type| {
+            matches!(transaction_type, TransactionType::GeneralTransaction(..))
+        })
+        .unwrap();
 
     // Assert
     assert!(matches!(
@@ -172,7 +162,7 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
 #[test]
 fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
     // Arrange
-    let mut test_runner = TestRunner::builder().without_trace().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (public_key1, _, account1) = test_runner.new_account(false);
     let (public_key2, _, account2) = test_runner.new_account(false);
     let manifest = ManifestBuilder::new()
@@ -191,7 +181,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 NonFungibleLocalId::integer(2) => (),
             )),
         )
-        .try_deposit_batch_or_abort(account1)
+        .try_deposit_entire_worktop_or_abort(account1, None)
         .build();
     let resource_address = *test_runner
         .execute_manifest_ignoring_fee(manifest, vec![])
@@ -202,10 +192,10 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
 
     // Act
     let manifest = ManifestBuilder::new()
-        .lock_fee_and_withdraw(account1, 10, resource_address, 2)
+        .withdraw_from_account(account1, resource_address, 2)
         .take_from_worktop(resource_address, 2, "bucket")
         .with_bucket("bucket", |builder, bucket| {
-            builder.try_deposit_or_abort(account2, bucket)
+            builder.try_deposit_or_abort(account2, None, bucket)
         })
         .drop_all_proofs()
         .build();
@@ -213,21 +203,138 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
         manifest.clone(),
         vec![public_key1.into(), public_key2.into()],
         0,
-        PreviewFlags::default(),
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
     );
-    let transaction_type = transaction_type(&manifest.instructions, &receipt);
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find_map(|transaction_type| match transaction_type {
+            TransactionType::GeneralTransaction(general_transaction) => Some(general_transaction),
+            _ => None,
+        })
+        .unwrap();
 
-    println!(
-        "{}",
-        decompile(&manifest.instructions, &NetworkDefinition::simulator()).unwrap()
+    // Assert
+    assert_eq!(
+        transaction_type.account_withdraws,
+        hashmap! {
+            account1 => vec![
+                ResourceTracker::NonFungible {
+                    resource_address,
+                    amount: Source::Guaranteed(dec!("2")),
+                    ids: Source::Predicted(0, btreeset!(
+                        NonFungibleLocalId::integer(1),
+                        NonFungibleLocalId::integer(2),
+                    ))
+                }
+            ]
+        }
     );
-    println!("{transaction_type:#?}");
+    assert_eq!(
+        transaction_type.account_deposits,
+        hashmap! {
+            account2 => vec![
+                ResourceTracker::NonFungible {
+                    resource_address,
+                    amount: Source::Guaranteed(dec!("2")),
+                    ids: Source::Predicted(1, btreeset!(
+                        NonFungibleLocalId::integer(1),
+                        NonFungibleLocalId::integer(2),
+                    ))
+                }
+            ]
+        }
+    );
 }
 
-fn transaction_type(
+#[test]
+pub fn deposit_and_deposit_batch_of_nothing_should_not_result_in_an_error() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new().deposit_batch(account).build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+
+    // Act
+    let tx_types = transaction_types(&manifest.instructions, &receipt);
+
+    // Assert
+    assert!(!tx_types.is_empty());
+}
+
+fn test_manifest_with_lock_fee(
+    method_name: impl Into<String>,
+    arguments: impl ResolvableArguments,
+) {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (pk, _, account) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new()
+        .call_method(account, method_name, arguments)
+        .withdraw_from_account(account, XRD, 10)
+        .take_from_worktop(XRD, 10, "bucket")
+        .try_deposit_or_abort(account, None, "bucket")
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![pk.into()],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    receipt.expect_commit_success();
+
+    // Act
+    let transaction_types = transaction_types(
+        &manifest.instructions,
+        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+    );
+
+    // Assert
+    assert_eq!(transaction_types.len(), 0)
+}
+
+#[test]
+fn manifest_with_a_lock_fee_should_not_be_conforming() {
+    test_manifest_with_lock_fee(
+        ACCOUNT_LOCK_FEE_IDENT,
+        AccountLockFeeInput { amount: dec!("1") },
+    )
+}
+
+#[test]
+fn manifest_with_a_lock_contingent_fee_should_not_be_conforming() {
+    test_manifest_with_lock_fee(
+        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+        AccountLockContingentFeeInput { amount: dec!("1") },
+    )
+}
+
+fn transaction_types(
     manifest_instructions: &[InstructionV1],
     receipt: &TransactionReceipt,
-) -> TransactionType {
-    let analysis = execution::analyze(manifest_instructions, receipt).unwrap();
-    analysis.transaction_type
+) -> Vec<TransactionType> {
+    let analysis = execution::analyze(
+        manifest_instructions,
+        &ExecutionAnalysisTransactionReceipt::new(receipt).unwrap(),
+    )
+    .unwrap();
+    analysis.transaction_types
 }

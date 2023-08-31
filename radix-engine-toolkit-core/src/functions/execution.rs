@@ -17,6 +17,7 @@
 
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
+use radix_engine_interface::blueprints::account::DefaultDepositRule;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
@@ -24,31 +25,28 @@ use transaction::prelude::*;
 use crate::instruction_visitor::core::error::*;
 use crate::instruction_visitor::core::traverser::*;
 use crate::instruction_visitor::visitors::account_proofs_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
+use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
 use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
+use crate::models::node_id::InvalidEntityTypeIdError;
+use crate::models::node_id::TypedNodeId;
 use crate::utils;
 
 pub fn analyze(
     instructions: &[InstructionV1],
-    preview_receipt: &TransactionReceipt,
+    preview_receipt: &ExecutionAnalysisTransactionReceipt,
 ) -> Result<ExecutionAnalysis, ExecutionModuleError> {
-    let (execution_trace, fee_summary) = match preview_receipt.transaction_result {
-        TransactionResult::Commit(CommitResult {
-            outcome: TransactionOutcome::Success(..),
-            ref execution_trace,
-            ref fee_summary,
-            ..
-        }) => Ok((execution_trace, fee_summary)),
-        _ => Err(ExecutionModuleError::IsNotCommitSuccess(
-            preview_receipt.clone(),
-        )),
-    }?;
+    let execution_trace = preview_receipt.execution_trace();
 
     let mut account_proofs_visitor = AccountProofsVisitor::default();
     let mut simple_transfer_visitor = SimpleTransactionTypeVisitor::default();
     let mut transfer_visitor = TransferTransactionTypeVisitor::default();
+    let mut account_deposit_settings_visitor = AccountDepositSettingsVisitor::default();
     let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
+    let mut reserved_instructions_visitor = ReservedInstructionsVisitor::default();
 
     traverse(
         instructions,
@@ -56,93 +54,159 @@ pub fn analyze(
             &mut simple_transfer_visitor,
             &mut transfer_visitor,
             &mut account_proofs_visitor,
+            &mut account_deposit_settings_visitor,
             &mut general_transaction_visitor,
+            &mut reserved_instructions_visitor,
         ],
     )?;
 
-    let transaction_type = if let Some((from_account_address, to_account_address, transfer)) =
+    let mut transaction_types = vec![];
+    if let Some((from_account_address, to_account_address, transfer)) =
         simple_transfer_visitor.output()
     {
-        TransactionType::SimpleTransfer(Box::new(SimpleTransferTransactionType {
-            from: from_account_address,
-            to: to_account_address,
-            transferred: transfer,
-        }))
-    } else if let Some((from_account_address, transfers)) = transfer_visitor.output() {
-        TransactionType::Transfer(Box::new(TransferTransactionType {
-            from: from_account_address,
-            transfers,
-        }))
-    } else if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output()
-    {
-        TransactionType::GeneralTransaction(Box::new(GeneralTransactionType {
-            account_proofs: account_proofs_visitor.output(),
-            account_withdraws,
-            account_deposits,
-            addresses_in_manifest: crate::functions::instructions::extract_addresses(instructions),
-            metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
-                preview_receipt,
-            )
-            .unwrap(),
-            data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
-                preview_receipt,
-            )
-            .unwrap(),
-        }))
-    } else {
-        TransactionType::NonConforming
-    };
-
-    let mut fee_locks = FeeLocks::default();
-    for (_, amount, is_contingent) in fee_summary.locked_fees.iter() {
-        let amount = amount.amount();
-        if *is_contingent {
-            fee_locks.contingent_lock += amount;
-        } else {
-            fee_locks.lock += amount;
-        }
+        transaction_types.push(TransactionType::SimpleTransfer(Box::new(
+            SimpleTransferTransactionType {
+                from: from_account_address,
+                to: to_account_address,
+                transferred: transfer,
+            },
+        )))
     }
-
-    let fee_summary = {
-        // Previews sometimes reports a cost unit price of zero. So, we will:
-        // * Calculate all fees in XRD from the cost units.
-        // * Calculate all fees based on the current cost unit price.
-        let mut network_fees = 0u128;
-        for value in fee_summary.execution_cost_breakdown.values() {
-            network_fees += *value as u128;
-        }
-        let network_fee = cost_units_to_xrd(network_fees);
-
-        let royalty_fee = fee_summary
-            .royalty_cost_breakdown
-            .values()
-            .map(|(_, v)| *v)
-            .sum();
-
-        FeeSummary {
-            network_fee,
-            royalty_fee,
-        }
+    if let Some((from_account_address, transfers)) = transfer_visitor.output() {
+        transaction_types.push(TransactionType::Transfer(Box::new(
+            TransferTransactionType {
+                from: from_account_address,
+                transfers,
+            },
+        )))
+    }
+    if let Some((
+        resource_preference_changes,
+        default_deposit_rule_changes,
+        authorized_depositors_changes,
+    )) = account_deposit_settings_visitor.output()
+    {
+        transaction_types.push(TransactionType::AccountDepositSettings(Box::new(
+            AccountDepositSettingsTransactionType {
+                resource_preference_changes,
+                default_deposit_rule_changes,
+                authorized_depositors_changes,
+            },
+        )))
+    }
+    if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output() {
+        transaction_types.push(TransactionType::GeneralTransaction(Box::new(
+            GeneralTransactionType {
+                account_proofs: account_proofs_visitor.output(),
+                account_withdraws,
+                account_deposits,
+                addresses_in_manifest: crate::functions::instructions::extract_addresses(
+                    instructions,
+                ),
+                metadata_of_newly_created_entities: utils::metadata_of_newly_created_entities(
+                    preview_receipt,
+                )?,
+                data_of_newly_minted_non_fungibles: utils::data_of_newly_minted_non_fungibles(
+                    preview_receipt,
+                ),
+                addresses_of_newly_created_entities: utils::addresses_of_newly_created_entities(
+                    preview_receipt,
+                )?,
+            },
+        )))
     };
+
+    let fee_locks = FeeLocks {
+        lock: execution_trace.fee_locks.lock,
+        contingent_lock: execution_trace.fee_locks.contingent_lock,
+    };
+    let fee_summary = FeeSummary {
+        execution_cost: preview_receipt.fee_summary.total_execution_cost_in_xrd,
+        finalization_cost: preview_receipt.fee_summary.total_finalization_cost_in_xrd,
+        storage_expansion_cost: preview_receipt.fee_summary.total_storage_cost_in_xrd,
+        royalty_cost: preview_receipt.fee_summary.total_royalty_cost_in_xrd,
+    };
+
+    let reserved_instructions = reserved_instructions_visitor.output();
 
     Ok(ExecutionAnalysis {
         fee_locks,
         fee_summary,
-        transaction_type,
+        transaction_types,
+        reserved_instructions,
     })
+}
+
+/// A transaction receipt used for execution analysis. This struct maintains the invariant that the
+/// execution of the transaction succeeded and was committed to ledger state and that there is an
+/// execution trace output.
+pub struct ExecutionAnalysisTransactionReceipt<'r>(
+    &'r TransactionReceipt,
+    &'r TransactionExecutionTrace,
+    &'r CommitResult,
+);
+
+impl<'r> ExecutionAnalysisTransactionReceipt<'r> {
+    pub fn new(transaction_receipt: &'r TransactionReceipt) -> Result<Self, ExecutionModuleError> {
+        if let TransactionResult::Commit(
+            commit_result @ CommitResult {
+                outcome: TransactionOutcome::Success(..),
+                execution_trace,
+                ..
+            },
+        ) = &transaction_receipt.result
+        {
+            if let Some(ref execution_trace) = execution_trace {
+                Ok(Self(transaction_receipt, execution_trace, commit_result))
+            } else {
+                Err(ExecutionModuleError::NoExecutionTrace)
+            }
+        } else {
+            Err(
+                ExecutionModuleError::TransactionWasNotCommittedSuccessfully(
+                    transaction_receipt.clone(),
+                ),
+            )
+        }
+    }
+
+    pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
+        self.1
+    }
+
+    pub fn commit_result(&self) -> &'r CommitResult {
+        self.2
+    }
+}
+
+impl<'r> AsRef<TransactionReceipt> for ExecutionAnalysisTransactionReceipt<'r> {
+    fn as_ref(&self) -> &TransactionReceipt {
+        self.0
+    }
+}
+
+impl<'r> std::ops::Deref for ExecutionAnalysisTransactionReceipt<'r> {
+    type Target = TransactionReceipt;
+
+    fn deref(&self) -> &Self::Target {
+        self.0
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalysis {
     pub fee_locks: FeeLocks,
     pub fee_summary: FeeSummary,
-    pub transaction_type: TransactionType,
+    pub transaction_types: Vec<TransactionType>,
+    pub reserved_instructions: HashSet<ReservedInstruction>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct FeeSummary {
-    pub network_fee: Decimal,
-    pub royalty_fee: Decimal,
+    pub execution_cost: Decimal,
+    pub finalization_cost: Decimal,
+    pub storage_expansion_cost: Decimal,
+    pub royalty_cost: Decimal,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
@@ -155,8 +219,8 @@ pub struct FeeLocks {
 pub enum TransactionType {
     SimpleTransfer(Box<SimpleTransferTransactionType>),
     Transfer(Box<TransferTransactionType>),
+    AccountDepositSettings(Box<AccountDepositSettingsTransactionType>),
     GeneralTransaction(Box<GeneralTransactionType>),
-    NonConforming,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -173,11 +237,20 @@ pub struct TransferTransactionType {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AccountDepositSettingsTransactionType {
+    pub resource_preference_changes:
+        HashMap<ComponentAddress, HashMap<ResourceAddress, ResourcePreferenceAction>>,
+    pub default_deposit_rule_changes: HashMap<ComponentAddress, DefaultDepositRule>,
+    pub authorized_depositors_changes: HashMap<ComponentAddress, AuthorizedDepositorsChanges>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct GeneralTransactionType {
     pub account_proofs: HashSet<ResourceAddress>,
     pub account_withdraws: HashMap<ComponentAddress, Vec<ResourceTracker>>,
     pub account_deposits: HashMap<ComponentAddress, Vec<ResourceTracker>>,
-    pub addresses_in_manifest: (HashSet<NodeId>, HashSet<u32>),
+    pub addresses_in_manifest: (HashSet<TypedNodeId>, HashSet<u32>),
+    pub addresses_of_newly_created_entities: HashSet<TypedNodeId>,
     pub metadata_of_newly_created_entities:
         HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
@@ -186,9 +259,11 @@ pub struct GeneralTransactionType {
 
 #[derive(Clone, Debug)]
 pub enum ExecutionModuleError {
-    IsNotCommitSuccess(TransactionReceipt),
+    TransactionWasNotCommittedSuccessfully(TransactionReceipt),
     InstructionVisitorError(InstructionVisitorError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
+    InvalidEntityTypeIdError(InvalidEntityTypeIdError),
+    NoExecutionTrace,
 }
 
 impl From<InstructionVisitorError> for ExecutionModuleError {
@@ -197,6 +272,8 @@ impl From<InstructionVisitorError> for ExecutionModuleError {
     }
 }
 
-fn cost_units_to_xrd(cost_units: u128) -> Decimal {
-    Decimal::from_str(DEFAULT_COST_UNIT_PRICE_IN_XRD).unwrap() * cost_units
+impl From<InvalidEntityTypeIdError> for ExecutionModuleError {
+    fn from(value: InvalidEntityTypeIdError) -> Self {
+        Self::InvalidEntityTypeIdError(value)
+    }
 }

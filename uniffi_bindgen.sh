@@ -2,6 +2,7 @@ bindgen() {
     cargo run \
         --manifest-path="../uniffi-bindgen/Cargo.toml" -- \
         generate ./src/radix_engine_toolkit_uniffi.udl \
+        --no-format \
         --language $1 \
         --out-dir ./output \
         --lib-file ./target/debug/libradix_engine_toolkit_uniffi.a

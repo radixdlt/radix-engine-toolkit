@@ -36,7 +36,7 @@ file_names=(
   "libuniffi_radix_engine_toolkit_uniffi"
   "libuniffi_radix_engine_toolkit_uniffi"
   "libuniffi_radix_engine_toolkit_uniffi"
-  "radix_engine_toolkit_uniffi"
+  "uniffi_radix_engine_toolkit_uniffi"
 )
 suffixes=(
   "dylib"

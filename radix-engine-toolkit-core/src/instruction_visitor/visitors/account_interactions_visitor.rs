@@ -54,6 +54,8 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
+                    // This never panics. We have already checked that this is an account when we
+                    // called `is_account`.
                     ComponentAddress::new_or_panic(address.as_node_id().0)
                 }
                 DynamicGlobalAddress::Named(_) => {
@@ -79,7 +81,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         Ok(())
     }
 
-    fn visit_call_access_rules_method(
+    fn visit_call_role_assignment_method(
         &mut self,
         address: &DynamicGlobalAddress,
         method_name: &str,
@@ -88,6 +90,8 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
+                    // This never panics. We have already checked that this is an account when we
+                    // called `is_account`.
                     ComponentAddress::new_or_panic(address.as_node_id().0)
                 }
                 DynamicGlobalAddress::Named(_) => {
@@ -95,7 +99,7 @@ impl InstructionVisitor for AccountInteractionsVisitor {
                 }
             };
 
-            if crate::statics::ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH
+            if crate::statics::ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH
                 .iter()
                 .any(|MethodKey { ident }| ident.as_str() == method_name)
             {
@@ -114,6 +118,8 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
+                    // This never panics. We have already checked that this is an account when we
+                    // called `is_account`.
                     ComponentAddress::new_or_panic(address.as_node_id().0)
                 }
                 DynamicGlobalAddress::Named(_) => {
@@ -140,6 +146,8 @@ impl InstructionVisitor for AccountInteractionsVisitor {
         if is_account(address) {
             let component_address = match address {
                 DynamicGlobalAddress::Static(address) => {
+                    // This never panics. We have already checked that this is an account when we
+                    // called `is_account`.
                     ComponentAddress::new_or_panic(address.as_node_id().0)
                 }
                 DynamicGlobalAddress::Named(_) => {

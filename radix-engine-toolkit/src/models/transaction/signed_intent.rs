@@ -21,13 +21,14 @@ use transaction::prelude::*;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableSignedIntent {
     pub intent: SerializableIntent,
     pub intent_signatures: Vec<SerializableSignatureWithPublicKey>,
 }
 
-impl NativeConvertible for SerializableSignedIntent {
+impl FromNative for SerializableSignedIntent {
     type Native = SignedIntentV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

@@ -23,26 +23,19 @@ use serde_with::serde_as;
 use crate::prelude::*;
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializablePublicKeyHash {
-    Secp256k1 {
-        value: AsHex<[u8; NodeId::RID_LENGTH]>,
-    },
-    Ed25519 {
-        value: AsHex<[u8; NodeId::RID_LENGTH]>,
-    },
+    Secp256k1(#[typeshare(serialized_as = "String")] AsHex<[u8; 29]>),
+    Ed25519(#[typeshare(serialized_as = "String")] AsHex<[u8; 29]>),
 }
 
 impl From<PublicKeyHash> for SerializablePublicKeyHash {
     fn from(value: PublicKeyHash) -> Self {
         match value {
-            PublicKeyHash::Secp256k1(public_key) => Self::Secp256k1 {
-                value: public_key.0.into(),
-            },
-            PublicKeyHash::Ed25519(public_key) => Self::Ed25519 {
-                value: public_key.0.into(),
-            },
+            PublicKeyHash::Secp256k1(public_key) => Self::Secp256k1(public_key.0.into()),
+            PublicKeyHash::Ed25519(public_key) => Self::Ed25519(public_key.0.into()),
         }
     }
 }
@@ -50,10 +43,10 @@ impl From<PublicKeyHash> for SerializablePublicKeyHash {
 impl From<SerializablePublicKeyHash> for PublicKeyHash {
     fn from(value: SerializablePublicKeyHash) -> Self {
         match value {
-            SerializablePublicKeyHash::Secp256k1 { value } => {
+            SerializablePublicKeyHash::Secp256k1(value) => {
                 Self::Secp256k1(Secp256k1PublicKeyHash(*value))
             }
-            SerializablePublicKeyHash::Ed25519 { value } => {
+            SerializablePublicKeyHash::Ed25519(value) => {
                 Self::Ed25519(Ed25519PublicKeyHash(*value))
             }
         }
@@ -63,14 +56,12 @@ impl From<SerializablePublicKeyHash> for PublicKeyHash {
 impl From<PublicKey> for SerializablePublicKeyHash {
     fn from(value: PublicKey) -> Self {
         match value {
-            PublicKey::Secp256k1(public_key) => Self::Secp256k1 {
-                value: public_key.to_hash().0.into(),
-            },
-            PublicKey::Ed25519(public_key) => Self::Ed25519 {
-                value: Ed25519PublicKeyHash::new_from_public_key(&public_key)
+            PublicKey::Secp256k1(public_key) => Self::Secp256k1(public_key.to_hash().0.into()),
+            PublicKey::Ed25519(public_key) => Self::Ed25519(
+                Ed25519PublicKeyHash::new_from_public_key(&public_key)
                     .0
                     .into(),
-            },
+            ),
         }
     }
 }

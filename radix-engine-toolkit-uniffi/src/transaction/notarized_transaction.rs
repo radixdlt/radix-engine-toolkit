@@ -53,7 +53,7 @@ impl NotarizedTransaction {
             core_notarized_transaction_hash(&notarized_transaction)
                 .map_err(Into::into)
                 .map(|hash| {
-                    let notarized_transaction_hash = NativeNotarizedTransactionHash(hash);
+                    let notarized_transaction_hash = NativeNotarizedTransactionHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &notarized_transaction_hash,
                         self.signed_intent.intent.header.network_id,

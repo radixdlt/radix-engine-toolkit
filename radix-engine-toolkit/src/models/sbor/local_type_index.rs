@@ -16,10 +16,11 @@
 // under the License.
 
 use crate::prelude::*;
-use sbor::LocalTypeIndex;
+use sbor::{LocalTypeIndex, WellKnownTypeIndex};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableLocalTypeIndex {
@@ -33,7 +34,7 @@ impl From<LocalTypeIndex> for SerializableLocalTypeIndex {
             LocalTypeIndex::SchemaLocalIndex(value) => {
                 Self::SchemaLocalIndex((value as u64).into())
             }
-            LocalTypeIndex::WellKnown(value) => Self::WellKnown(value.into()),
+            LocalTypeIndex::WellKnown(value) => Self::WellKnown((value.as_index() as u8).into()),
         }
     }
 }
@@ -44,7 +45,9 @@ impl From<SerializableLocalTypeIndex> for LocalTypeIndex {
             SerializableLocalTypeIndex::SchemaLocalIndex(value) => {
                 Self::SchemaLocalIndex(*value as usize)
             }
-            SerializableLocalTypeIndex::WellKnown(value) => Self::WellKnown(*value),
+            SerializableLocalTypeIndex::WellKnown(value) => {
+                Self::WellKnown(WellKnownTypeIndex::of(*value))
+            }
         }
     }
 }

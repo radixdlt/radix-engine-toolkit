@@ -46,11 +46,11 @@ lazy_static! {
     pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = identity_methods_that_require_auth();
 
     // Modules Package
-    pub static ref ACCESS_RULES_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = access_rules_blueprint_schema();
+    pub static ref ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = role_assignment_blueprint_schema();
     pub static ref METADATA_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = metadata_blueprint_schema();
     pub static ref ROYALTY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = royalty_blueprint_schema();
 
-    pub static ref ACCESS_RULES_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = access_rules_methods_that_require_auth();
+    pub static ref ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = role_assignment_methods_that_require_auth();
     pub static ref METADATA_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = metadata_methods_that_require_auth();
     pub static ref ROYALTY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = royalty_methods_that_require_auth();
 }
@@ -59,7 +59,7 @@ fn account_blueprint_schema() -> BlueprintDefinitionInit {
     ACCOUNT_PACKAGE_DEFINITION
         .blueprints
         .get(ACCOUNT_BLUEPRINT)
-        .unwrap()
+        .expect("Account package has no schema for the account blueprint?")
         .clone()
 }
 
@@ -145,8 +145,9 @@ fn account_proof_creation_methods() -> Vec<String> {
 
 fn path_contains_a_bucket(
     local_type_index: LocalTypeIndex,
-    schema: &Schema<ScryptoCustomSchema>,
+    schema: &VersionedScryptoSchema,
 ) -> bool {
+    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = BucketInPathVisitor::default();
     traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
     visitor.path_contains_bucket()
@@ -154,8 +155,9 @@ fn path_contains_a_bucket(
 
 fn path_contains_a_proof(
     local_type_index: LocalTypeIndex,
-    schema: &Schema<ScryptoCustomSchema>,
+    schema: &VersionedScryptoSchema,
 ) -> bool {
+    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = ProofInPathVisitor::default();
     traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
     visitor.path_contains_proof()
@@ -165,7 +167,7 @@ fn identity_blueprint_schema() -> BlueprintDefinitionInit {
     IDENTITY_PACKAGE_DEFINITION
         .blueprints
         .get(IDENTITY_BLUEPRINT)
-        .unwrap()
+        .expect("Identity package has no schema for the identity blueprint?")
         .clone()
 }
 
@@ -173,11 +175,11 @@ fn identity_methods_that_require_auth() -> Vec<MethodKey> {
     methods_that_require_auth(&IDENTITY_BLUEPRINT_SCHEMA)
 }
 
-fn access_rules_blueprint_schema() -> BlueprintDefinitionInit {
-    ACCESS_RULES_PACKAGE_DEFINITION
+fn role_assignment_blueprint_schema() -> BlueprintDefinitionInit {
+    ROLE_ASSIGNMENT_PACKAGE_DEFINITION
         .blueprints
-        .get(ACCESS_RULES_BLUEPRINT)
-        .unwrap()
+        .get(ROLE_ASSIGNMENT_BLUEPRINT)
+        .expect("RoleAssignment package has no schema for the RoleAssignment blueprint?")
         .clone()
 }
 
@@ -185,7 +187,7 @@ fn metadata_blueprint_schema() -> BlueprintDefinitionInit {
     METADATA_PACKAGE_DEFINITION
         .blueprints
         .get(METADATA_BLUEPRINT)
-        .unwrap()
+        .expect("Metadata package has no schema for the Metadata blueprint?")
         .clone()
 }
 
@@ -193,12 +195,12 @@ fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
     ROYALTY_PACKAGE_DEFINITION
         .blueprints
         .get(COMPONENT_ROYALTY_BLUEPRINT)
-        .unwrap()
+        .expect("ComponentRoyalty package has no schema for the ComponentRoyalty blueprint?")
         .clone()
 }
 
-fn access_rules_methods_that_require_auth() -> Vec<MethodKey> {
-    methods_that_require_auth(&ACCESS_RULES_BLUEPRINT_SCHEMA)
+fn role_assignment_methods_that_require_auth() -> Vec<MethodKey> {
+    methods_that_require_auth(&ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA)
 }
 
 fn metadata_methods_that_require_auth() -> Vec<MethodKey> {
@@ -210,7 +212,7 @@ fn royalty_methods_that_require_auth() -> Vec<MethodKey> {
 }
 
 fn methods_that_require_auth(blueprint_schema: &BlueprintDefinitionInit) -> Vec<MethodKey> {
-    if let MethodAuthTemplate::StaticRoles(StaticRoles { ref methods, .. }) =
+    if let MethodAuthTemplate::StaticRoleDefinition(StaticRoleDefinition { ref methods, .. }) =
         blueprint_schema.auth_config.method_auth
     {
         methods

@@ -24,6 +24,11 @@
 #[rustfmt::skip]
 #[allow(unused_braces)]
 mod core {
+    /* Models */
+    pub use radix_engine_toolkit_core::models::node_id::{
+        TypedNodeId as CoreTypedNodeId,
+        InvalidEntityTypeIdError as CoreInvalidEntityTypeIdError
+    };
     /* Modules */
     pub use radix_engine_toolkit_core::functions::information::{
         information as core_information, 
@@ -54,11 +59,18 @@ mod core {
         accounts_deposited_into as core_instructions_accounts_deposited_into,
         InstructionValidationError as CoreInstructionValidationError,
     };
+    pub use radix_engine_toolkit_core::functions::utils::{
+        decode_transaction_id as core_decode_transaction_id
+    };
     pub use radix_engine_toolkit_core::functions::manifest::{
         hash as core_manifest_hash,
         compile as core_manifest_compile,
         decompile as core_manifest_decompile,
         statically_validate as core_manifest_statically_validate,
+        modify as core_manifest_modify,
+        TransactionManifestModifications as CoreManifestTransactionManifestModifications,
+        Assertion as CoreManifestAssertion,
+        ManifestModificationError as CoreManifestModificationError
     };
     pub use radix_engine_toolkit_core::functions::intent::{
         hash as core_intent_hash,
@@ -86,8 +98,10 @@ mod core {
         SimpleTransferTransactionType as CoreExecutionSimpleTransferTransactionType,
         TransferTransactionType as CoreExecutionTransferTransactionType,
         GeneralTransactionType as CoreExecutionGeneralTransactionType,
+        AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
+        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt
     };
     pub use radix_engine_toolkit_core::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
@@ -96,15 +110,24 @@ mod core {
     };
     pub use radix_engine_toolkit_core::functions::scrypto_sbor::{
         ScryptoSborError as CoreScryptoSborError,
+        StringRepresentation as CoreScryptoStringRepresentation,
         decode_to_string_representation as core_scrypto_decode_to_string_representation,
+        encode_string_representation as core_scrypto_encode_string_representation,
     };
     pub use radix_engine_toolkit_core::functions::events::{
         sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
     };
-
+    
     /* Visitors */
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::reserved_instructions::{
+        ReservedInstruction as CoreReservedInstruction,
+    };
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
         Resources as CoreResources,
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::{
+        AuthorizedDepositorsChanges as CoreAuthorizedDepositorsChanges,
+        ResourcePreferenceAction as CoreResourcePreferenceAction,
     };
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
@@ -213,7 +236,7 @@ mod native {
         TRANSACTION_PROCESSOR_PACKAGE as NATIVE_TRANSACTION_PROCESSOR_PACKAGE,
         METADATA_MODULE_PACKAGE as NATIVE_METADATA_MODULE_PACKAGE,
         ROYALTY_MODULE_PACKAGE as NATIVE_ROYALTY_MODULE_PACKAGE,
-        ACCESS_RULES_MODULE_PACKAGE as NATIVE_ACCESS_RULES_MODULE_PACKAGE,
+        ROLE_ASSIGNMENT_MODULE_PACKAGE as NATIVE_ROLE_ASSIGNMENT_MODULE_PACKAGE,
         GENESIS_HELPER_PACKAGE as NATIVE_GENESIS_HELPER_PACKAGE,
         GENESIS_HELPER_BLUEPRINT as NATIVE_GENESIS_HELPER_BLUEPRINT,
         FAUCET_PACKAGE as NATIVE_FAUCET_PACKAGE,
@@ -248,8 +271,36 @@ mod native {
         manifest_decode as native_manifest_decode,
 
         Instant as NativeInstant,
-        Origin as NativeOrigin,
-        Url as NativeUrl,
+        UncheckedOrigin as NativeUncheckedOrigin,
+        UncheckedUrl as NativeUncheckedUrl,
+        CheckedOrigin as NativeCheckedOrigin,
+        CheckedUrl as NativeCheckedUrl,
+
+        ResourceOrNonFungible as NativeResourceOrNonFungible,
+        ResourceOrNonFungibleList as NativeResourceOrNonFungibleList,
+        ProofRule as NativeProofRule,
+        AccessRule as NativeAccessRule,
+        AccessRuleNode as NativeAccessRuleNode,
+        OwnerRole as NativeOwnerRole,
+        RoleAssignmentInit as NativeRoleAssignmentInit,
+        RoleKey as NativeRoleKey,
+        MintRoles as NativeMintRoles,
+        BurnRoles as NativeBurnRoles,
+        FreezeRoles as NativeFreezeRoles,
+        RecallRoles as NativeRecallRoles,
+        WithdrawRoles as NativeWithdrawRoles,
+        DepositRoles as NativeDepositRoles,
+        RoleDefinition as NativeRoleDefinition,
+        manifest_args as native_manifest_args,
+        rule as native_rule,
+        require as native_require,
+
+        dec as native_dec,
+        SafeAdd as NativeSafeAdd,
+        SafeSub as NativeSafeSub,
+        SafeMul as NativeSafeMul,
+        SafeDiv as NativeSafeDiv,
+        SafeNeg as NativeSafeNeg,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -303,12 +354,16 @@ mod native {
     pub use transaction::validation::{ 
         ValidationConfig as NativeValidationConfig,
         MessageValidationConfig as NativeMessageValidationConfig,
+        ManifestIdAllocator as NativeManifestIdAllocator
     };
     pub use transaction::errors::{
         TransactionValidationError as NativeTransactionValidationError,
     };
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError,
+    };
+    pub use radix_engine_common::types::{
+        TypeIdentifier as NativeTypeIdentifier
     };
     pub use radix_engine_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
@@ -318,8 +373,12 @@ mod native {
         to_precise_decimal as native_to_precise_decimal,
         to_non_fungible_local_id as native_to_non_fungible_local_id,
     };
+    pub use scrypto::api::node_modules::{
+        ModuleConfig as NativeModuleConfig,
+    };
     pub use scrypto::api::node_modules::metadata::{
-        MetadataValue as NativeMetadataValue
+        MetadataValue as NativeMetadataValue,
+        MetadataInit as NativeMetadataInit,
     };
     pub use sbor::prelude::{
         EncodeError as NativeEncodeError,
@@ -332,9 +391,12 @@ mod native {
         SerializationMode as NativeSerializationMode
     };
     pub use radix_engine_common::prelude::{
-        ScryptoSchema as NativeScryptoSchema,
+        to_manifest_value_and_unwrap as native_to_manifest_value_and_unwrap,
+        Schema as NativeSchema,
+        VersionedSchema as NativeVersionedSchema,
+        ScryptoCustomSchema as NativeScryptoCustomSchema,
         SCRYPTO_SBOR_V1_PAYLOAD_PREFIX as NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
-        MANIFEST_SBOR_V1_PAYLOAD_PREFIX as NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX
+        MANIFEST_SBOR_V1_PAYLOAD_PREFIX as NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
     };
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,
@@ -343,9 +405,20 @@ mod native {
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
     };
+    pub use radix_engine::types::{
+        FromPublicKey as NativeFromPublicKey
+    };
     pub use radix_engine::blueprints::account::{
         AccountNativePackage as NativeAccountNativePackage,
-        AccountBlueprint as NativeAccountBlueprint
+        AccountBlueprint as NativeAccountBlueprint,
+        WithdrawEvent as NativeAccountWithdrawEvent,
+        DepositEvent as NativeAccountDepositEvent,
+        RejectedDepositEvent as NativeAccountRejectedDepositEvent,
+        SetResourcePreferenceEvent as NativeAccountSetResourcePreferenceEvent,
+        RemoveResourcePreferenceEvent as NativeAccountRemoveResourcePreferenceEvent,
+        SetDefaultDepositRuleEvent as NativeAccountSetDefaultDepositRuleEvent,
+        AddAuthorizedDepositorEvent as NativeAccountAddAuthorizedDepositorEvent,
+        RemoveAuthorizedDepositorEvent as NativeAccountRemoveAuthorizedDepositorEvent,
     };
     pub use radix_engine::blueprints::identity::{
         IdentityNativePackage as NativeIdentityNativePackage,
@@ -413,17 +486,19 @@ mod native {
         MintNonFungibleResourceEvent as NativeMintNonFungibleResourceEvent,
         BurnNonFungibleResourceEvent as NativeBurnNonFungibleResourceEvent,
         LockFeeEvent as NativeLockFeeEvent,
-        WithdrawResourceEvent as NativeWithdrawResourceEvent,
-        DepositResourceEvent as NativeDepositResourceEvent,
-        RecallResourceEvent as NativeRecallResourceEvent,
+        fungible_vault::LockFeeEvent as NativeFungibleVaultLockFeeEvent,
+        fungible_vault::WithdrawEvent as NativeFungibleVaultWithdrawEvent,
+        fungible_vault::DepositEvent as NativeFungibleVaultDepositEvent,
+        fungible_vault::RecallEvent as NativeFungibleVaultRecallEvent,
+        fungible_vault::PayFeeEvent as NativeFungibleVaultPayFeeEvent,
+        non_fungible_vault::WithdrawEvent as NativeNonFungibleVaultWithdrawEvent,
+        non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
+        non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,
     };
-    pub use radix_engine::system::node_modules::access_rules::{
+    pub use radix_engine::system::node_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
-        LockRoleEvent as NativeLockRoleEvent,
-        SetAndLockRoleEvent as NativeSetAndLockRoleEvent,
         SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
         LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
-        SetAndLockOwnerRoleEvent as NativeSetAndLockOwnerRoleEvent,
     };
     pub use radix_engine::system::node_modules::metadata::{
         SetMetadataEvent as NativeSetMetadataEvent,
@@ -433,8 +508,236 @@ mod native {
         TypedNativeEvent as NativeTypedNativeEvent,
         TypedNativeEventError as NativeTypedNativeEventError
     };
+    pub use radix_engine_interface::types::{
+        KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
+        BlueprintId as NativeBlueprintId
+    };
+    pub use radix_engine_interface::api::node_modules::auth::{
+        RoleAssignmentCreateInput as NativeRoleAssignmentCreateInput,
+        RoleAssignmentSetInput as NativeRoleAssignmentSetInput,
+        RoleAssignmentSetOwnerInput as NativeRoleAssignmentSetOwnerInput,
+        RoleAssignmentLockOwnerInput as NativeRoleAssignmentLockOwnerInput,
+        RoleAssignmentGetInput as NativeRoleAssignmentGetInput,
+        ROLE_ASSIGNMENT_BLUEPRINT as NATIVE_ROLE_ASSIGNMENT_BLUEPRINT,
+        ROLE_ASSIGNMENT_CREATE_IDENT as NATIVE_ROLE_ASSIGNMENT_CREATE_IDENT,
+        ROLE_ASSIGNMENT_SET_IDENT as NATIVE_ROLE_ASSIGNMENT_SET_IDENT,
+        ROLE_ASSIGNMENT_SET_OWNER_IDENT as NATIVE_ROLE_ASSIGNMENT_SET_OWNER_IDENT,
+        ROLE_ASSIGNMENT_LOCK_OWNER_IDENT as NATIVE_ROLE_ASSIGNMENT_LOCK_OWNER_IDENT,
+        ROLE_ASSIGNMENT_GET_IDENT as NATIVE_ROLE_ASSIGNMENT_GET_IDENT,
+    };
+    pub use radix_engine_interface::api::node_modules::metadata::{
+        METADATA_BLUEPRINT as NATIVE_METADATA_BLUEPRINT,
+        METADATA_VALUE_STRING_DISCRIMINATOR as NATIVE_METADATA_VALUE_STRING_DISCRIMINATOR,
+        METADATA_VALUE_BOOLEAN_DISCRIMINATOR as NATIVE_METADATA_VALUE_BOOLEAN_DISCRIMINATOR,
+        METADATA_VALUE_U8_DISCRIMINATOR as NATIVE_METADATA_VALUE_U8_DISCRIMINATOR,
+        METADATA_VALUE_U32_DISCRIMINATOR as NATIVE_METADATA_VALUE_U32_DISCRIMINATOR,
+        METADATA_VALUE_U64_DISCRIMINATOR as NATIVE_METADATA_VALUE_U64_DISCRIMINATOR,
+        METADATA_VALUE_I32_DISCRIMINATOR as NATIVE_METADATA_VALUE_I32_DISCRIMINATOR,
+        METADATA_VALUE_I64_DISCRIMINATOR as NATIVE_METADATA_VALUE_I64_DISCRIMINATOR,
+        METADATA_VALUE_DECIMAL_DISCRIMINATOR as NATIVE_METADATA_VALUE_DECIMAL_DISCRIMINATOR,
+        METADATA_VALUE_GLOBAL_ADDRESS_DISCRIMINATOR as NATIVE_METADATA_VALUE_GLOBAL_ADDRESS_DISCRIMINATOR,
+        METADATA_VALUE_PUBLIC_KEY_DISCRIMINATOR as NATIVE_METADATA_VALUE_PUBLIC_KEY_DISCRIMINATOR,
+        METADATA_VALUE_NON_FUNGIBLE_GLOBAL_ID_DISCRIMINATOR as NATIVE_METADATA_VALUE_NON_FUNGIBLE_GLOBAL_ID_DISCRIMINATOR,
+        METADATA_VALUE_NON_FUNGIBLE_LOCAL_ID_DISCRIMINATOR as NATIVE_METADATA_VALUE_NON_FUNGIBLE_LOCAL_ID_DISCRIMINATOR,
+        METADATA_VALUE_INSTANT_DISCRIMINATOR as NATIVE_METADATA_VALUE_INSTANT_DISCRIMINATOR,
+        METADATA_VALUE_URL_DISCRIMINATOR as NATIVE_METADATA_VALUE_URL_DISCRIMINATOR,
+        METADATA_VALUE_ORIGIN_DISCRIMINATOR as NATIVE_METADATA_VALUE_ORIGIN_DISCRIMINATOR,
+        METADATA_VALUE_PUBLIC_KEY_HASH_DISCRIMINATOR as NATIVE_METADATA_VALUE_PUBLIC_KEY_HASH_DISCRIMINATOR,
+        METADATA_DISCRIMINATOR_ARRAY_BASE as NATIVE_METADATA_DISCRIMINATOR_ARRAY_BASE,
+        METADATA_VALUE_STRING_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_STRING_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_BOOLEAN_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_BOOLEAN_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_U8_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_U8_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_U32_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_U32_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_U64_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_U64_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_I32_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_I32_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_I64_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_I64_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_DECIMAL_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_DECIMAL_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_GLOBAL_ADDRESS_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_GLOBAL_ADDRESS_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_PUBLIC_KEY_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_PUBLIC_KEY_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_NON_FUNGIBLE_GLOBAL_ID_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_NON_FUNGIBLE_GLOBAL_ID_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_NON_FUNGIBLE_LOCAL_ID_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_NON_FUNGIBLE_LOCAL_ID_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_INSTANT_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_INSTANT_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_URL_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_URL_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_ORIGIN_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_ORIGIN_ARRAY_DISCRIMINATOR,
+        METADATA_VALUE_PUBLIC_KEY_HASH_ARRAY_DISCRIMINATOR as NATIVE_METADATA_VALUE_PUBLIC_KEY_HASH_ARRAY_DISCRIMINATOR,
+        METADATA_SETTER_ROLE as NATIVE_METADATA_SETTER_ROLE,
+        METADATA_SETTER_UPDATER_ROLE as NATIVE_METADATA_SETTER_UPDATER_ROLE,
+        METADATA_LOCKER_ROLE as NATIVE_METADATA_LOCKER_ROLE,
+        METADATA_LOCKER_UPDATER_ROLE as NATIVE_METADATA_LOCKER_UPDATER_ROLE,
+        METADATA_CREATE_IDENT as NATIVE_METADATA_CREATE_IDENT,
+        METADATA_CREATE_WITH_DATA_IDENT as NATIVE_METADATA_CREATE_WITH_DATA_IDENT,
+        METADATA_SET_IDENT as NATIVE_METADATA_SET_IDENT,
+        METADATA_LOCK_IDENT as NATIVE_METADATA_LOCK_IDENT,
+        METADATA_GET_IDENT as NATIVE_METADATA_GET_IDENT,
+        METADATA_REMOVE_IDENT as NATIVE_METADATA_REMOVE_IDENT,
+        MetadataCreateInput as NativeMetadataCreateInput,
+        MetadataCreateWithDataInput as NativeMetadataCreateWithDataInput,
+        MetadataSetInput as NativeMetadataSetInput,
+        MetadataLockInput as NativeMetadataLockInput,
+        MetadataGetInput as NativeMetadataGetInput,
+        MetadataRemoveInput as NativeMetadataRemoveInput,
+    };
+    pub use radix_engine_interface::blueprints::access_controller::{
+        AccessControllerCreateInput as NativeAccessControllerCreateInput,
+        AccessControllerCreateProofInput as NativeAccessControllerCreateProofInput,
+        AccessControllerInitiateRecoveryAsPrimaryInput as NativeAccessControllerInitiateRecoveryAsPrimaryInput,
+        AccessControllerInitiateRecoveryAsRecoveryInput as NativeAccessControllerInitiateRecoveryAsRecoveryInput,
+        AccessControllerInitiateBadgeWithdrawAttemptAsPrimaryInput as NativeAccessControllerInitiateBadgeWithdrawAttemptAsPrimaryInput,
+        AccessControllerInitiateBadgeWithdrawAttemptAsRecoveryInput as NativeAccessControllerInitiateBadgeWithdrawAttemptAsRecoveryInput,
+        AccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput as NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput,
+        AccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput as NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput,
+        AccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptInput as NativeAccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptInput,
+        AccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptInput as NativeAccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptInput,
+        AccessControllerTimedConfirmRecoveryInput as NativeAccessControllerTimedConfirmRecoveryInput,
+        AccessControllerCancelPrimaryRoleRecoveryProposalInput as NativeAccessControllerCancelPrimaryRoleRecoveryProposalInput,
+        AccessControllerCancelRecoveryRoleRecoveryProposalInput as NativeAccessControllerCancelRecoveryRoleRecoveryProposalInput,
+        AccessControllerCancelPrimaryRoleBadgeWithdrawAttemptInput as NativeAccessControllerCancelPrimaryRoleBadgeWithdrawAttemptInput,
+        AccessControllerCancelRecoveryRoleBadgeWithdrawAttemptInput as NativeAccessControllerCancelRecoveryRoleBadgeWithdrawAttemptInput,
+        AccessControllerLockPrimaryRoleInput as NativeAccessControllerLockPrimaryRoleInput,
+        AccessControllerUnlockPrimaryRoleInput as NativeAccessControllerUnlockPrimaryRoleInput,
+        AccessControllerStopTimedRecoveryInput as NativeAccessControllerStopTimedRecoveryInput,
+        AccessControllerMintRecoveryBadgesInput as NativeAccessControllerMintRecoveryBadgesInput,
+        ACCESS_CONTROLLER_BLUEPRINT as NATIVE_ACCESS_CONTROLLER_BLUEPRINT,
+        ACCESS_CONTROLLER_CREATE_IDENT as NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
+        ACCESS_CONTROLLER_CREATE_PROOF_IDENT as NATIVE_ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+        ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
+        ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+        ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT,
+        ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT as NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT,
+        ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT as NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT as NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT as NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT as NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT as NATIVE_ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
+        ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT as NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT as NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT as NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT as NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT as NATIVE_ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT,
+        ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT as NATIVE_ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT,
+        ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT as NATIVE_ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
+        ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT as NATIVE_ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
+    };
+    pub use radix_engine_interface::blueprints::account::{
+        ResourcePreference as NativeResourcePreference,
+        DefaultDepositRule as NativeDefaultDepositRule,
+        AccountCreateAdvancedInput as NativeAccountCreateAdvancedInput,
+        AccountCreateAdvancedManifestInput as NativeAccountCreateAdvancedManifestInput,
+        AccountCreateInput as NativeAccountCreateInput,
+        AccountSecurifyInput as NativeAccountSecurifyInput,
+        AccountLockFeeInput as NativeAccountLockFeeInput,
+        AccountLockContingentFeeInput as NativeAccountLockContingentFeeInput,
+        AccountDepositInput as NativeAccountDepositInput,
+        AccountDepositManifestInput as NativeAccountDepositManifestInput,
+        AccountDepositBatchInput as NativeAccountDepositBatchInput,
+        AccountDepositBatchManifestInput as NativeAccountDepositBatchManifestInput,
+        AccountWithdrawInput as NativeAccountWithdrawInput,
+        AccountWithdrawNonFungiblesInput as NativeAccountWithdrawNonFungiblesInput,
+        AccountLockFeeAndWithdrawInput as NativeAccountLockFeeAndWithdrawInput,
+        AccountLockFeeAndWithdrawNonFungiblesInput as NativeAccountLockFeeAndWithdrawNonFungiblesInput,
+        AccountCreateProofOfAmountInput as NativeAccountCreateProofOfAmountInput,
+        AccountCreateProofOfNonFungiblesInput as NativeAccountCreateProofOfNonFungiblesInput,
+        AccountSetDefaultDepositRuleInput as NativeAccountSetDefaultDepositRuleInput,
+        AccountSetResourcePreferenceInput as NativeAccountSetResourcePreferenceInput,
+        AccountRemoveResourcePreferenceInput as NativeAccountRemoveResourcePreferenceInput,
+        AccountTryDepositOrRefundInput as NativeAccountTryDepositOrRefundInput,
+        AccountTryDepositOrRefundManifestInput as NativeAccountTryDepositOrRefundManifestInput,
+        AccountTryDepositBatchOrRefundInput as NativeAccountTryDepositBatchOrRefundInput,
+        AccountTryDepositBatchOrRefundManifestInput as NativeAccountTryDepositBatchOrRefundManifestInput,
+        AccountTryDepositOrAbortInput as NativeAccountTryDepositOrAbortInput,
+        AccountTryDepositOrAbortManifestInput as NativeAccountTryDepositOrAbortManifestInput,
+        AccountTryDepositBatchOrAbortInput as NativeAccountTryDepositBatchOrAbortInput,
+        AccountTryDepositBatchOrAbortManifestInput as NativeAccountTryDepositBatchOrAbortManifestInput,
+        AccountBurnInput as NativeAccountBurnInput,
+        AccountBurnNonFungiblesInput as NativeAccountBurnNonFungiblesInput,
+        AccountAddAuthorizedDepositorInput as NativeAccountAddAuthorizedDepositorInput,
+        AccountRemoveAuthorizedDepositorInput as NativeAccountRemoveAuthorizedDepositorInput,
+        ACCOUNT_BLUEPRINT as NATIVE_ACCOUNT_BLUEPRINT,
+        ACCOUNT_CREATE_ADVANCED_IDENT as NATIVE_ACCOUNT_CREATE_ADVANCED_IDENT,
+        ACCOUNT_CREATE_IDENT as NATIVE_ACCOUNT_CREATE_IDENT,
+        ACCOUNT_SECURIFY_IDENT as NATIVE_ACCOUNT_SECURIFY_IDENT,
+        ACCOUNT_LOCK_FEE_IDENT as NATIVE_ACCOUNT_LOCK_FEE_IDENT,
+        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT as NATIVE_ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+        ACCOUNT_DEPOSIT_IDENT as NATIVE_ACCOUNT_DEPOSIT_IDENT,
+        ACCOUNT_DEPOSIT_BATCH_IDENT as NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT,
+        ACCOUNT_WITHDRAW_IDENT as NATIVE_ACCOUNT_WITHDRAW_IDENT,
+        ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT as NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+        ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT as NATIVE_ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
+        ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
+        ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT as NATIVE_ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+        ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT as NATIVE_ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+        ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT as NATIVE_ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+        ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT as NATIVE_ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
+        ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT as NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
+        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT as NATIVE_ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+        ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT as NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+        ACCOUNT_BURN_IDENT as NATIVE_ACCOUNT_BURN_IDENT,
+        ACCOUNT_BURN_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
+        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+    };
     pub use radix_engine_interface::blueprints::package::{
-        TypePointer as NativeTypePointer,
+        PackagePublishWasmInput as NativePackagePublishWasmInput,
+        PackagePublishWasmManifestInput as NativePackagePublishWasmManifestInput,
+        PackagePublishWasmAdvancedInput as NativePackagePublishWasmAdvancedInput,
+        PackagePublishWasmAdvancedManifestInput as NativePackagePublishWasmAdvancedManifestInput,
+        PackagePublishNativeInput as NativePackagePublishNativeInput,
+        PackagePublishNativeManifestInput as NativePackagePublishNativeManifestInput,
+        PackageClaimRoyaltiesInput as NativePackageClaimRoyaltiesInput,
+        PackageDefinition as NativePackageDefinition,
+        BlueprintDefinitionInit as NativeBlueprintDefinitionInit,
+        AuthConfig as NativeAuthConfig,
+        StaticRoleDefinition as NativeStaticRoleDefinition,
+        PACKAGE_BLUEPRINT as NATIVE_PACKAGE_BLUEPRINT,
+        PACKAGE_PUBLISH_WASM_IDENT as NATIVE_PACKAGE_PUBLISH_WASM_IDENT,
+        PACKAGE_PUBLISH_WASM_ADVANCED_IDENT as NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT,
+        PACKAGE_PUBLISH_NATIVE_IDENT as NATIVE_PACKAGE_PUBLISH_NATIVE_IDENT,
+        PACKAGE_CLAIM_ROYALTIES_IDENT as NATIVE_PACKAGE_CLAIM_ROYALTIES_IDENT,
+    };
+    pub use radix_engine_interface::blueprints::resource::{
+        MINTER_ROLE as NATIVE_MINTER_ROLE,
+        MINTER_UPDATER_ROLE as NATIVE_MINTER_UPDATER_ROLE,
+        BURNER_ROLE as NATIVE_BURNER_ROLE,
+        BURNER_UPDATER_ROLE as NATIVE_BURNER_UPDATER_ROLE,
+        WITHDRAWER_ROLE as NATIVE_WITHDRAWER_ROLE,
+        WITHDRAWER_UPDATER_ROLE as NATIVE_WITHDRAWER_UPDATER_ROLE,
+        DEPOSITOR_ROLE as NATIVE_DEPOSITOR_ROLE,
+        DEPOSITOR_UPDATER_ROLE as NATIVE_DEPOSITOR_UPDATER_ROLE,
+        RECALLER_ROLE as NATIVE_RECALLER_ROLE,
+        RECALLER_UPDATER_ROLE as NATIVE_RECALLER_UPDATER_ROLE,
+        FREEZER_ROLE as NATIVE_FREEZER_ROLE,
+        FREEZER_UPDATER_ROLE as NATIVE_FREEZER_UPDATER_ROLE,
+        NON_FUNGIBLE_DATA_UPDATER_ROLE as NATIVE_NON_FUNGIBLE_DATA_UPDATER_ROLE,
+        NON_FUNGIBLE_DATA_UPDATER_UPDATER_ROLE as NATIVE_NON_FUNGIBLE_DATA_UPDATER_UPDATER_ROLE,
+        RESOURCE_MANAGER_BURN_IDENT as NATIVE_RESOURCE_MANAGER_BURN_IDENT,
+        RESOURCE_MANAGER_PACKAGE_BURN_IDENT as NATIVE_RESOURCE_MANAGER_PACKAGE_BURN_IDENT,
+        RESOURCE_MANAGER_CREATE_EMPTY_VAULT_IDENT as NATIVE_RESOURCE_MANAGER_CREATE_EMPTY_VAULT_IDENT,
+        RESOURCE_MANAGER_CREATE_EMPTY_BUCKET_IDENT as NATIVE_RESOURCE_MANAGER_CREATE_EMPTY_BUCKET_IDENT,
+        RESOURCE_MANAGER_DROP_EMPTY_BUCKET_IDENT as NATIVE_RESOURCE_MANAGER_DROP_EMPTY_BUCKET_IDENT,
+        RESOURCE_MANAGER_GET_RESOURCE_TYPE_IDENT as NATIVE_RESOURCE_MANAGER_GET_RESOURCE_TYPE_IDENT,
+        RESOURCE_MANAGER_GET_TOTAL_SUPPLY_IDENT as NATIVE_RESOURCE_MANAGER_GET_TOTAL_SUPPLY_IDENT,
+        RESOURCE_MANAGER_GET_AMOUNT_FOR_WITHDRAWAL_IDENT as NATIVE_RESOURCE_MANAGER_GET_AMOUNT_FOR_WITHDRAWAL_IDENT,
+        FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT as NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT,
+        FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT as NATIVE_FUNGIBLE_RESOURCE_MANAGER_CREATE_IDENT,
+        FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT as NATIVE_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT,
+        FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT as NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT,
+        ResourceManagerBurnInput as NativeResourceManagerBurnInput,
+        ResourceManagerPackageBurnInput as NativeResourceManagerPackageBurnInput,
+        ResourceManagerCreateEmptyVaultInput as NativeResourceManagerCreateEmptyVaultInput,
+        ResourceManagerCreateEmptyBucketInput as NativeResourceManagerCreateEmptyBucketInput,
+        ResourceManagerDropEmptyBucketInput as NativeResourceManagerDropEmptyBucketInput,
+        ResourceManagerGetResourceTypeInput as NativeResourceManagerGetResourceTypeInput,
+        ResourceManagerGetTotalSupplyInput as NativeResourceManagerGetTotalSupplyInput,
+        ResourceManagerGetAmountForWithdrawalInput as NativeResourceManagerGetAmountForWithdrawalInput,
+        ResourceFeature as NativeResourceFeature,
+        FungibleResourceRoles as NativeFungibleResourceRoles,
+        FungibleResourceManagerCreateInput as NativeFungibleResourceManagerCreateInput,
+        FungibleResourceManagerCreateManifestInput as NativeFungibleResourceManagerCreateManifestInput,
+        FungibleResourceManagerCreateWithInitialSupplyInput as NativeFungibleResourceManagerCreateWithInitialSupplyInput,
+        FungibleResourceManagerCreateWithInitialSupplyManifestInput as NativeFungibleResourceManagerCreateWithInitialSupplyManifestInput,
+        FungibleResourceManagerMintInput as NativeFungibleResourceManagerMintInput,
     };
     pub use radix_engine_interface::prelude::{
         EventTypeIdentifier as NativeEventTypeIdentifier,

@@ -21,6 +21,7 @@ use transaction::prelude::*;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableIntent {
     pub header: SerializableTransactionHeader,
@@ -28,7 +29,7 @@ pub struct SerializableIntent {
     pub message: SerializableMessage,
 }
 
-impl NativeConvertible for SerializableIntent {
+impl FromNative for SerializableIntent {
     type Native = IntentV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

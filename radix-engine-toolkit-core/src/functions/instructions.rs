@@ -25,6 +25,7 @@ use transaction::validation::*;
 use crate::instruction_visitor::core::traverser::traverse;
 use crate::instruction_visitor::visitors::account_interactions_visitor::*;
 use crate::instruction_visitor::visitors::identity_interactions_visitor::IdentityInteractionsVisitor;
+use crate::models::node_id::TypedNodeId;
 use crate::sbor::indexed_manifest_value::*;
 
 pub fn hash(instructions: &[InstructionV1]) -> Result<Hash, EncodeError> {
@@ -52,21 +53,19 @@ pub fn statically_validate(
     Ok(())
 }
 
-pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<NodeId>, HashSet<u32>) {
+pub fn extract_addresses(instructions: &[InstructionV1]) -> (HashSet<TypedNodeId>, HashSet<u32>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
+    let static_addresses = indexed_manifest_value
+        .static_addresses()
+        .into_iter()
+        .collect();
+    let named_addresses = indexed_manifest_value
+        .named_addresses()
+        .iter()
+        .cloned()
+        .collect();
 
-    (
-        indexed_manifest_value
-            .static_addresses()
-            .iter()
-            .cloned()
-            .collect(),
-        indexed_manifest_value
-            .named_addresses()
-            .iter()
-            .cloned()
-            .collect(),
-    )
+    (static_addresses, named_addresses)
 }
 
 pub fn identities_requiring_auth(instructions: &[InstructionV1]) -> HashSet<ComponentAddress> {

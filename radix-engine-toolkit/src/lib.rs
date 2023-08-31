@@ -15,13 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-/// cbindgen:ignore
+#[cfg(not(any(feature = "moka", feature = "lru")))]
+compile_error!("Either feature `moka` or `lru` must be enabled for this crate.");
+#[cfg(all(feature = "moka", feature = "lru"))]
+compile_error!("Feature `moka` and `lru` can't be enabled at the same time.");
+
 pub mod error;
 pub mod functions;
 pub mod memory;
-/// cbindgen:ignore
 pub mod models;
-/// cbindgen:ignore
 pub mod prelude;
-/// cbindgen:ignore
 pub mod utils;

@@ -15,19 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use transaction::{
-    prelude::{DynamicGlobalAddress, InstructionV1},
-    validation::ManifestIdAllocator,
-};
+use transaction::prelude::*;
+use transaction::validation::*;
 
 use scrypto::blueprints::account::*;
-use scrypto::prelude::*;
 
-use crate::{
-    instruction_visitor::core::{error::InstructionVisitorError, traits::InstructionVisitor},
-    sbor::indexed_manifest_value::IndexedManifestValue,
-    utils::{self, is_account, to_manifest_type},
-};
+use crate::instruction_visitor::core::error::*;
+use crate::instruction_visitor::core::traits::*;
+use crate::sbor::indexed_manifest_value::*;
+use crate::utils::*;
 
 #[derive(Default, Clone, Debug)]
 pub struct TransferTransactionTypeVisitor {
@@ -57,8 +53,12 @@ impl TransferTransactionTypeVisitor {
     )> {
         if self.is_illegal_state {
             None
-        } else if self.account_withdrawn_from.is_some() && !self.account_deposits.is_empty() {
-            Some((self.account_withdrawn_from.unwrap(), self.account_deposits))
+        } else if let Some(account_withdrawn_from) = self.account_withdrawn_from {
+            if !self.account_deposits.is_empty() {
+                Some((account_withdrawn_from, self.account_deposits))
+            } else {
+                None
+            }
         } else {
             None
         }
@@ -86,6 +86,8 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                     return Ok(());
                 }
 
+                // This never panics. We have already checked that this is an account when we
+                // called `is_account`.
                 let component_address = ComponentAddress::new_or_panic(address.as_node_id().0);
 
                 match method_name.as_str() {
@@ -97,26 +99,12 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                         .and_then(|value| {
                             self.handle_account_withdraw_non_fungibles(component_address, value)
                         })?,
-                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT => to_manifest_type(args)
-                        .ok_or(TransferTransactionTypeError::InvalidArgs)
-                        .and_then(|value| {
-                            self.handle_account_lock_fee_and_withdraw(component_address, value)
-                        })?,
-                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT => to_manifest_type(args)
-                        .ok_or(TransferTransactionTypeError::InvalidArgs)
-                        .and_then(|value| {
-                            self.handle_account_lock_fee_and_withdraw_non_fungibles(
-                                component_address,
-                                value,
-                            )
-                        })?,
                     ACCOUNT_DEPOSIT_IDENT
                     | ACCOUNT_DEPOSIT_BATCH_IDENT
                     | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
                     | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                         self.handle_validation_and_account_deposits(component_address, args)?
                     }
-                    ACCOUNT_LOCK_FEE_IDENT => {}
                     _ => {
                         self.is_illegal_state = true;
                     }
@@ -170,11 +158,13 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             InstructionV1::CallMethod { .. }
             | InstructionV1::PopFromAuthZone
             | InstructionV1::PushToAuthZone { .. }
-            | InstructionV1::ClearAuthZone
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::ClearSignatureProofs
+            | InstructionV1::DropNamedProofs
+            | InstructionV1::DropAuthZoneProofs
+            | InstructionV1::DropAuthZoneRegularProofs
+            | InstructionV1::DropAuthZoneSignatureProofs
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }
@@ -184,7 +174,7 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
             | InstructionV1::CallFunction { .. }
             | InstructionV1::CallRoyaltyMethod { .. }
             | InstructionV1::CallMetadataMethod { .. }
-            | InstructionV1::CallAccessRulesMethod { .. }
+            | InstructionV1::CallRoleAssignmentMethod { .. }
             | InstructionV1::CallDirectVaultMethod { .. }
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => {
@@ -240,42 +230,6 @@ impl TransferTransactionTypeVisitor {
         Ok(())
     }
 
-    fn handle_account_lock_fee_and_withdraw(
-        &mut self,
-        component_address: ComponentAddress,
-        AccountLockFeeAndWithdrawInput {
-            resource_address,
-            amount,
-            ..
-        }: AccountLockFeeAndWithdrawInput,
-    ) -> Result<(), TransferTransactionTypeError> {
-        self.handle_account_withdraw(
-            component_address,
-            AccountWithdrawInput {
-                resource_address,
-                amount,
-            },
-        )
-    }
-
-    fn handle_account_lock_fee_and_withdraw_non_fungibles(
-        &mut self,
-        component_address: ComponentAddress,
-        AccountLockFeeAndWithdrawNonFungiblesInput {
-            resource_address,
-            ids,
-            ..
-        }: AccountLockFeeAndWithdrawNonFungiblesInput,
-    ) -> Result<(), TransferTransactionTypeError> {
-        self.handle_account_withdraw_non_fungibles(
-            component_address,
-            AccountWithdrawNonFungiblesInput {
-                resource_address,
-                ids,
-            },
-        )
-    }
-
     fn handle_validation_and_account_deposits(
         &mut self,
         component_address: ComponentAddress,
@@ -285,8 +239,10 @@ impl TransferTransactionTypeVisitor {
         // extract all buckets and expressions and deal with them.
 
         let matches_deposit_schema = [
-            utils::validate_manifest_value_against_schema::<AccountDepositInput>(args),
-            utils::validate_manifest_value_against_schema::<AccountDepositBatchInput>(args),
+            validate_manifest_value_against_schema::<AccountDepositInput>(args),
+            validate_manifest_value_against_schema::<AccountDepositBatchInput>(args),
+            validate_manifest_value_against_schema::<AccountTryDepositOrAbortInput>(args),
+            validate_manifest_value_against_schema::<AccountTryDepositBatchOrAbortInput>(args),
         ]
         .into_iter()
         .any(|result| result.is_ok());
@@ -371,7 +327,9 @@ impl Worktop {
         let resources = match worktop_contents {
             Resources::Amount(worktop_amount) => {
                 if *worktop_amount >= amount {
-                    *worktop_amount -= amount;
+                    *worktop_amount = worktop_amount
+                        .safe_sub(amount)
+                        .ok_or(WorktopError::TakeError)?;
                     Ok(Resources::Amount(amount))
                 } else {
                     Err(WorktopError::TakeError)
@@ -456,7 +414,7 @@ impl Resources {
     fn checked_add(&self, other: &Self) -> Option<Self> {
         match (self, other) {
             (Self::Amount(amount1), Self::Amount(amount2)) => {
-                Some(Self::Amount(*amount1 + *amount2))
+                amount1.safe_add(*amount2).map(Self::Amount)
             }
             (Self::Ids(ids1), Self::Ids(ids2)) => Some(Self::Ids({
                 let mut ids = ids1.clone();

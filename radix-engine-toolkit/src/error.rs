@@ -51,6 +51,8 @@ pub enum InvocationHandlingError {
     InstructionVisitorError(String),
     ManifestSborError(String),
     ScryptoSborError(String),
+    InvalidAddress(String),
+    ExecutionModuleError(String),
 }
 
 impl From<InvocationHandlingError> for Error {

@@ -15,13 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::system::DynSubstate;
-use radix_engine::transaction::TransactionReceipt;
+use radix_engine::system::system_substates::{KeyValueEntrySubstate, KeyValueEntrySubstateV1};
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
-    to_typed_substate_key, to_typed_substate_value, TypedMainModuleSubstateKey,
-    TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey, TypedMetadataModuleSubstateValue,
-    TypedSubstateKey, TypedSubstateValue,
+    to_typed_substate_key, to_typed_substate_value, NonFungibleResourceManagerDataEntryPayload,
+    NonFungibleResourceManagerDataEntrySubstate, NonFungibleResourceManagerDataKeyPayload,
+    NonFungibleResourceManagerTypedSubstateKey, NonFungibleResourceManagerTypedSubstateValue,
+    TypedMainModuleSubstateKey, TypedMainModuleSubstateValue, TypedMetadataModuleSubstateKey,
+    TypedMetadataModuleSubstateValue, TypedSubstateKey, TypedSubstateValue, VersionedMetadataEntry,
 };
 use radix_engine_store_interface::interface::DatabaseUpdate;
 use regex::Regex;
@@ -29,6 +30,9 @@ use sbor::{generate_full_schema_from_single_type, validate_payload_against_schem
 use scrypto::{api::node_modules::metadata::MetadataValue, prelude::*};
 use transaction::model::IntentV1;
 use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
+
+use crate::functions::execution::ExecutionAnalysisTransactionReceipt;
+use crate::models::node_id::{InvalidEntityTypeIdError, TypedNodeId};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -167,18 +171,20 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
         .and_then(|encoded| manifest_decode(&encoded).ok())
 }
 
+// TODO: This should return a `bool`.
 #[allow(clippy::result_unit_err)]
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
-    let (local_type_index, schema) =
+    let (local_type_index, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
-    let encoded_payload = manifest_encode(&value).unwrap();
+    let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
         &schema,
         local_type_index,
         &(),
+        SCRYPTO_SBOR_V1_MAX_DEPTH,
     )
     .map_err(|_| ())
 }
@@ -191,10 +197,21 @@ pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
                 address.as_node_id().entity_type(),
                 Some(
                     EntityType::GlobalAccount
-                        | EntityType::InternalAccount
                         | EntityType::GlobalVirtualSecp256k1Account
                         | EntityType::GlobalVirtualEd25519Account
                 )
+            )
+        }
+    }
+}
+
+pub fn is_access_controller<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
+    match node_id.clone().into() {
+        DynamicGlobalAddress::Named(_) => false,
+        DynamicGlobalAddress::Static(address) => {
+            matches!(
+                address.as_node_id().entity_type(),
+                Some(EntityType::GlobalAccessController)
             )
         }
     }
@@ -217,36 +234,23 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
 }
 
 pub fn metadata_of_newly_created_entities(
-    receipt: &TransactionReceipt,
-) -> Option<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>> {
-    if !receipt.is_commit_success() {
-        return None;
-    }
-
+    receipt: &ExecutionAnalysisTransactionReceipt,
+) -> Result<HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>, InvalidEntityTypeIdError>
+{
+    let addresses = addresses_of_newly_created_entities(receipt)?;
     let mut map = HashMap::<GlobalAddress, HashMap<String, Option<MetadataValue>>>::new();
-    let commit_success = receipt.expect_commit_success();
-    for global_address in commit_success
-        .new_component_addresses()
-        .iter()
-        .map(|address| address.into_node_id())
-        .chain(
-            commit_success
-                .new_package_addresses()
-                .iter()
-                .map(|address| address.into_node_id()),
-        )
-        .chain(
-            commit_success
-                .new_resource_addresses()
-                .iter()
-                .map(|address| address.into_node_id()),
-        )
-        .map(|node_id| GlobalAddress::new_or_panic(node_id.0))
-    {
-        if let Some(key_update_map) = commit_success
+    for typed_node_id in addresses.into_iter() {
+        let Ok(global_address) = GlobalAddress::try_from(typed_node_id) else {
+            // Ignore all addresses that are not of global entities.
+            continue;
+        };
+
+        let entry = map.entry(global_address).or_default();
+        if let Some(key_update_map) = receipt
+            .expect_commit_success()
             .state_updates
             .system_updates
-            .get(&(*global_address.as_node_id(), METADATA_KV_STORE_PARTITION))
+            .get(&(*global_address.as_node_id(), METADATA_BASE_PARTITION))
         {
             for (substate_key, database_update) in key_update_map.iter() {
                 if let DatabaseUpdate::Set(data) = database_update {
@@ -255,7 +259,7 @@ pub fn metadata_of_newly_created_entities(
                         TypedSubstateValue::MetadataModule(value),
                     )) = to_typed_substate_key(
                         global_address.as_node_id().entity_type().unwrap(),
-                        METADATA_KV_STORE_PARTITION,
+                        METADATA_BASE_PARTITION,
                         substate_key,
                     )
                     .and_then(|typed_substate_key| {
@@ -264,12 +268,19 @@ pub fn metadata_of_newly_created_entities(
                     }) {
                         let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
                         let value = match value {
-                            TypedMetadataModuleSubstateValue::MetadataEntry(DynSubstate {
-                                value,
-                                ..
-                            }) => value,
+                            TypedMetadataModuleSubstateValue::MetadataEntry(
+                                KeyValueEntrySubstate::V1(KeyValueEntrySubstateV1 {
+                                    value, ..
+                                }),
+                            ) => value,
                         };
-                        map.entry(global_address).or_default().insert(key, value);
+                        entry.insert(
+                            key,
+                            value.map(|metadata_entry| {
+                                let VersionedMetadataEntry::V1(metadata) = metadata_entry.content;
+                                metadata
+                            }),
+                        );
                     }
                 } else {
                     continue;
@@ -278,21 +289,40 @@ pub fn metadata_of_newly_created_entities(
         }
     }
 
-    Some(map)
+    Ok(map)
+}
+
+pub fn addresses_of_newly_created_entities(
+    receipt: &ExecutionAnalysisTransactionReceipt,
+) -> Result<HashSet<TypedNodeId>, InvalidEntityTypeIdError> {
+    let commit_result = receipt.commit_result();
+    commit_result
+        .new_component_addresses()
+        .iter()
+        .map(|address| address.into_node_id())
+        .chain(
+            commit_result
+                .new_package_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .chain(
+            commit_result
+                .new_resource_addresses()
+                .iter()
+                .map(|address| address.into_node_id()),
+        )
+        .map(TypedNodeId::new)
+        .collect::<Result<HashSet<_>, _>>()
 }
 
 pub fn data_of_newly_minted_non_fungibles(
-    receipt: &TransactionReceipt,
-) -> Option<HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>> {
-    if !receipt.is_commit_success() {
-        return None;
-    }
-
+    receipt: &ExecutionAnalysisTransactionReceipt,
+) -> HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>> {
     let mut map = HashMap::<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>::new();
-    let commit_success = receipt.expect_commit_success();
-
+    let commit_result = receipt.expect_commit_success();
     for ((node_id, partition_number), database_update_map) in
-        commit_success.state_updates.system_updates.iter()
+        commit_result.state_updates.system_updates.iter()
     {
         // Only care about non-fungible resource manager nodes, ignore everything else
         if !node_id.entity_type().map_or(false, |entity_type| {
@@ -305,13 +335,28 @@ pub fn data_of_newly_minted_non_fungibles(
             if let DatabaseUpdate::Set(data) = database_update {
                 if let Ok((
                     TypedSubstateKey::MainModule(
-                        TypedMainModuleSubstateKey::NonFungibleResourceData(non_fungible_local_id),
+                        TypedMainModuleSubstateKey::NonFungibleResourceManager(
+                            NonFungibleResourceManagerTypedSubstateKey::DataKeyValueEntry(
+                                NonFungibleResourceManagerDataKeyPayload {
+                                    content: non_fungible_local_id,
+                                },
+                            ),
+                        ),
                     ),
                     TypedSubstateValue::MainModule(
-                        TypedMainModuleSubstateValue::NonFungibleResourceData(DynSubstate {
-                            value: non_fungible_data,
-                            ..
-                        }),
+                        TypedMainModuleSubstateValue::NonFungibleResourceManager(
+                            NonFungibleResourceManagerTypedSubstateValue::DataKeyValue(
+                                NonFungibleResourceManagerDataEntrySubstate::V1(
+                                    KeyValueEntrySubstateV1 {
+                                        value:
+                                            Some(NonFungibleResourceManagerDataEntryPayload {
+                                                content: non_fungible_data,
+                                            }),
+                                        ..
+                                    },
+                                ),
+                            ),
+                        ),
                     ),
                 )) = to_typed_substate_key(
                     node_id.entity_type().unwrap(),
@@ -325,7 +370,7 @@ pub fn data_of_newly_minted_non_fungibles(
                     let resource_address = ResourceAddress::new_or_panic(node_id.0);
                     let non_fungible_local_id = non_fungible_local_id;
                     let non_fungible_data = scrypto_decode::<ScryptoValue>(
-                        &scrypto_encode(&non_fungible_data.unwrap()).unwrap(),
+                        &scrypto_encode(&non_fungible_data).unwrap(),
                     )
                     .unwrap();
 
@@ -338,6 +383,5 @@ pub fn data_of_newly_minted_non_fungibles(
             }
         }
     }
-
-    Some(map)
+    map
 }

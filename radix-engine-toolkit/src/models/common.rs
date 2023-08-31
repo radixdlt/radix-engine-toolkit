@@ -135,5 +135,39 @@ pub type SerializableI64 = AsStr<i64>;
 pub type SerializableI128 = AsStr<i128>;
 pub type SerializableDecimal = AsStr<Decimal>;
 pub type SerializablePreciseDecimal = AsStr<PreciseDecimal>;
-
 pub type SerializableBytes = AsHex<Vec<u8>>;
+
+/// A private module containing type definitions to be exposed through typeshare
+#[allow(dead_code)]
+mod __private {
+    #[typeshare::typeshare]
+    pub type SerializableHash = String;
+    #[typeshare::typeshare]
+    pub type SerializableNonFungibleLocalId = String;
+    #[typeshare::typeshare]
+    pub type SerializableU8 = String;
+    #[typeshare::typeshare]
+    pub type SerializableU16 = String;
+    #[typeshare::typeshare]
+    pub type SerializableU32 = String;
+    #[typeshare::typeshare]
+    pub type SerializableU64 = String;
+    #[typeshare::typeshare]
+    pub type SerializableU128 = String;
+    #[typeshare::typeshare]
+    pub type SerializableI8 = String;
+    #[typeshare::typeshare]
+    pub type SerializableI16 = String;
+    #[typeshare::typeshare]
+    pub type SerializableI32 = String;
+    #[typeshare::typeshare]
+    pub type SerializableI64 = String;
+    #[typeshare::typeshare]
+    pub type SerializableI128 = String;
+    #[typeshare::typeshare]
+    pub type SerializableDecimal = String;
+    #[typeshare::typeshare]
+    pub type SerializablePreciseDecimal = String;
+    #[typeshare::typeshare]
+    pub type SerializableBytes = String;
+}

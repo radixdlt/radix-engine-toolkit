@@ -134,7 +134,7 @@ impl MetadataValue {
                 value: Arc::new(Decimal(value)),
             },
             NativeMetadataValue::GlobalAddress(value) => Self::GlobalAddressValue {
-                value: Arc::new(Address(value.into(), network_id)),
+                value: Arc::new(Address::from_typed_node_id(value, network_id)),
             },
             NativeMetadataValue::PublicKey(value) => Self::PublicKeyValue {
                 value: value.into(),
@@ -172,7 +172,7 @@ impl MetadataValue {
             NativeMetadataValue::GlobalAddressArray(value) => Self::GlobalAddressArrayValue {
                 value: value
                     .into_iter()
-                    .map(|value| Arc::new(Address(value.into(), network_id)))
+                    .map(|value| Arc::new(Address::from_typed_node_id(value, network_id)))
                     .collect(),
             },
             NativeMetadataValue::PublicKeyArray(value) => Self::PublicKeyArrayValue {
@@ -221,9 +221,9 @@ impl MetadataValue {
             Self::I64Value { value } => NativeMetadataValue::I64(*value),
 
             Self::DecimalValue { value } => NativeMetadataValue::Decimal(value.0),
-            Self::GlobalAddressValue { value } => NativeMetadataValue::GlobalAddress(
-                NativeGlobalAddress::try_from(value.0.as_bytes())?,
-            ),
+            Self::GlobalAddressValue { value } => {
+                NativeMetadataValue::GlobalAddress(NativeGlobalAddress::try_from(value.as_bytes())?)
+            }
             Self::PublicKeyValue { value } => {
                 NativeMetadataValue::PublicKey(value.clone().try_into()?)
             }
@@ -239,8 +239,10 @@ impl MetadataValue {
             Self::InstantValue { value } => {
                 NativeMetadataValue::Instant(NativeInstant::new(*value))
             }
-            Self::UrlValue { value } => NativeMetadataValue::Url(NativeUrl::of(value)),
-            Self::OriginValue { value } => NativeMetadataValue::Origin(NativeOrigin::of(value)),
+            Self::UrlValue { value } => NativeMetadataValue::Url(NativeUncheckedUrl::of(value)),
+            Self::OriginValue { value } => {
+                NativeMetadataValue::Origin(NativeUncheckedOrigin::of(value))
+            }
 
             Self::StringArrayValue { value } => NativeMetadataValue::StringArray(value.clone()),
             Self::BoolArrayValue { value } => NativeMetadataValue::BoolArray(value.clone()),
@@ -282,7 +284,7 @@ impl MetadataValue {
                 value
                     .iter()
                     .map(|value| {
-                        NativeGlobalAddress::try_from(value.0.as_bytes()).map_err(Into::into)
+                        NativeGlobalAddress::try_from(value.as_bytes()).map_err(Into::into)
                     })
                     .collect::<Result<_>>()?,
             ),
@@ -293,11 +295,11 @@ impl MetadataValue {
                     .collect(),
             ),
             Self::UrlArrayValue { value } => {
-                NativeMetadataValue::UrlArray(value.iter().map(NativeUrl::of).collect())
+                NativeMetadataValue::UrlArray(value.iter().map(NativeUncheckedUrl::of).collect())
             }
-            Self::OriginArrayValue { value } => {
-                NativeMetadataValue::OriginArray(value.iter().map(NativeOrigin::of).collect())
-            }
+            Self::OriginArrayValue { value } => NativeMetadataValue::OriginArray(
+                value.iter().map(NativeUncheckedOrigin::of).collect(),
+            ),
         };
         Ok(value)
     }

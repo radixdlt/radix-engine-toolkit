@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod address;
 pub mod derive;
 pub mod execution;
 pub mod handler;

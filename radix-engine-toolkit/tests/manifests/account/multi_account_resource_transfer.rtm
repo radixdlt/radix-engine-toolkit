@@ -31,7 +31,8 @@ TAKE_FROM_WORKTOP
 CALL_METHOD
     Address("account_sim1c8mulhl5yrk6hh4jsyldps5sdrp08r5v9wusupvzxgqvhlp4c4nwjz")
     "try_deposit_or_abort"
-    Bucket("account_a_bucket");
+    Bucket("account_a_bucket")
+    None;
 
 # Taking 130 XRD from the worktop and depositing them into Account B
 TAKE_FROM_WORKTOP
@@ -41,7 +42,8 @@ TAKE_FROM_WORKTOP
 CALL_METHOD
     Address("account_sim1c8s2hass5g62ckwpv78y8ykdqljtetv4ve6etcz64gveykxznj36tr")
     "try_deposit_or_abort"
-    Bucket("account_b_bucket");
+    Bucket("account_b_bucket")
+    None;
 
 # Taking 50 XRD from the worktop and depositing them into Account C
 TAKE_FROM_WORKTOP
@@ -51,4 +53,5 @@ TAKE_FROM_WORKTOP
 CALL_METHOD
     Address("account_sim1c8ct6jdcwqrg3gzskyxuy0z933fe55fyjz6p56730r95ulzwl3ppva")
     "try_deposit_or_abort"
-    Bucket("account_c_bucket");
+    Bucket("account_c_bucket")
+    None;

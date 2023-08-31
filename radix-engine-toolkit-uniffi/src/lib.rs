@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#![allow(unused_imports)]
 #![feature(get_mut_unchecked)]
 
+pub mod blueprints;
 pub mod build;
 pub mod builder;
 pub mod common;
@@ -26,6 +28,7 @@ pub mod error;
 pub mod events;
 pub mod manifest;
 pub mod sbor;
+pub mod traits;
 pub mod transaction;
 pub mod utils;
 
@@ -35,6 +38,7 @@ pub(crate) mod internal_prelude;
 // UniFFI toolkit.
 pub mod prelude {
     /* Common */
+    pub use crate::common::access_rules::*;
     pub use crate::common::address::*;
     pub use crate::common::decimal::*;
     pub use crate::common::entity_type::*;
@@ -43,7 +47,19 @@ pub mod prelude {
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
 
+    /* Traits */
+    pub use crate::traits::*;
+
+    /* Blueprints */
+    pub use crate::blueprints::metadata::*;
+    pub use crate::blueprints::resource_manager::*;
+
     /* Builders */
+    pub use crate::builder::manifest_builder::builder::*;
+    pub use crate::builder::manifest_builder::name_record::*;
+    pub use crate::builder::manifest_builder::types::*;
+    pub use crate::builder::manifest_builder::utils::*;
+    pub use crate::builder::manifest_builder::value::*;
     pub use crate::builder::transaction_builder::*;
 
     /* Errors */
@@ -99,6 +115,7 @@ pub mod prelude {
 
     /* Often needed */
     pub(crate) use std::collections::{BTreeMap, HashMap};
+    pub(crate) use std::str::FromStr;
     pub(crate) use std::sync::Arc;
     pub(crate) use thiserror::Error as ThisError;
     pub(crate) use uniffi::{Enum, Error, Object, Record};

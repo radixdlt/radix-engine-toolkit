@@ -15,8 +15,8 @@ CALL_METADATA_METHOD
     "get"
     "HelloWorld";
 
-CALL_ACCESS_RULES_METHOD
+CALL_ROLE_ASSIGNMENT_METHOD
     Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
-    "get_role"
+    "get"
     Enum<0u8>()
     "hello";

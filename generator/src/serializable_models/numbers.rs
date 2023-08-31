@@ -25,11 +25,7 @@ macro_rules! impl_example {
     ($type: ident, $underlying_type: ident) => {
         impl<'d> super::traits::HasExamples<'d> for $type {
             fn examples() -> Vec<Self> {
-                vec![
-                    $underlying_type::MIN.into(),
-                    (($underlying_type::MIN + $underlying_type::MAX) / 2).into(),
-                    $underlying_type::MAX.into(),
-                ]
+                vec![$underlying_type::MIN.into(), $underlying_type::MAX.into()]
             }
         }
     };

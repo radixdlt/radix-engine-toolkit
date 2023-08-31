@@ -47,8 +47,8 @@ impl DependencyInformation {
         let version = env!("SCRYPTO_DEPENDENCY");
 
         let mut splitted = version.split('=');
-        let identifier = splitted.next().unwrap();
-        let value = splitted.next().unwrap();
+        let identifier = splitted.next().expect("Should never fail");
+        let value = splitted.next().expect("Should never fail");
 
         match identifier {
             "version" => Self::Version(value.into()),

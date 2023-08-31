@@ -21,18 +21,18 @@ use transaction::validation::{MessageValidationConfig, ValidationConfig};
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableValidationConfig {
     pub network_id: SerializableU8,
     pub max_notarized_payload_size: SerializableU64,
-    pub min_cost_unit_limit: SerializableU32,
-    pub max_cost_unit_limit: SerializableU32,
     pub min_tip_percentage: SerializableU16,
     pub max_tip_percentage: SerializableU16,
     pub max_epoch_range: SerializableU64,
     pub message_validation: SerializableMessageValidationConfig,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableMessageValidationConfig {
     pub max_plaintext_message_length: SerializableU64,
@@ -46,8 +46,6 @@ impl From<ValidationConfig> for SerializableValidationConfig {
         Self {
             network_id: value.network_id.into(),
             max_notarized_payload_size: (value.max_notarized_payload_size as u64).into(),
-            min_cost_unit_limit: value.min_cost_unit_limit.into(),
-            max_cost_unit_limit: value.max_cost_unit_limit.into(),
             min_tip_percentage: value.min_tip_percentage.into(),
             max_tip_percentage: value.max_tip_percentage.into(),
             max_epoch_range: value.max_epoch_range.into(),
@@ -61,8 +59,6 @@ impl From<SerializableValidationConfig> for ValidationConfig {
         Self {
             network_id: *value.network_id,
             max_notarized_payload_size: *value.max_notarized_payload_size as usize,
-            min_cost_unit_limit: *value.min_cost_unit_limit,
-            max_cost_unit_limit: *value.max_cost_unit_limit,
             min_tip_percentage: *value.min_tip_percentage,
             max_tip_percentage: *value.max_tip_percentage,
             max_epoch_range: *value.max_epoch_range,

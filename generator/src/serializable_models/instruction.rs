@@ -21,7 +21,6 @@ use radix_engine_toolkit::prelude::*;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
-use transaction::validation::*;
 
 impl<'f> HasExamples<'f> for SerializableInstruction {
     fn examples() -> Vec<Self> {
@@ -55,12 +54,7 @@ impl ExamplesBuilder {
             instructions
                 .into_iter()
                 .map(|instruction| {
-                    SerializableInstruction::from_instruction(
-                        &instruction,
-                        0xf2,
-                        &mut ManifestIdAllocator::new(),
-                    )
-                    .unwrap()
+                    SerializableInstruction::from_instruction(&instruction, 0xf2).unwrap()
                 })
                 .collect(),
         )

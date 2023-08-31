@@ -1,7 +1,7 @@
 [package]
 name = "uniffi-bindgen"
-version = "0.11.0"
+version = "0.12.0-rcnetv3.1"
 edition = "2021"
 
 [dependencies]
-uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "fe0d47ab23267415d118e5318feb282cc99ed5d0", features = ["cli"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "7b18fa787336aa738f205a44f7b2df728e83a097", features = ["cli"] }

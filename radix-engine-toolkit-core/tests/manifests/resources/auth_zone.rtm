@@ -12,7 +12,7 @@ CREATE_PROOF_FROM_BUCKET_OF_ALL Bucket("some_xrd") Proof("proof1c");
 CLONE_PROOF Proof("proof1c") Proof("proof1d");
 DROP_PROOF Proof("proof1d");
 DROP_PROOF Proof("proof1c");
-CLEAR_AUTH_ZONE;
+DROP_AUTH_ZONE_PROOFS;
 
 # Create a proof from account and drop it
 CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") "create_proof_of_amount" Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Decimal("5.0");
@@ -24,11 +24,20 @@ CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cv
 CREATE_PROOF_FROM_AUTH_ZONE_OF_AMOUNT Address("resource_sim1thvwu8dh6lk4y9mntemkvj25wllq8adq42skzufp4m8wxxuemugnez") Decimal("1") Proof("proof4");
 CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha") Array<NonFungibleLocalId>(NonFungibleLocalId("#123#")) Proof("proof5");
 CREATE_PROOF_FROM_AUTH_ZONE_OF_ALL Address("resource_sim1ngktvyeenvvqetnqwysevcx5fyvl6hqe36y3rkhdfdn6uzvt5366ha") Proof("proof6");
-CLEAR_AUTH_ZONE;
 
-# Drop all virtual proofs in the auth zone.
-CLEAR_SIGNATURE_PROOFS;
+# Drop all signature proofs in the auth zone.
+DROP_AUTH_ZONE_SIGNATURE_PROOFS;
 
-# Drop all proofs, and move resources to account
+# Drop all regular proofs in the auth zone.
+DROP_AUTH_ZONE_REGULAR_PROOFS;
+
+# Drop all proofs in the auth zone.
+DROP_AUTH_ZONE_PROOFS;
+
+# Drop all proofs
+DROP_NAMED_PROOFS;
+
+# Drop all proofs
 DROP_ALL_PROOFS;
+
 CALL_METHOD Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q") "deposit_batch" Expression("ENTIRE_WORKTOP");

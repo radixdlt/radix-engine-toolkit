@@ -1,18 +1,18 @@
 [package]
 name = "radix-engine-toolkit"
-version = "0.11.0"
+version = "0.12.0-rcnetv3.1"
 edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", default-features= false, features = ["std", "lru"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v2-phase-2-f9a4ef37ff", features = ["serde"] }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-da3dbedc", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-da3dbedc", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-da3dbedc" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-da3dbedc", default-features= false, features = ["std"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3-da3dbedc", features = ["serde"] }
 
 # Core Radix Engine Toolkit
-radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false }
 
 # Serde for JSON serialization
 serde = { version = "1.0.163" }
@@ -31,13 +31,24 @@ paste = { version = "1.0.12" }
 walkdir = "2.3.3"
 indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 
+# 1password's library for codesharing.
+typeshare = "1.0.1"
+
 [dev-dependencies]
 walkdir = "2.3.3"
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+default = ["lru"]
+moka = ["radix-engine/moka", "radix-engine-toolkit-core/moka"]
+lru = ["radix-engine/lru", "radix-engine-toolkit-core/lru"]
+
 [profile.release]
 incremental = false
+strip = true
 panic = 'abort'
 codegen-units = 1
+lto = true
+opt-level = 'z'

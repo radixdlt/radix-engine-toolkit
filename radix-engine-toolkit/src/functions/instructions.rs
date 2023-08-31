@@ -18,6 +18,7 @@
 use crate::prelude::*;
 
 use radix_engine_common::types::EntityType;
+use radix_engine_toolkit_core::models::node_id::TypedNodeId;
 use sbor::prelude::{HashMap, HashSet};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -26,11 +27,13 @@ use serde::{Deserialize, Serialize};
 // Instructions Hash
 //===================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsHashInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type InstructionsHashOutput = SerializableHash;
 
 pub struct InstructionsHash;
@@ -65,12 +68,14 @@ export_jni_function!(InstructionsHash as instructionsHash);
 // Instructions Convert
 //======================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsConvertInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type InstructionsConvertOutput = SerializableInstructions;
 
 pub struct InstructionsConvert;
@@ -97,11 +102,13 @@ export_jni_function!(InstructionsConvert as instructionsConvert);
 // Instructions Compile
 //======================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsCompileInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type InstructionsCompileOutput = SerializableBytes;
 
 pub struct InstructionsCompile;
@@ -133,12 +140,14 @@ export_jni_function!(InstructionsCompile as instructionsCompile);
 // Instructions Decompile
 //========================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsDecompileInput {
     pub compiled: SerializableBytes,
     pub network_id: SerializableU8,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type InstructionsDecompileOutput = SerializableInstructions;
 
 pub struct InstructionsDecompile;
@@ -174,12 +183,14 @@ export_jni_function!(InstructionsDecompile as instructionsDecompile);
 // Instructions Statically Validate
 //==================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsStaticallyValidateInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum InstructionsStaticallyValidateOutput {
@@ -215,15 +226,18 @@ export_jni_function!(InstructionsStaticallyValidate as instructionsStaticallyVal
 // Instructions Extract Addresses
 //================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsExtractAddressesInput {
     pub instructions: SerializableInstructions,
     pub network_id: SerializableU8,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct InstructionsExtractAddressesOutput {
     pub addresses: HashMap<SerializableEntityType, Vec<SerializableNodeId>>,
+    #[typeshare(serialized_as = "Vec<SerializableU32>")]
     pub named_addresses: HashSet<SerializableU32>,
 }
 
@@ -255,6 +269,7 @@ impl<'a> Function<'a> for InstructionsExtractAddresses {
 export_function!(InstructionsExtractAddresses as instructions_extract_addresses);
 export_jni_function!(InstructionsExtractAddresses as instructionsExtractAddresses);
 
+#[typeshare::typeshare]
 #[derive(
     Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, JsonSchema,
 )]
@@ -279,7 +294,6 @@ pub enum SerializableEntityType {
     GlobalNonFungibleResourceManager,
     InternalNonFungibleVault,
     InternalGenericComponent,
-    InternalAccount,
     InternalKeyValueStore,
 }
 
@@ -306,7 +320,6 @@ impl SerializableEntityType {
             Self::GlobalNonFungibleResourceManager,
             Self::InternalNonFungibleVault,
             Self::InternalGenericComponent,
-            Self::InternalAccount,
             Self::InternalKeyValueStore,
         ]
     }
@@ -335,7 +348,6 @@ impl From<EntityType> for SerializableEntityType {
             EntityType::GlobalNonFungibleResourceManager => Self::GlobalNonFungibleResourceManager,
             EntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             EntityType::InternalGenericComponent => Self::InternalGenericComponent,
-            EntityType::InternalAccount => Self::InternalAccount,
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }
     }
@@ -376,22 +388,21 @@ impl From<SerializableEntityType> for EntityType {
             }
             SerializableEntityType::InternalNonFungibleVault => Self::InternalNonFungibleVault,
             SerializableEntityType::InternalGenericComponent => Self::InternalGenericComponent,
-            SerializableEntityType::InternalAccount => Self::InternalAccount,
             SerializableEntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
         }
     }
 }
 
 pub(crate) fn transform_addresses_set_to_map(
-    addresses: HashSet<scrypto::prelude::NodeId>,
+    addresses: HashSet<TypedNodeId>,
     network_id: u8,
 ) -> HashMap<SerializableEntityType, Vec<SerializableNodeId>> {
     let mut addresses_map = HashMap::<SerializableEntityType, Vec<SerializableNodeId>>::new();
     for node_id in addresses.into_iter() {
         addresses_map
-            .entry(node_id.entity_type().unwrap().into())
+            .entry(node_id.entity_type().into())
             .or_default()
-            .push(SerializableNodeId::new(node_id, network_id))
+            .push(SerializableNodeId::new(*node_id.as_node_id(), network_id))
     }
     for entity_type in SerializableEntityType::all() {
         addresses_map.entry(entity_type).or_default();

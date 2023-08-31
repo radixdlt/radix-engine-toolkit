@@ -20,7 +20,10 @@ use schemars::JsonSchema;
 use scrypto::prelude::*;
 use serde::{Deserialize, Serialize};
 
+#[typeshare::typeshare]
 pub type UtilsKnownAddressesInput = SerializableU8;
+
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct UtilsKnownAddressesOutput {
     pub resource_addresses: ResourceAddresses,
@@ -66,7 +69,7 @@ impl<'f> Function<'f> for UtilsKnownAddress {
                 transaction_processor_package,
                 metadata_module_package,
                 royalty_module_package,
-                access_rules_module_package,
+                role_assignment_module_package,
                 genesis_helper_package,
                 faucet_package,
             ]
@@ -89,6 +92,7 @@ impl<'f> Function<'f> for UtilsKnownAddress {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ResourceAddresses {
     pub xrd: SerializableNodeId,
@@ -103,6 +107,7 @@ pub struct ResourceAddresses {
     pub identity_owner_badge: SerializableNodeId,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct PackageAddresses {
     pub package_package: SerializableNodeId,
@@ -115,11 +120,12 @@ pub struct PackageAddresses {
     pub transaction_processor_package: SerializableNodeId,
     pub metadata_module_package: SerializableNodeId,
     pub royalty_module_package: SerializableNodeId,
-    pub access_rules_module_package: SerializableNodeId,
+    pub role_assignment_module_package: SerializableNodeId,
     pub genesis_helper_package: SerializableNodeId,
     pub faucet_package: SerializableNodeId,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct ComponentAddresses {
     pub consensus_manager: SerializableNodeId,
@@ -139,3 +145,6 @@ macro_rules! construct_addresses {
     };
 }
 use construct_addresses;
+
+export_function!(UtilsKnownAddress as utils_known_addresses);
+export_jni_function!(UtilsKnownAddress as utilsKnownAddresses);

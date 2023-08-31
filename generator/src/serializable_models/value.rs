@@ -127,35 +127,27 @@ impl<'f> HasExamples<'f> for SerializableManifestValue {
             Self::Map {
                 key_value_kind: SerializableManifestValueKind::U8,
                 value_value_kind: SerializableManifestValueKind::String,
-                entries: vec![
-                    (
-                        Self::U8 { value: 0.into() },
-                        Self::String { value: "A".into() },
-                    ),
-                    (
-                        Self::U8 { value: 1.into() },
-                        Self::String { value: "B".into() },
-                    ),
-                ],
+                entries: vec![SerializableMapEntry {
+                    key: Self::U8 { value: 0.into() },
+                    value: Self::String { value: "A".into() },
+                }],
             },
             Self::Address {
-                value: SerializableManifestAddress::Static {
-                    value: SerializableNodeId::from_global_address(RADIX_TOKEN, 0xf2),
-                },
+                value: SerializableManifestAddress::Static(
+                    SerializableNodeId::from_global_address(XRD, 0xf2),
+                ),
             },
             Self::Address {
-                value: SerializableManifestAddress::Named {
-                    value: SerializableNamedAddress::new(0),
-                },
+                value: SerializableManifestAddress::Named(SerializableU32::from(0)),
             },
             Self::Bucket {
-                value: SerializableBucketId::new(0),
+                value: SerializableU32::from(0),
             },
             Self::Proof {
-                value: SerializableProofId::new(0),
+                value: SerializableU32::from(0),
             },
             Self::AddressReservation {
-                value: SerializableAddressReservation::new(0),
+                value: SerializableU32::from(0),
             },
             Self::Expression {
                 value: SerializableExpression::EntireAuthZone,

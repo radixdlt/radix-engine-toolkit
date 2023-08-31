@@ -22,7 +22,7 @@ pub enum ObjectModuleId {
     Main,
     Metadata,
     Royalty,
-    AccessRules,
+    RoleAssignment,
 }
 
 impl From<NativeObjectModuleId> for ObjectModuleId {
@@ -31,7 +31,7 @@ impl From<NativeObjectModuleId> for ObjectModuleId {
             NativeObjectModuleId::Main => Self::Main,
             NativeObjectModuleId::Metadata => Self::Metadata,
             NativeObjectModuleId::Royalty => Self::Royalty,
-            NativeObjectModuleId::AccessRules => Self::AccessRules,
+            NativeObjectModuleId::RoleAssignment => Self::RoleAssignment,
         }
     }
 }
@@ -42,7 +42,7 @@ impl From<ObjectModuleId> for NativeObjectModuleId {
             ObjectModuleId::Main => Self::Main,
             ObjectModuleId::Metadata => Self::Metadata,
             ObjectModuleId::Royalty => Self::Royalty,
-            ObjectModuleId::AccessRules => Self::AccessRules,
+            ObjectModuleId::RoleAssignment => Self::RoleAssignment,
         }
     }
 }

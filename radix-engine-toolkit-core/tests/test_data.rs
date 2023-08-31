@@ -31,8 +31,8 @@ pub fn notarized_transaction() -> NotarizedTransactionV1 {
     TransactionBuilder::new()
         .manifest(
             ManifestBuilder::new()
-                .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-                .try_deposit_batch_or_abort(account2)
+                .withdraw_from_account(account1, XRD, dec!("10"))
+                .try_deposit_entire_worktop_or_abort(account2, None)
                 .build(),
         )
         .header(TransactionHeaderV1 {

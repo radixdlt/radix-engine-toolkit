@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor::WellKnownTypeIndex;
+
 use crate::prelude::*;
 
 #[uniffi::export]
@@ -67,6 +69,13 @@ pub fn scrypto_sbor_decode_to_string_representation(
 }
 
 #[uniffi::export]
+pub fn scrypto_sbor_encode_string_representation(
+    representation: ScryptoSborString,
+) -> Result<Vec<u8>> {
+    core_scrypto_encode_string_representation(representation.into()).map_err(Into::into)
+}
+
+#[uniffi::export]
 pub fn manifest_sbor_decode_to_string_representation(
     bytes: Vec<u8>,
     representation: ManifestSborStringRepresentation,
@@ -112,6 +121,11 @@ pub struct Schema {
     pub schema: Vec<u8>,
 }
 
+#[derive(Clone, Debug, Enum)]
+pub enum ScryptoSborString {
+    ProgrammaticJson { value: String },
+}
+
 impl From<ManifestSborStringRepresentation> for CoreManifestSborStringRepresentation {
     fn from(value: ManifestSborStringRepresentation) -> Self {
         match value {
@@ -133,13 +147,18 @@ impl From<SerializationMode> for NativeSerializationMode {
 impl From<LocalTypeIndex> for NativeLocalTypeIndex {
     fn from(value: LocalTypeIndex) -> Self {
         match value {
-            LocalTypeIndex::WellKnown { value } => Self::WellKnown(value),
+            LocalTypeIndex::WellKnown { value } => Self::WellKnown(WellKnownTypeIndex::of(value)),
             LocalTypeIndex::SchemaLocalIndex { value } => Self::SchemaLocalIndex(value as usize),
         }
     }
 }
 
-impl TryFrom<Schema> for (NativeLocalTypeIndex, NativeScryptoSchema) {
+impl TryFrom<Schema>
+    for (
+        NativeLocalTypeIndex,
+        NativeSchema<NativeScryptoCustomSchema>,
+    )
+{
     type Error = RadixEngineToolkitError;
 
     fn try_from(
@@ -151,5 +170,15 @@ impl TryFrom<Schema> for (NativeLocalTypeIndex, NativeScryptoSchema) {
         let local_type_index = local_type_index.into();
         let schema = native_scrypto_decode(&schema)?;
         Ok((local_type_index, schema))
+    }
+}
+
+impl From<ScryptoSborString> for CoreScryptoStringRepresentation {
+    fn from(value: ScryptoSborString) -> Self {
+        match value {
+            ScryptoSborString::ProgrammaticJson { value } => {
+                CoreScryptoStringRepresentation::ProgrammaticJson(value)
+            }
+        }
     }
 }

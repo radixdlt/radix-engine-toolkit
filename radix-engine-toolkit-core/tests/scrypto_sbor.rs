@@ -19,6 +19,7 @@ use radix_engine_common::prelude::{
     scrypto_encode, AddressBech32Encoder, ScryptoCustomSchema, ScryptoValue,
 };
 use radix_engine_common::ScryptoSbor;
+use sbor::VersionedSchema;
 use sbor::{generate_full_schema_from_single_type, representations::SerializationMode};
 
 #[test]
@@ -53,7 +54,7 @@ fn scrypto_value_can_be_represented_as_a_string() {
     let value = MyStruct { value: true };
     let encoded_value = scrypto_encode(&value).unwrap();
 
-    let (local_type_index, schema) =
+    let (local_type_index, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>();
 
     let serialization_modes_params = [

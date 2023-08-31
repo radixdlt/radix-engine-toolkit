@@ -78,23 +78,22 @@ where
     let prefix = data.first();
     let length = data.len();
 
-    let node_id = match (prefix, length) {
-        (Some(0x01), 1) => Ok(scrypto::prelude::RADIX_TOKEN.into_node_id()),
+    match (prefix, length) {
+        (Some(0x01), 1) => Ok(scrypto::prelude::XRD),
         (Some(0x03), 27) => {
             let hash = scrypto::prelude::hash(&data);
 
-            let mut bytes = vec![EntityType::GlobalFungibleResourceManager as u8];
-            bytes.extend(hash.0[..29].iter());
+            let mut bytes = [0u8; 30];
+            bytes[0] = EntityType::GlobalFungibleResourceManager as u8;
+            bytes[1..].copy_from_slice(&hash.0[..29]);
 
-            Ok(NodeId(bytes.try_into().unwrap()))
+            Ok(ResourceAddress::new_or_panic(bytes))
         }
         _ => Err(DerivationError::InvalidOlympiaAddressLength {
             expected: 27,
             actual: length,
         }),
-    }?;
-
-    Ok(ResourceAddress::new_or_panic(node_id.0))
+    }
 }
 
 pub fn public_key_from_olympia_account_address<S>(
@@ -140,25 +139,26 @@ where
 
     // Check the length of the data to ensure that it's a public key. Length should be 1 + 33
     // where the added 1 byte is because of the 0x04 prefix that public keys have.
-    if data.len() != 34 {
-        Err(DerivationError::InvalidOlympiaAddressLength {
-            expected: 34,
-            actual: data.len(),
-        })
-    } else if *data.first().unwrap() != 0x04 {
-        Err(DerivationError::InvalidOlympiaAddressPrefix {
+    const EXPECTED_LENGTH: usize = 34;
+    match data.first() {
+        Some(0x04) => {
+            data.remove(0);
+            data.try_into().map(Secp256k1PublicKey).map_err(|data| {
+                DerivationError::InvalidOlympiaAddressLength {
+                    expected: EXPECTED_LENGTH,
+                    actual: data.len(),
+                }
+            })
+        }
+        Some(prefix) => Err(DerivationError::InvalidOlympiaAddressPrefix {
             expected: 0x04,
-            actual: *data.first().unwrap(),
-        })
-    } else {
-        data.remove(0);
-        Ok(())
-    }?;
-
-    let public_key =
-        Secp256k1PublicKey(data.try_into().expect("Impossible case. Length is known."));
-
-    Ok(public_key)
+            actual: *prefix,
+        }),
+        None => Err(DerivationError::InvalidOlympiaAddressLength {
+            expected: EXPECTED_LENGTH,
+            actual: data.len(),
+        }),
+    }
 }
 
 pub fn olympia_account_address_from_public_key(
@@ -175,7 +175,7 @@ pub fn olympia_account_address_from_public_key(
         public_key.to_base32(),
         bech32::Variant::Bech32,
     )
-    .unwrap()
+    .expect("Should not panic since all data is trusted.")
 }
 
 pub fn node_address_from_public_key(public_key: &Secp256k1PublicKey, network_id: u8) -> String {
@@ -184,7 +184,8 @@ pub fn node_address_from_public_key(public_key: &Secp256k1PublicKey, network_id:
         format!("node_{network_identifier}")
     };
 
-    bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m).unwrap()
+    bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m)
+        .expect("Should not panic since all data is trusted.")
 }
 
 pub enum OlympiaNetwork {

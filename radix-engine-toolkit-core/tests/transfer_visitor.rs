@@ -31,8 +31,8 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer() {
     let account2 = test_data::account2();
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
@@ -51,7 +51,7 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer() {
         deposits,
         hashmap!(
             account2 => hashmap! {
-                RADIX_TOKEN => Resources::Amount(dec!("10"))
+                XRD => Resources::Amount(dec!("10"))
             }
         )
     );
@@ -66,12 +66,12 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer_from_a_single_source_to_mu
     let account3 = test_data::account3();
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("20"))
-        .take_from_worktop(RADIX_TOKEN, dec!("15"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("20"))
+        .take_from_worktop(XRD, dec!("15"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
-        .take_from_worktop(RADIX_TOKEN, dec!("5"), "bucket1")
+        .take_from_worktop(XRD, dec!("5"), "bucket1")
         .with_bucket("bucket1", |builder, bucket| {
             builder.call_method(account3, "deposit", manifest_args!(bucket))
         })
@@ -90,10 +90,10 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer_from_a_single_source_to_mu
         deposits,
         hashmap!(
             account2 => hashmap! {
-                RADIX_TOKEN => Resources::Amount(dec!("15"))
+                XRD => Resources::Amount(dec!("15"))
             },
             account3 => hashmap! {
-                RADIX_TOKEN => Resources::Amount(dec!("5"))
+                XRD => Resources::Amount(dec!("5"))
             }
         )
     );
@@ -106,9 +106,9 @@ pub fn transfer_visitor_invalidated_transfer_from_multiple_accounts() {
     let account2 = test_data::account2();
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .withdraw_from_account(account2, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("20"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .withdraw_from_account(account2, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("20"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
@@ -131,13 +131,13 @@ pub fn transfer_visitor_can_pick_up_non_fungible_transfer() {
     let manifest = ManifestBuilder::new()
         .withdraw_non_fungibles_from_account(
             account1,
-            RADIX_TOKEN,
-            &BTreeSet::from([
+            XRD,
+            BTreeSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),
         )
-        .take_from_worktop(RADIX_TOKEN, dec!("2"), "bucket")
+        .take_from_worktop(XRD, dec!("2"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
@@ -156,7 +156,7 @@ pub fn transfer_visitor_can_pick_up_non_fungible_transfer() {
         deposits,
         hashmap!(
             account2 => hashmap! {
-                RADIX_TOKEN => Resources::Ids(BTreeSet::from([
+                XRD => Resources::Ids(BTreeSet::from([
                     NonFungibleLocalId::integer(1),
                     NonFungibleLocalId::integer(2),
                 ]))

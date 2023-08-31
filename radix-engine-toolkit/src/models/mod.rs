@@ -17,7 +17,6 @@
 
 pub mod common;
 pub mod cryptographic;
-pub mod macros;
 pub mod manifest;
 pub mod olympia;
 pub mod sbor;

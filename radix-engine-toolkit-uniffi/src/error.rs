@@ -84,6 +84,20 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error occurred when trying to decode the transaction hash")]
     FailedToDecodeTransactionHash,
+
+    #[error("An error ocurred when building the manifest due to the naming of objects")]
+    ManifestBuilderNameRecordError { error: NameRecordError },
+
+    #[error("An error ocurred when trying to modify the manifest")]
+    ManifestModificationError { error: String },
+
+    #[error("The node id has no valid entity type")]
+    InvalidEntityTypeIdError { error: String },
+
+    #[error(
+        "An error encountered when doing decimal arithmetic pertaining to overflow and underflow"
+    )]
+    DecimalError,
 }
 
 macro_rules! dbg_str {
@@ -145,3 +159,11 @@ impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
+impl_dbg_str_from! { CoreManifestModificationError, ManifestModificationError }
+impl_dbg_str_from! { CoreInvalidEntityTypeIdError, InvalidEntityTypeIdError }
+
+impl From<NameRecordError> for RadixEngineToolkitError {
+    fn from(value: NameRecordError) -> Self {
+        Self::ManifestBuilderNameRecordError { error: value }
+    }
+}

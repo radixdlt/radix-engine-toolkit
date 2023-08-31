@@ -30,13 +30,15 @@ use serde::{Deserialize, Serialize};
 // Manifest Sbor Decode to String
 //================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ManifestSborDecodeToStringInput {
     encoded_payload: SerializableBytes,
     representation: SerializableManifestSborStringRepresentation,
     network_id: SerializableU8,
-    schema: Option<(SerializableLocalTypeIndex, SerializableBytes)>,
+    schema: Option<PayloadSchema>,
 }
+#[typeshare::typeshare]
 pub type ManifestSborDecodeToStringOutput = String;
 
 pub struct ManifestSborDecodeToString;
@@ -62,7 +64,11 @@ impl<'f> Function<'f> for ManifestSborDecodeToString {
                 ManifestSborStringRepresentation::JSON(mode.into())
             }
         };
-        let schema = if let Some((local_type_index, schema)) = schema {
+        let schema = if let Some(PayloadSchema {
+            local_type_index,
+            schema,
+        }) = schema
+        {
             let local_type_index = LocalTypeIndex::from(local_type_index);
             let schema =
                 scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema).map_err(|error| {
@@ -91,7 +97,9 @@ impl<'f> Function<'f> for ManifestSborDecodeToString {
 export_function!(ManifestSborDecodeToString as manifest_sbor_decode_to_string);
 export_jni_function!(ManifestSborDecodeToString as manifestSborDecodeToString);
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableManifestSborStringRepresentation {
     ManifestString,
     Json(SerializableSerializationMode),

@@ -16,5 +16,6 @@
 // under the License.
 
 pub fn main() {
-    uniffi::generate_scaffolding("src/radix_engine_toolkit_uniffi.udl").unwrap();
+    uniffi::generate_scaffolding("src/radix_engine_toolkit_uniffi.udl")
+        .expect("Build script panics can be ignored");
 }

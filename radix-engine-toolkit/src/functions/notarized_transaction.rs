@@ -24,8 +24,10 @@ use crate::prelude::*;
 // Notarized Transaction Hash
 //============================
 
+#[typeshare::typeshare]
 pub type NotarizedTransactionHashInput = SerializableNotarizedTransaction;
-pub type NotarizedTransactionHashOutput = SerializableHash;
+#[typeshare::typeshare]
+pub type NotarizedTransactionHashOutput = SerializableTransactionHash;
 
 pub struct NotarizedTransactionHash;
 impl<'f> Function<'f> for NotarizedTransactionHash {
@@ -57,7 +59,9 @@ export_jni_function!(NotarizedTransactionHash as notarizedTransactionHash);
 // Notarized Transaction Compile
 //===============================
 
+#[typeshare::typeshare]
 pub type NotarizedTransactionCompileInput = SerializableNotarizedTransaction;
+#[typeshare::typeshare]
 pub type NotarizedTransactionCompileOutput = SerializableBytes;
 
 pub struct NotarizedTransactionCompile;
@@ -90,11 +94,13 @@ export_jni_function!(NotarizedTransactionCompile as notarizedTransactionCompile)
 // Notarized Transaction Decompile
 //=================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct NotarizedTransactionDecompileInput {
     pub compiled: SerializableBytes,
     pub instructions_kind: SerializableInstructionsKind,
 }
+#[typeshare::typeshare]
 pub type NotarizedTransactionDecompileOutput = SerializableNotarizedTransaction;
 
 pub struct NotarizedTransactionDecompile;
@@ -134,12 +140,14 @@ export_jni_function!(NotarizedTransactionDecompile as notarizedTransactionDecomp
 // Notarized Transaction Statically Validate
 //===========================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct NotarizedTransactionStaticallyValidateInput {
     pub notarized_transaction: SerializableNotarizedTransaction,
     pub validation_config: SerializableValidationConfig,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum NotarizedTransactionStaticallyValidateOutput {

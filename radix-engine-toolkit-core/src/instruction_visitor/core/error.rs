@@ -17,6 +17,7 @@
 
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::LocatedGeneralTransactionTypeError;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::TransferTransactionTypeError;
+use crate::models::node_id::InvalidEntityTypeIdError;
 use std::convert::Infallible;
 
 #[derive(Debug, Clone)]
@@ -24,6 +25,7 @@ pub enum InstructionVisitorError {
     Infallible(Infallible),
     TransferTransactionTypeError(TransferTransactionTypeError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
+    InvalidEntityTypeIdError(InvalidEntityTypeIdError),
 }
 
 impl From<Infallible> for InstructionVisitorError {
@@ -41,5 +43,11 @@ impl From<TransferTransactionTypeError> for InstructionVisitorError {
 impl From<LocatedGeneralTransactionTypeError> for InstructionVisitorError {
     fn from(value: LocatedGeneralTransactionTypeError) -> Self {
         Self::LocatedGeneralTransactionTypeError(value)
+    }
+}
+
+impl From<InvalidEntityTypeIdError> for InstructionVisitorError {
+    fn from(value: InvalidEntityTypeIdError) -> Self {
+        Self::InvalidEntityTypeIdError(value)
     }
 }

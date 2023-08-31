@@ -24,88 +24,131 @@ use transaction::prelude::*;
 
 use crate::prelude::*;
 
-define_enum_and_kind! {
-    pub enum SerializableManifestValue {
-        Bool {
-            value: bool,
-        },
-        I8 {
-            value: SerializableI8,
-        },
-        I16 {
-            value: SerializableI16,
-        },
-        I32 {
-            value: SerializableI32,
-        },
-        I64 {
-            value: SerializableI64,
-        },
-        I128 {
-            value: SerializableI128,
-        },
-        U8 {
-            value: SerializableU8,
-        },
-        U16 {
-            value: SerializableU16,
-        },
-        U32 {
-            value: SerializableU32,
-        },
-        U64 {
-            value: SerializableU64,
-        },
-        U128 {
-            value: SerializableU128,
-        },
-        String {
-            value: String,
-        },
-        Enum {
-            discriminator: SerializableU8,
-            fields: Vec<Self>,
-        },
-        Array {
-            element_value_kind: SerializableManifestValueKind,
-            elements: Vec<Self>,
-        },
-        Tuple {
-            fields: Vec<Self>,
-        },
-        Map {
-            key_value_kind: SerializableManifestValueKind,
-            value_value_kind: SerializableManifestValueKind,
-            entries: Vec<(Self, Self)>,
-        },
-        Address {
-            value: SerializableManifestAddress,
-        },
-        Bucket {
-            value: SerializableBucketId,
-        },
-        Proof {
-            value: SerializableProofId,
-        },
-        Expression {
-            value: SerializableExpression,
-        },
-        Blob {
-            value: SerializableHash,
-        },
-        Decimal {
-            value: SerializableDecimal,
-        },
-        PreciseDecimal {
-            value: SerializablePreciseDecimal,
-        },
-        NonFungibleLocalId {
-            value: SerializableNonFungibleLocalId,
-        },
-        AddressReservation {
-            value: SerializableAddressReservation,
-        },
-    }
+#[typeshare::typeshare]
+#[derive(
+    Clone, Debug, serde::Serialize, serde::Deserialize, schemars::JsonSchema, PartialEq, Eq, Hash,
+)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableManifestValue {
+    Bool {
+        value: bool,
+    },
+    I8 {
+        value: SerializableI8,
+    },
+    I16 {
+        value: SerializableI16,
+    },
+    I32 {
+        value: SerializableI32,
+    },
+    I64 {
+        value: SerializableI64,
+    },
+    I128 {
+        value: SerializableI128,
+    },
+    U8 {
+        value: SerializableU8,
+    },
+    U16 {
+        value: SerializableU16,
+    },
+    U32 {
+        value: SerializableU32,
+    },
+    U64 {
+        value: SerializableU64,
+    },
+    U128 {
+        value: SerializableU128,
+    },
+    String {
+        value: String,
+    },
+    Enum {
+        discriminator: SerializableU8,
+        fields: Vec<SerializableManifestValue>,
+    },
+    Array {
+        element_value_kind: SerializableManifestValueKind,
+        elements: Vec<SerializableManifestValue>,
+    },
+    Tuple {
+        fields: Vec<SerializableManifestValue>,
+    },
+    Map {
+        key_value_kind: SerializableManifestValueKind,
+        value_value_kind: SerializableManifestValueKind,
+        entries: Vec<SerializableMapEntry>,
+    },
+    Address {
+        value: SerializableManifestAddress,
+    },
+    Bucket {
+        value: SerializableU32,
+    },
+    Proof {
+        value: SerializableU32,
+    },
+    Expression {
+        value: SerializableExpression,
+    },
+    Blob {
+        value: SerializableHash,
+    },
+    Decimal {
+        value: SerializableDecimal,
+    },
+    PreciseDecimal {
+        value: SerializablePreciseDecimal,
+    },
+    NonFungibleLocalId {
+        value: SerializableNonFungibleLocalId,
+    },
+    AddressReservation {
+        value: SerializableU32,
+    },
+}
+
+#[typeshare::typeshare]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    serde::Serialize,
+    serde::Deserialize,
+    schemars::JsonSchema,
+    PartialEq,
+    Eq,
+    Hash,
+)]
+pub enum SerializableManifestValueKind {
+    Bool,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+    String,
+    Enum,
+    Array,
+    Tuple,
+    Map,
+    Address,
+    Bucket,
+    Proof,
+    Expression,
+    Blob,
+    Decimal,
+    PreciseDecimal,
+    NonFungibleLocalId,
+    AddressReservation,
 }
 
 impl From<SerializableManifestValueKind> for ManifestValueKind {
@@ -272,7 +315,8 @@ impl SerializableManifestValue {
                     .iter()
                     .map(|(key, value)| {
                         Self::from_manifest_value(key, network_id).and_then(|key| {
-                            Self::from_manifest_value(value, network_id).map(|value| (key, value))
+                            Self::from_manifest_value(value, network_id)
+                                .map(|value| SerializableMapEntry { key, value })
                         })
                     })
                     .collect::<Result<_, _>>()?,
@@ -281,28 +325,26 @@ impl SerializableManifestValue {
                 value: ManifestCustomValue::Address(value),
             } => match value {
                 ManifestAddress::Named(named) => SerializableManifestValue::Address {
-                    value: SerializableManifestAddress::Named {
-                        value: into!(*named),
-                    },
+                    value: SerializableManifestAddress::Named(into!(*named)),
                 },
                 ManifestAddress::Static(node_id) => Self::Address {
-                    value: SerializableManifestAddress::Static {
-                        value: SerializableNodeId(SerializableNodeIdInternal {
+                    value: SerializableManifestAddress::Static(SerializableNodeId(
+                        SerializableNodeIdInternal {
                             node_id: *node_id,
                             network_id,
-                        }),
-                    },
+                        },
+                    )),
                 },
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Bucket(value),
             } => SerializableManifestValue::Bucket {
-                value: into!(*value),
+                value: into!(value.0),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Proof(value),
             } => SerializableManifestValue::Proof {
-                value: into!(*value),
+                value: into!(value.0),
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(value),
@@ -332,7 +374,7 @@ impl SerializableManifestValue {
             ManifestValue::Custom {
                 value: ManifestCustomValue::AddressReservation(value),
             } => SerializableManifestValue::AddressReservation {
-                value: into!(*value),
+                value: into!(value.0),
             },
         };
         Ok(value)
@@ -389,20 +431,20 @@ impl SerializableManifestValue {
                 value_value_kind: into!(*value_value_kind),
                 entries: entries
                     .iter()
-                    .map(|(key, value)| {
+                    .map(|SerializableMapEntry { key, value }| {
                         key.to_manifest_value()
                             .and_then(|key| value.to_manifest_value().map(|value| (key, value)))
                     })
                     .collect::<Result<_, _>>()?,
             },
             Self::Bucket { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Bucket(into!(*value)),
+                value: ManifestCustomValue::Bucket(ManifestBucket(**value)),
             },
             Self::Proof { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::Proof(into!(*value)),
+                value: ManifestCustomValue::Proof(ManifestProof(**value)),
             },
             Self::AddressReservation { value } => ManifestValue::Custom {
-                value: ManifestCustomValue::AddressReservation(into!(*value)),
+                value: ManifestCustomValue::AddressReservation(ManifestAddressReservation(**value)),
             },
             Self::Expression { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(into!(*value)),
@@ -422,11 +464,11 @@ impl SerializableManifestValue {
                 )),
             },
             Self::Address { value } => match value {
-                SerializableManifestAddress::Static { value } => ManifestValue::Custom {
+                SerializableManifestAddress::Static(value) => ManifestValue::Custom {
                     value: ManifestCustomValue::Address(ManifestAddress::Static(value.0.node_id)),
                 },
-                SerializableManifestAddress::Named { value } => ManifestValue::Custom {
-                    value: ManifestCustomValue::Address(ManifestAddress::Named(into!(*value))),
+                SerializableManifestAddress::Named(value) => ManifestValue::Custom {
+                    value: ManifestCustomValue::Address(ManifestAddress::Named(**value)),
                 },
             },
         };
@@ -452,3 +494,10 @@ macro_rules! into {
     };
 }
 use into;
+
+#[typeshare::typeshare]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SerializableMapEntry {
+    pub key: SerializableManifestValue,
+    pub value: SerializableManifestValue,
+}

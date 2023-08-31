@@ -23,26 +23,19 @@ use serde_with::serde_as;
 use crate::prelude::*;
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializablePublicKey {
-    Secp256k1 {
-        value: AsHex<[u8; Secp256k1PublicKey::LENGTH]>,
-    },
-    Ed25519 {
-        value: AsHex<[u8; Ed25519PublicKey::LENGTH]>,
-    },
+    Secp256k1(#[typeshare(serialized_as = "String")] AsHex<[u8; 33]>),
+    Ed25519(#[typeshare(serialized_as = "String")] AsHex<[u8; 32]>),
 }
 
 impl From<PublicKey> for SerializablePublicKey {
     fn from(value: PublicKey) -> Self {
         match value {
-            PublicKey::Secp256k1(public_key) => Self::Secp256k1 {
-                value: public_key.0.into(),
-            },
-            PublicKey::Ed25519(public_key) => Self::Ed25519 {
-                value: public_key.0.into(),
-            },
+            PublicKey::Secp256k1(public_key) => Self::Secp256k1(public_key.0.into()),
+            PublicKey::Ed25519(public_key) => Self::Ed25519(public_key.0.into()),
         }
     }
 }
@@ -50,19 +43,18 @@ impl From<PublicKey> for SerializablePublicKey {
 impl From<SerializablePublicKey> for PublicKey {
     fn from(value: SerializablePublicKey) -> Self {
         match value {
-            SerializablePublicKey::Secp256k1 { value } => {
-                Self::Secp256k1(Secp256k1PublicKey(*value))
-            }
-            SerializablePublicKey::Ed25519 { value } => Self::Ed25519(Ed25519PublicKey(*value)),
+            SerializablePublicKey::Secp256k1(value) => Self::Secp256k1(Secp256k1PublicKey(*value)),
+            SerializablePublicKey::Ed25519(value) => Self::Ed25519(Ed25519PublicKey(*value)),
         }
     }
 }
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[schemars(transparent)]
 #[serde(transparent)]
-pub struct SerializableSecp256k1PublicKey(AsHex<[u8; Secp256k1PublicKey::LENGTH]>);
+pub struct SerializableSecp256k1PublicKey(#[typeshare(serialized_as = "String")] AsHex<[u8; 33]>);
 
 impl From<SerializableSecp256k1PublicKey> for Secp256k1PublicKey {
     fn from(value: SerializableSecp256k1PublicKey) -> Self {
@@ -77,10 +69,11 @@ impl From<Secp256k1PublicKey> for SerializableSecp256k1PublicKey {
 }
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[schemars(transparent)]
 #[serde(transparent)]
-pub struct SerializableEd25519PublicKey(AsHex<[u8; Ed25519PublicKey::LENGTH]>);
+pub struct SerializableEd25519PublicKey(#[typeshare(serialized_as = "String")] AsHex<[u8; 32]>);
 
 impl From<SerializableEd25519PublicKey> for Ed25519PublicKey {
     fn from(value: SerializableEd25519PublicKey) -> Self {

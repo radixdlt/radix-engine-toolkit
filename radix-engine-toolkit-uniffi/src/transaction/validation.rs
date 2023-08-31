@@ -21,8 +21,6 @@ use crate::prelude::*;
 pub struct ValidationConfig {
     pub network_id: u8,
     pub max_notarized_payload_size: u64,
-    pub min_cost_unit_limit: u32,
-    pub max_cost_unit_limit: u32,
     pub min_tip_percentage: u16,
     pub max_tip_percentage: u16,
     pub max_epoch_range: u64,
@@ -44,8 +42,6 @@ impl ValidationConfig {
     pub fn new(
         network_id: u8,
         max_notarized_payload_size: u64,
-        min_cost_unit_limit: u32,
-        max_cost_unit_limit: u32,
         min_tip_percentage: u16,
         max_tip_percentage: u16,
         max_epoch_range: u64,
@@ -54,8 +50,6 @@ impl ValidationConfig {
         Arc::new(Self {
             network_id,
             max_notarized_payload_size,
-            min_cost_unit_limit,
-            max_cost_unit_limit,
             min_tip_percentage,
             max_tip_percentage,
             max_epoch_range,
@@ -74,14 +68,6 @@ impl ValidationConfig {
 
     pub fn max_notarized_payload_size(&self) -> u64 {
         self.max_notarized_payload_size
-    }
-
-    pub fn min_cost_unit_limit(&self) -> u32 {
-        self.min_cost_unit_limit
-    }
-
-    pub fn max_cost_unit_limit(&self) -> u32 {
-        self.max_cost_unit_limit
     }
 
     pub fn min_tip_percentage(&self) -> u16 {
@@ -150,8 +136,6 @@ impl From<ValidationConfig> for NativeValidationConfig {
         Self {
             network_id: value.network_id,
             max_notarized_payload_size: value.max_notarized_payload_size as usize,
-            min_cost_unit_limit: value.min_cost_unit_limit,
-            max_cost_unit_limit: value.max_cost_unit_limit,
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,
@@ -165,8 +149,6 @@ impl From<NativeValidationConfig> for ValidationConfig {
         Self {
             network_id: value.network_id,
             max_notarized_payload_size: value.max_notarized_payload_size as u64,
-            min_cost_unit_limit: value.min_cost_unit_limit,
-            max_cost_unit_limit: value.max_cost_unit_limit,
             min_tip_percentage: value.min_tip_percentage,
             max_tip_percentage: value.max_tip_percentage,
             max_epoch_range: value.max_epoch_range,

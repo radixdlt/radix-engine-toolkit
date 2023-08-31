@@ -32,8 +32,8 @@ pub fn simple_transfer_visitor_can_pick_up_fungible_transfer() {
     let account2 = test_data::account2();
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
-        .take_from_worktop(RADIX_TOKEN, dec!("10"), "bucket")
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
@@ -51,7 +51,7 @@ pub fn simple_transfer_visitor_can_pick_up_fungible_transfer() {
     assert_eq!(to_account, account2);
     assert_eq!(
         resource_specifier,
-        ResourceSpecifier::Amount(RADIX_TOKEN, dec!("10"))
+        ResourceSpecifier::Amount(XRD, dec!("10"))
     );
 }
 
@@ -64,13 +64,13 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
     let manifest = ManifestBuilder::new()
         .withdraw_non_fungibles_from_account(
             account1,
-            RADIX_TOKEN,
-            &BTreeSet::from([
+            XRD,
+            BTreeSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),
         )
-        .take_from_worktop(RADIX_TOKEN, dec!("2"), "bucket")
+        .take_from_worktop(XRD, dec!("2"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })
@@ -89,7 +89,7 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
     assert_eq!(
         resource_specifier,
         ResourceSpecifier::Ids(
-            RADIX_TOKEN,
+            XRD,
             BTreeSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
@@ -105,16 +105,16 @@ pub fn simple_transfer_visitor_invalidated_transfer_with_an_additional_withdraw(
     let account2 = test_data::account2();
 
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account1, RADIX_TOKEN, dec!("10"))
+        .withdraw_from_account(account1, XRD, dec!("10"))
         .withdraw_non_fungibles_from_account(
             account1,
-            RADIX_TOKEN,
-            &BTreeSet::from([
+            XRD,
+            BTreeSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),
         )
-        .take_from_worktop(RADIX_TOKEN, dec!("2"), "bucket")
+        .take_from_worktop(XRD, dec!("2"), "bucket")
         .with_bucket("bucket", |builder, bucket| {
             builder.call_method(account2, "deposit", manifest_args!(bucket))
         })

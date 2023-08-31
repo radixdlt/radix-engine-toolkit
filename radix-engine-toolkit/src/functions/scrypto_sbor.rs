@@ -29,13 +29,15 @@ use serde::{Deserialize, Serialize};
 // Scrypto Sbor Decode to String
 //===============================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ScryptoSborDecodeToStringInput {
     encoded_payload: SerializableBytes,
     representation: SerializableSerializationMode,
     network_id: SerializableU8,
-    schema: Option<(SerializableLocalTypeIndex, SerializableBytes)>,
+    schema: Option<PayloadSchema>,
 }
+#[typeshare::typeshare]
 pub type ScryptoSborDecodeToStringOutput = String;
 
 pub struct ScryptoSborDecodeToString;
@@ -54,7 +56,11 @@ impl<'f> Function<'f> for ScryptoSborDecodeToString {
         let encoded_payload = encoded_payload.deref().clone();
         let network_id = *network_id;
         let representation = representation.into();
-        let schema = if let Some((local_type_index, schema)) = schema {
+        let schema = if let Some(PayloadSchema {
+            local_type_index,
+            schema,
+        }) = schema
+        {
             let local_type_index = LocalTypeIndex::from(local_type_index);
             let schema =
                 scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema).map_err(|error| {

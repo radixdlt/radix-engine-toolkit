@@ -24,11 +24,13 @@ use serde::{Deserialize, Serialize};
 // Derive Virtual Account Address from Public Key
 //================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualAccountAddressFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type DeriveVirtualAccountAddressFromPublicKeyOutput = SerializableNodeId;
 
 pub struct DeriveVirtualAccountAddressFromPublicKey;
@@ -65,11 +67,13 @@ export_jni_function!(
 // Derive Virtual Identity Address from Public Key
 //=================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualIdentityAddressFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type DeriveVirtualIdentityAddressFromPublicKeyOutput = SerializableNodeId;
 
 pub struct DeriveVirtualIdentityAddressFromPublicKey;
@@ -106,6 +110,7 @@ export_jni_function!(
 // Derive Virtual Signature Non-Fungible Global Id from Public Key
 //=================================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput {
     pub public_key: SerializablePublicKey,
@@ -152,11 +157,13 @@ export_jni_function!(
 // Derive Virtual Account Address from Olympia Account Address
 //=============================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddressInput {
     pub olympia_account_address: String,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput = SerializableNodeId;
 
 pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddress;
@@ -195,11 +202,13 @@ export_jni_function!(
 // Derive Resource Address from Olympia Resource Address
 //=======================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveResourceAddressFromOlympiaResourceAddressInput {
     pub olympia_resource_address: String,
     pub network_id: SerializableU8,
 }
+#[typeshare::typeshare]
 pub type DeriveResourceAddressFromOlympiaResourceAddressOutput = SerializableNodeId;
 
 pub struct DeriveResourceAddressFromOlympiaResourceAddress;
@@ -238,7 +247,9 @@ export_jni_function!(
 // Derive Public Key from Olympia Account Address
 //================================================
 
+#[typeshare::typeshare]
 pub type DerivePublicKeyFromOlympiaAccountAddressInput = String;
+#[typeshare::typeshare]
 pub type DerivePublicKeyFromOlympiaAccountAddressOutput = SerializableSecp256k1PublicKey;
 
 pub struct DerivePublicKeyFromOlympiaAccountAddress;
@@ -268,11 +279,13 @@ export_jni_function!(
 // Derive Olympia Account from Public Key Address
 //================================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveOlympiaAccountAddressFromPublicKeyInput {
     pub olympia_network: SerializableOlympiaNetwork,
     pub public_key: SerializableSecp256k1PublicKey,
 }
+#[typeshare::typeshare]
 pub type DeriveOlympiaAccountAddressFromPublicKeyOutput = String;
 
 pub struct DeriveOlympiaAccountAddressFromPublicKey;
@@ -307,11 +320,13 @@ export_jni_function!(
 // Derive Node Address from Public Key Address
 //=============================================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub struct DeriveNodeAddressFromPublicKeyInput {
     pub network_id: SerializableU8,
     pub public_key: SerializableSecp256k1PublicKey,
 }
+#[typeshare::typeshare]
 pub type DeriveNodeAddressFromPublicKeyOutput = String;
 
 pub struct DeriveNodeAddressFromPublicKey;

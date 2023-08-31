@@ -52,6 +52,15 @@ CALL_METHOD
     Address("component_sim1cqvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cvemygpmu")
     "custom_types"
 
+    # Strings
+    "normal text"
+    "with an escape\""
+    "with an escape\r"
+    "with an escape\t"
+    "with an escape\n"
+    "with an escape\""
+    "with an escape\\"
+
     # Address
     Address("package_sim1p4r4955skdjq9swg8s5jguvcjvyj7tsxct87a9z6sw76cdfd2jg3zk")
     Address("account_sim1cyvgx33089ukm2pl97pv4max0x40ruvfy4lt60yvya744cve475w0q")

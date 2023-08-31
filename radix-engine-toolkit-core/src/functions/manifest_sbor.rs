@@ -52,6 +52,7 @@ where
             schema,
             *local_type_index,
             &(),
+            MANIFEST_SBOR_V1_MAX_DEPTH,
         )
         .map_err(|_| ManifestSborError::SchemaValidationError)?;
     } else {
@@ -68,11 +69,13 @@ where
                     custom_context: context,
                     schema,
                     type_index: *local_type_index,
+                    depth_limit: MANIFEST_SBOR_V1_MAX_DEPTH,
                 }
             } else {
                 SerializationParameters::Schemaless {
                     mode: representation,
                     custom_context: context,
+                    depth_limit: MANIFEST_SBOR_V1_MAX_DEPTH,
                 }
             };
 

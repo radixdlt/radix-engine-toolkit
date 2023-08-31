@@ -53,8 +53,8 @@ impl TransactionManifest {
 
         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
         for address in addresses {
-            let entity_type = EntityType::from(address.entity_type().unwrap());
-            let address = Arc::new(Address(address, network_id));
+            let entity_type = EntityType::from(address.entity_type());
+            let address = Arc::new(Address::from_typed_node_id(address, network_id));
             map.entry(entity_type).or_default().push(address);
         }
         map
@@ -63,38 +63,48 @@ impl TransactionManifest {
     pub fn identities_requiring_auth(&self) -> Vec<Arc<Address>> {
         core_instructions_identities_requiring_auth(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_requiring_auth(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_requiring_auth(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_withdrawn_from(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_withdrawn_from(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn accounts_deposited_into(&self) -> Vec<Arc<Address>> {
         core_instructions_accounts_deposited_into(&self.instructions.0)
             .into_iter()
-            .map(|address| Arc::new(Address::from_node_id(address, self.instructions.1)))
+            .map(|address| Arc::new(Address::from_typed_node_id(address, self.instructions.1)))
             .collect()
     }
 
     pub fn analyze_execution(&self, transaction_receipt: Vec<u8>) -> Result<ExecutionAnalysis> {
         let receipt = native_scrypto_decode::<NativeTransactionReceipt>(&transaction_receipt)?;
-        let analysis = core_execution_analyze(&self.instructions.0, &receipt)?;
+        let analysis = core_execution_analyze(
+            &self.instructions.0,
+            &CoreExecutionAnalysisTransactionReceipt::new(&receipt)?,
+        )?;
         Ok(ExecutionAnalysis::from_native(
             &analysis,
             self.instructions.1,
         ))
+    }
+
+    pub fn modify(&self, modifications: TransactionManifestModifications) -> Result<Arc<Self>> {
+        let modifications = modifications.to_native()?;
+        let native_manifest = core_manifest_modify(&self.to_native(), modifications)?;
+        let manifest = Self::from_native(&native_manifest, self.instructions.network_id());
+        Ok(Arc::new(manifest))
     }
 }
 
@@ -130,16 +140,11 @@ impl TransactionManifest {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct ExecutionAnalysis {
-    pub fee_locks: FeeLocks,
-    pub fee_summary: FeeSummary,
-    pub transaction_type: TransactionType,
-}
-
-#[derive(Clone, Debug, Record)]
 pub struct FeeSummary {
-    pub network_fee: Arc<Decimal>,
-    pub royalty_fee: Arc<Decimal>,
+    pub execution_cost: Arc<Decimal>,
+    pub finalization_cost: Arc<Decimal>,
+    pub storage_expansion_cost: Arc<Decimal>,
+    pub royalty_cost: Arc<Decimal>,
 }
 
 #[derive(Clone, Debug, Record)]
@@ -160,6 +165,11 @@ pub enum TransactionType {
         from: Arc<Address>,
         transfers: HashMap<String, HashMap<String, Resources>>,
     },
+    AccountDepositSettings {
+        resource_preference_changes: HashMap<String, HashMap<String, ResourcePreferenceAction>>,
+        default_deposit_rule_changes: HashMap<String, AccountDefaultDepositRule>,
+        authorized_depositors_changes: HashMap<String, AuthorizedDepositorsChanges>,
+    },
     GeneralTransaction {
         account_proofs: Vec<Arc<Address>>,
         account_withdraws: HashMap<String, Vec<ResourceTracker>>,
@@ -167,8 +177,8 @@ pub enum TransactionType {
         addresses_in_manifest: HashMap<EntityType, Vec<Arc<Address>>>,
         metadata_of_newly_created_entities: HashMap<String, HashMap<String, Option<MetadataValue>>>,
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
+        addresses_of_newly_created_entities: Vec<Arc<Address>>,
     },
-    NonConforming,
 }
 
 #[derive(Clone, Debug, Enum)]
@@ -189,19 +199,35 @@ pub enum Resources {
     Ids { ids: Vec<NonFungibleLocalId> },
 }
 
+#[derive(Clone, Debug, Record)]
+pub struct ExecutionAnalysis {
+    pub fee_locks: FeeLocks,
+    pub fee_summary: FeeSummary,
+    pub transaction_types: Vec<TransactionType>,
+    pub reserved_instructions: Vec<ReservedInstruction>,
+}
+
 impl ExecutionAnalysis {
     pub fn from_native(
         CoreExecutionExecutionAnalysis {
             fee_locks,
             fee_summary,
-            transaction_type,
+            transaction_types,
+            reserved_instructions,
         }: &CoreExecutionExecutionAnalysis,
         network_id: u8,
     ) -> Self {
         Self {
-            transaction_type: TransactionType::from_native(transaction_type, network_id),
+            transaction_types: transaction_types
+                .iter()
+                .map(|transaction_type| TransactionType::from_native(transaction_type, network_id))
+                .collect(),
             fee_locks: FeeLocks::from_native(fee_locks),
             fee_summary: FeeSummary::from_native(fee_summary),
+            reserved_instructions: reserved_instructions
+                .iter()
+                .map(|value| (*value).into())
+                .collect(),
         }
     }
 }
@@ -223,11 +249,17 @@ impl ResourceSpecifier {
     pub fn from_native(native: &NativeResourceSpecifier, network_id: u8) -> ResourceSpecifier {
         match native {
             NativeResourceSpecifier::Amount(resource_address, amount) => Self::Amount {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: Arc::new(Decimal(*amount)),
             },
             NativeResourceSpecifier::Ids(resource_address, ids) => Self::Ids {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
         }
@@ -237,7 +269,6 @@ impl ResourceSpecifier {
 impl TransactionType {
     pub fn from_native(native: &CoreExecutionTransactionType, network_id: u8) -> Self {
         match native {
-            CoreExecutionTransactionType::NonConforming => Self::NonConforming,
             CoreExecutionTransactionType::SimpleTransfer(value) => {
                 let CoreExecutionSimpleTransferTransactionType {
                     from,
@@ -246,8 +277,8 @@ impl TransactionType {
                 } = value.as_ref();
 
                 Self::SimpleTransfer {
-                    from: Arc::new(Address::from_node_id(*from, network_id)),
-                    to: Arc::new(Address::from_node_id(*to, network_id)),
+                    from: Arc::new(Address::from_typed_node_id(*from, network_id)),
+                    to: Arc::new(Address::from_typed_node_id(*to, network_id)),
                     transferred: ResourceSpecifier::from_native(transferred, network_id),
                 }
             }
@@ -255,21 +286,74 @@ impl TransactionType {
                 let CoreExecutionTransferTransactionType { from, transfers } = value.as_ref();
 
                 Self::Transfer {
-                    from: Arc::new(Address::from_node_id(*from, network_id)),
+                    from: Arc::new(Address::from_typed_node_id(*from, network_id)),
                     transfers: transfers
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
                                         (
-                                            Address::from_node_id(*key, network_id).as_str(),
+                                            Address::from_typed_node_id(*key, network_id).as_str(),
                                             Resources::from_native(value),
                                         )
                                     })
                                     .collect(),
+                            )
+                        })
+                        .collect(),
+                }
+            }
+            CoreExecutionTransactionType::AccountDepositSettings(value) => {
+                let CoreExecutionAccountDepositSettingsTransactionType {
+                    resource_preference_changes,
+                    default_deposit_rule_changes,
+                    authorized_depositors_changes,
+                } = value.as_ref();
+
+                Self::AccountDepositSettings {
+                    resource_preference_changes: resource_preference_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
+                                value
+                                    .iter()
+                                    .map(|(key, value)| {
+                                        (
+                                            Arc::new(Address::from_typed_node_id(*key, network_id))
+                                                .as_str(),
+                                            <ResourcePreferenceAction as FromNative>::from_native(
+                                                *value,
+                                            ),
+                                        )
+                                    })
+                                    .collect(),
+                            )
+                        })
+                        .collect(),
+                    default_deposit_rule_changes: default_deposit_rule_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
+                                <AccountDefaultDepositRule as FromNative>::from_native(
+                                    *value,
+                                ),
+                            )
+                        })
+                        .collect(),
+                        authorized_depositors_changes: authorized_depositors_changes
+                        .iter()
+                        .map(|(key, value)| {
+                            (
+                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
+                                <AuthorizedDepositorsChanges as FromNativeWithNetworkContext>::from_native(
+                                    value.clone(),
+                                    network_id
+                                ),
                             )
                         })
                         .collect(),
@@ -283,18 +367,19 @@ impl TransactionType {
                     addresses_in_manifest: (addresses_in_manifest, _),
                     metadata_of_newly_created_entities,
                     data_of_newly_minted_non_fungibles,
+                    addresses_of_newly_created_entities,
                 } = value.as_ref();
 
                 Self::GeneralTransaction {
                     account_proofs: account_proofs
                         .iter()
-                        .map(|value| Arc::new(Address::from_node_id(*value, network_id)))
+                        .map(|value| Arc::new(Address::from_typed_node_id(*value, network_id)))
                         .collect(),
                     account_withdraws: account_withdraws
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|value| ResourceTracker::from_native(value, network_id))
@@ -306,7 +391,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|value| ResourceTracker::from_native(value, network_id))
@@ -317,8 +402,9 @@ impl TransactionType {
                     addresses_in_manifest: {
                         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
                         for address in addresses_in_manifest {
-                            let entity_type = EntityType::from(address.entity_type().unwrap());
-                            let address = Arc::new(Address(*address, network_id));
+                            let entity_type = EntityType::from(address.entity_type());
+                            let address =
+                                Arc::new(Address::from_typed_node_id(*address, network_id));
                             map.entry(entity_type).or_default().push(address);
                         }
                         map
@@ -327,7 +413,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
@@ -346,7 +432,7 @@ impl TransactionType {
                         .iter()
                         .map(|(key, value)| {
                             (
-                                Address::from_node_id(*key, network_id).as_str(),
+                                Address::from_typed_node_id(*key, network_id).as_str(),
                                 value
                                     .iter()
                                     .map(|(key, value)| {
@@ -355,6 +441,10 @@ impl TransactionType {
                                     .collect(),
                             )
                         })
+                        .collect(),
+                    addresses_of_newly_created_entities: addresses_of_newly_created_entities
+                        .iter()
+                        .map(|node_id| Arc::new(Address::from_typed_node_id(*node_id, network_id)))
                         .collect(),
                 }
             }
@@ -379,13 +469,17 @@ impl FeeLocks {
 impl FeeSummary {
     pub fn from_native(
         CoreExecutionFeeSummary {
-            network_fee,
-            royalty_fee,
+            execution_cost,
+            royalty_cost,
+            finalization_cost,
+            storage_expansion_cost,
         }: &CoreExecutionFeeSummary,
     ) -> Self {
         Self {
-            network_fee: Arc::new(Decimal(*network_fee)),
-            royalty_fee: Arc::new(Decimal(*royalty_fee)),
+            execution_cost: Arc::new(Decimal(*execution_cost)),
+            royalty_cost: Arc::new(Decimal(*royalty_cost)),
+            finalization_cost: Arc::new(Decimal(*finalization_cost)),
+            storage_expansion_cost: Arc::new(Decimal(*storage_expansion_cost)),
         }
     }
 }
@@ -410,7 +504,10 @@ impl ResourceTracker {
                 resource_address,
                 amount,
             } => Self::Fungible {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: match amount {
                     CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
                         value: Arc::new(Decimal(*value)),
@@ -426,7 +523,10 @@ impl ResourceTracker {
                 amount,
                 ids,
             } => Self::NonFungible {
-                resource_address: Arc::new(Address(resource_address.into_node_id(), network_id)),
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
                 amount: match amount {
                     CoreSource::Guaranteed(value) => DecimalSource::Guaranteed {
                         value: Arc::new(Decimal(*value)),
@@ -446,6 +546,119 @@ impl ResourceTracker {
                     },
                 },
             },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourcePreferenceAction {
+    Set { value: ResourcePreference },
+    Remove,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourcePreference {
+    Allowed,
+    Disallowed,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountDefaultDepositRule {
+    Accept,
+    Reject,
+    AllowExisting,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct AuthorizedDepositorsChanges {
+    pub added: Vec<ResourceOrNonFungible>,
+    pub removed: Vec<ResourceOrNonFungible>,
+}
+
+impl FromNative for ResourcePreferenceAction {
+    type Native = CoreResourcePreferenceAction;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            Self::Native::Set(value) => Self::Set {
+                value: <ResourcePreference as FromNative>::from_native(value),
+            },
+            Self::Native::Remove => Self::Remove,
+        }
+    }
+}
+
+impl FromNative for ResourcePreference {
+    type Native = NativeResourcePreference;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            NativeResourcePreference::Allowed => Self::Allowed,
+            NativeResourcePreference::Disallowed => Self::Disallowed,
+        }
+    }
+}
+
+impl FromNative for AccountDefaultDepositRule {
+    type Native = NativeDefaultDepositRule;
+
+    fn from_native(native: Self::Native) -> Self {
+        match native {
+            NativeDefaultDepositRule::Accept => Self::Accept,
+            NativeDefaultDepositRule::Reject => Self::Reject,
+            NativeDefaultDepositRule::AllowExisting => Self::AllowExisting,
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for AuthorizedDepositorsChanges {
+    type Native = CoreAuthorizedDepositorsChanges;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        Self {
+            added: native
+                .added
+                .into_iter()
+                .map(|value| FromNativeWithNetworkContext::from_native(value, network_id))
+                .collect(),
+            removed: native
+                .removed
+                .into_iter()
+                .map(|value| FromNativeWithNetworkContext::from_native(value, network_id))
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessController,
+}
+
+impl From<ReservedInstruction> for CoreReservedInstruction {
+    fn from(value: ReservedInstruction) -> Self {
+        match value {
+            ReservedInstruction::AccessController => Self::AccessController,
+            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            ReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
+        }
+    }
+}
+
+impl From<CoreReservedInstruction> for ReservedInstruction {
+    fn from(value: CoreReservedInstruction) -> Self {
+        match value {
+            CoreReservedInstruction::AccessController => Self::AccessController,
+            CoreReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            CoreReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            CoreReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            CoreReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
         }
     }
 }
@@ -471,3 +684,92 @@ macro_rules! define_source_enum {
 }
 define_source_enum!(Arc<Decimal>, DecimalSource);
 define_source_enum!(Vec<NonFungibleLocalId>, NonFungibleLocalIdVecSource);
+
+#[derive(Clone, Debug, Record)]
+pub struct TransactionManifestModifications {
+    pub add_access_controller_proofs: Vec<Arc<Address>>,
+    pub add_lock_fee: Option<LockFeeModification>,
+    pub add_assertions: Vec<IndexedAssertion>,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum Assertion {
+    Amount {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    Ids {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct IndexedAssertion {
+    pub index: u64,
+    pub assertion: Assertion,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct LockFeeModification {
+    pub account_address: Arc<Address>,
+    pub amount: Arc<Decimal>,
+}
+
+impl ToNative for TransactionManifestModifications {
+    type Native = CoreManifestTransactionManifestModifications;
+
+    fn to_native(self) -> Result<Self::Native> {
+        Ok(Self::Native {
+            add_access_controller_proofs: self
+                .add_access_controller_proofs
+                .into_iter()
+                .map(|value| (*value).try_into())
+                .collect::<Result<_>>()?,
+            add_assertions: self
+                .add_assertions
+                .into_iter()
+                .map(|IndexedAssertion { index, assertion }| {
+                    assertion
+                        .to_native()
+                        .map(|assertion| (index as usize, assertion))
+                })
+                .collect::<Result<_>>()?,
+            add_lock_fee: if let Some(LockFeeModification {
+                account_address,
+                amount,
+            }) = self.add_lock_fee
+            {
+                Some(((*account_address).try_into()?, amount.0))
+            } else {
+                None
+            },
+        })
+    }
+}
+
+impl ToNative for Assertion {
+    type Native = CoreManifestAssertion;
+
+    fn to_native(self) -> Result<Self::Native> {
+        match self {
+            Self::Amount {
+                resource_address,
+                amount,
+            } => Ok(Self::Native::Amount {
+                resource_address: (*resource_address).try_into()?,
+                amount: amount.0,
+            }),
+            Self::Ids {
+                resource_address,
+                ids,
+            } => Ok(Self::Native::Ids {
+                resource_address: (*resource_address).try_into()?,
+                ids: ids
+                    .into_iter()
+                    .map(NativeNonFungibleLocalId::try_from)
+                    .collect::<Result<_>>()?,
+            }),
+        }
+    }
+}

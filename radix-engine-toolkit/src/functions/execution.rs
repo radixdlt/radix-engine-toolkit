@@ -19,18 +19,24 @@ use crate::prelude::*;
 
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
+use radix_engine::types::ResourceOrNonFungible;
 use radix_engine_common::prelude::*;
 use radix_engine_toolkit_core::functions::execution::*;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::AuthorizedDepositorsChanges;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::ResourcePreferenceAction;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use schemars::*;
 use scrypto::api::node_modules::metadata::*;
+use scrypto::blueprints::account::{ResourcePreference, DefaultDepositRule};
 use serde::*;
 
 //===================
 // Execution Analyze
 //===================
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalyzeInput {
     pub instructions: SerializableInstructions,
@@ -38,11 +44,13 @@ pub struct ExecutionAnalyzeInput {
     pub preview_receipt: SerializableBytes,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct ExecutionAnalyzeOutput {
     pub fee_locks: SerializableFeeLocks,
     pub fee_summary: SerializableFeeSummary,
-    pub transaction_type: SerializableTransactionType,
+    pub transaction_types: Vec<SerializableTransactionType>,
+    pub reserved_instructions: Vec<SerializableReservedInstruction>,
 }
 
 pub struct ExecutionAnalyze;
@@ -62,46 +70,78 @@ impl<'f> Function<'f> for ExecutionAnalyze {
             InvocationHandlingError::DecodeError(debug_string(error), debug_string(preview_receipt))
         })?;
 
-        let execution_analysis =
-            radix_engine_toolkit_core::functions::execution::analyze(&instructions, &receipt)
-                .map_err(|error| {
-                    InvocationHandlingError::InstructionVisitorError(debug_string(error))
-                })?;
+        let execution_analysis = ExecutionAnalysisTransactionReceipt::new(&receipt)
+            .and_then(|receipt| {
+                radix_engine_toolkit_core::functions::execution::analyze(&instructions, &receipt)
+            })
+            .map_err(|error| InvocationHandlingError::ExecutionModuleError(debug_string(error)))?;
 
-        let transaction_type = match execution_analysis.transaction_type {
-            TransactionType::NonConforming => SerializableTransactionType::NonConforming,
+        let transaction_types = execution_analysis
+            .transaction_types
+            .into_iter()
+            .map(|value| SerializableTransactionType::new(value, *network_id))
+            .collect();
+        let fee_summary = execution_analysis.fee_summary.into();
+        let fee_locks = execution_analysis.fee_locks.into();
+
+        Ok(Self::Output {
+            fee_locks,
+            fee_summary,
+            transaction_types,
+            reserved_instructions: execution_analysis
+                .reserved_instructions
+                .into_iter()
+                .map(From::from)
+                .collect(),
+        })
+    }
+}
+
+export_function!(ExecutionAnalyze as execution_analyze);
+export_jni_function!(ExecutionAnalyze as executionAnalyze);
+
+#[typeshare::typeshare]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableTransactionType {
+    SimpleTransfer(Box<SerializableSimpleTransferTransactionType>),
+    Transfer(Box<SerializableTransferTransactionType>),
+    AccountDepositSettings(Box<SerializableAccountDepositSettingsTransactionType>),
+    GeneralTransaction(Box<SerializableGeneralTransactionType>),
+}
+
+impl SerializableTransactionType {
+    pub fn new(transaction_type: TransactionType, network_id: u8) -> Self {
+        match transaction_type {
             TransactionType::SimpleTransfer(simple_transfer) => {
                 SerializableTransactionType::SimpleTransfer(Box::new(
                     SerializableSimpleTransferTransactionType {
                         from: SerializableNodeId::new(
                             simple_transfer.from.into_node_id(),
-                            *network_id,
+                            network_id,
                         ),
-                        to: SerializableNodeId::new(simple_transfer.to.into_node_id(), *network_id),
+                        to: SerializableNodeId::new(simple_transfer.to.into_node_id(), network_id),
                         transferred: SerializableResourceSpecifier::new(
                             simple_transfer.transferred,
-                            *network_id,
+                            network_id,
                         ),
                     },
                 ))
             }
             TransactionType::Transfer(transfer) => SerializableTransactionType::Transfer(Box::new(
                 SerializableTransferTransactionType {
-                    from: SerializableNodeId::new(transfer.from.into_node_id(), *network_id),
+                    from: SerializableNodeId::new(transfer.from.into_node_id(), network_id),
                     transfers: transfer
                         .transfers
                         .into_iter()
                         .map(|(key, value)| {
                             (
-                                SerializableNodeId::new(key.into_node_id(), *network_id),
+                                SerializableNodeId::new(key.into_node_id(), network_id),
                                 value
                                     .into_iter()
                                     .map(|(key, value)| {
                                         (
-                                            SerializableNodeId::new(
-                                                key.into_node_id(),
-                                                *network_id,
-                                            ),
+                                            SerializableNodeId::new(key.into_node_id(), network_id),
                                             value.into(),
                                         )
                                     })
@@ -118,7 +158,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                             .account_proofs
                             .into_iter()
                             .map(|address| {
-                                SerializableNodeId::new(address.into_node_id(), *network_id)
+                                SerializableNodeId::new(address.into_node_id(), network_id)
                             })
                             .collect(),
                         account_withdraws: general_transaction
@@ -126,11 +166,11 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                             .into_iter()
                             .map(|(key, value)| {
                                 (
-                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
                                     value
                                         .into_iter()
                                         .map(|value| {
-                                            SerializableResourceTracker::new(value, *network_id)
+                                            SerializableResourceTracker::new(value, network_id)
                                         })
                                         .collect(),
                                 )
@@ -141,11 +181,11 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                             .into_iter()
                             .map(|(key, value)| {
                                 (
-                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
                                     value
                                         .into_iter()
                                         .map(|value| {
-                                            SerializableResourceTracker::new(value, *network_id)
+                                            SerializableResourceTracker::new(value, network_id)
                                         })
                                         .collect(),
                                 )
@@ -154,7 +194,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                         addresses_in_manifest: InstructionsExtractAddressesOutput {
                             addresses: transform_addresses_set_to_map(
                                 general_transaction.addresses_in_manifest.0,
-                                *network_id,
+                                network_id,
                             ),
                             named_addresses: array_into!(
                                 general_transaction.addresses_in_manifest.1
@@ -165,7 +205,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                             .into_iter()
                             .map(|(key, value)| {
                                 (
-                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
                                     value
                                         .into_iter()
                                         .map(|(key, value)| {
@@ -173,8 +213,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                                                 key,
                                                 value.map(|value| {
                                                     SerializableMetadataValue::new(
-                                                        value,
-                                                        *network_id,
+                                                        value, network_id,
                                                     )
                                                 }),
                                             )
@@ -188,7 +227,7 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                             .into_iter()
                             .map(|(key, value)| {
                                 (
-                                    SerializableNodeId::new(key.into_node_id(), *network_id),
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
                                     value
                                         .into_iter()
                                         .map(|(key, value)| {
@@ -201,46 +240,79 @@ impl<'f> Function<'f> for ExecutionAnalyze {
                     },
                 ))
             }
-        };
 
-        let fee_summary = execution_analysis.fee_summary.into();
-        let fee_locks = execution_analysis.fee_locks.into();
-
-        Ok(Self::Output {
-            fee_locks,
-            fee_summary,
-            transaction_type,
-        })
+            TransactionType::AccountDepositSettings(account_deposit_settings_transaction) => {
+                SerializableTransactionType::AccountDepositSettings(Box::new(
+                    SerializableAccountDepositSettingsTransactionType {
+                        resource_preference_changes: account_deposit_settings_transaction
+                            .resource_preference_changes
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
+                                    value
+                                        .into_iter()
+                                        .map(|(key, value)| {
+                                            (
+                                                SerializableNodeId::new(
+                                                    key.into_node_id(),
+                                                    network_id,
+                                                ),
+                                                SerializableResourcePreferenceAction::from(value),
+                                            )
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                        default_deposit_rule_changes: account_deposit_settings_transaction
+                            .default_deposit_rule_changes
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
+                                    SerializableDefaultDepositRule::from(value),
+                                )
+                            })
+                            .collect(),
+                        authorized_depositors_changes: account_deposit_settings_transaction
+                            .authorized_depositors_changes
+                            .into_iter()
+                            .map(|(key, value)| {
+                                (
+                                    SerializableNodeId::new(key.into_node_id(), network_id),
+                                    SerializableAuthorizedDepositorsChanges::new(value, network_id),
+                                )
+                            })
+                            .collect(),
+                    },
+                ))
+            }
+        }
     }
 }
 
-export_function!(ExecutionAnalyze as execution_analyze);
-export_jni_function!(ExecutionAnalyze as executionAnalyze);
-
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind", content = "value")]
-pub enum SerializableTransactionType {
-    SimpleTransfer(Box<SerializableSimpleTransferTransactionType>),
-    Transfer(Box<SerializableTransferTransactionType>),
-    GeneralTransaction(Box<SerializableGeneralTransactionType>),
-    NonConforming,
-}
-
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableFeeSummary {
-    pub network_fee: SerializableDecimal,
-    pub royalty_fee: SerializableDecimal,
+    pub execution_cost: SerializableDecimal,
+    pub finalization_cost: SerializableDecimal,
+    pub storage_expansion_cost: SerializableDecimal,
+    pub royalty_cost: SerializableDecimal,
 }
 
 impl From<FeeSummary> for SerializableFeeSummary {
     fn from(value: FeeSummary) -> Self {
         Self {
-            network_fee: value.network_fee.into(),
-            royalty_fee: value.royalty_fee.into(),
+            execution_cost: value.execution_cost.into(),
+            finalization_cost: value.finalization_cost.into(),
+            storage_expansion_cost: value.storage_expansion_cost.into(),
+            royalty_cost: value.royalty_cost.into(),
         }
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableFeeLocks {
     pub lock: SerializableDecimal,
@@ -256,8 +328,9 @@ impl From<radix_engine_toolkit_core::functions::execution::FeeLocks> for Seriali
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableResourceSpecifier {
     Amount {
         resource_address: SerializableNodeId,
@@ -265,6 +338,7 @@ pub enum SerializableResourceSpecifier {
     },
     Ids {
         resource_address: SerializableNodeId,
+        #[typeshare(serialized_as = "Vec<SerializableNonFungibleLocalId>")]
         ids: HashSet<SerializableNonFungibleLocalId>,
     },
 }
@@ -290,11 +364,15 @@ impl SerializableResourceSpecifier {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableResources {
     Amount(SerializableDecimal),
-    Ids(HashSet<SerializableNonFungibleLocalId>),
+    Ids(
+        #[typeshare(serialized_as = "Vec<SerializableNonFungibleLocalId>")]
+        HashSet<SerializableNonFungibleLocalId>,
+    ),
 }
 
 impl From<Resources> for SerializableResources {
@@ -306,6 +384,7 @@ impl From<Resources> for SerializableResources {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableSimpleTransferTransactionType {
     pub from: SerializableNodeId,
@@ -313,14 +392,29 @@ pub struct SerializableSimpleTransferTransactionType {
     pub transferred: SerializableResourceSpecifier,
 }
 
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableTransferTransactionType {
     pub from: SerializableNodeId,
     pub transfers: HashMap<SerializableNodeId, HashMap<SerializableNodeId, SerializableResources>>,
 }
 
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableAccountDepositSettingsTransactionType {
+    pub resource_preference_changes: HashMap<
+        SerializableNodeId,
+        HashMap<SerializableNodeId, SerializableResourcePreferenceAction>,
+    >,
+    pub default_deposit_rule_changes: HashMap<SerializableNodeId, SerializableDefaultDepositRule>,
+    pub authorized_depositors_changes:
+        HashMap<SerializableNodeId, SerializableAuthorizedDepositorsChanges>,
+}
+
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub struct SerializableGeneralTransactionType {
+    #[typeshare(serialized_as = "Vec<SerializableNodeId>")]
     pub account_proofs: HashSet<SerializableNodeId>,
     pub account_withdraws: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
     pub account_deposits: HashMap<SerializableNodeId, Vec<SerializableResourceTracker>>,
@@ -331,6 +425,131 @@ pub struct SerializableGeneralTransactionType {
         HashMap<SerializableNodeId, HashMap<SerializableNonFungibleLocalId, SerializableBytes>>,
 }
 
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableAuthorizedDepositorsChanges {
+    pub added: Vec<SerializableResourceOrNonFungible>,
+    pub removed: Vec<SerializableResourceOrNonFungible>,
+}
+
+impl SerializableAuthorizedDepositorsChanges {
+    pub fn new(value: AuthorizedDepositorsChanges, network_id: u8) -> Self {
+        Self {
+            added: value
+                .added
+                .into_iter()
+                .map(|value| SerializableResourceOrNonFungible::new(value, network_id))
+                .collect(),
+            removed: value
+                .removed
+                .into_iter()
+                .map(|value| SerializableResourceOrNonFungible::new(value, network_id))
+                .collect(),
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableResourceOrNonFungible {
+    NonFungible(SerializableNonFungibleGlobalId),
+    Resource(SerializableNodeId),
+}
+
+impl SerializableResourceOrNonFungible {
+    pub fn new(value: ResourceOrNonFungible, network_id: u8) -> Self {
+        match value {
+            ResourceOrNonFungible::Resource(resource_address) => Self::Resource(
+                SerializableNodeId::new(resource_address.into_node_id(), network_id),
+            ),
+            ResourceOrNonFungible::NonFungible(non_fungible) => Self::NonFungible(
+                SerializableNonFungibleGlobalId::new(non_fungible, network_id),
+            ),
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableResourcePreferenceAction {
+    Set(SerializableResourcePreference),
+    Remove,
+}
+
+impl From<ResourcePreferenceAction> for SerializableResourcePreferenceAction {
+    fn from(value: ResourcePreferenceAction) -> Self {
+        match value {
+            ResourcePreferenceAction::Remove => Self::Remove,
+            ResourcePreferenceAction::Set(value) => Self::Set(value.into()),
+        }
+    }
+}
+
+impl From<SerializableResourcePreferenceAction> for ResourcePreferenceAction {
+    fn from(value: SerializableResourcePreferenceAction) -> Self {
+        match value {
+            SerializableResourcePreferenceAction::Remove => Self::Remove,
+            SerializableResourcePreferenceAction::Set(value) => Self::Set(value.into()),
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub enum SerializableResourcePreference {
+    Allowed,
+    Disallowed,
+}
+
+impl From<SerializableResourcePreference> for ResourcePreference {
+    fn from(value: SerializableResourcePreference) -> Self {
+        match value {
+            SerializableResourcePreference::Allowed => ResourcePreference::Allowed,
+            SerializableResourcePreference::Disallowed => ResourcePreference::Disallowed,
+        }
+    }
+}
+
+impl From<ResourcePreference> for SerializableResourcePreference {
+    fn from(value: ResourcePreference) -> Self {
+        match value {
+            ResourcePreference::Allowed => SerializableResourcePreference::Allowed,
+            ResourcePreference::Disallowed => SerializableResourcePreference::Disallowed,
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub enum SerializableDefaultDepositRule {
+    Accept,
+    Reject,
+    AllowExisting,
+}
+
+impl From<SerializableDefaultDepositRule> for DefaultDepositRule {
+    fn from(value: SerializableDefaultDepositRule) -> Self {
+        match value {
+            SerializableDefaultDepositRule::Accept => DefaultDepositRule::Accept,
+            SerializableDefaultDepositRule::Reject => DefaultDepositRule::Reject,
+            SerializableDefaultDepositRule::AllowExisting => DefaultDepositRule::AllowExisting,
+        }
+    }
+}
+
+impl From<DefaultDepositRule> for SerializableDefaultDepositRule {
+    fn from(value: DefaultDepositRule) -> Self {
+        match value {
+            DefaultDepositRule::Accept => SerializableDefaultDepositRule::Accept,
+            DefaultDepositRule::Reject => SerializableDefaultDepositRule::Reject,
+            DefaultDepositRule::AllowExisting => SerializableDefaultDepositRule::AllowExisting,
+        }
+    }
+}
+
+#[typeshare::typeshare]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableMetadataValue {
@@ -353,11 +572,11 @@ pub enum SerializableMetadataValue {
 
     StringArray(Vec<String>),
     BoolArray(Vec<bool>),
-    U8Array(Vec<u8>),
-    U32Array(Vec<u32>),
-    U64Array(Vec<u64>),
-    I32Array(Vec<i32>),
-    I64Array(Vec<i64>),
+    U8Array(Vec<SerializableU8>),
+    U32Array(Vec<SerializableU32>),
+    U64Array(Vec<SerializableU64>),
+    I32Array(Vec<SerializableI32>),
+    I64Array(Vec<SerializableI64>),
     DecimalArray(Vec<SerializableDecimal>),
     GlobalAddressArray(Vec<SerializableNodeId>),
     PublicKeyArray(Vec<SerializablePublicKey>),
@@ -460,8 +679,9 @@ impl SerializableMetadataValue {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableSource<T> {
     Guaranteed {
         value: T,
@@ -489,8 +709,9 @@ impl<T> SerializableSource<T> {
     }
 }
 
+#[typeshare::typeshare]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableResourceTracker {
     Fungible {
         resource_address: SerializableNodeId,
@@ -528,6 +749,40 @@ impl SerializableResourceTracker {
                 amount: SerializableSource::new(amount, Into::into),
                 ids: SerializableSource::new(ids, |ids| ids.into_iter().map(Into::into).collect()),
             },
+        }
+    }
+}
+
+#[typeshare::typeshare]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub enum SerializableReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessController,
+}
+
+impl From<SerializableReservedInstruction> for ReservedInstruction {
+    fn from(value: SerializableReservedInstruction) -> Self {
+        match value {
+            SerializableReservedInstruction::AccessController => Self::AccessController,
+            SerializableReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            SerializableReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            SerializableReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            SerializableReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
+        }
+    }
+}
+
+impl From<ReservedInstruction> for SerializableReservedInstruction {
+    fn from(value: ReservedInstruction) -> Self {
+        match value {
+            ReservedInstruction::AccessController => Self::AccessController,
+            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            ReservedInstruction::AccountUpdateSettings => Self::AccountUpdateSettings,
         }
     }
 }

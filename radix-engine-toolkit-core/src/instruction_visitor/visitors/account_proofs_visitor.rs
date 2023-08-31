@@ -46,16 +46,9 @@ impl InstructionVisitor for AccountProofsVisitor {
                 IndexedManifestValue::from_manifest_value(args)
                     .static_addresses()
                     .iter()
-                    .filter_map(|node_id| {
-                        if node_id.is_global_resource_manager() {
-                            Some(ResourceAddress::new_or_panic(node_id.0))
-                        } else {
-                            None
-                        }
-                    }),
+                    .filter_map(|node_id| ResourceAddress::try_from(*node_id).ok()),
             )
         }
-
         Ok(())
     }
 }

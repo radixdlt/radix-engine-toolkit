@@ -24,7 +24,7 @@ use transaction::prelude::*;
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
     // Arrange
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account(), RADIX_TOKEN, dec!("1"))
+        .create_proof_from_account_of_amount(account(), XRD, dec!("1"))
         .create_proof_from_account_of_amount(account(), ACCOUNT_OWNER_BADGE, dec!("1"))
         .build();
 
@@ -34,7 +34,7 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
     // Assert
     assert_eq!(
         resource_addresses,
-        HashSet::from([RADIX_TOKEN, ACCOUNT_OWNER_BADGE])
+        HashSet::from([XRD, ACCOUNT_OWNER_BADGE])
     );
 }
 
@@ -42,7 +42,7 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_amount() {
     // Arrange
     let manifest = ManifestBuilder::new()
-        .create_proof_from_account_of_amount(account(), RADIX_TOKEN, dec!("10"))
+        .create_proof_from_account_of_amount(account(), XRD, dec!("10"))
         .create_proof_from_account_of_amount(account(), ACCOUNT_OWNER_BADGE, dec!("10"))
         .build();
 
@@ -52,7 +52,7 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_amount() {
     // Assert
     assert_eq!(
         resource_addresses,
-        HashSet::from([RADIX_TOKEN, ACCOUNT_OWNER_BADGE])
+        HashSet::from([XRD, ACCOUNT_OWNER_BADGE])
     );
 }
 
@@ -62,13 +62,13 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_non_fungibles() {
     let manifest = ManifestBuilder::new()
         .create_proof_from_account_of_non_fungibles(
             account(),
-            RADIX_TOKEN,
-            &BTreeSet::from([NonFungibleLocalId::integer(1)]),
+            XRD,
+            BTreeSet::from([NonFungibleLocalId::integer(1)]),
         )
         .create_proof_from_account_of_non_fungibles(
             account(),
             ACCOUNT_OWNER_BADGE,
-            &BTreeSet::from([NonFungibleLocalId::integer(1)]),
+            BTreeSet::from([NonFungibleLocalId::integer(1)]),
         )
         .build();
 
@@ -78,7 +78,7 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_non_fungibles() {
     // Assert
     assert_eq!(
         resource_addresses,
-        HashSet::from([RADIX_TOKEN, ACCOUNT_OWNER_BADGE])
+        HashSet::from([XRD, ACCOUNT_OWNER_BADGE])
     );
 }
 

@@ -29,4 +29,6 @@ pub mod signed_intent;
 pub mod manifest_sbor;
 pub mod scrypto_sbor;
 
+pub mod address;
 pub mod events;
+pub mod utils;

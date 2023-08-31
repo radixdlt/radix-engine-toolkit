@@ -27,6 +27,7 @@ use transaction::prelude::{
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableMessage {
@@ -35,12 +36,14 @@ pub enum SerializableMessage {
     Encrypted(SerializableEncryptedMessage),
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SerializablePlainTextMessage {
     pub mime_type: String,
     pub message: SerializableMessageContent,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 #[serde(tag = "kind", content = "value")]
 pub enum SerializableMessageContent {
@@ -48,32 +51,51 @@ pub enum SerializableMessageContent {
     Bytes(SerializableBytes),
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableEncryptedMessage {
     pub encrypted: SerializableBytes,
+    #[typeshare(serialized_as = "HashMap<SerializableCurveType, SerializableDecryptorsByCurve>")]
     pub decryptors_by_curve: IndexMap<SerializableCurveType, SerializableDecryptorsByCurve>,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum SerializableCurveType {
     Ed25519,
     Secp256k1,
 }
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
 pub enum SerializableDecryptorsByCurve {
     Ed25519 {
         dh_ephemeral_public_key: SerializableEd25519PublicKey,
+        #[typeshare(
+            serialized_as = "HashMap<SerializablePublicKeyFingerprint, SerializableAesWrapped128BitKey>"
+        )]
         decryptors: IndexMap<SerializablePublicKeyFingerprint, SerializableAesWrapped128BitKey>,
     },
     Secp256k1 {
         dh_ephemeral_public_key: SerializableSecp256k1PublicKey,
+        #[typeshare(
+            serialized_as = "HashMap<SerializablePublicKeyFingerprint, SerializableAesWrapped128BitKey>"
+        )]
         decryptors: IndexMap<SerializablePublicKeyFingerprint, SerializableAesWrapped128BitKey>,
     },
 }
 
 pub type SerializableAesWrapped128BitKey = AsHex<[u8; AesWrapped128BitKey::LENGTH]>;
 pub type SerializablePublicKeyFingerprint = AsHex<[u8; PublicKeyFingerprint::LENGTH]>;
+
+#[allow(dead_code)]
+mod __private {
+    #[typeshare::typeshare]
+    pub type SerializableAesWrapped128BitKey = String;
+    #[typeshare::typeshare]
+    pub type SerializablePublicKeyFingerprint = String;
+}
 
 //==================
 // From Trait Impls

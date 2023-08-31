@@ -27,7 +27,7 @@ impl From<ManifestAddress> for NativeManifestAddress {
     fn from(value: ManifestAddress) -> Self {
         match value {
             ManifestAddress::Named { value } => Self::Named(value),
-            ManifestAddress::Static { value } => Self::Static(value.0),
+            ManifestAddress::Static { value } => Self::Static((*value).into()),
         }
     }
 }
@@ -37,7 +37,13 @@ impl ManifestAddress {
         match native {
             NativeManifestAddress::Named(value) => Self::Named { value: *value },
             NativeManifestAddress::Static(value) => Self::Static {
-                value: Arc::new(Address(*value, network_id)),
+                // The NativeManifestAddress has a custom implementation of decoding that ensures
+                // that the address indeed has an entity type.
+                value: Arc::new(Address::from_typed_node_id(
+                    CoreTypedNodeId::new(*value)
+                        .expect("Failed to create a TypedNodeId from a trusted manifest address"),
+                    network_id,
+                )),
             },
         }
     }
@@ -49,7 +55,7 @@ impl ManifestAddress {
         match native {
             NativeDynamicGlobalAddress::Named(value) => Self::Named { value: *value },
             NativeDynamicGlobalAddress::Static(value) => Self::Static {
-                value: Arc::new(Address(value.into_node_id(), network_id)),
+                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
             },
         }
     }
@@ -61,7 +67,7 @@ impl ManifestAddress {
         match native {
             NativeDynamicPackageAddress::Named(value) => Self::Named { value: *value },
             NativeDynamicPackageAddress::Static(value) => Self::Static {
-                value: Arc::new(Address(value.into_node_id(), network_id)),
+                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
             },
         }
     }
@@ -74,7 +80,7 @@ impl TryFrom<ManifestAddress> for NativeDynamicPackageAddress {
         match value {
             ManifestAddress::Named { value } => Ok(Self::Named(value)),
             ManifestAddress::Static { value } => {
-                value.0 .0.try_into().map(Self::Static).map_err(Into::into)
+                (*value).try_into().map(Self::Static).map_err(Into::into)
             }
         }
     }
@@ -87,7 +93,7 @@ impl TryFrom<ManifestAddress> for NativeDynamicGlobalAddress {
         match value {
             ManifestAddress::Named { value } => Ok(Self::Named(value)),
             ManifestAddress::Static { value } => {
-                value.0 .0.try_into().map(Self::Static).map_err(Into::into)
+                (*value).try_into().map(Self::Static).map_err(Into::into)
             }
         }
     }

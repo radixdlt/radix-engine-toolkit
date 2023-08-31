@@ -21,10 +21,13 @@ use transaction::errors::*;
 use transaction::model::*;
 use transaction::validation::*;
 
-pub fn hash(signed_intent: &SignedIntentV1) -> Result<Hash, PrepareError> {
+use crate::models::transaction_hash::TransactionHash;
+
+pub fn hash(signed_intent: &SignedIntentV1) -> Result<TransactionHash, PrepareError> {
     signed_intent
         .prepare()
-        .map(|prepared| prepared.signed_intent_hash().0)
+        .map(|prepared| prepared.signed_intent_hash())
+        .map(|hash| TransactionHash::new(hash, signed_intent.intent.header.network_id))
 }
 
 pub fn compile(signed_intent: &SignedIntentV1) -> Result<Vec<u8>, EncodeError> {

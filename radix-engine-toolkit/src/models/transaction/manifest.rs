@@ -23,13 +23,14 @@ use transaction::prelude::TransactionManifestV1;
 
 use crate::prelude::*;
 
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct SerializableTransactionManifest {
     pub instructions: SerializableInstructions,
     pub blobs: Vec<SerializableBytes>,
 }
 
-impl NativeConvertible for SerializableTransactionManifest {
+impl FromNative for SerializableTransactionManifest {
     type Native = TransactionManifestV1;
     type Error = SerializableInstructionsError;
     type Context = SerializableInstructionsKind;

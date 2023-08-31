@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 #[serde_as]
+#[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone)]
 pub enum SerializableOlympiaNetwork {
     Mainnet,
