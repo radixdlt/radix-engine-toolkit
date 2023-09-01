@@ -154,6 +154,7 @@ jobs:
           repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
+          ref: f1a6ef67449b47028fd5c3d8e5c6d3b80ddefd2b
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
