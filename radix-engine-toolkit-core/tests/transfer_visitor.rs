@@ -132,7 +132,7 @@ pub fn transfer_visitor_can_pick_up_non_fungible_transfer() {
         .withdraw_non_fungibles_from_account(
             account1,
             XRD,
-            BTreeSet::from([
+            IndexSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),
@@ -156,7 +156,7 @@ pub fn transfer_visitor_can_pick_up_non_fungible_transfer() {
         deposits,
         hashmap!(
             account2 => hashmap! {
-                XRD => Resources::Ids(BTreeSet::from([
+                XRD => Resources::Ids(IndexSet::from([
                     NonFungibleLocalId::integer(1),
                     NonFungibleLocalId::integer(2),
                 ]))

@@ -16,37 +16,35 @@
 // under the License.
 
 use crate::prelude::*;
-use sbor::{LocalTypeIndex, WellKnownTypeIndex};
+use sbor::{LocalTypeId, WellKnownTypeId};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 #[serde(tag = "kind", content = "value")]
-pub enum SerializableLocalTypeIndex {
+pub enum SerializableLocalTypeId {
     WellKnown(SerializableU8),
     SchemaLocalIndex(SerializableU64),
 }
 
-impl From<LocalTypeIndex> for SerializableLocalTypeIndex {
-    fn from(value: LocalTypeIndex) -> Self {
+impl From<LocalTypeId> for SerializableLocalTypeId {
+    fn from(value: LocalTypeId) -> Self {
         match value {
-            LocalTypeIndex::SchemaLocalIndex(value) => {
-                Self::SchemaLocalIndex((value as u64).into())
-            }
-            LocalTypeIndex::WellKnown(value) => Self::WellKnown((value.as_index() as u8).into()),
+            LocalTypeId::SchemaLocalIndex(value) => Self::SchemaLocalIndex((value as u64).into()),
+            LocalTypeId::WellKnown(value) => Self::WellKnown((value.as_index() as u8).into()),
         }
     }
 }
 
-impl From<SerializableLocalTypeIndex> for LocalTypeIndex {
-    fn from(value: SerializableLocalTypeIndex) -> Self {
+impl From<SerializableLocalTypeId> for LocalTypeId {
+    fn from(value: SerializableLocalTypeId) -> Self {
         match value {
-            SerializableLocalTypeIndex::SchemaLocalIndex(value) => {
+            SerializableLocalTypeId::SchemaLocalIndex(value) => {
                 Self::SchemaLocalIndex(*value as usize)
             }
-            SerializableLocalTypeIndex::WellKnown(value) => {
-                Self::WellKnown(WellKnownTypeIndex::of(*value))
+            SerializableLocalTypeId::WellKnown(value) => {
+                Self::WellKnown(WellKnownTypeId::of(*value))
             }
         }
     }

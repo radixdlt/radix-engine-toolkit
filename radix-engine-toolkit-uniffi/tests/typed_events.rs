@@ -37,6 +37,19 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             .application_events
             .iter()
         {
+            let node_id = match event_identifier.0 {
+                Emitter::Function(BlueprintId {
+                    package_address, ..
+                }) => package_address.into_node_id(),
+                Emitter::Method(node_id, ..) => node_id,
+            };
+            if matches!(
+                node_id.entity_type(),
+                Some(EntityType::GlobalGenericComponent | EntityType::InternalGenericComponent)
+            ) {
+                continue;
+            }
+
             let event_type_identifier =
                 radix_engine_toolkit_uniffi::functions::EventTypeIdentifier {
                     emitter: match event_identifier.0 {

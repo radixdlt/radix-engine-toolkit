@@ -19,7 +19,7 @@ use crate::schema_visitor::core::{error::SchemaVisitorError, traits::SchemaVisit
 use radix_engine_common::prelude::{
     OwnValidation, ScryptoCustomSchema, ScryptoCustomTypeKind, ScryptoCustomTypeValidation,
 };
-use sbor::{LocalTypeIndex, Schema, TypeValidation};
+use sbor::{LocalTypeId, Schema, TypeValidation};
 
 #[derive(Default)]
 pub struct BucketInPathVisitor(bool);
@@ -29,14 +29,12 @@ impl SchemaVisitor<ScryptoCustomSchema> for BucketInPathVisitor {
 
     fn visit_custom(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<ScryptoCustomSchema>,
-        custom_type_kind: &<ScryptoCustomSchema as sbor::CustomSchema>::CustomTypeKind<
-            LocalTypeIndex,
-        >,
+        custom_type_kind: &<ScryptoCustomSchema as sbor::CustomSchema>::CustomTypeKind<LocalTypeId>,
     ) -> Result<(), Self::Error> {
-        let type_validation = schema.resolve_type_validation(local_type_index).map_or(
-            Err(SchemaVisitorError::InvalidLocalTypeIndex(local_type_index)),
+        let type_validation = schema.resolve_type_validation(local_type_id).map_or(
+            Err(SchemaVisitorError::InvalidLocalTypeId(local_type_id)),
             Ok,
         )?;
         if *custom_type_kind == ScryptoCustomTypeKind::Own

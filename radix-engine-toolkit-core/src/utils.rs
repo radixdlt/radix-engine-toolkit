@@ -176,13 +176,13 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
     let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
         &schema,
-        local_type_index,
+        local_type_id,
         &(),
         SCRYPTO_SBOR_V1_MAX_DEPTH,
     )

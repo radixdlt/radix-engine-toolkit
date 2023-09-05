@@ -22,7 +22,7 @@ use crate::prelude::*;
 use radix_engine_common::prelude::*;
 use radix_engine_toolkit_core::functions::manifest_sbor::*;
 use radix_engine_toolkit_core::utils::*;
-use sbor::{LocalTypeIndex, Schema};
+use sbor::{LocalTypeId, Schema};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -65,17 +65,17 @@ impl<'f> Function<'f> for ManifestSborDecodeToString {
             }
         };
         let schema = if let Some(PayloadSchema {
-            local_type_index,
+            local_type_id,
             schema,
         }) = schema
         {
-            let local_type_index = LocalTypeIndex::from(local_type_index);
+            let local_type_id = LocalTypeId::from(local_type_id);
             let schema =
                 scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema).map_err(|error| {
                     InvocationHandlingError::DecodeError(debug_string(error), debug_string(schema))
                 })?;
 
-            Some((local_type_index, schema))
+            Some((local_type_id, schema))
         } else {
             None
         };

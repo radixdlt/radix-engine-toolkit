@@ -65,7 +65,7 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
         .withdraw_non_fungibles_from_account(
             account1,
             XRD,
-            BTreeSet::from([
+            IndexSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),
@@ -90,7 +90,7 @@ pub fn simple_transfer_visitor_can_pick_up_non_fungible_transfer() {
         resource_specifier,
         ResourceSpecifier::Ids(
             XRD,
-            BTreeSet::from([
+            IndexSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ])
@@ -109,7 +109,7 @@ pub fn simple_transfer_visitor_invalidated_transfer_with_an_additional_withdraw(
         .withdraw_non_fungibles_from_account(
             account1,
             XRD,
-            BTreeSet::from([
+            IndexSet::from([
                 NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
             ]),

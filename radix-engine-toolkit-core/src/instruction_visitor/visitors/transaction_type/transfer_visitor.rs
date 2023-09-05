@@ -346,7 +346,7 @@ impl Worktop {
                         .iter()
                         .take(amount_to_take)
                         .cloned()
-                        .collect::<BTreeSet<_>>();
+                        .collect::<IndexSet<_>>();
                     for id in ids_to_take.iter() {
                         worktop_ids.remove(id);
                     }
@@ -363,7 +363,7 @@ impl Worktop {
     fn take_non_fungibles(
         &mut self,
         resource_address: ResourceAddress,
-        ids: &BTreeSet<NonFungibleLocalId>,
+        ids: &IndexSet<NonFungibleLocalId>,
     ) -> Result<(ManifestBucket, Resources), WorktopError> {
         let worktop_contents =
             self.worktop
@@ -404,10 +404,10 @@ impl Worktop {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, Ord, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Resources {
     Amount(Decimal),
-    Ids(BTreeSet<NonFungibleLocalId>),
+    Ids(IndexSet<NonFungibleLocalId>),
 }
 
 impl Resources {
@@ -425,7 +425,7 @@ impl Resources {
         }
     }
 
-    fn checked_sub_ids(&self, other: &BTreeSet<NonFungibleLocalId>) -> Option<Self> {
+    fn checked_sub_ids(&self, other: &IndexSet<NonFungibleLocalId>) -> Option<Self> {
         match self {
             Self::Ids(ids) => {
                 let mut ids = ids.clone();

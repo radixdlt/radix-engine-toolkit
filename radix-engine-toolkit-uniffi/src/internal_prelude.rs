@@ -362,9 +362,6 @@ mod native {
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError,
     };
-    pub use radix_engine_common::types::{
-        TypeIdentifier as NativeTypeIdentifier
-    };
     pub use radix_engine_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
         from_precise_decimal as native_from_precise_decimal,
@@ -385,7 +382,7 @@ mod native {
         DecodeError as NativeDecodeError,
     };
     pub use sbor::schema::{
-        LocalTypeIndex as NativeLocalTypeIndex
+        LocalTypeId as NativeLocalTypeId
     };
     pub use sbor::representations::{
         SerializationMode as NativeSerializationMode

@@ -33,8 +33,8 @@ use transaction_scenarios::scenarios::get_builder_for_every_scenario;
 
 use super::traits::HasExamples;
 
-impl<'f> HasExamples<'f, 65> for ExecutionAnalyze {
-    fn example_inputs() -> [Self::Input; 65] {
+impl<'f> HasExamples<'f, 66> for ExecutionAnalyze {
+    fn example_inputs() -> [Self::Input; 66] {
         let op1 = {
             let mut test_runner = TestRunnerBuilder::new().without_trace().build();
             let (public_key1, _, account1) = test_runner.new_account(true);

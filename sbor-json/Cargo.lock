@@ -419,8 +419,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-common"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "bech32",
  "blake2",
@@ -440,19 +440,19 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-derive"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "proc-macro2",
  "quote",
  "sbor-derive-common",
- "syn 1.0.109",
+ "syn 1.0.93",
 ]
 
 [[package]]
 name = "radix-engine-interface"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "bitflags",
  "const-sha1",
@@ -512,8 +512,8 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
 name = "sbor"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "const-sha1",
  "hex",
@@ -526,8 +526,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "proc-macro2",
  "sbor-derive-common",
@@ -535,19 +535,19 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive-common"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "const-sha1",
  "itertools",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 1.0.93",
 ]
 
 [[package]]
 name = "sbor-json"
-version = "0.12.0-rcnetv3.1"
+version = "0.12.1"
 dependencies = [
  "bech32",
  "radix-engine-common",
@@ -561,8 +561,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-schema"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "bitflags",
  "radix-engine-common",
@@ -667,6 +667,16 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 
 [[package]]
 name = "syn"
+version = "1.0.93"
+source = "git+https://github.com/dtolnay/syn.git?tag=1.0.93#2e505a847174ff8939431c4f5ffb565906590ac2"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-xid",
+]
+
+[[package]]
+name = "syn"
 version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
@@ -728,9 +738,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
 
 [[package]]
+name = "unicode-xid"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
+
+[[package]]
 name = "utils"
-version = "0.12.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3-da3dbedc#da3dbedca051c88ddaa1f9baa72d95350eba8cc6"
+version = "0.13.0"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-cc20bb093f#cc20bb093f1c95f49855c3491d223904f146f607"
 dependencies = [
  "indexmap 2.0.0-pre",
  "serde",

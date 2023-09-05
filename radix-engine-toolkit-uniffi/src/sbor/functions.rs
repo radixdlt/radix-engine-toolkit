@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::WellKnownTypeIndex;
+use sbor::WellKnownTypeId;
 
 use crate::prelude::*;
 
@@ -110,14 +110,14 @@ pub enum SerializationMode {
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum LocalTypeIndex {
+pub enum LocalTypeId {
     WellKnown { value: u8 },
     SchemaLocalIndex { value: u64 },
 }
 
 #[derive(Clone, Debug, Record)]
 pub struct Schema {
-    pub local_type_index: LocalTypeIndex,
+    pub local_type_id: LocalTypeId,
     pub schema: Vec<u8>,
 }
 
@@ -144,32 +144,27 @@ impl From<SerializationMode> for NativeSerializationMode {
     }
 }
 
-impl From<LocalTypeIndex> for NativeLocalTypeIndex {
-    fn from(value: LocalTypeIndex) -> Self {
+impl From<LocalTypeId> for NativeLocalTypeId {
+    fn from(value: LocalTypeId) -> Self {
         match value {
-            LocalTypeIndex::WellKnown { value } => Self::WellKnown(WellKnownTypeIndex::of(value)),
-            LocalTypeIndex::SchemaLocalIndex { value } => Self::SchemaLocalIndex(value as usize),
+            LocalTypeId::WellKnown { value } => Self::WellKnown(WellKnownTypeId::of(value)),
+            LocalTypeId::SchemaLocalIndex { value } => Self::SchemaLocalIndex(value as usize),
         }
     }
 }
 
-impl TryFrom<Schema>
-    for (
-        NativeLocalTypeIndex,
-        NativeSchema<NativeScryptoCustomSchema>,
-    )
-{
+impl TryFrom<Schema> for (NativeLocalTypeId, NativeSchema<NativeScryptoCustomSchema>) {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
         Schema {
-            local_type_index,
+            local_type_id,
             schema,
         }: Schema,
     ) -> Result<Self> {
-        let local_type_index = local_type_index.into();
+        let local_type_id = local_type_id.into();
         let schema = native_scrypto_decode(&schema)?;
-        Ok((local_type_index, schema))
+        Ok((local_type_id, schema))
     }
 }
 

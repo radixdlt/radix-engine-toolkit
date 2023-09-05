@@ -91,20 +91,36 @@ macro_rules! define_uniffi_decimal {
                     self.0.is_negative()
                 }
 
-                pub fn abs(&self) -> $crate::prelude::Arc<Self> {
-                    $crate::prelude::Arc::new(Self(self.0.abs()))
+                pub fn abs(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
+                    self.0
+                        .safe_abs()
+                        .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
+                        .map(Self)
+                        .map($crate::prelude::Arc::new)
                 }
 
-                pub fn floor(&self) -> $crate::prelude::Arc<Self> {
-                    $crate::prelude::Arc::new(Self(self.0.floor()))
+                pub fn floor(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
+                    self.0
+                        .safe_floor()
+                        .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
+                        .map(Self)
+                        .map($crate::prelude::Arc::new)
                 }
 
-                pub fn ceiling(&self) -> $crate::prelude::Arc<Self> {
-                    $crate::prelude::Arc::new(Self(self.0.ceiling()))
+                pub fn ceiling(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
+                    self.0
+                        .safe_ceiling()
+                        .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
+                        .map(Self)
+                        .map($crate::prelude::Arc::new)
                 }
 
-                pub fn round(&self, decimal_places: i32, rounding_mode: $crate::prelude::RoundingMode) -> $crate::prelude::Arc<Self> {
-                    $crate::prelude::Arc::new(Self(self.0.round(decimal_places, rounding_mode.into())))
+                pub fn round(&self, decimal_places: i32, rounding_mode: $crate::prelude::RoundingMode) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
+                    self.0
+                        .safe_round(decimal_places, rounding_mode.into())
+                        .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
+                        .map(Self)
+                        .map($crate::prelude::Arc::new)
                 }
 
                 pub fn powi(&self, exp: i64) -> $crate::error::Result<$crate::prelude::Arc<Self>> {

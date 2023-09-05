@@ -225,10 +225,10 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 ResourceTracker::NonFungible {
                     resource_address,
                     amount: Source::Guaranteed(dec!("2")),
-                    ids: Source::Predicted(0, btreeset!(
+                    ids: Source::Predicted(0, IndexSet::from([
                         NonFungibleLocalId::integer(1),
                         NonFungibleLocalId::integer(2),
-                    ))
+                    ]))
                 }
             ]
         }
@@ -240,10 +240,10 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 ResourceTracker::NonFungible {
                     resource_address,
                     amount: Source::Guaranteed(dec!("2")),
-                    ids: Source::Predicted(1, btreeset!(
+                    ids: Source::Predicted(1, IndexSet::from([
                         NonFungibleLocalId::integer(1),
                         NonFungibleLocalId::integer(2),
-                    ))
+                    ]))
                 }
             ]
         }

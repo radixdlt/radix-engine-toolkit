@@ -301,7 +301,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                         }
                         ResourceSpecifier::Ids(changes_resource_address, changes_ids) => {
                             self.assert_eq_or_error(&changes_resource_address, &resource_address)?;
-                            self.assert_eq_or_error(&btree_set_decimal_len(&changes_ids), &amount)?;
+                            self.assert_eq_or_error(&set_decimal_len(&changes_ids), &amount)?;
 
                             ResourceTracker::NonFungible {
                                 resource_address,
@@ -335,7 +335,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
                             ResourceTracker::NonFungible {
                                 resource_address,
-                                amount: Source::Guaranteed(btree_set_decimal_len(&ids)),
+                                amount: Source::Guaranteed(set_decimal_len(&ids)),
                                 ids: Source::Guaranteed(ids),
                             }
                         }
@@ -399,7 +399,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                                     resource_address: *resource_address,
                                     amount: Source::Predicted(
                                         self.instruction_index,
-                                        btree_set_decimal_len(ids),
+                                        set_decimal_len(ids),
                                     ),
                                     ids: Source::Predicted(self.instruction_index, ids.clone()),
                                 }),
@@ -472,7 +472,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                         .as_node_id()
                         .is_global_non_fungible_resource_manager(),
                 )?;
-                self.assert_eq_or_error(amount, &btree_set_decimal_len(ids))?;
+                self.assert_eq_or_error(amount, &set_decimal_len(ids))?;
 
                 ResourceTracker::NonFungible {
                     resource_address: *resource_address,
@@ -509,7 +509,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     pub fn handle_take_non_fungibles_from_worktop(
         &mut self,
         resource_address: &ResourceAddress,
-        ids: &BTreeSet<NonFungibleLocalId>,
+        ids: &IndexSet<NonFungibleLocalId>,
     ) -> Result<(), GeneralTransactionTypeError> {
         // In this case, the resource is non-fungible and the take from worktop is of a known set of
         // ids, which we can also say of a known set of amounts. Thus, everything about this can be
@@ -517,7 +517,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
         // to look at the worktop changes.
         let resource_tracker = ResourceTracker::NonFungible {
             resource_address: *resource_address,
-            amount: Source::Guaranteed(btree_set_decimal_len(ids)),
+            amount: Source::Guaranteed(set_decimal_len(ids)),
             ids: Source::Guaranteed(ids.clone()),
         };
 
@@ -561,7 +561,7 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
 
                 ResourceTracker::NonFungible {
                     resource_address: *resource_address,
-                    amount: Source::Predicted(self.instruction_index, btree_set_decimal_len(ids)),
+                    amount: Source::Predicted(self.instruction_index, set_decimal_len(ids)),
                     ids: Source::Predicted(self.instruction_index, ids.clone()),
                 }
             }
@@ -678,11 +678,11 @@ pub enum ResourceTracker {
     NonFungible {
         resource_address: ResourceAddress,
         amount: Source<Decimal>,
-        ids: Source<BTreeSet<NonFungibleLocalId>>,
+        ids: Source<IndexSet<NonFungibleLocalId>>,
     },
 }
 
-fn btree_set_decimal_len<T>(set: &BTreeSet<T>) -> Decimal {
+fn set_decimal_len<T>(set: &IndexSet<T>) -> Decimal {
     set.len()
         .to_string()
         .parse()
