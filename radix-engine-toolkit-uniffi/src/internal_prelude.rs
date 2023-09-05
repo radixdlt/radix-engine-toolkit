@@ -399,6 +399,7 @@ mod native {
         ResourceSpecifier as NativeResourceSpecifier,
     };
     pub use radix_engine::transaction::{
+        VersionedTransactionReceipt as NativeVersionedTransactionReceipt,
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
     };

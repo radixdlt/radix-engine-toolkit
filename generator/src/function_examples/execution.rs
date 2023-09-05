@@ -17,6 +17,7 @@
 
 use radix_engine::transaction::{
     execute_and_commit_transaction, CostingParameters, ExecutionConfig, TransactionReceipt,
+    VersionedTransactionReceipt,
 };
 use radix_engine::types::ResourceOrNonFungible;
 use radix_engine::vm::Vm;
@@ -147,7 +148,8 @@ impl<'f> HasExamples<'f, 66> for ExecutionAnalyze {
                 let instructions =
                     to_serializable_instructions(&manifest.instructions, 0xf2).unwrap();
                 let instructions = SerializableInstructions::Parsed(instructions);
-                let preview_receipt = scrypto_encode(&receipt).unwrap();
+                let preview_receipt =
+                    scrypto_encode(&VersionedTransactionReceipt::V1(receipt)).unwrap();
 
                 Self::Input {
                     instructions,

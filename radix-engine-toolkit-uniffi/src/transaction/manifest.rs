@@ -89,7 +89,8 @@ impl TransactionManifest {
     }
 
     pub fn analyze_execution(&self, transaction_receipt: Vec<u8>) -> Result<ExecutionAnalysis> {
-        let receipt = native_scrypto_decode::<NativeTransactionReceipt>(&transaction_receipt)?;
+        let receipt =
+            native_scrypto_decode::<NativeVersionedTransactionReceipt>(&transaction_receipt)?;
         let analysis = core_execution_analyze(
             &self.instructions.0,
             &CoreExecutionAnalysisTransactionReceipt::new(&receipt)?,

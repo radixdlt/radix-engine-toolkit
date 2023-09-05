@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine::transaction::TransactionReceipt;
+use radix_engine::transaction::{TransactionReceipt, VersionedTransactionReceipt};
 use radix_engine_interface::blueprints::account::{ACCOUNT_LOCK_FEE_IDENT, AccountLockFeeInput, ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, AccountLockContingentFeeInput};
 use radix_engine_toolkit_core::functions::execution::{self, *};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
@@ -304,7 +304,8 @@ fn test_manifest_with_lock_fee(
     // Act
     let transaction_types = transaction_types(
         &manifest.instructions,
-        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(receipt))
+            .unwrap(),
     );
 
     // Assert
@@ -333,7 +334,10 @@ fn transaction_types(
 ) -> Vec<TransactionType> {
     let analysis = execution::analyze(
         manifest_instructions,
-        &ExecutionAnalysisTransactionReceipt::new(receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(
+            receipt.clone(),
+        ))
+        .unwrap(),
     )
     .unwrap();
     analysis.transaction_types

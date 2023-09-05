@@ -141,55 +141,63 @@ pub fn analyze(
 /// execution of the transaction succeeded and was committed to ledger state and that there is an
 /// execution trace output.
 pub struct ExecutionAnalysisTransactionReceipt<'r>(
-    &'r TransactionReceipt,
+    &'r VersionedTransactionReceipt,
+    &'r TransactionReceiptV1,
     &'r TransactionExecutionTrace,
     &'r CommitResult,
 );
 
 impl<'r> ExecutionAnalysisTransactionReceipt<'r> {
-    pub fn new(transaction_receipt: &'r TransactionReceipt) -> Result<Self, ExecutionModuleError> {
+    pub fn new(
+        transaction_receipt: &'r VersionedTransactionReceipt,
+    ) -> Result<Self, ExecutionModuleError> {
+        let v1_receipt = transaction_receipt
+            .as_latest_ref()
+            .ok_or(ExecutionModuleError::FailedToConvertReceiptToLatest)?;
+
         if let TransactionResult::Commit(
             commit_result @ CommitResult {
                 outcome: TransactionOutcome::Success(..),
                 execution_trace,
                 ..
             },
-        ) = &transaction_receipt.result
+        ) = &v1_receipt.result
         {
             if let Some(ref execution_trace) = execution_trace {
-                Ok(Self(transaction_receipt, execution_trace, commit_result))
+                Ok(Self(
+                    transaction_receipt,
+                    v1_receipt,
+                    execution_trace,
+                    commit_result,
+                ))
             } else {
                 Err(ExecutionModuleError::NoExecutionTrace)
             }
         } else {
-            Err(
-                ExecutionModuleError::TransactionWasNotCommittedSuccessfully(
-                    transaction_receipt.clone(),
-                ),
-            )
+            Err(ExecutionModuleError::TransactionWasNotCommittedSuccessfully(v1_receipt.clone()))
         }
     }
 
     pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
-        self.1
+        self.2
     }
 
     pub fn commit_result(&self) -> &'r CommitResult {
-        self.2
+        self.3
     }
 }
 
-impl<'r> AsRef<TransactionReceipt> for ExecutionAnalysisTransactionReceipt<'r> {
-    fn as_ref(&self) -> &TransactionReceipt {
-        self.0
+impl<'r> AsRef<TransactionReceiptV1> for ExecutionAnalysisTransactionReceipt<'r> {
+    fn as_ref(&self) -> &TransactionReceiptV1 {
+        self.1
     }
 }
 
 impl<'r> std::ops::Deref for ExecutionAnalysisTransactionReceipt<'r> {
-    type Target = TransactionReceipt;
+    type Target = TransactionReceiptV1;
 
     fn deref(&self) -> &Self::Target {
-        self.0
+        self.1
     }
 }
 
@@ -259,10 +267,11 @@ pub struct GeneralTransactionType {
 
 #[derive(Clone, Debug)]
 pub enum ExecutionModuleError {
-    TransactionWasNotCommittedSuccessfully(TransactionReceipt),
+    TransactionWasNotCommittedSuccessfully(TransactionReceiptV1),
     InstructionVisitorError(InstructionVisitorError),
     LocatedGeneralTransactionTypeError(LocatedGeneralTransactionTypeError),
     InvalidEntityTypeIdError(InvalidEntityTypeIdError),
+    FailedToConvertReceiptToLatest,
     NoExecutionTrace,
 }
 
