@@ -328,7 +328,7 @@ impl Worktop {
             Resources::Amount(worktop_amount) => {
                 if *worktop_amount >= amount {
                     *worktop_amount = worktop_amount
-                        .safe_sub(amount)
+                        .checked_sub(amount)
                         .ok_or(WorktopError::TakeError)?;
                     Ok(Resources::Amount(amount))
                 } else {
@@ -414,7 +414,7 @@ impl Resources {
     fn checked_add(&self, other: &Self) -> Option<Self> {
         match (self, other) {
             (Self::Amount(amount1), Self::Amount(amount2)) => {
-                amount1.safe_add(*amount2).map(Self::Amount)
+                amount1.checked_add(*amount2).map(Self::Amount)
             }
             (Self::Ids(ids1), Self::Ids(ids2)) => Some(Self::Ids({
                 let mut ids = ids1.clone();

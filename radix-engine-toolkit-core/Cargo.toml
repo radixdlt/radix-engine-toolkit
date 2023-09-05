@@ -6,15 +6,15 @@ build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", default-features= false, features = ["std"] }
-radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f" }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", default-features= false, features = ["std"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f" }
-radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", default-features= false, features = ["std"] }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e" }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", features = ["serde"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", default-features= false, features = ["std"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e" }
+radix-engine-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
@@ -35,7 +35,7 @@ sbor-json = { path = "../sbor-json" }
 cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-cc20bb093f", default-features = false, features = ["std", "resource_tracker"] }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d414dad35e", default-features = false, features = ["std", "resource_tracker"] }
 
 [features]
 default = ["moka"]

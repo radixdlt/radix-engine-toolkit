@@ -56,23 +56,23 @@ macro_rules! define_uniffi_decimal {
                 }
 
                 pub fn add(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeSafeAdd;
-                    self.0.safe_add(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
+                    use $crate::prelude::NativeCheckedAdd;
+                    self.0.checked_add(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn sub(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeSafeSub;
-                    self.0.safe_sub(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
+                    use $crate::prelude::NativeCheckedSub;
+                    self.0.checked_sub(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn mul(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeSafeMul;
-                    self.0.safe_mul(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
+                    use $crate::prelude::NativeCheckedMul;
+                    self.0.checked_mul(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn div(&self, other: $crate::prelude::Arc<Self>) -> $crate::prelude::Result<$crate::prelude::Arc<Self>> {
-                    use $crate::prelude::NativeSafeDiv;
-                    self.0.safe_div(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
+                    use $crate::prelude::NativeCheckedDiv;
+                    self.0.checked_div(other.0).ok_or($crate::prelude::RadixEngineToolkitError::DecimalError).map(Self).map($crate::prelude::Arc::new)
                 }
 
                 pub fn as_str(&self) -> String {
@@ -93,7 +93,7 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn abs(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .safe_abs()
+                        .checked_abs()
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                         .map(Self)
                         .map($crate::prelude::Arc::new)
@@ -101,7 +101,7 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn floor(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .safe_floor()
+                        .checked_floor()
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                         .map(Self)
                         .map($crate::prelude::Arc::new)
@@ -109,7 +109,7 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn ceiling(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .safe_ceiling()
+                        .checked_ceiling()
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                         .map(Self)
                         .map($crate::prelude::Arc::new)
@@ -117,7 +117,7 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn round(&self, decimal_places: i32, rounding_mode: $crate::prelude::RoundingMode) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .safe_round(decimal_places, rounding_mode.into())
+                        .checked_round(decimal_places, rounding_mode.into())
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                         .map(Self)
                         .map($crate::prelude::Arc::new)
@@ -125,26 +125,26 @@ macro_rules! define_uniffi_decimal {
 
                 pub fn powi(&self, exp: i64) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .safe_powi(exp)
+                        .checked_powi(exp)
                         .map(Self)
                         .map(crate::prelude::Arc::new)
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                 }
 
                 pub fn sqrt(&self) -> Option<$crate::prelude::Arc<Self>> {
-                    self.0.sqrt().map(|value| $crate::prelude::Arc::new(Self(value)))
+                    self.0.checked_sqrt().map(|value| $crate::prelude::Arc::new(Self(value)))
                 }
 
                 pub fn cbrt(&self) -> $crate::error::Result<$crate::prelude::Arc<Self>> {
                     self.0
-                        .cbrt()
+                        .checked_cbrt()
                         .map(Self)
                         .map(crate::prelude::Arc::new)
                         .ok_or($crate::prelude::RadixEngineToolkitError::DecimalError)
                 }
 
                 pub fn nth_root(&self, n: u32) -> Option<$crate::prelude::Arc<Self>> {
-                    self.0.nth_root(n).map(|value| $crate::prelude::Arc::new(Self(value)))
+                    self.0.checked_nth_root(n).map(|value| $crate::prelude::Arc::new(Self(value)))
                 }
 
                 pub fn equal(&self, other: $crate::prelude::Arc<Self>) -> bool {

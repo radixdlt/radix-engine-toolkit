@@ -296,11 +296,11 @@ mod native {
         require as native_require,
 
         dec as native_dec,
-        SafeAdd as NativeSafeAdd,
-        SafeSub as NativeSafeSub,
-        SafeMul as NativeSafeMul,
-        SafeDiv as NativeSafeDiv,
-        SafeNeg as NativeSafeNeg,
+        CheckedAdd as NativeCheckedAdd,
+        CheckedSub as NativeCheckedSub,
+        CheckedMul as NativeCheckedMul,
+        CheckedDiv as NativeCheckedDiv,
+        CheckedNeg as NativeCheckedNeg,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
