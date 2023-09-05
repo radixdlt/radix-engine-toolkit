@@ -66,9 +66,13 @@ impl<'f> Function<'f> for ExecutionAnalyze {
         }: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let instructions = instructions.to_instructions(*network_id)?;
-        let receipt = scrypto_decode::<TransactionReceipt>(&preview_receipt).map_err(|error| {
-            InvocationHandlingError::DecodeError(debug_string(error), debug_string(preview_receipt))
-        })?;
+        let receipt =
+            scrypto_decode::<VersionedTransactionReceipt>(&preview_receipt).map_err(|error| {
+                InvocationHandlingError::DecodeError(
+                    debug_string(error),
+                    debug_string(preview_receipt),
+                )
+            })?;
 
         let execution_analysis = ExecutionAnalysisTransactionReceipt::new(&receipt)
             .and_then(|receipt| {

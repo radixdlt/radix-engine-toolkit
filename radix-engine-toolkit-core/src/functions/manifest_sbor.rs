@@ -37,7 +37,7 @@ pub fn decode_to_string_representation<T>(
     value: T,
     representation: ManifestSborStringRepresentation,
     bech32_encoder: &AddressBech32Encoder,
-    schema: Option<(LocalTypeIndex, Schema<ScryptoCustomSchema>)>,
+    schema: Option<(LocalTypeId, Schema<ScryptoCustomSchema>)>,
 ) -> Result<String, ManifestSborError>
 where
     T: AsRef<[u8]>,
@@ -46,11 +46,11 @@ where
 
     // Ensure that whatever value was passed either matches the schema if given or is valid Manifest
     // sbor.
-    if let Some((ref local_type_index, ref schema)) = schema {
+    if let Some((ref local_type_id, ref schema)) = schema {
         validate_payload_against_schema::<ManifestCustomExtension, _>(
             value,
             schema,
-            *local_type_index,
+            *local_type_id,
             &(),
             MANIFEST_SBOR_V1_MAX_DEPTH,
         )
@@ -62,13 +62,12 @@ where
     let string = match representation {
         ManifestSborStringRepresentation::JSON(representation) => {
             let context = ManifestValueDisplayContext::with_optional_bech32(Some(bech32_encoder));
-            let serialization_parameters = if let Some((ref local_type_index, ref schema)) = schema
-            {
+            let serialization_parameters = if let Some((ref local_type_id, ref schema)) = schema {
                 SerializationParameters::WithSchema {
                     mode: representation,
                     custom_context: context,
                     schema,
-                    type_index: *local_type_index,
+                    type_id: *local_type_id,
                     depth_limit: MANIFEST_SBOR_V1_MAX_DEPTH,
                 }
             } else {

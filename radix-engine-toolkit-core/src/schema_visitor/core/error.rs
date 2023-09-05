@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::LocalTypeIndex;
+use sbor::LocalTypeId;
 use std::convert::Infallible;
 
 #[derive(Debug, Clone)]
 pub enum SchemaVisitorError {
     Infallible(Infallible),
-    InvalidLocalTypeIndex(LocalTypeIndex),
+    InvalidLocalTypeId(LocalTypeId),
 }
 
 impl From<Infallible> for SchemaVisitorError {

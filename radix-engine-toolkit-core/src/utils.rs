@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine::system::system_substates::{KeyValueEntrySubstate, KeyValueEntrySubstateV1};
+use radix_engine::track::{BatchPartitionUpdate, NodeStateUpdates, PartitionStateUpdates};
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, NonFungibleResourceManagerDataEntryPayload,
@@ -176,13 +177,13 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
     let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
         &schema,
-        local_type_index,
+        local_type_id,
         &(),
         SCRYPTO_SBOR_V1_MAX_DEPTH,
     )
@@ -246,44 +247,52 @@ pub fn metadata_of_newly_created_entities(
         };
 
         let entry = map.entry(global_address).or_default();
-        if let Some(key_update_map) = receipt
+        if let Some(NodeStateUpdates::Delta { by_partition }) = receipt
             .expect_commit_success()
             .state_updates
-            .system_updates
-            .get(&(*global_address.as_node_id(), METADATA_BASE_PARTITION))
+            .by_node
+            .get(global_address.as_node_id())
         {
-            for (substate_key, database_update) in key_update_map.iter() {
-                if let DatabaseUpdate::Set(data) = database_update {
-                    if let Ok((
-                        TypedSubstateKey::MetadataModule(key),
-                        TypedSubstateValue::MetadataModule(value),
-                    )) = to_typed_substate_key(
-                        global_address.as_node_id().entity_type().unwrap(),
-                        METADATA_BASE_PARTITION,
-                        substate_key,
-                    )
-                    .and_then(|typed_substate_key| {
-                        to_typed_substate_value(&typed_substate_key, data)
-                            .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
-                    }) {
-                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
-                        let value = match value {
-                            TypedMetadataModuleSubstateValue::MetadataEntry(
-                                KeyValueEntrySubstate::V1(KeyValueEntrySubstateV1 {
-                                    value, ..
-                                }),
-                            ) => value,
-                        };
-                        entry.insert(
-                            key,
-                            value.map(|metadata_entry| {
-                                let VersionedMetadataEntry::V1(metadata) = metadata_entry.content;
-                                metadata
-                            }),
-                        );
-                    }
-                } else {
-                    continue;
+            let entries = match by_partition.get(&METADATA_BASE_PARTITION) {
+                Some(PartitionStateUpdates::Delta { by_substate }) => by_substate
+                    .iter()
+                    .filter_map(|(key, value)| match value {
+                        DatabaseUpdate::Set(value) => Some((key.clone(), value.clone())),
+                        DatabaseUpdate::Delete => None,
+                    })
+                    .collect::<IndexMap<_, _>>(),
+                Some(PartitionStateUpdates::Batch(BatchPartitionUpdate::Reset {
+                    new_substate_values,
+                })) => new_substate_values.clone(),
+                None => continue,
+            };
+
+            for (substate_key, data) in entries.into_iter() {
+                if let Ok((
+                    TypedSubstateKey::MetadataModule(key),
+                    TypedSubstateValue::MetadataModule(value),
+                )) = to_typed_substate_key(
+                    global_address.as_node_id().entity_type().unwrap(),
+                    METADATA_BASE_PARTITION,
+                    &substate_key,
+                )
+                .and_then(|typed_substate_key| {
+                    to_typed_substate_value(&typed_substate_key, &data)
+                        .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
+                }) {
+                    let TypedMetadataModuleSubstateKey::MetadataEntryKey(key) = key;
+                    let value = match value {
+                        TypedMetadataModuleSubstateValue::MetadataEntry(
+                            KeyValueEntrySubstate::V1(KeyValueEntrySubstateV1 { value, .. }),
+                        ) => value,
+                    };
+                    entry.insert(
+                        key,
+                        value.map(|metadata_entry| {
+                            let VersionedMetadataEntry::V1(metadata) = metadata_entry.content;
+                            metadata
+                        }),
+                    );
                 }
             }
         }
@@ -321,67 +330,99 @@ pub fn data_of_newly_minted_non_fungibles(
 ) -> HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>> {
     let mut map = HashMap::<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>::new();
     let commit_result = receipt.expect_commit_success();
-    for ((node_id, partition_number), database_update_map) in
-        commit_result.state_updates.system_updates.iter()
-    {
-        // Only care about non-fungible resource manager nodes, ignore everything else
+
+    for (node_id, node_state_update) in commit_result.state_updates.by_node.iter() {
         if !node_id.entity_type().map_or(false, |entity_type| {
             entity_type.is_global_non_fungible_resource_manager()
         }) {
             continue;
         }
 
-        for (substate_key, database_update) in database_update_map {
-            if let DatabaseUpdate::Set(data) = database_update {
-                if let Ok((
-                    TypedSubstateKey::MainModule(
-                        TypedMainModuleSubstateKey::NonFungibleResourceManager(
-                            NonFungibleResourceManagerTypedSubstateKey::DataKeyValueEntry(
-                                NonFungibleResourceManagerDataKeyPayload {
-                                    content: non_fungible_local_id,
+        let NodeStateUpdates::Delta { by_partition } = node_state_update;
+
+        let entries: IndexMap<(PartitionNumber, SubstateKey), Vec<u8>> = by_partition
+            .iter()
+            .flat_map(
+                |(partition_number, partition_state_update)| match partition_state_update {
+                    PartitionStateUpdates::Delta { by_substate } => by_substate
+                        .iter()
+                        .filter_map(|(key, value)| match value {
+                            DatabaseUpdate::Set(value) => {
+                                Some(((*partition_number, key.clone()), value.clone()))
+                            }
+                            DatabaseUpdate::Delete => None,
+                        })
+                        .collect::<IndexMap<(PartitionNumber, SubstateKey), Vec<u8>>>(),
+                    PartitionStateUpdates::Batch(BatchPartitionUpdate::Reset {
+                        new_substate_values,
+                    }) => new_substate_values
+                        .iter()
+                        .map(|(substate_key, data)| {
+                            ((*partition_number, substate_key.clone()), data.clone())
+                        })
+                        .collect(),
+                },
+            )
+            .collect();
+
+        for ((partition_number, substate_key), data) in entries {
+            if let Ok((
+                TypedSubstateKey::MainModule(
+                    TypedMainModuleSubstateKey::NonFungibleResourceManager(
+                        NonFungibleResourceManagerTypedSubstateKey::DataKeyValueEntry(
+                            NonFungibleResourceManagerDataKeyPayload {
+                                content: non_fungible_local_id,
+                            },
+                        ),
+                    ),
+                ),
+                TypedSubstateValue::MainModule(
+                    TypedMainModuleSubstateValue::NonFungibleResourceManager(
+                        NonFungibleResourceManagerTypedSubstateValue::DataKeyValue(
+                            NonFungibleResourceManagerDataEntrySubstate::V1(
+                                KeyValueEntrySubstateV1 {
+                                    value:
+                                        Some(NonFungibleResourceManagerDataEntryPayload {
+                                            content: non_fungible_data,
+                                        }),
+                                    ..
                                 },
                             ),
                         ),
                     ),
-                    TypedSubstateValue::MainModule(
-                        TypedMainModuleSubstateValue::NonFungibleResourceManager(
-                            NonFungibleResourceManagerTypedSubstateValue::DataKeyValue(
-                                NonFungibleResourceManagerDataEntrySubstate::V1(
-                                    KeyValueEntrySubstateV1 {
-                                        value:
-                                            Some(NonFungibleResourceManagerDataEntryPayload {
-                                                content: non_fungible_data,
-                                            }),
-                                        ..
-                                    },
-                                ),
-                            ),
-                        ),
-                    ),
-                )) = to_typed_substate_key(
-                    node_id.entity_type().unwrap(),
-                    *partition_number,
-                    substate_key,
-                )
-                .and_then(|typed_substate_key| {
-                    to_typed_substate_value(&typed_substate_key, data)
-                        .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
-                }) {
-                    let resource_address = ResourceAddress::new_or_panic(node_id.0);
-                    let non_fungible_local_id = non_fungible_local_id;
-                    let non_fungible_data = scrypto_decode::<ScryptoValue>(
-                        &scrypto_encode(&non_fungible_data).unwrap(),
-                    )
-                    .unwrap();
+                ),
+            )) = to_typed_substate_key(
+                node_id.entity_type().unwrap(),
+                partition_number,
+                &substate_key,
+            )
+            .and_then(|typed_substate_key| {
+                to_typed_substate_value(&typed_substate_key, &data)
+                    .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
+            }) {
+                let resource_address = ResourceAddress::new_or_panic(node_id.0);
+                let non_fungible_local_id = non_fungible_local_id;
+                let non_fungible_data =
+                    scrypto_decode::<ScryptoValue>(&scrypto_encode(&non_fungible_data).unwrap())
+                        .unwrap();
 
-                    map.entry(resource_address)
-                        .or_default()
-                        .insert(non_fungible_local_id, non_fungible_data);
-                }
-            } else {
-                continue;
+                map.entry(resource_address)
+                    .or_default()
+                    .insert(non_fungible_local_id, non_fungible_data);
             }
         }
     }
+
+    // for ((node_id, partition_number), database_update_map) in
+    //     commit_result.state_updates.by_node.iter()
+    // {
+    //     // Only care about non-fungible resource manager nodes, ignore everything else
+    //     if !node_id.entity_type().map_or(false, |entity_type| {
+    //         entity_type.is_global_non_fungible_resource_manager()
+    //     }) {
+    //         continue;
+    //     }
+
+    // }
     map
 }

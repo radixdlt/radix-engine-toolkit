@@ -80,8 +80,8 @@ fn account_deposit_methods() -> Vec<String> {
                 return None;
             }
 
-            let local_type_index = type_ref_static_or_panic(&function_schema.input);
-            if path_contains_a_bucket(*local_type_index, &ACCOUNT_BLUEPRINT_SCHEMA.schema.schema) {
+            let local_type_id = type_ref_static_or_panic(&function_schema.input);
+            if path_contains_a_bucket(*local_type_id, &ACCOUNT_BLUEPRINT_SCHEMA.schema.schema) {
                 Some(function_ident.to_owned())
             } else {
                 None
@@ -143,23 +143,17 @@ fn account_proof_creation_methods() -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
-fn path_contains_a_bucket(
-    local_type_index: LocalTypeIndex,
-    schema: &VersionedScryptoSchema,
-) -> bool {
+fn path_contains_a_bucket(local_type_id: LocalTypeId, schema: &VersionedScryptoSchema) -> bool {
     let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = BucketInPathVisitor::default();
-    traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_bucket()
 }
 
-fn path_contains_a_proof(
-    local_type_index: LocalTypeIndex,
-    schema: &VersionedScryptoSchema,
-) -> bool {
+fn path_contains_a_proof(local_type_id: LocalTypeId, schema: &VersionedScryptoSchema) -> bool {
     let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = ProofInPathVisitor::default();
-    traverse(schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_proof()
 }
 

@@ -16,77 +16,77 @@
 // under the License.
 
 use super::{error::SchemaVisitorError, traits::SchemaVisitor};
-use sbor::{CustomSchema, LocalTypeIndex, Schema, SchemaTypeKind};
+use sbor::{CustomSchema, LocalTypeId, Schema, SchemaTypeKind};
 use std::fmt::Debug;
 
 pub fn traverse<T>(
     schema: &Schema<T>,
-    local_type_index: LocalTypeIndex,
+    local_type_id: LocalTypeId,
     visitors: &mut [&mut dyn SchemaVisitor<T, Error = impl Debug + Into<SchemaVisitorError>>],
 ) -> Result<(), SchemaVisitorError>
 where
     T: CustomSchema,
 {
-    let type_kind = schema.resolve_type_kind(local_type_index).map_or(
-        Err(SchemaVisitorError::InvalidLocalTypeIndex(local_type_index)),
+    let type_kind = schema.resolve_type_kind(local_type_id).map_or(
+        Err(SchemaVisitorError::InvalidLocalTypeId(local_type_id)),
         Ok,
     )?;
 
     match type_kind {
         SchemaTypeKind::<T>::Any => {
-            for_each_enabled_visitor!(visitors, visit_any(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_any(local_type_id, schema))
         }
         SchemaTypeKind::<T>::Bool => {
-            for_each_enabled_visitor!(visitors, visit_bool(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_bool(local_type_id, schema))
         }
         SchemaTypeKind::<T>::I8 => {
-            for_each_enabled_visitor!(visitors, visit_i8(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_i8(local_type_id, schema))
         }
         SchemaTypeKind::<T>::I16 => {
-            for_each_enabled_visitor!(visitors, visit_i16(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_i16(local_type_id, schema))
         }
         SchemaTypeKind::<T>::I32 => {
-            for_each_enabled_visitor!(visitors, visit_i32(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_i32(local_type_id, schema))
         }
         SchemaTypeKind::<T>::I64 => {
-            for_each_enabled_visitor!(visitors, visit_i64(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_i64(local_type_id, schema))
         }
         SchemaTypeKind::<T>::I128 => {
-            for_each_enabled_visitor!(visitors, visit_i128(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_i128(local_type_id, schema))
         }
         SchemaTypeKind::<T>::U8 => {
-            for_each_enabled_visitor!(visitors, visit_u8(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_u8(local_type_id, schema))
         }
         SchemaTypeKind::<T>::U16 => {
-            for_each_enabled_visitor!(visitors, visit_u16(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_u16(local_type_id, schema))
         }
         SchemaTypeKind::<T>::U32 => {
-            for_each_enabled_visitor!(visitors, visit_u32(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_u32(local_type_id, schema))
         }
         SchemaTypeKind::<T>::U64 => {
-            for_each_enabled_visitor!(visitors, visit_u64(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_u64(local_type_id, schema))
         }
         SchemaTypeKind::<T>::U128 => {
-            for_each_enabled_visitor!(visitors, visit_u128(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_u128(local_type_id, schema))
         }
         SchemaTypeKind::<T>::String => {
-            for_each_enabled_visitor!(visitors, visit_string(local_type_index, schema))
+            for_each_enabled_visitor!(visitors, visit_string(local_type_id, schema))
         }
         SchemaTypeKind::<T>::Array { element_type } => {
-            for_each_enabled_visitor!(visitors, visit_array(local_type_index, schema));
+            for_each_enabled_visitor!(visitors, visit_array(local_type_id, schema));
             traverse(schema, *element_type, visitors)?;
         }
         SchemaTypeKind::<T>::Tuple { field_types } => {
-            for_each_enabled_visitor!(visitors, visit_tuple(local_type_index, schema));
-            for local_type_index in field_types {
-                traverse(schema, *local_type_index, visitors)?;
+            for_each_enabled_visitor!(visitors, visit_tuple(local_type_id, schema));
+            for local_type_id in field_types {
+                traverse(schema, *local_type_id, visitors)?;
             }
         }
         SchemaTypeKind::<T>::Enum { variants } => {
-            for_each_enabled_visitor!(visitors, visit_enum(local_type_index, schema));
+            for_each_enabled_visitor!(visitors, visit_enum(local_type_id, schema));
             for local_type_indices in variants.values() {
-                for local_type_index in local_type_indices {
-                    traverse(schema, *local_type_index, visitors)?;
+                for local_type_id in local_type_indices {
+                    traverse(schema, *local_type_id, visitors)?;
                 }
             }
         }
@@ -94,12 +94,12 @@ where
             key_type,
             value_type,
         } => {
-            for_each_enabled_visitor!(visitors, visit_map(local_type_index, schema));
+            for_each_enabled_visitor!(visitors, visit_map(local_type_id, schema));
             traverse(schema, *key_type, visitors)?;
             traverse(schema, *value_type, visitors)?;
         }
         SchemaTypeKind::<T>::Custom(custom) => {
-            for_each_enabled_visitor!(visitors, visit_custom(local_type_index, schema, custom));
+            for_each_enabled_visitor!(visitors, visit_custom(local_type_id, schema, custom));
         }
     };
 

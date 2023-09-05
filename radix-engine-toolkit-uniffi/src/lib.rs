@@ -114,6 +114,7 @@ pub mod prelude {
     pub(crate) use crate::internal_prelude::*;
 
     /* Often needed */
+    pub(crate) use sbor::prelude::IndexMap;
     pub(crate) use std::collections::{BTreeMap, HashMap};
     pub(crate) use std::str::FromStr;
     pub(crate) use std::sync::Arc;

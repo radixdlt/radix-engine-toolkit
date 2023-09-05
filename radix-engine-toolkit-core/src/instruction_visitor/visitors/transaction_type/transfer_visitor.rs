@@ -328,7 +328,7 @@ impl Worktop {
             Resources::Amount(worktop_amount) => {
                 if *worktop_amount >= amount {
                     *worktop_amount = worktop_amount
-                        .safe_sub(amount)
+                        .checked_sub(amount)
                         .ok_or(WorktopError::TakeError)?;
                     Ok(Resources::Amount(amount))
                 } else {
@@ -346,7 +346,7 @@ impl Worktop {
                         .iter()
                         .take(amount_to_take)
                         .cloned()
-                        .collect::<BTreeSet<_>>();
+                        .collect::<IndexSet<_>>();
                     for id in ids_to_take.iter() {
                         worktop_ids.remove(id);
                     }
@@ -363,7 +363,7 @@ impl Worktop {
     fn take_non_fungibles(
         &mut self,
         resource_address: ResourceAddress,
-        ids: &BTreeSet<NonFungibleLocalId>,
+        ids: &IndexSet<NonFungibleLocalId>,
     ) -> Result<(ManifestBucket, Resources), WorktopError> {
         let worktop_contents =
             self.worktop
@@ -404,17 +404,17 @@ impl Worktop {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, Ord, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Resources {
     Amount(Decimal),
-    Ids(BTreeSet<NonFungibleLocalId>),
+    Ids(IndexSet<NonFungibleLocalId>),
 }
 
 impl Resources {
     fn checked_add(&self, other: &Self) -> Option<Self> {
         match (self, other) {
             (Self::Amount(amount1), Self::Amount(amount2)) => {
-                amount1.safe_add(*amount2).map(Self::Amount)
+                amount1.checked_add(*amount2).map(Self::Amount)
             }
             (Self::Ids(ids1), Self::Ids(ids2)) => Some(Self::Ids({
                 let mut ids = ids1.clone();
@@ -425,7 +425,7 @@ impl Resources {
         }
     }
 
-    fn checked_sub_ids(&self, other: &BTreeSet<NonFungibleLocalId>) -> Option<Self> {
+    fn checked_sub_ids(&self, other: &IndexSet<NonFungibleLocalId>) -> Option<Self> {
         match self {
             Self::Ids(ids) => {
                 let mut ids = ids.clone();

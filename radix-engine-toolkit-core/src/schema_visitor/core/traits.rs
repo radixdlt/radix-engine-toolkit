@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::{CustomSchema, LocalTypeIndex, Schema};
+use sbor::{CustomSchema, LocalTypeId, Schema};
 use std::fmt::Debug;
 
 #[allow(unused_variables)]
@@ -28,7 +28,7 @@ where
     #[inline]
     fn visit_any(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -37,7 +37,7 @@ where
     #[inline]
     fn visit_bool(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -46,7 +46,7 @@ where
     #[inline]
     fn visit_i8(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -55,7 +55,7 @@ where
     #[inline]
     fn visit_i16(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -64,7 +64,7 @@ where
     #[inline]
     fn visit_i32(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -73,7 +73,7 @@ where
     #[inline]
     fn visit_i64(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -82,7 +82,7 @@ where
     #[inline]
     fn visit_i128(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -91,7 +91,7 @@ where
     #[inline]
     fn visit_u8(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -100,7 +100,7 @@ where
     #[inline]
     fn visit_u16(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -109,7 +109,7 @@ where
     #[inline]
     fn visit_u32(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -118,7 +118,7 @@ where
     #[inline]
     fn visit_u64(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -127,7 +127,7 @@ where
     #[inline]
     fn visit_u128(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -136,7 +136,7 @@ where
     #[inline]
     fn visit_string(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -145,7 +145,7 @@ where
     #[inline]
     fn visit_array(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -154,7 +154,7 @@ where
     #[inline]
     fn visit_tuple(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -163,7 +163,7 @@ where
     #[inline]
     fn visit_enum(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -172,7 +172,7 @@ where
     #[inline]
     fn visit_map(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
     ) -> Result<(), Self::Error> {
         Ok(())
@@ -181,9 +181,9 @@ where
     #[inline]
     fn visit_custom(
         &mut self,
-        local_type_index: LocalTypeIndex,
+        local_type_id: LocalTypeId,
         schema: &Schema<T>,
-        custom_type_kind: &T::CustomTypeKind<LocalTypeIndex>,
+        custom_type_kind: &T::CustomTypeKind<LocalTypeId>,
     ) -> Result<(), Self::Error> {
         Ok(())
     }

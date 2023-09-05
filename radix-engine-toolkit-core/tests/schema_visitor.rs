@@ -33,12 +33,12 @@ struct MyStruct {
 #[test]
 fn bucket_in_path_visitor_can_detect_a_bucket_in_the_schema() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<AccountDepositBatchInput, ScryptoCustomSchema>();
 
     // Act
     let mut visitor = BucketInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(visitor.path_contains_bucket())
@@ -47,12 +47,12 @@ fn bucket_in_path_visitor_can_detect_a_bucket_in_the_schema() {
 #[test]
 fn bucket_in_path_visitor_can_detect_a_bucket_thats_nested() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>();
 
     // Act
     let mut visitor = BucketInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(visitor.path_contains_bucket())
@@ -61,12 +61,12 @@ fn bucket_in_path_visitor_can_detect_a_bucket_thats_nested() {
 #[test]
 fn bucket_in_path_visitor_does_not_detect_non_existent_buckets() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<AccountLockFeeInput, ScryptoCustomSchema>();
 
     // Act
     let mut visitor = BucketInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(!visitor.path_contains_bucket())
@@ -75,14 +75,14 @@ fn bucket_in_path_visitor_does_not_detect_non_existent_buckets() {
 #[test]
 fn proof_in_path_visitor_can_detect_a_proof_in_the_schema() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) = generate_full_schema_from_single_type::<
+    let (local_type_id, VersionedSchema::V1(schema)) = generate_full_schema_from_single_type::<
         AccountCreateProofOfAmountOutput,
         ScryptoCustomSchema,
     >();
 
     // Act
     let mut visitor = ProofInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(visitor.path_contains_proof())
@@ -91,12 +91,12 @@ fn proof_in_path_visitor_can_detect_a_proof_in_the_schema() {
 #[test]
 fn proof_in_path_visitor_can_detect_a_proof_thats_nested() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>();
 
     // Act
     let mut visitor = ProofInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(visitor.path_contains_proof())
@@ -105,12 +105,12 @@ fn proof_in_path_visitor_can_detect_a_proof_thats_nested() {
 #[test]
 fn proof_in_path_visitor_does_not_detect_non_existent_proofs() {
     // Arrange
-    let (local_type_index, VersionedSchema::V1(schema)) =
+    let (local_type_id, VersionedSchema::V1(schema)) =
         generate_full_schema_from_single_type::<AccountLockFeeInput, ScryptoCustomSchema>();
 
     // Act
     let mut visitor = ProofInPathVisitor::default();
-    traverse(&schema, local_type_index, &mut [&mut visitor]).unwrap();
+    traverse(&schema, local_type_id, &mut [&mut visitor]).unwrap();
 
     // Assert
     assert!(!visitor.path_contains_proof())

@@ -56,7 +56,7 @@ def read_tag_or_version(manifest_path: str) -> str:
     with open(manifest_path, 'r') as file:
         contents: str = file.read()
 
-    pattern: str = r'scrypto\s?=\s?\{.*[branch|tag]\s?=\s?"([\w\d\/-]*)".*\}'
+    pattern: str = r'scrypto\s?=\s?\{.*[branch|tag]\s?=\s?"([\w\d\/.-]*)".*\}'
     return re.findall(pattern, contents)[0]
 
 def get_replacements(radixdlt_scrypto_directory: str) -> dict[str, str]:

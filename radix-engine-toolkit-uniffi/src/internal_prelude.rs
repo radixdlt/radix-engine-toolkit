@@ -296,11 +296,11 @@ mod native {
         require as native_require,
 
         dec as native_dec,
-        SafeAdd as NativeSafeAdd,
-        SafeSub as NativeSafeSub,
-        SafeMul as NativeSafeMul,
-        SafeDiv as NativeSafeDiv,
-        SafeNeg as NativeSafeNeg,
+        CheckedAdd as NativeCheckedAdd,
+        CheckedSub as NativeCheckedSub,
+        CheckedMul as NativeCheckedMul,
+        CheckedDiv as NativeCheckedDiv,
+        CheckedNeg as NativeCheckedNeg,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -362,9 +362,6 @@ mod native {
     pub use radix_engine_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError,
     };
-    pub use radix_engine_common::types::{
-        TypeIdentifier as NativeTypeIdentifier
-    };
     pub use radix_engine_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
         from_precise_decimal as native_from_precise_decimal,
@@ -385,7 +382,7 @@ mod native {
         DecodeError as NativeDecodeError,
     };
     pub use sbor::schema::{
-        LocalTypeIndex as NativeLocalTypeIndex
+        LocalTypeId as NativeLocalTypeId
     };
     pub use sbor::representations::{
         SerializationMode as NativeSerializationMode
@@ -402,6 +399,7 @@ mod native {
         ResourceSpecifier as NativeResourceSpecifier,
     };
     pub use radix_engine::transaction::{
+        VersionedTransactionReceipt as NativeVersionedTransactionReceipt,
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
     };

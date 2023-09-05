@@ -15,17 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::bootstrap::{Bootstrapper, GenesisReceipts};
-use radix_engine::transaction::{CommitResult, TransactionReceipt, TransactionResult};
+use radix_engine::system::bootstrap::*;
+use radix_engine::transaction::*;
 use radix_engine::types::*;
-use radix_engine::vm::wasm::{DefaultWasmEngine, WasmValidatorConfigV1};
-use radix_engine::vm::{DefaultNativeVm, ScryptoVm, Vm};
-use radix_engine_interface::metadata_init;
-use radix_engine_stores::memory_db::InMemorySubstateDatabase;
-use radix_engine_toolkit_core::functions::execution::ExecutionAnalysisTransactionReceipt;
-use radix_engine_toolkit_core::functions::utils::decode_transaction_id;
-use scrypto::api::node_modules::metadata::MetadataValue;
-use scrypto::prelude::ModuleConfig;
+use radix_engine::vm::wasm::*;
+use radix_engine::vm::*;
+use radix_engine_interface::*;
+use radix_engine_stores::memory_db::*;
+use radix_engine_toolkit_core::functions::execution::*;
+use radix_engine_toolkit_core::functions::utils::*;
+use scrypto::prelude::*;
 use scrypto::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
@@ -52,7 +51,10 @@ fn extraction_of_metadata_from_receipts_succeeds() {
         .build();
     let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     let metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
-        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(
+            receipt.clone(),
+        ))
+        .unwrap(),
     )
     .unwrap();
 
@@ -109,7 +111,10 @@ fn extraction_of_non_fungible_data_from_receipts_succeeds() {
         .build();
     let receipt = add_execution_trace(test_runner.execute_manifest_ignoring_fee(manifest, vec![]));
     let new_non_fungibles = radix_engine_toolkit_core::utils::data_of_newly_minted_non_fungibles(
-        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(
+            receipt.clone(),
+        ))
+        .unwrap(),
     );
 
     // Assert
@@ -158,7 +163,7 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
         wasm_validator_config: WasmValidatorConfigV1::new(),
     };
     let native_vm = DefaultNativeVm::new();
-    let vm = Vm::new(&scrypto_vm, native_vm.clone());
+    let vm = Vm::new(&scrypto_vm, native_vm);
     let mut substate_db = InMemorySubstateDatabase::standard();
     let mut bootstrapper =
         Bootstrapper::new(NetworkDefinition::simulator(), &mut substate_db, vm, false);
@@ -175,7 +180,8 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
     {
         // Act & Assert
         let _metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
-            &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+            &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(receipt))
+                .unwrap(),
         );
     }
 }
@@ -204,7 +210,8 @@ fn empty_metadata_can_be_processed_by_ret() {
 
     // Act & Assert
     let _metadata = radix_engine_toolkit_core::utils::metadata_of_newly_created_entities(
-        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(receipt))
+            .unwrap(),
     );
 }
 

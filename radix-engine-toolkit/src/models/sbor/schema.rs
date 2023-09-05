@@ -23,6 +23,6 @@ use crate::prelude::*;
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
 pub struct PayloadSchema {
-    pub local_type_index: SerializableLocalTypeIndex,
+    pub local_type_id: SerializableLocalTypeId,
     pub schema: SerializableBytes,
 }

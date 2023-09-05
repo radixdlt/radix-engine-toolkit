@@ -51,7 +51,7 @@ impl ToNative for MetadataInit {
                     },
                 ))
             })
-            .collect::<Result<BTreeMap<String, NativeKeyValueStoreInitEntry<NativeMetadataValue>>>>(
+            .collect::<Result<IndexMap<String, NativeKeyValueStoreInitEntry<NativeMetadataValue>>>>(
             )
             .map(|data| NativeMetadataInit { data })
     }

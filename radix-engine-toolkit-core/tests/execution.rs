@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine::transaction::TransactionReceipt;
+use radix_engine::transaction::{TransactionReceipt, VersionedTransactionReceipt};
 use radix_engine_interface::blueprints::account::{ACCOUNT_LOCK_FEE_IDENT, AccountLockFeeInput, ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, AccountLockContingentFeeInput};
 use radix_engine_toolkit_core::functions::execution::{self, *};
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
@@ -225,10 +225,10 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 ResourceTracker::NonFungible {
                     resource_address,
                     amount: Source::Guaranteed(dec!("2")),
-                    ids: Source::Predicted(0, btreeset!(
+                    ids: Source::Predicted(0, IndexSet::from([
                         NonFungibleLocalId::integer(1),
                         NonFungibleLocalId::integer(2),
-                    ))
+                    ]))
                 }
             ]
         }
@@ -240,10 +240,10 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
                 ResourceTracker::NonFungible {
                     resource_address,
                     amount: Source::Guaranteed(dec!("2")),
-                    ids: Source::Predicted(1, btreeset!(
+                    ids: Source::Predicted(1, IndexSet::from([
                         NonFungibleLocalId::integer(1),
                         NonFungibleLocalId::integer(2),
-                    ))
+                    ]))
                 }
             ]
         }
@@ -304,7 +304,8 @@ fn test_manifest_with_lock_fee(
     // Act
     let transaction_types = transaction_types(
         &manifest.instructions,
-        &ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(receipt))
+            .unwrap(),
     );
 
     // Assert
@@ -333,7 +334,10 @@ fn transaction_types(
 ) -> Vec<TransactionType> {
     let analysis = execution::analyze(
         manifest_instructions,
-        &ExecutionAnalysisTransactionReceipt::new(receipt).unwrap(),
+        &ExecutionAnalysisTransactionReceipt::new(&VersionedTransactionReceipt::V1(
+            receipt.clone(),
+        ))
+        .unwrap(),
     )
     .unwrap();
     analysis.transaction_types

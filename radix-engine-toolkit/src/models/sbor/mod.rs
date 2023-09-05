@@ -15,6 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod local_type_index;
+pub mod local_type_id;
 pub mod schema;
 pub mod serialization_mode;
