@@ -41,6 +41,17 @@ impl TransactionManifest {
         self.blobs.clone()
     }
 
+    pub fn compile(&self) -> Result<Vec<u8>> {
+        let native = self.clone().to_native();
+        Ok(core_manifest_compile(&native)?)
+    }
+
+    #[uniffi::constructor]
+    pub fn decompile(compiled: Vec<u8>, network_id: u8) -> Result<Arc<Self>> {
+        let decompiled = core_manifest_decompile(compiled)?;
+        Ok(Arc::new(Self::from_native(&decompiled, network_id)))
+    }
+
     pub fn statically_validate(&self) -> Result<()> {
         core_instructions_statically_validate(&self.instructions.0)?;
         core_manifest_statically_validate(&self.to_native())?;
