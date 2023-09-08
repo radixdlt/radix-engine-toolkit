@@ -18,6 +18,8 @@
 #![allow(clippy::too_many_arguments)]
 
 use crate::prelude::*;
+use radix_engine::types::FromPublicKey;
+use radix_engine_common::prelude::to_manifest_value;
 
 #[derive(Debug, Clone, Object, Default)]
 pub struct ManifestBuilder {
@@ -833,6 +835,110 @@ impl ManifestBuilder {
     }
 
     /* Access Controller */
+
+    pub fn access_controller_initiate_recovery(
+        self: Arc<Self>,
+        access_controller_address: Arc<Address>,
+        proposer: Proposer,
+        proposed_primary_role: Arc<AccessRule>,
+        proposed_recovery_role: Arc<AccessRule>,
+        proposed_confirmation_role: Arc<AccessRule>,
+        proposed_timed_recovery_delay_in_minutes: Option<u32>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let rule_set = NativeRuleSet {
+                primary_role: proposed_primary_role.0.clone(),
+                recovery_role: proposed_recovery_role.0.clone(),
+                confirmation_role: proposed_confirmation_role.0.clone(),
+            };
+
+            let (method_name, args) = match proposer {
+                Proposer::Primary => (
+                    NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
+                    native_to_manifest_value_and_unwrap!(
+                        &NativeAccessControllerInitiateRecoveryAsPrimaryInput {
+                            rule_set,
+                            timed_recovery_delay_in_minutes:
+                                proposed_timed_recovery_delay_in_minutes,
+                        }
+                    ),
+                ),
+                Proposer::Recovery => (
+                    NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+                    native_to_manifest_value_and_unwrap!(
+                        &NativeAccessControllerInitiateRecoveryAsRecoveryInput {
+                            rule_set,
+                            timed_recovery_delay_in_minutes:
+                                proposed_timed_recovery_delay_in_minutes,
+                        }
+                    ),
+                ),
+            };
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(
+                    (*access_controller_address).try_into()?,
+                ),
+                method_name: method_name.to_owned(),
+                args,
+            };
+            builder.instructions.push(instruction);
+
+            Ok(())
+        })
+    }
+
+    pub fn access_controller_quick_confirm_recovery(
+        self: Arc<Self>,
+        access_controller_address: Arc<Address>,
+        proposer: Proposer,
+        proposed_primary_role: Arc<AccessRule>,
+        proposed_recovery_role: Arc<AccessRule>,
+        proposed_confirmation_role: Arc<AccessRule>,
+        proposed_timed_recovery_delay_in_minutes: Option<u32>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let rule_set = NativeRuleSet {
+                primary_role: proposed_primary_role.0.clone(),
+                recovery_role: proposed_recovery_role.0.clone(),
+                confirmation_role: proposed_confirmation_role.0.clone(),
+            };
+
+            let (method_name, args) = match proposer {
+                Proposer::Primary => (
+                    NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                    native_to_manifest_value_and_unwrap!(
+                        &NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput {
+                            rule_set,
+                            timed_recovery_delay_in_minutes:
+                                proposed_timed_recovery_delay_in_minutes,
+                        }
+                    ),
+                ),
+                Proposer::Recovery => (
+                    NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+                    native_to_manifest_value_and_unwrap!(
+                        &NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput {
+                            rule_set,
+                            timed_recovery_delay_in_minutes:
+                                proposed_timed_recovery_delay_in_minutes,
+                        }
+                    ),
+                ),
+            };
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(
+                    (*access_controller_address).try_into()?,
+                ),
+                method_name: method_name.to_owned(),
+                args,
+            };
+            builder.instructions.push(instruction);
+
+            Ok(())
+        })
+    }
 
     pub fn create_signature_based_access_controller(
         self: Arc<Self>,
