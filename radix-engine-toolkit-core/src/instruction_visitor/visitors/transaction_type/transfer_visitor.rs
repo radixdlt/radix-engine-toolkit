@@ -112,7 +112,7 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                     ACCOUNT_DEPOSIT_IDENT
                     | ACCOUNT_DEPOSIT_BATCH_IDENT
                     | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
-                    | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
+                    | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
                         self.handle_validation_and_account_deposits(component_address, args)?
                     }
                     ACCOUNT_LOCK_FEE_IDENT if self.allow_lock_fee_instructions => {}
