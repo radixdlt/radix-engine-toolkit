@@ -129,10 +129,10 @@ impl TransactionManifest {
             &self.to_native(),
             allow_lock_fee_instructions,
         )
-        .map_err(|err| CoreExecutionExecutionModuleError::InstructionVisitorError(err))?;
+        .map_err(CoreExecutionExecutionModuleError::InstructionVisitorError)?;
 
         match maybe_transfer_information {
-            Some((from, transfers)) => Ok(Some(TransactionType {
+            Some((from, transfers)) => Ok(Some(TransferTransactionType {
                 from: Arc::new(Address::from_typed_node_id(from, self.instructions.1)),
                 transfers: transfers
                     .iter()
@@ -143,7 +143,7 @@ impl TransactionManifest {
                                 .iter()
                                 .map(|(key, value)| {
                                     (
-                                        Address::from_typed_node_id(key, self.instructions.1)
+                                        Address::from_typed_node_id(*key, self.instructions.1)
                                             .as_str(),
                                         Resources::from_native(value),
                                     )
