@@ -118,6 +118,44 @@ impl TransactionManifest {
         let manifest = Self::from_native(&native_manifest, self.instructions.network_id());
         Ok(Arc::new(manifest))
     }
+
+    /* Transaction Types attempted parsing */
+
+    pub fn parse_transfer_information(
+        &self,
+        allow_lock_fee_instructions: bool,
+    ) -> Result<Option<TransferTransactionType>> {
+        let maybe_transfer_information = core_manifest_parse_transfer_information(
+            &self.to_native(),
+            allow_lock_fee_instructions,
+        )
+        .map_err(|err| CoreExecutionExecutionModuleError::InstructionVisitorError(err))?;
+
+        match maybe_transfer_information {
+            Some((from, transfers)) => Ok(Some(TransactionType {
+                from: Arc::new(Address::from_typed_node_id(from, self.instructions.1)),
+                transfers: transfers
+                    .iter()
+                    .map(|(key, value)| {
+                        (
+                            Address::from_typed_node_id(*key, self.instructions.1).as_str(),
+                            value
+                                .iter()
+                                .map(|(key, value)| {
+                                    (
+                                        Address::from_typed_node_id(key, self.instructions.1)
+                                            .as_str(),
+                                        Resources::from_native(value),
+                                    )
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect(),
+            })),
+            None => Ok(None),
+        }
+    }
 }
 
 impl TransactionManifest {
@@ -191,6 +229,12 @@ pub enum TransactionType {
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
         addresses_of_newly_created_entities: Vec<Arc<Address>>,
     },
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TransferTransactionType {
+    pub from: Arc<Address>,
+    pub transfers: HashMap<String, HashMap<String, Resources>>,
 }
 
 #[derive(Clone, Debug, Enum)]

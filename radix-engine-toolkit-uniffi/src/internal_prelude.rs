@@ -68,6 +68,7 @@ mod core {
         decompile as core_manifest_decompile,
         statically_validate as core_manifest_statically_validate,
         modify as core_manifest_modify,
+        parse_transfer_information as core_manifest_parse_transfer_information,
         TransactionManifestModifications as CoreManifestTransactionManifestModifications,
         Assertion as CoreManifestAssertion,
         ManifestModificationError as CoreManifestModificationError

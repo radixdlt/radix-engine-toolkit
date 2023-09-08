@@ -39,11 +39,21 @@ pub struct TransferTransactionTypeVisitor {
     // Tracks the accounts deposited into and the quantity.
     account_deposits: HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
 
+    // Controls whether lock fee instructions are allowed or not - defaults to false.
+    allow_lock_fee_instructions: bool,
+
     // Tracks if the visitor is currently in an illegal state or not.
     is_illegal_state: bool,
 }
 
 impl TransferTransactionTypeVisitor {
+    pub fn new(allow_lock_fee_instructions: bool) -> Self {
+        Self {
+            allow_lock_fee_instructions,
+            ..Default::default()
+        }
+    }
+
     #[allow(clippy::type_complexity)]
     pub fn output(
         self,
@@ -104,6 +114,45 @@ impl InstructionVisitor for TransferTransactionTypeVisitor {
                     | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
                     | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                         self.handle_validation_and_account_deposits(component_address, args)?
+                    }
+                    ACCOUNT_LOCK_FEE_IDENT if self.allow_lock_fee_instructions => {}
+                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT if self.allow_lock_fee_instructions => {
+                        to_manifest_type::<AccountLockFeeAndWithdrawInput>(args)
+                            .ok_or(TransferTransactionTypeError::InvalidArgs)
+                            .map(
+                                |AccountLockFeeAndWithdrawInput {
+                                     resource_address,
+                                     amount,
+                                     ..
+                                 }| AccountWithdrawInput {
+                                    resource_address,
+                                    amount,
+                                },
+                            )
+                            .and_then(|value| {
+                                self.handle_account_withdraw(component_address, value)
+                            })?
+                    }
+                    ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
+                        if self.allow_lock_fee_instructions =>
+                    {
+                        to_manifest_type::<AccountLockFeeAndWithdrawNonFungiblesInput>(args)
+                            .ok_or(TransferTransactionTypeError::InvalidArgs)
+                            .map(
+                                |AccountLockFeeAndWithdrawNonFungiblesInput {
+                                     resource_address,
+                                     ids,
+                                     ..
+                                 }| {
+                                    AccountWithdrawNonFungiblesInput {
+                                        resource_address,
+                                        ids,
+                                    }
+                                },
+                            )
+                            .and_then(|value| {
+                                self.handle_account_withdraw_non_fungibles(component_address, value)
+                            })?
                     }
                     _ => {
                         self.is_illegal_state = true;
