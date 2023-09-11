@@ -77,7 +77,8 @@ pub fn generate_function_examples() -> IndexMap<
             UtilsKnownAddress
         ],
         "address" => function_examples![
-            AddressEntityType
+            AddressEntityType,
+            AddressDecode,
         ]
     )
 }

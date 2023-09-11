@@ -15,10 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::types::EntityType;
+use radix_engine_common::prelude::*;
 
-use crate::models::node_id::TypedNodeId;
+use crate::models::node_id::*;
+use crate::utils::*;
 
 pub fn entity_type(node_id: TypedNodeId) -> EntityType {
     node_id.entity_type()
+}
+
+pub fn decode(node_id: &str) -> Option<(u8, EntityType, String, [u8; 30])> {
+    let network_id = network_id_from_address_string(node_id)?;
+    let network_definition = network_definition_from_network_id(network_id);
+    let decoder = AddressBech32Decoder::new(&network_definition);
+    let (hrp, _, _) = AddressBech32Decoder::validate_and_decode_ignore_hrp(&node_id).ok()?;
+    let (entity_type, data) = decoder.validate_and_decode(node_id).ok()?;
+    data.try_into()
+        .map(|data| (network_id, entity_type, hrp, data))
+        .ok()
 }
