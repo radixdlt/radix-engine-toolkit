@@ -947,9 +947,19 @@ impl ManifestBuilder {
         recovery_role: PublicKey,
         confirmation_role: PublicKey,
         timed_recovery_delay_in_minutes: Option<u32>,
+        address_reservation: Option<ManifestBuilderAddressReservation>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let bucket = builder.name_record.get_bucket(&controlled_asset.name)?;
+            let address_reservation = match address_reservation {
+                Some(reservation) => Some(
+                    builder
+                        .name_record
+                        .get_address_reservation(&reservation.name)?,
+                ),
+                None => None,
+            };
+
             let rule_set = NativeRuleSet {
                 primary_role: native_rule!(native_require(
                     NativeNonFungibleGlobalId::from_public_key(&NativePublicKey::try_from(
@@ -974,7 +984,13 @@ impl ManifestBuilder {
                 ),
                 blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
                 function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
-                args: manifest_args!(bucket, rule_set, timed_recovery_delay_in_minutes).into(),
+                args: manifest_args!(
+                    bucket,
+                    rule_set,
+                    timed_recovery_delay_in_minutes,
+                    address_reservation
+                )
+                .into(),
             };
             builder.instructions.push(instruction);
 
@@ -989,9 +1005,19 @@ impl ManifestBuilder {
         recovery_role: SecurityStructureRole,
         confirmation_role: SecurityStructureRole,
         timed_recovery_delay_in_minutes: Option<u32>,
+        address_reservation: Option<ManifestBuilderAddressReservation>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let bucket = builder.name_record.get_bucket(&controlled_asset.name)?;
+            let address_reservation = match address_reservation {
+                Some(reservation) => Some(
+                    builder
+                        .name_record
+                        .get_address_reservation(&reservation.name)?,
+                ),
+                None => None,
+            };
+
             let rule_set = NativeRuleSet {
                 primary_role: NativeAccessRule::try_from(primary_role)?,
                 recovery_role: NativeAccessRule::try_from(recovery_role)?,
@@ -1004,7 +1030,13 @@ impl ManifestBuilder {
                 ),
                 blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
                 function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
-                args: manifest_args!(bucket, rule_set, timed_recovery_delay_in_minutes).into(),
+                args: manifest_args!(
+                    bucket,
+                    rule_set,
+                    timed_recovery_delay_in_minutes,
+                    address_reservation
+                )
+                .into(),
             };
             builder.instructions.push(instruction);
             Ok(())
