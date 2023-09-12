@@ -159,7 +159,6 @@ pub fn value_with_two_address_of_the_same_network_has_no_network_mismatch() {
 
     // Act
     let contains_network_mismatch = value_contains_network_mismatch(&value);
-    println!("{}", serde_json::to_string(&value).unwrap());
 
     // Assert
     assert!(!contains_network_mismatch)
