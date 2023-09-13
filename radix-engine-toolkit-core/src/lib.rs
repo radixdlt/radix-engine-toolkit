@@ -26,4 +26,5 @@ pub mod models;
 pub mod sbor;
 pub mod schema_visitor;
 pub mod statics;
+pub mod traits;
 pub mod utils;

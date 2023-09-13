@@ -18,6 +18,7 @@
 use crate::instruction_visitor::core::error::InstructionVisitorError;
 use crate::instruction_visitor::core::traits::InstructionVisitor;
 use crate::sbor::indexed_manifest_value::IndexedManifestValue;
+use crate::traits::CheckedAddAssign;
 use crate::utils::{is_account, is_validator};
 
 use radix_engine::system::system_modules::execution_trace::{ResourceSpecifier, WorktopChange};
@@ -29,12 +30,16 @@ use scrypto::prelude::*;
 use transaction::prelude::*;
 use transaction::validation::ManifestIdAllocator;
 
+/// An instruction visitor to detect if a transaction is a stake transaction or not.
 pub struct StakeVisitor<'r> {
     /// The execution trace from the preview receipt
     execution_trace: &'r TransactionExecutionTrace,
 
-    /// The account withdrawn from - tracked to ensure that we deposit into the same account.
-    account_withdrawn_from: Option<ComponentAddress>,
+    /// The accounts withdrawn from.
+    accounts_withdrawn_from: HashMap<ComponentAddress, Decimal>,
+
+    /// The accounts deposited into.
+    accounts_deposited_into: HashMap<ComponentAddress, HashMap<ResourceAddress, Decimal>>,
 
     /// Maps the validator component address to a map of the LSU's resource address and amount
     /// obtained as part of staking.
@@ -57,7 +62,8 @@ impl<'r> StakeVisitor<'r> {
     pub fn new(execution_trace: &'r TransactionExecutionTrace) -> Self {
         Self {
             execution_trace,
-            account_withdrawn_from: Default::default(),
+            accounts_withdrawn_from: Default::default(),
+            accounts_deposited_into: Default::default(),
             validator_stake_mapping: Default::default(),
             is_illegal_state: Default::default(),
             id_allocator: Default::default(),
@@ -70,19 +76,29 @@ impl<'r> StakeVisitor<'r> {
         *resource_address == XRD
             || self.validator_stake_mapping.values().any(
                 |Stake {
-                     liquid_stake_units_resource_address,
+                     stake_unit_resource_address: liquid_stake_units_resource_address,
                      ..
                  }| liquid_stake_units_resource_address == resource_address,
             )
     }
 
-    pub fn output(self) -> Option<(ComponentAddress, HashMap<ComponentAddress, Stake>)> {
+    pub fn output(
+        self,
+    ) -> Option<(
+        HashMap<ComponentAddress, Decimal>, /* Accounts withdrawn from */
+        HashMap<ComponentAddress, HashMap<ResourceAddress, Decimal>>, /* Accounts deposited into */
+        HashMap<ComponentAddress, Stake>,   /* Validator stakes */
+    )> {
         match (
             self.is_illegal_state,
             self.validator_stake_mapping.is_empty(),
-            self.account_withdrawn_from,
+            self.accounts_withdrawn_from.is_empty(),
         ) {
-            (false, false, Some(account)) => Some((account, self.validator_stake_mapping)),
+            (false, false, false) => Some((
+                self.accounts_withdrawn_from,
+                self.accounts_deposited_into,
+                self.validator_stake_mapping,
+            )),
             _ => None,
         }
     }
@@ -91,8 +107,8 @@ impl<'r> StakeVisitor<'r> {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Stake {
     pub staked_xrd: Decimal,
-    pub liquid_stake_units_resource_address: ResourceAddress,
-    pub liquid_stake_units_amount: Decimal,
+    pub stake_unit_resource_address: ResourceAddress,
+    pub stake_unit_amount: Decimal,
 }
 
 impl<'r> InstructionVisitor for StakeVisitor<'r> {
@@ -128,7 +144,7 @@ impl<'r> InstructionVisitor for StakeVisitor<'r> {
                     // Ensure arguments are valid and that the resource withdrawn is XRD.
                     let Some(AccountWithdrawInput {
                         resource_address: XRD,
-                        ..
+                        amount,
                     }) = manifest_encode(&args)
                         .ok()
                         .and_then(|encoded| manifest_decode(&encoded).ok())
@@ -136,22 +152,18 @@ impl<'r> InstructionVisitor for StakeVisitor<'r> {
                         self.is_illegal_state = true;
                         return Ok(());
                     };
-                    // Ensure that this is either the first time we withdraw or that this is the
-                    // account we withdraw from all throughout the manifest.
                     let account_address = ComponentAddress::try_from(*global_address)
                         .expect("We have checked that it's a component address");
-                    if let Some(previous_withdraw_component_address) = self.account_withdrawn_from {
-                        if previous_withdraw_component_address != account_address {
-                            self.is_illegal_state = true;
-                            return Ok(());
-                        }
-                    } else {
-                        self.account_withdrawn_from = Some(
-                            (*global_address)
-                                .try_into()
-                                .expect("We have checked that it's a component address"),
-                        );
-                    }
+
+                    let Some(()) = self
+                        .accounts_withdrawn_from
+                        .entry(account_address)
+                        .or_default()
+                        .checked_add_assign(&amount)
+                    else {
+                        self.is_illegal_state = true;
+                        return Ok(());
+                    };
                 }
                 /*
                 Only permit account deposits to the same account withdrawn from and only with authed
@@ -161,21 +173,60 @@ impl<'r> InstructionVisitor for StakeVisitor<'r> {
                     && (method_name == ACCOUNT_DEPOSIT_IDENT
                         || method_name == ACCOUNT_DEPOSIT_BATCH_IDENT)
                 {
-                    match self.account_withdrawn_from {
-                        Some(withdraw_account)
-                            if withdraw_account.into_node_id() == global_address.into_node_id() => {
-                        }
-                        Some(..) | None => {
-                            self.is_illegal_state = true;
-                            return Ok(());
-                        }
-                    }
+                    let account_address = ComponentAddress::try_from(*global_address)
+                        .expect("We have checked that it's a component address");
+
                     let indexed_manifest_value = IndexedManifestValue::from_manifest_value(args);
                     for bucket in indexed_manifest_value.buckets() {
-                        if self.bucket_tracker.remove(bucket).is_none() {
+                        let Some((resource_address, amount)) = self.bucket_tracker.remove(bucket)
+                        else {
                             self.is_illegal_state = true;
                             return Ok(());
-                        }
+                        };
+
+                        let Some(()) = self
+                            .accounts_deposited_into
+                            .entry(account_address)
+                            .or_default()
+                            .entry(resource_address)
+                            .or_default()
+                            .checked_add_assign(&amount)
+                        else {
+                            self.is_illegal_state = true;
+                            return Ok(());
+                        };
+                    }
+
+                    let Some(worktop_changes) = self
+                        .execution_trace
+                        .worktop_changes()
+                        .get(&self.instruction_index)
+                        .cloned()
+                    else {
+                        return Ok(());
+                    };
+
+                    for worktop_change in worktop_changes {
+                        let WorktopChange::Take(ResourceSpecifier::Amount(
+                            resource_address,
+                            amount,
+                        )) = worktop_change
+                        else {
+                            self.is_illegal_state = true;
+                            return Ok(());
+                        };
+
+                        let Some(()) = self
+                            .accounts_deposited_into
+                            .entry(account_address)
+                            .or_default()
+                            .entry(resource_address)
+                            .or_default()
+                            .checked_add_assign(&amount)
+                        else {
+                            self.is_illegal_state = true;
+                            return Ok(());
+                        };
                     }
                 }
                 /* Staking to a validator */
@@ -221,11 +272,11 @@ impl<'r> InstructionVisitor for StakeVisitor<'r> {
                         .validator_stake_mapping
                         .entry(validator_address)
                         .or_insert(Stake {
-                            liquid_stake_units_resource_address,
-                            liquid_stake_units_amount: Default::default(),
+                            stake_unit_resource_address: liquid_stake_units_resource_address,
+                            stake_unit_amount: Default::default(),
                             staked_xrd: Default::default(),
                         });
-                    entry.liquid_stake_units_amount += liquid_stake_units_amount;
+                    entry.stake_unit_amount += liquid_stake_units_amount;
                     entry.staked_xrd += xrd_staked_amount;
                 }
             }

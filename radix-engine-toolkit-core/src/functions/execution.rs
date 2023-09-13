@@ -98,9 +98,15 @@ pub fn analyze(
             },
         )))
     }
-    if let Some((account, stakes)) = stake_transaction_visitor.output() {
+    if let Some((accounts_withdrawn_from, accounts_deposited_into, stakes)) =
+        stake_transaction_visitor.output()
+    {
         transaction_types.push(TransactionType::StakeTransaction(Box::new(
-            StakeTransactionType { account, stakes },
+            StakeTransactionType {
+                accounts_withdrawn_from,
+                accounts_deposited_into,
+                stakes,
+            },
         )))
     }
     if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output() {
@@ -277,7 +283,8 @@ pub struct GeneralTransactionType {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct StakeTransactionType {
-    pub account: ComponentAddress,
+    pub accounts_withdrawn_from: HashMap<ComponentAddress, Decimal>,
+    pub accounts_deposited_into: HashMap<ComponentAddress, HashMap<ResourceAddress, Decimal>>,
     pub stakes: HashMap<ComponentAddress, Stake>,
 }
 

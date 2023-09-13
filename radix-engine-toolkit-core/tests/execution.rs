@@ -393,7 +393,8 @@ fn simple_stake_transaction_can_be_caught_by_ret() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
+        accounts_withdrawn_from,
+        accounts_deposited_into,
         stakes,
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
@@ -402,19 +403,28 @@ fn simple_stake_transaction_can_be_caught_by_ret() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account => dec!("100") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! { account => hashmap! {
+            stake_unit_resource => dec!("100")
+        }}
+    );
     assert_eq!(
         stakes.get(&validator),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("100"),
+            stake_unit_amount: dec!("100"),
             staked_xrd: dec!("100"),
-            liquid_stake_units_resource_address: stake_unit_resource
+            stake_unit_resource_address: stake_unit_resource
         })
     );
 }
 
 #[test]
-fn staking_of_zero_xrd_is_considered_staking() {
+fn staking_of_zero_xrd_is_not_considered_staking() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account) = test_runner.new_account(false);
@@ -475,8 +485,8 @@ fn staking_of_zero_xrd_is_considered_staking() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
-        stakes,
+        accounts_withdrawn_from,
+        stakes, ..
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
         _ => None,
@@ -484,13 +494,16 @@ fn staking_of_zero_xrd_is_considered_staking() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account => dec!("0") }
+    );
     assert_eq!(
         stakes.get(&validator),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("0"),
+            stake_unit_amount: dec!("0"),
             staked_xrd: dec!("0"),
-            liquid_stake_units_resource_address: stake_unit_resource
+            stake_unit_resource_address: stake_unit_resource
         })
     );
 }
@@ -560,7 +573,8 @@ fn additional_stake_of_zero_has_no_effect_on_detection() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
+        accounts_withdrawn_from,
+        accounts_deposited_into,
         stakes,
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
@@ -569,24 +583,38 @@ fn additional_stake_of_zero_has_no_effect_on_detection() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account => dec!("100") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! { account => hashmap! {
+            stake_unit_resource => dec!("100")
+        }}
+    );
     assert_eq!(
         stakes.get(&validator),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("100"),
+            stake_unit_amount: dec!("100"),
             staked_xrd: dec!("100"),
-            liquid_stake_units_resource_address: stake_unit_resource
+            stake_unit_resource_address: stake_unit_resource
         })
     );
 }
 
 #[test]
-fn withdraws_from_multiple_accounts_invalidate_stake_rules() {
+fn withdraw_from_multiple_accounts_and_stake_is_a_valid_stake_transaction() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
     let validator = test_runner.new_validator_with_pub_key(pk, account1);
+    let ValidatorSubstate {
+        stake_unit_resource,
+        claim_nft: _,
+        ..
+    } = test_runner.get_validator_info(validator);
 
     test_runner
         .execute_manifest(
@@ -617,7 +645,7 @@ fn withdraws_from_multiple_accounts_invalidate_stake_rules() {
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account1, XRD, 100)
         .withdraw_from_account(account2, XRD, 50)
-        .take_from_worktop(XRD, 100, "XRD")
+        .take_from_worktop(XRD, 150, "XRD")
         .stake_validator(validator, "XRD")
         .deposit_batch(account1)
         .build();
@@ -638,24 +666,52 @@ fn withdraws_from_multiple_accounts_invalidate_stake_rules() {
     );
 
     // Assert
-    assert!(transaction_types
-        .iter()
-        .find_map(|tx_type| {
-            match tx_type {
-                TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
-                _ => None,
-            }
+    let Some(StakeTransactionType {
+        accounts_withdrawn_from,
+        accounts_deposited_into,
+        stakes,
+    }) = transaction_types.iter().find_map(|tx_type| match tx_type {
+        TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
+        _ => None,
+    })
+    else {
+        panic!("Stake transaction type not found!")
+    };
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! {
+            account1 => dec!("100"),
+            account2 => dec!("50"),
+        }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! { account1 => hashmap! {
+            stake_unit_resource => dec!("150")
+        }}
+    );
+    assert_eq!(
+        stakes.get(&validator),
+        Some(&Stake {
+            stake_unit_amount: dec!("150"),
+            staked_xrd: dec!("150"),
+            stake_unit_resource_address: stake_unit_resource
         })
-        .is_none())
+    );
 }
 
 #[test]
-fn deposits_into_a_different_account_invalidate_stake_rules() {
+fn staking_then_depositing_into_multiple_accounts_is_allowed() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
     let validator = test_runner.new_validator_with_pub_key(pk, account1);
+    let ValidatorSubstate {
+        stake_unit_resource,
+        claim_nft: _,
+        ..
+    } = test_runner.get_validator_info(validator);
 
     test_runner
         .execute_manifest(
@@ -687,7 +743,10 @@ fn deposits_into_a_different_account_invalidate_stake_rules() {
         .withdraw_from_account(account1, XRD, 100)
         .take_from_worktop(XRD, 100, "XRD")
         .stake_validator(validator, "XRD")
-        .deposit_batch(account2)
+        .take_from_worktop(stake_unit_resource, 50, "SU1")
+        .deposit(account1, "SU1")
+        .take_from_worktop(stake_unit_resource, 50, "SU2")
+        .deposit(account2, "SU2")
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
@@ -706,25 +765,52 @@ fn deposits_into_a_different_account_invalidate_stake_rules() {
     );
 
     // Assert
-    assert!(transaction_types
-        .iter()
-        .find_map(|tx_type| {
-            match tx_type {
-                TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
-                _ => None,
+    let Some(StakeTransactionType {
+        accounts_withdrawn_from,
+        accounts_deposited_into,
+        stakes,
+    }) = transaction_types.iter().find_map(|tx_type| match tx_type {
+        TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
+        _ => None,
+    })
+    else {
+        panic!("Stake transaction type not found!")
+    };
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account1 => dec!("100") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! {
+            account1 => hashmap! {
+                stake_unit_resource => dec!("50")
+            },
+            account2 => hashmap! {
+                stake_unit_resource => dec!("50")
             }
+        }
+    );
+    assert_eq!(
+        stakes.get(&validator),
+        Some(&Stake {
+            stake_unit_amount: dec!("100"),
+            staked_xrd: dec!("100"),
+            stake_unit_resource_address: stake_unit_resource
         })
-        .is_none())
+    );
 }
 
 #[test]
-fn depositing_through_deposit_method_is_allowed() {
+fn staking_then_depositing_and_depositing_batch_succeeds() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (pk, _, account) = test_runner.new_account(false);
-    let validator = test_runner.new_validator_with_pub_key(pk, account);
+    let (pk, _, account1) = test_runner.new_account(false);
+    let (_, _, account2) = test_runner.new_account(false);
+    let validator = test_runner.new_validator_with_pub_key(pk, account1);
     let ValidatorSubstate {
         stake_unit_resource,
+        claim_nft: _,
         ..
     } = test_runner.get_validator_info(validator);
 
@@ -733,7 +819,7 @@ fn depositing_through_deposit_method_is_allowed() {
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
                 .create_proof_from_account_of_non_fungible(
-                    account,
+                    account1,
                     NonFungibleGlobalId::new(
                         VALIDATOR_OWNER_BADGE,
                         NonFungibleLocalId::bytes(validator.as_node_id().0).unwrap(),
@@ -755,11 +841,12 @@ fn depositing_through_deposit_method_is_allowed() {
 
     // Act
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account, XRD, 100)
+        .withdraw_from_account(account1, XRD, 100)
         .take_from_worktop(XRD, 100, "XRD")
         .stake_validator(validator, "XRD")
-        .take_from_worktop(stake_unit_resource, 100, "StakeUnits")
-        .deposit(account, "StakeUnits")
+        .take_from_worktop(stake_unit_resource, 50, "SU1")
+        .deposit(account1, "SU1")
+        .deposit_batch(account2)
         .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
@@ -779,7 +866,8 @@ fn depositing_through_deposit_method_is_allowed() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
+        accounts_withdrawn_from,
+        accounts_deposited_into,
         stakes,
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
@@ -788,19 +876,33 @@ fn depositing_through_deposit_method_is_allowed() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account1 => dec!("100") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! {
+            account1 => hashmap! {
+                stake_unit_resource => dec!("50")
+            },
+            account2 => hashmap! {
+                stake_unit_resource => dec!("50")
+            }
+        }
+    );
     assert_eq!(
         stakes.get(&validator),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("100"),
+            stake_unit_amount: dec!("100"),
             staked_xrd: dec!("100"),
-            liquid_stake_units_resource_address: stake_unit_resource
+            stake_unit_resource_address: stake_unit_resource
         })
     );
 }
 
 #[test]
-fn aggregation_of_stake_works_as_expected() {
+fn staking_aggregation_is_done_as_expected() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account) = test_runner.new_account(false);
@@ -864,7 +966,8 @@ fn aggregation_of_stake_works_as_expected() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
+        accounts_withdrawn_from,
+        accounts_deposited_into,
         stakes,
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
@@ -873,19 +976,30 @@ fn aggregation_of_stake_works_as_expected() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account => dec!("140") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! {
+            account => hashmap! {
+                stake_unit_resource => dec!("140")
+            },
+        }
+    );
     assert_eq!(
         stakes.get(&validator),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("140"),
+            stake_unit_amount: dec!("140"),
             staked_xrd: dec!("140"),
-            liquid_stake_units_resource_address: stake_unit_resource
+            stake_unit_resource_address: stake_unit_resource
         })
     );
 }
 
 #[test]
-fn multiple_validators_works_as_expected() {
+fn complex_staking_transaction_is_detected_and_summarized_as_expected() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account) = test_runner.new_account(false);
@@ -952,12 +1066,11 @@ fn multiple_validators_works_as_expected() {
 
     // Act
     let manifest = ManifestBuilder::new()
-        .withdraw_from_account(account, XRD, 100)
-        .take_from_worktop(XRD, 100, "XRD")
-        .stake_validator(validator1, "XRD")
-        .withdraw_from_account(account, XRD, 40)
-        .take_from_worktop(XRD, 40, "XRD1")
-        .stake_validator(validator2, "XRD1")
+        .withdraw_from_account(account, XRD, 1000)
+        .take_from_worktop(XRD, 600, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .take_from_worktop(XRD, 200, "XRD2")
+        .stake_validator(validator2, "XRD2")
         .deposit_batch(account)
         .build();
     let receipt = test_runner.preview_manifest(
@@ -978,7 +1091,8 @@ fn multiple_validators_works_as_expected() {
 
     // Assert
     let Some(StakeTransactionType {
-        account: stake_account,
+        accounts_withdrawn_from,
+        accounts_deposited_into,
         stakes,
     }) = transaction_types.iter().find_map(|tx_type| match tx_type {
         TransactionType::StakeTransaction(stake) => Some(stake.as_ref()),
@@ -987,21 +1101,34 @@ fn multiple_validators_works_as_expected() {
     else {
         panic!("Stake transaction type not found!")
     };
-    assert_eq!(*stake_account, account);
+    assert_eq!(
+        accounts_withdrawn_from.clone(),
+        hashmap! { account => dec!("1000") }
+    );
+    assert_eq!(
+        accounts_deposited_into.clone(),
+        hashmap! {
+            account => hashmap! {
+                stake_unit_resource1 => dec!("600"),
+                stake_unit_resource2 => dec!("200"),
+                XRD => dec!("200"),
+            },
+        }
+    );
     assert_eq!(
         stakes.get(&validator1),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("100"),
-            staked_xrd: dec!("100"),
-            liquid_stake_units_resource_address: stake_unit_resource1
+            stake_unit_amount: dec!("600"),
+            staked_xrd: dec!("600"),
+            stake_unit_resource_address: stake_unit_resource1
         })
     );
     assert_eq!(
         stakes.get(&validator2),
         Some(&Stake {
-            liquid_stake_units_amount: dec!("40"),
-            staked_xrd: dec!("40"),
-            liquid_stake_units_resource_address: stake_unit_resource2
+            stake_unit_amount: dec!("200"),
+            staked_xrd: dec!("200"),
+            stake_unit_resource_address: stake_unit_resource2
         })
     );
 }
