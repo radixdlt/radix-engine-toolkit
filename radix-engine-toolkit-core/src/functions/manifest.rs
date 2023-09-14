@@ -197,6 +197,7 @@ pub fn modify(
     })
 }
 
+#[allow(clippy::type_complexity)]
 pub fn parse_transfer_information(
     manifest: &TransactionManifestV1,
     allow_lock_fee_instructions: bool,
