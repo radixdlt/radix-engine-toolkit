@@ -102,7 +102,10 @@ mod core {
         AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
-        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt
+        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt,
+        StakeTransactionType as CoreStakeTransactionType,
+        UnstakeTransactionType as CoreUnstakeTransactionType,
+        ClaimStakeTransactionType as CoreClaimStakeTransactionType
     };
     pub use radix_engine_toolkit_core::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
@@ -133,6 +136,15 @@ mod core {
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
         ResourceTracker as CoreResourceTracker
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::{
+        StakeInformation as CoreStakeInformation
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::{
+        UnstakeInformation as CoreUnstakeInformation
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::claim_stake_visitor::{
+        ClaimStakeInformation as CoreClaimStakeInformation
     };
 
     /* Utils */
@@ -422,6 +434,9 @@ mod native {
     pub use radix_engine::blueprints::identity::{
         IdentityNativePackage as NativeIdentityNativePackage,
         IdentityBlueprint as NativeIdentityBlueprint
+    };
+    pub use radix_engine::blueprints::consensus_manager::{
+        UnstakeData as NativeUnstakeData
     };
 
     pub use scrypto::blueprints::access_controller::{
