@@ -28,6 +28,7 @@ use crate::instruction_visitor::core::traverser::*;
 use crate::instruction_visitor::visitors::account_proofs_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::claim_stake_visitor::ClaimStakeInformation;
+use crate::instruction_visitor::visitors::transaction_type::claim_stake_visitor::ClaimStakeVisitor;
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
@@ -37,6 +38,7 @@ use crate::instruction_visitor::visitors::transaction_type::stake_visitor::{
 };
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::unstake_visitor::UnstakeInformation;
+use crate::instruction_visitor::visitors::transaction_type::unstake_visitor::UnstakeVisitor;
 use crate::models::node_id::InvalidEntityTypeIdError;
 use crate::models::node_id::TypedNodeId;
 use crate::utils;
@@ -54,6 +56,8 @@ pub fn analyze(
     let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
     let mut reserved_instructions_visitor = ReservedInstructionsVisitor::default();
     let mut stake_visitor = StakeVisitor::new(execution_trace);
+    let mut unstake_visitor = UnstakeVisitor::new(preview_receipt);
+    let mut claim_stake_visitor = ClaimStakeVisitor::new(execution_trace);
 
     traverse(
         instructions,
@@ -65,6 +69,8 @@ pub fn analyze(
             &mut general_transaction_visitor,
             &mut reserved_instructions_visitor,
             &mut stake_visitor,
+            &mut unstake_visitor,
+            &mut claim_stake_visitor,
         ],
     )?;
 
@@ -105,6 +111,16 @@ pub fn analyze(
     if let Some(stakes) = stake_visitor.output() {
         transaction_types.push(TransactionType::StakeTransaction(Box::new(
             StakeTransactionType(stakes),
+        )))
+    }
+    if let Some(unstakes) = unstake_visitor.output() {
+        transaction_types.push(TransactionType::UnstakeTransaction(Box::new(
+            UnstakeTransactionType(unstakes),
+        )))
+    }
+    if let Some(claim_stake) = claim_stake_visitor.output() {
+        transaction_types.push(TransactionType::ClaimStakeTransaction(Box::new(
+            ClaimStakeTransactionType(claim_stake),
         )))
     }
     if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output() {
