@@ -18,6 +18,7 @@
 use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::DefaultDepositRule;
+use radix_engine_queries::typed_substate_layout::UnstakeData;
 use scrypto::api::node_modules::metadata::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
@@ -26,6 +27,7 @@ use crate::instruction_visitor::core::error::*;
 use crate::instruction_visitor::core::traverser::*;
 use crate::instruction_visitor::visitors::account_proofs_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::claim_stake_visitor::ClaimStakeInformation;
 use crate::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
@@ -34,6 +36,7 @@ use crate::instruction_visitor::visitors::transaction_type::stake_visitor::{
     StakeInformation, StakeVisitor,
 };
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
+use crate::instruction_visitor::visitors::transaction_type::unstake_visitor::UnstakeInformation;
 use crate::models::node_id::InvalidEntityTypeIdError;
 use crate::models::node_id::TypedNodeId;
 use crate::utils;
@@ -238,12 +241,20 @@ pub enum TransactionType {
     SimpleTransfer(Box<SimpleTransferTransactionType>),
     Transfer(Box<TransferTransactionType>),
     AccountDepositSettings(Box<AccountDepositSettingsTransactionType>),
-    GeneralTransaction(Box<GeneralTransactionType>),
     StakeTransaction(Box<StakeTransactionType>),
+    UnstakeTransaction(Box<UnstakeTransactionType>),
+    ClaimStakeTransaction(Box<ClaimStakeTransactionType>),
+    GeneralTransaction(Box<GeneralTransactionType>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct StakeTransactionType(pub Vec<StakeInformation>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct UnstakeTransactionType(pub Vec<UnstakeInformation<UnstakeData>>);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ClaimStakeTransactionType(pub Vec<ClaimStakeInformation>);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SimpleTransferTransactionType {

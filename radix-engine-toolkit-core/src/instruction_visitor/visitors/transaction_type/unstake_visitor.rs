@@ -225,9 +225,9 @@ impl Default for UnstakeFiniteStateMachine {
 
 impl UnstakeFiniteStateMachine {
     /// Transitions the FSM from one state to the next. If any errors occur in the transition then
-    /// the FSM transitions into [`UnstakeFiniteStateMachine::NotAnUnstakeTransaction(true)`] meaning
-    /// that the FSM has concluded that this is not a stake transaction and that this conclusion is
-    /// final.
+    /// the FSM transitions into [`UnstakeFiniteStateMachine::NotAnUnstakeTransaction(true)`]
+    /// meaning that the FSM has concluded that this is not a stake transaction and that this
+    /// conclusion is final.
     pub fn transition(
         &mut self,
         instruction: InstructionV1,
@@ -318,10 +318,10 @@ impl UnstakeFiniteStateMachine {
 
                 let Some((claim_nft_resource, claim_nft_local_id)) =
                     get_returned_claim_nft(execution_trace, instruction_index)
-                    else {
-                        *self = Self::NotAnUnstakeTransaction(true);
-                        return;
-                    };
+                else {
+                    *self = Self::NotAnUnstakeTransaction(true);
+                    return;
+                };
 
                 *self = Self::Unstaked {
                     account_withdrawn_from: *account_withdrawn_from,

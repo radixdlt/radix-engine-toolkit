@@ -15,12 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::blueprints::consensus_manager::{UnstakeData, ValidatorSubstate};
+use radix_engine::blueprints::consensus_manager::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_toolkit_core::functions::execution::{self, *};
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::claim_stake_visitor::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use scrypto::prelude::*;
@@ -28,7 +29,7 @@ use scrypto_unit::*;
 use transaction::prelude::*;
 use radix_engine_toolkit_core::instruction_visitor::core::traverser::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::*;
-use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::{UnstakeInformation, UnstakeVisitor};
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::*;
 
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
@@ -910,6 +911,237 @@ fn multiple_unstakes_is_recognized_by_unstaking_visitor() {
     );
 }
 
+#[test]
+fn simple_claim_transaction_can_be_caught_by_claim_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, claim_nft_resource) = new_registered_validator(&mut test_runner);
+    let claim_nft_local_id = stake_and_unstake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungible_from_account(
+            account1,
+            NonFungibleGlobalId::new(claim_nft_resource, claim_nft_local_id.clone()),
+        )
+        .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
+            )
+        })
+        .deposit_batch(account1)
+        .build();
+    let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let claims = claims.expect("Must be valid!");
+    let [claim1] = claims.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(claim1.from_account, account1);
+    assert_eq!(claim1.validator_address, validator1);
+    assert_eq!(claim1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        claim1.claim_nft_local_ids.clone(),
+        btreeset!(claim_nft_local_id)
+    );
+    assert_eq!(claim1.claimed_xrd, dec!("10000"));
+}
+
+#[test]
+fn stake_claim_with_multiple_nfts_can_be_caught_by_claim_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, claim_nft_resource) = new_registered_validator(&mut test_runner);
+
+    stake_and_unstake(&mut test_runner, account1, validator1);
+    stake_and_unstake(&mut test_runner, account1, validator1);
+    stake_and_unstake(&mut test_runner, account1, validator1);
+
+    let (claim_nft_local_id1, claim_nft_local_id2, claim_nft_local_id3) = {
+        let vault_id = *test_runner
+            .get_component_vaults(account1, claim_nft_resource)
+            .first()
+            .unwrap();
+        let mut iter = test_runner.inspect_non_fungible_vault(vault_id).unwrap().1;
+        (
+            iter.next().unwrap(),
+            iter.next().unwrap(),
+            iter.next().unwrap(),
+        )
+    };
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungibles_from_account(
+            account1,
+            claim_nft_resource,
+            [
+                claim_nft_local_id1.clone(),
+                claim_nft_local_id2.clone(),
+                claim_nft_local_id3.clone(),
+            ],
+        )
+        .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
+            )
+        })
+        .deposit_batch(account1)
+        .build();
+    let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let claims = claims.expect("Must be valid!");
+    let [claim1] = claims.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(dbg!(claim1).from_account, account1);
+    assert_eq!(claim1.validator_address, validator1);
+    assert_eq!(claim1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        claim1.claim_nft_local_ids.clone(),
+        btreeset!(
+            claim_nft_local_id1,
+            claim_nft_local_id2,
+            claim_nft_local_id3
+        ),
+    );
+    assert_eq!(claim1.claimed_xrd, dec!("30000"));
+}
+
+#[test]
+fn simple_claim_transaction_can_be_caught_by_claim_visitor1() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, claim_nft_resource) = new_registered_validator(&mut test_runner);
+    let claim_nft_local_id = stake_and_unstake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungible_from_account(
+            account1,
+            NonFungibleGlobalId::new(claim_nft_resource, claim_nft_local_id.clone()),
+        )
+        .take_from_worktop(claim_nft_resource, 1, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
+            )
+        })
+        .deposit_batch(account1)
+        .build();
+    let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let claims = claims.expect("Must be valid!");
+    let [claim1] = claims.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(claim1.from_account, account1);
+    assert_eq!(claim1.validator_address, validator1);
+    assert_eq!(claim1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        claim1.claim_nft_local_ids.clone(),
+        btreeset!(claim_nft_local_id)
+    );
+    assert_eq!(claim1.claimed_xrd, dec!("10000"));
+}
+
+#[test]
+fn simple_claim_transaction_can_be_caught_by_claim_visitor2() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, claim_nft_resource) = new_registered_validator(&mut test_runner);
+    let claim_nft_local_id = stake_and_unstake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungible_from_account(
+            account1,
+            NonFungibleGlobalId::new(claim_nft_resource, claim_nft_local_id.clone()),
+        )
+        .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
+            )
+        })
+        .deposit_batch(account1)
+        .build();
+    let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let claims = claims.expect("Must be valid!");
+    let [claim1] = claims.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(claim1.from_account, account1);
+    assert_eq!(claim1.validator_address, validator1);
+    assert_eq!(claim1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        claim1.claim_nft_local_ids.clone(),
+        btreeset!(claim_nft_local_id)
+    );
+    assert_eq!(claim1.claimed_xrd, dec!("10000"));
+}
+
+#[test]
+fn simple_claim_transaction_can_be_caught_by_claim_visitor3() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, claim_nft_resource) = new_registered_validator(&mut test_runner);
+    let claim_nft_local_id = stake_and_unstake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungible_from_account(
+            account1,
+            NonFungibleGlobalId::new(claim_nft_resource, claim_nft_local_id.clone()),
+        )
+        .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
+            )
+        })
+        .take_all_from_worktop(XRD, "XRD1")
+        .deposit(account1, "XRD1")
+        .build();
+    let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let claims = claims.expect("Must be valid!");
+    let [claim1] = claims.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(claim1.from_account, account1);
+    assert_eq!(claim1.validator_address, validator1);
+    assert_eq!(claim1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        claim1.claim_nft_local_ids.clone(),
+        btreeset!(claim_nft_local_id)
+    );
+    assert_eq!(claim1.claimed_xrd, dec!("10000"));
+}
+
 fn new_registered_validator(
     test_runner: &mut DefaultTestRunner,
 ) -> (
@@ -1005,6 +1237,30 @@ fn execute_and_run_unstake_visitor(
     unstake_visitor.output()
 }
 
+fn execute_and_run_claim_visitor(
+    manifest: TransactionManifestV1,
+    test_runner: &mut DefaultTestRunner,
+) -> Option<Vec<ClaimStakeInformation>> {
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    let execution_trace = receipt
+        .expect_commit_success()
+        .execution_trace
+        .as_ref()
+        .unwrap();
+    let mut claim_visitor = ClaimStakeVisitor::new(execution_trace);
+    traverse(&manifest.instructions, &mut [&mut claim_visitor]).unwrap();
+    claim_visitor.output()
+}
+
 fn stake(
     test_runner: &mut DefaultTestRunner,
     account: ComponentAddress,
@@ -1020,6 +1276,43 @@ fn stake(
     test_runner
         .execute_manifest(manifest, vec![])
         .expect_commit_success();
+}
+
+fn stake_and_unstake(
+    test_runner: &mut DefaultTestRunner,
+    account: ComponentAddress,
+    validator: ComponentAddress,
+) -> NonFungibleLocalId {
+    let ValidatorSubstate {
+        stake_unit_resource,
+        claim_nft,
+        ..
+    } = test_runner.get_validator_info(validator);
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .get_free_xrd_from_faucet()
+        .take_from_worktop(XRD, 10_000, "XRD")
+        .stake_validator(validator, "XRD")
+        .take_all_from_worktop(stake_unit_resource, "StakeUnit")
+        .unstake_validator(validator, "StakeUnit")
+        .try_deposit_entire_worktop_or_refund(account, None)
+        .build();
+    test_runner
+        .execute_manifest(manifest, vec![])
+        .expect_commit_success();
+    let current_epoch = test_runner.get_current_epoch();
+    test_runner.set_current_epoch(current_epoch.after(200));
+
+    let vault_id = *test_runner
+        .get_component_vaults(account, claim_nft)
+        .first()
+        .unwrap();
+    test_runner
+        .inspect_non_fungible_vault(vault_id)
+        .unwrap()
+        .1
+        .next()
+        .unwrap()
 }
 
 fn transaction_types(
