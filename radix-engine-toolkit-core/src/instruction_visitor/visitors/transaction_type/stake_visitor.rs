@@ -64,18 +64,6 @@ impl<'r> StakeVisitor<'r> {
 }
 
 impl<'r> InstructionVisitor for StakeVisitor<'r> {
-    fn post_visit(&mut self) -> Result<(), InstructionVisitorError> {
-        self.instruction_index += 1;
-        Ok(())
-    }
-
-    fn is_enabled(&self) -> bool {
-        !matches!(
-            self.finite_state_machine,
-            StakeFiniteStateMachine::NotAStakeTransaction(true)
-        )
-    }
-
     fn visit_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -106,6 +94,18 @@ impl<'r> InstructionVisitor for StakeVisitor<'r> {
         }
 
         Ok(())
+    }
+
+    fn post_visit(&mut self) -> Result<(), InstructionVisitorError> {
+        self.instruction_index += 1;
+        Ok(())
+    }
+
+    fn is_enabled(&self) -> bool {
+        !matches!(
+            self.finite_state_machine,
+            StakeFiniteStateMachine::NotAStakeTransaction(true)
+        )
     }
 }
 

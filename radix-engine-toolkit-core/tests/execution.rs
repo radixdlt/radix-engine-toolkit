@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::blueprints::consensus_manager::ValidatorSubstate;
+use radix_engine::blueprints::consensus_manager::{UnstakeData, ValidatorSubstate};
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
@@ -28,6 +28,7 @@ use scrypto_unit::*;
 use transaction::prelude::*;
 use radix_engine_toolkit_core::instruction_visitor::core::traverser::*;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::*;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::{UnstakeInformation, UnstakeVisitor};
 
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
@@ -650,6 +651,265 @@ fn staking_and_withdrawing_from_one_account_and_depositing_into_another_invalida
     assert!(stakes.is_none());
 }
 
+#[test]
+fn simple_unstaking_is_recognized_by_unstaking_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, "200")
+        .take_all_from_worktop(stake_unit_resource, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .deposit_batch(account1)
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let unstakes = unstakes.expect("Must be valid!");
+    let [unstake1] = unstakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(unstake1.from_account, account1);
+    assert_eq!(unstake1.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake1.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake1.validator_address, validator1);
+    assert_eq!(unstake1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake1.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+}
+
+#[test]
+fn unstaking_with_take_from_worktop_by_amount_is_recognized_by_unstaking_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .deposit_batch(account1)
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let unstakes = unstakes.expect("Must be valid!");
+    let [unstake1] = unstakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(unstake1.from_account, account1);
+    assert_eq!(unstake1.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake1.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake1.validator_address, validator1);
+    assert_eq!(unstake1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake1.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+}
+
+#[test]
+fn unstaking_with_take_from_worktop_by_amount_of_claim_nft_is_recognized_by_unstaking_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .take_from_worktop(claim_nft_resource, 1, "ClaimNft")
+        .deposit(account1, "ClaimNft")
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let unstakes = unstakes.expect("Must be valid!");
+    let [unstake1] = unstakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(unstake1.from_account, account1);
+    assert_eq!(unstake1.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake1.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake1.validator_address, validator1);
+    assert_eq!(unstake1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake1.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+}
+
+#[test]
+fn unstaking_with_take_all_from_worktop_of_claim_nft_is_recognized_by_unstaking_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .take_all_from_worktop(claim_nft_resource, "ClaimNft")
+        .deposit(account1, "ClaimNft")
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let unstakes = unstakes.expect("Must be valid!");
+    let [unstake1] = unstakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(unstake1.from_account, account1);
+    assert_eq!(unstake1.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake1.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake1.validator_address, validator1);
+    assert_eq!(unstake1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake1.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+}
+
+#[test]
+fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_unstake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .take_all_from_worktop(claim_nft_resource, "ClaimNft")
+        .deposit(account2, "ClaimNft")
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    assert!(unstakes.is_none());
+}
+
+#[test]
+fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_unstake_visitor2() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, ..) = new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .deposit_batch(account2)
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    assert!(unstakes.is_none());
+}
+
+#[test]
+fn multiple_unstakes_is_recognized_by_unstaking_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
+        new_registered_validator(&mut test_runner);
+    stake(&mut test_runner, account1, validator1);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit1")
+        .unstake_validator(validator1, "StakeUnit1")
+        .take_all_from_worktop(claim_nft_resource, "ClaimNft1")
+        .deposit(account1, "ClaimNft1")
+        .withdraw_from_account(account1, stake_unit_resource, 200)
+        .take_from_worktop(stake_unit_resource, 200, "StakeUnit2")
+        .unstake_validator(validator1, "StakeUnit2")
+        .take_all_from_worktop(claim_nft_resource, "ClaimNft2")
+        .deposit(account1, "ClaimNft2")
+        .build();
+    let unstakes = execute_and_run_unstake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let unstakes = unstakes.expect("Must be valid!");
+    let [unstake1, unstake2] = unstakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+
+    assert_eq!(unstake1.from_account, account1);
+    assert_eq!(unstake1.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake1.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake1.validator_address, validator1);
+    assert_eq!(unstake1.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake1.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+
+    assert_eq!(unstake2.from_account, account1);
+    assert_eq!(unstake2.stake_unit_address, stake_unit_resource);
+    assert_eq!(unstake2.stake_unit_amount, dec!("200"));
+    assert_eq!(unstake2.validator_address, validator1);
+    assert_eq!(unstake2.claim_nft_resource, claim_nft_resource);
+    assert_eq!(
+        unstake2.claim_nft_data,
+        UnstakeData {
+            name: "Stake Claim".to_owned(),
+            claim_epoch: Epoch::of(3),
+            claim_amount: 200.into()
+        }
+    );
+}
+
 fn new_registered_validator(
     test_runner: &mut DefaultTestRunner,
 ) -> (
@@ -722,6 +982,44 @@ fn execute_and_run_stake_visitor(
     let mut stake_visitor = StakeVisitor::new(execution_trace);
     traverse(&manifest.instructions, &mut [&mut stake_visitor]).unwrap();
     stake_visitor.output()
+}
+
+fn execute_and_run_unstake_visitor(
+    manifest: TransactionManifestV1,
+    test_runner: &mut DefaultTestRunner,
+) -> Option<Vec<UnstakeInformation<UnstakeData>>> {
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    let receipt = VersionedTransactionReceipt::V1(receipt);
+    let receipt = ExecutionAnalysisTransactionReceipt::new(&receipt).unwrap();
+    let mut unstake_visitor = UnstakeVisitor::new(&receipt);
+    traverse(&manifest.instructions, &mut [&mut unstake_visitor]).unwrap();
+    unstake_visitor.output()
+}
+
+fn stake(
+    test_runner: &mut DefaultTestRunner,
+    account: ComponentAddress,
+    validator: ComponentAddress,
+) {
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .get_free_xrd_from_faucet()
+        .take_from_worktop(XRD, 10_000, "XRD")
+        .stake_validator(validator, "XRD")
+        .try_deposit_entire_worktop_or_refund(account, None)
+        .build();
+    test_runner
+        .execute_manifest(manifest, vec![])
+        .expect_commit_success();
 }
 
 fn transaction_types(

@@ -21,3 +21,4 @@ pub mod reserved_instructions;
 pub mod simple_transfer_visitor;
 pub mod stake_visitor;
 pub mod transfer_visitor;
+pub mod unstake_visitor;
