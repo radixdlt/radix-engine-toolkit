@@ -30,8 +30,6 @@ use crate::instruction_visitor::visitors::transaction_type::general_transaction_
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstruction;
 use crate::instruction_visitor::visitors::transaction_type::reserved_instructions::ReservedInstructionsVisitor;
 use crate::instruction_visitor::visitors::transaction_type::simple_transfer_visitor::*;
-use crate::instruction_visitor::visitors::transaction_type::stake_visitor::Stake;
-use crate::instruction_visitor::visitors::transaction_type::stake_visitor::StakeVisitor;
 use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use crate::models::node_id::InvalidEntityTypeIdError;
 use crate::models::node_id::TypedNodeId;
@@ -49,7 +47,6 @@ pub fn analyze(
     let mut account_deposit_settings_visitor = AccountDepositSettingsVisitor::default();
     let mut general_transaction_visitor = GeneralTransactionTypeVisitor::new(execution_trace);
     let mut reserved_instructions_visitor = ReservedInstructionsVisitor::default();
-    let mut stake_transaction_visitor = StakeVisitor::new(execution_trace);
 
     traverse(
         instructions,
@@ -60,7 +57,6 @@ pub fn analyze(
             &mut account_deposit_settings_visitor,
             &mut general_transaction_visitor,
             &mut reserved_instructions_visitor,
-            &mut stake_transaction_visitor,
         ],
     )?;
 
@@ -96,11 +92,6 @@ pub fn analyze(
                 default_deposit_rule_changes,
                 authorized_depositors_changes,
             },
-        )))
-    }
-    if let Some((account, stakes)) = stake_transaction_visitor.output() {
-        transaction_types.push(TransactionType::StakeTransaction(Box::new(
-            StakeTransactionType { account, stakes },
         )))
     }
     if let Some((account_withdraws, account_deposits)) = general_transaction_visitor.output() {
@@ -238,7 +229,6 @@ pub enum TransactionType {
     Transfer(Box<TransferTransactionType>),
     AccountDepositSettings(Box<AccountDepositSettingsTransactionType>),
     GeneralTransaction(Box<GeneralTransactionType>),
-    StakeTransaction(Box<StakeTransactionType>),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -273,12 +263,6 @@ pub struct GeneralTransactionType {
         HashMap<GlobalAddress, HashMap<String, Option<MetadataValue>>>,
     pub data_of_newly_minted_non_fungibles:
         HashMap<ResourceAddress, HashMap<NonFungibleLocalId, ScryptoValue>>,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct StakeTransactionType {
-    pub account: ComponentAddress,
-    pub stakes: HashMap<ComponentAddress, Stake>,
 }
 
 #[derive(Clone, Debug)]

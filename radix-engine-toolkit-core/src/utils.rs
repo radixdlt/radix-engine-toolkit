@@ -206,18 +206,6 @@ pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
     }
 }
 
-pub fn is_validator<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
-    match node_id.clone().into() {
-        DynamicGlobalAddress::Named(_) => false,
-        DynamicGlobalAddress::Static(address) => {
-            matches!(
-                address.as_node_id().entity_type(),
-                Some(EntityType::GlobalValidator)
-            )
-        }
-    }
-}
-
 pub fn is_access_controller<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
     match node_id.clone().into() {
         DynamicGlobalAddress::Named(_) => false,
