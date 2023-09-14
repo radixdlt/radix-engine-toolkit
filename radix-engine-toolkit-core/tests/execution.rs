@@ -15,15 +15,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::blueprints::consensus_manager::ValidatorSubstate;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine::transaction::{TransactionReceipt, VersionedTransactionReceipt};
-use radix_engine_interface::blueprints::account::{ACCOUNT_LOCK_FEE_IDENT, AccountLockFeeInput, ACCOUNT_LOCK_CONTINGENT_FEE_IDENT, AccountLockContingentFeeInput};
+use radix_engine::transaction::*;
+use radix_engine_interface::blueprints::account::*;
+use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_toolkit_core::functions::execution::{self, *};
-use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{ResourceTracker, Source};
-use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::Resources;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::*;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 use scrypto::prelude::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
+use radix_engine_toolkit_core::instruction_visitor::core::traverser::*;
+use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::*;
 
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
@@ -326,6 +330,398 @@ fn manifest_with_a_lock_contingent_fee_should_not_be_conforming() {
         ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
         AccountLockContingentFeeInput { amount: dec!("1") },
     )
+}
+
+#[test]
+fn simple_stake_transaction_is_detected_by_the_stake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 100, "XRD")
+        .stake_validator(validator1, "XRD")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 100.into(),
+            staked_xrd: 100.into(),
+        }
+    )
+}
+
+#[test]
+fn simple_stake_transaction_using_take_all_from_worktop_deposit_is_detected_by_the_stake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 100, "XRD")
+        .stake_validator(validator1, "XRD")
+        .take_all_from_worktop(stake_unit1, "StakeUnit1")
+        .deposit(account1, "StakeUnit1")
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 100.into(),
+            staked_xrd: 100.into(),
+        }
+    )
+}
+
+#[test]
+fn stake_with_multi_withdraw_and_multi_deposits_is_detected_as_stake_by_stake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+
+    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, validator2, stake_unit2, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 100, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .deposit_batch(account1)
+        .withdraw_from_account(account2, XRD, 200)
+        .take_from_worktop(XRD, 200, "XRD2")
+        .stake_validator(validator2, "XRD2")
+        .deposit_batch(account2)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1, stake2] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 100.into(),
+            staked_xrd: 100.into(),
+        }
+    );
+    assert_eq!(
+        *stake2,
+        StakeInformation {
+            from_account: account2,
+            validator_address: validator2,
+            stake_unit_resource: stake_unit2,
+            stake_unit_amount: 200.into(),
+            staked_xrd: 200.into(),
+        }
+    )
+}
+
+#[test]
+fn staking_from_one_account_to_multiple_validators_is_detected_as_a_stake_transaction() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+    let (_, _, validator2, stake_unit2, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 50, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .take_from_worktop(XRD, 50, "XRD2")
+        .stake_validator(validator2, "XRD2")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1, stake2] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 50.into(),
+            staked_xrd: 50.into(),
+        }
+    );
+    assert_eq!(
+        *stake2,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator2,
+            stake_unit_resource: stake_unit2,
+            stake_unit_amount: 50.into(),
+            staked_xrd: 50.into(),
+        }
+    )
+}
+
+#[test]
+fn staking_of_zero_xrd_is_considered_valid_by_the_stake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 0)
+        .take_from_worktop(XRD, 0, "XRD")
+        .stake_validator(validator1, "XRD")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 0.into(),
+            staked_xrd: 0.into(),
+        }
+    )
+}
+
+#[test]
+fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_the_stake_visitor() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 200)
+        .take_all_from_worktop(XRD, "XRD")
+        .stake_validator(validator1, "XRD")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 200.into(),
+            staked_xrd: 200.into(),
+        }
+    )
+}
+
+#[test]
+fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_the_stake_visitor2() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, stake_unit1, _) = new_registered_validator(&mut test_runner);
+    let (_, _, validator2, stake_unit2, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 50, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .take_all_from_worktop(XRD, "XRD2")
+        .stake_validator(validator2, "XRD2")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    let stakes = stakes.expect("Must be valid!");
+    let [stake1, stake2] = stakes.as_slice() else {
+        panic!("Unexpected number of stakes!")
+    };
+    assert_eq!(
+        *stake1,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator1,
+            stake_unit_resource: stake_unit1,
+            stake_unit_amount: 50.into(),
+            staked_xrd: 50.into(),
+        }
+    );
+    assert_eq!(
+        *stake2,
+        StakeInformation {
+            from_account: account1,
+            validator_address: validator2,
+            stake_unit_resource: stake_unit2,
+            stake_unit_amount: 50.into(),
+            staked_xrd: 50.into(),
+        }
+    )
+}
+
+#[test]
+fn staking_but_not_using_all_withdrawn_xrd_invalidates_staking_transaction() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, validator1, _, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 50, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .deposit_batch(account1)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    assert!(stakes.is_none());
+}
+
+#[test]
+fn staking_and_withdrawing_from_one_account_and_depositing_into_another_invalidates_stake_transaction(
+) {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().build();
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, validator1, _, _) = new_registered_validator(&mut test_runner);
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, 100)
+        .take_from_worktop(XRD, 100, "XRD1")
+        .stake_validator(validator1, "XRD1")
+        .deposit_batch(account2)
+        .build();
+    let stakes = execute_and_run_stake_visitor(manifest, &mut test_runner);
+
+    // Assert
+    assert!(stakes.is_none());
+}
+
+fn new_registered_validator(
+    test_runner: &mut DefaultTestRunner,
+) -> (
+    Secp256k1PublicKey,
+    Secp256k1PrivateKey,
+    ComponentAddress,
+    ResourceAddress,
+    ResourceAddress,
+) {
+    let (public_key, private_key, account) = test_runner.new_account(false);
+    let validator = test_runner.new_validator_with_pub_key(public_key, account);
+    test_runner
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .create_proof_from_account_of_non_fungible(
+                    account,
+                    NonFungibleGlobalId::new(
+                        VALIDATOR_OWNER_BADGE,
+                        NonFungibleLocalId::bytes(validator.as_node_id().0).unwrap(),
+                    ),
+                )
+                .register_validator(validator)
+                .call_method(
+                    validator,
+                    VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
+                    ValidatorUpdateAcceptDelegatedStakeInput {
+                        accept_delegated_stake: true,
+                    },
+                )
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&public_key)],
+        )
+        .expect_commit_success();
+
+    let ValidatorSubstate {
+        claim_nft,
+        stake_unit_resource,
+        ..
+    } = test_runner.get_validator_info(validator);
+
+    (
+        public_key,
+        private_key,
+        validator,
+        stake_unit_resource,
+        claim_nft,
+    )
+}
+
+fn execute_and_run_stake_visitor(
+    manifest: TransactionManifestV1,
+    test_runner: &mut DefaultTestRunner,
+) -> Option<Vec<StakeInformation>> {
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    let execution_trace = receipt
+        .expect_commit_success()
+        .execution_trace
+        .as_ref()
+        .unwrap();
+    let mut stake_visitor = StakeVisitor::new(execution_trace);
+    traverse(&manifest.instructions, &mut [&mut stake_visitor]).unwrap();
+    stake_visitor.output()
 }
 
 fn transaction_types(
