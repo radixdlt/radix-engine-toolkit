@@ -468,7 +468,9 @@ jobs:
           secret_name: ${{ secrets.PYPI_SECRET_NAME }}
           parse_json: true
       - name: Install Dependencies
-        run: python3 -m pip install black build twine
+        run: | 
+          python3 -m pip install black build twine
+          sudo apt-get install mypy
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
