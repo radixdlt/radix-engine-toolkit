@@ -495,18 +495,18 @@ jobs:
             --output ./interop/python/
       - name: Code Formatting
         run: |
-          python3 -m black ./interop/python/
-          - name: Copy Dynamic Libraries
-          run: |
+          black ./interop/python/
+      - name: Copy Dynamic Libraries
+        run: |
           for TARGET_TRIPLE in "aarch64-apple-darwin" "x86_64-apple-darwin" "aarch64-unknown-linux-gnu" "x86_64-unknown-linux-gnu" "x86_64-pc-windows-gnu"
           do
-          for FILE_NAME in "libradix_engine_toolkit_uniffi.so" "libradix_engine_toolkit_uniffi.dylib" "radix_engine_toolkit_uniffi.dll"
-          do
-          cp \
-          ./artifacts/radix-engine-toolkit-uniffi-$TARGET_TRIPLE/$FILE_NAME \
-          ./interop/python/radix_engine_toolkit/$TARGET_TRIPLE \
-          2>/dev/null
-          done
+            for FILE_NAME in "libradix_engine_toolkit_uniffi.so" "libradix_engine_toolkit_uniffi.dylib" "radix_engine_toolkit_uniffi.dll"
+            do
+              cp \
+              ./artifacts/radix-engine-toolkit-uniffi-$TARGET_TRIPLE/$FILE_NAME \
+              ./interop/python/radix_engine_toolkit/$TARGET_TRIPLE \
+              2>/dev/null
+            done
           done
       - name: Build Package
         working-directory: ./interop/python/
