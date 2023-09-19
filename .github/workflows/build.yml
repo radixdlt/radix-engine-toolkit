@@ -516,12 +516,12 @@ jobs:
       - name: Build Package
         working-directory: ./interop/python/
         run: |
-          python3 -m build
+          build
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
-          python3 -m twine check dist/*
+          twine check dist/*
       - name: Publish
         working-directory: ./interop/python/
         run: |
-          python3 -m twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
+          twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
