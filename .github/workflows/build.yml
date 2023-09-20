@@ -476,13 +476,8 @@ jobs:
           python-version: 3.11
       - name: Install Dependencies
         run: | 
-          python3 --version
           python3 -m pip install black build twine
-          pip show black
-          pip show build
-          pip show twine
           sudo apt-get install mypy
-          sudo apt-get install tree
       - name: Copy bindings
         run: |
           mkdir ./interop/python/radix_engine_toolkit
@@ -521,13 +516,14 @@ jobs:
       - name: Build Package
         working-directory: ./interop/python/
         run: python3 -m build 
-      - name: Tree (Temp)
-        run: tree . 
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
           python3 -m twine check dist/*
       - name: Publish
         working-directory: ./interop/python/
+        env:
+          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
         run: |
-          python3 -m twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
+          python3 -m twine upload dist/*
