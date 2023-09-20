@@ -471,7 +471,7 @@ jobs:
         run: | 
           sudo python3 -m pip install black build twine
           sudo apt-get install mypy
-          twine --version
+          sudo apt-get install tree
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -518,11 +518,13 @@ jobs:
         uses: hynek/build-and-inspect-python-package@v1
         with:
           path: ./interop/python/
-          dist: ./interop/python/dist
+          dist: ./interop/python/
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
           twine check dist/*
+      - name: Tree (Temp)
+        run: tree . 
       - name: Publish
         working-directory: ./interop/python/
         run: |
