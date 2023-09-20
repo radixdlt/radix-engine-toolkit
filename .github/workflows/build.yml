@@ -469,7 +469,7 @@ jobs:
           parse_json: true
       - name: Install Dependencies
         run: | 
-          sudo python3 -m pip -H install black build twine
+          sudo python3 -m pip install black build twine
           sudo apt-get install mypy
       - uses: actions/download-artifact@v3
         with:
