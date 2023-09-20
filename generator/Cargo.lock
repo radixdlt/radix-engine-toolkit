@@ -1537,7 +1537,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit"
-version = "0.12.1"
+version = "1.0.0"
 dependencies = [
  "bech32",
  "indexmap 1.9.3",
@@ -1559,7 +1559,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-core"
-version = "0.12.1"
+version = "1.0.0"
 dependencies = [
  "bech32",
  "cargo_toml",
@@ -1928,7 +1928,7 @@ dependencies = [
 
 [[package]]
 name = "sbor-json"
-version = "0.12.1"
+version = "1.0.0"
 dependencies = [
  "bech32",
  "radix-engine-common",
