@@ -471,6 +471,7 @@ jobs:
         run: | 
           sudo python3 -m pip install black build twine
           sudo apt-get install mypy
+          twine --version
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -521,8 +522,8 @@ jobs:
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
-          python3 -m twine check dist/*
+          twine check dist/*
       - name: Publish
         working-directory: ./interop/python/
         run: |
-          python3 -m twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
+          twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
