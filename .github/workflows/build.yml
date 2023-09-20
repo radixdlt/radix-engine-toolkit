@@ -469,7 +469,7 @@ jobs:
           parse_json: true
       - name: Install Dependencies
         run: | 
-          sudo python3 -m pip install black build twine
+          sudo -H python3 -m pip install black build twine
           sudo apt-get install mypy
           sudo apt-get install tree
       - uses: actions/download-artifact@v3
@@ -515,10 +515,8 @@ jobs:
             ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
             ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu
       - name: Build Package
-        uses: hynek/build-and-inspect-python-package@v1
-        with:
-          path: ./interop/python/
-          dist: ./interop/python/
+        working-directory: ./interop/python/
+        run: python3 -m build 
       - name: Tree (Temp)
         run: tree . 
       - name: Check Builds
