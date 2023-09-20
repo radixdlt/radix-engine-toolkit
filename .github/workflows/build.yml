@@ -514,14 +514,15 @@ jobs:
             ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
             ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu
       - name: Build Package
-        working-directory: ./interop/python/
-        run: |
-          build
+        uses: hynek/build-and-inspect-python-package@v1
+        with:
+          path: ./interop/python/
+          dist: ./interop/python/dist
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
-          twine check dist/*
+          python3 -m twine check dist/*
       - name: Publish
         working-directory: ./interop/python/
         run: |
-          twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
+          python3 -m twine upload -u ${{ env.PYPI_USERNAME }} -p ${{ env.PYPI_PASSWORD }} dist/*
