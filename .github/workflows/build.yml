@@ -519,12 +519,12 @@ jobs:
         with:
           path: ./interop/python/
           dist: ./interop/python/
+      - name: Tree (Temp)
+        run: tree . 
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
           twine check dist/*
-      - name: Tree (Temp)
-        run: tree . 
       - name: Publish
         working-directory: ./interop/python/
         run: |
