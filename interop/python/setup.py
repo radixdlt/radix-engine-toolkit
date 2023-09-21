@@ -1,12 +1,15 @@
 import setuptools
 
+with open("README.md", "r", encoding="utf-8") as file:
+    long_description: str = file.read()
+
 setuptools.setup(
     name="radix-engine-toolkit",
-    version="0.12.1",
+    version="0.12.1dev1",
     packages=["radix_engine_toolkit"],
     author="radixdlt",
     description="A Python wrapper around the Radix Engine Toolkit that provides Radix Ledger primitives to Python.",
-    long_description="Long Description",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     license='Apache-2.0',
     python_requires='>=3.6',
