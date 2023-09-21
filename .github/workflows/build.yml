@@ -517,7 +517,7 @@ jobs:
             ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu
       - name: Build Package
         working-directory: ./interop/python/
-        run: python3 -m build 
+        run: python3 -m build --wheel
       - name: Check Builds
         working-directory: ./interop/python/
         run: |
