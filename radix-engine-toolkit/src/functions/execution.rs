@@ -560,7 +560,8 @@ pub struct SerializableClaimStakeInformation {
     pub from_account: SerializableNodeId,
     pub validator_address: SerializableNodeId,
     pub claim_nft_resource: SerializableNodeId,
-    pub claim_nft_local_ids: BTreeSet<SerializableNonFungibleLocalId>,
+    #[typeshare(serialized_as = "Vec<SerializableNodeId>")]
+    pub claim_nft_local_ids: HashSet<SerializableNonFungibleLocalId>,
     pub claimed_xrd: SerializableDecimal,
 }
 
