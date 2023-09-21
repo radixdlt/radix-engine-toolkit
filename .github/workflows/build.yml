@@ -467,6 +467,8 @@ jobs:
           secret_prefix: 'PYPI'
           secret_name: ${{ secrets.PYPI_SECRET_NAME }}
           parse_json: true
+      - name: Print Env
+        run: env
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
