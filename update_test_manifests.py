@@ -20,7 +20,7 @@ def main() -> None:
         shutil.rmtree(radixdlt_scrypto_directory)
 
     # Clone the repository
-    os.system(f'git clone {REPOSITORY_URL} -b {branch_or_tag} "{radixdlt_scrypto_directory}"')
+    os.system(f'git clone {REPOSITORY_URL} -b {branch_or_tag} "{radixdlt_scrypto_directory}" --depth 1')
 
     # Copy the manifests from the path that they're at to the output path
     manifests_path: str = os.path.join(radixdlt_scrypto_directory, 'transaction', 'examples')
