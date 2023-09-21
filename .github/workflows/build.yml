@@ -525,7 +525,7 @@ jobs:
       - name: Publish
         working-directory: ./interop/python/
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ env.PYPI_TOKEN }}
+          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
         run: |
           python3 -m twine upload dist/* --verbose
