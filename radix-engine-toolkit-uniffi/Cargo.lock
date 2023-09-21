@@ -908,8 +908,8 @@ dependencies = [
 
 [[package]]
 name = "native-sdk"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "radix-engine-common",
  "radix-engine-derive",
@@ -1052,8 +1052,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bitflags 1.3.2",
  "colored",
@@ -1082,8 +1082,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-common"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bech32",
  "blake2",
@@ -1103,8 +1103,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-derive"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1114,8 +1114,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-interface"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bitflags 1.3.2",
  "const-sha1",
@@ -1124,6 +1124,7 @@ dependencies = [
  "paste",
  "radix-engine-common",
  "radix-engine-derive",
+ "radix-engine-macros",
  "regex",
  "sbor",
  "scrypto-schema",
@@ -1134,26 +1135,28 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-macros"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
+ "paste",
  "proc-macro2",
  "quote",
+ "radix-engine-common",
  "syn 1.0.93",
 ]
 
 [[package]]
 name = "radix-engine-profiling"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "fixedstr",
 ]
 
 [[package]]
 name = "radix-engine-queries"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "hex",
  "itertools",
@@ -1168,8 +1171,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-store-interface"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "hex",
  "itertools",
@@ -1182,8 +1185,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-stores"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "hex",
  "itertools",
@@ -1317,8 +1320,8 @@ checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 
 [[package]]
 name = "resources-tracker-macro"
-version = "0.1.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1371,8 +1374,8 @@ dependencies = [
 
 [[package]]
 name = "sbor"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "const-sha1",
  "hex",
@@ -1385,8 +1388,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "sbor-derive-common",
@@ -1394,8 +1397,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive-common"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "const-sha1",
  "itertools",
@@ -1455,8 +1458,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bech32",
  "const-sha1",
@@ -1477,12 +1480,13 @@ dependencies = [
 
 [[package]]
 name = "scrypto-derive"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "quote",
  "radix-engine-common",
+ "regex",
  "sbor",
  "scrypto-schema",
  "serde",
@@ -1492,8 +1496,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-schema"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bitflags 1.3.2",
  "radix-engine-common",
@@ -1503,8 +1507,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-unit"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "radix-engine",
  "radix-engine-interface",
@@ -1853,8 +1857,8 @@ dependencies = [
 
 [[package]]
 name = "transaction"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bech32",
  "ed25519-dalek",
@@ -1870,8 +1874,8 @@ dependencies = [
 
 [[package]]
 name = "transaction-scenarios"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "hex",
  "itertools",
@@ -2054,8 +2058,8 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "utils"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "indexmap 2.0.0-pre",
  "serde",
