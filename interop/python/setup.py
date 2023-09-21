@@ -15,6 +15,16 @@ setuptools.setup(
     project_urls={
         "Bug Tracker": "https://github.com/radixdlt/radix-engine-toolkit/issues",
     },
+    package_data={
+        "": [
+            "__init__.pyi",
+            "aarch64-apple-darwin",
+            "aarch64-unknown-linux-gnu",
+            "x86_64-apple-darwin",
+            "x86_64-pc-windows-gnu",
+            "x86_64-unknown-linux-gnu",
+        ]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
