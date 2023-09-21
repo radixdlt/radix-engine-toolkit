@@ -448,3 +448,84 @@ jobs:
       - name: Publish Packages
         working-directory: interop/csharp/
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
+  publish-python-package:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Fetch secrets
+        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: ${{ secrets.PYPI_SECRET_ROLE_NAME }}
+          app_name: 'radix-engine-toolkit'
+          step_name: 'pypi-credentials'
+          secret_prefix: 'PYPI'
+          secret_name: ${{ secrets.PYPI_SECRET_NAME }}
+          parse_json: true
+      - name: Print Env
+        run: env
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install Dependencies
+        run: | 
+          python3 -m pip install black build twine
+          sudo apt-get install mypy
+      - name: Copy bindings
+        run: |
+          mkdir ./interop/python/radix_engine_toolkit
+          cp \
+            ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi.py \
+            ./interop/python/radix_engine_toolkit/__init__.py
+      - name: Dynamic Library Script replacement
+        run: |
+          python3 ./interop/python/replacement.py ./interop/python/radix_engine_toolkit/__init__.py
+          rm ./interop/python/replacement.py
+      - name: Stubs generation
+        run: |
+          stubgen \
+            ./interop/python/radix_engine_toolkit/__init__.py \
+            --output ./interop/python/
+      - name: Code Formatting
+        run: |
+          black ./interop/python/
+      - name: Copy Dynamic Libraries
+        run: |
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
+            ./interop/python/radix_engine_toolkit/aarch64-apple-darwin
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib \
+            ./interop/python/radix_engine_toolkit/x86_64-apple-darwin
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
+            ./interop/python/radix_engine_toolkit/aarch64-unknown-linux-gnu
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so \
+            ./interop/python/radix_engine_toolkit/x86_64-unknown-linux-gnu
+          cp \
+            ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
+            ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu
+      - name: Build Package
+        working-directory: ./interop/python/
+        run: python3 -m build --wheel
+      - name: Check Builds
+        working-directory: ./interop/python/
+        run: |
+          python3 -m twine check dist/*
+      - name: Publish
+        working-directory: ./interop/python/
+        env:
+          TWINE_USERNAME: ${{ env.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
+        run: |
+          python3 -m twine upload dist/* --verbose
