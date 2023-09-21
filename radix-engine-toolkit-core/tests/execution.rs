@@ -1301,7 +1301,7 @@ fn stake_and_unstake(
         .execute_manifest(manifest, vec![])
         .expect_commit_success();
     let current_epoch = test_runner.get_current_epoch();
-    test_runner.set_current_epoch(current_epoch.after(200));
+    test_runner.set_current_epoch(current_epoch.after(200).unwrap());
 
     let vault_id = *test_runner
         .get_component_vaults(account, claim_nft)

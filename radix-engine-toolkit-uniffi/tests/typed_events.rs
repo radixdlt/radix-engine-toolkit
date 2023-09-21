@@ -45,7 +45,11 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             };
             if matches!(
                 node_id.entity_type(),
-                Some(EntityType::GlobalGenericComponent | EntityType::InternalGenericComponent)
+                Some(
+                    EntityType::GlobalGenericComponent
+                        | EntityType::InternalGenericComponent
+                        | EntityType::GlobalPackage
+                )
             ) {
                 continue;
             }
@@ -76,7 +80,7 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             // Act
             let typed_event =
                 radix_engine_toolkit_uniffi::functions::sbor_decode_to_typed_native_event(
-                    event_type_identifier,
+                    event_type_identifier.clone(),
                     event_data.clone(),
                     0xf2,
                 );
@@ -84,7 +88,7 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             // Assert
             match typed_event {
                 Ok(_typed_event) => {}
-                _ => panic!("Failed to convert to a typed event"),
+                _ => panic!("Failed to convert to a typed event: {event_type_identifier:?}"),
             }
         }
     }

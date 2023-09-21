@@ -509,12 +509,12 @@ mod native {
         non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
         non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,
     };
-    pub use radix_engine::system::node_modules::role_assignment::{
+    pub use radix_engine::system::attached_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
         SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
         LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
     };
-    pub use radix_engine::system::node_modules::metadata::{
+    pub use radix_engine::system::attached_modules::metadata::{
         SetMetadataEvent as NativeSetMetadataEvent,
         RemoveMetadataEvent as NativeRemoveMetadataEvent,
     };

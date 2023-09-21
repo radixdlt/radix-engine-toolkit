@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine::system::system_substates::{KeyValueEntrySubstate, KeyValueEntrySubstateV1};
-use radix_engine::track::{BatchPartitionUpdate, NodeStateUpdates, PartitionStateUpdates};
+use radix_engine::track::{BatchPartitionStateUpdate, NodeStateUpdates, PartitionStateUpdates};
 use radix_engine_common::prelude::NetworkDefinition;
 use radix_engine_queries::typed_substate_layout::{
     to_typed_substate_key, to_typed_substate_value, NonFungibleResourceManagerDataEntryPayload,
@@ -273,7 +273,7 @@ pub fn metadata_of_newly_created_entities(
                         DatabaseUpdate::Delete => None,
                     })
                     .collect::<IndexMap<_, _>>(),
-                Some(PartitionStateUpdates::Batch(BatchPartitionUpdate::Reset {
+                Some(PartitionStateUpdates::Batch(BatchPartitionStateUpdate::Reset {
                     new_substate_values,
                 })) => new_substate_values.clone(),
                 None => continue,
@@ -365,7 +365,7 @@ pub fn data_of_newly_minted_non_fungibles(
                             DatabaseUpdate::Delete => None,
                         })
                         .collect::<IndexMap<(PartitionNumber, SubstateKey), Vec<u8>>>(),
-                    PartitionStateUpdates::Batch(BatchPartitionUpdate::Reset {
+                    PartitionStateUpdates::Batch(BatchPartitionStateUpdate::Reset {
                         new_substate_values,
                     }) => new_substate_values
                         .iter()
@@ -425,16 +425,5 @@ pub fn data_of_newly_minted_non_fungibles(
         }
     }
 
-    // for ((node_id, partition_number), database_update_map) in
-    //     commit_result.state_updates.by_node.iter()
-    // {
-    //     // Only care about non-fungible resource manager nodes, ignore everything else
-    //     if !node_id.entity_type().map_or(false, |entity_type| {
-    //         entity_type.is_global_non_fungible_resource_manager()
-    //     }) {
-    //         continue;
-    //     }
-
-    // }
     map
 }
