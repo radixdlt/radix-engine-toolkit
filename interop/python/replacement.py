@@ -30,7 +30,10 @@ def _uniffi_load_indirect() -> ctypes.CDLL:
         elif is_arm and system == "Linux":
             return "aarch64-unknown-linux-gnu"
         elif is_x86 and system == "Windows":
-            return "x86_64-pc-windows-gnu"
+            # Either Windows or the Python runtime on Windows requires that DLLs
+            # have an extension of `.dll`. This is why this is the only dynamic
+            # library with an extension.
+            return "x86_64-pc-windows-gnu.dll"
         else:
             raise NotImplemented(f"No implementation of the Radix Engine Toolkit is available on your platform. Information detected: is_x86: {is_x86}, is_arm: {is_arm}, os: {system}")
 
