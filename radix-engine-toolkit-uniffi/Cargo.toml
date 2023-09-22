@@ -1,18 +1,18 @@
 [package]
 name = "radix-engine-toolkit-uniffi"
-version = "0.12.1"
+version = "1.0.0"
 edition = "2021"
 build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", features = ["serde"] }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f" }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", default-features= false, features = ["std", "moka"] }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", features = ["serde"] }
-radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", default-features = false, features = ["std", "moka"] }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", features = ["serde"] }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", features = ["serde"] }
+transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1" }
+radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", default-features= false, features = ["std", "moka"] }
+radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", features = ["serde"] }
+radix-engine-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", default-features = false, features = ["std", "moka"] }
+radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1" }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
@@ -30,9 +30,9 @@ uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "7b18fa787336aa7
 [dev-dependencies]
 # The UniFFI crate for generating bindings to other languages
 uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "7b18fa787336aa738f205a44f7b2df728e83a097", features = ["bindgen-tests"] }
-scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f", default-features = false, features = ["std", "moka"] }
-radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f" }
-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "rcnet-v3.1-d8dbe49f" }
+scrypto-unit = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1", default-features = false, features = ["std", "moka"] }
+radix-engine-stores = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1" }
+transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.0-rc1" }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]

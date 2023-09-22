@@ -66,6 +66,7 @@ pub mod prelude {
     pub use crate::error::*;
 
     /* Events */
+    pub use crate::events::functions::*;
     pub use crate::events::*;
 
     /* Cryptography */

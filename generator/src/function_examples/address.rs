@@ -57,3 +57,39 @@ impl<'f> HasExamples<'f, EXAMPLE_SIZE> for AddressEntityType {
         ]
     }
 }
+
+impl<'f> HasExamples<'f, EXAMPLE_SIZE> for AddressDecode {
+    fn example_inputs() -> [Self::Input; EXAMPLE_SIZE] {
+        [
+            SerializableNodeId::new(XRD.into_node_id(), 0xf2),
+            SerializableNodeId::new(SECP256K1_SIGNATURE_VIRTUAL_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ED25519_SIGNATURE_VIRTUAL_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(GLOBAL_CALLER_VIRTUAL_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(SYSTEM_TRANSACTION_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(PACKAGE_OWNER_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(VALIDATOR_OWNER_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ACCOUNT_OWNER_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(IDENTITY_OWNER_BADGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(PACKAGE_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(RESOURCE_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ACCOUNT_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(IDENTITY_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(CONSENSUS_MANAGER_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ACCESS_CONTROLLER_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(POOL_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(TRANSACTION_PROCESSOR_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(METADATA_MODULE_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ROYALTY_MODULE_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(ROLE_ASSIGNMENT_MODULE_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(GENESIS_HELPER_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(FAUCET_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(TRANSACTION_TRACKER_PACKAGE.into_node_id(), 0xf2),
+            SerializableNodeId::new(CONSENSUS_MANAGER.into_node_id(), 0xf2),
+            SerializableNodeId::new(GENESIS_HELPER.into_node_id(), 0xf2),
+            SerializableNodeId::new(FAUCET.into_node_id(), 0xf2),
+            SerializableNodeId::new(TRANSACTION_TRACKER.into_node_id(), 0xf2),
+        ]
+        .map(|serializable| serializable.0.to_string())
+    }
+}

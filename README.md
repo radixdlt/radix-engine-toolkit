@@ -45,3 +45,7 @@ The core functionality of the library is implemented in the `radix-engine-toolki
 Utilizing the core crate are a number of "interface" crates which expose the functionality of the Radix Engine Toolkit for different platforms and through different serialization techniques. Currently, all communication into and out of toolkit happens in JSON, although, if other serialization techniques are desirable (e.g. CBOR or Protocol Buffers), then an additional "interface" crates may be implemented which make use of these serialization techniques. 
 
 In addition to that, if it is desirable to expose the functionality in different ways (e.g. as a REST API) then a simple server may be implemented as an "interface" for the toolkit which would expose the `radix-engine-toolkit-core` functionality through a REST API interface.
+
+## License
+
+The Radix Engine Toolkit and Radix Engine Toolkit wrappers code is released under the [Apache 2.0 license](./LICENSE). Binaries are licensed under the [Radix Generic EULA](https://www.radixdlt.com/terms/genericEULA).

@@ -54,7 +54,8 @@ pub fn generate_function_spec() -> OpenApi {
         NotarizedTransactionStaticallyValidate,
         UtilsKnownAddress,
         ScryptoSborDecodeToString,
-        ManifestSborDecodeToString
+        ScryptoSborEncodeStringRepresentation,
+        ManifestSborDecodeToString,
     ]
 }
 

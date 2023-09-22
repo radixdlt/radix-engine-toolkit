@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::*;
+use radix_engine_interface::{dec, pdec};
 use sbor::{generate_full_schema_from_single_type, representations::*};
 use sbor_json::common::address::SerializableNodeId;
 use sbor_json::scrypto::programmatic::utils::value_contains_network_mismatch;
@@ -65,8 +66,8 @@ serialization_tests! {
     ),
     programmatic_json_serialization_of_reference: Reference(XRD.into_node_id()),
     programmatic_json_serialization_of_own: Own(XRD.into_node_id()),
-    programmatic_json_serialization_of_decimal: dec!("100"),
-    programmatic_json_serialization_of_precise_decimal: pdec!("100"),
+    programmatic_json_serialization_of_decimal: dec!(100),
+    programmatic_json_serialization_of_precise_decimal: pdec!(100),
 
     programmatic_json_serialization_of_precise_non_fungible_local_id_integer: NonFungibleLocalId::integer(1),
     programmatic_json_serialization_of_precise_non_fungible_local_id_string: NonFungibleLocalId::string("HelloWorld").unwrap(),
@@ -159,7 +160,6 @@ pub fn value_with_two_address_of_the_same_network_has_no_network_mismatch() {
 
     // Act
     let contains_network_mismatch = value_contains_network_mismatch(&value);
-    println!("{}", serde_json::to_string(&value).unwrap());
 
     // Assert
     assert!(!contains_network_mismatch)

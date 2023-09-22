@@ -88,3 +88,42 @@ impl<'f> Function<'f> for ScryptoSborDecodeToString {
 
 export_function!(ScryptoSborDecodeToString as scrypto_sbor_decode_to_string);
 export_jni_function!(ScryptoSborDecodeToString as scryptoSborDecodeToString);
+
+#[typeshare::typeshare]
+#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
+#[serde(tag = "kind", content = "value")]
+pub enum SerializableScryptoSborStringRepresentation {
+    ProgrammaticJson(String),
+}
+
+#[typeshare::typeshare]
+pub type ScryptoSborEncodeStringRepresentationInput = SerializableScryptoSborStringRepresentation;
+
+#[typeshare::typeshare]
+pub type ScryptoSborEncodeStringRepresentationOutput = SerializableBytes;
+
+pub struct ScryptoSborEncodeStringRepresentation;
+impl<'f> Function<'f> for ScryptoSborEncodeStringRepresentation {
+    type Input = ScryptoSborEncodeStringRepresentationInput;
+    type Output = ScryptoSborEncodeStringRepresentationOutput;
+
+    fn handle(input: Self::Input) -> Result<Self::Output, crate::error::InvocationHandlingError> {
+        let input = match input {
+            SerializableScryptoSborStringRepresentation::ProgrammaticJson(value) => {
+                radix_engine_toolkit_core::functions::scrypto_sbor::StringRepresentation::ProgrammaticJson(value)
+            }
+        };
+        let bytes =
+            radix_engine_toolkit_core::functions::scrypto_sbor::encode_string_representation(
+                input,
+            )?;
+        Ok(bytes.into())
+    }
+}
+
+export_function!(
+    ScryptoSborEncodeStringRepresentation as scrypto_sbor_encode_string_representation
+);
+export_jni_function!(
+    ScryptoSborEncodeStringRepresentation as scryptoSborEncodeStringRepresentation
+);

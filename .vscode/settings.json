@@ -46,6 +46,7 @@
         "unhashed",
         "uniffi",
         "unstake",
+        "unstakes",
         "walkdir"
     ],
 }

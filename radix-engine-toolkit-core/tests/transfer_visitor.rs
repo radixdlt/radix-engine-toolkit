@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_toolkit_core::functions::manifest::parse_transfer_information;
 use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
     Resources, TransferTransactionTypeVisitor,
 };
@@ -44,6 +45,69 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer() {
         traverse_instructions!(&manifest.instructions, transfer_visitor)
             .unwrap()
             .unwrap();
+
+    // Assert
+    assert_eq!(source_account, account1);
+    assert_eq!(
+        deposits,
+        hashmap!(
+            account2 => hashmap! {
+                XRD => Resources::Amount(dec!("10"))
+            }
+        )
+    );
+}
+
+#[test]
+pub fn transfer_visitor_can_pick_up_fungible_transfer_with_lock_fee() {
+    // Arrange
+    let account1 = test_data::account1();
+    let account2 = test_data::account2();
+
+    let manifest = ManifestBuilder::new()
+        .lock_fee(account1, dec!("500"))
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(account2, "deposit", manifest_args!(bucket))
+        })
+        .build();
+
+    // Act
+    let (source_account, deposits) = parse_transfer_information(&manifest, true)
+        .unwrap()
+        .unwrap();
+
+    // Assert
+    assert_eq!(source_account, account1);
+    assert_eq!(
+        deposits,
+        hashmap!(
+            account2 => hashmap! {
+                XRD => Resources::Amount(dec!("10"))
+            }
+        )
+    );
+}
+
+#[test]
+pub fn transfer_visitor_can_pick_up_fungible_transfer_with_lock_fee_and_withdraw() {
+    // Arrange
+    let account1 = test_data::account1();
+    let account2 = test_data::account2();
+
+    let manifest = ManifestBuilder::new()
+        .lock_fee_and_withdraw(account1, dec!("500"), XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(account2, "deposit", manifest_args!(bucket))
+        })
+        .build();
+
+    // Act
+    let (source_account, deposits) = parse_transfer_information(&manifest, true)
+        .unwrap()
+        .unwrap();
 
     // Assert
     assert_eq!(source_account, account1);

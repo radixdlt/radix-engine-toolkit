@@ -111,6 +111,9 @@ pub enum SerializableTransactionType {
     SimpleTransfer(Box<SerializableSimpleTransferTransactionType>),
     Transfer(Box<SerializableTransferTransactionType>),
     AccountDepositSettings(Box<SerializableAccountDepositSettingsTransactionType>),
+    Stake(Box<SerializableStakeTransactionType>),
+    Unstake(Box<SerializableUnstakeTransactionType>),
+    ClaimStake(Box<SerializableClaimStakeTransactionType>),
     GeneralTransaction(Box<SerializableGeneralTransactionType>),
 }
 
@@ -292,6 +295,102 @@ impl SerializableTransactionType {
                     },
                 ))
             }
+            TransactionType::StakeTransaction(stake_transaction) => {
+                SerializableTransactionType::Stake(Box::new(SerializableStakeTransactionType {
+                    stakes: stake_transaction
+                        .0
+                        .into_iter()
+                        .map(|stake_information| SerializableStakeInformation {
+                            from_account: SerializableNodeId::new(
+                                stake_information.from_account.into_node_id(),
+                                network_id,
+                            ),
+                            validator_address: SerializableNodeId::new(
+                                stake_information.validator_address.into_node_id(),
+                                network_id,
+                            ),
+                            stake_unit_resource: SerializableNodeId::new(
+                                stake_information.stake_unit_resource.into_node_id(),
+                                network_id,
+                            ),
+                            stake_unit_amount: stake_information.stake_unit_amount.into(),
+                            staked_xrd: stake_information.staked_xrd.into(),
+                        })
+                        .collect(),
+                }))
+            }
+            TransactionType::UnstakeTransaction(unstake_transaction) => {
+                SerializableTransactionType::Unstake(Box::new(SerializableUnstakeTransactionType {
+                    unstakes: unstake_transaction
+                        .0
+                        .into_iter()
+                        .map(|unstake_information| SerializableUnstakeInformation {
+                            from_account: SerializableNodeId::new(
+                                unstake_information.from_account.into_node_id(),
+                                network_id,
+                            ),
+                            stake_unit_address: SerializableNodeId::new(
+                                unstake_information.stake_unit_address.into_node_id(),
+                                network_id,
+                            ),
+                            stake_unit_amount: unstake_information.stake_unit_amount.into(),
+                            validator_address: SerializableNodeId::new(
+                                unstake_information.validator_address.into_node_id(),
+                                network_id,
+                            ),
+                            claim_nft_resource: SerializableNodeId::new(
+                                unstake_information.claim_nft_resource.into_node_id(),
+                                network_id,
+                            ),
+                            claim_nft_local_id: unstake_information.claim_nft_local_id.into(),
+                            claim_nft_data: SerializableUnstakeData {
+                                name: unstake_information.claim_nft_data.name,
+                                claim_epoch: unstake_information
+                                    .claim_nft_data
+                                    .claim_epoch
+                                    .number()
+                                    .into(),
+                                claim_amount: unstake_information
+                                    .claim_nft_data
+                                    .claim_amount
+                                    .into(),
+                            },
+                        })
+                        .collect(),
+                }))
+            }
+            TransactionType::ClaimStakeTransaction(claim_stake_transaction) => {
+                SerializableTransactionType::ClaimStake(Box::new(
+                    SerializableClaimStakeTransactionType {
+                        claims: claim_stake_transaction
+                            .0
+                            .into_iter()
+                            .map(
+                                |claim_stake_information| SerializableClaimStakeInformation {
+                                    from_account: SerializableNodeId::new(
+                                        claim_stake_information.from_account.into_node_id(),
+                                        network_id,
+                                    ),
+                                    validator_address: SerializableNodeId::new(
+                                        claim_stake_information.validator_address.into_node_id(),
+                                        network_id,
+                                    ),
+                                    claim_nft_resource: SerializableNodeId::new(
+                                        claim_stake_information.claim_nft_resource.into_node_id(),
+                                        network_id,
+                                    ),
+                                    claim_nft_local_ids: claim_stake_information
+                                        .claim_nft_local_ids
+                                        .into_iter()
+                                        .map(|id| id.into())
+                                        .collect(),
+                                    claimed_xrd: claim_stake_information.claimed_xrd.into(),
+                                },
+                            )
+                            .collect(),
+                    },
+                ))
+            }
         }
     }
 }
@@ -413,6 +512,65 @@ pub struct SerializableAccountDepositSettingsTransactionType {
     pub default_deposit_rule_changes: HashMap<SerializableNodeId, SerializableDefaultDepositRule>,
     pub authorized_depositors_changes:
         HashMap<SerializableNodeId, SerializableAuthorizedDepositorsChanges>,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableStakeTransactionType {
+    stakes: Vec<SerializableStakeInformation>,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableUnstakeTransactionType {
+    unstakes: Vec<SerializableUnstakeInformation>,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableClaimStakeTransactionType {
+    claims: Vec<SerializableClaimStakeInformation>,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableStakeInformation {
+    pub from_account: SerializableNodeId,
+    pub validator_address: SerializableNodeId,
+    pub stake_unit_resource: SerializableNodeId,
+    pub stake_unit_amount: SerializableDecimal,
+    pub staked_xrd: SerializableDecimal,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableUnstakeInformation {
+    pub from_account: SerializableNodeId,
+    pub stake_unit_address: SerializableNodeId,
+    pub stake_unit_amount: SerializableDecimal,
+    pub validator_address: SerializableNodeId,
+    pub claim_nft_resource: SerializableNodeId,
+    pub claim_nft_local_id: SerializableNonFungibleLocalId,
+    pub claim_nft_data: SerializableUnstakeData,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableClaimStakeInformation {
+    pub from_account: SerializableNodeId,
+    pub validator_address: SerializableNodeId,
+    pub claim_nft_resource: SerializableNodeId,
+    #[typeshare(serialized_as = "Vec<SerializableNodeId>")]
+    pub claim_nft_local_ids: HashSet<SerializableNonFungibleLocalId>,
+    pub claimed_xrd: SerializableDecimal,
+}
+
+#[typeshare::typeshare]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct SerializableUnstakeData {
+    pub name: String,
+    pub claim_epoch: SerializableU64,
+    pub claim_amount: SerializableDecimal,
 }
 
 #[typeshare::typeshare]

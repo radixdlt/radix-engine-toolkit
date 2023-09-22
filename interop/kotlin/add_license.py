@@ -1,3 +1,6 @@
+import os
+
+LICENSE: str ="""
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
 // distributed with this work for additional information
@@ -14,23 +17,25 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+"""
 
-use radix_engine_common::prelude::*;
+def main() -> None:
+    license: str = LICENSE.strip()
+    for (root_path, _, file_names) in os.walk(os.path.dirname(os.path.realpath(__file__))):
+        for file_name in file_names:
+            if not file_name.endswith('.kt'):
+                continue
 
-use crate::models::node_id::*;
-use crate::utils::*;
+            file_path: str = os.path.join(root_path, file_name)
 
-pub fn entity_type(node_id: TypedNodeId) -> EntityType {
-    node_id.entity_type()
-}
+            with open(file_path, 'r') as file:
+                content: str = file.read()
 
-pub fn decode(node_id: &str) -> Option<(u8, EntityType, String, [u8; 30])> {
-    let network_id = network_id_from_address_string(node_id)?;
-    let network_definition = network_definition_from_network_id(network_id);
-    let decoder = AddressBech32Decoder::new(&network_definition);
-    let (hrp, _, _) = AddressBech32Decoder::validate_and_decode_ignore_hrp(node_id).ok()?;
-    let (entity_type, data) = decoder.validate_and_decode(node_id).ok()?;
-    data.try_into()
-        .map(|data| (network_id, entity_type, hrp, data))
-        .ok()
-}
+            if license not in content:
+                content = license + '\n\n' + content
+
+                with open(file_path, 'w') as file:
+                    file.write(content)
+
+if __name__ == "__main__":
+    main()

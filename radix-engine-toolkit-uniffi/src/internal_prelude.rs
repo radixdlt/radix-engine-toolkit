@@ -68,6 +68,7 @@ mod core {
         decompile as core_manifest_decompile,
         statically_validate as core_manifest_statically_validate,
         modify as core_manifest_modify,
+        parse_transfer_information as core_manifest_parse_transfer_information,
         TransactionManifestModifications as CoreManifestTransactionManifestModifications,
         Assertion as CoreManifestAssertion,
         ManifestModificationError as CoreManifestModificationError
@@ -101,7 +102,10 @@ mod core {
         AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
         TransactionType as CoreExecutionTransactionType,
         ExecutionModuleError as CoreExecutionExecutionModuleError,
-        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt
+        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt,
+        StakeTransactionType as CoreStakeTransactionType,
+        UnstakeTransactionType as CoreUnstakeTransactionType,
+        ClaimStakeTransactionType as CoreClaimStakeTransactionType
     };
     pub use radix_engine_toolkit_core::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
@@ -132,6 +136,15 @@ mod core {
     pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
         ResourceTracker as CoreResourceTracker
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::{
+        StakeInformation as CoreStakeInformation
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::{
+        UnstakeInformation as CoreUnstakeInformation
+    };
+    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::claim_stake_visitor::{
+        ClaimStakeInformation as CoreClaimStakeInformation
     };
 
     /* Utils */
@@ -422,6 +435,9 @@ mod native {
         IdentityNativePackage as NativeIdentityNativePackage,
         IdentityBlueprint as NativeIdentityBlueprint
     };
+    pub use radix_engine::blueprints::consensus_manager::{
+        UnstakeData as NativeUnstakeData
+    };
 
     pub use scrypto::blueprints::access_controller::{
         Role as NativeRole,
@@ -493,12 +509,12 @@ mod native {
         non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
         non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,
     };
-    pub use radix_engine::system::node_modules::role_assignment::{
+    pub use radix_engine::system::attached_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
         SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
         LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
     };
-    pub use radix_engine::system::node_modules::metadata::{
+    pub use radix_engine::system::attached_modules::metadata::{
         SetMetadataEvent as NativeSetMetadataEvent,
         RemoveMetadataEvent as NativeRemoveMetadataEvent,
     };

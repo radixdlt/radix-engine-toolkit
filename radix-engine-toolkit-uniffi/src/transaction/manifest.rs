@@ -41,6 +41,17 @@ impl TransactionManifest {
         self.blobs.clone()
     }
 
+    pub fn compile(&self) -> Result<Vec<u8>> {
+        let native = self.clone().to_native();
+        Ok(core_manifest_compile(&native)?)
+    }
+
+    #[uniffi::constructor]
+    pub fn decompile(compiled: Vec<u8>, network_id: u8) -> Result<Arc<Self>> {
+        let decompiled = core_manifest_decompile(compiled)?;
+        Ok(Arc::new(Self::from_native(&decompiled, network_id)))
+    }
+
     pub fn statically_validate(&self) -> Result<()> {
         core_instructions_statically_validate(&self.instructions.0)?;
         core_manifest_statically_validate(&self.to_native())?;
@@ -107,6 +118,44 @@ impl TransactionManifest {
         let manifest = Self::from_native(&native_manifest, self.instructions.network_id());
         Ok(Arc::new(manifest))
     }
+
+    /* Transaction Types attempted parsing */
+
+    pub fn parse_transfer_information(
+        &self,
+        allow_lock_fee_instructions: bool,
+    ) -> Result<Option<TransferTransactionType>> {
+        let maybe_transfer_information = core_manifest_parse_transfer_information(
+            &self.to_native(),
+            allow_lock_fee_instructions,
+        )
+        .map_err(CoreExecutionExecutionModuleError::InstructionVisitorError)?;
+
+        match maybe_transfer_information {
+            Some((from, transfers)) => Ok(Some(TransferTransactionType {
+                from: Arc::new(Address::from_typed_node_id(from, self.instructions.1)),
+                transfers: transfers
+                    .iter()
+                    .map(|(key, value)| {
+                        (
+                            Address::from_typed_node_id(*key, self.instructions.1).as_str(),
+                            value
+                                .iter()
+                                .map(|(key, value)| {
+                                    (
+                                        Address::from_typed_node_id(*key, self.instructions.1)
+                                            .as_str(),
+                                        Resources::from_native(value),
+                                    )
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect(),
+            })),
+            None => Ok(None),
+        }
+    }
 }
 
 impl TransactionManifest {
@@ -171,6 +220,15 @@ pub enum TransactionType {
         default_deposit_rule_changes: HashMap<String, AccountDefaultDepositRule>,
         authorized_depositors_changes: HashMap<String, AuthorizedDepositorsChanges>,
     },
+    StakeTransaction {
+        stakes: Vec<StakeInformation>,
+    },
+    UnstakeTransaction {
+        unstakes: Vec<UnstakeInformation>,
+    },
+    ClaimStakeTransaction {
+        claims: Vec<ClaimStakeInformation>,
+    },
     GeneralTransaction {
         account_proofs: Vec<Arc<Address>>,
         account_withdraws: HashMap<String, Vec<ResourceTracker>>,
@@ -180,6 +238,39 @@ pub enum TransactionType {
         data_of_newly_minted_non_fungibles: HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
         addresses_of_newly_created_entities: Vec<Arc<Address>>,
     },
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct StakeInformation {
+    pub from_account: Arc<Address>,
+    pub validator_address: Arc<Address>,
+    pub stake_unit_resource: Arc<Address>,
+    pub stake_unit_amount: Arc<Decimal>,
+    pub staked_xrd: Arc<Decimal>,
+}
+#[derive(Clone, Debug, Record)]
+pub struct UnstakeInformation {
+    pub from_account: Arc<Address>,
+    pub stake_unit_address: Arc<Address>,
+    pub stake_unit_amount: Arc<Decimal>,
+    pub validator_address: Arc<Address>,
+    pub claim_nft_resource: Arc<Address>,
+    pub claim_nft_local_id: NonFungibleLocalId,
+    pub claim_nft_data: UnstakeData,
+}
+#[derive(Clone, Debug, Record)]
+pub struct ClaimStakeInformation {
+    pub from_account: Arc<Address>,
+    pub validator_address: Arc<Address>,
+    pub claim_nft_resource: Arc<Address>,
+    pub claim_nft_local_ids: Vec<NonFungibleLocalId>,
+    pub claimed_xrd: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TransferTransactionType {
+    pub from: Arc<Address>,
+    pub transfers: HashMap<String, HashMap<String, Resources>>,
 }
 
 #[derive(Clone, Debug, Enum)]
@@ -206,6 +297,13 @@ pub struct ExecutionAnalysis {
     pub fee_summary: FeeSummary,
     pub transaction_types: Vec<TransactionType>,
     pub reserved_instructions: Vec<ReservedInstruction>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct UnstakeData {
+    pub name: String,
+    pub claim_epoch: u64,
+    pub claim_amount: Arc<Decimal>,
 }
 
 impl ExecutionAnalysis {
@@ -446,6 +544,33 @@ impl TransactionType {
                     addresses_of_newly_created_entities: addresses_of_newly_created_entities
                         .iter()
                         .map(|node_id| Arc::new(Address::from_typed_node_id(*node_id, network_id)))
+                        .collect(),
+                }
+            }
+            CoreExecutionTransactionType::StakeTransaction(value) => {
+                let CoreStakeTransactionType(stakes) = value.as_ref();
+                Self::StakeTransaction {
+                    stakes: stakes
+                        .iter()
+                        .map(|stake| StakeInformation::from_native(stake, network_id))
+                        .collect(),
+                }
+            }
+            CoreExecutionTransactionType::UnstakeTransaction(value) => {
+                let CoreUnstakeTransactionType(unstakes) = value.as_ref();
+                Self::UnstakeTransaction {
+                    unstakes: unstakes
+                        .iter()
+                        .map(|unstake| UnstakeInformation::from_native(unstake, network_id))
+                        .collect(),
+                }
+            }
+            CoreExecutionTransactionType::ClaimStakeTransaction(value) => {
+                let CoreClaimStakeTransactionType(claims) = value.as_ref();
+                Self::ClaimStakeTransaction {
+                    claims: claims
+                        .iter()
+                        .map(|claim| ClaimStakeInformation::from_native(claim, network_id))
                         .collect(),
                 }
             }
@@ -771,6 +896,114 @@ impl ToNative for Assertion {
                     .map(NativeNonFungibleLocalId::try_from)
                     .collect::<Result<_>>()?,
             }),
+        }
+    }
+}
+
+impl UnstakeData {
+    pub fn from_native(
+        NativeUnstakeData {
+            name,
+            claim_epoch,
+            claim_amount,
+        }: &NativeUnstakeData,
+        _: u8,
+    ) -> Self {
+        Self {
+            name: name.to_owned(),
+            claim_epoch: claim_epoch.number(),
+            claim_amount: Arc::new(Decimal(*claim_amount)),
+        }
+    }
+}
+
+impl StakeInformation {
+    pub fn from_native(
+        CoreStakeInformation {
+            from_account,
+            validator_address,
+            stake_unit_resource,
+            stake_unit_amount,
+            staked_xrd,
+        }: &CoreStakeInformation,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            from_account: Arc::new(Address::from_typed_node_id(*from_account, network_id)),
+            validator_address: Arc::new(Address::from_typed_node_id(
+                *validator_address,
+                network_id,
+            )),
+            stake_unit_resource: Arc::new(Address::from_typed_node_id(
+                *stake_unit_resource,
+                network_id,
+            )),
+            stake_unit_amount: Arc::new(Decimal(*stake_unit_amount)),
+            staked_xrd: Arc::new(Decimal(*staked_xrd)),
+        }
+    }
+}
+
+impl UnstakeInformation {
+    pub fn from_native(
+        CoreUnstakeInformation {
+            from_account,
+            stake_unit_address,
+            stake_unit_amount,
+            validator_address,
+            claim_nft_resource,
+            claim_nft_local_id,
+            claim_nft_data,
+        }: &CoreUnstakeInformation<NativeUnstakeData>,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            from_account: Arc::new(Address::from_typed_node_id(*from_account, network_id)),
+            stake_unit_address: Arc::new(Address::from_typed_node_id(
+                *stake_unit_address,
+                network_id,
+            )),
+            stake_unit_amount: Arc::new(Decimal(*stake_unit_amount)),
+            validator_address: Arc::new(Address::from_typed_node_id(
+                *validator_address,
+                network_id,
+            )),
+            claim_nft_resource: Arc::new(Address::from_typed_node_id(
+                *claim_nft_resource,
+                network_id,
+            )),
+            claim_nft_local_id: claim_nft_local_id.clone().into(),
+            claim_nft_data: UnstakeData::from_native(claim_nft_data, network_id),
+        }
+    }
+}
+
+impl ClaimStakeInformation {
+    pub fn from_native(
+        CoreClaimStakeInformation {
+            from_account,
+            validator_address,
+            claim_nft_resource,
+            claim_nft_local_ids,
+            claimed_xrd,
+        }: &CoreClaimStakeInformation,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            from_account: Arc::new(Address::from_typed_node_id(*from_account, network_id)),
+            validator_address: Arc::new(Address::from_typed_node_id(
+                *validator_address,
+                network_id,
+            )),
+            claim_nft_resource: Arc::new(Address::from_typed_node_id(
+                *claim_nft_resource,
+                network_id,
+            )),
+            claim_nft_local_ids: claim_nft_local_ids
+                .iter()
+                .map(|local_id| local_id.clone().into())
+                .collect(),
+            claimed_xrd: Arc::new(Decimal(*claimed_xrd)),
         }
     }
 }

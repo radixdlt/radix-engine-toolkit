@@ -419,8 +419,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-common"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bech32",
  "blake2",
@@ -440,8 +440,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-derive"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -451,8 +451,8 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-interface"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bitflags",
  "const-sha1",
@@ -461,12 +461,25 @@ dependencies = [
  "paste",
  "radix-engine-common",
  "radix-engine-derive",
+ "radix-engine-macros",
  "regex",
  "sbor",
  "scrypto-schema",
  "serde_json",
  "strum",
  "utils",
+]
+
+[[package]]
+name = "radix-engine-macros"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
+dependencies = [
+ "paste",
+ "proc-macro2",
+ "quote",
+ "radix-engine-common",
+ "syn 1.0.93",
 ]
 
 [[package]]
@@ -512,8 +525,8 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
 name = "sbor"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "const-sha1",
  "hex",
@@ -526,8 +539,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "proc-macro2",
  "sbor-derive-common",
@@ -535,8 +548,8 @@ dependencies = [
 
 [[package]]
 name = "sbor-derive-common"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "const-sha1",
  "itertools",
@@ -547,7 +560,7 @@ dependencies = [
 
 [[package]]
 name = "sbor-json"
-version = "0.12.1"
+version = "1.0.0"
 dependencies = [
  "bech32",
  "radix-engine-common",
@@ -561,8 +574,8 @@ dependencies = [
 
 [[package]]
 name = "scrypto-schema"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "bitflags",
  "radix-engine-common",
@@ -745,8 +758,8 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 
 [[package]]
 name = "utils"
-version = "0.13.0"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=rcnet-v3.1-d8dbe49f#d8dbe49f243c8ff5e6f47fe014d28a20e5d70ce6"
+version = "1.0.0-rc1"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?tag=v1.0.0-rc1#cc142e7494a45add47c49977843856be174161a2"
 dependencies = [
  "indexmap 2.0.0-pre",
  "serde",

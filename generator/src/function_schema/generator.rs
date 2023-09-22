@@ -80,7 +80,8 @@ pub fn generate_function_schema(
             ManifestSborDecodeToString
         ],
         "address" => function_schema![
-            AddressEntityType
+            AddressEntityType,
+            AddressDecode,
         ]
     )
 }

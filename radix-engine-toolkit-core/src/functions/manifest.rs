@@ -15,14 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_interface::blueprints::access_controller::AccessControllerCreateProofInput;
-use radix_engine_interface::blueprints::access_controller::ACCESS_CONTROLLER_CREATE_PROOF_IDENT;
+use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
 use sbor::*;
 use scrypto::prelude::*;
 use transaction::errors::*;
 use transaction::prelude::*;
 use transaction::validation::*;
+
+use crate::instruction_visitor::core::error::InstructionVisitorError;
+use crate::instruction_visitor::core::traverser::traverse;
+use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 
 pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
     compile(manifest).map(scrypto::prelude::hash)
@@ -192,6 +195,22 @@ pub fn modify(
         instructions,
         blobs: manifest.blobs.clone(),
     })
+}
+
+#[allow(clippy::type_complexity)]
+pub fn parse_transfer_information(
+    manifest: &TransactionManifestV1,
+    allow_lock_fee_instructions: bool,
+) -> Result<
+    Option<(
+        ComponentAddress,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
+    )>,
+    InstructionVisitorError,
+> {
+    let mut transfer_visitor = TransferTransactionTypeVisitor::new(allow_lock_fee_instructions);
+    traverse(&manifest.instructions, &mut [&mut transfer_visitor])?;
+    Ok(transfer_visitor.output())
 }
 
 #[derive(Clone, Debug)]
