@@ -16,6 +16,9 @@ mkdir -p $jni
 mv $artifacts/uniffi-bindings/$package/*.kt $src/$package/RET.kt
 test -e $src/$package/RET.kt || exit 1
 
+# Adding the license
+python3 add_license.py
+
 crate_name=radix-engine-toolkit-uniffi
 jna_architectures=(
   "arm64-v8a"
