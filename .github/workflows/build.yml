@@ -318,6 +318,8 @@ jobs:
           
           sed -i "" -E 's/[[:<:]]radix_engine_toolkit_uniffiFFI[[:>:]]/RadixEngineToolkit/g' ./Sources/EngineToolkit/radix_engine_toolkit_uniffi.swift
 
+          python3 add_license.py
+
           git add .
           git commit -m "Update RET from $BRANCH - $LAST_COMMIT_SHA"
           git tag -a $SPM_VERSION -m "RET update from $BRANCH - $LAST_COMMIT_SHA"
