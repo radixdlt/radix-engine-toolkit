@@ -514,7 +514,7 @@ jobs:
             ./interop/python/radix_engine_toolkit/x86_64-unknown-linux-gnu
           cp \
             ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
-            ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu
+            ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu.dll
       - name: Build Package
         working-directory: ./interop/python/
         run: python3 -m build --wheel

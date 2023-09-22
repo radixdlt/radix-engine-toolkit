@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as file:
 
 setuptools.setup(
     name="radix-engine-toolkit",
-    version="0.12.1dev3",
+    version="0.12.1dev4",
     packages=["radix_engine_toolkit"],
     author="radixdlt",
     description="A Python wrapper around the Radix Engine Toolkit that provides Radix Ledger primitives to Python.",
@@ -24,7 +24,7 @@ setuptools.setup(
             "aarch64-apple-darwin",
             "aarch64-unknown-linux-gnu",
             "x86_64-apple-darwin",
-            "x86_64-pc-windows-gnu",
+            "x86_64-pc-windows-gnu.dll",
             "x86_64-unknown-linux-gnu",
         ]
     },
