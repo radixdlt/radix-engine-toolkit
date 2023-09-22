@@ -148,6 +148,13 @@ impl<'f> HasExamples<'f, 72> for ExecutionAnalyze {
                 let instructions =
                     to_serializable_instructions(&manifest.instructions, 0xf2).unwrap();
                 let instructions = SerializableInstructions::Parsed(instructions);
+                let instructions = InstructionsConvert::handle(InstructionsConvertInput {
+                    instructions,
+                    network_id: 0xf2.into(),
+                    instructions_kind: SerializableInstructionsKind::String,
+                })
+                .unwrap();
+
                 let preview_receipt =
                     scrypto_encode(&VersionedTransactionReceipt::V1(receipt)).unwrap();
 

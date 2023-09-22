@@ -11,7 +11,7 @@ The (Python) Radix Engine Toolkit is a wrapper around the [Radix Engine Toolkit]
 
 This library uses [UniFFI](https://github.com/mozilla/uniffi-rs) for interoperability between the core Rust Radix Engine Toolkit and Radix Engine Toolkit wrappers such as this Python wrapper. Thus, the entire codebase of this library is automatically generated and the Python code does not live in a repo by itself. Instead, this library is published directly to PyPi with each push that's made to the [Radix Engine Toolkit](https://github.com/radixdlt/radix-engine-toolkit/) repo. If you would like to submit an issue or open a PR then head to: https://github.com/radixdlt/radix-engine-toolkit/
 
-## Example Usage
+# Example Usage
 
 ```py
 from radix_engine_toolkit import *
@@ -100,3 +100,7 @@ print(
     f"Transaction Payload to submit to the network: {bytearray(transaction.compile()).hex()}"
 )
 ```
+
+# License
+
+The Python Radix Engine Toolkit code is released under the [Apache 2.0 license](./LICENSE). Binaries are licensed under the [Radix Generic EULA](https://www.radixdlt.com/terms/genericEULA).
