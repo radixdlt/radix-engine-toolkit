@@ -170,6 +170,10 @@ macro_rules! define_uniffi_decimal {
                 pub fn less_than_or_equal(&self, other: $crate::prelude::Arc<Self>) -> bool {
                     self.0.le(&other.0)
                 }
+
+                pub fn mantissa(&self) -> String {
+                    self.0.0.to_string()
+                }
             }
         }
     }

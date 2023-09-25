@@ -314,6 +314,7 @@ mod native {
         CheckedMul as NativeCheckedMul,
         CheckedDiv as NativeCheckedDiv,
         CheckedNeg as NativeCheckedNeg,
+        CheckedTruncate as NativeCheckedTruncate
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
