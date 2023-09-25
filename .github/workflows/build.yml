@@ -261,7 +261,7 @@ jobs:
                             -c "Add :CFBundleShortVersionString string 1.0.0" \
                             -c "Add :CFBundlePackageType string FMWK" \
                             -c "Add :CFBundleExecutable string RadixEngineToolkit" \
-                            -c "Add :MinimumOSVersion string 16.4" \
+                            -c "Add :MinimumOSVersion string 11.0" \
                             -c "Add :CFBundleSupportedPlatforms array" \
                             $FRAMEWORK_PATH/Info.plist
             case $TARGET_TRIPLE in
