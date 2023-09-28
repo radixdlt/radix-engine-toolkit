@@ -132,6 +132,12 @@ jobs:
         #   SCCACHE_GHA_ENABLED: "true"
         #   RUSTC_WRAPPER: "sccache"
         run: |
+          target_triple="${{ matrix.build-target.target-triple }}"
+          if [[ $target_triple =~ "ios" ]]; then
+            export IPHONEOS_DEPLOYMENT_TARGET="11.0"
+          fi
+          echo $IPHONEOS_DEPLOYMENT_TARGET
+
           cargo build \
             --target ${{ matrix.build-target.target-triple }} \
             --release
