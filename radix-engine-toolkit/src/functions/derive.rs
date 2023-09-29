@@ -19,6 +19,7 @@ use crate::prelude::*;
 use radix_engine_common::prelude::PublicKey;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use transaction::model::TransactionHashBech32Encoder;
 
 //================================================
 // Derive Virtual Account Address from Public Key
@@ -352,3 +353,44 @@ impl<'a> Function<'a> for DeriveNodeAddressFromPublicKey {
 
 export_function!(DeriveNodeAddressFromPublicKey as derive_node_address_from_public_key);
 export_jni_function!(DeriveNodeAddressFromPublicKey as deriveNodeAddressFromPublicKey);
+
+//===============================================
+// Derive The Intent Identifier from Intent Hash
+//===============================================
+
+#[typeshare::typeshare]
+#[derive(Serialize, Deserialize, JsonSchema, Clone)]
+pub struct DeriveBech32mTransactionIdentifierFromIntentHashInput {
+    pub network_id: SerializableU8,
+    pub hash: SerializableHash,
+}
+#[typeshare::typeshare]
+pub type DeriveBech32mTransactionIdentifierFromIntentHashOutput = String;
+
+pub struct DeriveBech32mTransactionIdentifierFromIntentHash;
+impl<'a> Function<'a> for DeriveBech32mTransactionIdentifierFromIntentHash {
+    type Input = DeriveBech32mTransactionIdentifierFromIntentHashInput;
+    type Output = DeriveBech32mTransactionIdentifierFromIntentHashOutput;
+
+    fn handle(input: Self::Input) -> Result<Self::Output, InvocationHandlingError> {
+        // TODO: Refactor to the core crate.
+        let DeriveBech32mTransactionIdentifierFromIntentHashInput { network_id, hash } = input;
+
+        let intent_hash = transaction::prelude::IntentHash(scrypto::prelude::Hash(hash.0));
+        let network_definition =
+            radix_engine_toolkit_core::utils::network_definition_from_network_id(*network_id);
+        let encoder = TransactionHashBech32Encoder::new(&network_definition);
+        let encoded = encoder.encode(&intent_hash).unwrap();
+
+        Ok(encoded)
+    }
+}
+
+export_function!(
+    DeriveBech32mTransactionIdentifierFromIntentHash
+        as derive_bech32m_transaction_identifier_from_intent_hash
+);
+export_jni_function!(
+    DeriveBech32mTransactionIdentifierFromIntentHash
+        as deriveBech32mTransactionIdentifierFromIntentHash
+);
