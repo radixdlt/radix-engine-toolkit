@@ -336,7 +336,7 @@ jobs:
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
-  publish-kotlin-maven:
+  publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -364,6 +364,36 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-kotlin-maven-central:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run:
+          ./bootstrap.sh
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.0.2
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      - name: Build and publish Kotlin
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build publish
+          build-root-directory: interop/kotlin/ret-kotlin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
