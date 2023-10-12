@@ -22,34 +22,22 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-
+        create<MavenPublication>("maven") {
             groupId = "com.radixdlt"
             artifactId = "radix-engine-toolkit-kotlin"
             version = providers.gradleProperty("ret-version").getOrNull()
 
-            pom {
-                name.set("Kotlin Radix Engine Toolkit")
-                description.set("Kotlin Radix Engine Toolkit")
-                url.set("https://github.com/radixdlt/radix-engine-toolkit")
-
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-            }
+            from(components["java"])
         }
     }
+
     repositories {
         maven {
-            name = "Sonatype"
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/radixdlt/radix-engine-toolkit")
             credentials {
-                username = project.findProperty("ossrhUsername") ?: System.getenv("OSSRH_USERNAME")
-                password = project.findProperty("ossrhPassword") ?: System.getenv("OSSRH_PASSWORD")
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
