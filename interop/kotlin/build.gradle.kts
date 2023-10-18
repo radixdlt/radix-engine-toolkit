@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.8.21"
     `java-library`
     `maven-publish`
+    `signing`
 }
 
 repositories {
@@ -28,16 +29,21 @@ publishing {
             version = providers.gradleProperty("ret-version").getOrNull()
 
             from(components["java"])
+            pom {
+                name.set("Radix Engine Toolkit")
+                description.set("Radix Engine Toolkit")
+                url.set("https://github.com/radixdlt/radix-engine-toolkit.git")
+            }
         }
     }
 
     repositories {
+
         maven {
-            name = "OSSRH"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
             credentials {
-                username = System.getenv("MAVEN_USERNAME")
-                password = System.getenv("MAVEN_PASSWORD")
+                username = project.findProperty("ossrhUsername") as String?
+                password = project.findProperty("ossrhPassword") as String?
             }
         }
 
@@ -50,4 +56,8 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    sign(publishing.publications["maven"])
 }
