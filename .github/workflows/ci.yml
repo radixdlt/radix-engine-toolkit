@@ -51,4 +51,4 @@ jobs:
         cd interop/kotlin/ret-kotlin/lib/
         aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
         ls -la
-        gradle build publish -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=24875D73 -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+        gradle build publish -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
