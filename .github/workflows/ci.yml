@@ -37,7 +37,6 @@ jobs:
       with:
         secret-ids: |
           gpg_passphrase, maven_central_username, maven_central_password
-        parse-json-secrets: ${{ inputs.parse_json }}
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v3
       with:
