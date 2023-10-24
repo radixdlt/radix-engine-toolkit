@@ -1,4 +1,4 @@
-name: CI XRD Supply
+name: CI
 
 on:
   push:
