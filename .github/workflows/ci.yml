@@ -6,6 +6,9 @@ on:
       - chore/publish-kotlin-ret-maven
 jobs:
   build:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
     - name: Install AWS CLI
