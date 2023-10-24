@@ -8,6 +8,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Install AWS CLI
+      uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
+      with:
+        version: 2
+    - name: Configure AWS credentials to fetch secrets
+      uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
+      with:
+        role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
+        aws-region: eu-west-2
+        role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
+    - name: Fetch AWS secrets
+      uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
+      with:
+        secret-ids: |
+          ${{ inputs.secret_prefix }}, ${{ inputs.secret_name }}
+        parse-json-secrets: ${{ inputs.parse_json }}
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v3
       with:
