@@ -51,47 +51,80 @@ impl PrivateKey {
             .map(|value| Arc::new(Self(NativePrivateKey::Ed25519(value))))
     }
 
-    fn sign(&self, hash: Arc<Hash>) -> Vec<u8> {
+    pub fn raw(&self) -> Vec<u8> {
+        match &self.0 {
+            NativePrivateKey::Ed25519(private_key) => private_key.to_bytes(),
+            NativePrivateKey::Secp256k1(private_key) => private_key.to_bytes(),
+        }
+    }
+
+    pub fn raw_hex(&self) -> String {
+        hex::encode(self.raw())
+    }
+
+    pub fn curve(&self) -> Curve {
+        match &self.0 {
+            NativePrivateKey::Ed25519(..) => Curve::Ed25519,
+            NativePrivateKey::Secp256k1(..) => Curve::Secp256k1,
+        }
+    }
+
+    fn sign(&self, hash: Arc<Hash>) -> std::result::Result<Vec<u8>, String> {
         Signer::sign(self, hash)
     }
 
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature {
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> std::result::Result<Signature, String> {
         Signer::sign_to_signature(self, hash)
     }
 
-    fn sign_to_signature_with_public_key(&self, hash: Arc<Hash>) -> SignatureWithPublicKey {
+    fn sign_to_signature_with_public_key(
+        &self,
+        hash: Arc<Hash>,
+    ) -> std::result::Result<SignatureWithPublicKey, String> {
         Signer::sign_to_signature_with_public_key(self, hash)
     }
 
-    fn public_key(&self) -> PublicKey {
+    fn public_key(&self) -> std::result::Result<PublicKey, String> {
         Signer::public_key(self)
+    }
+
+    fn public_key_bytes(&self) -> std::result::Result<Vec<u8>, String> {
+        match self.public_key()? {
+            PublicKey::Secp256k1 { value } | PublicKey::Ed25519 { value } => Ok(value),
+        }
     }
 }
 
 impl Signer for PrivateKey {
-    fn sign(&self, hash: Arc<Hash>) -> Vec<u8> {
-        match self.sign_to_signature(hash) {
-            Signature::Ed25519 { value } | Signature::Secp256k1 { value } => value,
+    fn sign(&self, hash: Arc<Hash>) -> std::result::Result<Vec<u8>, String> {
+        match self.sign_to_signature(hash)? {
+            Signature::Ed25519 { value } | Signature::Secp256k1 { value } => Ok(value),
         }
     }
 
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature {
-        self.0.sign_without_public_key(&hash.0).into()
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> std::result::Result<Signature, String> {
+        Ok(self.0.sign_without_public_key(&hash.0).into())
     }
 
-    fn sign_to_signature_with_public_key(&self, hash: Arc<Hash>) -> SignatureWithPublicKey {
-        self.0.sign_with_public_key(&hash.0).into()
+    fn sign_to_signature_with_public_key(
+        &self,
+        hash: Arc<Hash>,
+    ) -> std::result::Result<SignatureWithPublicKey, String> {
+        Ok(self.0.sign_with_public_key(&hash.0).into())
     }
 
-    fn public_key(&self) -> PublicKey {
-        self.0.public_key().into()
+    fn public_key(&self) -> std::result::Result<PublicKey, String> {
+        Ok(self.0.public_key().into())
     }
 }
 
 #[uniffi::export(callback_interface)]
 pub trait Signer: Send + Sync {
-    fn sign(&self, hash: Arc<Hash>) -> Vec<u8>;
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature;
-    fn sign_to_signature_with_public_key(&self, hash: Arc<Hash>) -> SignatureWithPublicKey;
-    fn public_key(&self) -> PublicKey;
+    fn sign(&self, hash: Arc<Hash>) -> std::result::Result<Vec<u8>, String>;
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> std::result::Result<Signature, String>;
+    fn sign_to_signature_with_public_key(
+        &self,
+        hash: Arc<Hash>,
+    ) -> std::result::Result<SignatureWithPublicKey, String>;
+    fn public_key(&self) -> std::result::Result<PublicKey, String>;
 }

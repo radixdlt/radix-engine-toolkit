@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::ops::Deref;
+
 use crate::prelude::*;
 
 #[derive(Clone, Copy, Debug, Object)]
@@ -159,22 +161,24 @@ impl TransactionBuilderIntentSignaturesStep {
         let hash = Arc::new(Hash(intent.hash()?.0));
 
         /* Creating the intent signatures */
-        let intent_signatures = {
-            let mut intent_signatures = self
-                .3
-                .iter()
-                .map(|signer| signer.sign_to_signature_with_public_key(hash.clone()))
-                .map(NativeSignatureWithPublicKey::try_from)
-                .collect::<Result<Vec<NativeSignatureWithPublicKey>>>()?;
-            intent_signatures.extend(
-                self.4
-                    .iter()
-                    .map(|signer| signer.sign_to_signature_with_public_key(hash.clone()))
-                    .map(NativeSignatureWithPublicKey::try_from)
-                    .collect::<Result<Vec<NativeSignatureWithPublicKey>>>()?,
-            );
-            intent_signatures
-        };
+        let intent_signatures = self
+            .3
+            .iter()
+            .map(|private_key| {
+                private_key
+                    .deref()
+                    .sign_to_signature_with_public_key(hash.clone())
+                    .map_err(|error| RadixEngineToolkitError::SignerError { error })
+            })
+            .chain(self.4.iter().map(|signer| {
+                signer
+                    .deref()
+                    .sign_to_signature_with_public_key(hash.clone())
+                    .map_err(|error| RadixEngineToolkitError::SignerError { error })
+            }))
+            .map(|signature| signature.and_then(NativeSignatureWithPublicKey::try_from))
+            .map(|signature| signature.map(NativeIntentSignature))
+            .collect::<Result<Vec<_>>>()?;
 
         /* Preparing the signed intent */
         let intent =
@@ -182,10 +186,7 @@ impl TransactionBuilderIntentSignaturesStep {
         let signed_intent = NativeSignedIntent {
             intent,
             intent_signatures: NativeIntentSignatures {
-                signatures: intent_signatures
-                    .into_iter()
-                    .map(NativeIntentSignature)
-                    .collect(),
+                signatures: intent_signatures,
             },
         };
 
@@ -193,7 +194,9 @@ impl TransactionBuilderIntentSignaturesStep {
         let notarized_transaction = {
             let signed_intent = SignedIntent::from(signed_intent);
             let signed_intent_hash = Arc::new(Hash(signed_intent.hash()?.0));
-            let notary_signature = notary.sign_to_signature(signed_intent_hash);
+            let notary_signature = notary
+                .sign_to_signature(signed_intent_hash)
+                .map_err(|error| RadixEngineToolkitError::SignerError { error })?;
             let notarized_transaction = NotarizedTransaction {
                 signed_intent: Arc::new(signed_intent),
                 notary_signature,

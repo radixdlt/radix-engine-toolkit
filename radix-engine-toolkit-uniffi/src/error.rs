@@ -98,6 +98,9 @@ pub enum RadixEngineToolkitError {
         "An error encountered when doing decimal arithmetic pertaining to overflow and underflow"
     )]
     DecimalError,
+
+    #[error("An error that occurred in the signer logic")]
+    SignerError { error: String },
 }
 
 macro_rules! dbg_str {
