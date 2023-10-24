@@ -36,7 +36,7 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
       with:
         secret-ids: |
-          ${{ inputs.secret_prefix }}, ${{ inputs.secret_name }}
+          gpg_passphrase, maven_central_username, maven_central_password
         parse-json-secrets: ${{ inputs.parse_json }}
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v3
