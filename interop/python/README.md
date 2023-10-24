@@ -41,7 +41,7 @@ def random_nonce() -> int:
 
 
 # A constant of the id of the network
-NETWORK_ID: int = 0x01
+NETWORK_ID: int = 0x02
 
 (private_key1, public_key1, account1) = new_account(NETWORK_ID)
 (private_key2, public_key2, account2) = new_account(NETWORK_ID)
@@ -58,7 +58,7 @@ xrd_address: Address = address_book.resource_addresses.xrd
 manifest: TransactionManifest = (
     ManifestBuilder()
     .faucet_lock_fee()
-    .call_method(ManifestBuilderAddress.STATIC(faucet_address), "free", [])
+    .faucet_free_xrd()
     .take_from_worktop(xrd_address, Decimal("5000"), ManifestBuilderBucket("bucket1"))
     .take_from_worktop(xrd_address, Decimal("5000"), ManifestBuilderBucket("bucket2"))
     .account_deposit(account1, ManifestBuilderBucket("bucket1"))
