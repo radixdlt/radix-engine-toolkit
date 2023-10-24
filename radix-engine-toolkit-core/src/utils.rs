@@ -413,7 +413,6 @@ pub fn data_of_newly_minted_non_fungibles(
                     .map(|typed_substate_value| (typed_substate_key, typed_substate_value))
             }) {
                 let resource_address = ResourceAddress::new_or_panic(node_id.0);
-                let non_fungible_local_id = non_fungible_local_id;
                 let non_fungible_data =
                     scrypto_decode::<ScryptoValue>(&scrypto_encode(&non_fungible_data).unwrap())
                         .unwrap();
