@@ -979,11 +979,11 @@ impl ManifestBuilder {
     fn account_set_default_deposit_rule(
         self: Arc<Self>,
         account_address: Arc<Address>,
-        default: AccountDefaultDepositRule,
+        default_deposit_rule: AccountDefaultDepositRule,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let account_address = NativeGlobalAddress::try_from(*account_address)?;
-            let default = default.to_native()?;
+            let default = default_deposit_rule.to_native()?;
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(account_address),
