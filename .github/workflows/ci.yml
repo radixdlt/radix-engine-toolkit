@@ -37,7 +37,7 @@ jobs:
       with:
         parse-json-secrets: true
         secret-ids: |
-          MAVEN_CENTRAL_,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
+          MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
           GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v3
@@ -51,4 +51,4 @@ jobs:
         cd interop/kotlin/ret-kotlin/lib/
         aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
         ls -la
-        gradle build publish -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=secret -Psigning.keyId=24875D73 -PossrhUsername=your-jira-id -PossrhPassword=your-jira-password
+        gradle build publish -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=24875D73 -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
