@@ -168,15 +168,13 @@ impl TransactionBuilderIntentSignaturesStep {
                 private_key
                     .deref()
                     .sign_to_signature_with_public_key(hash.clone())
-                    .map_err(|error| RadixEngineToolkitError::SignerError { error })
             })
             .chain(self.4.iter().map(|signer| {
                 signer
                     .deref()
                     .sign_to_signature_with_public_key(hash.clone())
-                    .map_err(|error| RadixEngineToolkitError::SignerError { error })
             }))
-            .map(|signature| signature.and_then(NativeSignatureWithPublicKey::try_from))
+            .map(NativeSignatureWithPublicKey::try_from)
             .map(|signature| signature.map(NativeIntentSignature))
             .collect::<Result<Vec<_>>>()?;
 
@@ -194,9 +192,7 @@ impl TransactionBuilderIntentSignaturesStep {
         let notarized_transaction = {
             let signed_intent = SignedIntent::from(signed_intent);
             let signed_intent_hash = Arc::new(Hash(signed_intent.hash()?.0));
-            let notary_signature = notary
-                .sign_to_signature(signed_intent_hash)
-                .map_err(|error| RadixEngineToolkitError::SignerError { error })?;
+            let notary_signature = notary.sign_to_signature(signed_intent_hash);
             let notarized_transaction = NotarizedTransaction {
                 signed_intent: Arc::new(signed_intent),
                 notary_signature,
