@@ -592,7 +592,173 @@ impl ManifestBuilder {
 
     /* Account */
 
-    pub fn withdraw_from_account(
+    fn account_create_advanced(
+        self: Arc<Self>,
+        owner_role: OwnerRole,
+        address_reservation: Option<ManifestBuilderAddressReservation>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let owner_role = owner_role.to_native()?;
+            let address_reservation = match address_reservation {
+                Some(reservation) => Some(
+                    *builder
+                        .name_record
+                        .get_address_reservation(&reservation.name)?,
+                ),
+                None => None,
+            };
+
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(NATIVE_ACCOUNT_PACKAGE),
+                blueprint_name: NATIVE_ACCOUNT_BLUEPRINT.to_owned(),
+                function_name: NATIVE_ACCOUNT_CREATE_ADVANCED_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountCreateAdvancedManifestInput {
+                        owner_role,
+                        address_reservation
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_create(self: Arc<Self>) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(NATIVE_ACCOUNT_PACKAGE),
+                blueprint_name: NATIVE_ACCOUNT_BLUEPRINT.to_owned(),
+                function_name: NATIVE_ACCOUNT_CREATE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountCreateInput {}),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_securify(self: Arc<Self>, account_address: Arc<Address>) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_SECURIFY_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountSecurifyInput {}),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_lock_fee(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let amount = amount.0;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_LOCK_FEE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountLockFeeInput { amount }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_lock_contingent_fee(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let amount = amount.0;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_LOCK_CONTINGENT_FEE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountLockContingentFeeInput {
+                    amount
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_deposit(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        bucket: ManifestBuilderBucket,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let bucket = *builder.name_record.get_bucket(&bucket.name)?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_DEPOSIT_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountDepositManifestInput {
+                    bucket
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_deposit_batch(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        buckets: Vec<ManifestBuilderBucket>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let buckets = buckets
+                .into_iter()
+                .map(|bucket| {
+                    builder
+                        .name_record
+                        .get_bucket(&bucket.name)
+                        .map(|bucket| *bucket)
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountDepositBatchManifestInput { buckets }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_deposit_entire_worktop(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
+                args: manifest_args!(NativeManifestExpression::EntireWorktop).into(),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_withdraw(
         self: Arc<Self>,
         account_address: Arc<Address>,
         resource_address: Arc<Address>,
@@ -616,7 +782,7 @@ impl ManifestBuilder {
         })
     }
 
-    pub fn withdraw_non_fungibles_from_account(
+    fn account_withdraw_non_fungibles(
         self: Arc<Self>,
         account_address: Arc<Address>,
         resource_address: Arc<Address>,
@@ -627,8 +793,8 @@ impl ManifestBuilder {
             let resource_address = NativeResourceAddress::try_from(*resource_address)?;
             let ids = ids
                 .into_iter()
-                .map(TryFrom::try_from)
-                .collect::<Result<_>>()?;
+                .map(NativeNonFungibleLocalId::try_from)
+                .collect::<Result<IndexSet<_>>>()?;
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(account_address),
@@ -645,18 +811,108 @@ impl ManifestBuilder {
         })
     }
 
-    pub fn create_account_advanced(self: Arc<Self>, owner_role: OwnerRole) -> Result<Arc<Self>> {
+    fn account_burn(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let owner_role = owner_role.to_native()?;
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount = amount.0;
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(NATIVE_ACCOUNT_PACKAGE),
-                blueprint_name: NATIVE_ACCOUNT_BLUEPRINT.to_owned(),
-                function_name: NATIVE_ACCOUNT_CREATE_ADVANCED_IDENT.to_owned(),
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_BURN_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountBurnInput {
+                    resource_address,
+                    amount
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_burn_non_fungibles(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let ids = ids
+                .into_iter()
+                .map(NativeNonFungibleLocalId::try_from)
+                .collect::<Result<IndexSet<_>>>()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_BURN_NON_FUNGIBLES_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountBurnNonFungiblesInput {
+                    resource_address,
+                    ids
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_lock_fee_and_withdraw(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        amount_to_lock: Arc<Decimal>,
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount_to_lock = amount_to_lock.0;
+            let amount_to_withdraw = amount.0;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(&NativeAccountLockFeeAndWithdrawInput {
+                    resource_address,
+                    amount_to_lock,
+                    amount: amount_to_withdraw
+                }),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_lock_fee_and_withdraw_non_fungibles(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        amount_to_lock: Arc<Decimal>,
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount_to_lock = amount_to_lock.0;
+            let ids = ids
+                .into_iter()
+                .map(NativeNonFungibleLocalId::try_from)
+                .collect::<Result<IndexSet<_>>>()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT.to_owned(),
                 args: native_to_manifest_value_and_unwrap!(
-                    &NativeAccountCreateAdvancedManifestInput {
-                        owner_role,
-                        address_reservation: None
+                    &NativeAccountLockFeeAndWithdrawNonFungiblesInput {
+                        resource_address,
+                        amount_to_lock,
+                        ids,
                     }
                 ),
             };
@@ -665,59 +921,138 @@ impl ManifestBuilder {
         })
     }
 
-    pub fn account_deposit(
+    fn account_create_proof_of_amount(
         self: Arc<Self>,
         account_address: Arc<Address>,
-        bucket: ManifestBuilderBucket,
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeGlobalAddress::try_from(*account_address)?;
-            let bucket = builder.name_record.get_bucket(&bucket.name)?;
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let amount = amount.0;
 
             let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_DEPOSIT_IDENT.to_owned(),
-                args: manifest_args!(*bucket).into(),
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountCreateProofOfAmountInput {
+                        resource_address,
+                        amount
+                    }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
         })
     }
 
-    pub fn account_try_deposit_or_abort(
+    fn account_create_proof_of_non_fungibles(
         self: Arc<Self>,
         account_address: Arc<Address>,
-        authorized_depositor_badge: Option<ResourceOrNonFungible>,
-        bucket: ManifestBuilderBucket,
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let address = NativeGlobalAddress::try_from(*account_address)?;
-            let bucket = builder.name_record.get_bucket(&bucket.name)?;
-            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
-                Some(badge.to_native()?)
-            } else {
-                None
-            };
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let ids = ids
+                .into_iter()
+                .map(NativeNonFungibleLocalId::try_from)
+                .collect::<Result<IndexSet<_>>>()?;
 
             let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT.to_owned(),
-                args: manifest_args!(*bucket, authorized_depositor_badge).into(),
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountCreateProofOfNonFungiblesInput {
+                        resource_address,
+                        ids,
+                    }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
         })
     }
 
-    pub fn account_try_deposit_or_refund(
+    fn account_set_default_deposit_rule(
         self: Arc<Self>,
         account_address: Arc<Address>,
-        authorized_depositor_badge: Option<ResourceOrNonFungible>,
+        default: AccountDefaultDepositRule,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let default = default.to_native()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountSetDefaultDepositRuleInput { default }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_set_resource_preference(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+        resource_preference: ResourcePreference,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+            let resource_preference = resource_preference.to_native()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountSetResourcePreferenceInput {
+                        resource_address,
+                        resource_preference
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_remove_resource_preference(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        resource_address: Arc<Address>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let account_address = NativeGlobalAddress::try_from(*account_address)?;
+            let resource_address = NativeResourceAddress::try_from(*resource_address)?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(account_address),
+                method_name: NATIVE_ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountRemoveResourcePreferenceInput { resource_address }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_try_deposit_or_refund(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
         bucket: ManifestBuilderBucket,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
-            let bucket = builder.name_record.get_bucket(&bucket.name)?;
+            let bucket = *builder.name_record.get_bucket(&bucket.name)?;
             let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
                 Some(badge.to_native()?)
             } else {
@@ -727,31 +1062,152 @@ impl ManifestBuilder {
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
                 method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT.to_owned(),
-                args: manifest_args!(*bucket, authorized_depositor_badge).into(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountTryDepositOrRefundManifestInput {
+                        bucket,
+                        authorized_depositor_badge
+                    }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
         })
     }
 
-    pub fn account_deposit_batch(
+    fn account_try_deposit_batch_or_refund(
         self: Arc<Self>,
         account_address: Arc<Address>,
+        buckets: Vec<ManifestBuilderBucket>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
+            let buckets = buckets
+                .into_iter()
+                .map(|bucket| {
+                    builder
+                        .name_record
+                        .get_bucket(&bucket.name)
+                        .map(|bucket| *bucket)
+                })
+                .collect::<Result<Vec<_>>>()?;
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
-                args: manifest_args!(NativeManifestExpression::EntireWorktop,).into(),
+                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountTryDepositBatchOrRefundManifestInput {
+                        buckets,
+                        authorized_depositor_badge
+                    }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
         })
     }
 
-    pub fn account_try_deposit_batch_or_abort(
+    fn account_try_deposit_entire_worktop_or_refund(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT.to_owned(),
+                args: manifest_args!(
+                    NativeManifestExpression::EntireWorktop,
+                    authorized_depositor_badge
+                )
+                .into(),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_try_deposit_or_abort(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        bucket: ManifestBuilderBucket,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let bucket = *builder.name_record.get_bucket(&bucket.name)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountTryDepositOrAbortManifestInput {
+                        bucket,
+                        authorized_depositor_badge
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_try_deposit_batch_or_abort(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        buckets: Vec<ManifestBuilderBucket>,
+        authorized_depositor_badge: Option<ResourceOrNonFungible>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
+                Some(badge.to_native()?)
+            } else {
+                None
+            };
+            let buckets = buckets
+                .into_iter()
+                .map(|bucket| {
+                    builder
+                        .name_record
+                        .get_bucket(&bucket.name)
+                        .map(|bucket| *bucket)
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountTryDepositBatchOrAbortManifestInput {
+                        buckets,
+                        authorized_depositor_badge
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_try_deposit_entire_worktop_or_abort(
         self: Arc<Self>,
         account_address: Arc<Address>,
         authorized_depositor_badge: Option<ResourceOrNonFungible>,
@@ -778,27 +1234,42 @@ impl ManifestBuilder {
         })
     }
 
-    pub fn account_try_deposit_batch_or_refund(
+    fn account_add_authorized_depositor(
         self: Arc<Self>,
         account_address: Arc<Address>,
-        authorized_depositor_badge: Option<ResourceOrNonFungible>,
+        badge: ResourceOrNonFungible,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
-            let authorized_depositor_badge = if let Some(badge) = authorized_depositor_badge {
-                Some(badge.to_native()?)
-            } else {
-                None
-            };
+            let badge = badge.to_native()?;
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT.to_owned(),
-                args: manifest_args!(
-                    NativeManifestExpression::EntireWorktop,
-                    authorized_depositor_badge
-                )
-                .into(),
+                method_name: NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountAddAuthorizedDepositorInput { badge }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    fn account_remove_authorized_depositor(
+        self: Arc<Self>,
+        account_address: Arc<Address>,
+        badge: ResourceOrNonFungible,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let address = NativeGlobalAddress::try_from(*account_address)?;
+            let badge = badge.to_native()?;
+
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(address),
+                method_name: NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeAccountRemoveAuthorizedDepositorInput { badge }
+                ),
             };
             builder.instructions.push(instruction);
             Ok(())
@@ -883,7 +1354,6 @@ impl ManifestBuilder {
                 args,
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -935,7 +1405,6 @@ impl ManifestBuilder {
                 args,
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -993,7 +1462,6 @@ impl ManifestBuilder {
                 .into(),
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -1124,7 +1592,6 @@ impl ManifestBuilder {
                 ),
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -1153,7 +1620,6 @@ impl ManifestBuilder {
                 }),
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -1176,7 +1642,6 @@ impl ManifestBuilder {
                 args: native_to_manifest_value_and_unwrap!(&NativeMetadataSetInput { key, value }),
             };
             builder.instructions.push(instruction);
-
             Ok(())
         })
     }
@@ -1260,3 +1725,4 @@ macro_rules! manifest_args {
     }};
 }
 use manifest_args;
+use sbor::prelude::IndexSet;

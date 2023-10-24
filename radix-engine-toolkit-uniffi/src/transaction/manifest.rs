@@ -725,6 +725,17 @@ impl FromNative for ResourcePreference {
     }
 }
 
+impl ToNative for ResourcePreference {
+    type Native = NativeResourcePreference;
+
+    fn to_native(self) -> Result<Self::Native> {
+        match self {
+            Self::Allowed => Ok(Self::Native::Allowed),
+            Self::Disallowed => Ok(Self::Native::Disallowed),
+        }
+    }
+}
+
 impl FromNative for AccountDefaultDepositRule {
     type Native = NativeDefaultDepositRule;
 
@@ -733,6 +744,18 @@ impl FromNative for AccountDefaultDepositRule {
             NativeDefaultDepositRule::Accept => Self::Accept,
             NativeDefaultDepositRule::Reject => Self::Reject,
             NativeDefaultDepositRule::AllowExisting => Self::AllowExisting,
+        }
+    }
+}
+
+impl ToNative for AccountDefaultDepositRule {
+    type Native = NativeDefaultDepositRule;
+
+    fn to_native(self) -> Result<Self::Native> {
+        match self {
+            AccountDefaultDepositRule::Accept => Ok(Self::Native::Accept),
+            AccountDefaultDepositRule::Reject => Ok(Self::Native::Reject),
+            AccountDefaultDepositRule::AllowExisting => Ok(Self::Native::AllowExisting),
         }
     }
 }
