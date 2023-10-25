@@ -367,30 +367,30 @@ jobs:
   publish-kotlin-maven-central:
     runs-on: ubuntu-latest
     steps:
-    - name: Install AWS CLI
-      uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
-      with:
-        version: 2
-    - name: Configure AWS credentials to fetch secrets
-      uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
-      with:
-        role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
-        aws-region: eu-west-2
-        role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
-    - name: Fetch AWS secrets
-      uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
-      with:
-        parse-json-secrets: true
-        secret-ids: |
-          MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
-          GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
-    - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
+        with:
+          version: 2
+      - name: Configure AWS credentials to fetch secrets
+        uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
+        with:
+          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
+          aws-region: eu-west-2
+          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch AWS secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
+            GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Create Kotlin Library
         working-directory: interop/kotlin
-        run:
+        run: |
           ./bootstrap.sh
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -399,7 +399,7 @@ jobs:
           arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Get GPG key to sign
         run: |
-           aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > interop/kotlin/ret-kotlin/rdx-secring.gpg
+          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > interop/kotlin/ret-kotlin/rdx-secring.gpg
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
