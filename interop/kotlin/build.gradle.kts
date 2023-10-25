@@ -23,7 +23,14 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("mavenGithub") {
+            groupId = "com.radixdlt"
+            artifactId = "radix-engine-toolkit-kotlin"
+            version = providers.gradleProperty("ret-version").getOrNull()
+
+            from(components["java"])
+        }
+        create<MavenPublication>("mavenCentral") {
             groupId = "com.radixdlt"
             artifactId = "radix-engine-toolkit-kotlin"
             version = providers.gradleProperty("ret-version").getOrNull()
@@ -43,7 +50,7 @@ publishing {
         }
 
         maven {
-            name = "MavenCentral"
+            name = "mavenCentral"
             url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             credentials {
                 username = project.findProperty("ossrhUsername") as String?
@@ -54,5 +61,5 @@ publishing {
 }
 
 signing {
-    sign(publishing.publications["maven"])
+    sign(publishing.publications["mavenCentral"])
 }
