@@ -414,8 +414,11 @@ jobs:
           gradle-version: 8.0.2
           arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Get GPG key to sign
+        working-directory: interop/kotlin/ret-kotlin
         run: |
-          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > interop/kotlin/ret-kotlin/rdx-secring.gpg
+          ls -la
+          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
+          ls -la
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
