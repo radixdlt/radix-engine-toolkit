@@ -366,6 +366,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-kotlin-maven-central:
+    needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     steps:
       - name: Install AWS CLI
