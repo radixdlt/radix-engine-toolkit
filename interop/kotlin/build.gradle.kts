@@ -43,6 +43,7 @@ publishing {
         }
 
         maven {
+            name = "MavenCentral"
             url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             credentials {
                 username = project.findProperty("ossrhUsername") as String?
