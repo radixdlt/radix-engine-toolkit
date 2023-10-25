@@ -8,6 +8,7 @@ on:
       - develop
       - main
       - linux-builds-fix
+      - chore/publish-to-maven-central
 jobs:
   build:
     runs-on: ${{ matrix.build-target.runner }}
