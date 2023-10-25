@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.8.21"
     `java-library`
     `maven-publish`
+    `signing`
 }
 
 repositories {
@@ -40,5 +41,17 @@ publishing {
                 password = System.getenv("GITHUB_TOKEN")
             }
         }
+
+        maven {
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            credentials {
+                username = project.findProperty("ossrhUsername") as String?
+                password = project.findProperty("ossrhPassword") as String?
+            }
+        }
     }
+}
+
+signing {
+    sign(publishing.publications["maven"])
 }
