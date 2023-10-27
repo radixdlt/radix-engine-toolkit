@@ -17,6 +17,7 @@
 
 pub mod builder;
 pub mod name_record;
+pub mod traits;
 pub mod types;
 pub mod utils;
 pub mod value;

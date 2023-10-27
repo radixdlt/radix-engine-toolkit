@@ -29,3 +29,5 @@ bld/
 [Ll]og/
 [Ll]ogs/
 *.nupkg
+
+temp

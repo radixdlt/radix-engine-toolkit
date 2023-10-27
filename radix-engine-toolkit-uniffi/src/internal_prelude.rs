@@ -364,6 +364,8 @@ mod native {
         HashHasHrp as NativeHashHasHrp,
         TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
         TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
+
+        NamedManifestAddress as NativeNamedManifestAddress
     };
     pub use transaction::validation::{ 
         ValidationConfig as NativeValidationConfig,
@@ -394,6 +396,7 @@ mod native {
     pub use sbor::prelude::{
         EncodeError as NativeEncodeError,
         DecodeError as NativeDecodeError,
+        IndexSet
     };
     pub use sbor::schema::{
         LocalTypeId as NativeLocalTypeId
