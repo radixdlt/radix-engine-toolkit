@@ -43,6 +43,13 @@ publishing {
                     url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
                 }
             }
+
+            pom.withXml {
+                def licensesNode = asNode().appendNode('licenses')
+                def licenseNode = licensesNode.appendNode('license')
+                licenseNode.appendNode('name', 'Radix Eula')
+                licenseNode.appendNode('url', 'https://www.radixdlt.com/terms/genericEULA')
+            }
         }
     }
 
