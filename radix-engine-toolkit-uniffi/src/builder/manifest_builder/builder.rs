@@ -1592,8 +1592,9 @@ builder_alias! {
     // ==================
     {
         builder_method: access_controller_create,
-        method_ident: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_ACCESS_CONTROLLER_PACKAGE,
+        blueprint_ident: NATIVE_ACCESS_CONTROLLER_BLUEPRINT,
+        function_ident: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
         args: NativeAccessControllerCreateManifestInput {
             controlled_asset: (ManifestBuilderBucket => NativeManifestBucket),
             rule_set: (RuleSet => NativeRuleSet),
@@ -1734,16 +1735,18 @@ builder_alias! {
     // =========
     {
         builder_method: identity_create_advanced,
-        method_ident: NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_IDENTITY_PACKAGE,
+        blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
+        function_ident: NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
         args: NativeIdentityCreateAdvancedInput {
             owner_role: (OwnerRole => NativeOwnerRole),
         }
     },
     {
         builder_method: identity_create,
-        method_ident: NATIVE_IDENTITY_CREATE_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_IDENTITY_PACKAGE,
+        blueprint_ident: NATIVE_IDENTITY_BLUEPRINT,
+        function_ident: NATIVE_IDENTITY_CREATE_IDENT,
         args: NativeIdentityCreateInput {}
     },
     {
@@ -1766,8 +1769,9 @@ builder_alias! {
     // ==================
     {
         builder_method: one_resource_pool_instantiate,
-        method_ident: NATIVE_ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_POOL_PACKAGE,
+        blueprint_ident: "OneResourcePool",
+        function_ident: NATIVE_ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
         args: NativeOneResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
@@ -1827,8 +1831,9 @@ builder_alias! {
     // ==================
     {
         builder_method: two_resource_pool_instantiate,
-        method_ident: NATIVE_TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_POOL_PACKAGE,
+        blueprint_ident: "TwoResourcePool",
+        function_ident: NATIVE_TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
         args: NativeTwoResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
@@ -1889,8 +1894,9 @@ builder_alias! {
     // ====================
     {
         builder_method: multi_resource_pool_instantiate,
-        method_ident: NATIVE_MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
-        instruction: CallMethod,
+        package_address: NATIVE_POOL_PACKAGE,
+        blueprint_ident: "MultiResourcePool",
+        function_ident: NATIVE_MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
         args: NativeMultiResourcePoolInstantiateManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
