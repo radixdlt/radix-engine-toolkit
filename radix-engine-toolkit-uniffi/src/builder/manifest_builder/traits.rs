@@ -313,6 +313,26 @@ impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
     }
 }
 
+impl<A, B> FromWithNameRecordContext<Vec<A>> for (B, B)
+where
+    B: FromWithNameRecordContext<A>,
+{
+    fn from(mut item: Vec<A>, name_record: &NameRecord) -> Result<Self> {
+        let len = item.len();
+        if len == 2 {
+            let item2 = item.pop().unwrap();
+            let item1 = item.pop().unwrap();
+            Ok((B::from(item1, name_record)?, B::from(item2, name_record)?))
+        } else {
+            Err(RadixEngineToolkitError::InvalidLength {
+                expected: 2,
+                actual: len as u64,
+                data: vec![],
+            })
+        }
+    }
+}
+
 macro_rules! impl_same_from_and_to {
     (
         $(
@@ -341,5 +361,49 @@ impl_same_from_and_to! {
     i32,
     i64,
     i128,
-    String
+    String,
+    ()
 }
+
+macro_rules! impl_tuple {
+    (
+        $(
+            $ident: tt
+        ),+ $(,)?
+    ) => {
+        paste::paste! {
+            impl<
+                $(
+                    [< A $ident >], [< B $ident >]
+                ),+
+            > FromWithNameRecordContext<( $([< A $ident >],)+ )> for ( $([< B $ident >],)+ )
+            where
+                $(
+                    [< B $ident >]: FromWithNameRecordContext<[< A $ident >]>
+                ),+
+            {
+                fn from(($([< a $ident >],)+): ($([< A $ident >],)+), name_record: &NameRecord) -> Result<Self> {
+                    Ok((
+                        $(
+                            <[< B $ident >] as FromWithNameRecordContext<[< A $ident >]>>::from([< a $ident >], name_record)?,
+                        )+
+                    ))
+                }
+            }
+        }
+    };
+}
+
+impl_tuple! { 1 }
+impl_tuple! { 1, 2 }
+impl_tuple! { 1, 2, 3 }
+impl_tuple! { 1, 2, 3, 4 }
+impl_tuple! { 1, 2, 3, 4, 5 }
+impl_tuple! { 1, 2, 3, 4, 5, 6 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, }
+impl_tuple! { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }
