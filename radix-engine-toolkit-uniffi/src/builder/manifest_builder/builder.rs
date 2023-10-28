@@ -661,110 +661,6 @@ impl ManifestBuilder {
         })
     }
 
-    /* Account */
-
-    pub fn access_controller_initiate_recovery(
-        self: Arc<Self>,
-        access_controller_address: Arc<Address>,
-        proposer: Proposer,
-        proposed_primary_role: Arc<AccessRule>,
-        proposed_recovery_role: Arc<AccessRule>,
-        proposed_confirmation_role: Arc<AccessRule>,
-        proposed_timed_recovery_delay_in_minutes: Option<u32>,
-    ) -> Result<Arc<Self>> {
-        builder_arc_map(self, |builder| {
-            let rule_set = NativeRuleSet {
-                primary_role: proposed_primary_role.0.clone(),
-                recovery_role: proposed_recovery_role.0.clone(),
-                confirmation_role: proposed_confirmation_role.0.clone(),
-            };
-
-            let (method_name, args) = match proposer {
-                Proposer::Primary => (
-                    NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeAccessControllerInitiateRecoveryAsPrimaryInput {
-                            rule_set,
-                            timed_recovery_delay_in_minutes:
-                                proposed_timed_recovery_delay_in_minutes,
-                        }
-                    ),
-                ),
-                Proposer::Recovery => (
-                    NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeAccessControllerInitiateRecoveryAsRecoveryInput {
-                            rule_set,
-                            timed_recovery_delay_in_minutes:
-                                proposed_timed_recovery_delay_in_minutes,
-                        }
-                    ),
-                ),
-            };
-
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(
-                    (*access_controller_address).try_into()?,
-                ),
-                method_name: method_name.to_owned(),
-                args,
-            };
-            builder.instructions.push(instruction);
-            Ok(())
-        })
-    }
-
-    pub fn access_controller_quick_confirm_recovery(
-        self: Arc<Self>,
-        access_controller_address: Arc<Address>,
-        proposer: Proposer,
-        proposed_primary_role: Arc<AccessRule>,
-        proposed_recovery_role: Arc<AccessRule>,
-        proposed_confirmation_role: Arc<AccessRule>,
-        proposed_timed_recovery_delay_in_minutes: Option<u32>,
-    ) -> Result<Arc<Self>> {
-        builder_arc_map(self, |builder| {
-            let rule_set = NativeRuleSet {
-                primary_role: proposed_primary_role.0.clone(),
-                recovery_role: proposed_recovery_role.0.clone(),
-                confirmation_role: proposed_confirmation_role.0.clone(),
-            };
-
-            let (method_name, args) = match proposer {
-                Proposer::Primary => (
-                    NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput {
-                            rule_set,
-                            timed_recovery_delay_in_minutes:
-                                proposed_timed_recovery_delay_in_minutes,
-                        }
-                    ),
-                ),
-                Proposer::Recovery => (
-                    NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
-                    native_to_manifest_value_and_unwrap!(
-                        &NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput {
-                            rule_set,
-                            timed_recovery_delay_in_minutes:
-                                proposed_timed_recovery_delay_in_minutes,
-                        }
-                    ),
-                ),
-            };
-
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(
-                    (*access_controller_address).try_into()?,
-                ),
-                method_name: method_name.to_owned(),
-                args,
-            };
-            builder.instructions.push(instruction);
-            Ok(())
-        })
-    }
-
     pub fn access_controller_new_from_public_keys(
         self: Arc<Self>,
         controlled_asset: ManifestBuilderBucket,
@@ -1626,6 +1522,148 @@ builder_alias! {
         method_ident: NATIVE_VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT,
         instruction: CallMethod,
         args: NativeValidatorFinishUnlockOwnerStakeUnitsInput {}
+    },
+    // ==================
+    // Access Controller
+    // ==================
+    {
+        builder_method: access_controller_create,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCreateManifestInput {
+            controlled_asset: (ManifestBuilderBucket => NativeManifestBucket),
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        }
+    },
+    {
+        builder_method: access_controller_create_proof,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CREATE_PROOF_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCreateProofInput {}
+    },
+    {
+        builder_method: access_controller_initiate_recovery_as_primary,
+        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_PRIMARY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerInitiateRecoveryAsPrimaryInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_initiate_recovery_as_recovery,
+        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_RECOVERY_AS_RECOVERY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerInitiateRecoveryAsRecoveryInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_initiate_badge_withdraw_as_primary,
+        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_PRIMARY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsPrimaryInput {}
+    },
+    {
+        builder_method: access_controller_initiate_badge_withdraw_as_recovery,
+        method_ident: NATIVE_ACCESS_CONTROLLER_INITIATE_BADGE_WITHDRAW_ATTEMPT_AS_RECOVERY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerInitiateBadgeWithdrawAttemptAsRecoveryInput {}
+    },
+    {
+        builder_method: access_controller_quick_confirm_primary_role_recovery_proposal,
+        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerQuickConfirmPrimaryRoleRecoveryProposalInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_quick_confirm_recovery_role_recovery_proposal,
+        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerQuickConfirmRecoveryRoleRecoveryProposalInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_quick_confirm_primary_role_badge_withdraw_attempt,
+        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerQuickConfirmPrimaryRoleBadgeWithdrawAttemptInput {}
+    },
+    {
+        builder_method: access_controller_quick_confirm_recovery_role_badge_withdraw_attempt,
+        method_ident: NATIVE_ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerQuickConfirmRecoveryRoleBadgeWithdrawAttemptInput {}
+    },
+    {
+        builder_method: access_controller_timed_confirm_recovery,
+        method_ident: NATIVE_ACCESS_CONTROLLER_TIMED_CONFIRM_RECOVERY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerTimedConfirmRecoveryInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_cancel_primary_role_recovery_proposal,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCancelPrimaryRoleRecoveryProposalInput {}
+    },
+    {
+        builder_method: access_controller_cancel_recovery_role_recovery_proposal,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_RECOVERY_PROPOSAL_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCancelRecoveryRoleRecoveryProposalInput {}
+    },
+    {
+        builder_method: access_controller_cancel_primary_role_badge_withdraw_attempt,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCancelPrimaryRoleBadgeWithdrawAttemptInput {}
+    },
+    {
+        builder_method: access_controller_cancel_recovery_role_badge_withdraw_attempt,
+        method_ident: NATIVE_ACCESS_CONTROLLER_CANCEL_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerCancelRecoveryRoleBadgeWithdrawAttemptInput {}
+    },
+    {
+        builder_method: access_controller_lock_primary_role,
+        method_ident: NATIVE_ACCESS_CONTROLLER_LOCK_PRIMARY_ROLE_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerLockPrimaryRoleInput {}
+    },
+    {
+        builder_method: access_controller_unlock_primary_role,
+        method_ident: NATIVE_ACCESS_CONTROLLER_UNLOCK_PRIMARY_ROLE_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerUnlockPrimaryRoleInput {}
+    },
+    {
+        builder_method: access_controller_stop_timed_recovery,
+        method_ident: NATIVE_ACCESS_CONTROLLER_STOP_TIMED_RECOVERY_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerStopTimedRecoveryInput {
+            rule_set: (RuleSet => NativeRuleSet),
+            timed_recovery_delay_in_minutes: (Option<u32> => Option<u32>),
+        }
+    },
+    {
+        builder_method: access_controller_mint_recovery_badges,
+        method_ident: NATIVE_ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT,
+        instruction: CallMethod,
+        args: NativeAccessControllerMintRecoveryBadgesInput {
+            non_fungible_local_ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        }
     },
     // ================
     // Metadata Module

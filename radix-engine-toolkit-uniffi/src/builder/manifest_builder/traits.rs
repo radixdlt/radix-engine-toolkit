@@ -273,18 +273,6 @@ impl FromWithNameRecordContext<MetadataValue> for NativeMetadataValue {
     }
 }
 
-impl FromWithNameRecordContext<String> for String {
-    fn from(item: String, _: &NameRecord) -> Result<Self> {
-        Ok(item)
-    }
-}
-
-impl FromWithNameRecordContext<bool> for bool {
-    fn from(item: bool, _: &NameRecord) -> Result<Self> {
-        Ok(item)
-    }
-}
-
 impl FromWithNameRecordContext<String> for NativeRoleKey {
     fn from(item: String, _: &NameRecord) -> Result<Self> {
         Ok(NativeRoleKey::new(item))
@@ -303,6 +291,12 @@ impl FromWithNameRecordContext<RoyaltyAmount> for NativeRoyaltyAmount {
     }
 }
 
+impl FromWithNameRecordContext<RuleSet> for NativeRuleSet {
+    fn from(item: RuleSet, _: &NameRecord) -> Result<Self> {
+        item.to_native()
+    }
+}
+
 impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
     fn from(item: PublicKey, _: &NameRecord) -> Result<Self> {
         if let NativePublicKey::Secp256k1(public_key) = NativePublicKey::try_from(item)? {
@@ -311,4 +305,35 @@ impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
             Err(RadixEngineToolkitError::InvalidPublicKey)
         }
     }
+}
+
+macro_rules! impl_same_from_and_to {
+    (
+        $(
+            $ty: ty
+        ),* $(,)?
+    ) => {
+        $(
+            impl FromWithNameRecordContext<$ty> for $ty {
+                fn from(item: $ty, _: &NameRecord) -> Result<Self> {
+                    Ok(item)
+                }
+            }
+        )*
+    };
+}
+
+impl_same_from_and_to! {
+    bool,
+    u8,
+    u16,
+    u32,
+    u64,
+    u128,
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    String
 }

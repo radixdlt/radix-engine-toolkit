@@ -455,6 +455,18 @@ impl FromNative for RuleSet {
     }
 }
 
+impl ToNative for RuleSet {
+    type Native = NativeRuleSet;
+
+    fn to_native(self) -> Result<Self::Native> {
+        Ok(Self::Native {
+            primary_role: self.primary_role.0.clone(),
+            recovery_role: self.recovery_role.0.clone(),
+            confirmation_role: self.confirmation_role.0.clone(),
+        })
+    }
+}
+
 impl FromNative for RecoveryProposal {
     type Native = NativeRecoveryProposal;
 

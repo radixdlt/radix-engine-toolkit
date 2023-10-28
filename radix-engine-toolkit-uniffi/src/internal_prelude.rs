@@ -619,6 +619,7 @@ mod native {
     };
     pub use radix_engine_interface::blueprints::access_controller::{
         AccessControllerCreateInput as NativeAccessControllerCreateInput,
+        AccessControllerCreateManifestInput as NativeAccessControllerCreateManifestInput,
         AccessControllerCreateProofInput as NativeAccessControllerCreateProofInput,
         AccessControllerInitiateRecoveryAsPrimaryInput as NativeAccessControllerInitiateRecoveryAsPrimaryInput,
         AccessControllerInitiateRecoveryAsRecoveryInput as NativeAccessControllerInitiateRecoveryAsRecoveryInput,
