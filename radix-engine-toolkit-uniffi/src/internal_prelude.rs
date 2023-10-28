@@ -719,6 +719,15 @@ mod native {
         ACCOUNT_ADD_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
         ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
     };
+    pub use radix_engine_interface::blueprints::identity::{
+        IDENTITY_BLUEPRINT as NATIVE_IDENTITY_BLUEPRINT,
+        IDENTITY_CREATE_ADVANCED_IDENT as NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
+        IDENTITY_CREATE_IDENT as NATIVE_IDENTITY_CREATE_IDENT,
+        IDENTITY_SECURIFY_IDENT as NATIVE_IDENTITY_SECURIFY_IDENT,
+        IdentityCreateAdvancedInput as NativeIdentityCreateAdvancedInput,
+        IdentityCreateInput as NativeIdentityCreateInput,
+        IdentitySecurifyToSingleBadgeInput as NativeIdentitySecurifyToSingleBadgeInput,
+    };
     pub use radix_engine_interface::blueprints::consensus_manager::{
         VALIDATOR_BLUEPRINT as NATIVE_VALIDATOR_BLUEPRINT,
         VALIDATOR_REGISTER_IDENT as NATIVE_VALIDATOR_REGISTER_IDENT,

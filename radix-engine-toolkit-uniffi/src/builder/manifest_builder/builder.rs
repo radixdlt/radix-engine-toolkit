@@ -1665,6 +1665,29 @@ builder_alias! {
             non_fungible_local_ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
         }
     },
+    // =========
+    // Identity
+    // =========
+    {
+        builder_method: identity_create_advanced,
+        method_ident: NATIVE_IDENTITY_CREATE_ADVANCED_IDENT,
+        instruction: CallMethod,
+        args: NativeIdentityCreateAdvancedInput {
+            owner_role: (OwnerRole => NativeOwnerRole),
+        }
+    },
+    {
+        builder_method: identity_create,
+        method_ident: NATIVE_IDENTITY_CREATE_IDENT,
+        instruction: CallMethod,
+        args: NativeIdentityCreateInput {}
+    },
+    {
+        builder_method: identity_securify,
+        method_ident: NATIVE_IDENTITY_SECURIFY_IDENT,
+        instruction: CallMethod,
+        args: NativeIdentitySecurifyToSingleBadgeInput {}
+    },
     // ================
     // Metadata Module
     // ================
