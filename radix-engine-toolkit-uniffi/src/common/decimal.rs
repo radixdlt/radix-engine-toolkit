@@ -17,6 +17,8 @@
 
 #![allow(clippy::should_implement_trait)]
 
+use crate::prelude::*;
+
 macro_rules! define_uniffi_decimal {
     ($type: ty) => {
         paste::paste!{
@@ -181,7 +183,33 @@ macro_rules! define_uniffi_decimal {
 define_uniffi_decimal!(Decimal);
 define_uniffi_decimal!(PreciseDecimal);
 
-#[derive(Clone, Debug, crate::prelude::Enum)]
+#[derive(Clone, Debug, Enum)]
+pub enum WithdrawStrategy {
+    Exact,
+    Rounded { rounding_mode: RoundingMode },
+}
+
+impl From<NativeWithdrawStrategy> for WithdrawStrategy {
+    fn from(value: NativeWithdrawStrategy) -> Self {
+        match value {
+            NativeWithdrawStrategy::Exact => Self::Exact,
+            NativeWithdrawStrategy::Rounded(mode) => Self::Rounded {
+                rounding_mode: mode.into(),
+            },
+        }
+    }
+}
+
+impl From<WithdrawStrategy> for NativeWithdrawStrategy {
+    fn from(value: WithdrawStrategy) -> Self {
+        match value {
+            WithdrawStrategy::Exact => Self::Exact,
+            WithdrawStrategy::Rounded { rounding_mode } => Self::Rounded(rounding_mode.into()),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
 pub enum RoundingMode {
     ToPositiveInfinity,
     ToNegativeInfinity,

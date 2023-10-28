@@ -297,6 +297,12 @@ impl FromWithNameRecordContext<RuleSet> for NativeRuleSet {
     }
 }
 
+impl FromWithNameRecordContext<WithdrawStrategy> for NativeWithdrawStrategy {
+    fn from(item: WithdrawStrategy, _: &NameRecord) -> Result<Self> {
+        Ok(item.into())
+    }
+}
+
 impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
     fn from(item: PublicKey, _: &NameRecord) -> Result<Self> {
         if let NativePublicKey::Secp256k1(public_key) = NativePublicKey::try_from(item)? {

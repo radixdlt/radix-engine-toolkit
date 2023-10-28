@@ -316,7 +316,8 @@ mod native {
         CheckedNeg as NativeCheckedNeg,
         CheckedTruncate as NativeCheckedTruncate,
 
-        RoyaltyAmount as NativeRoyaltyAmount
+        RoyaltyAmount as NativeRoyaltyAmount,
+        WithdrawStrategy as NativeWithdrawStrategy,
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -836,6 +837,52 @@ mod native {
         FungibleResourceManagerCreateWithInitialSupplyInput as NativeFungibleResourceManagerCreateWithInitialSupplyInput,
         FungibleResourceManagerCreateWithInitialSupplyManifestInput as NativeFungibleResourceManagerCreateWithInitialSupplyManifestInput,
         FungibleResourceManagerMintInput as NativeFungibleResourceManagerMintInput,
+    };
+    pub use radix_engine_interface::blueprints::pool::{
+        ONE_RESOURCE_POOL_INSTANTIATE_IDENT as NATIVE_ONE_RESOURCE_POOL_INSTANTIATE_IDENT,
+        ONE_RESOURCE_POOL_CONTRIBUTE_IDENT as NATIVE_ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        ONE_RESOURCE_POOL_REDEEM_IDENT as NATIVE_ONE_RESOURCE_POOL_REDEEM_IDENT,
+        ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT as NATIVE_ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT as NATIVE_ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        ONE_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT as NATIVE_ONE_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        ONE_RESOURCE_POOL_GET_VAULT_AMOUNT_IDENT as NATIVE_ONE_RESOURCE_POOL_GET_VAULT_AMOUNT_IDENT,
+        OneResourcePoolInstantiateManifestInput as NativeOneResourcePoolInstantiateManifestInput,
+        OneResourcePoolContributeManifestInput as NativeOneResourcePoolContributeManifestInput,
+        OneResourcePoolRedeemManifestInput as NativeOneResourcePoolRedeemManifestInput,
+        OneResourcePoolProtectedDepositManifestInput as NativeOneResourcePoolProtectedDepositManifestInput,
+        OneResourcePoolProtectedWithdrawManifestInput as NativeOneResourcePoolProtectedWithdrawManifestInput,
+        OneResourcePoolGetRedemptionValueManifestInput as NativeOneResourcePoolGetRedemptionValueManifestInput,
+        OneResourcePoolGetVaultAmountManifestInput as NativeOneResourcePoolGetVaultAmountManifestInput,
+
+        TWO_RESOURCE_POOL_INSTANTIATE_IDENT as NATIVE_TWO_RESOURCE_POOL_INSTANTIATE_IDENT,
+        TWO_RESOURCE_POOL_CONTRIBUTE_IDENT as NATIVE_TWO_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        TWO_RESOURCE_POOL_REDEEM_IDENT as NATIVE_TWO_RESOURCE_POOL_REDEEM_IDENT,
+        TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT as NATIVE_TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT as NATIVE_TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        TWO_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT as NATIVE_TWO_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        TWO_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT as NATIVE_TWO_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
+        TwoResourcePoolInstantiateManifestInput as NativeTwoResourcePoolInstantiateManifestInput,
+        TwoResourcePoolContributeManifestInput as NativeTwoResourcePoolContributeManifestInput,
+        TwoResourcePoolRedeemManifestInput as NativeTwoResourcePoolRedeemManifestInput,
+        TwoResourcePoolProtectedDepositManifestInput as NativeTwoResourcePoolProtectedDepositManifestInput,
+        TwoResourcePoolProtectedWithdrawManifestInput as NativeTwoResourcePoolProtectedWithdrawManifestInput,
+        TwoResourcePoolGetRedemptionValueManifestInput as NativeTwoResourcePoolGetRedemptionValueManifestInput,
+        TwoResourcePoolGetVaultAmountsManifestInput as NativeTwoResourcePoolGetVaultAmountsManifestInput,
+
+        MULTI_RESOURCE_POOL_INSTANTIATE_IDENT as NATIVE_MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
+        MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT as NATIVE_MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        MULTI_RESOURCE_POOL_REDEEM_IDENT as NATIVE_MULTI_RESOURCE_POOL_REDEEM_IDENT,
+        MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT as NATIVE_MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT as NATIVE_MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        MULTI_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT as NATIVE_MULTI_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        MULTI_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT as NATIVE_MULTI_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
+        MultiResourcePoolInstantiateManifestInput as NativeMultiResourcePoolInstantiateManifestInput,
+        MultiResourcePoolContributeManifestInput as NativeMultiResourcePoolContributeManifestInput,
+        MultiResourcePoolRedeemManifestInput as NativeMultiResourcePoolRedeemManifestInput,
+        MultiResourcePoolProtectedDepositManifestInput as NativeMultiResourcePoolProtectedDepositManifestInput,
+        MultiResourcePoolProtectedWithdrawManifestInput as NativeMultiResourcePoolProtectedWithdrawManifestInput,
+        MultiResourcePoolGetRedemptionValueManifestInput as NativeMultiResourcePoolGetRedemptionValueManifestInput,
+        MultiResourcePoolGetVaultAmountsManifestInput as NativeMultiResourcePoolGetVaultAmountsManifestInput,
     };
     pub use radix_engine_interface::prelude::{
         EventTypeIdentifier as NativeEventTypeIdentifier,
