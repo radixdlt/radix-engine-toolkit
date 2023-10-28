@@ -1884,6 +1884,68 @@ builder_alias! {
         instruction: CallMethod,
         args: NativeTwoResourcePoolGetVaultAmountsManifestInput {}
     },
+    // ====================
+    // Multi Resource Pool
+    // ====================
+    {
+        builder_method: multi_resource_pool_instantiate,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_INSTANTIATE_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolInstantiateManifestInput {
+            owner_role: (OwnerRole => NativeOwnerRole),
+            pool_manager_rule: (Arc<AccessRule> => NativeAccessRule),
+            resource_addresses: (Vec<Arc<Address>> => IndexSet<NativeResourceAddress>),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        }
+    },
+    {
+        builder_method: multi_resource_pool_contribute,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolContributeManifestInput {
+            buckets: (Vec<ManifestBuilderBucket> => Vec<NativeManifestBucket>)
+        }
+    },
+    {
+        builder_method: multi_resource_pool_redeem,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_REDEEM_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolRedeemManifestInput {
+            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: multi_resource_pool_protected_deposit,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolProtectedDepositManifestInput {
+            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: multi_resource_pool_protected_withdraw,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolProtectedWithdrawManifestInput {
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            amount: (Arc<Decimal> => NativeDecimal),
+            withdraw_strategy: (WithdrawStrategy => NativeWithdrawStrategy)
+        }
+    },
+    {
+        builder_method: multi_resource_pool_get_redemption_value,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_GET_REDEMPTION_VALUE_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolGetRedemptionValueManifestInput {
+            amount_of_pool_units: (Arc<Decimal> => NativeDecimal),
+        }
+    },
+    {
+        builder_method: multi_resource_pool_get_vault_amount,
+        method_ident: NATIVE_MULTI_RESOURCE_POOL_GET_VAULT_AMOUNTS_IDENT,
+        instruction: CallMethod,
+        args: NativeMultiResourcePoolGetVaultAmountsManifestInput {}
+    },
     // ================
     // Metadata Module
     // ================

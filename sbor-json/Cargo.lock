@@ -420,7 +420,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-common"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "bech32",
  "blake2",
@@ -441,7 +441,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-derive"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -452,7 +452,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-interface"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "bitflags",
  "const-sha1",
@@ -474,7 +474,7 @@ dependencies = [
 [[package]]
 name = "radix-engine-macros"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "paste",
  "proc-macro2",
@@ -527,7 +527,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 [[package]]
 name = "sbor"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "const-sha1",
  "hex",
@@ -541,7 +541,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "proc-macro2",
  "sbor-derive-common",
@@ -550,7 +550,7 @@ dependencies = [
 [[package]]
 name = "sbor-derive-common"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "const-sha1",
  "itertools",
@@ -576,7 +576,7 @@ dependencies = [
 [[package]]
 name = "scrypto-schema"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "bitflags",
  "radix-engine-common",
@@ -760,7 +760,7 @@ checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
 [[package]]
 name = "utils"
 version = "1.0.2-dev"
-source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=47fd79672d7f92967262a6975a493300db3d901b#47fd79672d7f92967262a6975a493300db3d901b"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=038ddee8b0f57aa90e36375c69946c4eb634efeb#038ddee8b0f57aa90e36375c69946c4eb634efeb"
 dependencies = [
  "indexmap 2.0.0-pre",
  "serde",
