@@ -314,7 +314,9 @@ mod native {
         CheckedMul as NativeCheckedMul,
         CheckedDiv as NativeCheckedDiv,
         CheckedNeg as NativeCheckedNeg,
-        CheckedTruncate as NativeCheckedTruncate
+        CheckedTruncate as NativeCheckedTruncate,
+
+        RoyaltyAmount as NativeRoyaltyAmount
     };
     pub use scrypto::address::{
         AddressBech32Decoder as NativeAddressBech32Decoder,
@@ -529,6 +531,27 @@ mod native {
     pub use radix_engine_interface::types::{
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
         BlueprintId as NativeBlueprintId
+    };
+    pub use radix_engine_interface::api::node_modules::royalty::{
+        COMPONENT_ROYALTY_SETTER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_ROLE,
+        COMPONENT_ROYALTY_SETTER_UPDATER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_UPDATER_ROLE,
+        COMPONENT_ROYALTY_LOCKER_ROLE as NATIVE_COMPONENT_ROYALTY_LOCKER_ROLE,
+        COMPONENT_ROYALTY_LOCKER_UPDATER_ROLE as NATIVE_COMPONENT_ROYALTY_LOCKER_UPDATER_ROLE,
+        COMPONENT_ROYALTY_CLAIMER_ROLE as NATIVE_COMPONENT_ROYALTY_CLAIMER_ROLE,
+        COMPONENT_ROYALTY_CLAIMER_UPDATER_ROLE as NATIVE_COMPONENT_ROYALTY_CLAIMER_UPDATER_ROLE,
+        COMPONENT_ROYALTY_BLUEPRINT as NATIVE_COMPONENT_ROYALTY_BLUEPRINT,
+        COMPONENT_ROYALTY_CREATE_IDENT as NATIVE_COMPONENT_ROYALTY_CREATE_IDENT,
+        COMPONENT_ROYALTY_SET_ROYALTY_IDENT as NATIVE_COMPONENT_ROYALTY_SET_ROYALTY_IDENT,
+        COMPONENT_ROYALTY_LOCK_ROYALTY_IDENT as NATIVE_COMPONENT_ROYALTY_LOCK_ROYALTY_IDENT,
+        COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT as NATIVE_COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT,
+        ComponentRoyaltyCreateInput as NativeComponentRoyaltyCreateInput,
+        ComponentRoyaltySetInput as NativeComponentRoyaltySetInput,
+        ComponentRoyaltyLockInput as NativeComponentRoyaltyLockInput,
+        ComponentClaimRoyaltiesInput as NativeComponentClaimRoyaltiesInput,
+        ComponentRoyaltyCreateOutput as NativeComponentRoyaltyCreateOutput,
+        ComponentRoyaltySetOutput as NativeComponentRoyaltySetOutput,
+        ComponentRoyaltyLockOutput as NativeComponentRoyaltyLockOutput,
+        ComponentClaimRoyaltiesOutput as NativeComponentClaimRoyaltiesOutput,
     };
     pub use radix_engine_interface::api::node_modules::auth::{
         RoleAssignmentCreateInput as NativeRoleAssignmentCreateInput,

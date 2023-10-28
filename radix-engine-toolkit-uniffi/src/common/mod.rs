@@ -23,3 +23,4 @@ pub mod metadata;
 pub mod module_id;
 pub mod non_fungible;
 pub mod olympia;
+pub mod royalty_amount;

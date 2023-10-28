@@ -266,3 +266,33 @@ impl FromWithNameRecordContext<NonFungibleGlobalId> for NativeNonFungibleGlobalI
         Ok(item.0)
     }
 }
+
+impl FromWithNameRecordContext<MetadataValue> for NativeMetadataValue {
+    fn from(item: MetadataValue, _: &NameRecord) -> Result<Self> {
+        item.to_native()
+    }
+}
+
+impl FromWithNameRecordContext<String> for String {
+    fn from(item: String, _: &NameRecord) -> Result<Self> {
+        Ok(item)
+    }
+}
+
+impl FromWithNameRecordContext<String> for NativeRoleKey {
+    fn from(item: String, _: &NameRecord) -> Result<Self> {
+        Ok(NativeRoleKey::new(item))
+    }
+}
+
+impl FromWithNameRecordContext<ModuleId> for NativeObjectModuleId {
+    fn from(item: ModuleId, _: &NameRecord) -> Result<Self> {
+        Ok(item.into())
+    }
+}
+
+impl FromWithNameRecordContext<RoyaltyAmount> for NativeRoyaltyAmount {
+    fn from(item: RoyaltyAmount, _: &NameRecord) -> Result<Self> {
+        Ok(item.into())
+    }
+}

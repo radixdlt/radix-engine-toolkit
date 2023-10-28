@@ -46,6 +46,7 @@ pub mod prelude {
     pub use crate::common::module_id::*;
     pub use crate::common::non_fungible::*;
     pub use crate::common::olympia::*;
+    pub use crate::common::royalty_amount::*;
 
     /* Traits */
     pub use crate::traits::*;

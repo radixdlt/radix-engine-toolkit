@@ -18,31 +18,32 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Enum)]
-pub enum ModuleId {
-    Main,
-    Metadata,
-    Royalty,
-    RoleAssignment,
+pub enum RoyaltyAmount {
+    Free,
+    Xrd { value: Arc<Decimal> },
+    Usd { value: Arc<Decimal> },
 }
 
-impl From<NativeObjectModuleId> for ModuleId {
-    fn from(value: NativeObjectModuleId) -> Self {
+impl From<NativeRoyaltyAmount> for RoyaltyAmount {
+    fn from(value: NativeRoyaltyAmount) -> Self {
         match value {
-            NativeObjectModuleId::Main => Self::Main,
-            NativeObjectModuleId::Metadata => Self::Metadata,
-            NativeObjectModuleId::Royalty => Self::Royalty,
-            NativeObjectModuleId::RoleAssignment => Self::RoleAssignment,
+            NativeRoyaltyAmount::Free => Self::Free,
+            NativeRoyaltyAmount::Xrd(amount) => Self::Xrd {
+                value: Arc::new(Decimal(amount)),
+            },
+            NativeRoyaltyAmount::Usd(amount) => Self::Usd {
+                value: Arc::new(Decimal(amount)),
+            },
         }
     }
 }
 
-impl From<ModuleId> for NativeObjectModuleId {
-    fn from(value: ModuleId) -> Self {
+impl From<RoyaltyAmount> for NativeRoyaltyAmount {
+    fn from(value: RoyaltyAmount) -> Self {
         match value {
-            ModuleId::Main => Self::Main,
-            ModuleId::Metadata => Self::Metadata,
-            ModuleId::Royalty => Self::Royalty,
-            ModuleId::RoleAssignment => Self::RoleAssignment,
+            RoyaltyAmount::Free => Self::Free,
+            RoyaltyAmount::Xrd { value: amount } => Self::Xrd(amount.0),
+            RoyaltyAmount::Usd { value: amount } => Self::Usd(amount.0),
         }
     }
 }

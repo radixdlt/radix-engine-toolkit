@@ -44,7 +44,7 @@ pub enum Emitter {
     },
     Method {
         address: Arc<Address>,
-        object_module_id: ObjectModuleId,
+        object_module_id: ModuleId,
     },
 }
 
