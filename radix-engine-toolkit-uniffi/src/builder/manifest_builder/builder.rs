@@ -1494,6 +1494,139 @@ builder_alias! {
             badge: (ResourceOrNonFungible => NativeResourceOrNonFungible),
         }
     },
+    // ==========
+    // Validator
+    // ==========
+    {
+        builder_method: validator_register,
+        method_ident: NATIVE_VALIDATOR_REGISTER_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorRegisterInput {}
+    },
+    {
+        builder_method: validator_unregister,
+        method_ident: NATIVE_VALIDATOR_UNREGISTER_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorUnregisterInput {}
+    },
+    {
+        builder_method: validator_stake_as_owner,
+        method_ident: NATIVE_VALIDATOR_STAKE_AS_OWNER_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorStakeAsOwnerManifestInput {
+            stake: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: validator_stake,
+        method_ident: NATIVE_VALIDATOR_STAKE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorStakeManifestInput {
+            stake: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: validator_unstake,
+        method_ident: NATIVE_VALIDATOR_UNSTAKE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorUnstakeManifestInput {
+            stake_unit_bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: validator_claim_xrd,
+        method_ident: NATIVE_VALIDATOR_CLAIM_XRD_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorClaimXrdManifestInput {
+            bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: validator_update_key,
+        method_ident: NATIVE_VALIDATOR_UPDATE_KEY_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorUpdateKeyInput {
+            key: (PublicKey => NativeSecp256k1PublicKey)
+        }
+    },
+    {
+        builder_method: validator_update_fee,
+        method_ident: NATIVE_VALIDATOR_UPDATE_FEE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorUpdateFeeInput {
+            new_fee_factor: (Arc<Decimal> => NativeDecimal)
+        }
+    },
+    {
+        builder_method: validator_update_accept_delegated_stake,
+        method_ident: NATIVE_VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorUpdateAcceptDelegatedStakeInput {
+            accept_delegated_stake: (bool => bool)
+        }
+    },
+    {
+        builder_method: validator_accepts_delegated_stake,
+        method_ident: NATIVE_VALIDATOR_ACCEPTS_DELEGATED_STAKE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorAcceptsDelegatedStakeInput {}
+    },
+    {
+        builder_method: validator_total_stake_xrd_amount,
+        method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorTotalStakeXrdAmountInput {}
+    },
+    {
+        builder_method: validator_total_stake_unit_supply,
+        method_ident: NATIVE_VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorTotalStakeUnitSupplyInput {}
+    },
+    {
+        builder_method: validator_get_redemption_value,
+        method_ident: NATIVE_VALIDATOR_GET_REDEMPTION_VALUE_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorGetRedemptionValueInput {
+            amount_of_stake_units: (Arc<Decimal> => NativeDecimal)
+        }
+    },
+    {
+        builder_method: validator_signal_protocol_update_readiness,
+        method_ident: NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS,
+        instruction: CallMethod,
+        args: NativeValidatorSignalProtocolUpdateReadinessInput {
+            vote: (String => String)
+        }
+    },
+    {
+        builder_method: validator_get_protocol_update_readiness,
+        method_ident: NATIVE_VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorGetProtocolUpdateReadinessInput {}
+    },
+    {
+        builder_method: validator_lock_owner_stake_units,
+        method_ident: NATIVE_VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorLockOwnerStakeUnitsManifestInput {
+            stake_unit_bucket: (ManifestBuilderBucket => NativeManifestBucket)
+        }
+    },
+    {
+        builder_method: validator_start_unlock_owner_stake_units,
+        method_ident: NATIVE_VALIDATOR_START_UNLOCK_OWNER_STAKE_UNITS_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorStartUnlockOwnerStakeUnitsInput {
+            requested_stake_unit_amount: (Arc<Decimal> => NativeDecimal)
+        }
+    },
+    {
+        builder_method: validator_finish_unlock_owner_stake_units,
+        method_ident: NATIVE_VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT,
+        instruction: CallMethod,
+        args: NativeValidatorFinishUnlockOwnerStakeUnitsInput {}
+    },
     // ================
     // Metadata Module
     // ================

@@ -279,6 +279,12 @@ impl FromWithNameRecordContext<String> for String {
     }
 }
 
+impl FromWithNameRecordContext<bool> for bool {
+    fn from(item: bool, _: &NameRecord) -> Result<Self> {
+        Ok(item)
+    }
+}
+
 impl FromWithNameRecordContext<String> for NativeRoleKey {
     fn from(item: String, _: &NameRecord) -> Result<Self> {
         Ok(NativeRoleKey::new(item))
@@ -294,5 +300,15 @@ impl FromWithNameRecordContext<ModuleId> for NativeObjectModuleId {
 impl FromWithNameRecordContext<RoyaltyAmount> for NativeRoyaltyAmount {
     fn from(item: RoyaltyAmount, _: &NameRecord) -> Result<Self> {
         Ok(item.into())
+    }
+}
+
+impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
+    fn from(item: PublicKey, _: &NameRecord) -> Result<Self> {
+        if let NativePublicKey::Secp256k1(public_key) = NativePublicKey::try_from(item)? {
+            Ok(public_key)
+        } else {
+            Err(RadixEngineToolkitError::InvalidPublicKey)
+        }
     }
 }

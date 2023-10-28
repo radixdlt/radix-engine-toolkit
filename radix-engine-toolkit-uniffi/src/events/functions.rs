@@ -253,11 +253,6 @@ pub struct BurnNonFungibleResourceEvent {
     pub ids: Vec<NonFungibleLocalId>,
 }
 
-#[derive(Clone, Debug, Record)]
-pub struct LockFeeEvent {
-    pub amount: Arc<Decimal>,
-}
-
 #[derive(Clone, Debug, Enum)]
 pub enum WithdrawResourceEvent {
     Amount { value: Arc<Decimal> },
@@ -501,16 +496,6 @@ impl FromNative for ValidatorInfo {
         Self {
             key: value.key.into(),
             stake: Arc::new(Decimal(value.stake)),
-        }
-    }
-}
-
-impl FromNative for LockFeeEvent {
-    type Native = NativeLockFeeEvent;
-
-    fn from_native(value: NativeLockFeeEvent) -> Self {
-        Self {
-            amount: Arc::new(Decimal(value.amount)),
         }
     }
 }
