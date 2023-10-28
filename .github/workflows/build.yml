@@ -5,9 +5,9 @@ on:
       - fix/*
       - feature/*
       - release/*
+      - misc/*
       - develop
       - main
-      - linux-builds-fix
 jobs:
   build:
     runs-on: ${{ matrix.build-target.runner }}
