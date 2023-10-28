@@ -635,7 +635,71 @@ impl ManifestBuilder {
         })
     }
 
-    /* Faucet */
+    pub fn package_publish(
+        self: Arc<Self>,
+        code: Vec<u8>,
+        definition: Vec<u8>,
+        metadata: MetadataInit,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let code_blob = NativeManifestBlobRef(native_hash(&code).0);
+            builder.blobs.push(code);
+
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(NATIVE_PACKAGE_PACKAGE),
+                blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
+                function_name: NATIVE_PACKAGE_PUBLISH_WASM_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativePackagePublishWasmManifestInput {
+                        code: code_blob,
+                        definition: native_manifest_decode(&definition)?,
+                        metadata: metadata.to_native()?,
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
+
+    pub fn package_publish_advanced(
+        self: Arc<Self>,
+        owner_role: OwnerRole,
+        code: Vec<u8>,
+        definition: Vec<u8>,
+        metadata: MetadataInit,
+        package_address: Option<ManifestBuilderAddressReservation>,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            let code_blob = NativeManifestBlobRef(native_hash(&code).0);
+            builder.blobs.push(code);
+            let address_reservation = match package_address {
+                Some(reservation) => Some(
+                    *builder
+                        .name_record
+                        .get_address_reservation(&reservation.name)?,
+                ),
+                None => None,
+            };
+
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(NATIVE_PACKAGE_PACKAGE),
+                blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
+                function_name: NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT.to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativePackagePublishWasmAdvancedManifestInput {
+                        code: code_blob,
+                        definition: native_manifest_decode(&definition)?,
+                        metadata: metadata.to_native()?,
+                        owner_role: owner_role.to_native()?,
+                        package_address: address_reservation
+                    }
+                ),
+            };
+            builder.instructions.push(instruction);
+            Ok(())
+        })
+    }
 
     pub fn faucet_free_xrd(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
@@ -1687,6 +1751,15 @@ builder_alias! {
         method_ident: NATIVE_IDENTITY_SECURIFY_IDENT,
         instruction: CallMethod,
         args: NativeIdentitySecurifyToSingleBadgeInput {}
+    },
+    // ========
+    // Package
+    // ========
+    {
+        builder_method: package_claim_royalty,
+        method_ident: NATIVE_PACKAGE_CLAIM_ROYALTIES_IDENT,
+        instruction: CallMethod,
+        args: NativePackageClaimRoyaltiesInput {}
     },
     // ================
     // Metadata Module
