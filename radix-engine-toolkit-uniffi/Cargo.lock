@@ -1203,7 +1203,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-core"
-version = "1.0.0"
+version = "1.0.3"
 dependencies = [
  "bech32",
  "cargo_toml",
@@ -1224,7 +1224,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-uniffi"
-version = "1.0.0"
+version = "1.0.3"
 dependencies = [
  "hex",
  "paste",
@@ -1413,7 +1413,7 @@ dependencies = [
 
 [[package]]
 name = "sbor-json"
-version = "1.0.0"
+version = "1.0.3"
 dependencies = [
  "bech32",
  "radix-engine-common",
