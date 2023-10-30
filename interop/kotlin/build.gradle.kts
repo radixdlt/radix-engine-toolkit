@@ -37,8 +37,6 @@ publishing {
 
             from(components["java"])
             pom {
-                name = "Radix engine toolkit"
-                url = "https://github.com/radixdlt/radix-engine-toolkit"
                 licenses {
                     license {
                         name = "Apache License, Version 2.0"
