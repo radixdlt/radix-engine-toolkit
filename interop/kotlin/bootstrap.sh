@@ -71,5 +71,5 @@ cp settings.gradle.kts $library_name/settings.gradle.kts
 toml=../../radix-engine-toolkit-uniffi/Cargo.toml
 ret_version=$(grep -m 1 version $toml | awk -F= '{print $2}' | tr -d '" ')
 commit_hash=$(git rev-parse --short HEAD)
-version="$ret_version-$commit_hash"
+version="$ret_version"
 echo -e "ret-version=$version" >> $library_name/gradle.properties
