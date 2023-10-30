@@ -336,7 +336,7 @@ jobs:
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
-  publish-kotlin-maven:
+  publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -360,10 +360,68 @@ jobs:
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build publish
+          arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
           build-root-directory: interop/kotlin/ret-kotlin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-kotlin-maven-central:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
+        with:
+          version: 2
+      - name: Checkout actions-oidc-debugger
+        uses: actions/checkout@v3
+        with:
+          repository: github/actions-oidc-debugger
+          ref: main
+          token: ${{ github.token }}
+          path: ./.github/actions/actions-oidc-debugger
+      - name: Debug OIDC Claims
+        uses: ./.github/actions/actions-oidc-debugger
+        with:
+          audience: 'https://github.com/github'
+      - name: Configure AWS credentials to fetch secrets
+        uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
+        with:
+          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
+          aws-region: eu-west-2
+          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch AWS secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
+            GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run: |
+          ./bootstrap.sh
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.0.2
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      - name: Get GPG key to sign
+        working-directory: interop/kotlin/ret-kotlin
+        run: |
+          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
+          cp rdx-secring.gpg lib/rdx-secring.gpg
+      - name: Build and publish Kotlin
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest

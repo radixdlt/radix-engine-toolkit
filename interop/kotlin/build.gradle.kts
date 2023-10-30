@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.8.21"
     `java-library`
     `maven-publish`
+    `signing`
 }
 
 repositories {
@@ -22,12 +23,33 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
+        create<MavenPublication>("mavenGithub") {
             groupId = "com.radixdlt"
             artifactId = "radix-engine-toolkit-kotlin"
             version = providers.gradleProperty("ret-version").getOrNull()
 
             from(components["java"])
+        }
+        create<MavenPublication>("mavenCentral") {
+            groupId = "com.radixdlt"
+            artifactId = "radix-engine-toolkit-kotlin"
+            version = providers.gradleProperty("ret-version").getOrNull()
+
+            from(components["java"])
+
+            licenses {
+                license {
+                    name = "Apache License, Version 2.0"
+                    url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+            }
+
+            pom.withXml {
+                def licensesNode = asNode().appendNode('licenses')
+                def licenseNode = licensesNode.appendNode('license')
+                licenseNode.appendNode('name', 'Radix Eula')
+                licenseNode.appendNode('url', 'https://www.radixdlt.com/terms/genericEULA')
+            }
         }
     }
 
@@ -40,5 +62,18 @@ publishing {
                 password = System.getenv("GITHUB_TOKEN")
             }
         }
+
+        maven {
+            name = "mavenCentral"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.findProperty("ossrhUsername") as String?
+                password = project.findProperty("ossrhPassword") as String?
+            }
+        }
     }
+}
+
+signing {
+    sign(publishing.publications["mavenCentral"])
 }
