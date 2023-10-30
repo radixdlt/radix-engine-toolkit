@@ -36,15 +36,18 @@ publishing {
             version = providers.gradleProperty("ret-version").getOrNull()
 
             from(components["java"])
-
-            licenses {
-                license {
-                    name = "Apache License, Version 2.0"
-                    url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                }
-                license {
-                    name = "Radix Eula"
-                    url = "https://www.radixdlt.com/terms/genericEULA"
+            pom {
+                name = "Radix engine toolkit"
+                url = "https://github.com/radixdlt/radix-engine-toolkit"
+                licenses {
+                    license {
+                        name = "Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                    eula {
+                        name = "Radix Eula"
+                        url = "https://www.radixdlt.com/terms/genericEULA"
+                    }
                 }
             }
         }
