@@ -37,6 +37,21 @@ publishing {
 
             from(components["java"])
             pom {
+                name = "Radix Engine Toolkit"
+                description = "The Radix Engine Toolkit is a library that exposes a set of functions to help clients written in kotlin to compile and decompile transactions, perform SBOR encoding and decoding, derive virtual account and virtual badge addresses, and other functionalities"
+                url = "https://github.com/radixdlt/radix-engine-toolkit"
+                developers {
+                    developer {
+                        id = "0xOmarA"
+                        name = "Omar Abdulla"
+                        email = "omar.abdulla@rdx.works"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com:radixdlt/radix-engine-toolkit.git"
+                    developerConnection = "scm:git:ssh://github.com:radixdlt/radix-engine-toolkit.git"
+                    url = "https://github.com/radixdlt/radix-engine-toolkit.git"
+                }
                 licenses {
                     license {
                         name = "Apache License, Version 2.0"
