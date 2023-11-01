@@ -1,4 +1,4 @@
-name: Release
+name: Release kotlin
 on:
   push:
     branches:
@@ -77,7 +77,7 @@ jobs:
           DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
           OUTPUT_DIRECTORY="./uniffi-bindings"
 
-          for LANGUAGE in "swift" "kotlin" "python" 
+          for LANGUAGE in "kotlin" 
           do
             cargo run \
               --manifest-path="./uniffi-bindgen/Cargo.toml" -- \
@@ -153,5 +153,5 @@ jobs:
       - name: Build and publish Kotlin
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Pret-version=${{ inputs.retVersion }} -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
