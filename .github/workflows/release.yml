@@ -1,0 +1,153 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      retVersion:
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.build-target.runner }}
+    continue-on-error: false
+    strategy:
+      matrix:
+        build-target:
+          # Linux Targets
+          - crate: radix-engine-toolkit-uniffi
+            target-triple: x86_64-unknown-linux-gnu
+            runner: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Rust Target
+        run: |
+          # Install Nightly 
+          rustup toolchain install nightly
+
+          # Update both toolchains
+          rustup update stable
+          rustup update nightly
+
+          # Add target
+          rustup target install ${{ matrix.build-target.target-triple }}
+          rustup +nightly target install ${{ matrix.build-target.target-triple }}
+
+          # Install the nightly toolchain of the target of this machine.
+          DEFAULT_TARGET=$(rustc -vV | sed -n 's|host: ||p')
+          rustup component add rust-src --toolchain nightly-$DEFAULT_TARGET
+      - name: Build
+        working-directory: ${{ matrix.build-target.crate }}
+        # env:
+        #   SCCACHE_GHA_ENABLED: "true"
+        #   RUSTC_WRAPPER: "sccache"
+        run: |
+          cargo build \
+            --target ${{ matrix.build-target.target-triple }} \
+            --release
+      - name: Clean Build Artifacts
+        run: find "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
+          path: "./${{ matrix.build-target.crate }}/target/${{ matrix.build-target.target-triple }}/release"
+  generate-uniffi-bindings:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Clone uniffi-bindgen-cs
+        uses: actions/checkout@v3
+        with:
+          repository: radixdlt/uniffi-bindgen-cs
+          path: uniffi-bindgen-cs
+          submodules: 'recursive'
+          ref: f1a6ef67449b47028fd5c3d8e5c6d3b80ddefd2b
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Generate the Bindings
+        run: |
+          # Generating the path of the dynamic library
+          DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
+          OUTPUT_DIRECTORY="./uniffi-bindings"
+
+          for LANGUAGE in "swift" "kotlin" "python" 
+          do
+            cargo run \
+              --manifest-path="./uniffi-bindgen/Cargo.toml" -- \
+              generate ./radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+              --language $LANGUAGE \
+              --out-dir $OUTPUT_DIRECTORY \
+              --lib-file $DYNAMIC_LIBRARY_PATH
+          done
+
+          cargo run \
+            --manifest-path="./uniffi-bindgen-cs/bindgen/Cargo.toml" -- \
+            ./radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: uniffi-bindings
+          path: uniffi-bindings
+  publish-kotlin-maven-central:
+    needs: [generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Install AWS CLI
+        uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
+        with:
+          version: 2
+      - name: Checkout actions-oidc-debugger
+        uses: actions/checkout@v3
+        with:
+          repository: github/actions-oidc-debugger
+          ref: main
+          token: ${{ github.token }}
+          path: ./.github/actions/actions-oidc-debugger
+      - name: Debug OIDC Claims
+        uses: ./.github/actions/actions-oidc-debugger
+        with:
+          audience: 'https://github.com/github'
+      - name: Configure AWS credentials to fetch secrets
+        uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
+        with:
+          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
+          aws-region: eu-west-2
+          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch AWS secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
+            GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Create Kotlin Library
+        working-directory: interop/kotlin
+        run: |
+          ./bootstrap.sh
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.4
+          arguments: wrapper -p interop/kotlin/ret-kotlin
+      - name: Get GPG key to sign
+        working-directory: interop/kotlin/ret-kotlin
+        run: |
+          aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
+          cp rdx-secring.gpg lib/rdx-secring.gpg
+      - name: Build and publish Kotlin
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
+          build-root-directory: interop/kotlin/ret-kotlin
