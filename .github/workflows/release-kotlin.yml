@@ -164,7 +164,6 @@ jobs:
         working-directory: interop/kotlin
         run: |
           ./bootstrap.sh
-          rm lib/gradle.properties 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
