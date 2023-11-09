@@ -1,13 +1,9 @@
 name: Release kotlin
 on:
-  push:
-    branches:
-      - chore/add-release-pipeline
   workflow_dispatch:
     inputs:
       retVersion:
         required: true
-        default: "test"
 
 jobs:
   build:
