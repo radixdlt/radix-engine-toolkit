@@ -51,11 +51,15 @@ jobs:
           # Install the nightly toolchain of the target of this machine.
           DEFAULT_TARGET=$(rustc -vV | sed -n 's|host: ||p')
           rustup component add rust-src --toolchain nightly-$DEFAULT_TARGET
+      - name: Install windows build dependencies
+        if: ${{ matrix.build-target.target-triple == 'x86_64-pc-windows-gnu' }}
+        run: |
+          sudo apt-get install -y mingw-w64
+          echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
+          echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
       - name: Build
         working-directory: ${{ matrix.build-target.crate }}
-        # env:
-        #   SCCACHE_GHA_ENABLED: "true"
-        #   RUSTC_WRAPPER: "sccache"
         run: |
           cargo build \
             --target ${{ matrix.build-target.target-triple }} \
