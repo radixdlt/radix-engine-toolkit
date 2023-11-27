@@ -27,12 +27,12 @@ jobs:
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.3
     - name: Run tests
-      run: cargo nextest run
+      run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
       env:
         # Required env-var to increase the heapsize when using `kotlinc`.
         JAVA_OPTS: "-Xmx8g"
         # Required for Kotlin Uniffi tests
-        CLASSPATH: "./jna-5.13.0.jar"
+        # CLASSPATH: "./jna-5.13.0.jar"
         # Enable sccache
         SCCACHE_GHA_ENABLED: "true"
         RUSTC_WRAPPER: "sccache"
