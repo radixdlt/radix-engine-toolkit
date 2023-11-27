@@ -15,165 +15,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use sbor::*;
+use scrypto::prelude::*;
+use transaction::errors::*;
+use transaction::model::*;
+use transaction::validation::*;
 
-use crate::prelude::*;
+use crate::models::transaction_hash::TransactionHash;
 
-//=============
-// Intent Hash
-//=============
-
-#[typeshare::typeshare]
-pub type IntentHashInput = SerializableIntent;
-#[typeshare::typeshare]
-pub type IntentHashOutput = SerializableTransactionHash;
-
-pub struct IntentHash;
-impl<'f> Function<'f> for IntentHash {
-    type Input = IntentHashInput;
-    type Output = IntentHashOutput;
-
-    fn handle(
-        intent: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let intent = intent.to_native(*intent.header.network_id)?;
-        let hash = radix_engine_toolkit_core::functions::intent::hash(&intent)
-            .map_err(|error| {
-                InvocationHandlingError::EncodeError(
-                    debug_string(error),
-                    debug_string(intent),
-                )
-            })?;
-        Ok(hash.into())
-    }
+pub fn hash(intent: &IntentV1) -> Result<TransactionHash, PrepareError> {
+    intent
+        .prepare()
+        .map(|prepared| prepared.intent_hash())
+        .map(|hash| TransactionHash::new(hash, intent.header.network_id))
 }
 
-export_function!(IntentHash as intent_hash);
-export_jni_function!(IntentHash as intentHash);
-
-//================
-// Intent Compile
-//================
-
-#[typeshare::typeshare]
-pub type IntentCompileInput = SerializableIntent;
-#[typeshare::typeshare]
-pub type IntentCompileOutput = SerializableBytes;
-
-pub struct IntentCompile;
-impl<'f> Function<'f> for IntentCompile {
-    type Input = IntentCompileInput;
-    type Output = IntentCompileOutput;
-
-    fn handle(
-        intent: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let intent = intent.to_native(*intent.header.network_id)?;
-        let compile =
-            radix_engine_toolkit_core::functions::intent::compile(&intent)
-                .map_err(|error| {
-                    InvocationHandlingError::EncodeError(
-                        debug_string(error),
-                        debug_string(intent),
-                    )
-                })?;
-        Ok(compile.into())
-    }
+pub fn compile(intent: &IntentV1) -> Result<Vec<u8>, EncodeError> {
+    intent.to_payload_bytes()
 }
 
-export_function!(IntentCompile as intent_compile);
-export_jni_function!(IntentCompile as intentCompile);
-
-//==================
-// Intent Decompile
-//==================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct IntentDecompileInput {
-    pub compiled: SerializableBytes,
-    pub instructions_kind: SerializableInstructionsKind,
-}
-#[typeshare::typeshare]
-pub type IntentDecompileOutput = SerializableIntent;
-
-pub struct IntentDecompile;
-impl<'a> Function<'a> for IntentDecompile {
-    type Input = IntentDecompileInput;
-    type Output = IntentDecompileOutput;
-
-    fn handle(
-        IntentDecompileInput {
-            compiled,
-            instructions_kind,
-        }: Self::Input,
-    ) -> Result<Self::Output, InvocationHandlingError> {
-        let intent = radix_engine_toolkit_core::functions::intent::decompile(
-            &**compiled,
-        )
-        .map_err(|error| {
-            InvocationHandlingError::EncodeError(
-                debug_string(error),
-                debug_string(compiled),
-            )
-        })?;
-
-        let intent = SerializableIntent::from_native(
-            &intent,
-            intent.header.network_id,
-            instructions_kind,
-        )?;
-
-        Ok(intent)
-    }
+pub fn decompile<T>(payload_bytes: T) -> Result<IntentV1, DecodeError>
+where
+    T: AsRef<[u8]>,
+{
+    IntentV1::from_payload_bytes(payload_bytes.as_ref())
 }
 
-export_function!(IntentDecompile as intent_decompile);
-export_jni_function!(IntentDecompile as intentDecompile);
-
-//============================
-// Intent Statically Validate
-//============================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct IntentStaticallyValidateInput {
-    pub intent: SerializableIntent,
-    pub validation_config: SerializableValidationConfig,
+pub fn statically_validate(
+    intent: &IntentV1,
+    validation_config: ValidationConfig,
+) -> Result<(), TransactionValidationError> {
+    let validator = NotarizedTransactionValidator::new(validation_config);
+    intent
+        .prepare()
+        .map_err(TransactionValidationError::PrepareError)
+        .and_then(|prepared| validator.validate_intent_v1(&prepared))
 }
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind", content = "value")]
-pub enum IntentStaticallyValidateOutput {
-    Valid,
-    Invalid(String),
-}
-
-pub struct IntentStaticallyValidate;
-impl<'a> Function<'a> for IntentStaticallyValidate {
-    type Input = IntentStaticallyValidateInput;
-    type Output = IntentStaticallyValidateOutput;
-
-    fn handle(
-        IntentStaticallyValidateInput {
-            intent,
-            validation_config,
-        }: Self::Input,
-    ) -> Result<Self::Output, InvocationHandlingError> {
-        let intent = intent.to_native(*intent.header.network_id)?;
-        let validation_config = validation_config.into();
-
-        match radix_engine_toolkit_core::functions::intent::statically_validate(
-            &intent,
-            validation_config,
-        ) {
-            Ok(..) => Ok(Self::Output::Valid),
-            Err(error) => Ok(Self::Output::Invalid(debug_string(error))),
-        }
-    }
-}
-
-export_function!(IntentStaticallyValidate as intent_statically_validate);
-export_jni_function!(IntentStaticallyValidate as intentStaticallyValidate);

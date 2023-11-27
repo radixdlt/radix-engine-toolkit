@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::PublicKey;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 use scrypto::prelude::{hash, Hash};
 use transaction::prelude::{
     Ed25519PrivateKey, Secp256k1PrivateKey, SignatureV1,

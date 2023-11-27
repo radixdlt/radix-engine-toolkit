@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_common::types::*;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 use transaction::prelude::{
     Ed25519PrivateKey, Secp256k1PrivateKey, TransactionBuilder,
     TransactionHeaderV1, TransactionManifestV1,

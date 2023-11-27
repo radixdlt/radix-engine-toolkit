@@ -15,18 +15,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod execution;
-pub mod handler;
 pub mod information;
+
+pub mod derive;
+
+pub mod execution;
 pub mod instructions;
 pub mod intent;
-pub mod macros;
 pub mod manifest;
-pub mod manifest_sbor;
 pub mod notarized_transaction;
-pub mod scrypto_sbor;
 pub mod signed_intent;
-pub mod traits;
+
+pub mod manifest_sbor;
+pub mod scrypto_sbor;
+
+pub mod address;
+pub mod events;
 pub mod utils;

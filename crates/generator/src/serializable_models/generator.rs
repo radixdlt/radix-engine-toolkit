@@ -16,11 +16,11 @@
 // under the License.
 
 use indexmap::{indexmap, IndexMap};
-use radix_engine_toolkit::models::cryptographic::public_key::{
+use radix_engine_toolkit_json::models::cryptographic::public_key::{
     SerializableEd25519PublicKey, SerializablePublicKey,
     SerializableSecp256k1PublicKey,
 };
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 
 pub fn generate_serializable_model_examples(
 ) -> IndexMap<&'static str, IndexMap<String, Vec<serde_json::Value>>> {

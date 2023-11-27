@@ -15,179 +15,288 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use radix_engine_interface::blueprints::access_controller::*;
+use radix_engine_interface::blueprints::account::*;
+use sbor::*;
+use scrypto::prelude::*;
+use transaction::errors::*;
+use transaction::prelude::*;
+use transaction::validation::*;
 
-use crate::prelude::*;
+use crate::instruction_visitor::core::error::InstructionVisitorError;
+use crate::instruction_visitor::core::traverser::traverse;
+use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
 
-//===============
-// Manifest Hash
-//===============
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct ManifestHashInput {
-    pub manifest: SerializableTransactionManifest,
-    pub network_id: SerializableU8,
+pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
+    compile(manifest).map(scrypto::prelude::hash)
 }
-#[typeshare::typeshare]
-pub type ManifestHashOutput = SerializableHash;
 
-pub struct ManifestHash;
-impl<'f> Function<'f> for ManifestHash {
-    type Input = ManifestHashInput;
-    type Output = ManifestHashOutput;
+pub fn compile(
+    manifest: &TransactionManifestV1,
+) -> Result<Vec<u8>, EncodeError> {
+    manifest_encode(manifest)
+}
 
-    fn handle(
-        ManifestHashInput {
-            manifest,
-            network_id,
-        }: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let manifest = manifest.to_native(*network_id)?;
-        let hash =
-            radix_engine_toolkit_core::functions::manifest::hash(&manifest)
-                .map_err(|error| {
-                    InvocationHandlingError::EncodeError(
-                        debug_string(error),
-                        debug_string(manifest),
-                    )
-                })?;
-        Ok(hash.into())
+pub fn decompile<T>(
+    payload_bytes: T,
+) -> Result<TransactionManifestV1, DecodeError>
+where
+    T: AsRef<[u8]>,
+{
+    manifest_decode(payload_bytes.as_ref())
+}
+
+pub fn statically_validate(
+    manifest: &TransactionManifestV1,
+) -> Result<(), TransactionValidationError> {
+    NotarizedTransactionValidator::validate_instructions_v1(
+        &manifest.instructions,
+    )
+}
+
+pub fn modify(
+    manifest: &TransactionManifestV1,
+    mut modifications: TransactionManifestModifications,
+) -> Result<TransactionManifestV1, ManifestModificationError> {
+    // The modifications made to the manifest are done in the following order:
+    // 1. Adding Assertions.
+    // 2. Adding the lock fee instructions.
+    // 3. Adding the access controller instructions
+    let mut instructions = manifest.instructions.clone();
+
+    // We sort the assertions array in descending order according to the
+    // instruction index so that we avoid worrying about the instruction shift
+    // as we insert them.
+    modifications
+        .add_assertions
+        .sort_by(|(b, _), (a, _)| a.cmp(b));
+
+    // Vec::insert panics if the insertion index is larger than the length of
+    // the vector. So, we check for this and handle is gracefully.
+    modifications
+        .add_assertions
+        .first()
+        .map_or(Ok(()), |(index, _)| {
+            if *index > instructions.len() {
+                Err(ManifestModificationError::AssertionIndexOutOfBounds {
+                    assertion_index: *index,
+                    instructions_length: instructions.len(),
+                })
+            } else {
+                Ok(())
+            }
+        })?;
+
+    // Adding the assertions.
+    for (instruction_index, assertion) in
+        modifications.add_assertions.into_iter()
+    {
+        let assertion_instruction = InstructionV1::from(assertion);
+        instructions.insert(instruction_index, assertion_instruction);
     }
-}
 
-export_function!(ManifestHash as manifest_hash);
-export_jni_function!(ManifestHash as manifestHash);
+    // Adding the lock fee instruction. This depends if the first instruction in
+    // the manifest is a call to withdraw from an account or not. If yes,
+    // then we transform the call to `withdraw` to
+    // a `lock_fee_and_withdraw`. Same thing happens for the non-fungible
+    // variant of the method. If the first method is not a withdraw method,
+    // then we just insert a new instruction that locks a fee against said
+    // account.
+    if let Some((lock_fee_account, lock_fee_amount)) =
+        modifications.add_lock_fee
+    {
+        match instructions.first_mut() {
+            Some(InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(address),
+                method_name,
+                args,
+            }) if *address == GlobalAddress::from(lock_fee_account)
+                && (method_name == ACCOUNT_WITHDRAW_IDENT
+                    || method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT) =>
+            {
+                match method_name.as_str() {
+                    ACCOUNT_WITHDRAW_IDENT => {
+                        let AccountWithdrawInput {
+                            amount: withdraw_amount,
+                            resource_address: withdraw_resource_address,
+                        } = manifest_encode(args)
+                            .map_err(|error| ManifestModificationError::SborEncodeError {
+                                value: args.clone(),
+                                error,
+                            })
+                            .and_then(|encoded| {
+                                manifest_decode(&encoded).map_err(|_| {
+                                    ManifestModificationError::InvalidArguments {
+                                        method_name: method_name.to_owned(),
+                                        arguments: args.clone(),
+                                    }
+                                })
+                            })?;
 
-//==================
-// Manifest Compile
-//==================
+                        *method_name =
+                            ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT.to_owned();
+                        *args = to_manifest_value_and_unwrap!(
+                            &AccountLockFeeAndWithdrawInput {
+                                amount_to_lock: lock_fee_amount,
+                                resource_address: withdraw_resource_address,
+                                amount: withdraw_amount
+                            }
+                        );
+                    }
+                    ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT => {
+                        let AccountWithdrawNonFungiblesInput {
+                            ids: withdraw_ids,
+                            resource_address: withdraw_resource_address,
+                        } = manifest_encode(args)
+                            .map_err(|error| ManifestModificationError::SborEncodeError {
+                                value: args.clone(),
+                                error,
+                            })
+                            .and_then(|encoded| {
+                                manifest_decode(&encoded).map_err(|_| {
+                                    ManifestModificationError::InvalidArguments {
+                                        method_name: method_name.to_owned(),
+                                        arguments: args.clone(),
+                                    }
+                                })
+                            })?;
 
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct ManifestCompileInput {
-    pub manifest: SerializableTransactionManifest,
-    pub network_id: SerializableU8,
-}
-#[typeshare::typeshare]
-pub type ManifestCompileOutput = SerializableBytes;
-
-pub struct ManifestCompile;
-impl<'f> Function<'f> for ManifestCompile {
-    type Input = ManifestCompileInput;
-    type Output = ManifestCompileOutput;
-
-    fn handle(
-        ManifestCompileInput {
-            manifest,
-            network_id,
-        }: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let manifest = manifest.to_native(*network_id)?;
-        let compile =
-            radix_engine_toolkit_core::functions::manifest::compile(&manifest)
-                .map_err(|error| {
-                    InvocationHandlingError::EncodeError(
-                        debug_string(error),
-                        debug_string(manifest),
-                    )
-                })?;
-        Ok(compile.into())
-    }
-}
-
-export_function!(ManifestCompile as manifest_compile);
-export_jni_function!(ManifestCompile as manifestCompile);
-
-//====================
-// Manifest Decompile
-//====================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct ManifestDecompileInput {
-    pub compiled: SerializableBytes,
-    pub network_id: SerializableU8,
-    pub instructions_kind: SerializableInstructionsKind,
-}
-#[typeshare::typeshare]
-pub type ManifestDecompileOutput = SerializableTransactionManifest;
-
-pub struct ManifestDecompile;
-impl<'a> Function<'a> for ManifestDecompile {
-    type Input = ManifestDecompileInput;
-    type Output = ManifestDecompileOutput;
-
-    fn handle(
-        ManifestDecompileInput {
-            compiled,
-            network_id,
-            instructions_kind,
-        }: Self::Input,
-    ) -> Result<Self::Output, InvocationHandlingError> {
-        let manifest =
-            radix_engine_toolkit_core::functions::manifest::decompile(
-                &**compiled,
-            )
-            .map_err(|error| {
-                InvocationHandlingError::EncodeError(
-                    debug_string(error),
-                    debug_string(compiled),
+                        *method_name =
+                            ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
+                                .to_owned();
+                        *args = to_manifest_value_and_unwrap!(
+                            &AccountLockFeeAndWithdrawNonFungiblesInput {
+                                amount_to_lock: lock_fee_amount,
+                                resource_address: withdraw_resource_address,
+                                ids: withdraw_ids
+                            }
+                        );
+                    }
+                    _ => unreachable!(),
+                }
+            }
+            _ => {
+                // There are a few ways for us to get to this point here:
+                // 1. There is no first instruction.
+                // 2. There is a first instruction but it's not a CallMethod.
+                // 3. There is a call method instruction but it's not to the
+                //    same account that we want to lock fees against.
+                // 4. There is a call method instruction to the account that we
+                //    want to lock fees against but it's not to the account
+                //    withdraw methods.
+                instructions.insert(
+                    0,
+                    InstructionV1::CallMethod {
+                        address: DynamicGlobalAddress::Static(
+                            lock_fee_account.into(),
+                        ),
+                        method_name: ACCOUNT_LOCK_FEE_IDENT.to_owned(),
+                        args: to_manifest_value_and_unwrap!(
+                            &AccountLockFeeInput {
+                                amount: lock_fee_amount
+                            }
+                        ),
+                    },
                 )
-            })?;
+            }
+        };
+    };
 
-        let manifest = SerializableTransactionManifest::from_native(
-            &manifest,
-            *network_id,
-            instructions_kind,
-        )?;
+    // Adding the access controller proofs.
+    let instructions = modifications
+        .add_access_controller_proofs
+        .into_iter()
+        .map(|component_address| InstructionV1::CallMethod {
+            address: DynamicGlobalAddress::Static(component_address.into()),
+            method_name: ACCESS_CONTROLLER_CREATE_PROOF_IDENT.to_owned(),
+            args: to_manifest_value_and_unwrap!(
+                &AccessControllerCreateProofInput {}
+            ),
+        })
+        .chain(instructions)
+        .collect::<Vec<_>>();
 
-        Ok(manifest)
-    }
+    Ok(TransactionManifestV1 {
+        instructions,
+        blobs: manifest.blobs.clone(),
+    })
 }
 
-export_function!(ManifestDecompile as manifest_decompile);
-export_jni_function!(ManifestDecompile as manifestDecompile);
-
-//==============================
-// Manifest Statically Validate
-//==============================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct ManifestStaticallyValidateInput {
-    pub manifest: SerializableTransactionManifest,
-    pub network_id: SerializableU8,
+#[allow(clippy::type_complexity)]
+pub fn parse_transfer_information(
+    manifest: &TransactionManifestV1,
+    allow_lock_fee_instructions: bool,
+) -> Result<
+    Option<(
+        ComponentAddress,
+        HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
+    )>,
+    InstructionVisitorError,
+> {
+    let mut transfer_visitor =
+        TransferTransactionTypeVisitor::new(allow_lock_fee_instructions);
+    traverse(&manifest.instructions, &mut [&mut transfer_visitor])?;
+    Ok(transfer_visitor.output())
 }
 
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind", content = "value")]
-pub enum ManifestStaticallyValidateOutput {
-    Valid,
-    Invalid(String),
+#[derive(Clone, Debug)]
+pub struct TransactionManifestModifications {
+    /// The [`ComponentAddress`]es of the access controllers to add create
+    /// proof instructions in the manifest for.
+    pub add_access_controller_proofs: Vec<ComponentAddress>,
+
+    /// The account to lock a fee against and the amount of fee to lock.
+    pub add_lock_fee: Option<(ComponentAddress, Decimal)>,
+
+    /// A vector of the assertions to add to the manifest.
+    pub add_assertions: Vec<(usize, Assertion)>,
 }
 
-pub struct ManifestStaticallyValidate;
-impl<'a> Function<'a> for ManifestStaticallyValidate {
-    type Input = ManifestStaticallyValidateInput;
-    type Output = ManifestStaticallyValidateOutput;
+#[derive(Clone, Debug)]
+pub enum Assertion {
+    Amount {
+        resource_address: ResourceAddress,
+        amount: Decimal,
+    },
+    Ids {
+        resource_address: ResourceAddress,
+        ids: BTreeSet<NonFungibleLocalId>,
+    },
+}
 
-    fn handle(
-        ManifestStaticallyValidateInput {
-            manifest,
-            network_id,
-        }: Self::Input,
-    ) -> Result<Self::Output, InvocationHandlingError> {
-        let manifest = manifest.to_native(*network_id)?;
-
-        match radix_engine_toolkit_core::functions::manifest::statically_validate(&manifest) {
-            Ok(..) => Ok(Self::Output::Valid),
-            Err(error) => Ok(Self::Output::Invalid(debug_string(error))),
+impl From<Assertion> for InstructionV1 {
+    fn from(value: Assertion) -> Self {
+        match value {
+            Assertion::Amount {
+                resource_address,
+                amount,
+            } => InstructionV1::AssertWorktopContains {
+                resource_address,
+                amount,
+            },
+            Assertion::Ids {
+                resource_address,
+                ids,
+            } => InstructionV1::AssertWorktopContainsNonFungibles {
+                resource_address,
+                ids: ids.into_iter().collect(),
+            },
         }
     }
 }
 
-export_function!(ManifestStaticallyValidate as manifest_statically_validate);
-export_jni_function!(ManifestStaticallyValidate as manifestStaticallyValidate);
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum ManifestModificationError {
+    InvalidArguments {
+        method_name: String,
+        arguments: ManifestValue,
+    },
+    AssertionIndexOutOfBounds {
+        assertion_index: usize,
+        instructions_length: usize,
+    },
+    SborEncodeError {
+        value: ManifestValue,
+        error: EncodeError,
+    },
+}

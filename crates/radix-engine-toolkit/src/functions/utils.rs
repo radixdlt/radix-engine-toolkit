@@ -15,138 +15,55 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
-use schemars::JsonSchema;
+use bech32::{FromBase32, Variant};
 use scrypto::prelude::*;
-use serde::{Deserialize, Serialize};
+use transaction::prelude::*;
 
-#[typeshare::typeshare]
-pub type UtilsKnownAddressesInput = SerializableU8;
+pub fn decode_transaction_id(
+    transaction_id: &str,
+    network_definition: &NetworkDefinition,
+) -> Result<Hash, TransactionHashBech32DecodeError> {
+    // Decode the hash string
+    let (hrp, data, variant) = bech32::decode(transaction_id)
+        .map_err(TransactionHashBech32DecodeError::Bech32mDecodingError)?;
 
-#[typeshare::typeshare]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub struct UtilsKnownAddressesOutput {
-    pub resource_addresses: ResourceAddresses,
-    pub package_addresses: PackageAddresses,
-    pub component_addresses: ComponentAddresses,
-}
+    // Validate the HRP
+    let hrp_set = HrpSet::from(network_definition);
+    if [
+        hrp_set.transaction_intent,
+        hrp_set.signed_transaction_intent,
+        hrp_set.notarized_transaction,
+        hrp_set.round_update_transaction,
+        hrp_set.system_transaction,
+        hrp_set.ledger_transaction,
+    ]
+    .contains(&hrp)
+    {
+        Ok(())
+    } else {
+        Err(TransactionHashBech32DecodeError::InvalidHrp)
+    }?;
 
-pub struct UtilsKnownAddress;
-impl<'f> Function<'f> for UtilsKnownAddress {
-    type Input = UtilsKnownAddressesInput;
-    type Output = UtilsKnownAddressesOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let network_id = *input;
-
-        let resource_addresses = construct_addresses! {
-            ResourceAddresses,
-            network_id,
-            [
-                xrd,
-                secp256k1_signature_virtual_badge,
-                ed25519_signature_virtual_badge,
-                package_of_direct_caller_virtual_badge,
-                global_caller_virtual_badge,
-                system_transaction_badge,
-                package_owner_badge,
-                validator_owner_badge,
-                account_owner_badge,
-                identity_owner_badge,
-            ]
-        };
-        let package_addresses = construct_addresses! {
-            PackageAddresses,
-            network_id,
-            [
-                package_package,
-                resource_package,
-                account_package,
-                identity_package,
-                consensus_manager_package,
-                access_controller_package,
-                pool_package,
-                transaction_processor_package,
-                metadata_module_package,
-                royalty_module_package,
-                role_assignment_module_package,
-                genesis_helper_package,
-                faucet_package,
-            ]
-        };
-        let component_addresses = construct_addresses! {
-            ComponentAddresses,
-            network_id,
-            [
-                consensus_manager,
-                genesis_helper,
-                faucet,
-            ]
-        };
-
-        Ok(Self::Output {
-            component_addresses,
-            package_addresses,
-            resource_addresses,
-        })
-    }
-}
-
-#[typeshare::typeshare]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub struct ResourceAddresses {
-    pub xrd: SerializableNodeId,
-    pub secp256k1_signature_virtual_badge: SerializableNodeId,
-    pub ed25519_signature_virtual_badge: SerializableNodeId,
-    pub package_of_direct_caller_virtual_badge: SerializableNodeId,
-    pub global_caller_virtual_badge: SerializableNodeId,
-    pub system_transaction_badge: SerializableNodeId,
-    pub package_owner_badge: SerializableNodeId,
-    pub validator_owner_badge: SerializableNodeId,
-    pub account_owner_badge: SerializableNodeId,
-    pub identity_owner_badge: SerializableNodeId,
-}
-
-#[typeshare::typeshare]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub struct PackageAddresses {
-    pub package_package: SerializableNodeId,
-    pub resource_package: SerializableNodeId,
-    pub account_package: SerializableNodeId,
-    pub identity_package: SerializableNodeId,
-    pub consensus_manager_package: SerializableNodeId,
-    pub access_controller_package: SerializableNodeId,
-    pub pool_package: SerializableNodeId,
-    pub transaction_processor_package: SerializableNodeId,
-    pub metadata_module_package: SerializableNodeId,
-    pub royalty_module_package: SerializableNodeId,
-    pub role_assignment_module_package: SerializableNodeId,
-    pub genesis_helper_package: SerializableNodeId,
-    pub faucet_package: SerializableNodeId,
-}
-
-#[typeshare::typeshare]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-pub struct ComponentAddresses {
-    pub consensus_manager: SerializableNodeId,
-    pub genesis_helper: SerializableNodeId,
-    pub faucet: SerializableNodeId,
-}
-
-macro_rules! construct_addresses {
-    ($struct_ident: expr, $network_id: expr, [$($field: ident),* $(,)?]) => {
-        paste::paste! {
-            $struct_ident {
-                $(
-                    $field: SerializableNodeId::from_global_address([< $field:upper >], $network_id),
-                )*
-            }
+    // Validate the Bech32 variant to ensure that is is Bech32m
+    match variant {
+        Variant::Bech32m => {}
+        _ => {
+            return Err(TransactionHashBech32DecodeError::InvalidVariant(
+                variant,
+            ))
         }
     };
-}
-use construct_addresses;
 
-export_function!(UtilsKnownAddress as utils_known_addresses);
-export_jni_function!(UtilsKnownAddress as utilsKnownAddresses);
+    // Convert the data to u8 from u5.
+    let data = Vec::<u8>::from_base32(&data)
+        .map_err(TransactionHashBech32DecodeError::Bech32mDecodingError)?;
+
+    // Validate the length
+    let hash = data
+        .try_into()
+        .map(Hash)
+        .map_err(|_| TransactionHashBech32DecodeError::InvalidLength)?;
+
+    // Validation complete, return data bytes
+    Ok(hash)
+}

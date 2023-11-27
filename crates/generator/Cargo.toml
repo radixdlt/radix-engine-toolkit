@@ -16,8 +16,8 @@ radix-engine-common = { workspace = true }
 radix-engine-interface = { workspace = true }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
-radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+radix-engine-toolkit-json = { path = "../radix-engine-toolkit-json" }
 
 # Serde dependencies
 serde = { version = "1.0.163" }

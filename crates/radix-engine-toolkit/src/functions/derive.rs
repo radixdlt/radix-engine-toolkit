@@ -15,421 +15,234 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
-use radix_engine_common::prelude::PublicKey;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use transaction::model::TransactionHashBech32Encoder;
+use bech32::{FromBase32, ToBase32};
+use scrypto::prelude::*;
 
-//================================================
-// Derive Virtual Account Address from Public Key
-//================================================
+use crate::utils;
 
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveVirtualAccountAddressFromPublicKeyInput {
-    pub public_key: SerializablePublicKey,
-    pub network_id: SerializableU8,
-}
-#[typeshare::typeshare]
-pub type DeriveVirtualAccountAddressFromPublicKeyOutput = SerializableNodeId;
-
-pub struct DeriveVirtualAccountAddressFromPublicKey;
-impl<'a> Function<'a> for DeriveVirtualAccountAddressFromPublicKey {
-    type Input = DeriveVirtualAccountAddressFromPublicKeyInput;
-    type Output = DeriveVirtualAccountAddressFromPublicKeyOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveVirtualAccountAddressFromPublicKeyInput {
-            public_key,
-            network_id,
-        } = input;
-
-        let virtual_account_address =
-            radix_engine_toolkit_core::functions::derive::virtual_account_address_from_public_key(
-                &public_key,
-            );
-
-        Ok(SerializableNodeId(SerializableNodeIdInternal {
-            network_id: *network_id,
-            node_id: virtual_account_address.into_node_id(),
-        }))
-    }
-}
-
-export_function!(
-    DeriveVirtualAccountAddressFromPublicKey
-        as derive_virtual_account_address_from_public_key
-);
-export_jni_function!(
-    DeriveVirtualAccountAddressFromPublicKey
-        as deriveVirtualAccountAddressFromPublicKey
-);
-
-//=================================================
-// Derive Virtual Identity Address from Public Key
-//=================================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveVirtualIdentityAddressFromPublicKeyInput {
-    pub public_key: SerializablePublicKey,
-    pub network_id: SerializableU8,
-}
-#[typeshare::typeshare]
-pub type DeriveVirtualIdentityAddressFromPublicKeyOutput = SerializableNodeId;
-
-pub struct DeriveVirtualIdentityAddressFromPublicKey;
-impl<'a> Function<'a> for DeriveVirtualIdentityAddressFromPublicKey {
-    type Input = DeriveVirtualIdentityAddressFromPublicKeyInput;
-    type Output = DeriveVirtualIdentityAddressFromPublicKeyOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveVirtualIdentityAddressFromPublicKeyInput {
-            public_key,
-            network_id,
-        } = input;
-
-        let virtual_identity_address =
-            radix_engine_toolkit_core::functions::derive::virtual_identity_address_from_public_key(
-                &public_key,
-            );
-
-        Ok(SerializableNodeId(SerializableNodeIdInternal {
-            network_id: *network_id,
-            node_id: virtual_identity_address.into_node_id(),
-        }))
-    }
-}
-
-export_function!(
-    DeriveVirtualIdentityAddressFromPublicKey
-        as derive_virtual_identity_address_from_public_key
-);
-export_jni_function!(
-    DeriveVirtualIdentityAddressFromPublicKey
-        as deriveVirtualIdentityAddressFromPublicKey
-);
-
-//=================================================================
-// Derive Virtual Signature Non-Fungible Global Id from Public Key
-//=================================================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput {
-    pub public_key: SerializablePublicKey,
-    pub network_id: SerializableU8,
-}
-pub type DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyOutput =
-    SerializableNonFungibleGlobalId;
-
-pub struct DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey;
-impl<'a> Function<'a>
-    for DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey
+pub fn virtual_account_address_from_public_key<P>(
+    public_key: &P,
+) -> ComponentAddress
+where
+    P: Into<PublicKey> + Clone,
 {
-    type Input = DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput;
-    type Output = DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyOutput;
+    ComponentAddress::virtual_account_from_public_key(public_key)
+}
 
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKeyInput {
-            public_key,
-            network_id,
-        } = input;
+pub fn virtual_identity_address_from_public_key<P>(
+    public_key: &P,
+) -> ComponentAddress
+where
+    P: Into<PublicKey> + Clone,
+{
+    ComponentAddress::virtual_identity_from_public_key(public_key)
+}
 
-        let non_fungible_global_id =
-            radix_engine_toolkit_core::functions::derive::virtual_signature_non_fungible_global_id_from_public_key(
-                &PublicKey::from(public_key),
-            );
+pub fn virtual_signature_non_fungible_global_id_from_public_key<P>(
+    public_key: &P,
+) -> NonFungibleGlobalId
+where
+    P: HasPublicKeyHash,
+{
+    NonFungibleGlobalId::from_public_key(public_key)
+}
 
-        Ok(SerializableNonFungibleGlobalId(
-            SerializableNonFungibleGlobalIdInternal {
-                network_id: *network_id,
-                non_fungible_global_id,
+pub fn virtual_account_address_from_olympia_account_address<S>(
+    olympia_account_address: S,
+) -> Result<ComponentAddress, DerivationError>
+where
+    S: AsRef<str>,
+{
+    public_key_from_olympia_account_address(olympia_account_address)
+        .map(|public_key| virtual_account_address_from_public_key(&public_key))
+}
+
+pub fn resource_address_from_olympia_resource_address<S>(
+    olympia_resource_address: S,
+) -> Result<ResourceAddress, DerivationError>
+where
+    S: AsRef<str>,
+{
+    let olympia_resource_address = olympia_resource_address.as_ref();
+    let (_, data, variant) = bech32::decode(olympia_resource_address)
+        .map_err(DerivationError::Bech32DecodeError)?;
+    if let bech32::Variant::Bech32 = variant {
+        Ok(())
+    } else {
+        Err(DerivationError::InvalidOlympiaBech32Variant {
+            expected: bech32::Variant::Bech32,
+            actual: bech32::Variant::Bech32m,
+        })
+    }?;
+
+    // Convert from 5 bits to 8 bits.
+    let data = Vec::<u8>::from_base32(&data)
+        .map_err(DerivationError::Bech32BaseConversionError)?;
+
+    // Check the length of the data to ensure that it's valid.
+    let prefix = data.first();
+    let length = data.len();
+
+    match (prefix, length) {
+        (Some(0x01), 1) => Ok(scrypto::prelude::XRD),
+        (Some(0x03), 27) => {
+            let hash = scrypto::prelude::hash(&data);
+
+            let mut bytes = [0u8; 30];
+            bytes[0] = EntityType::GlobalFungibleResourceManager as u8;
+            bytes[1..].copy_from_slice(&hash.0[..29]);
+
+            Ok(ResourceAddress::new_or_panic(bytes))
+        }
+        _ => Err(DerivationError::InvalidOlympiaAddressLength {
+            expected: 27,
+            actual: length,
+        }),
+    }
+}
+
+pub fn public_key_from_olympia_account_address<S>(
+    olympia_account_address: S,
+) -> Result<Secp256k1PublicKey, DerivationError>
+where
+    S: AsRef<str>,
+{
+    let olympia_account_address = olympia_account_address.as_ref();
+
+    // Ensure that the second and third characters in the string are d and x
+    // which are present in all account HRPs in Olympia regardless of the
+    // network.
+    match (
+        olympia_account_address.chars().nth(1),
+        olympia_account_address.chars().nth(2),
+    ) {
+        (Some('d'), Some('x')) => Ok(()),
+        (Some(char1), Some(char2)) => Err(
+            DerivationError::InvalidCharsInOlympiaAddressEntitySpecifier {
+                expected: ('d', 'x'),
+                actual: (char1, char2),
             },
-        ))
+        ),
+        _ => Err(DerivationError::InvalidOlympiaAddressLength {
+            expected: 65,
+            actual: olympia_account_address.len(),
+        }),
+    }?;
+
+    let (_, data, variant) = bech32::decode(olympia_account_address)
+        .map_err(DerivationError::Bech32DecodeError)?;
+    if let bech32::Variant::Bech32 = variant {
+        Ok(())
+    } else {
+        Err(DerivationError::InvalidOlympiaBech32Variant {
+            expected: bech32::Variant::Bech32,
+            actual: bech32::Variant::Bech32m,
+        })
+    }?;
+
+    let mut data = Vec::<u8>::from_base32(&data)
+        .map_err(DerivationError::Bech32BaseConversionError)?;
+
+    // Check the length of the data to ensure that it's a public key. Length
+    // should be 1 + 33 where the added 1 byte is because of the 0x04 prefix
+    // that public keys have.
+    const EXPECTED_LENGTH: usize = 34;
+    match data.first() {
+        Some(0x04) => {
+            data.remove(0);
+            data.try_into().map(Secp256k1PublicKey).map_err(|data| {
+                DerivationError::InvalidOlympiaAddressLength {
+                    expected: EXPECTED_LENGTH,
+                    actual: data.len(),
+                }
+            })
+        }
+        Some(prefix) => Err(DerivationError::InvalidOlympiaAddressPrefix {
+            expected: 0x04,
+            actual: *prefix,
+        }),
+        None => Err(DerivationError::InvalidOlympiaAddressLength {
+            expected: EXPECTED_LENGTH,
+            actual: data.len(),
+        }),
     }
 }
 
-export_function!(
-    DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey
-        as derive_virtual_signature_non_fungible_global_id_from_public_key
-);
-export_jni_function!(
-    DeriveVirtualSignatureNonFungibleGlobalIdFromPublicKey
-        as deriveVirtualSignatureNonFungibleGlobalIdFromPublicKey
-);
-
-//=============================================================
-// Derive Virtual Account Address from Olympia Account Address
-//=============================================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddressInput {
-    pub olympia_account_address: String,
-    pub network_id: SerializableU8,
+pub fn olympia_account_address_from_public_key(
+    public_key: &Secp256k1PublicKey,
+    olympia_network: OlympiaNetwork,
+) -> String {
+    let public_key = {
+        let mut vector = vec![0x04];
+        vector.extend(public_key.0);
+        vector
+    };
+    bech32::encode(
+        olympia_network.hrp(),
+        public_key.to_base32(),
+        bech32::Variant::Bech32,
+    )
+    .expect("Should not panic since all data is trusted.")
 }
-#[typeshare::typeshare]
-pub type DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput =
-    SerializableNodeId;
 
-pub struct DeriveVirtualAccountAddressFromOlympiaAccountAddress;
-impl<'a> Function<'a> for DeriveVirtualAccountAddressFromOlympiaAccountAddress {
-    type Input = DeriveVirtualAccountAddressFromOlympiaAccountAddressInput;
-    type Output = DeriveVirtualAccountAddressFromOlympiaAccountAddressOutput;
+pub fn node_address_from_public_key(
+    public_key: &Secp256k1PublicKey,
+    network_id: u8,
+) -> String {
+    let hrp = {
+        let network_identifier =
+            utils::network_definition_from_network_id(network_id).hrp_suffix;
+        format!("node_{network_identifier}")
+    };
 
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveVirtualAccountAddressFromOlympiaAccountAddressInput {
-            olympia_account_address,
-            network_id,
-        } = input;
+    bech32::encode(&hrp, public_key.0.to_base32(), bech32::Variant::Bech32m)
+        .expect("Should not panic since all data is trusted.")
+}
 
-        let component_address =
-            radix_engine_toolkit_core::functions::derive::virtual_account_address_from_olympia_account_address(
-                olympia_account_address,
-            ).map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
+pub enum OlympiaNetwork {
+    Mainnet,
+    Stokenet,
+    Releasenet,
+    RCNet,
+    Milestonenet,
+    Devopsnet,
+    Sandpitnet,
+    Localnet,
+}
 
-        Ok(SerializableNodeId(SerializableNodeIdInternal {
-            network_id: *network_id,
-            node_id: component_address.into_node_id(),
-        }))
+impl OlympiaNetwork {
+    pub const fn hrp(&self) -> &str {
+        match self {
+            Self::Mainnet => "rdx",
+            Self::Stokenet => "tdx",
+            Self::Releasenet => "tdx3",
+            Self::RCNet => "tdx4",
+            Self::Milestonenet => "tdx5",
+            Self::Devopsnet => "tdx6",
+            Self::Sandpitnet => "tdx7",
+            Self::Localnet => "ddx",
+        }
     }
 }
 
-export_function!(
-    DeriveVirtualAccountAddressFromOlympiaAccountAddress
-        as derive_virtual_account_address_from_olympia_account_address
-);
-export_jni_function!(
-    DeriveVirtualAccountAddressFromOlympiaAccountAddress
-        as deriveVirtualAccountAddressFromOlympiaAccountAddress
-);
-
-//=======================================================
-// Derive Resource Address from Olympia Resource Address
-//=======================================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveResourceAddressFromOlympiaResourceAddressInput {
-    pub olympia_resource_address: String,
-    pub network_id: SerializableU8,
+#[derive(Debug)]
+pub enum DerivationError {
+    InvalidCharsInOlympiaAddressEntitySpecifier {
+        expected: (char, char),
+        actual: (char, char),
+    },
+    InvalidOlympiaAddressLength {
+        expected: usize,
+        actual: usize,
+    },
+    InvalidOlympiaBech32Variant {
+        expected: bech32::Variant,
+        actual: bech32::Variant,
+    },
+    InvalidOlympiaAddressPrefix {
+        expected: u8,
+        actual: u8,
+    },
+    Bech32DecodeError(bech32::Error),
+    Bech32BaseConversionError(bech32::Error),
 }
-#[typeshare::typeshare]
-pub type DeriveResourceAddressFromOlympiaResourceAddressOutput =
-    SerializableNodeId;
-
-pub struct DeriveResourceAddressFromOlympiaResourceAddress;
-impl<'a> Function<'a> for DeriveResourceAddressFromOlympiaResourceAddress {
-    type Input = DeriveResourceAddressFromOlympiaResourceAddressInput;
-    type Output = DeriveResourceAddressFromOlympiaResourceAddressOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveResourceAddressFromOlympiaResourceAddressInput {
-            olympia_resource_address,
-            network_id,
-        } = input;
-
-        let component_address =
-            radix_engine_toolkit_core::functions::derive::resource_address_from_olympia_resource_address(
-                olympia_resource_address,
-            ).map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
-
-        Ok(SerializableNodeId(SerializableNodeIdInternal {
-            network_id: *network_id,
-            node_id: component_address.into_node_id(),
-        }))
-    }
-}
-
-export_function!(
-    DeriveResourceAddressFromOlympiaResourceAddress
-        as derive_resource_address_from_olympia_resource_address
-);
-export_jni_function!(
-    DeriveResourceAddressFromOlympiaResourceAddress
-        as deriveResourceAddressFromOlympiaResourceAddress
-);
-
-//================================================
-// Derive Public Key from Olympia Account Address
-//================================================
-
-#[typeshare::typeshare]
-pub type DerivePublicKeyFromOlympiaAccountAddressInput = String;
-#[typeshare::typeshare]
-pub type DerivePublicKeyFromOlympiaAccountAddressOutput =
-    SerializableSecp256k1PublicKey;
-
-pub struct DerivePublicKeyFromOlympiaAccountAddress;
-impl<'a> Function<'a> for DerivePublicKeyFromOlympiaAccountAddress {
-    type Input = DerivePublicKeyFromOlympiaAccountAddressInput;
-    type Output = DerivePublicKeyFromOlympiaAccountAddressOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let public_key =
-            radix_engine_toolkit_core::functions::derive::public_key_from_olympia_account_address(
-                input,
-            )
-            .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
-
-        Ok(public_key.into())
-    }
-}
-
-export_function!(
-    DerivePublicKeyFromOlympiaAccountAddress
-        as derive_public_key_from_olympia_account_address
-);
-export_jni_function!(
-    DerivePublicKeyFromOlympiaAccountAddress
-        as derivePublicKeyFromOlympiaAccountAddress
-);
-
-//================================================
-// Derive Olympia Account from Public Key Address
-//================================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveOlympiaAccountAddressFromPublicKeyInput {
-    pub olympia_network: SerializableOlympiaNetwork,
-    pub public_key: SerializableSecp256k1PublicKey,
-}
-#[typeshare::typeshare]
-pub type DeriveOlympiaAccountAddressFromPublicKeyOutput = String;
-
-pub struct DeriveOlympiaAccountAddressFromPublicKey;
-impl<'a> Function<'a> for DeriveOlympiaAccountAddressFromPublicKey {
-    type Input = DeriveOlympiaAccountAddressFromPublicKeyInput;
-    type Output = DeriveOlympiaAccountAddressFromPublicKeyOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveOlympiaAccountAddressFromPublicKeyInput {
-            olympia_network,
-            public_key,
-        } = input;
-
-        let olympia_account_address =
-            radix_engine_toolkit_core::functions::derive::olympia_account_address_from_public_key(
-                &public_key.into(),
-                olympia_network.into(),
-            );
-
-        Ok(olympia_account_address)
-    }
-}
-
-export_function!(
-    DeriveOlympiaAccountAddressFromPublicKey
-        as derive_olympia_account_address_from_public_key
-);
-export_jni_function!(
-    DeriveOlympiaAccountAddressFromPublicKey
-        as deriveOlympiaAccountAddressFromPublicKey
-);
-
-//=============================================
-// Derive Node Address from Public Key Address
-//=============================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveNodeAddressFromPublicKeyInput {
-    pub network_id: SerializableU8,
-    pub public_key: SerializableSecp256k1PublicKey,
-}
-#[typeshare::typeshare]
-pub type DeriveNodeAddressFromPublicKeyOutput = String;
-
-pub struct DeriveNodeAddressFromPublicKey;
-impl<'a> Function<'a> for DeriveNodeAddressFromPublicKey {
-    type Input = DeriveNodeAddressFromPublicKeyInput;
-    type Output = DeriveNodeAddressFromPublicKeyOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let DeriveNodeAddressFromPublicKeyInput {
-            network_id,
-            public_key,
-        } = input;
-
-        let node_address =
-            radix_engine_toolkit_core::functions::derive::node_address_from_public_key(
-                &public_key.into(),
-                *network_id,
-            );
-
-        Ok(node_address)
-    }
-}
-
-export_function!(
-    DeriveNodeAddressFromPublicKey as derive_node_address_from_public_key
-);
-export_jni_function!(
-    DeriveNodeAddressFromPublicKey as deriveNodeAddressFromPublicKey
-);
-
-//===============================================
-// Derive The Intent Identifier from Intent Hash
-//===============================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct DeriveBech32mTransactionIdentifierFromIntentHashInput {
-    pub network_id: SerializableU8,
-    pub hash: SerializableHash,
-}
-#[typeshare::typeshare]
-pub type DeriveBech32mTransactionIdentifierFromIntentHashOutput = String;
-
-pub struct DeriveBech32mTransactionIdentifierFromIntentHash;
-impl<'a> Function<'a> for DeriveBech32mTransactionIdentifierFromIntentHash {
-    type Input = DeriveBech32mTransactionIdentifierFromIntentHashInput;
-    type Output = DeriveBech32mTransactionIdentifierFromIntentHashOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, InvocationHandlingError> {
-        // TODO: Refactor to the core crate.
-        let DeriveBech32mTransactionIdentifierFromIntentHashInput {
-            network_id,
-            hash,
-        } = input;
-
-        let intent_hash =
-            transaction::prelude::IntentHash(scrypto::prelude::Hash(hash.0));
-        let network_definition =
-            radix_engine_toolkit_core::utils::network_definition_from_network_id(*network_id);
-        let encoder = TransactionHashBech32Encoder::new(&network_definition);
-        let encoded = encoder.encode(&intent_hash).unwrap();
-
-        Ok(encoded)
-    }
-}
-
-export_function!(
-    DeriveBech32mTransactionIdentifierFromIntentHash
-        as derive_bech32m_transaction_identifier_from_intent_hash
-);
-export_jni_function!(
-    DeriveBech32mTransactionIdentifierFromIntentHash
-        as deriveBech32mTransactionIdentifierFromIntentHash
-);

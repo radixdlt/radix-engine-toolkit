@@ -17,7 +17,7 @@
 
 use super::traits::FunctionExample;
 use indexmap::{indexmap, IndexMap};
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 
 #[allow(clippy::type_complexity)]
 pub fn generate_function_examples() -> IndexMap<
