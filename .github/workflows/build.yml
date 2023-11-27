@@ -20,6 +20,8 @@ on:
         type: string
         required: true
         description: The version to use for the C# package
+  push:
+    # Temporary due to workflow dispatch restrictions
 env:
   CARGO_TERM_COLOR: always
 jobs:
