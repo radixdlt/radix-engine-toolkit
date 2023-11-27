@@ -135,9 +135,9 @@ impl MetadataValue {
             },
             NativeMetadataValue::GlobalAddress(value) => {
                 Self::GlobalAddressValue {
-                    value: Arc::new(Address::from_typed_node_id(
-                        value, network_id,
-                    )),
+                    value: Arc::new(
+                        Address::from_typed_node_id(value, network_id)
+                    ),
                 }
             }
             NativeMetadataValue::PublicKey(value) => Self::PublicKeyValue {
@@ -202,9 +202,9 @@ impl MetadataValue {
                     value: value
                         .into_iter()
                         .map(|value| {
-                            Arc::new(Address::from_typed_node_id(
-                                value, network_id,
-                            ))
+                            Arc::new(
+                                Address::from_typed_node_id(value, network_id)
+                            )
                         })
                         .collect(),
                 }
@@ -394,10 +394,10 @@ pub fn metadata_sbor_decode(
     network_id: u8,
 ) -> Result<MetadataValue> {
     let native = match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
-            native_scrypto_decode::<NativeMetadataValue>(&bytes)
-                .map_err(Into::into)
-        }
+        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => native_scrypto_decode::<
+            NativeMetadataValue,
+        >(&bytes)
+        .map_err(Into::into),
         Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
             native_manifest_decode::<NativeMetadataValue>(&bytes)
                 .map_err(Into::into)

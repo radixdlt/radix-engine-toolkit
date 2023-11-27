@@ -39,14 +39,15 @@ impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsHash {
 impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for InstructionsConvert {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         get_serializable_instructions().map(|instructions| {
-            let other_kind = match instructions {
-                SerializableInstructions::Parsed(..) => {
-                    SerializableInstructionsKind::String
-                }
-                SerializableInstructions::String(..) => {
-                    SerializableInstructionsKind::Parsed
-                }
-            };
+            let other_kind =
+                match instructions {
+                    SerializableInstructions::Parsed(..) => {
+                        SerializableInstructionsKind::String
+                    }
+                    SerializableInstructions::String(..) => {
+                        SerializableInstructionsKind::Parsed
+                    }
+                };
 
             Self::Input {
                 instructions,

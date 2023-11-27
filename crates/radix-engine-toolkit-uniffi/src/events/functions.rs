@@ -716,9 +716,9 @@ impl FromNative for OneResourcePoolContributionEvent {
     fn from_native(native: Self::Native) -> Self {
         Self {
             pool_units_minted: Arc::new(Decimal(native.pool_units_minted)),
-            amount_of_resources_contributed: Arc::new(Decimal(
-                native.amount_of_resources_contributed,
-            )),
+            amount_of_resources_contributed: Arc::new(
+                Decimal(native.amount_of_resources_contributed)
+            ),
         }
     }
 }

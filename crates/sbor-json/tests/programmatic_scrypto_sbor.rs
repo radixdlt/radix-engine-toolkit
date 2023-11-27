@@ -134,12 +134,13 @@ pub fn value_with_no_address_has_no_network_mismatch() {
 #[test]
 pub fn value_with_one_address_has_no_network_mismatch() {
     // Arrange
-    let value = ProgrammaticScryptoValue::Array {
-        element_value_kind: ProgrammaticScryptoValueKind::Reference,
-        elements: vec![ProgrammaticScryptoValue::Reference {
-            value: SerializableNodeId(XRD.into_node_id(), 1),
-        }],
-    };
+    let value =
+        ProgrammaticScryptoValue::Array {
+            element_value_kind: ProgrammaticScryptoValueKind::Reference,
+            elements: vec![ProgrammaticScryptoValue::Reference {
+                value: SerializableNodeId(XRD.into_node_id(), 1),
+            }],
+        };
 
     // Act
     let contains_network_mismatch = value_contains_network_mismatch(&value);

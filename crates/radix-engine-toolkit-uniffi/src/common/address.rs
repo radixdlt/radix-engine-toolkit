@@ -24,11 +24,12 @@ pub struct Address(CoreTypedNodeId, u8);
 impl Address {
     #[uniffi::constructor]
     pub fn new(address: String) -> Result<Arc<Self>> {
-        let network_id = core_network_id_from_address_string(&address).ok_or(
-            RadixEngineToolkitError::FailedToExtractNetwork {
-                address: address.clone(),
-            },
-        )?;
+        let network_id =
+            core_network_id_from_address_string(&address).ok_or(
+                RadixEngineToolkitError::FailedToExtractNetwork {
+                    address: address.clone(),
+                },
+            )?;
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let bech32_decoder =

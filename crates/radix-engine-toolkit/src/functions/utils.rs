@@ -48,9 +48,9 @@ pub fn decode_transaction_id(
     match variant {
         Variant::Bech32m => {}
         _ => {
-            return Err(TransactionHashBech32DecodeError::InvalidVariant(
-                variant,
-            ))
+            return Err(
+                TransactionHashBech32DecodeError::InvalidVariant(variant)
+            )
         }
     };
 

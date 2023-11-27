@@ -147,18 +147,18 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
                         }
                     }
                     ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT => {
-                        if let Some(AccountSetDefaultDepositRuleInput {
-                            default,
-                        }) = to_manifest_type(args)
+                        if let Some(
+                            AccountSetDefaultDepositRuleInput { default }
+                        ) = to_manifest_type(args)
                         {
                             self.default_deposit_rule_changes
                                 .insert(component_address, default);
                         }
                     }
                     ACCOUNT_ADD_AUTHORIZED_DEPOSITOR => {
-                        if let Some(AccountAddAuthorizedDepositorInput {
-                            badge,
-                        }) = to_manifest_type(args)
+                        if let Some(
+                            AccountAddAuthorizedDepositorInput { badge }
+                        ) = to_manifest_type(args)
                         {
                             self.authorized_depositors_changes
                                 .entry(component_address)
@@ -168,9 +168,9 @@ impl InstructionVisitor for AccountDepositSettingsVisitor {
                         }
                     }
                     ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR => {
-                        if let Some(AccountRemoveAuthorizedDepositorInput {
-                            badge,
-                        }) = to_manifest_type(args)
+                        if let Some(
+                            AccountRemoveAuthorizedDepositorInput { badge }
+                        ) = to_manifest_type(args)
                         {
                             self.authorized_depositors_changes
                                 .entry(component_address)

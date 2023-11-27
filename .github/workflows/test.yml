@@ -1,28 +1,45 @@
-name: Test
+# Testing CI - Runs on each PR and Push
 
+name: Test
 on:
   pull_request:
-    branches:
-      - main
-      - develop
-      - release/*
   push:
-    branches:
-      - main
-      - develop
-      - release/*
-
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        crate: [ radix-engine-toolkit, radix-engine-toolkit-core, sbor-json ]
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
     - name: Run tests
-      run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
+      run: cargo test --verbose
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
+    - name: Check formatting
+      run: cargo fmt --check
+  build-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install latest nightly
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
+    - name: Check formatting
+      run: cargo check

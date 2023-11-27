@@ -87,15 +87,16 @@ fn build_transaction(
     let signer1_private_key = Secp256k1PrivateKey::from_u64(2).unwrap();
     let signer2_private_key = Ed25519PrivateKey::from_u64(2).unwrap();
 
-    let header = TransactionHeaderV1 {
-        network_id: 0xf2,
-        nonce: 100,
-        end_epoch_exclusive: Epoch::of(100),
-        start_epoch_inclusive: Epoch::of(90),
-        notary_is_signatory: true,
-        notary_public_key: notary_private_key.public_key().into(),
-        tip_percentage: 0,
-    };
+    let header =
+        TransactionHeaderV1 {
+            network_id: 0xf2,
+            nonce: 100,
+            end_epoch_exclusive: Epoch::of(100),
+            start_epoch_inclusive: Epoch::of(90),
+            notary_is_signatory: true,
+            notary_public_key: notary_private_key.public_key().into(),
+            tip_percentage: 0,
+        };
 
     let transaction = TransactionBuilder::new()
         .manifest(manifest)
