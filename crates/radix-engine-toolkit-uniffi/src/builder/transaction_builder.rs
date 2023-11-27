@@ -202,10 +202,11 @@ impl TransactionBuilderIntentSignaturesStep {
             let signed_intent = SignedIntent::from(signed_intent);
             let signed_intent_hash = Arc::new(Hash(signed_intent.hash()?.0));
             let notary_signature = notary.sign_to_signature(signed_intent_hash);
-            let notarized_transaction = NotarizedTransaction {
-                signed_intent: Arc::new(signed_intent),
-                notary_signature,
-            };
+            let notarized_transaction =
+                NotarizedTransaction {
+                    signed_intent: Arc::new(signed_intent),
+                    notary_signature,
+                };
             let _ = notarized_transaction.hash()?;
             notarized_transaction
         };

@@ -353,9 +353,11 @@ impl TransferTransactionTypeVisitor {
         let resources_to_deposit = if !buckets.is_empty() {
             let mut vec = vec![];
             for bucket in buckets {
-                let (resource_address, resources) =
-                    self.bucket_tracker.remove(bucket).ok_or(
-                        TransferTransactionTypeError::BucketNotFound(*bucket),
+                let (resource_address, resources) = self
+                    .bucket_tracker
+                    .remove(bucket)
+                    .ok_or(
+                        TransferTransactionTypeError::BucketNotFound(*bucket)
                     )?;
 
                 vec.push((resource_address, resources))
@@ -433,10 +435,12 @@ impl Worktop {
                 }
             }
             Resources::Ids(worktop_ids) => {
-                let amount_to_take =
-                    amount.to_string().parse::<usize>().map_err(|_| {
-                        WorktopError::NonFungiblesCanNotBeFractionalized
-                    })?;
+                let amount_to_take = amount
+                    .to_string()
+                    .parse::<usize>()
+                    .map_err(
+                        |_| WorktopError::NonFungiblesCanNotBeFractionalized
+                    )?;
 
                 if worktop_ids.len() >= amount_to_take {
                     let ids_to_take = worktop_ids

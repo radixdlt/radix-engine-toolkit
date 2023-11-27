@@ -48,10 +48,11 @@ impl SerializableInstructions {
             SerializableInstructionsKind::String => {
                 let network_definition =
                     network_definition_from_network_id(network_id);
-                let string = transaction::manifest::decompile(
-                    instructions,
-                    &network_definition,
-                )?;
+                let string =
+                    transaction::manifest::decompile(
+                        instructions,
+                        &network_definition,
+                    )?;
                 Ok(Self::String(string))
             }
             SerializableInstructionsKind::Parsed => {

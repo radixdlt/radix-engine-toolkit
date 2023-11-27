@@ -169,9 +169,9 @@ pub fn traverse(
             element_value_kind,
             elements,
         } => {
-            visitors.iter_mut().for_each(|visitor| {
-                visitor.visit_array(element_value_kind, elements)
-            });
+            visitors.iter_mut().for_each(
+                |visitor| visitor.visit_array(element_value_kind, elements)
+            );
             elements
                 .iter()
                 .for_each(|element| traverse(element, visitors));
