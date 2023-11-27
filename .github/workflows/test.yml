@@ -17,8 +17,13 @@ jobs:
         toolchain: nightly-2023-11-24
         override: true
         components: rustfmt, clippy
+    - name: Install cargo-nextest
+      uses: baptiste0928/cargo-install@v1
+      with:
+        crate: cargo-nextest
+        locked: true
     - name: Run tests
-      run: cargo test
+      run: cargo nextest run
       env:
         # Required env-var to increase the heapsize when using `kotlinc`.
         JAVA_OPTS: "-Xmx8g"
