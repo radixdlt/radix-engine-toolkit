@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 use rocket_okapi::okapi::openapi3::OpenApi;
 
 pub fn generate_function_spec() -> OpenApi {
@@ -68,8 +68,8 @@ macro_rules! open_api_spec {
         {
             let mut generator = rocket_okapi::gen::OpenApiGenerator::new(&Default::default());
             $(
-                generator.json_schema::<<$type as radix_engine_toolkit::functions::traits::Function>::Input>();
-                generator.json_schema::<<$type as radix_engine_toolkit::functions::traits::Function>::Output>();
+                generator.json_schema::<<$type as radix_engine_toolkit_json::functions::traits::Function>::Input>();
+                generator.json_schema::<<$type as radix_engine_toolkit_json::functions::traits::Function>::Output>();
             )*
             generator.into_openapi()
         }

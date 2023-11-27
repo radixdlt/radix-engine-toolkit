@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_common::prelude::*;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 
 use super::manifest_provider::*;
 use super::traits::HasExamples;

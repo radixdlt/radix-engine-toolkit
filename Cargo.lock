@@ -896,7 +896,7 @@ dependencies = [
  "radix-engine-interface",
  "radix-engine-stores",
  "radix-engine-toolkit",
- "radix-engine-toolkit-core",
+ "radix-engine-toolkit-json",
  "rocket_okapi",
  "sbor",
  "schemars",
@@ -1775,30 +1775,6 @@ name = "radix-engine-toolkit"
 version = "1.0.3"
 dependencies = [
  "bech32",
- "indexmap 1.9.3",
- "jni",
- "paste",
- "radix-engine",
- "radix-engine-common",
- "radix-engine-interface",
- "radix-engine-queries",
- "radix-engine-toolkit-core",
- "sbor",
- "schemars",
- "scrypto",
- "serde",
- "serde_json",
- "serde_with",
- "transaction",
- "typeshare",
- "walkdir",
-]
-
-[[package]]
-name = "radix-engine-toolkit-core"
-version = "1.0.3"
-dependencies = [
- "bech32",
  "cargo_toml",
  "lazy_static",
  "radix-engine",
@@ -1817,6 +1793,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "radix-engine-toolkit-json"
+version = "1.0.3"
+dependencies = [
+ "bech32",
+ "indexmap 1.9.3",
+ "jni",
+ "paste",
+ "radix-engine",
+ "radix-engine-common",
+ "radix-engine-interface",
+ "radix-engine-queries",
+ "radix-engine-toolkit",
+ "sbor",
+ "schemars",
+ "scrypto",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "transaction",
+ "typeshare",
+ "walkdir",
+]
+
+[[package]]
 name = "radix-engine-toolkit-uniffi"
 version = "1.0.3"
 dependencies = [
@@ -1827,7 +1827,7 @@ dependencies = [
  "radix-engine-interface",
  "radix-engine-queries",
  "radix-engine-stores",
- "radix-engine-toolkit-core",
+ "radix-engine-toolkit",
  "sbor",
  "scrypto",
  "scrypto-unit",

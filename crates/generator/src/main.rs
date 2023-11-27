@@ -108,7 +108,7 @@ fn main() {
         std::fs::create_dir_all(&output_directory).unwrap();
 
         let manifest_directory =
-            Path::new("../radix-engine-toolkit/tests/manifests")
+            Path::new("../radix-engine-toolkit-json/tests/manifests")
                 .canonicalize()
                 .unwrap();
 

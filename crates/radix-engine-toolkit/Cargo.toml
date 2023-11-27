@@ -2,6 +2,7 @@
 name = "radix-engine-toolkit"
 version = "1.0.3"
 edition = "2021"
+build = "build.rs"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
@@ -9,38 +10,35 @@ sbor = { workspace = true }
 scrypto = { workspace = true }
 transaction = { workspace = true }
 radix-engine = { workspace = true }
+radix-engine-stores = { workspace = true }
 radix-engine-common = { workspace = true }
 radix-engine-queries = { workspace = true }
 radix-engine-interface = { workspace = true }
+radix-engine-store-interface = { workspace = true }
 
-# Core Radix Engine Toolkit
-radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false }
-
-# Serde for JSON serialization
-serde = { version = "1.0.163" }
-serde_json = { version = "1.0.96", features = ["preserve_order"] }
-serde_with = { version = "3.0.0", features = ["hex"] }
-schemars = { version = "0.8.12", features = ["preserve_order"] }
-
-# Bech32 for encoding and decoding addresses
+# Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
 
-# Used to be able to expose the crate to JVM clients
-jni = { version = "0.21.1" }
+# The serde-json dependency without the serde dependency. This is used for the SBOR serialization
+# in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
 
-# Used to allow for more powerful macros
-paste = { version = "1.0.12" }
-walkdir = "2.3.3"
-indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
+# Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
+# computed once.
+lazy_static = { version = "1.4.0" }
+regex = "1.8.4"
 
-# 1password's library for codesharing.
-typeshare = "1.0.1"
+# A crate that implements the various sbor-json formats.
+sbor-json = { path = "../sbor-json" }
+
+[build-dependencies]
+cargo_toml = { version = "0.15.3" }
 
 [dev-dependencies]
-walkdir = "2.3.3"
-
-[lib]
-crate-type = ["staticlib", "cdylib", "rlib"]
+scrypto-unit = { workspace = true }
 
 [features]
 default = []
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]

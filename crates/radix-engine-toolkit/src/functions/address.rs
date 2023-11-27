@@ -15,80 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::prelude::*;
-use scrypto::prelude::*;
+use radix_engine_common::prelude::*;
 
-use schemars::*;
-use serde::*;
+use crate::models::node_id::*;
+use crate::utils::*;
 
-#[typeshare::typeshare]
-pub type AddressEntityTypeInput = SerializableNodeId;
-
-#[typeshare::typeshare]
-pub type AddressEntityTypeOutput = SerializableEntityType;
-
-pub struct AddressEntityType;
-impl<'f> Function<'f> for AddressEntityType {
-    type Input = AddressEntityTypeInput;
-    type Output = AddressEntityTypeOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let node_id = input.0.node_id;
-        let entity_type = node_id.entity_type().ok_or(
-            InvocationHandlingError::InvalidAddress(input.0.to_string()),
-        )?;
-        Ok(entity_type.into())
-    }
+pub fn entity_type(node_id: TypedNodeId) -> EntityType {
+    node_id.entity_type()
 }
 
-export_function!(AddressEntityType as address_entity_type);
-export_jni_function!(AddressEntityType as addressEntityType);
-
-#[typeshare::typeshare]
-pub type AddressDecodeInput = String;
-
-#[typeshare::typeshare]
-#[derive(
-    Serialize,
-    Deserialize,
-    JsonSchema,
-    Clone,
-    Debug,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-)]
-pub struct AddressDecodeOutput {
-    pub network_id: SerializableU8,
-    pub entity_type: SerializableEntityType,
-    pub hrp: String,
-    pub data: SerializableBytes,
+pub fn decode(node_id: &str) -> Option<(u8, EntityType, String, [u8; 30])> {
+    let network_id = network_id_from_address_string(node_id)?;
+    let network_definition = network_definition_from_network_id(network_id);
+    let decoder = AddressBech32Decoder::new(&network_definition);
+    let (hrp, _, _) =
+        AddressBech32Decoder::validate_and_decode_ignore_hrp(node_id).ok()?;
+    let (entity_type, data) = decoder.validate_and_decode(node_id).ok()?;
+    data.try_into()
+        .map(|data| (network_id, entity_type, hrp, data))
+        .ok()
 }
-
-pub struct AddressDecode;
-impl<'f> Function<'f> for AddressDecode {
-    type Input = AddressDecodeInput;
-    type Output = AddressDecodeOutput;
-
-    fn handle(
-        input: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let (network_id, entity_type, hrp, data) =
-            radix_engine_toolkit_core::functions::address::decode(&input)
-                .ok_or(InvocationHandlingError::InvalidAddress(input))?;
-
-        Ok(Self::Output {
-            network_id: network_id.into(),
-            entity_type: entity_type.into(),
-            hrp,
-            data: data.to_vec().into(),
-        })
-    }
-}
-
-export_function!(AddressDecode as address_decode);
-export_jni_function!(AddressDecode as addressDecode);

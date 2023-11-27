@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::function_examples::notarized_transaction::notarized_transactions;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 
 use super::traits::HasExamples;
 

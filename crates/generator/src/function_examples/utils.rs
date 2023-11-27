@@ -16,7 +16,7 @@
 // under the License.
 
 use super::traits::HasExamples;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 
 impl<'f> HasExamples<'f, 0xFF> for UtilsKnownAddress {
     fn example_inputs() -> [Self::Input; 0xFF] {

@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     # Core RET crates
     "crates/radix-engine-toolkit",
-    "crates/radix-engine-toolkit-core",
+    "crates/radix-engine-toolkit-json",
     "crates/radix-engine-toolkit-uniffi",
     # Auxiliary Crates
     "crates/sbor-json",

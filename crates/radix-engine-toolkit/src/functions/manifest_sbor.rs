@@ -15,95 +15,108 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::ops::Deref;
+use sbor::prelude::ContextualSerialize;
+use sbor::representations::{SerializationMode, SerializationParameters};
+use sbor::*;
+use scrypto::address::*;
+use scrypto::prelude::*;
+use transaction::data::{
+    format_manifest_value, ManifestDecompilationDisplayContext,
+};
 
-use crate::prelude::*;
-
-use radix_engine_common::prelude::*;
-use radix_engine_toolkit_core::functions::manifest_sbor::*;
-use radix_engine_toolkit_core::utils::*;
-use sbor::{LocalTypeId, Schema};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
-//================================
-// Manifest Sbor Decode to String
-//================================
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-pub struct ManifestSborDecodeToStringInput {
-    encoded_payload: SerializableBytes,
-    representation: SerializableManifestSborStringRepresentation,
-    network_id: SerializableU8,
-    schema: Option<PayloadSchema>,
-}
-#[typeshare::typeshare]
-pub type ManifestSborDecodeToStringOutput = String;
-
-pub struct ManifestSborDecodeToString;
-impl<'f> Function<'f> for ManifestSborDecodeToString {
-    type Input = ManifestSborDecodeToStringInput;
-    type Output = ManifestSborDecodeToStringOutput;
-
-    fn handle(
-        ManifestSborDecodeToStringInput {
-            encoded_payload,
-            network_id,
-            representation,
-            schema,
-        }: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let encoded_payload = encoded_payload.deref().clone();
-        let network_id = *network_id;
-        let representation = match representation {
-            SerializableManifestSborStringRepresentation::ManifestString => {
-                ManifestSborStringRepresentation::ManifestString
-            }
-            SerializableManifestSborStringRepresentation::Json(mode) => {
-                ManifestSborStringRepresentation::JSON(mode.into())
-            }
-        };
-        let schema = if let Some(PayloadSchema {
-            local_type_id,
-            schema,
-        }) = schema
-        {
-            let local_type_id = LocalTypeId::from(local_type_id);
-            let schema = scrypto_decode::<Schema<ScryptoCustomSchema>>(&schema)
-                .map_err(|error| {
-                    InvocationHandlingError::DecodeError(
-                        debug_string(error),
-                        debug_string(schema),
-                    )
-                })?;
-
-            Some((local_type_id, schema))
-        } else {
-            None
-        };
-        let network_definition = network_definition_from_network_id(network_id);
-        let bech32_encoder = AddressBech32Encoder::new(&network_definition);
-
-        let string =
-            radix_engine_toolkit_core::functions::manifest_sbor::decode_to_string_representation(
-                encoded_payload,
-                representation,
-                &bech32_encoder,
-                schema,
-            )?;
-
-        Ok(string)
-    }
+pub fn encode(value: &ManifestValue) -> Result<Vec<u8>, EncodeError> {
+    manifest_encode(value)
 }
 
-export_function!(ManifestSborDecodeToString as manifest_sbor_decode_to_string);
-export_jni_function!(ManifestSborDecodeToString as manifestSborDecodeToString);
+pub fn decode<T>(value: T) -> Result<ManifestValue, DecodeError>
+where
+    T: AsRef<[u8]>,
+{
+    manifest_decode(value.as_ref())
+}
 
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
-#[serde(tag = "kind", content = "value")]
-pub enum SerializableManifestSborStringRepresentation {
+pub fn decode_to_string_representation<T>(
+    value: T,
+    representation: ManifestSborStringRepresentation,
+    bech32_encoder: &AddressBech32Encoder,
+    schema: Option<(LocalTypeId, Schema<ScryptoCustomSchema>)>,
+) -> Result<String, ManifestSborError>
+where
+    T: AsRef<[u8]>,
+{
+    let value = value.as_ref();
+
+    // Ensure that whatever value was passed either matches the schema if given
+    // or is valid Manifest sbor.
+    if let Some((ref local_type_id, ref schema)) = schema {
+        validate_payload_against_schema::<ManifestCustomExtension, _>(
+            value,
+            schema,
+            *local_type_id,
+            &(),
+            MANIFEST_SBOR_V1_MAX_DEPTH,
+        )
+        .map_err(|_| ManifestSborError::SchemaValidationError)?;
+    } else {
+        decode(value).map_err(ManifestSborError::DecodeError)?;
+    };
+
+    let string = match representation {
+        ManifestSborStringRepresentation::JSON(representation) => {
+            let context = ManifestValueDisplayContext::with_optional_bech32(
+                Some(bech32_encoder),
+            );
+            let serialization_parameters =
+                if let Some((ref local_type_id, ref schema)) = schema {
+                    SerializationParameters::WithSchema {
+                        mode: representation,
+                        custom_context: context,
+                        schema,
+                        type_id: *local_type_id,
+                        depth_limit: MANIFEST_SBOR_V1_MAX_DEPTH,
+                    }
+                } else {
+                    SerializationParameters::Schemaless {
+                        mode: representation,
+                        custom_context: context,
+                        depth_limit: MANIFEST_SBOR_V1_MAX_DEPTH,
+                    }
+                };
+
+            let payload = ManifestRawPayload::new_from_valid_slice(value);
+            let serializable = payload.serializable(serialization_parameters);
+            serde_json::to_string(&serializable).expect("Impossible Case!")
+        }
+        ManifestSborStringRepresentation::ManifestString => {
+            let context =
+                ManifestDecompilationDisplayContext::with_optional_bech32(
+                    Some(bech32_encoder),
+                );
+            let mut string = String::new();
+            format_manifest_value(
+                &mut string,
+                &decode(value).map_err(ManifestSborError::DecodeError)?,
+                &context,
+                false,
+                0,
+            )
+            .map_err(ManifestSborError::FmtError)?;
+            string
+        }
+    };
+
+    Ok(string)
+}
+
+#[derive(Debug, Clone)]
+pub enum ManifestSborError {
+    SchemaValidationError,
+    DecodeError(DecodeError),
+    FmtError(std::fmt::Error),
+}
+
+#[derive(Clone, Copy)]
+pub enum ManifestSborStringRepresentation {
     ManifestString,
-    Json(SerializableSerializationMode),
+    JSON(SerializationMode),
 }

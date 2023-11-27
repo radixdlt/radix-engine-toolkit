@@ -15,62 +15,47 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use super::macros::{export_function, export_jni_function};
-use super::traits::Function;
-use radix_engine_toolkit_core::functions::information::DependencyInformation;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+pub fn information() -> BuildInformation {
+    let version = env!("CARGO_PKG_VERSION").into();
+    let scrypto_dependency = DependencyInformation::from_environment_variable();
 
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct BuildInformationInput {}
-
-#[typeshare::typeshare]
-#[derive(Serialize, Deserialize, JsonSchema, Clone)]
-pub struct BuildInformationOutput {
-    pub version: String,
-    pub scrypto_dependency: SerializableDependencyInformation,
+    BuildInformation {
+        version,
+        scrypto_dependency,
+    }
 }
 
-#[typeshare::typeshare]
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
-#[serde(tag = "kind", content = "value")]
-pub enum SerializableDependencyInformation {
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BuildInformation {
+    pub version: String,
+    pub scrypto_dependency: DependencyInformation,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum DependencyInformation {
+    // Crates.io
     Version(String),
+
+    // Github
     Tag(String),
     Branch(String),
     Rev(String),
 }
 
-pub struct BuildInformation;
-impl<'a> Function<'a> for BuildInformation {
-    type Input = BuildInformationInput;
-    type Output = BuildInformationOutput;
+impl DependencyInformation {
+    fn from_environment_variable() -> Self {
+        let version = env!("SCRYPTO_DEPENDENCY");
 
-    fn handle(
-        _: Self::Input,
-    ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
-        let build_information =
-            radix_engine_toolkit_core::functions::information::information();
-        Ok(BuildInformationOutput {
-            version: build_information.version,
-            scrypto_dependency: match build_information.scrypto_dependency {
-                DependencyInformation::Branch(string) => {
-                    SerializableDependencyInformation::Branch(string)
-                }
-                DependencyInformation::Tag(string) => {
-                    SerializableDependencyInformation::Tag(string)
-                }
-                DependencyInformation::Version(string) => {
-                    SerializableDependencyInformation::Version(string)
-                }
-                DependencyInformation::Rev(string) => {
-                    SerializableDependencyInformation::Rev(string)
-                }
-            },
-        })
+        let mut splitted = version.split('=');
+        let identifier = splitted.next().expect("Should never fail");
+        let value = splitted.next().expect("Should never fail");
+
+        match identifier {
+            "version" => Self::Version(value.into()),
+            "tag" => Self::Tag(value.into()),
+            "branch" => Self::Branch(value.into()),
+            "rev" => Self::Rev(value.into()),
+            _ => panic!("Unknown identifier encountered: {}", identifier),
+        }
     }
 }
-
-export_function!(BuildInformation as build_information);
-export_jni_function!(BuildInformation as buildInformation);

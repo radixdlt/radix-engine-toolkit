@@ -26,17 +26,17 @@
 #[allow(unused_braces)]
 mod core {
     /* Models */
-    pub use radix_engine_toolkit_core::models::node_id::{
+    pub use radix_engine_toolkit::models::node_id::{
         TypedNodeId as CoreTypedNodeId,
         InvalidEntityTypeIdError as CoreInvalidEntityTypeIdError
     };
     /* Modules */
-    pub use radix_engine_toolkit_core::functions::information::{
+    pub use radix_engine_toolkit::functions::information::{
         information as core_information,
         BuildInformation as CoreBuildInformation,
         DependencyInformation as CoreDependencyInformation,
     };
-    pub use radix_engine_toolkit_core::functions::derive::{
+    pub use radix_engine_toolkit::functions::derive::{
         virtual_account_address_from_public_key as core_virtual_account_address_from_public_key,
         virtual_identity_address_from_public_key as core_virtual_identity_address_from_public_key,
         virtual_signature_non_fungible_global_id_from_public_key as core_virtual_signature_non_fungible_global_id_from_public_key,
@@ -48,7 +48,7 @@ mod core {
         DerivationError as CoreDerivationError,
         OlympiaNetwork as CoreOlympiaNetwork,
     };
-    pub use radix_engine_toolkit_core::functions::instructions::{
+    pub use radix_engine_toolkit::functions::instructions::{
         hash as core_instructions_hash,
         compile as core_instructions_compile,
         decompile as core_instructions_decompile,
@@ -60,10 +60,10 @@ mod core {
         accounts_deposited_into as core_instructions_accounts_deposited_into,
         InstructionValidationError as CoreInstructionValidationError,
     };
-    pub use radix_engine_toolkit_core::functions::utils::{
+    pub use radix_engine_toolkit::functions::utils::{
         decode_transaction_id as core_decode_transaction_id
     };
-    pub use radix_engine_toolkit_core::functions::manifest::{
+    pub use radix_engine_toolkit::functions::manifest::{
         hash as core_manifest_hash,
         compile as core_manifest_compile,
         decompile as core_manifest_decompile,
@@ -74,25 +74,25 @@ mod core {
         Assertion as CoreManifestAssertion,
         ManifestModificationError as CoreManifestModificationError
     };
-    pub use radix_engine_toolkit_core::functions::intent::{
+    pub use radix_engine_toolkit::functions::intent::{
         hash as core_intent_hash,
         compile as core_intent_compile,
         decompile as core_intent_decompile,
         statically_validate as core_intent_statically_validate,
     };
-    pub use radix_engine_toolkit_core::functions::signed_intent::{
+    pub use radix_engine_toolkit::functions::signed_intent::{
         hash as core_signed_intent_hash,
         compile as core_signed_intent_compile,
         decompile as core_signed_intent_decompile,
         statically_validate as core_signed_intent_statically_validate,
     };
-    pub use radix_engine_toolkit_core::functions::notarized_transaction::{
+    pub use radix_engine_toolkit::functions::notarized_transaction::{
         hash as core_notarized_transaction_hash,
         compile as core_notarized_transaction_compile,
         decompile as core_notarized_transaction_decompile,
         statically_validate as core_notarized_transaction_statically_validate,
     };
-    pub use radix_engine_toolkit_core::functions::execution::{
+    pub use radix_engine_toolkit::functions::execution::{
         analyze as core_execution_analyze,
         ExecutionAnalysis as CoreExecutionExecutionAnalysis,
         FeeSummary as CoreExecutionFeeSummary,
@@ -108,48 +108,48 @@ mod core {
         UnstakeTransactionType as CoreUnstakeTransactionType,
         ClaimStakeTransactionType as CoreClaimStakeTransactionType
     };
-    pub use radix_engine_toolkit_core::functions::manifest_sbor::{
+    pub use radix_engine_toolkit::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
         ManifestSborStringRepresentation as CoreManifestSborStringRepresentation,
         decode_to_string_representation as core_manifest_decode_to_string_representation,
     };
-    pub use radix_engine_toolkit_core::functions::scrypto_sbor::{
+    pub use radix_engine_toolkit::functions::scrypto_sbor::{
         ScryptoSborError as CoreScryptoSborError,
         StringRepresentation as CoreScryptoStringRepresentation,
         decode_to_string_representation as core_scrypto_decode_to_string_representation,
         encode_string_representation as core_scrypto_encode_string_representation,
     };
-    pub use radix_engine_toolkit_core::functions::events::{
+    pub use radix_engine_toolkit::functions::events::{
         sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
     };
 
     /* Visitors */
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::reserved_instructions::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::reserved_instructions::{
         ReservedInstruction as CoreReservedInstruction,
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::transfer_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::transfer_visitor::{
         Resources as CoreResources,
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::{
         AuthorizedDepositorsChanges as CoreAuthorizedDepositorsChanges,
         ResourcePreferenceAction as CoreResourcePreferenceAction,
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
         Source as CoreSource,
         ResourceTracker as CoreResourceTracker
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::stake_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::stake_visitor::{
         StakeInformation as CoreStakeInformation
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::unstake_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::unstake_visitor::{
         UnstakeInformation as CoreUnstakeInformation
     };
-    pub use radix_engine_toolkit_core::instruction_visitor::visitors::transaction_type::claim_stake_visitor::{
+    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::claim_stake_visitor::{
         ClaimStakeInformation as CoreClaimStakeInformation
     };
 
     /* Utils */
-    pub use radix_engine_toolkit_core::utils::{
+    pub use radix_engine_toolkit::utils::{
         manifest_from_intent as core_manifest_from_intent,
         network_definition_from_network_id as core_network_definition_from_network_id,
         network_id_from_hrp as core_network_id_from_hrp,

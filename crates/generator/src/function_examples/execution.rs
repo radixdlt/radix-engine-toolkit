@@ -24,7 +24,7 @@ use radix_engine::vm::wasm::DefaultWasmEngine;
 use radix_engine::vm::{DefaultNativeVm, NoExtension, ScryptoVm, Vm};
 use radix_engine_common::prelude::*;
 use radix_engine_stores::memory_db::InMemorySubstateDatabase;
-use radix_engine_toolkit::prelude::*;
+use radix_engine_toolkit_json::prelude::*;
 use scrypto::blueprints::account::*;
 use scrypto_unit::*;
 use transaction::prelude::*;

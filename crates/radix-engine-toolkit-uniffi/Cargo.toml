@@ -15,7 +15,7 @@ radix-engine-queries = { workspace = true }
 radix-engine-interface = { workspace = true }
 
 # Core Radix Engine Toolkit
-radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 
 # The UniFFI crate for generating bindings to other languages
 uniffi = { git = "https://github.com/mozilla/uniffi-rs/", tag = "v0.25.2", features = ["cli"] }
