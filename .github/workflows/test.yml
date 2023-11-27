@@ -17,7 +17,7 @@ jobs:
         toolchain: nightly-2023-11-24
         override: true
         components: rustfmt, clippy
-    - name: Install cargo-nextest
+    - name: Install cargo nextest
       uses: baptiste0928/cargo-install@v1
       with:
         crate: cargo-nextest
@@ -54,4 +54,4 @@ jobs:
         override: true
         profile: minimal
     - name: Cargo Check
-      run: cargo check
+      run: cargo check --all
