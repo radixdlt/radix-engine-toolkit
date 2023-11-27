@@ -1,0 +1,46 @@
+[package]
+name = "radix-engine-toolkit"
+version = "1.0.3"
+edition = "2021"
+
+[dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { workspace = true }
+scrypto = { workspace = true }
+transaction = { workspace = true }
+radix-engine = { workspace = true }
+radix-engine-common = { workspace = true }
+radix-engine-queries = { workspace = true }
+radix-engine-interface = { workspace = true }
+
+# Core Radix Engine Toolkit
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core", default-features = false }
+
+# Serde for JSON serialization
+serde = { version = "1.0.163" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
+
+# Bech32 for encoding and decoding addresses
+bech32 = { version = "0.9.1" }
+
+# Used to be able to expose the crate to JVM clients
+jni = { version = "0.21.1" }
+
+# Used to allow for more powerful macros
+paste = { version = "1.0.12" }
+walkdir = "2.3.3"
+indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
+
+# 1password's library for codesharing.
+typeshare = "1.0.1"
+
+[dev-dependencies]
+walkdir = "2.3.3"
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[features]
+default = []

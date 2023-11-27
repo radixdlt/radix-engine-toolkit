@@ -1,0 +1,18 @@
+[package]
+name = "sbor-json"
+version = "1.0.3"
+edition = "2021"
+description = "The implementation of the SBOR JSON representations"
+
+[dependencies]
+# The Scrypto dependencies needed.
+sbor = { workspace = true }
+radix-engine-common = { workspace = true }
+radix-engine-interface = { workspace = true }
+
+# The serde dependenices used for the serialization and deserialization of the JSON representations.
+serde = { version = "1.0.185", features = ["derive"] }
+serde_json = { version = "1.0.105", features = ["preserve_order"] }
+serde_with = { version = "3.0.0", features = ["hex"] }
+regex = "1.9.3"
+bech32 = "0.9.1"
