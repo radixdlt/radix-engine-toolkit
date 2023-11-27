@@ -1,28 +1,72 @@
-name: Test
+# Testing CI - Runs on each PR and Push
 
+name: Test
 on:
   pull_request:
-    branches:
-      - main
-      - develop
-      - release/*
   push:
-    branches:
-      - main
-      - develop
-      - release/*
-
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        crate: [ radix-engine-toolkit, radix-engine-toolkit-core, sbor-json ]
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
+    - name: Install cargo nextest
+      uses: baptiste0928/cargo-install@v1
+      with:
+        crate: cargo-nextest
+        locked: true
+    - name: Install JNA
+      run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
     - name: Run tests
-      run: cargo test --manifest-path ./${{ matrix.crate }}/Cargo.toml --verbose
+      run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
+      env:
+        # Required env-var to increase the heapsize when using `kotlinc`.
+        JAVA_OPTS: "-Xmx8g"
+        # Enable sccache
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
+  check-formatting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt
+    - name: Check formatting
+      run: cargo fmt --check
+  cargo-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        profile: minimal
+    - name: Cargo Check
+      run: cargo check --all
+  clippy-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
+    - name: Clippy Check
+      run: cargo clippy --all

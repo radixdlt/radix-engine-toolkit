@@ -8,8 +8,7 @@ openapi-generator-cli-6.0.1.jar
 .idea
 output
 ./radixdlt-scrypto/
-
-
+*.profraw
 
 #.Net Specific
 /interop/csharp/generated
@@ -30,3 +29,6 @@ bld/
 [Ll]og/
 [Ll]ogs/
 *.nupkg
+
+temp
+Cargo.lock

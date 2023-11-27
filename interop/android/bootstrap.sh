@@ -16,6 +16,9 @@ mkdir -p $jni
 mv $artifacts/uniffi-bindings/$package/*.kt $src/$package/RET.kt
 test -e $src/$package/RET.kt || exit 1
 
+# Adding the license
+python3 add_license.py
+
 crate_name=radix-engine-toolkit-uniffi
 jna_architectures=(
   "arm64-v8a"
@@ -44,9 +47,6 @@ cp settings.gradle.kts $library_name/settings.gradle.kts
 cp lib.build.gradle.kts $library_name/lib/build.gradle.kts
 cp consumer-rules.pro $library_name/lib/consumer-rules.pro
 
-# Extract version from Cargo.toml
-toml=../../radix-engine-toolkit-uniffi/Cargo.toml
-ret_version=$(grep -m 1 version $toml | awk -F= '{print $2}' | tr -d '" ')
-commit_hash=$(git rev-parse --short HEAD)
-version="$ret_version-$commit_hash"
+# Get version from the command line arguments
+version="$1"
 echo -e "ret-version=$version" >> $library_name/gradle.properties

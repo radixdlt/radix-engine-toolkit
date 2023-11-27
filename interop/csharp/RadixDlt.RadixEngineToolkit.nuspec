@@ -8,8 +8,8 @@
     <license type="expression">Apache-2.0</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <repository type="git" url="https://github.com/radixdlt/radix-engine-toolkit" />
-    <description>Multiplatform library that exposes a set of functions to help clients written in languages other than Rust compile and decompile transactions, perform SBOR encoding and decoding, derive virtual account and virtual badge addresses, and other functionalities.</description>
-    <tags>radix sbor</tags>
+    <description>A C# wrapper around the Radix Engine Toolkit that provides Radix Engine and Scrypto primitives to C#. The C# Radix Engine Toolkit code is released under the Apache-2.0 license. Binaries are licensed under the Radix Generic EULA: https://www.radixdlt.com/terms/genericEULA</description>
+    <tags>radix transaction sbor scrypto</tags>
   </metadata>
   <files>
     <!-- Linux Targets -->
