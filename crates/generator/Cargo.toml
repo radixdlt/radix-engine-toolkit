@@ -1,0 +1,37 @@
+[package]
+name = "generator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { workspace = true }
+scrypto = { workspace = true }
+scrypto-unit = { workspace = true }
+transaction = { workspace = true }
+transaction-scenarios = { workspace = true }
+radix-engine = { workspace = true }
+radix-engine-stores = { workspace = true }
+radix-engine-common = { workspace = true }
+radix-engine-interface = { workspace = true }
+
+# Core Radix Engine Toolkit and Toolkit Native Library
+radix-engine-toolkit-core = { path = "../radix-engine-toolkit-core" }
+radix-engine-toolkit = { path = "../radix-engine-toolkit" }
+
+# Serde dependencies
+serde = { version = "1.0.163" }
+serde_yaml = { version = "0.9.21" }
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+serde_with = { version = "3.0.0", features = ["hex"] }
+schemars = { version = "0.8.12", features = ["preserve_order"] }
+rocket_okapi = { git = "https://github.com/0xOmarA/okapi", tag = "0.8.0-rc.4", features = ["preserve_order"] }
+
+# Used to change the casing of strings
+heck = { version = "0.4.1" }
+
+# Used in walking directories to get manifests
+walkdir = { version = "2.3.3" }
+
+# Misc
+indexmap = { version = "1.9.3" }

@@ -1,0 +1,44 @@
+[package]
+name = "radix-engine-toolkit-core"
+version = "1.0.3"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+# radixdlt-scrypto dependencies.
+sbor = { workspace = true }
+scrypto = { workspace = true }
+transaction = { workspace = true }
+radix-engine = { workspace = true }
+radix-engine-stores = { workspace = true }
+radix-engine-common = { workspace = true }
+radix-engine-queries = { workspace = true }
+radix-engine-interface = { workspace = true }
+radix-engine-store-interface = { workspace = true }
+
+# Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
+bech32 = { version = "0.9.1" }
+
+# The serde-json dependency without the serde dependency. This is used for the SBOR serialization
+# in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
+serde_json = { version = "1.0.96", features = ["preserve_order"] }
+
+# Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
+# computed once.
+lazy_static = { version = "1.4.0" }
+regex = "1.8.4"
+
+# A crate that implements the various sbor-json formats.
+sbor-json = { path = "../sbor-json" }
+
+[build-dependencies]
+cargo_toml = { version = "0.15.3" }
+
+[dev-dependencies]
+scrypto-unit = { workspace = true }
+
+[features]
+default = []
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
