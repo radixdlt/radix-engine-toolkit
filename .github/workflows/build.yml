@@ -51,8 +51,6 @@ jobs:
         profile: minimal
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.3
-    - name: Whats here
-      run: ls -lah
     - name: Generate Test Kit
       run: cargo run
       env:
