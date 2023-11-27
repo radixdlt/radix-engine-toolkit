@@ -62,9 +62,10 @@ impl Intent {
         NativeIntent::try_from(self.clone()).and_then(|intent| {
             core_intent_hash(&intent).map_err(Into::into).map(|hash| {
                 let intent_hash = NativeIntentHash(hash.hash);
-                Arc::new(
-                    TransactionHash::new(&intent_hash, self.header.network_id)
-                )
+                Arc::new(TransactionHash::new(
+                    &intent_hash,
+                    self.header.network_id,
+                ))
             })
         })
     }
@@ -110,9 +111,10 @@ impl From<NativeIntent> for Intent {
         };
 
         Self {
-            manifest: Arc::new(
-                TransactionManifest::from_native(&manifest, header.network_id)
-            ),
+            manifest: Arc::new(TransactionManifest::from_native(
+                &manifest,
+                header.network_id,
+            )),
             header: header.into(),
             message: message.into(),
         }

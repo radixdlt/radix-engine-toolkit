@@ -117,14 +117,12 @@ where
         olympia_account_address.chars().nth(2),
     ) {
         (Some('d'), Some('x')) => Ok(()),
-        (Some(char1), Some(char2)) => {
-            Err(
-                DerivationError::InvalidCharsInOlympiaAddressEntitySpecifier {
-                    expected: ('d', 'x'),
-                    actual: (char1, char2),
-                },
-            )
-        }
+        (Some(char1), Some(char2)) => Err(
+            DerivationError::InvalidCharsInOlympiaAddressEntitySpecifier {
+                expected: ('d', 'x'),
+                actual: (char1, char2),
+            },
+        ),
         _ => Err(DerivationError::InvalidOlympiaAddressLength {
             expected: 65,
             actual: olympia_account_address.len(),
@@ -159,12 +157,10 @@ where
                 }
             })
         }
-        Some(prefix) => {
-            Err(DerivationError::InvalidOlympiaAddressPrefix {
-                expected: 0x04,
-                actual: *prefix,
-            })
-        }
+        Some(prefix) => Err(DerivationError::InvalidOlympiaAddressPrefix {
+            expected: 0x04,
+            actual: *prefix,
+        }),
         None => Err(DerivationError::InvalidOlympiaAddressLength {
             expected: EXPECTED_LENGTH,
             actual: data.len(),

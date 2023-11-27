@@ -23,15 +23,14 @@ use transaction::prelude::*;
 #[test]
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
     // Arrange
-    let manifest =
-        ManifestBuilder::new()
-            .create_proof_from_account_of_amount(account(), XRD, dec!("1"))
-            .create_proof_from_account_of_amount(
-                account(),
-                ACCOUNT_OWNER_BADGE,
-                dec!("1"),
-            )
-            .build();
+    let manifest = ManifestBuilder::new()
+        .create_proof_from_account_of_amount(account(), XRD, dec!("1"))
+        .create_proof_from_account_of_amount(
+            account(),
+            ACCOUNT_OWNER_BADGE,
+            dec!("1"),
+        )
+        .build();
 
     // Act
     let resource_addresses = account_proofs(&manifest.instructions);
@@ -46,15 +45,14 @@ fn account_proofs_visitor_picks_up_on_calls_to_create_proof() {
 #[test]
 fn account_proofs_visitor_picks_up_on_calls_to_create_proof_of_amount() {
     // Arrange
-    let manifest =
-        ManifestBuilder::new()
-            .create_proof_from_account_of_amount(account(), XRD, dec!("10"))
-            .create_proof_from_account_of_amount(
-                account(),
-                ACCOUNT_OWNER_BADGE,
-                dec!("10"),
-            )
-            .build();
+    let manifest = ManifestBuilder::new()
+        .create_proof_from_account_of_amount(account(), XRD, dec!("10"))
+        .create_proof_from_account_of_amount(
+            account(),
+            ACCOUNT_OWNER_BADGE,
+            dec!("10"),
+        )
+        .build();
 
     // Act
     let resource_addresses = account_proofs(&manifest.instructions);

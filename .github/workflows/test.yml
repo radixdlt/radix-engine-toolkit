@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install latest nightly
+    - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly-2023-11-24
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install latest nightly
+    - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly-2023-11-24
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install latest nightly
+    - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
         toolchain: nightly-2023-11-24

@@ -247,14 +247,13 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
     ) -> Result<(), GeneralTransactionTypeError> {
         // Filter: We only permit static address - no dynamic or named addresses
         // are allowed
-        let global_address = if let DynamicGlobalAddress::Static(address) =
-            global_address
-        {
-            address
-        } else {
-            self.is_illegal_state = true;
-            return Ok(());
-        };
+        let global_address =
+            if let DynamicGlobalAddress::Static(address) = global_address {
+                address
+            } else {
+                self.is_illegal_state = true;
+                return Ok(());
+            };
 
         // Pass the entity type and the function name through the functions
         // filter to determine if this is a method that the general
@@ -300,14 +299,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 if let Ok(AccountWithdrawInput {
                     resource_address,
                     amount,
-                }) =
-                    manifest_decode(&manifest_encode(args).map_err(
-                        |error| GeneralTransactionTypeError::SborEncodeError {
-                            value: args.clone(),
-                            error,
-                        },
-                    )?)
-                {
+                }) = manifest_decode(&manifest_encode(args).map_err(
+                    |error| GeneralTransactionTypeError::SborEncodeError {
+                        value: args.clone(),
+                        error,
+                    },
+                )?) {
                     match worktop_puts {
                         ResourceSpecifier::Amount(
                             changes_resource_address,
@@ -355,14 +352,12 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                 if let Ok(AccountWithdrawNonFungiblesInput {
                     resource_address,
                     ids,
-                }) =
-                    manifest_decode(&manifest_encode(args).map_err(
-                        |error| GeneralTransactionTypeError::SborEncodeError {
-                            value: args.clone(),
-                            error,
-                        },
-                    )?)
-                {
+                }) = manifest_decode(&manifest_encode(args).map_err(
+                    |error| GeneralTransactionTypeError::SborEncodeError {
+                        value: args.clone(),
+                        error,
+                    },
+                )?) {
                     match worktop_puts {
                         ResourceSpecifier::Amount(..) => {
                             self.is_illegal_state = true;
@@ -477,11 +472,9 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                     .extend(worktop_changes)
             } else if !buckets.is_empty() {
                 for bucket in buckets {
-                    let bucket_amount = self
-                        .bucket_tracker
-                        .remove(bucket)
-                        .ok_or(
-                            GeneralTransactionTypeError::UnknownBucket(*bucket)
+                    let bucket_amount =
+                        self.bucket_tracker.remove(bucket).ok_or(
+                            GeneralTransactionTypeError::UnknownBucket(*bucket),
                         )?;
                     self.account_deposits
                         .entry(component_address)
@@ -526,9 +519,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                     GeneralTransactionTypeError::ReceiptManifestMismatch,
                 );
             }
-            Some(WorktopChange::Take(
-                ResourceSpecifier::Amount(_, changes_amount)
-            )) => {
+            Some(WorktopChange::Take(ResourceSpecifier::Amount(
+                _,
+                changes_amount,
+            ))) => {
                 self.assert_or_error(resource_address.is_fungible())?;
                 self.assert_eq_or_error(amount, changes_amount)?;
 
@@ -621,9 +615,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                     GeneralTransactionTypeError::ReceiptManifestMismatch,
                 );
             }
-            Some(WorktopChange::Take(
-                ResourceSpecifier::Amount(resource_address, amount)
-            )) => {
+            Some(WorktopChange::Take(ResourceSpecifier::Amount(
+                resource_address,
+                amount,
+            ))) => {
                 self.assert_or_error(resource_address.is_fungible())?;
 
                 ResourceTracker::Fungible {
@@ -631,9 +626,10 @@ impl<'r> GeneralTransactionTypeVisitor<'r> {
                     amount: Source::Predicted(self.instruction_index, *amount),
                 }
             }
-            Some(WorktopChange::Take(
-                ResourceSpecifier::Ids(resource_address, ids)
-            )) => {
+            Some(WorktopChange::Take(ResourceSpecifier::Ids(
+                resource_address,
+                ids,
+            ))) => {
                 self.assert_or_error(
                     resource_address
                         .as_node_id()
@@ -873,13 +869,11 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
         | EntityType::InternalNonFungibleVault
         | EntityType::InternalKeyValueStore
         | EntityType::GlobalTransactionTracker
-        | EntityType::GlobalAccessController => {
-            FnRules {
-                allowed: vec![],
-                disallowed: vec![],
-                default: FnRule::Disallowed,
-            }
-        }
+        | EntityType::GlobalAccessController => FnRules {
+            allowed: vec![],
+            disallowed: vec![],
+            default: FnRule::Disallowed,
+        },
         /* All method calls to the following entity types are permitted */
         EntityType::GlobalGenericComponent
         | EntityType::GlobalIdentity
@@ -888,12 +882,10 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
         | EntityType::GlobalMultiResourcePool
         | EntityType::GlobalVirtualSecp256k1Identity
         | EntityType::GlobalVirtualEd25519Identity
-        | EntityType::InternalGenericComponent => {
-            FnRules {
-                allowed: vec![],
-                disallowed: vec![],
-                default: FnRule::Allowed,
-            }
-        }
+        | EntityType::InternalGenericComponent => FnRules {
+            allowed: vec![],
+            disallowed: vec![],
+            default: FnRule::Allowed,
+        },
     }
 }

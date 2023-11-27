@@ -440,9 +440,10 @@ fn get_returned_stake_units(
         .map(|rtn| rtn.as_slice())
     {
         Some(
-            [WorktopChange::Put(
-                ResourceSpecifier::Amount(resource_address, amount)
-            )],
+            [WorktopChange::Put(ResourceSpecifier::Amount(
+                resource_address,
+                amount,
+            ))],
         ) => Some((*resource_address, *amount)),
         None | Some([..]) => None,
     }

@@ -82,14 +82,13 @@ impl<'r> InstructionVisitor for ClaimStakeVisitor<'r> {
             claimed_xrd,
         } = &self.finite_state_machine
         {
-            let stake_info =
-                ClaimStakeInformation {
-                    from_account: *account_withdrawn_from,
-                    validator_address: *validator_address,
-                    claim_nft_resource: *claim_nft_resource,
-                    claim_nft_local_ids: claim_nft_local_ids.clone(),
-                    claimed_xrd: *claimed_xrd,
-                };
+            let stake_info = ClaimStakeInformation {
+                from_account: *account_withdrawn_from,
+                validator_address: *validator_address,
+                claim_nft_resource: *claim_nft_resource,
+                claim_nft_local_ids: claim_nft_local_ids.clone(),
+                claimed_xrd: *claimed_xrd,
+            };
             self.claims.push(stake_info)
         }
 

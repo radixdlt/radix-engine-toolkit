@@ -98,14 +98,13 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer_with_lock_fee_and_withdraw
     let account1 = test_data::account1();
     let account2 = test_data::account2();
 
-    let manifest =
-        ManifestBuilder::new()
-            .lock_fee_and_withdraw(account1, dec!("500"), XRD, dec!("10"))
-            .take_from_worktop(XRD, dec!("10"), "bucket")
-            .with_bucket("bucket", |builder, bucket| {
-                builder.call_method(account2, "deposit", manifest_args!(bucket))
-            })
-            .build();
+    let manifest = ManifestBuilder::new()
+        .lock_fee_and_withdraw(account1, dec!("500"), XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(account2, "deposit", manifest_args!(bucket))
+        })
+        .build();
 
     // Act
     let (source_account, deposits) =
@@ -133,18 +132,17 @@ pub fn transfer_visitor_can_pick_up_fungible_transfer_from_a_single_source_to_mu
     let account2 = test_data::account2();
     let account3 = test_data::account3();
 
-    let manifest =
-        ManifestBuilder::new()
-            .withdraw_from_account(account1, XRD, dec!("20"))
-            .take_from_worktop(XRD, dec!("15"), "bucket")
-            .with_bucket("bucket", |builder, bucket| {
-                builder.call_method(account2, "deposit", manifest_args!(bucket))
-            })
-            .take_from_worktop(XRD, dec!("5"), "bucket1")
-            .with_bucket("bucket1", |builder, bucket| {
-                builder.call_method(account3, "deposit", manifest_args!(bucket))
-            })
-            .build();
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, dec!("20"))
+        .take_from_worktop(XRD, dec!("15"), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(account2, "deposit", manifest_args!(bucket))
+        })
+        .take_from_worktop(XRD, dec!("5"), "bucket1")
+        .with_bucket("bucket1", |builder, bucket| {
+            builder.call_method(account3, "deposit", manifest_args!(bucket))
+        })
+        .build();
 
     // Act
     let mut transfer_visitor = TransferTransactionTypeVisitor::default();

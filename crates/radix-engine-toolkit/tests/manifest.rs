@@ -83,81 +83,75 @@ fn manifest_can_be_statically_validated() {
 #[test]
 fn manifest_modification_assertions_are_added_at_expected_indices() {
     // Arrange
-    let manifest =
-        TransactionManifestV1 {
-            instructions: vec![
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+    let manifest = TransactionManifestV1 {
+        instructions: vec![
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(1).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(2).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(3).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+        ],
+        blobs: Default::default(),
+    };
+    let modifications = TransactionManifestModifications {
+        add_access_controller_proofs: Default::default(),
+        add_lock_fee: Default::default(),
+        add_assertions: vec![
+            (
+                1,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("100"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(1).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
+            ),
+            (
+                3,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("200"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+            ),
+            (
+                5,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("300"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(2).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(3).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-            ],
-            blobs: Default::default(),
-        };
-    let modifications =
-        TransactionManifestModifications {
-            add_access_controller_proofs: Default::default(),
-            add_lock_fee: Default::default(),
-            add_assertions: vec![
-                (
-                    1,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("100"),
-                    },
-                ),
-                (
-                    3,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("200"),
-                    },
-                ),
-                (
-                    5,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("300"),
-                    },
-                ),
-            ],
-        };
+            ),
+        ],
+    };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -211,81 +205,75 @@ fn manifest_modification_assertions_are_added_at_expected_indices() {
 fn manifest_modification_assertions_are_added_at_expected_indices_even_when_assertions_are_unsorted(
 ) {
     // Arrange
-    let manifest =
-        TransactionManifestV1 {
-            instructions: vec![
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+    let manifest = TransactionManifestV1 {
+        instructions: vec![
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(1).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(2).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(3).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+        ],
+        blobs: Default::default(),
+    };
+    let modifications = TransactionManifestModifications {
+        add_access_controller_proofs: Default::default(),
+        add_lock_fee: Default::default(),
+        add_assertions: vec![
+            (
+                3,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("200"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(1).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
+            ),
+            (
+                1,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("100"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+            ),
+            (
+                5,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("300"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(2).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(3).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-            ],
-            blobs: Default::default(),
-        };
-    let modifications =
-        TransactionManifestModifications {
-            add_access_controller_proofs: Default::default(),
-            add_lock_fee: Default::default(),
-            add_assertions: vec![
-                (
-                    3,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("200"),
-                    },
-                ),
-                (
-                    1,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("100"),
-                    },
-                ),
-                (
-                    5,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("300"),
-                    },
-                ),
-            ],
-        };
+            ),
+        ],
+    };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -383,45 +371,41 @@ fn assertion_out_of_bounds_results_in_an_error_not_a_panic() {
 #[test]
 fn adding_lock_fee_with_no_existing_call_to_withdraw_inserts_a_new_instruction()
 {
-    let manifest =
-        TransactionManifestV1 {
-            instructions: vec![
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(1).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(2).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(3).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-            ],
-            blobs: Default::default(),
-        };
+    let manifest = TransactionManifestV1 {
+        instructions: vec![
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(1).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(2).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(3).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+        ],
+        blobs: Default::default(),
+    };
     let modifications = TransactionManifestModifications {
         add_access_controller_proofs: Default::default(),
         add_lock_fee: Some((account(1), dec!("10"))),
@@ -429,12 +413,11 @@ fn adding_lock_fee_with_no_existing_call_to_withdraw_inserts_a_new_instruction()
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -493,12 +476,11 @@ fn adding_lock_fee_with_no_existing_call_to_withdraw_inserts_a_new_instruction_e
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![InstructionV1::CallMethod {
@@ -564,12 +546,11 @@ fn adding_lock_fee_with_an_existing_withdraw_converts_it_to_lock_fee_and_withdra
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -677,12 +658,11 @@ fn adding_lock_fee_with_an_existing_withdraw_non_fungibles_converts_it_to_lock_f
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -769,12 +749,11 @@ fn adding_lock_fee_with_an_existing_withdraw_from_a_different_account_adds_a_new
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -832,20 +811,18 @@ fn access_controller_proofs_are_added_as_expected() {
         ],
         blobs: Default::default(),
     };
-    let modifications =
-        TransactionManifestModifications {
-            add_access_controller_proofs: vec![access_controller(1)],
-            add_lock_fee: None,
-            add_assertions: Default::default(),
-        };
+    let modifications = TransactionManifestModifications {
+        add_access_controller_proofs: vec![access_controller(1)],
+        add_lock_fee: None,
+        add_assertions: Default::default(),
+    };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -910,12 +887,11 @@ fn access_controller_calls_are_always_at_the_top() {
     };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
@@ -959,81 +935,75 @@ fn access_controller_calls_are_always_at_the_top() {
 fn assertions_are_added_at_expected_indices_even_with_other_things_need_to_be_added(
 ) {
     // Arrange
-    let manifest =
-        TransactionManifestV1 {
-            instructions: vec![
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+    let manifest = TransactionManifestV1 {
+        instructions: vec![
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(1).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(2).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(FAUCET.into()),
+                method_name: "free".to_owned(),
+                args: to_manifest_value_and_unwrap!(&()),
+            },
+            InstructionV1::CallMethod {
+                address: DynamicGlobalAddress::Static(account(3).into()),
+                method_name: "deposit_batch".to_owned(),
+                args: manifest_args!(ManifestExpression::EntireWorktop).into(),
+            },
+        ],
+        blobs: Default::default(),
+    };
+    let modifications = TransactionManifestModifications {
+        add_access_controller_proofs: vec![access_controller(1)],
+        add_lock_fee: Some((account(2), dec!("10"))),
+        add_assertions: vec![
+            (
+                1,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("100"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(1).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
+            ),
+            (
+                3,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("200"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
+            ),
+            (
+                5,
+                Assertion::Amount {
+                    resource_address: XRD,
+                    amount: dec!("300"),
                 },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(2).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(FAUCET.into()),
-                    method_name: "free".to_owned(),
-                    args: to_manifest_value_and_unwrap!(&()),
-                },
-                InstructionV1::CallMethod {
-                    address: DynamicGlobalAddress::Static(account(3).into()),
-                    method_name: "deposit_batch".to_owned(),
-                    args: manifest_args!(ManifestExpression::EntireWorktop)
-                        .into(),
-                },
-            ],
-            blobs: Default::default(),
-        };
-    let modifications =
-        TransactionManifestModifications {
-            add_access_controller_proofs: vec![access_controller(1)],
-            add_lock_fee: Some((account(2), dec!("10"))),
-            add_assertions: vec![
-                (
-                    1,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("100"),
-                    },
-                ),
-                (
-                    3,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("200"),
-                    },
-                ),
-                (
-                    5,
-                    Assertion::Amount {
-                        resource_address: XRD,
-                        amount: dec!("300"),
-                    },
-                ),
-            ],
-        };
+            ),
+        ],
+    };
 
     // Act
-    let modified_manifest =
-        radix_engine_toolkit::functions::manifest::modify(
-            &manifest,
-            modifications,
-        )
-        .unwrap();
+    let modified_manifest = radix_engine_toolkit::functions::manifest::modify(
+        &manifest,
+        modifications,
+    )
+    .unwrap();
 
     // Assert
     let expected_instructions = vec![
