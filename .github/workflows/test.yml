@@ -19,6 +19,9 @@ jobs:
         components: rustfmt, clippy
     - name: Run tests
       run: cargo test
+      env:
+        # Required env-var to increase the heapsize when using `kotlinc`.
+        JAVA_OPTS: "-Xmx8g"
   check-formatting:
     runs-on: ubuntu-latest
     steps:
