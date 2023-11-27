@@ -1,0 +1,49 @@
+# Build CI - Runs on demand and requires some inputs
+
+name: Build
+on:
+  workflow_dispatch:
+    inputs:
+      swift-version:
+        type: string
+        required: true
+        description: The version to use for the Swift package
+      kotlin-version:
+        type: string
+        required: true
+        description: The version to use for the Kotlin & Android packages
+      python-version:
+        type: string
+        required: true
+        description: The version to use for the Python package
+      cs-version:
+        type: string
+        required: true
+        description: The version to use for the C# package
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build-schemas-and-test-kit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        profile: minimal
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
+    - name: Generate Test Kit
+      run: cargo run
+      env:
+        # Enable sccache
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
+      working-directory: crates/generator
+    - name: Upload Generated Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: "schemas-and-test-kit"
+        path: "crates/generator/output"
