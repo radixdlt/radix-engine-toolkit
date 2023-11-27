@@ -18,7 +18,7 @@ jobs:
         override: true
         components: rustfmt, clippy
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test
   check-formatting:
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +40,6 @@ jobs:
       with:
         toolchain: nightly-2023-11-24
         override: true
-        components: rustfmt, clippy
-    - name: Check formatting
+        profile: minimal
+    - name: Cargo Check
       run: cargo check
