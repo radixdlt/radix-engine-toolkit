@@ -24,6 +24,8 @@ jobs:
         locked: true
     - name: Install JNA
       run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.3
     - name: Run tests
       run: cargo nextest run
       env:
@@ -31,6 +33,9 @@ jobs:
         JAVA_OPTS: "-Xmx8g"
         # Required for Kotlin Uniffi tests
         CLASSPATH: "./jna-5.13.0.jar"
+        # Enable sccache
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
   check-formatting:
     runs-on: ubuntu-latest
     steps:
@@ -40,7 +45,7 @@ jobs:
       with:
         toolchain: nightly-2023-11-24
         override: true
-        components: rustfmt, clippy
+        components: rustfmt
     - name: Check formatting
       run: cargo fmt --check
   cargo-check:
