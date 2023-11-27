@@ -31,3 +31,4 @@ bld/
 *.nupkg
 
 temp
+Cargo.lock
