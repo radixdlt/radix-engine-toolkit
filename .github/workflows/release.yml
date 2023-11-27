@@ -1,6 +1,6 @@
 # Release CI - Runs on each release
 
-name: Build
+name: Release
 on:
   release:
 env:
@@ -9,11 +9,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: ./.github/workflows/build.yml
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ env.GITHUB_REF }}
+    - name: Prepare C# Version
+      run: | 
+        echo ${{ env.GITHUB_REF }}
+        echo "CS_VERSION=$(python3 -c 'print("${{ env.GITHUB_REF }}"[1:])')" >> $GITHUB_ENV
+    - name: Test
+      run: echo $CS_VERSION
+    - name: Build
+      uses: ./.github/workflows/build.yml
       with:
         INPUT_REF: ${{ env.GITHUB_REF }}
         INPUT_SWIFT-VERSION: ${{ env.GITHUB_REF }}
         INPUT_KOTLIN-VERSION: ${{ env.GITHUB_REF }}
         INPUT_PYTHON-VERSION: ${{ env.GITHUB_REF }}
-        INPUT_CS-VERSION: ${{ env.GITHUB_REF }}
+        INPUT_CS-VERSION: ${{ env.CS_VERSION }}
   
