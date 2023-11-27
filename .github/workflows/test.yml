@@ -43,7 +43,7 @@ jobs:
         components: rustfmt, clippy
     - name: Check formatting
       run: cargo fmt --check
-  build-check:
+  cargo-check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -55,3 +55,15 @@ jobs:
         profile: minimal
     - name: Cargo Check
       run: cargo check --all
+  clippy-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly-2023-11-24
+        override: true
+        components: rustfmt, clippy
+    - name: Clippy Check
+      run: cargo clippy --all
