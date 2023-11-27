@@ -48,9 +48,9 @@ impl InstructionVisitor for AccountProofsVisitor {
                 IndexedManifestValue::from_manifest_value(args)
                     .static_addresses()
                     .iter()
-                    .filter_map(
-                        |node_id| ResourceAddress::try_from(*node_id).ok()
-                    ),
+                    .filter_map(|node_id| {
+                        ResourceAddress::try_from(*node_id).ok()
+                    }),
             )
         }
         Ok(())

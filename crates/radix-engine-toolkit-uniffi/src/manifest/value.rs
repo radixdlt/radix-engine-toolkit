@@ -321,9 +321,9 @@ impl ManifestValue {
                 entries: entries
                     .iter()
                     .map(|MapEntry { key, value }| {
-                        key.to_native().and_then(
-                            |key| value.to_native().map(|value| (key, value))
-                        )
+                        key.to_native().and_then(|key| {
+                            value.to_native().map(|value| (key, value))
+                        })
                     })
                     .collect::<Result<_>>()?,
             },
@@ -418,15 +418,13 @@ impl ManifestValue {
             NativeManifestValue::Enum {
                 discriminator,
                 fields,
-            } => {
-                Self::EnumValue {
-                    discriminator: *discriminator,
-                    fields: fields
-                        .iter()
-                        .map(|value| Self::from_native(value, network_id))
-                        .collect(),
-                }
-            }
+            } => Self::EnumValue {
+                discriminator: *discriminator,
+                fields: fields
+                    .iter()
+                    .map(|value| Self::from_native(value, network_id))
+                    .collect(),
+            },
             NativeManifestValue::Array {
                 element_value_kind,
                 elements,
@@ -486,9 +484,9 @@ impl ManifestValue {
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::PreciseDecimal(value),
             } => Self::PreciseDecimalValue {
-                value: Arc::new(
-                    PreciseDecimal(native_to_precise_decimal(value))
-                ),
+                value: Arc::new(PreciseDecimal(native_to_precise_decimal(
+                    value,
+                ))),
             },
             NativeManifestValue::Custom {
                 value: NativeManifestCustomValue::NonFungibleLocalId(value),

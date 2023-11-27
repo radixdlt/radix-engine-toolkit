@@ -59,9 +59,9 @@ pub fn read_and_deserialize_from_memory<'s, D: Deserialize<'s>>(
         std::ffi::CStr::from_ptr(string_pointer as *const std::ffi::c_char)
     }
     .to_str()
-    .map_err(
-        |error| InvocationInterpretationError::Utf8Error(debug_string(error))
-    )
+    .map_err(|error| {
+        InvocationInterpretationError::Utf8Error(debug_string(error))
+    })
     .and_then(|string| {
         serde_json::from_str(string).map_err(|error| {
             InvocationInterpretationError::DeserializationError(debug_string(

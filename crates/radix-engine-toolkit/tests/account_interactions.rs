@@ -270,14 +270,13 @@ fn account_deposit_interactions_count_as_deposit_interactions() {
 fn account_deposit_batch_interactions_count_as_deposit_interactions() {
     // Arrange
     let account = account();
-    let manifest =
-        ManifestBuilder::new()
-            .call_method(
-                account,
-                "deposit_batch",
-                manifest_args!(ManifestExpression::EntireWorktop),
-            )
-            .build();
+    let manifest = ManifestBuilder::new()
+        .call_method(
+            account,
+            "deposit_batch",
+            manifest_args!(ManifestExpression::EntireWorktop),
+        )
+        .build();
 
     // Act
     let (

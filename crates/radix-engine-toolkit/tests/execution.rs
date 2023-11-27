@@ -165,7 +165,10 @@ fn complex_transfer_is_picked_up_as_an_general_transaction() {
         .unwrap();
 
     // Assert
-    assert!(matches!(transaction_type, TransactionType::GeneralTransaction(..)))
+    assert!(matches!(
+        transaction_type,
+        TransactionType::GeneralTransaction(..)
+    ))
 }
 
 #[test]
@@ -200,15 +203,14 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
         .unwrap();
 
     // Act
-    let manifest =
-        ManifestBuilder::new()
-            .withdraw_from_account(account1, resource_address, 2)
-            .take_from_worktop(resource_address, 2, "bucket")
-            .with_bucket("bucket", |builder, bucket| {
-                builder.try_deposit_or_abort(account2, None, bucket)
-            })
-            .drop_all_proofs()
-            .build();
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, resource_address, 2)
+        .take_from_worktop(resource_address, 2, "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.try_deposit_or_abort(account2, None, bucket)
+        })
+        .drop_all_proofs()
+        .build();
     let receipt = test_runner.preview_manifest(
         manifest.clone(),
         vec![public_key1.into(), public_key2.into()],
@@ -219,16 +221,15 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
             skip_epoch_check: true,
         },
     );
-    let transaction_type =
-        transaction_types(&manifest.instructions, &receipt)
-            .into_iter()
-            .find_map(|transaction_type| match transaction_type {
-                TransactionType::GeneralTransaction(general_transaction) => {
-                    Some(general_transaction)
-                }
-                _ => None,
-            })
-            .unwrap();
+    let transaction_type = transaction_types(&manifest.instructions, &receipt)
+        .into_iter()
+        .find_map(|transaction_type| match transaction_type {
+            TransactionType::GeneralTransaction(general_transaction) => {
+                Some(general_transaction)
+            }
+            _ => None,
+        })
+        .unwrap();
 
     // Assert
     assert_eq!(
@@ -315,14 +316,13 @@ fn test_manifest_with_lock_fee(
     receipt.expect_commit_success();
 
     // Act
-    let transaction_types =
-        transaction_types(
-            &manifest.instructions,
-            &ExecutionAnalysisTransactionReceipt::new(
-                &VersionedTransactionReceipt::V1(receipt),
-            )
-            .unwrap(),
-        );
+    let transaction_types = transaction_types(
+        &manifest.instructions,
+        &ExecutionAnalysisTransactionReceipt::new(
+            &VersionedTransactionReceipt::V1(receipt),
+        )
+        .unwrap(),
+    );
 
     // Assert
     assert_eq!(transaction_types.len(), 0)
@@ -1001,11 +1001,10 @@ fn stake_claim_with_multiple_nfts_can_be_caught_by_claim_visitor() {
     stake_and_unstake(&mut test_runner, account1, validator1);
 
     let (claim_nft_local_id1, claim_nft_local_id2, claim_nft_local_id3) = {
-        let vault_id =
-            *test_runner
-                .get_component_vaults(account1, claim_nft_resource)
-                .first()
-                .unwrap();
+        let vault_id = *test_runner
+            .get_component_vaults(account1, claim_nft_resource)
+            .first()
+            .unwrap();
         let mut iter =
             test_runner.inspect_non_fungible_vault(vault_id).unwrap().1;
         (
@@ -1016,27 +1015,26 @@ fn stake_claim_with_multiple_nfts_can_be_caught_by_claim_visitor() {
     };
 
     // Act
-    let manifest =
-        ManifestBuilder::new()
-            .withdraw_non_fungibles_from_account(
-                account1,
-                claim_nft_resource,
-                [
-                    claim_nft_local_id1.clone(),
-                    claim_nft_local_id2.clone(),
-                    claim_nft_local_id3.clone(),
-                ],
+    let manifest = ManifestBuilder::new()
+        .withdraw_non_fungibles_from_account(
+            account1,
+            claim_nft_resource,
+            [
+                claim_nft_local_id1.clone(),
+                claim_nft_local_id2.clone(),
+                claim_nft_local_id3.clone(),
+            ],
+        )
+        .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
+        .with_bucket("StakeUnit1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                manifest_args!(bucket),
             )
-            .take_all_from_worktop(claim_nft_resource, "StakeUnit1")
-            .with_bucket("StakeUnit1", |builder, bucket| {
-                builder.call_method(
-                    validator1,
-                    VALIDATOR_CLAIM_XRD_IDENT,
-                    manifest_args!(bucket),
-                )
-            })
-            .deposit_batch(account1)
-            .build();
+        })
+        .deposit_batch(account1)
+        .build();
     let claims = execute_and_run_claim_visitor(manifest, &mut test_runner);
 
     // Assert

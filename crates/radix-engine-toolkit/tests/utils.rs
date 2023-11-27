@@ -171,13 +171,12 @@ fn able_to_extract_metadata_of_new_entities_in_genesis() {
     let native_vm = DefaultNativeVm::new();
     let vm = Vm::new(&scrypto_vm, native_vm);
     let mut substate_db = InMemorySubstateDatabase::standard();
-    let mut bootstrapper =
-        Bootstrapper::new(
-            NetworkDefinition::simulator(),
-            &mut substate_db,
-            vm,
-            false,
-        );
+    let mut bootstrapper = Bootstrapper::new(
+        NetworkDefinition::simulator(),
+        &mut substate_db,
+        vm,
+        false,
+    );
     let GenesisReceipts {
         system_bootstrap_receipt,
         data_ingestion_receipts,

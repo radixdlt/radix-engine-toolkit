@@ -250,11 +250,10 @@ impl SerializableManifestValue {
         manifest_value: &T,
         network_id: u8,
     ) -> Result<Self, ValueConversionError> {
-        let value =
-            manifest_decode::<ManifestValue>(
-                &manifest_encode(manifest_value).unwrap(),
-            )
-            .unwrap();
+        let value = manifest_decode::<ManifestValue>(
+            &manifest_encode(manifest_value).unwrap(),
+        )
+        .unwrap();
         Self::from_manifest_value(&value, network_id)
     }
 
@@ -264,49 +263,33 @@ impl SerializableManifestValue {
     ) -> Result<Self, ValueConversionError> {
         let value = match manifest_value {
             ManifestValue::Bool { value } => Self::Bool { value: *value },
-            ManifestValue::I8 { value } => {
-                Self::I8 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::I16 { value } => {
-                Self::I16 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::I32 { value } => {
-                Self::I32 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::I64 { value } => {
-                Self::I64 {
-                    value: into!(*value),
-                }
-            }
+            ManifestValue::I8 { value } => Self::I8 {
+                value: into!(*value),
+            },
+            ManifestValue::I16 { value } => Self::I16 {
+                value: into!(*value),
+            },
+            ManifestValue::I32 { value } => Self::I32 {
+                value: into!(*value),
+            },
+            ManifestValue::I64 { value } => Self::I64 {
+                value: into!(*value),
+            },
             ManifestValue::I128 { value } => Self::I128 {
                 value: into!(*value),
             },
-            ManifestValue::U8 { value } => {
-                Self::U8 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::U16 { value } => {
-                Self::U16 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::U32 { value } => {
-                Self::U32 {
-                    value: into!(*value),
-                }
-            }
-            ManifestValue::U64 { value } => {
-                Self::U64 {
-                    value: into!(*value),
-                }
-            }
+            ManifestValue::U8 { value } => Self::U8 {
+                value: into!(*value),
+            },
+            ManifestValue::U16 { value } => Self::U16 {
+                value: into!(*value),
+            },
+            ManifestValue::U32 { value } => Self::U32 {
+                value: into!(*value),
+            },
+            ManifestValue::U64 { value } => Self::U64 {
+                value: into!(*value),
+            },
             ManifestValue::U128 { value } => Self::U128 {
                 value: into!(*value),
             },
@@ -371,16 +354,14 @@ impl SerializableManifestValue {
                         )),
                     }
                 }
-                ManifestAddress::Static(node_id) => {
-                    Self::Address {
-                        value: SerializableManifestAddress::Static(
-                            SerializableNodeId(SerializableNodeIdInternal {
-                                node_id: *node_id,
-                                network_id,
-                            }),
-                        ),
-                    }
-                }
+                ManifestAddress::Static(node_id) => Self::Address {
+                    value: SerializableManifestAddress::Static(
+                        SerializableNodeId(SerializableNodeIdInternal {
+                            node_id: *node_id,
+                            network_id,
+                        }),
+                    ),
+                },
             },
             ManifestValue::Custom {
                 value: ManifestCustomValue::Bucket(value),
@@ -492,13 +473,11 @@ impl SerializableManifestValue {
             Self::Proof { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Proof(ManifestProof(**value)),
             },
-            Self::AddressReservation { value } => {
-                ManifestValue::Custom {
-                    value: ManifestCustomValue::AddressReservation(
-                        ManifestAddressReservation(**value),
-                    ),
-                }
-            }
+            Self::AddressReservation { value } => ManifestValue::Custom {
+                value: ManifestCustomValue::AddressReservation(
+                    ManifestAddressReservation(**value),
+                ),
+            },
             Self::Expression { value } => ManifestValue::Custom {
                 value: ManifestCustomValue::Expression(into!(*value)),
             },
@@ -513,13 +492,11 @@ impl SerializableManifestValue {
                     from_precise_decimal(**value),
                 ),
             },
-            Self::NonFungibleLocalId { value } => {
-                ManifestValue::Custom {
-                    value: ManifestCustomValue::NonFungibleLocalId(
-                        from_non_fungible_local_id((**value).clone()),
-                    ),
-                }
-            }
+            Self::NonFungibleLocalId { value } => ManifestValue::Custom {
+                value: ManifestCustomValue::NonFungibleLocalId(
+                    from_non_fungible_local_id((**value).clone()),
+                ),
+            },
             Self::Address { value } => match value {
                 SerializableManifestAddress::Static(value) => {
                     ManifestValue::Custom {
@@ -544,9 +521,9 @@ impl SerializableManifestValue {
         &self,
     ) -> Result<T, ValueConversionError> {
         let value = self.to_manifest_value()?;
-        manifest_decode(&manifest_encode(&value).unwrap()).map_err(
-            |error| ValueConversionError::DecodeError(format!("{:?}", error))
-        )
+        manifest_decode(&manifest_encode(&value).unwrap()).map_err(|error| {
+            ValueConversionError::DecodeError(format!("{:?}", error))
+        })
     }
 }
 

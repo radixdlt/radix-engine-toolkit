@@ -80,9 +80,10 @@ impl TransactionManifest {
         core_instructions_identities_requiring_auth(&self.instructions.0)
             .into_iter()
             .map(|address| {
-                Arc::new(
-                    Address::from_typed_node_id(address, self.instructions.1)
-                )
+                Arc::new(Address::from_typed_node_id(
+                    address,
+                    self.instructions.1,
+                ))
             })
             .collect()
     }
@@ -91,9 +92,10 @@ impl TransactionManifest {
         core_instructions_accounts_requiring_auth(&self.instructions.0)
             .into_iter()
             .map(|address| {
-                Arc::new(
-                    Address::from_typed_node_id(address, self.instructions.1)
-                )
+                Arc::new(Address::from_typed_node_id(
+                    address,
+                    self.instructions.1,
+                ))
             })
             .collect()
     }
@@ -102,9 +104,10 @@ impl TransactionManifest {
         core_instructions_accounts_withdrawn_from(&self.instructions.0)
             .into_iter()
             .map(|address| {
-                Arc::new(
-                    Address::from_typed_node_id(address, self.instructions.1)
-                )
+                Arc::new(Address::from_typed_node_id(
+                    address,
+                    self.instructions.1,
+                ))
             })
             .collect()
     }
@@ -113,9 +116,10 @@ impl TransactionManifest {
         core_instructions_accounts_deposited_into(&self.instructions.0)
             .into_iter()
             .map(|address| {
-                Arc::new(
-                    Address::from_typed_node_id(address, self.instructions.1)
-                )
+                Arc::new(Address::from_typed_node_id(
+                    address,
+                    self.instructions.1,
+                ))
             })
             .collect()
     }
@@ -131,7 +135,10 @@ impl TransactionManifest {
             &self.instructions.0,
             &CoreExecutionAnalysisTransactionReceipt::new(&receipt)?,
         )?;
-        Ok(ExecutionAnalysis::from_native(&analysis, self.instructions.1))
+        Ok(ExecutionAnalysis::from_native(
+            &analysis,
+            self.instructions.1,
+        ))
     }
 
     pub fn modify(
@@ -163,9 +170,10 @@ impl TransactionManifest {
 
         match maybe_transfer_information {
             Some((from, transfers)) => Ok(Some(TransferTransactionType {
-                from: Arc::new(
-                    Address::from_typed_node_id(from, self.instructions.1)
-                ),
+                from: Arc::new(Address::from_typed_node_id(
+                    from,
+                    self.instructions.1,
+                )),
                 transfers: transfers
                     .iter()
                     .map(|(key, value)| {
@@ -430,9 +438,9 @@ impl TransactionType {
                 } = value.as_ref();
 
                 Self::SimpleTransfer {
-                    from: Arc::new(
-                        Address::from_typed_node_id(*from, network_id)
-                    ),
+                    from: Arc::new(Address::from_typed_node_id(
+                        *from, network_id,
+                    )),
                     to: Arc::new(Address::from_typed_node_id(*to, network_id)),
                     transferred: ResourceSpecifier::from_native(
                         transferred,
@@ -445,9 +453,9 @@ impl TransactionType {
                     value.as_ref();
 
                 Self::Transfer {
-                    from: Arc::new(
-                        Address::from_typed_node_id(*from, network_id)
-                    ),
+                    from: Arc::new(Address::from_typed_node_id(
+                        *from, network_id,
+                    )),
                     transfers: transfers
                         .iter()
                         .map(|(key, value)| {
@@ -539,9 +547,9 @@ impl TransactionType {
                     account_proofs: account_proofs
                         .iter()
                         .map(|value| {
-                            Arc::new(
-                                Address::from_typed_node_id(*value, network_id)
-                            )
+                            Arc::new(Address::from_typed_node_id(
+                                *value, network_id,
+                            ))
                         })
                         .collect(),
                     account_withdraws: account_withdraws
@@ -584,11 +592,10 @@ impl TransactionType {
                         for address in addresses_in_manifest {
                             let entity_type =
                                 EntityType::from(address.entity_type());
-                            let address = Arc::new(
-                                Address::from_typed_node_id(
+                            let address =
+                                Arc::new(Address::from_typed_node_id(
                                     *address, network_id,
-                                ),
-                            );
+                                ));
                             map.entry(entity_type).or_default().push(address);
                         }
                         map
@@ -767,48 +774,46 @@ impl ResourceTracker {
                 resource_address,
                 amount,
                 ids,
-            } => {
-                Self::NonFungible {
-                    resource_address: Arc::new(Address::from_typed_node_id(
-                        *resource_address,
-                        network_id,
-                    )),
-                    amount: match amount {
-                        CoreSource::Guaranteed(value) => {
-                            DecimalSource::Guaranteed {
-                                value: Arc::new(Decimal(*value)),
-                            }
+            } => Self::NonFungible {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    *resource_address,
+                    network_id,
+                )),
+                amount: match amount {
+                    CoreSource::Guaranteed(value) => {
+                        DecimalSource::Guaranteed {
+                            value: Arc::new(Decimal(*value)),
                         }
-                        CoreSource::Predicted(index, value) => {
-                            DecimalSource::Predicted {
-                                instruction_index: *index as u64,
-                                value: Arc::new(Decimal(*value)),
-                            }
+                    }
+                    CoreSource::Predicted(index, value) => {
+                        DecimalSource::Predicted {
+                            instruction_index: *index as u64,
+                            value: Arc::new(Decimal(*value)),
                         }
-                    },
-                    ids: match ids {
-                        CoreSource::Guaranteed(value) => {
-                            NonFungibleLocalIdVecSource::Guaranteed {
-                                value: value
-                                    .iter()
-                                    .cloned()
-                                    .map(Into::into)
-                                    .collect(),
-                            }
+                    }
+                },
+                ids: match ids {
+                    CoreSource::Guaranteed(value) => {
+                        NonFungibleLocalIdVecSource::Guaranteed {
+                            value: value
+                                .iter()
+                                .cloned()
+                                .map(Into::into)
+                                .collect(),
                         }
-                        CoreSource::Predicted(index, value) => {
-                            NonFungibleLocalIdVecSource::Predicted {
-                                instruction_index: *index as u64,
-                                value: value
-                                    .iter()
-                                    .cloned()
-                                    .map(Into::into)
-                                    .collect(),
-                            }
+                    }
+                    CoreSource::Predicted(index, value) => {
+                        NonFungibleLocalIdVecSource::Predicted {
+                            instruction_index: *index as u64,
+                            value: value
+                                .iter()
+                                .cloned()
+                                .map(Into::into)
+                                .collect(),
                         }
-                    },
-                }
-            }
+                    }
+                },
+            },
         }
     }
 }
@@ -1099,9 +1104,10 @@ impl StakeInformation {
         network_id: u8,
     ) -> Self {
         Self {
-            from_account: Arc::new(
-                Address::from_typed_node_id(*from_account, network_id)
-            ),
+            from_account: Arc::new(Address::from_typed_node_id(
+                *from_account,
+                network_id,
+            )),
             validator_address: Arc::new(Address::from_typed_node_id(
                 *validator_address,
                 network_id,
@@ -1130,9 +1136,10 @@ impl UnstakeInformation {
         network_id: u8,
     ) -> Self {
         Self {
-            from_account: Arc::new(
-                Address::from_typed_node_id(*from_account, network_id)
-            ),
+            from_account: Arc::new(Address::from_typed_node_id(
+                *from_account,
+                network_id,
+            )),
             stake_unit_address: Arc::new(Address::from_typed_node_id(
                 *stake_unit_address,
                 network_id,
@@ -1167,9 +1174,10 @@ impl ClaimStakeInformation {
         network_id: u8,
     ) -> Self {
         Self {
-            from_account: Arc::new(
-                Address::from_typed_node_id(*from_account, network_id)
-            ),
+            from_account: Arc::new(Address::from_typed_node_id(
+                *from_account,
+                network_id,
+            )),
             validator_address: Arc::new(Address::from_typed_node_id(
                 *validator_address,
                 network_id,

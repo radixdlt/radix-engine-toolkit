@@ -38,38 +38,37 @@ use super::traits::HasExamples;
 
 impl<'f> HasExamples<'f, 72> for ExecutionAnalyze {
     fn example_inputs() -> [Self::Input; 72] {
-        let op1 =
-            {
-                let mut test_runner =
-                    TestRunnerBuilder::new().without_trace().build();
-                let (public_key1, _, account1) = test_runner.new_account(true);
-                let (public_key2, _, account2) = test_runner.new_account(true);
+        let op1 = {
+            let mut test_runner =
+                TestRunnerBuilder::new().without_trace().build();
+            let (public_key1, _, account1) = test_runner.new_account(true);
+            let (public_key2, _, account2) = test_runner.new_account(true);
 
-                let manifest = ManifestBuilder::new()
-                    .lock_fee(account1, "10")
-                    .withdraw_from_account(account1, XRD, "10")
-                    .take_from_worktop(XRD, "10", "bucket")
-                    .with_bucket("bucket", |builder, bucket| {
-                        builder.call_method(
-                            account2,
-                            ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                            manifest_args!(
-                                bucket,
-                                Option::<ResourceOrNonFungible>::None
-                            ),
-                        )
-                    })
-                    .build();
-                let receipt = test_runner.preview_manifest(
-                    manifest.clone(),
-                    vec![public_key1.into(), public_key2.into()],
-                    0,
-                    PreviewFlags::default(),
-                );
-                receipt.expect_commit_success();
+            let manifest = ManifestBuilder::new()
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, XRD, "10")
+                .take_from_worktop(XRD, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
+                    builder.call_method(
+                        account2,
+                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                        manifest_args!(
+                            bucket,
+                            Option::<ResourceOrNonFungible>::None
+                        ),
+                    )
+                })
+                .build();
+            let receipt = test_runner.preview_manifest(
+                manifest.clone(),
+                vec![public_key1.into(), public_key2.into()],
+                0,
+                PreviewFlags::default(),
+            );
+            receipt.expect_commit_success();
 
-                (manifest, receipt)
-            };
+            (manifest, receipt)
+        };
 
         let op2 = {
             let mut test_runner =
@@ -78,33 +77,32 @@ impl<'f> HasExamples<'f, 72> for ExecutionAnalyze {
             let (public_key2, _, account2) = test_runner.new_account(true);
             let (public_key3, _, account3) = test_runner.new_account(true);
 
-            let manifest =
-                ManifestBuilder::new()
-                    .lock_fee(account1, "10")
-                    .withdraw_from_account(account1, XRD, "20")
-                    .take_from_worktop(XRD, "10", "bucket")
-                    .with_bucket("bucket", |builder, bucket| {
-                        builder.call_method(
-                            account2,
-                            ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                            manifest_args!(
-                                bucket,
-                                Option::<ResourceOrNonFungible>::None
-                            ),
-                        )
-                    })
-                    .take_from_worktop(XRD, "10", "bucket1")
-                    .with_bucket("bucket1", |builder, bucket| {
-                        builder.call_method(
-                            account3,
-                            ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                            manifest_args!(
-                                bucket,
-                                Option::<ResourceOrNonFungible>::None
-                            ),
-                        )
-                    })
-                    .build();
+            let manifest = ManifestBuilder::new()
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, XRD, "20")
+                .take_from_worktop(XRD, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
+                    builder.call_method(
+                        account2,
+                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                        manifest_args!(
+                            bucket,
+                            Option::<ResourceOrNonFungible>::None
+                        ),
+                    )
+                })
+                .take_from_worktop(XRD, "10", "bucket1")
+                .with_bucket("bucket1", |builder, bucket| {
+                    builder.call_method(
+                        account3,
+                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                        manifest_args!(
+                            bucket,
+                            Option::<ResourceOrNonFungible>::None
+                        ),
+                    )
+                })
+                .build();
             let receipt = test_runner.preview_manifest(
                 manifest.clone(),
                 vec![
@@ -120,55 +118,54 @@ impl<'f> HasExamples<'f, 72> for ExecutionAnalyze {
             (manifest, receipt)
         };
 
-        let op3 =
-            {
-                let mut test_runner =
-                    TestRunnerBuilder::new().without_trace().build();
-                let (public_key1, _, account1) = test_runner.new_account(true);
-                let (public_key2, _, account2) = test_runner.new_account(true);
-                let (public_key3, _, account3) = test_runner.new_account(true);
+        let op3 = {
+            let mut test_runner =
+                TestRunnerBuilder::new().without_trace().build();
+            let (public_key1, _, account1) = test_runner.new_account(true);
+            let (public_key2, _, account2) = test_runner.new_account(true);
+            let (public_key3, _, account3) = test_runner.new_account(true);
 
-                let manifest = ManifestBuilder::new()
-                    .lock_fee(account1, "10")
-                    .withdraw_from_account(account1, XRD, "10")
-                    .withdraw_from_account(account2, XRD, "10")
-                    .take_from_worktop(XRD, "10", "bucket")
-                    .with_bucket("bucket", |builder, bucket| {
-                        builder.call_method(
-                            account2,
-                            ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                            manifest_args!(
-                                bucket,
-                                Option::<ResourceOrNonFungible>::None
-                            ),
-                        )
-                    })
-                    .take_from_worktop(XRD, "10", "bucket1")
-                    .with_bucket("bucket1", |builder, bucket| {
-                        builder.call_method(
-                            account3,
-                            ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                            manifest_args!(
-                                bucket,
-                                Option::<ResourceOrNonFungible>::None
-                            ),
-                        )
-                    })
-                    .build();
-                let receipt = test_runner.preview_manifest(
-                    manifest.clone(),
-                    vec![
-                        public_key1.into(),
-                        public_key2.into(),
-                        public_key3.into(),
-                    ],
-                    0,
-                    PreviewFlags::default(),
-                );
-                receipt.expect_commit_success();
+            let manifest = ManifestBuilder::new()
+                .lock_fee(account1, "10")
+                .withdraw_from_account(account1, XRD, "10")
+                .withdraw_from_account(account2, XRD, "10")
+                .take_from_worktop(XRD, "10", "bucket")
+                .with_bucket("bucket", |builder, bucket| {
+                    builder.call_method(
+                        account2,
+                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                        manifest_args!(
+                            bucket,
+                            Option::<ResourceOrNonFungible>::None
+                        ),
+                    )
+                })
+                .take_from_worktop(XRD, "10", "bucket1")
+                .with_bucket("bucket1", |builder, bucket| {
+                    builder.call_method(
+                        account3,
+                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                        manifest_args!(
+                            bucket,
+                            Option::<ResourceOrNonFungible>::None
+                        ),
+                    )
+                })
+                .build();
+            let receipt = test_runner.preview_manifest(
+                manifest.clone(),
+                vec![
+                    public_key1.into(),
+                    public_key2.into(),
+                    public_key3.into(),
+                ],
+                0,
+                PreviewFlags::default(),
+            );
+            receipt.expect_commit_success();
 
-                (manifest, receipt)
-            };
+            (manifest, receipt)
+        };
 
         [op1, op2, op3]
             .into_iter()

@@ -25,60 +25,59 @@ use transaction::prelude::{ManifestBuilder, Secp256k1PrivateKey};
 fn account_deposit_settings_visitor_functions_as_expected() {
     // Arrange
     let account1 = account_from_u64_private_key(1);
-    let manifest =
-        ManifestBuilder::new()
-            .call_method(
-                account1,
-                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                AccountAddAuthorizedDepositorInput {
-                    badge: ResourceOrNonFungible::Resource(XRD),
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                AccountRemoveAuthorizedDepositorInput {
-                    badge: ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE),
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                AccountSetResourcePreferenceInput {
-                    resource_address: XRD,
-                    resource_preference: ResourcePreference::Allowed,
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                AccountSetResourcePreferenceInput {
-                    resource_address: XRD,
-                    resource_preference: ResourcePreference::Disallowed,
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
-                AccountRemoveResourcePreferenceInput {
-                    resource_address: XRD,
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                AccountSetDefaultDepositRuleInput {
-                    default: DefaultDepositRule::Accept,
-                },
-            )
-            .call_method(
-                account1,
-                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                AccountSetDefaultDepositRuleInput {
-                    default: DefaultDepositRule::Reject,
-                },
-            )
-            .build();
+    let manifest = ManifestBuilder::new()
+        .call_method(
+            account1,
+            ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+            AccountAddAuthorizedDepositorInput {
+                badge: ResourceOrNonFungible::Resource(XRD),
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+            AccountRemoveAuthorizedDepositorInput {
+                badge: ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE),
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
+                resource_address: XRD,
+                resource_preference: ResourcePreference::Allowed,
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
+                resource_address: XRD,
+                resource_preference: ResourcePreference::Disallowed,
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+            AccountRemoveResourcePreferenceInput {
+                resource_address: XRD,
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Accept,
+            },
+        )
+        .call_method(
+            account1,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Reject,
+            },
+        )
+        .build();
 
     // Act
     let mut visitor = AccountDepositSettingsVisitor::default();
