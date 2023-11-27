@@ -67,9 +67,6 @@ done
 cp build.gradle.kts $library_name/lib/build.gradle.kts
 cp settings.gradle.kts $library_name/settings.gradle.kts
 
-# Extract version from Cargo.toml
-toml=../../radix-engine-toolkit-uniffi/Cargo.toml
-ret_version=$(grep -m 1 version $toml | awk -F= '{print $2}' | tr -d '" ')
-commit_hash=$(git rev-parse --short HEAD)
-version="$ret_version-$commit_hash"
+# Get version from the command line arguments
+version="$1"
 echo -e "ret-version=$version" >> $library_name/gradle.properties

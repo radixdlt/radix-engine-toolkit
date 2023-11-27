@@ -36,11 +36,11 @@ indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 # 1password's library for codesharing.
 typeshare = "1.0.1"
 
+# This makes the WASM builds work
+getrandom = { version = "*", features = ["js"] }
+
 [dev-dependencies]
 walkdir = "2.3.3"
 
 [lib]
 crate-type = ["staticlib", "cdylib", "rlib"]
-
-[features]
-default = []
