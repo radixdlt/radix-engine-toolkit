@@ -127,7 +127,7 @@ impl TransactionBuilderIntentSignaturesStep {
         mut self: Arc<Self>,
         private_key: Arc<PrivateKey>,
     ) -> Arc<Self> {
-        let builder = unsafe { Arc::get_mut_unchecked(&mut self) };
+        let builder = Arc::get_mut(&mut self).unwrap();
         builder.3.push(private_key);
         self
     }
@@ -136,7 +136,7 @@ impl TransactionBuilderIntentSignaturesStep {
         mut self: Arc<Self>,
         signer: Box<dyn Signer>,
     ) -> Arc<Self> {
-        let builder = unsafe { Arc::get_mut_unchecked(&mut self) };
+        let builder = Arc::get_mut(&mut self).unwrap();
         builder.4.push(signer);
         self
     }
