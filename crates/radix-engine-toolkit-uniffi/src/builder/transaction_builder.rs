@@ -214,7 +214,7 @@ impl TransactionBuilderIntentSignaturesStep {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn test_sign_with_private_key_panics() {
     let pub_key = PublicKey::Ed25519 {
         value: (0..32).collect(),
