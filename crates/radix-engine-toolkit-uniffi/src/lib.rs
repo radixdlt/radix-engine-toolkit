@@ -16,7 +16,6 @@
 // under the License.
 
 #![allow(unused_imports)]
-//#![feature(get_mut_unchecked)]
 
 pub mod blueprints;
 pub mod build;
