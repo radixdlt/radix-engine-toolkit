@@ -15,9 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::ops::Deref;
-
 use crate::prelude::*;
+use std::ops::Deref;
 
 #[derive(Clone, Copy, Debug, Object)]
 pub struct TransactionBuilder;
@@ -124,21 +123,27 @@ impl TransactionBuilderMessageStep {
 #[uniffi::export]
 impl TransactionBuilderIntentSignaturesStep {
     pub fn sign_with_private_key(
-        mut self: Arc<Self>,
+        self: Arc<Self>,
         private_key: Arc<PrivateKey>,
     ) -> Arc<Self> {
-        let builder = Arc::get_mut(&mut self).unwrap();
-        builder.3.push(private_key);
-        self
+        let ptr = Arc::into_raw(self);
+        let mut_ptr = ptr.cast_mut();
+        unsafe {
+            (*mut_ptr).3.push(private_key);
+            Arc::from_raw(ptr)
+        }
     }
 
     pub fn sign_with_signer(
-        mut self: Arc<Self>,
+        self: Arc<Self>,
         signer: Box<dyn Signer>,
     ) -> Arc<Self> {
-        let builder = Arc::get_mut(&mut self).unwrap();
-        builder.4.push(signer);
-        self
+        let ptr = Arc::into_raw(self);
+        let mut_ptr = ptr.cast_mut();
+        unsafe {
+            (*mut_ptr).4.push(signer);
+            Arc::from_raw(ptr)
+        }
     }
 
     pub fn notarize_with_private_key(
@@ -214,12 +219,10 @@ impl TransactionBuilderIntentSignaturesStep {
 }
 
 #[test]
-#[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
 fn test_sign_with_private_key_panics() {
-    let pub_key = PublicKey::Ed25519 {
-        value: (0..32).collect(),
-    };
-    let prv_key = PrivateKey::new_ed25519((32..64).collect()).unwrap();
+    // Arrange
+    let pub_key = PublicKey::Ed25519 { value: vec![0; 32] };
+    let prv_key = PrivateKey::new_ed25519(vec![0; 32]).unwrap();
 
     let th = TransactionHeader {
         network_id: 0,
@@ -236,13 +239,15 @@ fn test_sign_with_private_key_panics() {
         Vec::new(),
     );
 
-    let intent_sig = TransactionBuilder::new()
+    // Act
+    let intent_sig_step = TransactionBuilder::new()
         .header(th)
         .manifest(manifest)
         .sign_with_private_key(prv_key.clone());
-    let _intent_sig_other = Arc::clone(&intent_sig);
+    let _copy = Arc::clone(&intent_sig_step);
 
-    // Following call should panic because reference count of intent_sig
-    // variable is greather than 1.
-    intent_sig.sign_with_private_key(prv_key);
+    let intent_signed = intent_sig_step.sign_with_private_key(prv_key);
+
+    // Assert
+    assert_eq!(Arc::strong_count(&intent_signed), 2);
 }
