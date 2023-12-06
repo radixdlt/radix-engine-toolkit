@@ -24,25 +24,15 @@ on:
         type: string
         default: "main"
         description: The branch, tag, or sha to checkout - default to "main".
-  push:
-    # TODO: Remove!
-    # Temporary due to workflow dispatch restrictions
 env:
   CARGO_TERM_COLOR: always
-  # TODO: Remove!
-  # Temporary due to workflow dispatch restrictions
-  INPUT_REF: chore/restructure
-  INPUT_SWIFT-VERSION: "v1.0.4-abcdef1"
-  INPUT_KOTLIN-VERSION: "v1.0.4-abcdef1"
-  INPUT_PYTHON-VERSION: "v1.0.4.pre2"
-  INPUT_CS-VERSION: "1.0.4-commit-abcdef1"
 jobs:
   build-schemas-and-test-kit:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ env.INPUT_REF }}
+        ref: ${{ inputs.ref }}
     - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -115,7 +105,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.INPUT_REF }}
+          ref: ${{ inputs.ref }}
       - name: Install Rust Toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -192,7 +182,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.INPUT_REF }}
+          ref: ${{ inputs.ref }}
       - name: Clone uniffi-bindgen-cs
         uses: actions/checkout@v4
         with:
@@ -324,7 +314,7 @@ jobs:
       - name: Publish to Swift Engine Toolkit
         run: |
           BRANCH=${{ github.ref_name }}
-          SPM_VERSION="${{ env.INPUT_SWIFT-VERSION }}"
+          SPM_VERSION="${{ inputs.swift-version }}"
           SET_UPSTREAM_FLAG=""
   
           cd swift-engine-toolkit
@@ -373,7 +363,7 @@ jobs:
       - name: Create Kotlin Library
         working-directory: interop/kotlin
         run:
-          ./bootstrap.sh ${{ env.INPUT_KOTLIN-VERSION }}
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -428,7 +418,7 @@ jobs:
       - name: Create Kotlin Library
         working-directory: interop/kotlin
         run: |
-          ./bootstrap.sh ${{ env.INPUT_KOTLIN-VERSION }}
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -466,7 +456,7 @@ jobs:
       - name: Create Android Library
         working-directory: interop/android
         run:
-          ./bootstrap.sh ${{ env.INPUT_KOTLIN-VERSION }}
+          ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
@@ -497,7 +487,7 @@ jobs:
           dotnet-version: 7.0.x
       - name: Configure Version
         run: |
-          VERSION=${{ env.INPUT_CS-VERSION }}
+          VERSION=${{ inputs.cs-version }}
   
           sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
   
@@ -600,7 +590,7 @@ jobs:
             ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll \
             ./interop/python/radix_engine_toolkit/x86_64-pc-windows-gnu.dll
       - name: Update Version
-        run: python3 -c "path = './interop/python/setup.py'; content = open(path, 'r').read(); content = content.replace('VERSION', '${{ env.INPUT_PYTHON-VERSION }}'); open(path, 'w').write(content)"
+        run: python3 -c "path = './interop/python/setup.py'; content = open(path, 'r').read(); content = content.replace('VERSION', '${{ inputs.python-version }}'); open(path, 'w').write(content)"
       - name: Build Package
         working-directory: ./interop/python/
         run: python3 -m build --wheel
