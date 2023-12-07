@@ -34,7 +34,7 @@ use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::unsta
 #[test]
 fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
 
@@ -79,7 +79,7 @@ fn simple_transfer_is_picked_up_as_a_simple_account_transfer_transaction() {
 #[test]
 fn transfer_is_picked_up_as_an_account_transfer_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
@@ -131,7 +131,7 @@ fn transfer_is_picked_up_as_an_account_transfer_transaction() {
 #[test]
 fn complex_transfer_is_picked_up_as_an_general_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (public_key1, _, account1) = test_runner.new_account(true);
     let (public_key2, _, account2) = test_runner.new_account(true);
     let (public_key3, _, account3) = test_runner.new_account(true);
@@ -267,7 +267,7 @@ fn general_transaction_handles_take_non_fungible_ids_from_worktop_correctly() {
 #[test]
 pub fn deposit_and_deposit_batch_of_nothing_should_not_result_in_an_error() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new().deposit_batch(account).build();
@@ -294,7 +294,7 @@ fn test_manifest_with_lock_fee(
     arguments: impl ResolvableArguments,
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (pk, _, account) = test_runner.new_account(true);
 
     let manifest = ManifestBuilder::new()
@@ -347,7 +347,7 @@ fn manifest_with_a_lock_contingent_fee_should_not_be_conforming() {
 #[test]
 fn simple_stake_transaction_is_detected_by_the_stake_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -382,7 +382,7 @@ fn simple_stake_transaction_is_detected_by_the_stake_visitor() {
 fn simple_stake_transaction_using_take_all_from_worktop_deposit_is_detected_by_the_stake_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -418,7 +418,7 @@ fn simple_stake_transaction_using_take_all_from_worktop_deposit_is_detected_by_t
 fn stake_with_multi_withdraw_and_multi_deposits_is_detected_as_stake_by_stake_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
@@ -472,7 +472,7 @@ fn stake_with_multi_withdraw_and_multi_deposits_is_detected_as_stake_by_stake_vi
 fn staking_from_one_account_to_multiple_validators_is_detected_as_a_stake_transaction(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -520,7 +520,7 @@ fn staking_from_one_account_to_multiple_validators_is_detected_as_a_stake_transa
 #[test]
 fn staking_of_zero_xrd_is_considered_valid_by_the_stake_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -555,7 +555,7 @@ fn staking_of_zero_xrd_is_considered_valid_by_the_stake_visitor() {
 fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_the_stake_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -590,7 +590,7 @@ fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_th
 fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_the_stake_visitor2(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit1, _) =
         new_registered_validator(&mut test_runner);
@@ -638,7 +638,7 @@ fn staking_transaction_that_used_take_all_from_worktop_is_considered_valid_by_th
 #[test]
 fn staking_but_not_using_all_withdrawn_xrd_invalidates_staking_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, _) = new_registered_validator(&mut test_runner);
 
@@ -659,7 +659,7 @@ fn staking_but_not_using_all_withdrawn_xrd_invalidates_staking_transaction() {
 fn staking_and_withdrawing_from_one_account_and_depositing_into_another_invalidates_stake_transaction(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
     let (_, _, validator1, _, _) = new_registered_validator(&mut test_runner);
@@ -680,7 +680,7 @@ fn staking_and_withdrawing_from_one_account_and_depositing_into_another_invalida
 #[test]
 fn simple_unstaking_is_recognized_by_unstaking_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -719,7 +719,7 @@ fn simple_unstaking_is_recognized_by_unstaking_visitor() {
 fn unstaking_with_take_from_worktop_by_amount_is_recognized_by_unstaking_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -758,7 +758,7 @@ fn unstaking_with_take_from_worktop_by_amount_is_recognized_by_unstaking_visitor
 fn unstaking_with_take_from_worktop_by_amount_of_claim_nft_is_recognized_by_unstaking_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -798,7 +798,7 @@ fn unstaking_with_take_from_worktop_by_amount_of_claim_nft_is_recognized_by_unst
 fn unstaking_with_take_all_from_worktop_of_claim_nft_is_recognized_by_unstaking_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -838,7 +838,7 @@ fn unstaking_with_take_all_from_worktop_of_claim_nft_is_recognized_by_unstaking_
 fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_unstake_visitor(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
@@ -863,7 +863,7 @@ fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_uns
 fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_unstake_visitor2(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, ..) =
@@ -886,7 +886,7 @@ fn unstaking_and_depositing_claim_nft_into_another_account_is_not_allowed_by_uns
 #[test]
 fn multiple_unstakes_is_recognized_by_unstaking_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, stake_unit_resource, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -945,7 +945,7 @@ fn multiple_unstakes_is_recognized_by_unstaking_visitor() {
 #[test]
 fn simple_claim_transaction_can_be_caught_by_claim_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -991,7 +991,7 @@ fn simple_claim_transaction_can_be_caught_by_claim_visitor() {
 #[test]
 fn stake_claim_with_multiple_nfts_can_be_caught_by_claim_visitor() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -1059,7 +1059,7 @@ fn stake_claim_with_multiple_nfts_can_be_caught_by_claim_visitor() {
 #[test]
 fn simple_claim_transaction_can_be_caught_by_claim_visitor1() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -1105,7 +1105,7 @@ fn simple_claim_transaction_can_be_caught_by_claim_visitor1() {
 #[test]
 fn simple_claim_transaction_can_be_caught_by_claim_visitor2() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
@@ -1151,7 +1151,7 @@ fn simple_claim_transaction_can_be_caught_by_claim_visitor2() {
 #[test]
 fn simple_claim_transaction_can_be_caught_by_claim_visitor3() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().build();
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, validator1, _, claim_nft_resource) =
         new_registered_validator(&mut test_runner);
