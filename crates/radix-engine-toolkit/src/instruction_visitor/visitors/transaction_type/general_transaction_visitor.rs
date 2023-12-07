@@ -828,8 +828,6 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
                 /* All deposit methods */
                 ACCOUNT_DEPOSIT_IDENT,
                 ACCOUNT_DEPOSIT_BATCH_IDENT,
-                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
                 ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                 ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
                 /* All proof creation methods */
@@ -851,6 +849,9 @@ fn construct_fn_rules(entity_type: EntityType) -> FnRules {
                 ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
                 ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
                 ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                /* Deposit or Refund */
+                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
+                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
                 /* All fee locking methods */
                 ACCOUNT_LOCK_FEE_IDENT,
                 ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
