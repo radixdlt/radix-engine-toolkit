@@ -31,13 +31,13 @@ pub struct TransactionBuilderMessageStep(
     pub(crate) Message,
 );
 
-#[derive(Object)]
+#[derive(Clone, Object)]
 pub struct TransactionBuilderIntentSignaturesStep(
     pub(crate) TransactionHeader,
     pub(crate) TransactionManifest,
     pub(crate) Message,
-    pub(crate) Vec<Arc<PrivateKey>>,
-    pub(crate) Vec<Box<dyn Signer>>,
+    pub(crate) Hash,
+    pub(crate) Vec<SignatureWithPublicKey>,
 );
 
 #[uniffi::export]
@@ -76,74 +76,76 @@ impl TransactionBuilderMessageStep {
         self: Arc<Self>,
         message: Message,
     ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        let header = self.0.clone();
-        let manifest = self.1.clone();
-        Arc::new(TransactionBuilderIntentSignaturesStep(
-            header,
-            manifest,
-            message,
-            vec![],
-            vec![],
-        ))
+        TransactionBuilderIntentSignaturesStep::new(
+            &TransactionBuilderMessageStep(
+                self.0.clone(),
+                self.1.clone(),
+                message,
+            ),
+        )
     }
 
     pub fn sign_with_private_key(
         self: Arc<Self>,
         private_key: Arc<PrivateKey>,
     ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        let header = self.0.clone();
-        let manifest = self.1.clone();
-        let message = self.2.clone();
-        Arc::new(TransactionBuilderIntentSignaturesStep(
-            header,
-            manifest,
-            message,
-            vec![private_key],
-            vec![],
-        ))
+        let builder = TransactionBuilderIntentSignaturesStep::new(&self);
+        builder.sign_with_private_key(private_key)
     }
 
     pub fn sign_with_signer(
         self: Arc<Self>,
         signer: Box<dyn Signer>,
     ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        let header = self.0.clone();
-        let manifest = self.1.clone();
-        let message = self.2.clone();
-        Arc::new(TransactionBuilderIntentSignaturesStep(
-            header,
-            manifest,
-            message,
-            vec![],
-            vec![signer],
-        ))
+        let builder = TransactionBuilderIntentSignaturesStep::new(&self);
+        builder.sign_with_signer(signer)
     }
 }
 
 #[uniffi::export]
 impl TransactionBuilderIntentSignaturesStep {
+    #[uniffi::constructor]
+    fn new(message_step: &TransactionBuilderMessageStep) -> Arc<Self> {
+        let intent = Intent {
+            header: message_step.0.clone(),
+            manifest: Arc::new(message_step.1.clone()),
+            message: message_step.2.clone(),
+        };
+        let hash = Hash(intent.hash().unwrap().0);
+
+        Arc::new(TransactionBuilderIntentSignaturesStep(
+            message_step.0.clone(),
+            message_step.1.clone(),
+            message_step.2.clone(),
+            hash,
+            vec![],
+        ))
+    }
+
     pub fn sign_with_private_key(
         self: Arc<Self>,
         private_key: Arc<PrivateKey>,
     ) -> Arc<Self> {
-        let ptr = Arc::into_raw(self);
-        let mut_ptr = ptr.cast_mut();
-        unsafe {
-            (*mut_ptr).3.push(private_key);
-            Arc::from_raw(ptr)
-        }
+        let signature = private_key
+            .deref()
+            .sign_to_signature_with_public_key(Arc::new(self.3));
+
+        let mut this = Arc::try_unwrap(self).unwrap_or_else(|x| (*x).clone());
+        this.4.push(signature);
+        Arc::new(this)
     }
 
     pub fn sign_with_signer(
         self: Arc<Self>,
         signer: Box<dyn Signer>,
     ) -> Arc<Self> {
-        let ptr = Arc::into_raw(self);
-        let mut_ptr = ptr.cast_mut();
-        unsafe {
-            (*mut_ptr).4.push(signer);
-            Arc::from_raw(ptr)
-        }
+        let signature = signer
+            .deref()
+            .sign_to_signature_with_public_key(Arc::new(self.3));
+
+        let mut this = Arc::try_unwrap(self).unwrap_or_else(|x| (*x).clone());
+        this.4.push(signature);
+        Arc::new(this)
     }
 
     pub fn notarize_with_private_key(
@@ -164,30 +166,17 @@ impl TransactionBuilderIntentSignaturesStep {
 impl TransactionBuilderIntentSignaturesStep {
     fn notarize(&self, notary: &dyn Signer) -> Result<NotarizedTransaction> {
         /* Processing the intent */
-        let header = self.0.clone();
-        let manifest = self.1.clone();
-        let message = self.2.clone();
         let intent = Intent {
-            header,
-            manifest: Arc::new(manifest),
-            message,
+            header: self.0.clone(),
+            manifest: Arc::new(self.1.clone()),
+            message: self.2.clone(),
         };
-        let hash = Arc::new(Hash(intent.hash()?.0));
 
-        /* Creating the intent signatures */
+        /* Collecting the intent signatures */
         let intent_signatures = self
-            .3
-            .iter()
-            .map(|private_key| {
-                private_key
-                    .deref()
-                    .sign_to_signature_with_public_key(hash.clone())
-            })
-            .chain(self.4.iter().map(|signer| {
-                signer
-                    .deref()
-                    .sign_to_signature_with_public_key(hash.clone())
-            }))
+            .4
+            .clone()
+            .into_iter()
             .map(NativeSignatureWithPublicKey::try_from)
             .map(|signature| signature.map(NativeIntentSignature))
             .collect::<Result<Vec<_>>>()?;
