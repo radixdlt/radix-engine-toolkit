@@ -206,37 +206,3 @@ impl TransactionBuilderIntentSignaturesStep {
         Ok(notarized_transaction)
     }
 }
-
-#[test]
-fn test_sign_with_private_key_panics() {
-    // Arrange
-    let pub_key = PublicKey::Ed25519 { value: vec![0; 32] };
-    let prv_key = PrivateKey::new_ed25519(vec![0; 32]).unwrap();
-
-    let th = TransactionHeader {
-        network_id: 0,
-        start_epoch_inclusive: 1,
-        end_epoch_exclusive: 2,
-        nonce: 1,
-        notary_public_key: pub_key,
-        notary_is_signatory: false,
-        tip_percentage: 0,
-    };
-
-    let manifest = TransactionManifest::new(
-        Arc::new(Instructions(Vec::new(), 0)),
-        Vec::new(),
-    );
-
-    // Act
-    let intent_sig_step = TransactionBuilder::new()
-        .header(th)
-        .manifest(manifest)
-        .sign_with_private_key(prv_key.clone());
-    let _copy = Arc::clone(&intent_sig_step);
-
-    let intent_signed = intent_sig_step.sign_with_private_key(prv_key);
-
-    // Assert
-    assert_eq!(Arc::strong_count(&intent_signed), 2);
-}
