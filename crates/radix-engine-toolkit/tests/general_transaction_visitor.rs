@@ -135,3 +135,116 @@ fn account_add_authorized_depositor_method_is_disallowed_in_general_transaction(
     // Assert
     assert!(visitor.output().is_none())
 }
+
+#[test]
+fn deposit_or_abort_is_valid_for_general_transaction_type() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (public_key1, _, account1) = test_runner.new_account(true);
+    let (public_key2, _, account2) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .try_deposit_or_abort(account2, None, "bucket")
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![public_key1.into(), public_key2.into()],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    receipt.expect_commit_success();
+
+    // Act
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
+    traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
+
+    // Assert
+    assert!(visitor.output().is_some());
+}
+
+#[test]
+fn deposit_or_refund_invalidates_general_transaction_type() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (public_key1, _, account1) = test_runner.new_account(true);
+    let (public_key2, _, account2) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .take_from_worktop(XRD, dec!("10"), "bucket")
+        .try_deposit_or_refund(account2, None, "bucket")
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![public_key1.into(), public_key2.into()],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    receipt.expect_commit_success();
+
+    // Act
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
+    traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
+
+    // Assert
+    assert!(visitor.output().is_none());
+}
+
+#[test]
+fn deposit_batch_or_refund_invalidates_general_transaction_type() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (public_key1, _, account1) = test_runner.new_account(true);
+    let (public_key2, _, account2) = test_runner.new_account(true);
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account1, XRD, dec!("10"))
+        .try_deposit_entire_worktop_or_refund(account2, None)
+        .build();
+    let receipt = test_runner.preview_manifest(
+        manifest.clone(),
+        vec![public_key1.into(), public_key2.into()],
+        0,
+        PreviewFlags {
+            use_free_credit: true,
+            assume_all_signature_proofs: true,
+            skip_epoch_check: true,
+        },
+    );
+    receipt.expect_commit_success();
+
+    // Act
+    let mut visitor = GeneralTransactionTypeVisitor::new(
+        receipt
+            .expect_commit_success()
+            .execution_trace
+            .as_ref()
+            .unwrap(),
+    );
+    traverse(&manifest.instructions, &mut [&mut visitor]).unwrap();
+
+    // Assert
+    assert!(visitor.output().is_none());
+}
