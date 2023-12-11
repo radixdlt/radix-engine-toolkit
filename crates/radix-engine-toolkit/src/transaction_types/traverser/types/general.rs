@@ -78,7 +78,7 @@ impl GeneralDetector {
                         EntityType::GlobalAccount
                         | EntityType::GlobalVirtualSecp256k1Account
                         | EntityType::GlobalVirtualEd25519Account => FnRules {
-                            allowed: vec![
+                            allowed: &[
                                 /* All withdraw methods */
                                 ACCOUNT_WITHDRAW_IDENT,
                                 ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
@@ -91,33 +91,7 @@ impl GeneralDetector {
                                 ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
                                 ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
                             ],
-                            disallowed: vec![
-                                /* Securification */
-                                ACCOUNT_SECURIFY_IDENT,
-                                /* Direct Burn from Account */
-                                ACCOUNT_BURN_IDENT,
-                                ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
-                                /* Manipulation of the Authorized Depositors list */
-                                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                                /* Deposit or Refund Methods */
-                                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
-                                /* Manipulation of the Resource Preferences */
-                                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                                ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                                ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
-                                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                                /* Deposit or Refund */
-                                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
-                                /* All fee locking methods */
-                                ACCOUNT_LOCK_FEE_IDENT,
-                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
-                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
-                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
-                            ],
+                            disallowed: &[],
                             default: FnRule::Disallowed,
                         },
                         EntityType::GlobalGenericComponent

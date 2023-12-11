@@ -107,7 +107,7 @@ impl TransferDetector {
                         EntityType::GlobalAccount
                         | EntityType::GlobalVirtualSecp256k1Account
                         | EntityType::GlobalVirtualEd25519Account => FnRules {
-                            allowed: vec![
+                            allowed: &[
                                 /* All withdraw methods */
                                 ACCOUNT_WITHDRAW_IDENT,
                                 ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
@@ -117,7 +117,7 @@ impl TransferDetector {
                                 ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                                 ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
                             ],
-                            disallowed: vec![
+                            disallowed: &[
                                 /* Securification */
                                 ACCOUNT_SECURIFY_IDENT,
                                 /* Direct Burn from Account */

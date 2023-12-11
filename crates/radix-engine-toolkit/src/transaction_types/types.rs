@@ -333,8 +333,8 @@ pub enum FnRule {
 /// A struct that stores information on the methods that the general transaction
 /// visitor allows and does not allow.
 pub struct FnRules {
-    pub allowed: Vec<&'static str>,
-    pub disallowed: Vec<&'static str>,
+    pub allowed: &'static [&'static str],
+    pub disallowed: &'static [&'static str],
     pub default: FnRule,
 }
 
