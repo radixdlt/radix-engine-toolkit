@@ -166,6 +166,33 @@ pub enum DetailedManifestClass {
     },
 }
 
+impl From<DetailedManifestClass> for ManifestClass {
+    fn from(value: DetailedManifestClass) -> Self {
+        match value {
+            DetailedManifestClass::General => ManifestClass::General,
+            DetailedManifestClass::Transfer { .. } => ManifestClass::Transfer,
+            DetailedManifestClass::PoolContribution { .. } => {
+                ManifestClass::PoolContribution
+            }
+            DetailedManifestClass::PoolRedemption { .. } => {
+                ManifestClass::PoolRedemption
+            }
+            DetailedManifestClass::ValidatorStake { .. } => {
+                ManifestClass::ValidatorStake
+            }
+            DetailedManifestClass::ValidatorUnstake { .. } => {
+                ManifestClass::ValidatorUnstake
+            }
+            DetailedManifestClass::ValidatorClaim { .. } => {
+                ManifestClass::ValidatorClaim
+            }
+            DetailedManifestClass::AccountDepositSettingsUpdate { .. } => {
+                ManifestClass::AccountDepositSettingsUpdate
+            }
+        }
+    }
+}
+
 /// A receipt used for the calculation of the execution summary. This receipt
 /// must belong to a transaction that executed successfully and the execution
 /// trace must be present.
