@@ -20,6 +20,9 @@ pub struct ManifestSummary {
     /// The set of identities encountered in the manifest where privileged
     /// methods were called.
     identities_requiring_auth: IndexSet<NodeId>,
+    /// The set of instructions encountered in the manifest that are reserved
+    /// and can only be included in the manifest by the wallet itself.
+    reserved_instructions: IndexSet<ReservedInstruction>,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     classification: IndexSet<ManifestClass>,
@@ -39,15 +42,20 @@ pub struct ExecutionSummary {
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
     presented_proofs: IndexSet<ResourceAddress>,
+    /// Information on the global entities created in the transaction.
+    new_entities: NewEntities,
     /// The set of all entities encountered in the manifest - this is used by
     /// the wallet for the "using dApps" section.
     encountered_entities: IndexSet<NodeId>,
     /// The set of accounts encountered in the manifest where privileged
     /// methods were called.
-    accounts_requiring_auth: IndexSet<NodeId>,
+    accounts_requiring_auth: IndexSet<ComponentAddress>,
     /// The set of identities encountered in the manifest where privileged
     /// methods were called.
-    identities_requiring_auth: IndexSet<NodeId>,
+    identities_requiring_auth: IndexSet<ComponentAddress>,
+    /// The set of instructions encountered in the manifest that are reserved
+    /// and can only be included in the manifest by the wallet itself.
+    reserved_instructions: IndexSet<ReservedInstruction>,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     detailed_classification: IndexSet<DetailedManifestClass>,
@@ -223,6 +231,20 @@ impl<'r> TransactionTypesReceipt<'r> {
     }
 }
 
+impl<'r> TransactionTypesReceipt<'r> {
+    pub fn new_components(&self) -> &'r IndexSet<ComponentAddress> {
+        self.commit_result.new_component_addresses()
+    }
+
+    pub fn new_resources(&self) -> &'r IndexSet<ResourceAddress> {
+        self.commit_result.new_resource_addresses()
+    }
+
+    pub fn new_packages(&self) -> &'r IndexSet<PackageAddress> {
+        self.commit_result.new_package_addresses()
+    }
+}
+
 impl<'r> Deref for TransactionTypesReceipt<'r> {
     type Target = TransactionReceipt;
 
@@ -282,4 +304,23 @@ impl<T> std::ops::DerefMut for Source<T> {
             Self::Guaranteed(target) | Self::Predicted(_, target) => target,
         }
     }
+}
+
+/// Information on the entities created in the transaction.
+#[derive(Clone, Debug)]
+pub struct NewEntities {
+    pub component_addresses: IndexSet<ComponentAddress>,
+    pub resource_addresses: IndexSet<ResourceAddress>,
+    pub package_addresses: IndexSet<PackageAddress>,
+}
+
+/// The set of instructions that is only allowed in manifests created by the
+/// wallet itself.
+#[derive(Clone, Debug)]
+pub enum ReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessControllerMethod,
 }
