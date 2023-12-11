@@ -324,3 +324,47 @@ pub enum ReservedInstruction {
     AccountUpdateSettings,
     AccessControllerMethod,
 }
+
+pub enum FnRule {
+    Allowed,
+    Disallowed,
+}
+
+/// A struct that stores information on the methods that the general transaction
+/// visitor allows and does not allow.
+pub struct FnRules {
+    pub allowed: Vec<&'static str>,
+    pub disallowed: Vec<&'static str>,
+    pub default: FnRule,
+}
+
+impl FnRules {
+    pub fn is_fn_permitted(&self, fn_name: &str) -> bool {
+        if self.allowed.contains(&fn_name) {
+            true
+        } else if self.disallowed.contains(&fn_name) {
+            false
+        } else {
+            match self.default {
+                FnRule::Allowed => true,
+                FnRule::Disallowed => false,
+            }
+        }
+    }
+
+    pub fn all_allowed() -> Self {
+        Self {
+            allowed: Default::default(),
+            disallowed: Default::default(),
+            default: FnRule::Allowed,
+        }
+    }
+
+    pub fn all_disallowed() -> Self {
+        Self {
+            allowed: Default::default(),
+            disallowed: Default::default(),
+            default: FnRule::Disallowed,
+        }
+    }
+}

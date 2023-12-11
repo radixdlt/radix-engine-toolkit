@@ -32,7 +32,7 @@ lazy_static! {
     // Account package
     pub static ref ACCOUNT_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = account_blueprint_schema();
 
-    pub static ref ACCOUNT_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = account_methods_that_require_auth();
+    pub static ref ACCOUNT_METHODS_THAT_REQUIRE_AUTH: Vec<String> = account_methods_that_require_auth();
 
     pub static ref ACCOUNT_DEPOSIT_METHODS: Vec<String> = account_deposit_methods();
 
@@ -43,16 +43,16 @@ lazy_static! {
     // Identity Package
     pub static ref IDENTITY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = identity_blueprint_schema();
 
-    pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = identity_methods_that_require_auth();
+    pub static ref IDENTITY_METHODS_THAT_REQUIRE_AUTH: Vec<String> = identity_methods_that_require_auth();
 
     // Modules Package
     pub static ref ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = role_assignment_blueprint_schema();
     pub static ref METADATA_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = metadata_blueprint_schema();
     pub static ref ROYALTY_BLUEPRINT_SCHEMA: BlueprintDefinitionInit = royalty_blueprint_schema();
 
-    pub static ref ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = role_assignment_methods_that_require_auth();
-    pub static ref METADATA_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = metadata_methods_that_require_auth();
-    pub static ref ROYALTY_METHODS_THAT_REQUIRE_AUTH: Vec<MethodKey> = royalty_methods_that_require_auth();
+    pub static ref ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH: Vec<String> = role_assignment_methods_that_require_auth();
+    pub static ref METADATA_METHODS_THAT_REQUIRE_AUTH: Vec<String> = metadata_methods_that_require_auth();
+    pub static ref ROYALTY_METHODS_THAT_REQUIRE_AUTH: Vec<String> = royalty_methods_that_require_auth();
 }
 
 fn account_blueprint_schema() -> BlueprintDefinitionInit {
@@ -63,7 +63,7 @@ fn account_blueprint_schema() -> BlueprintDefinitionInit {
         .clone()
 }
 
-fn account_methods_that_require_auth() -> Vec<MethodKey> {
+fn account_methods_that_require_auth() -> Vec<String> {
     methods_that_require_auth(&ACCOUNT_BLUEPRINT_SCHEMA)
 }
 
@@ -177,7 +177,7 @@ fn identity_blueprint_schema() -> BlueprintDefinitionInit {
         .clone()
 }
 
-fn identity_methods_that_require_auth() -> Vec<MethodKey> {
+fn identity_methods_that_require_auth() -> Vec<String> {
     methods_that_require_auth(&IDENTITY_BLUEPRINT_SCHEMA)
 }
 
@@ -205,21 +205,21 @@ fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
         .clone()
 }
 
-fn role_assignment_methods_that_require_auth() -> Vec<MethodKey> {
+fn role_assignment_methods_that_require_auth() -> Vec<String> {
     methods_that_require_auth(&ROLE_ASSIGNMENT_BLUEPRINT_SCHEMA)
 }
 
-fn metadata_methods_that_require_auth() -> Vec<MethodKey> {
+fn metadata_methods_that_require_auth() -> Vec<String> {
     methods_that_require_auth(&METADATA_BLUEPRINT_SCHEMA)
 }
 
-fn royalty_methods_that_require_auth() -> Vec<MethodKey> {
+fn royalty_methods_that_require_auth() -> Vec<String> {
     methods_that_require_auth(&ROYALTY_BLUEPRINT_SCHEMA)
 }
 
 fn methods_that_require_auth(
     blueprint_schema: &BlueprintDefinitionInit,
-) -> Vec<MethodKey> {
+) -> Vec<String> {
     if let MethodAuthTemplate::StaticRoleDefinition(StaticRoleDefinition {
         ref methods,
         ..
@@ -231,7 +231,7 @@ fn methods_that_require_auth(
                 if let MethodAccessibility::Public = value {
                     None
                 } else {
-                    Some(key.clone())
+                    Some(key.ident.clone())
                 }
             })
             .collect()
