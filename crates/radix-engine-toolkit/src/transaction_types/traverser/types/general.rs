@@ -9,7 +9,7 @@ pub struct GeneralDetector {
     is_valid: bool,
 }
 
-impl ExecutionSummaryCallback for GeneralDetector {
+impl ManifestSummaryCallback for GeneralDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -61,6 +61,8 @@ impl ExecutionSummaryCallback for GeneralDetector {
         }
     }
 }
+
+impl ExecutionSummaryCallback for GeneralDetector {}
 
 impl GeneralDetector {
     pub fn is_valid(&self) -> bool {

@@ -12,7 +12,7 @@ pub struct TransferDetector {
     instructions_match_simple_transfer: bool,
 }
 
-impl ExecutionSummaryCallback for TransferDetector {
+impl ManifestSummaryCallback for TransferDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -86,6 +86,8 @@ impl ExecutionSummaryCallback for TransferDetector {
         }
     }
 }
+
+impl ExecutionSummaryCallback for TransferDetector {}
 
 impl TransferDetector {
     pub fn is_transfer(&self) -> bool {

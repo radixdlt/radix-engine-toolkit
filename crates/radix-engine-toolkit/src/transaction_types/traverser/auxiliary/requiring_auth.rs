@@ -9,7 +9,7 @@ pub struct RequiringAuthDetector {
     identities: IndexSet<ComponentAddress>,
 }
 
-impl ExecutionSummaryCallback for RequiringAuthDetector {
+impl ManifestSummaryCallback for RequiringAuthDetector {
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         match instruction {
             InstructionV1::CallMethod {
@@ -72,6 +72,8 @@ impl ExecutionSummaryCallback for RequiringAuthDetector {
         }
     }
 }
+
+impl ExecutionSummaryCallback for RequiringAuthDetector {}
 
 fn is_account(address: &GlobalAddress) -> bool {
     address

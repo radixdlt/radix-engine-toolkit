@@ -4,9 +4,9 @@ use transaction::prelude::*;
 
 use crate::transaction_types::types::*;
 
-pub trait ExecutionSummaryCallback {
-    /* Raw Instructions */
-
+/// A callback for information that can be obtained statically from the manifest
+/// without the need for the receipt or execution trace.
+pub trait ManifestSummaryCallback {
     /// Called when the traverser starts going through a new instruction with
     /// the new instruction and the index that it is at.
     #[inline]
@@ -17,8 +17,14 @@ pub trait ExecutionSummaryCallback {
     ) {
     }
 
+    /// Called when the instructions in the manifest have finished.
     #[inline]
     fn on_finish(&mut self, instructions_count: usize) {}
+
+    /// Called when a global entity is encountered in the manifest for the first
+    /// time to inform other observers of it.
+    #[inline]
+    fn on_global_entity_encounter(&mut self, address: GlobalAddress) {}
 
     /* Higher-level abstractions & resource movements */
 
@@ -37,7 +43,9 @@ pub trait ExecutionSummaryCallback {
         withdraw_information: &WithdrawInformation,
     ) {
     }
+}
 
+pub trait ExecutionSummaryCallback {
     /// Called when a deposit is performed into an account with the information
     /// of the deposited resources.
     #[inline]
@@ -47,9 +55,4 @@ pub trait ExecutionSummaryCallback {
         deposit_information: &DepositInformation,
     ) {
     }
-
-    /// Called when a global entity is encountered in the manifest for the first
-    /// time to inform other observers of it.
-    #[inline]
-    fn on_global_entity_encounter(&mut self, address: GlobalAddress) {}
 }
