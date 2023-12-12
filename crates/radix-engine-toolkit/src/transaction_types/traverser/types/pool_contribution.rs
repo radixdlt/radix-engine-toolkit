@@ -8,7 +8,7 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
-struct TrackedContribution {
+struct TrackedPoolContribution {
     pool_address: ComponentAddress,
     /* Input */
     contributed_resources: IndexMap<ResourceAddress, Decimal>,
@@ -22,7 +22,7 @@ pub struct PoolContributionDetector {
     /// The pools encountered in this manifest that were contributed to.
     pools: IndexSet<GlobalAddress>,
     /// Tracks the contributions that occurred in the transaction
-    tracked_contributions: Vec<TrackedContribution>,
+    tracked_contributions: Vec<TrackedPoolContribution>,
 }
 
 impl ManifestSummaryCallback for PoolContributionDetector {
@@ -127,7 +127,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     return;
                 };
 
-                let mut tracked_contribution = TrackedContribution {
+                let mut tracked_contribution = TrackedPoolContribution {
                     pool_address,
                     pool_units_resource_address: pool_unit_resource_address,
                     pool_units_amount: *pool_unit_amount,

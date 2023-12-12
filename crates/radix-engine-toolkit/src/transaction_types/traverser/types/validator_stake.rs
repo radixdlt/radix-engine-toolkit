@@ -7,7 +7,7 @@ use radix_engine_interface::blueprints::consensus_manager::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
-pub struct TrackedStake {
+pub struct TrackedValidatorStake {
     pub validator_address: ComponentAddress,
     /* Input */
     pub xrd_amount: Decimal,
@@ -21,7 +21,7 @@ pub struct ValidatorStakeDetector {
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
     /// Tracks the stake operations that ocurred in the transaction.
-    tracked_stake: Vec<TrackedStake>,
+    tracked_stake: Vec<TrackedValidatorStake>,
 }
 
 impl ManifestSummaryCallback for ValidatorStakeDetector {
@@ -129,7 +129,7 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
                     return;
                 };
 
-                self.tracked_stake.push(TrackedStake {
+                self.tracked_stake.push(TrackedValidatorStake {
                     validator_address: validator_component,
                     xrd_amount: **xrd_amount,
                     liquid_stake_unit_address: *stake_units_resource_address,

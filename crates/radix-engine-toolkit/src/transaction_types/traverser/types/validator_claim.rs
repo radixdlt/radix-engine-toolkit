@@ -9,7 +9,7 @@ use radix_engine_interface::blueprints::consensus_manager::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
-pub struct TrackedClaim {
+pub struct TrackedValidatorClaim {
     pub validator_address: ComponentAddress,
     /* Input */
     pub claim_nft_address: ResourceAddress,
@@ -23,7 +23,7 @@ pub struct ValidatorClaimDetector {
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
     /// Tracks the claim operations in the transaction.
-    tracked_claim: Vec<TrackedClaim>,
+    tracked_claim: Vec<TrackedValidatorClaim>,
 }
 
 impl ManifestSummaryCallback for ValidatorClaimDetector {
@@ -121,7 +121,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                     return;
                 };
 
-                self.tracked_claim.push(TrackedClaim {
+                self.tracked_claim.push(TrackedValidatorClaim {
                     validator_address: validator_component,
                     claim_nft_address: *claim_nft_resource_address,
                     claim_nft_ids: claim_nft_ids.deref().clone(),

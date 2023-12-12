@@ -9,7 +9,7 @@ use radix_engine_interface::blueprints::consensus_manager::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
-pub struct TrackedUnstake {
+pub struct TrackedValidatorUnstake {
     pub validator_address: ComponentAddress,
     /* Input */
     pub liquid_stake_unit_address: ResourceAddress,
@@ -24,7 +24,7 @@ pub struct ValidatorUnstakeDetector {
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
     /// Tracks the unstake operations in the transaction.
-    tracked_unstake: Vec<TrackedUnstake>,
+    tracked_unstake: Vec<TrackedValidatorUnstake>,
 }
 
 impl ManifestSummaryCallback for ValidatorUnstakeDetector {
@@ -129,7 +129,7 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
                     return;
                 };
 
-                self.tracked_unstake.push(TrackedUnstake {
+                self.tracked_unstake.push(TrackedValidatorUnstake {
                     validator_address: validator_component,
                     liquid_stake_unit_address: *stake_unit_resource_address,
                     liquid_stake_unit_amount: **stake_unit_amount,

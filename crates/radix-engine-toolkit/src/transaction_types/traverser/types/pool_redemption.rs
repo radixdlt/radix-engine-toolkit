@@ -8,7 +8,7 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
-struct TrackedRedemption {
+struct TrackedPoolRedemption {
     pool_address: ComponentAddress,
     /* Input */
     pool_units_resource_address: ResourceAddress,
@@ -22,7 +22,7 @@ pub struct PoolRedemptionDetector {
     /// The pools encountered in this manifest that were redeemed from.
     pools: IndexSet<GlobalAddress>,
     /// Tracks the redemptions that occurred in the transaction.
-    tracked_redemptions: Vec<TrackedRedemption>,
+    tracked_redemptions: Vec<TrackedPoolRedemption>,
 }
 
 impl ManifestSummaryCallback for PoolRedemptionDetector {
@@ -124,7 +124,7 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
                     return;
                 };
 
-                let mut tracked_redemption = TrackedRedemption {
+                let mut tracked_redemption = TrackedPoolRedemption {
                     pool_address,
                     pool_units_resource_address: *pool_unit_resource_address,
                     pool_units_amount: **pool_unit_amount,
