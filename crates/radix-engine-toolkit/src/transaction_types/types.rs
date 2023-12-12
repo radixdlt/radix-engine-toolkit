@@ -316,7 +316,7 @@ pub struct NewEntities {
 
 /// The set of instructions that is only allowed in manifests created by the
 /// wallet itself.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
