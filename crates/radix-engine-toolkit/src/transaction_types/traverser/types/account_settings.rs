@@ -23,11 +23,6 @@ use radix_engine_interface::blueprints::account::*;
 use crate::transaction_types::*;
 use crate::utils;
 
-pub enum Update<T> {
-    Set(T),
-    Remove,
-}
-
 pub struct AccountSettingsUpdateDetector {
     is_valid: bool,
     /// Updated resource preferences

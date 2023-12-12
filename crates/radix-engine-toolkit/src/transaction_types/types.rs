@@ -446,3 +446,8 @@ pub impl ResourceSpecifier {
         }
     }
 }
+
+pub enum Update<T> {
+    Set(T),
+    Remove,
+}

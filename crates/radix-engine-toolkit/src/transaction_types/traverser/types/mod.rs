@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod account_resource_movements;
 mod account_settings;
 mod general;
 mod pool_contribution;
@@ -24,6 +25,7 @@ mod validator_claim;
 mod validator_stake;
 mod validator_unstake;
 
+pub use account_resource_movements::*;
 pub use account_settings::*;
 pub use general::*;
 pub use pool_contribution::*;
