@@ -98,8 +98,8 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&ResourceSpecifier>,
-        output_resources: Vec<&ResourceSpecifier>,
+        input_resources: &[ResourceSpecifier],
+        output_resources: &[ResourceSpecifier],
     ) {
         match instruction {
             InstructionV1::CallMethod {

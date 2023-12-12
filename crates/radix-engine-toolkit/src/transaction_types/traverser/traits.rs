@@ -17,13 +17,17 @@ pub trait ManifestSummaryCallback {
     ) {
     }
 
-    /// Called when the instructions in the manifest have finished.
+    /// Called when a proof is created out of an account.
     #[inline]
-    fn on_finish(&mut self, instructions_count: usize) {}
+    fn on_create_proof(&mut self, resource_address: &ResourceAddress) {}
 
     /// Called when a global entity is encountered in the manifest
     #[inline]
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {}
+
+    /// Called when the instructions in the manifest have finished.
+    #[inline]
+    fn on_finish(&mut self, instructions_count: usize) {}
 }
 
 pub trait ExecutionSummaryCallback
@@ -38,15 +42,10 @@ where
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&ResourceSpecifier>,
-        output_resources: Vec<&ResourceSpecifier>,
+        input_resources: &[ResourceSpecifier],
+        output_resources: &[ResourceSpecifier],
     ) {
     }
-
-    /// Called when a proof is created either out of calling an account method
-    /// or from a bucket.
-    #[inline]
-    fn on_create_proof(&mut self, resource_specifier: &ResourceSpecifier) {}
 
     /// Called when resources are withdrawn from an account with the account and
     /// withdraw information.

@@ -99,8 +99,8 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&ResourceSpecifier>,
-        output_resources: Vec<&ResourceSpecifier>,
+        input_resources: &[ResourceSpecifier],
+        output_resources: &[ResourceSpecifier],
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -254,8 +254,8 @@ impl PoolContributionDetector {
     }
 
     fn pool_unit_resource_specifier(
-        input: &Vec<&ResourceSpecifier>,
-        output: &Vec<&ResourceSpecifier>,
+        input: &[ResourceSpecifier],
+        output: &[ResourceSpecifier],
     ) -> Option<ResourceSpecifier> {
         // The pool unit resource specifier is that which is only present in the
         // output and not in the input. We also account for the pool returning
@@ -271,7 +271,6 @@ impl PoolContributionDetector {
             .filter(|specifier| {
                 !input_resources.contains(&specifier.resource_address())
             })
-            .cloned()
             .cloned()
             .next()
     }

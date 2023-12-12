@@ -2,6 +2,7 @@ use std::ops::*;
 
 use scrypto::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
 
@@ -330,6 +331,10 @@ pub enum FungibleResourceIndicator {
 
 #[derive(Clone, Debug)]
 pub enum NonFungibleResourceIndicator {
+    ByAll {
+        predicted_amount: Predicted<Decimal>,
+        predicted_ids: Predicted<IndexSet<NonFungibleLocalId>>,
+    },
     ByAmount {
         amount: Decimal,
         predicted_ids: Predicted<IndexSet<NonFungibleLocalId>>,
@@ -339,8 +344,8 @@ pub enum NonFungibleResourceIndicator {
 
 #[derive(Clone, Debug)]
 pub struct Predicted<T> {
-    value: T,
-    instruction_index: usize,
+    pub value: T,
+    pub instruction_index: usize,
 }
 
 impl<T> Deref for Predicted<T> {
@@ -386,10 +391,38 @@ impl ResourceIndicator {
     }
 }
 
+impl From<ResourceIndicator> for ResourceSpecifier {
+    fn from(value: ResourceIndicator) -> Self {
+        match value {
+            ResourceIndicator::Fungible(
+                resource_address,
+                FungibleResourceIndicator::Guaranteed(amount),
+            )
+            | ResourceIndicator::Fungible(
+                resource_address,
+                FungibleResourceIndicator::Predicted(Predicted {
+                    value: amount,
+                    ..
+                }),
+            ) => ResourceSpecifier::Amount(resource_address, amount),
+            ResourceIndicator::NonFungible(
+                resource_address,
+                NonFungibleResourceIndicator::ByAll {
+                    predicted_ids: Predicted { value: ids, .. },
+                    ..
+                }
+                | NonFungibleResourceIndicator::ByAmount {
+                    predicted_ids: Predicted { value: ids, .. },
+                    ..
+                }
+                | NonFungibleResourceIndicator::ByIds(ids),
+            ) => ResourceSpecifier::Ids(resource_address, ids),
+        }
+    }
+}
+
 #[extend::ext]
-pub impl
-    radix_engine::system::system_modules::execution_trace::ResourceSpecifier
-{
+pub impl ResourceSpecifier {
     fn resource_address(&self) -> ResourceAddress {
         match self {
             Self::Amount(x, ..) | Self::Ids(x, ..) => *x,
