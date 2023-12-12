@@ -8,16 +8,21 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
+struct TrackedRedemption {
+    pool_address: ComponentAddress,
+    /* Input */
+    pool_units_resource_address: ResourceAddress,
+    pool_units_amount: Decimal,
+    /* Output */
+    redeemed_resources: IndexMap<ResourceAddress, Decimal>,
+}
+
 pub struct PoolRedemptionDetector {
     is_valid: bool,
     /// The pools encountered in this manifest that were redeemed from.
     pools: IndexSet<GlobalAddress>,
-    /// Tracks the redemptions in the transaction and how much pool units
-    /// mapped to how much assets.
-    tracked_pool_units: IndexMap<
-        (ComponentAddress, ResourceAddress),
-        IndexMap<ResourceAddress, Source<Decimal>>,
-    >,
+    /// Tracks the redemptions that occurred in the transaction.
+    tracked_redemptions: Vec<TrackedRedemption>,
 }
 
 impl ManifestSummaryCallback for PoolRedemptionDetector {
@@ -105,41 +110,42 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
                     || method_name == TWO_RESOURCE_POOL_REDEEM_IDENT
                     || method_name == MULTI_RESOURCE_POOL_REDEEM_IDENT) =>
             {
+                let pool_address = ComponentAddress::try_from(*address)
+                    .expect("Must be a valid component address");
+
                 // The pool unit resource is the only input resource - if none
                 // are found then an empty bucket of input resources was given
                 // so we need to just ignore this operation.
-                let Some(pool_unit_resource_specifier) =
-                    input_resources.first()
+                let Some(SourceResourceSpecifier::Amount(
+                    pool_unit_resource_address,
+                    pool_unit_amount,
+                )) = input_resources.first()
                 else {
                     return;
                 };
 
-                // Adding the output resources to the tracked resources.
+                let mut tracked_redemption = TrackedRedemption {
+                    pool_address,
+                    pool_units_resource_address: *pool_unit_resource_address,
+                    pool_units_amount: **pool_unit_amount,
+                    redeemed_resources: Default::default(),
+                };
+
                 for resource_specifier in output_resources {
                     let SourceResourceSpecifier::Amount(
                         resource_address,
                         amount,
                     ) = resource_specifier
                     else {
-                        // TODO: Error? Panic?
                         continue;
                     };
-
-                    self.tracked_pool_units
-                        .entry((
-                            ComponentAddress::try_from(*address)
-                                .expect("Must be a valid component address"),
-                            pool_unit_resource_specifier.resource_address(),
-                        ))
-                        .or_default()
+                    tracked_redemption
+                        .redeemed_resources
                         .entry(*resource_address)
-                        .or_insert(Source::Predicted(
-                            instruction_index + 1,
-                            Decimal::ZERO,
-                        ))
-                        .deref_mut()
-                        .add_assign(*amount.deref());
+                        .or_default()
+                        .add_assign(**amount);
                 }
+                self.tracked_redemptions.push(tracked_redemption)
             }
             _ => { /* No-op */ }
         }

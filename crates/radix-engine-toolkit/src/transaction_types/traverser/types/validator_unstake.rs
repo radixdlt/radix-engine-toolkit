@@ -10,6 +10,7 @@ use crate::transaction_types::*;
 use crate::utils::*;
 
 pub struct TrackedUnstake {
+    pub validator_address: ComponentAddress,
     /* Input */
     pub liquid_stake_unit_address: ResourceAddress,
     pub liquid_stake_unit_amount: Decimal,
@@ -18,27 +19,12 @@ pub struct TrackedUnstake {
     pub claim_nft_ids: IndexSet<NonFungibleLocalId>,
 }
 
-impl TrackedUnstake {
-    pub fn new(
-        liquid_stake_unit_address: ResourceAddress,
-        claim_nft_address: ResourceAddress,
-    ) -> Self {
-        Self {
-            liquid_stake_unit_address,
-            claim_nft_address,
-            claim_nft_ids: Default::default(),
-            liquid_stake_unit_amount: Default::default(),
-        }
-    }
-}
-
 pub struct ValidatorUnstakeDetector {
     is_valid: bool,
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
-    /// Tracks the staked resources. Maps a validator to the tracked stakes
-    /// data.
-    tracked_unstake: IndexMap<ComponentAddress, TrackedUnstake>,
+    /// Tracks the unstake operations in the transaction.
+    tracked_unstake: Vec<TrackedUnstake>,
 }
 
 impl ManifestSummaryCallback for ValidatorUnstakeDetector {
@@ -119,6 +105,9 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
             } if is_validator(dynamic_address)
                 && (method_name == VALIDATOR_UNSTAKE_IDENT) =>
             {
+                let validator_component = ComponentAddress::try_from(*address)
+                    .expect("Must succeed!");
+
                 let Some(SourceResourceSpecifier::Amount(
                     stake_unit_resource_address,
                     stake_unit_amount,
@@ -140,18 +129,13 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
                     return;
                 };
 
-                let validator_component = ComponentAddress::try_from(*address)
-                    .expect("Must succeed!");
-
-                let entry = self
-                    .tracked_unstake
-                    .entry(validator_component)
-                    .or_insert(TrackedUnstake::new(
-                        *stake_unit_resource_address,
-                        *claim_nft_resource_address,
-                    ));
-                entry.liquid_stake_unit_amount += *stake_unit_amount.deref();
-                entry.claim_nft_ids.extend(claim_nft_ids.deref().clone())
+                self.tracked_unstake.push(TrackedUnstake {
+                    validator_address: validator_component,
+                    liquid_stake_unit_address: *stake_unit_resource_address,
+                    liquid_stake_unit_amount: **stake_unit_amount,
+                    claim_nft_address: *claim_nft_resource_address,
+                    claim_nft_ids: claim_nft_ids.deref().clone(),
+                });
             }
             _ => { /* No-op */ }
         }

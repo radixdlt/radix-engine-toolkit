@@ -8,15 +8,21 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
+struct TrackedContribution {
+    pool_address: ComponentAddress,
+    /* Input */
+    contributed_resources: IndexMap<ResourceAddress, Decimal>,
+    /* Output */
+    pool_units_resource_address: ResourceAddress,
+    pool_units_amount: Decimal,
+}
+
 pub struct PoolContributionDetector {
     is_valid: bool,
     /// The pools encountered in this manifest that were contributed to.
     pools: IndexSet<GlobalAddress>,
-    /// A map of all of the contributions made in the transaction.
-    tracked_pool_units: IndexMap<
-        (ComponentAddress, ResourceAddress),
-        IndexMap<ResourceAddress, Decimal>,
-    >,
+    /// Tracks the contributions that occurred in the transaction
+    tracked_contributions: Vec<TrackedContribution>,
 }
 
 impl ManifestSummaryCallback for PoolContributionDetector {
@@ -104,30 +110,33 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     || method_name == TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
                     || method_name == MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT) =>
             {
-                // The pool unit is the only resource that is in the output and
-                // not in the input.
-                let input_resource_addresses = input_resources
-                    .iter()
-                    .map(|resource_specifier| {
-                        resource_specifier.resource_address()
-                    })
-                    .collect::<IndexSet<ResourceAddress>>();
-                let Some(pool_unit_resource_specifier) = output_resources
-                    .iter()
-                    .filter(|item| {
-                        !input_resource_addresses
-                            .contains(&item.resource_address())
-                    })
-                    .next()
+                let pool_address = ComponentAddress::try_from(*address)
+                    .expect("Must be a valid component address");
+
+                // Determine the output pool units. If we can't find them then
+                // it means that no pool units were returned and that nothing
+                // was contributed.
+                let Some(SourceResourceSpecifier::Amount(
+                    pool_unit_resource_address,
+                    pool_unit_amount,
+                )) = Self::pool_unit_resource_specifier(
+                    &input_resources,
+                    &output_resources,
+                )
                 else {
-                    // This is for the case when no pool units were returned
-                    // which happens if the input is already empty. Wallet
-                    // should be able to deal with this with no issues.
                     return;
                 };
 
-                // Accounting for the resource inputs and outputs.
-                for resource_specifier in input_resources {
+                let mut tracked_contribution = TrackedContribution {
+                    pool_address,
+                    pool_units_resource_address: pool_unit_resource_address,
+                    pool_units_amount: *pool_unit_amount,
+                    contributed_resources: Default::default(),
+                };
+
+                // Accounting for how much resources were contributed from the
+                // input and the output (the change).
+                for resource_specifier in input_resources.iter() {
                     let SourceResourceSpecifier::Amount(
                         resource_address,
                         amount,
@@ -135,18 +144,14 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     else {
                         continue;
                     };
-                    self.tracked_pool_units
-                        .entry((
-                            ComponentAddress::try_from(*address)
-                                .expect("Must be a valid component address"),
-                            pool_unit_resource_specifier.resource_address(),
-                        ))
+
+                    tracked_contribution
+                        .contributed_resources
+                        .entry(*resource_address)
                         .or_default()
-                        .entry(resource_specifier.resource_address())
-                        .or_default()
-                        .add_assign(*amount.deref());
+                        .add_assign(**amount);
                 }
-                for resource_specifier in output_resources {
+                for resource_specifier in output_resources.iter() {
                     let SourceResourceSpecifier::Amount(
                         resource_address,
                         amount,
@@ -154,19 +159,22 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     else {
                         continue;
                     };
-                    let Some(entry) = self
-                        .tracked_pool_units
-                        .get_mut(&(
-                            ComponentAddress::try_from(*address)
-                                .expect("Must be a valid component address"),
-                            pool_unit_resource_specifier.resource_address(),
-                        ))
-                        .and_then(|entry| entry.get_mut(resource_address))
+                    let Some(entry) = tracked_contribution
+                        .contributed_resources
+                        .get_mut(resource_address)
                     else {
                         continue;
                     };
-                    entry.sub_assign(*amount.deref());
+                    entry.sub_assign(**amount);
                 }
+                tracked_contribution.contributed_resources =
+                    tracked_contribution
+                        .contributed_resources
+                        .into_iter()
+                        .filter(|(k, v)| !v.is_zero())
+                        .collect();
+
+                self.tracked_contributions.push(tracked_contribution);
             }
             _ => { /* No-op */ }
         }
@@ -245,6 +253,29 @@ impl PoolContributionDetector {
                     .unwrap_or(FnRules::all_disallowed())
             }
         }
+    }
+
+    fn pool_unit_resource_specifier(
+        input: &Vec<&SourceResourceSpecifier>,
+        output: &Vec<&SourceResourceSpecifier>,
+    ) -> Option<SourceResourceSpecifier> {
+        // The pool unit resource specifier is that which is only present in the
+        // output and not in the input. We also account for the pool returning
+        // change so we do not use index based detection as it would't reliable
+        // in this case.
+        let input_resources = input
+            .iter()
+            .map(|specifier| specifier.resource_address())
+            .collect::<IndexSet<_>>();
+
+        output
+            .iter()
+            .filter(|specifier| {
+                !input_resources.contains(&specifier.resource_address())
+            })
+            .cloned()
+            .cloned()
+            .next()
     }
 }
 

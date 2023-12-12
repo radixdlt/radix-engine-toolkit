@@ -10,6 +10,7 @@ use crate::transaction_types::*;
 use crate::utils::*;
 
 pub struct TrackedClaim {
+    pub validator_address: ComponentAddress,
     /* Input */
     pub claim_nft_address: ResourceAddress,
     pub claim_nft_ids: IndexSet<NonFungibleLocalId>,
@@ -17,23 +18,12 @@ pub struct TrackedClaim {
     pub xrd_amount: Decimal,
 }
 
-impl TrackedClaim {
-    pub fn new(claim_nft_address: ResourceAddress) -> Self {
-        Self {
-            claim_nft_address,
-            claim_nft_ids: Default::default(),
-            xrd_amount: Default::default(),
-        }
-    }
-}
-
 pub struct ValidatorClaimDetector {
     is_valid: bool,
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
-    /// Tracks the staked resources. Maps a validator to the tracked stakes
-    /// data.
-    tracked_unstake: IndexMap<ComponentAddress, TrackedClaim>,
+    /// Tracks the claim operations in the transaction.
+    tracked_claim: Vec<TrackedClaim>,
 }
 
 impl ManifestSummaryCallback for ValidatorClaimDetector {
@@ -114,6 +104,9 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
             } if is_validator(dynamic_address)
                 && (method_name == VALIDATOR_CLAIM_XRD_IDENT) =>
             {
+                let validator_component = ComponentAddress::try_from(*address)
+                    .expect("Must succeed!");
+
                 let Some(SourceResourceSpecifier::Ids(
                     claim_nft_resource_address,
                     claim_nft_ids,
@@ -128,15 +121,12 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                     return;
                 };
 
-                let validator_component = ComponentAddress::try_from(*address)
-                    .expect("Must succeed!");
-
-                let entry = self
-                    .tracked_unstake
-                    .entry(validator_component)
-                    .or_insert(TrackedClaim::new(*claim_nft_resource_address));
-                entry.claim_nft_ids.extend(claim_nft_ids.deref().clone());
-                entry.xrd_amount += *xrd_amount.deref();
+                self.tracked_claim.push(TrackedClaim {
+                    validator_address: validator_component,
+                    claim_nft_address: *claim_nft_resource_address,
+                    claim_nft_ids: claim_nft_ids.deref().clone(),
+                    xrd_amount: **xrd_amount,
+                });
             }
             _ => { /* No-op */ }
         }

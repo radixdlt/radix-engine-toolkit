@@ -1,5 +1,3 @@
-use std::ops::*;
-
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
@@ -10,18 +8,20 @@ use crate::transaction_types::*;
 use crate::utils::*;
 
 pub struct TrackedStake {
+    pub validator_address: ComponentAddress,
+    /* Input */
+    pub xrd_amount: Decimal,
+    /* Output */
     pub liquid_stake_unit_address: ResourceAddress,
     pub liquid_stake_unit_amount: Decimal,
-    pub xrd_amount: Decimal,
 }
 
 pub struct ValidatorStakeDetector {
     is_valid: bool,
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<GlobalAddress>,
-    /// Tracks the staked resources. Maps a validator to the tracked stakes
-    /// data
-    tracked_stake: IndexMap<ComponentAddress, TrackedStake>,
+    /// Tracks the stake operations that ocurred in the transaction.
+    tracked_stake: Vec<TrackedStake>,
 }
 
 impl ManifestSummaryCallback for ValidatorStakeDetector {
@@ -102,6 +102,9 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
             } if is_validator(dynamic_address)
                 && (method_name == VALIDATOR_STAKE_IDENT) =>
             {
+                let validator_component = ComponentAddress::try_from(*address)
+                    .expect("Must succeed!");
+
                 // TODO: Filter + Pattern matching is perhaps redundant?
                 let Some(SourceResourceSpecifier::Amount(XRD, xrd_amount)) =
                     input_resources
@@ -126,20 +129,12 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
                     return;
                 };
 
-                let validator_component = ComponentAddress::try_from(*address)
-                    .expect("Must succeed!");
-
-                let entry = self
-                    .tracked_stake
-                    .entry(validator_component)
-                    .or_insert(TrackedStake {
-                        liquid_stake_unit_address:
-                            *stake_units_resource_address,
-                        liquid_stake_unit_amount: Decimal::ZERO,
-                        xrd_amount: Decimal::ZERO,
-                    });
-                entry.xrd_amount += *xrd_amount.deref();
-                entry.liquid_stake_unit_amount += *stake_units_amount.deref();
+                self.tracked_stake.push(TrackedStake {
+                    validator_address: validator_component,
+                    xrd_amount: **xrd_amount,
+                    liquid_stake_unit_address: *stake_units_resource_address,
+                    liquid_stake_unit_amount: **stake_units_amount,
+                });
             }
             _ => { /* No-op */ }
         }
