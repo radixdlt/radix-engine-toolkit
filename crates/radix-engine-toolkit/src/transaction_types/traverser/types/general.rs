@@ -27,7 +27,7 @@ impl ManifestSummaryCallback for GeneralDetector {
             } => {
                 Self::construct_fn_rules(address).is_fn_permitted(&method_name)
             }
-            /* Not Permitted */
+            /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
             | InstructionV1::TakeAllFromWorktop { .. }
