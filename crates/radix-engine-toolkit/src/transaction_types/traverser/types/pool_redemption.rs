@@ -12,7 +12,8 @@ pub struct PoolRedemptionDetector {
     is_valid: bool,
     /// The pools encountered in this manifest that were redeemed from.
     pools: IndexSet<GlobalAddress>,
-    /// A map of all of the contributions made in the transaction.
+    /// Tracks the redemptions in the transaction and how much pool units
+    /// mapped to how much assets.
     tracked_pool_units: IndexMap<
         (ComponentAddress, ResourceAddress),
         IndexMap<ResourceAddress, Source<Decimal>>,
