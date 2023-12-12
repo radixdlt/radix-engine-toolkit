@@ -29,7 +29,7 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         // Determine the validity based on the instructions
         self.is_valid &= match instruction {
@@ -38,9 +38,7 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
                 address,
                 method_name,
                 ..
-            } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
-            }
+            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
             /* Not Permitted */
             InstructionV1::BurnResource { .. }
             | InstructionV1::CallRoyaltyMethod { .. }
@@ -199,22 +197,5 @@ impl AccountSettingsUpdateDetector {
                     .unwrap_or(FnRules::all_disallowed())
             }
         }
-    }
-}
-
-fn is_pool(address: &DynamicGlobalAddress) -> bool {
-    match address {
-        DynamicGlobalAddress::Static(address) => address
-            .as_node_id()
-            .entity_type()
-            .is_some_and(|entity_type| {
-                matches!(
-                    entity_type,
-                    EntityType::GlobalOneResourcePool
-                        | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                )
-            }),
-        DynamicGlobalAddress::Named(_) => false,
     }
 }

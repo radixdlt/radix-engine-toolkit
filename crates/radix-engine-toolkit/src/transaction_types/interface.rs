@@ -9,13 +9,13 @@ use transaction::prelude::*;
 use super::error::*;
 use super::types::*;
 
-pub fn summary(manifest: &TransactionManifestV1) -> IndexSet<ManifestSummary> {
+pub fn summary(_manifest: &TransactionManifestV1) -> IndexSet<ManifestSummary> {
     todo!()
 }
 
 pub fn execution_summary(
-    manifest: &TransactionManifestV1,
-    receipt: &TransactionReceipt,
+    _manifest: &TransactionManifestV1,
+    _receipt: &TransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
     todo!()
 }

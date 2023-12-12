@@ -13,7 +13,7 @@ impl ManifestSummaryCallback for GeneralDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         // Control whether or not this is allowed or not based on:
         // 1. Whether the instruction is allowed.
@@ -25,7 +25,7 @@ impl ManifestSummaryCallback for GeneralDetector {
                 method_name,
                 ..
             } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
+                Self::construct_fn_rules(address).is_fn_permitted(method_name)
             }
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }

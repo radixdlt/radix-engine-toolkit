@@ -12,22 +12,22 @@ pub trait ManifestSummaryCallback {
     #[inline]
     fn on_instruction(
         &mut self,
-        instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction: &InstructionV1,
+        _instruction_index: usize,
     ) {
     }
 
     /// Called when a proof is created out of an account.
     #[inline]
-    fn on_create_proof(&mut self, resource_address: &ResourceAddress) {}
+    fn on_create_proof(&mut self, _resource_address: &ResourceAddress) {}
 
     /// Called when a global entity is encountered in the manifest
     #[inline]
-    fn on_global_entity_encounter(&mut self, address: GlobalAddress) {}
+    fn on_global_entity_encounter(&mut self, _address: GlobalAddress) {}
 
     /// Called when the instructions in the manifest have finished.
     #[inline]
-    fn on_finish(&mut self, instructions_count: usize) {}
+    fn on_finish(&mut self, _instructions_count: usize) {}
 }
 
 pub trait ExecutionSummaryCallback
@@ -40,10 +40,10 @@ where
     #[inline]
     fn on_instruction(
         &mut self,
-        instruction: &InstructionV1,
-        instruction_index: usize,
-        input_resources: &[ResourceSpecifier],
-        output_resources: &[ResourceSpecifier],
+        _instruction: &InstructionV1,
+        _instruction_index: usize,
+        _input_resources: &[ResourceSpecifier],
+        _output_resources: &[ResourceSpecifier],
     ) {
     }
 
@@ -52,8 +52,8 @@ where
     #[inline]
     fn on_account_withdraw(
         &mut self,
-        account: &ComponentAddress,
-        resource_indicator: &ResourceIndicator,
+        _account: &ComponentAddress,
+        _resource_indicator: &ResourceIndicator,
     ) {
     }
 
@@ -62,8 +62,8 @@ where
     #[inline]
     fn on_account_deposit(
         &mut self,
-        account: &ComponentAddress,
-        resource_indicator: &ResourceIndicator,
+        _account: &ComponentAddress,
+        _resource_indicator: &ResourceIndicator,
     ) {
     }
 }

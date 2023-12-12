@@ -10,12 +10,12 @@ use radix_engine_interface::blueprints::pool::*;
 use crate::transaction_types::*;
 
 struct TrackedPoolRedemption {
-    pool_address: ComponentAddress,
+    pub pool_address: ComponentAddress,
     /* Input */
-    pool_units_resource_address: ResourceAddress,
-    pool_units_amount: Decimal,
+    pub pool_units_resource_address: ResourceAddress,
+    pub pool_units_amount: Decimal,
     /* Output */
-    redeemed_resources: IndexMap<ResourceAddress, Decimal>,
+    pub redeemed_resources: IndexMap<ResourceAddress, Decimal>,
 }
 
 pub struct PoolRedemptionDetector {
@@ -30,7 +30,7 @@ impl ManifestSummaryCallback for PoolRedemptionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
@@ -38,9 +38,7 @@ impl ManifestSummaryCallback for PoolRedemptionDetector {
                 address,
                 method_name,
                 ..
-            } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
-            }
+            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -97,7 +95,7 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
         input_resources: &[ResourceSpecifier],
         output_resources: &[ResourceSpecifier],
     ) {

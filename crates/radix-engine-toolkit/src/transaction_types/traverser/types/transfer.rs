@@ -44,7 +44,7 @@ impl ManifestSummaryCallback for TransferDetector {
                 method_name,
                 ..
             } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
+                Self::construct_fn_rules(address).is_fn_permitted(method_name)
             }
             /* Not Permitted */
             InstructionV1::TakeFromWorktop { .. }

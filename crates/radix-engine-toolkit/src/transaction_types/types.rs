@@ -11,51 +11,51 @@ use radix_engine_interface::blueprints::account::*;
 pub struct ManifestSummary {
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
-    presented_proofs: IndexSet<ResourceAddress>,
+    pub presented_proofs: IndexSet<ResourceAddress>,
     /// The set of all entities encountered in the manifest - this is used by
     /// the wallet for the "using dApps" section.
-    encountered_entities: IndexSet<NodeId>,
+    pub encountered_entities: IndexSet<NodeId>,
     /// The set of accounts encountered in the manifest where privileged
     /// methods were called.
-    accounts_requiring_auth: IndexSet<NodeId>,
+    pub accounts_requiring_auth: IndexSet<NodeId>,
     /// The set of identities encountered in the manifest where privileged
     /// methods were called.
-    identities_requiring_auth: IndexSet<NodeId>,
+    pub identities_requiring_auth: IndexSet<NodeId>,
     /// The set of instructions encountered in the manifest that are reserved
     /// and can only be included in the manifest by the wallet itself.
-    reserved_instructions: IndexSet<ReservedInstruction>,
+    pub reserved_instructions: IndexSet<ReservedInstruction>,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
-    classification: IndexSet<ManifestClass>,
+    pub classification: IndexSet<ManifestClass>,
 }
 
 /// A summary of the execution of the manifest and the information that can
 #[derive(Clone, Debug)]
 pub struct ExecutionSummary {
     /// The withdraws done in the manifest.
-    account_withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+    pub account_withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The deposits done in the manifest.
-    account_deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+    pub account_deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
-    presented_proofs: IndexSet<ResourceAddress>,
+    pub presented_proofs: IndexSet<ResourceAddress>,
     /// Information on the global entities created in the transaction.
-    new_entities: NewEntities,
+    pub new_entities: NewEntities,
     /// The set of all entities encountered in the manifest - this is used by
     /// the wallet for the "using dApps" section.
-    encountered_entities: IndexSet<NodeId>,
+    pub encountered_entities: IndexSet<NodeId>,
     /// The set of accounts encountered in the manifest where privileged
     /// methods were called.
-    accounts_requiring_auth: IndexSet<ComponentAddress>,
+    pub accounts_requiring_auth: IndexSet<ComponentAddress>,
     /// The set of identities encountered in the manifest where privileged
     /// methods were called.
-    identities_requiring_auth: IndexSet<ComponentAddress>,
+    pub identities_requiring_auth: IndexSet<ComponentAddress>,
     /// The set of instructions encountered in the manifest that are reserved
     /// and can only be included in the manifest by the wallet itself.
-    reserved_instructions: IndexSet<ReservedInstruction>,
+    pub reserved_instructions: IndexSet<ReservedInstruction>,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
-    detailed_classification: IndexSet<DetailedManifestClass>,
+    pub detailed_classification: IndexSet<DetailedManifestClass>,
 }
 
 /// The classification process classifies manifests into classes. The following
@@ -250,7 +250,7 @@ impl<'r> Deref for TransactionTypesReceipt<'r> {
     type Target = TransactionReceipt;
 
     fn deref(&self) -> &Self::Target {
-        &self.receipt
+        self.receipt
     }
 }
 

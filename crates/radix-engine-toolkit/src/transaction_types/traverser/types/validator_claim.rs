@@ -1,5 +1,3 @@
-use std::ops::*;
-
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
@@ -31,7 +29,7 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
@@ -39,9 +37,7 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
                 address,
                 method_name,
                 ..
-            } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
-            }
+            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -93,7 +89,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
         input_resources: &[ResourceSpecifier],
         output_resources: &[ResourceSpecifier],
     ) {
@@ -125,7 +121,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                 self.tracked_claim.push(TrackedValidatorClaim {
                     validator_address: validator_component,
                     claim_nft_address: *claim_nft_resource_address,
-                    claim_nft_ids: claim_nft_ids.deref().clone(),
+                    claim_nft_ids: claim_nft_ids.clone(),
                     xrd_amount: *xrd_amount,
                 });
             }
@@ -194,22 +190,5 @@ impl ValidatorClaimDetector {
                     .unwrap_or(FnRules::all_disallowed())
             }
         }
-    }
-}
-
-fn is_pool(address: &DynamicGlobalAddress) -> bool {
-    match address {
-        DynamicGlobalAddress::Static(address) => address
-            .as_node_id()
-            .entity_type()
-            .is_some_and(|entity_type| {
-                matches!(
-                    entity_type,
-                    EntityType::GlobalOneResourcePool
-                        | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                )
-            }),
-        DynamicGlobalAddress::Named(_) => false,
     }
 }

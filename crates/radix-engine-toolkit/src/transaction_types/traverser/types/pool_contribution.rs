@@ -11,12 +11,12 @@ use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 
 struct TrackedPoolContribution {
-    pool_address: ComponentAddress,
+    pub pool_address: ComponentAddress,
     /* Input */
-    contributed_resources: IndexMap<ResourceAddress, Decimal>,
+    pub contributed_resources: IndexMap<ResourceAddress, Decimal>,
     /* Output */
-    pool_units_resource_address: ResourceAddress,
-    pool_units_amount: Decimal,
+    pub pool_units_resource_address: ResourceAddress,
+    pub pool_units_amount: Decimal,
 }
 
 pub struct PoolContributionDetector {
@@ -31,7 +31,7 @@ impl ManifestSummaryCallback for PoolContributionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
@@ -39,9 +39,7 @@ impl ManifestSummaryCallback for PoolContributionDetector {
                 address,
                 method_name,
                 ..
-            } => {
-                Self::construct_fn_rules(address).is_fn_permitted(&method_name)
-            }
+            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -98,7 +96,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
         input_resources: &[ResourceSpecifier],
         output_resources: &[ResourceSpecifier],
     ) {
@@ -122,8 +120,8 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     pool_unit_resource_address,
                     pool_unit_amount,
                 )) = Self::pool_unit_resource_specifier(
-                    &input_resources,
-                    &output_resources,
+                    input_resources,
+                    output_resources,
                 )
                 else {
                     return;
@@ -169,7 +167,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     tracked_contribution
                         .contributed_resources
                         .into_iter()
-                        .filter(|(k, v)| !v.is_zero())
+                        .filter(|(_k, v)| !v.is_zero())
                         .collect();
 
                 self.tracked_contributions.push(tracked_contribution);
@@ -268,11 +266,10 @@ impl PoolContributionDetector {
 
         output
             .iter()
-            .filter(|specifier| {
+            .find(|specifier| {
                 !input_resources.contains(&specifier.resource_address())
             })
             .cloned()
-            .next()
     }
 }
 

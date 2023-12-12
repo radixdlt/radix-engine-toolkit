@@ -50,7 +50,7 @@ pub mod manifest_summary {
         instruction: &InstructionV1,
     ) {
         if let InstructionV1::CallMethod {
-            address: dynamic_address @ DynamicGlobalAddress::Static(address),
+            address: dynamic_address @ DynamicGlobalAddress::Static(_address),
             method_name,
             args,
         } = instruction
@@ -231,7 +231,7 @@ pub mod execution_summary {
                     let manifest_value = IndexedManifestValue::from_typed(args);
                     let additional_resources = manifest_value
                         .buckets()
-                        .into_iter()
+                        .iter()
                         .filter_map(|bucket| bucket_tracker.get(bucket))
                         .map(|resource_indicator| {
                             ResourceSpecifier::from(resource_indicator.clone())
@@ -328,7 +328,7 @@ pub mod execution_summary {
             let Some(AccountWithdrawInput {
                 resource_address,
                 amount,
-            }) = to_manifest_type(&args)
+            }) = to_manifest_type(args)
             else {
                 // TODO: Error? Panic?
                 return;
@@ -350,7 +350,7 @@ pub mod execution_summary {
                                 instruction_index,
                                 resource_address,
                             )
-                            .unwrap_or(Default::default()),
+                            .unwrap_or_default(),
                             instruction_index,
                         },
                     },
@@ -361,7 +361,7 @@ pub mod execution_summary {
                 resource_address,
                 amount,
                 ..
-            }) = to_manifest_type(&args)
+            }) = to_manifest_type(args)
             else {
                 // TODO: Error? Panic?
                 return;
@@ -383,7 +383,7 @@ pub mod execution_summary {
                                 instruction_index,
                                 resource_address,
                             )
-                            .unwrap_or(Default::default()),
+                            .unwrap_or_default(),
                             instruction_index,
                         },
                     },
@@ -394,7 +394,7 @@ pub mod execution_summary {
                 resource_address,
                 ids,
                 ..
-            }) = to_manifest_type(&args)
+            }) = to_manifest_type(args)
             else {
                 // TODO: Error? Panic?
                 return;
@@ -411,7 +411,7 @@ pub mod execution_summary {
                 resource_address,
                 ids,
                 ..
-            }) = to_manifest_type(&args)
+            }) = to_manifest_type(args)
             else {
                 // TODO: Error? Panic?
                 return;
@@ -589,7 +589,7 @@ pub mod execution_summary {
                                     instruction_index,
                                     *resource_address,
                                 )
-                                .unwrap_or(Default::default()),
+                                .unwrap_or_default(),
                                 instruction_index,
                             },
                         },
@@ -619,7 +619,7 @@ pub mod execution_summary {
                             instruction_index,
                             *resource_address,
                         )
-                        .unwrap_or(Default::default());
+                        .unwrap_or_default();
                     ResourceIndicator::NonFungible(
                         *resource_address,
                         NonFungibleResourceIndicator::ByAll {

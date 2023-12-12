@@ -16,7 +16,7 @@ impl ManifestSummaryCallback for ReservedInstructionsDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        instruction_index: usize,
+        _instruction_index: usize,
     ) {
         let InstructionV1::CallMethod {
             address,
@@ -40,7 +40,7 @@ impl ManifestSummaryCallback for ReservedInstructionsDetector {
                 .insert(ReservedInstruction::AccountLockFee);
         } else if is_account(address) && method_name == ACCOUNT_SECURIFY_IDENT {
             self.reserved_instructions
-                .insert(ReservedInstruction::AccountLockFee);
+                .insert(ReservedInstruction::AccountSecurify);
         } else if is_identity(address) && method_name == IDENTITY_SECURIFY_IDENT
         {
             self.reserved_instructions

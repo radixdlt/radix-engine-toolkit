@@ -32,7 +32,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                 method_name,
                 ..
             } => {
-                if ROYALTY_METHODS_THAT_REQUIRE_AUTH.contains(&method_name) {
+                if ROYALTY_METHODS_THAT_REQUIRE_AUTH.contains(method_name) {
                     if is_account(address) {
                         self.accounts.insert(component_address!(*address));
                     } else if is_identity(address) {
@@ -45,7 +45,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                 method_name,
                 ..
             } => {
-                if METADATA_METHODS_THAT_REQUIRE_AUTH.contains(&method_name) {
+                if METADATA_METHODS_THAT_REQUIRE_AUTH.contains(method_name) {
                     if is_account(address) {
                         self.accounts.insert(component_address!(*address));
                     } else if is_identity(address) {
@@ -59,7 +59,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                 ..
             } => {
                 if ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH
-                    .contains(&method_name)
+                    .contains(method_name)
                 {
                     if is_account(address) {
                         self.accounts.insert(component_address!(*address));
