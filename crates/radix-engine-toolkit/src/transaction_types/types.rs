@@ -368,3 +368,17 @@ impl FnRules {
         }
     }
 }
+
+#[derive(Clone, Debug)]
+pub enum SourceResourceSpecifier {
+    Amount(ResourceAddress, Source<Decimal>),
+    Ids(ResourceAddress, Source<IndexSet<NonFungibleLocalId>>),
+}
+
+impl SourceResourceSpecifier {
+    pub fn resource_address(&self) -> ResourceAddress {
+        match self {
+            Self::Amount(item, ..) | Self::Ids(item, ..) => *item,
+        }
+    }
+}
