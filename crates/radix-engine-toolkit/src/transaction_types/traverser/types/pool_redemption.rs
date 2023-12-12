@@ -165,7 +165,6 @@ impl PoolRedemptionDetector {
                             allowed: &[
                                 /* All withdraw methods */
                                 ACCOUNT_WITHDRAW_IDENT,
-                                ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
                                 /* All deposit methods */
                                 ACCOUNT_DEPOSIT_IDENT,
                                 ACCOUNT_DEPOSIT_BATCH_IDENT,
