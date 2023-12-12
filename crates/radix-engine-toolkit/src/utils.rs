@@ -261,3 +261,17 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
         }
     }
 }
+
+#[macro_export]
+macro_rules! contains {
+    (
+        $item: expr =>
+        [
+            $($other: expr),* $(,)?
+        ] $(,)?
+    ) => {
+        $(
+            $item == $other
+        )||*
+    };
+}

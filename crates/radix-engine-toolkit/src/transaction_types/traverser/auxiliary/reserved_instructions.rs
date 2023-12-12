@@ -6,6 +6,7 @@ use transaction::prelude::*;
 
 use crate::transaction_types::*;
 use crate::utils::*;
+use crate::*;
 
 pub struct ReservedInstructionsDetector {
     reserved_instructions: IndexSet<ReservedInstruction>,
@@ -65,17 +66,3 @@ impl ManifestSummaryCallback for ReservedInstructionsDetector {
 }
 
 impl ExecutionSummaryCallback for ReservedInstructionsDetector {}
-
-macro_rules! contains {
-    (
-        $item: expr =>
-        [
-            $($other: expr),* $(,)?
-        ] $(,)?
-    ) => {
-        $(
-            $item == $other
-        )||*
-    };
-}
-use contains;
