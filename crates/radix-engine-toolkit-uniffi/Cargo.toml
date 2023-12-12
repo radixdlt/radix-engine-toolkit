@@ -18,18 +18,18 @@ radix-engine-interface = { workspace = true }
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
 
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs/", features = ["cli"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "68b14c95a653b8da3a57b8417d1142bd190eac38", features = ["cli"] }
 hex = "0.4.3"
 thiserror = "1.0.50"
 paste = "1.0.12"
 
 [build-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs/", features = ["build"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "68b14c95a653b8da3a57b8417d1142bd190eac38", features = ["build"] }
 
 [dev-dependencies]
 # The UniFFI crate for generating bindings to other languages
-uniffi = { git = "https://github.com/mozilla/uniffi-rs/", features = ["bindgen-tests"] }
+uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev = "68b14c95a653b8da3a57b8417d1142bd190eac38", features = ["bindgen-tests"] }
 scrypto-unit = { workspace = true }
 radix-engine-stores = { workspace = true }
 transaction-scenarios = { workspace = true }
