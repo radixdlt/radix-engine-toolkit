@@ -45,7 +45,7 @@ pub trait ManifestSummaryCallback {
     }
 }
 
-pub trait ExecutionSummaryCallback {
+pub trait ExecutionSummaryCallback: ManifestSummaryCallback {
     /// Called when the traverser starts going through a new instruction with
     /// the new instruction and the index that it is at and information on the
     /// input resources that this instruction took and the output resources.
