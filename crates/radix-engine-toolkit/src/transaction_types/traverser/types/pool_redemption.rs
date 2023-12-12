@@ -8,18 +8,18 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
-pub struct PoolContributionDetector {
+pub struct PoolRedemptionDetector {
     is_valid: bool,
     /// The pools encountered in this manifest that were contributed to.
     pools: IndexSet<GlobalAddress>,
     /// A map of all of the contributions made in the transaction.
     tracked_pool_units: IndexMap<
         (ComponentAddress, ResourceAddress),
-        IndexMap<ResourceAddress, Decimal>,
+        IndexMap<ResourceAddress, Source<Decimal>>,
     >,
 }
 
-impl ManifestSummaryCallback for PoolContributionDetector {
+impl ManifestSummaryCallback for PoolRedemptionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -86,7 +86,7 @@ impl ManifestSummaryCallback for PoolContributionDetector {
     }
 }
 
-impl ExecutionSummaryCallback for PoolContributionDetector {
+impl ExecutionSummaryCallback for PoolRedemptionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -100,41 +100,30 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                 method_name,
                 ..
             } if is_pool(dynamic_address)
-                && (method_name == ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
-                    || method_name == TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
-                    || method_name == MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT) =>
+                && (method_name == ONE_RESOURCE_POOL_REDEEM_IDENT
+                    || method_name == TWO_RESOURCE_POOL_REDEEM_IDENT
+                    || method_name == MULTI_RESOURCE_POOL_REDEEM_IDENT) =>
             {
-                // The pool unit is the only resource that is in the output and
-                // not in the input.
-                let input_resource_addresses = input_resources
-                    .iter()
-                    .map(|resource_specifier| {
-                        resource_specifier.resource_address()
-                    })
-                    .collect::<IndexSet<ResourceAddress>>();
-                let Some(pool_unit_resource_specifier) = output_resources
-                    .iter()
-                    .filter(|item| {
-                        !input_resource_addresses
-                            .contains(&item.resource_address())
-                    })
-                    .next()
+                // The pool unit resource is the only input resource - if none
+                // are found then an empty bucket of input resources was given
+                // so we need to just ignore this operation.
+                let Some(pool_unit_resource_specifier) =
+                    input_resources.first()
                 else {
-                    // This is for the case when no pool units were returned
-                    // which happens if the input is already empty. Wallet
-                    // should be able to deal with this with no issues.
                     return;
                 };
 
-                // Accounting for the resource inputs and outputs.
-                for resource_specifier in input_resources {
+                // Adding the output resources to the tracked resources.
+                for resource_specifier in output_resources {
                     let SourceResourceSpecifier::Amount(
                         resource_address,
                         amount,
                     ) = resource_specifier
                     else {
+                        // TODO: Error? Panic?
                         continue;
                     };
+
                     self.tracked_pool_units
                         .entry((
                             ComponentAddress::try_from(*address)
@@ -142,30 +131,13 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                             pool_unit_resource_specifier.resource_address(),
                         ))
                         .or_default()
-                        .entry(resource_specifier.resource_address())
-                        .or_default()
-                        .add_assign(*amount.deref());
-                }
-                for resource_specifier in output_resources {
-                    let SourceResourceSpecifier::Amount(
-                        resource_address,
-                        amount,
-                    ) = resource_specifier
-                    else {
-                        continue;
-                    };
-                    let Some(entry) = self
-                        .tracked_pool_units
-                        .get_mut(&(
-                            ComponentAddress::try_from(*address)
-                                .expect("Must be a valid component address"),
-                            pool_unit_resource_specifier.resource_address(),
+                        .entry(*resource_address)
+                        .or_insert(Source::Predicted(
+                            instruction_index + 1,
+                            Decimal::ZERO,
                         ))
-                        .and_then(|entry| entry.get_mut(resource_address))
-                    else {
-                        continue;
-                    };
-                    entry.sub_assign(*amount.deref());
+                        .deref_mut()
+                        .add_assign(*amount.deref());
                 }
             }
             _ => { /* No-op */ }
@@ -173,7 +145,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
     }
 }
 
-impl PoolContributionDetector {
+impl PoolRedemptionDetector {
     pub fn is_valid(&self) -> bool {
         self.is_valid
     }
@@ -205,21 +177,21 @@ impl PoolContributionDetector {
                         },
                         EntityType::GlobalOneResourcePool => FnRules {
                             allowed: &[
-                                ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
+                                ONE_RESOURCE_POOL_REDEEM_IDENT
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed
                         },
                         EntityType::GlobalTwoResourcePool => FnRules {
                             allowed: &[
-                                TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
+                                TWO_RESOURCE_POOL_REDEEM_IDENT
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed
                         },
                         EntityType::GlobalMultiResourcePool => FnRules {
                             allowed: &[
-                                MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT
+                                MULTI_RESOURCE_POOL_REDEEM_IDENT
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed
