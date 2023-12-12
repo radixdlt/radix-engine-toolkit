@@ -10,7 +10,7 @@ use crate::transaction_types::*;
 
 pub struct PoolRedemptionDetector {
     is_valid: bool,
-    /// The pools encountered in this manifest that were contributed to.
+    /// The pools encountered in this manifest that were redeemed from.
     pools: IndexSet<GlobalAddress>,
     /// A map of all of the contributions made in the transaction.
     tracked_pool_units: IndexMap<
