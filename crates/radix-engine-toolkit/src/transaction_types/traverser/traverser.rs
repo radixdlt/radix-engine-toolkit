@@ -139,7 +139,10 @@ pub mod execution_summary {
         // to handle the manifest summary bits of this manifest and then we can
         // move on to the other aspects.
         super::manifest_summary::on_instruction(
-            transmute(callbacks),
+            &mut callbacks
+                .iter_mut()
+                .map(|item| *item as &mut dyn ManifestSummaryCallback)
+                .collect::<Vec<_>>(),
             instruction,
             instruction_index,
         );
@@ -182,7 +185,10 @@ pub mod execution_summary {
         instructions_count: usize,
     ) {
         super::manifest_summary::on_finish(
-            transmute(callbacks),
+            &mut callbacks
+                .iter_mut()
+                .map(|item| *item as &mut dyn ManifestSummaryCallback)
+                .collect::<Vec<_>>(),
             instructions_count,
         )
     }
@@ -198,8 +204,9 @@ pub mod execution_summary {
         let worktop_changes_entry = receipt
             .execution_trace()
             .worktop_changes()
-            .entry(instruction_index)
-            .or_default();
+            .get(&instruction_index)
+            .map(Clone::clone)
+            .unwrap_or_default();
 
         let inputs = {
             let mut inputs = worktop_changes_entry
@@ -472,55 +479,64 @@ pub mod execution_summary {
                     .expressions()
                     .contains(&ManifestExpression::EntireWorktop)
                 {
-                    let resources = receipt
+                    if let Some(worktop_changes) = receipt
                         .execution_trace()
                         .worktop_changes()
-                        .entry(instruction_index)
-                        .or_default()
-                        .iter()
-                        .filter_map(|worktop_changes| {
-                            if let WorktopChange::Take(item) = worktop_changes {
-                                Some(item)
-                            } else {
-                                None
-                            }
-                        })
-                        .map(|resource_specifier| match resource_specifier {
-                            ResourceSpecifier::Amount(
-                                resource_address,
-                                amount,
-                            ) => ResourceIndicator::Fungible(
-                                *resource_address,
-                                FungibleResourceIndicator::Predicted(
-                                    Predicted {
-                                        value: *amount,
-                                        instruction_index,
-                                    },
-                                ),
-                            ),
-                            ResourceSpecifier::Ids(resource_address, ids) => {
-                                ResourceIndicator::NonFungible(
-                                    *resource_address,
-                                    NonFungibleResourceIndicator::ByAll {
-                                        predicted_amount: Predicted {
-                                            value: usize_to_decimal(ids.len()),
-                                            instruction_index,
+                        .get(&instruction_index)
+                    {
+                        for resource_indicator in worktop_changes
+                            .iter()
+                            .filter_map(|worktop_changes| {
+                                if let WorktopChange::Take(item) =
+                                    worktop_changes
+                                {
+                                    Some(item)
+                                } else {
+                                    None
+                                }
+                            })
+                            .map(
+                                |resource_specifier| match resource_specifier {
+                                    ResourceSpecifier::Amount(
+                                        resource_address,
+                                        amount,
+                                    ) => ResourceIndicator::Fungible(
+                                        *resource_address,
+                                        FungibleResourceIndicator::Predicted(
+                                            Predicted {
+                                                value: *amount,
+                                                instruction_index,
+                                            },
+                                        ),
+                                    ),
+                                    ResourceSpecifier::Ids(
+                                        resource_address,
+                                        ids,
+                                    ) => ResourceIndicator::NonFungible(
+                                        *resource_address,
+                                        NonFungibleResourceIndicator::ByAll {
+                                            predicted_amount: Predicted {
+                                                value: usize_to_decimal(
+                                                    ids.len(),
+                                                ),
+                                                instruction_index,
+                                            },
+                                            predicted_ids: Predicted {
+                                                value: ids.clone(),
+                                                instruction_index,
+                                            },
                                         },
-                                        predicted_ids: Predicted {
-                                            value: ids.clone(),
-                                            instruction_index,
-                                        },
-                                    },
-                                )
-                            }
-                        });
-                    for resource_indicator in resources {
-                        callbacks.iter_mut().for_each(|callback| {
-                            callback.on_account_deposit(
-                                &account,
-                                &resource_indicator,
+                                    ),
+                                },
                             )
-                        });
+                        {
+                            callbacks.iter_mut().for_each(|callback| {
+                                callback.on_account_deposit(
+                                    &account,
+                                    &resource_indicator,
+                                )
+                            });
+                        }
                     }
                 }
             }
@@ -683,7 +699,7 @@ pub mod execution_summary {
                 }
                 _ => None,
             })
-            .reduce(|mut acc, item| acc + item)
+            .reduce(|acc, item| acc + item)
     }
 
     fn predicted_non_fungible_ids_take_from_worktop(
@@ -740,266 +756,7 @@ pub mod execution_summary {
             })
     }
 
-    /// All `ExecutionSummaryCallback` implement `ManifestSummaryCallback`
-    /// and therefore calling this is safe to do. There is a version of this
-    /// that can be done in safe rust that requires a bunch of iteration and
-    /// additional allocations that are not actually needed. Thus, we resort
-    /// to transmuting the memory into the type that is expected. This should
-    /// not fail.
-    fn transmute<'r>(
-        callbacks: &'r mut [&'r mut dyn ExecutionSummaryCallback],
-    ) -> &'r mut [&'r mut dyn ManifestSummaryCallback] {
-        unsafe { std::mem::transmute(callbacks) }
-    }
-
     fn usize_to_decimal(num: usize) -> Decimal {
         Decimal(I192::from(num) * Decimal::ONE.0)
     }
 }
-
-// use transaction::prelude::*;
-// use transaction::validation::*;
-
-// use radix_engine::system::system_modules::execution_trace::*;
-// use radix_engine_interface::blueprints::account::*;
-
-// use crate::sbor::indexed_manifest_value::*;
-// use crate::transaction_types::*;
-// use crate::utils::*;
-
-// pub struct Traverser<'r> {
-//     /// The execution summary callbacks to call as going through the manifest
-//     /// and receipt.
-//     callbacks: &'r mut [&'r mut dyn ExecutionSummaryCallback],
-
-//     /// The manifest to traverse through.
-//     manifest: &'r TransactionManifestV1,
-
-//     /// Optionally a receipt to use with an execution trace
-//     receipt: Option<&'r TransactionTypesReceipt<'r>>,
-
-//     /// The global addresses encountered by the traverser.
-//     global_addresses: IndexSet<GlobalAddress>,
-
-//     /// The id allocator used by the traverser to keep track of the buckets and
-//     /// proofs created.
-//     id_allocator: ManifestIdAllocator,
-// }
-
-// impl<'r> Traverser<'r> {
-//     pub fn new(
-//         callbacks: &'r mut [&'r mut dyn ExecutionSummaryCallback],
-//         manifest: &'r TransactionManifestV1,
-//         receipt: Option<&'r TransactionTypesReceipt<'r>>,
-//     ) -> Self {
-//         Self {
-//             callbacks,
-//             manifest,
-//             receipt,
-//             global_addresses: Default::default(),
-//             id_allocator: Default::default(),
-//         }
-//     }
-
-//     pub fn traverse(mut self) {
-//         let TransactionManifestV1 { instructions, .. } = self.manifest;
-//         for (instruction_index, instruction) in instructions.iter().enumerate()
-//         {
-//             // An instruction is found, call each of the callbacks on it.
-//             self.callbacks.iter_mut().for_each(|callback| {
-//                 callback.on_instruction(instruction, instruction_index)
-//             });
-
-//             // Handle the account withdraws information
-//             self.handle_account_withdraws(instruction, instruction_index);
-
-//             // Find global addresses and inform the callbacks of them.
-//             for node_id in IndexedManifestValue::from_typed(instruction)
-//                 .static_addresses()
-//                 .into_iter()
-//                 .map(|item| *item.as_node_id())
-//             {
-//                 let Ok(global_address) = GlobalAddress::try_from(node_id)
-//                 else {
-//                     continue;
-//                 };
-//                 if self.global_addresses.insert(global_address) {
-//                     self.callbacks.iter_mut().for_each(|callback| {
-//                         callback.on_global_entity_encounter(global_address)
-//                     });
-//                 }
-//             }
-//         }
-
-//         // Finished going through instructions, inform each of the callbacks.
-//         self.callbacks
-//             .iter_mut()
-//             .for_each(|callback| callback.on_finish(instructions.len()));
-//     }
-
-//     fn handle_buckets(&mut self, instruction: &InstructionV1, instruction_index: usize) {
-
-//     }
-
-//     fn handle_account_withdraws(
-//         &mut self,
-//         instruction: &InstructionV1,
-//         instruction_index: usize,
-//     ) {
-//         let InstructionV1::CallMethod {
-//             address: dynamic_address @ DynamicGlobalAddress::Static(address),
-//             method_name,
-//             args,
-//         } = instruction
-//         else {
-//             return;
-//         };
-//         if !is_account(dynamic_address) {
-//             return;
-//         }
-
-//         let account =
-//             ComponentAddress::try_from(*address).expect("Must succeed");
-
-//         // In here we handle all of the cases, even the ones not allowed by the
-//         // callbacks so that this is blind to what the callbacks do internally
-//         // and just provides the information.
-//         let (resource_address, withdraw_information) =
-//             if method_name == ACCOUNT_WITHDRAW_IDENT {
-//                 let Some(AccountWithdrawInput {
-//                     resource_address,
-//                     amount,
-//                 }) = to_manifest_type(&args)
-//                 else {
-//                     // TODO: Error? Panic?
-//                     return;
-//                 };
-
-//                 if resource_address.is_fungible() {
-//                     (resource_address, WithdrawInformation::Fungible(amount))
-//                 } else {
-//                     (
-//                         resource_address,
-//                         WithdrawInformation::NonFungible(
-//                             NonFungibleWithdraw::ByAmount {
-//                                 amount,
-//                                 predicted_ids: self
-//                                     .predicted_non_fungible_ids_put_on_worktop(
-//                                         instruction_index,
-//                                         resource_address,
-//                                     ),
-//                             },
-//                         ),
-//                     )
-//                 }
-//             } else if method_name == ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT {
-//                 let Some(AccountLockFeeAndWithdrawInput {
-//                     resource_address,
-//                     amount,
-//                     ..
-//                 }) = to_manifest_type(&args)
-//                 else {
-//                     // TODO: Error? Panic?
-//                     return;
-//                 };
-
-//                 if resource_address.is_fungible() {
-//                     (resource_address, WithdrawInformation::Fungible(amount))
-//                 } else {
-//                     (
-//                         resource_address,
-//                         WithdrawInformation::NonFungible(
-//                             NonFungibleWithdraw::ByAmount {
-//                                 amount,
-//                                 predicted_ids: self
-//                                     .predicted_non_fungible_ids_put_on_worktop(
-//                                         instruction_index,
-//                                         resource_address,
-//                                     ),
-//                             },
-//                         ),
-//                     )
-//                 }
-//             } else if method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT {
-//                 let Some(AccountWithdrawNonFungiblesInput {
-//                     resource_address,
-//                     ids,
-//                     ..
-//                 }) = to_manifest_type(&args)
-//                 else {
-//                     // TODO: Error? Panic?
-//                     return;
-//                 };
-
-//                 (
-//                     resource_address,
-//                     WithdrawInformation::NonFungible(
-//                         NonFungibleWithdraw::ByIds(ids),
-//                     ),
-//                 )
-//             } else if method_name
-//                 == ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
-//             {
-//                 let Some(AccountLockFeeAndWithdrawNonFungiblesInput {
-//                     resource_address,
-//                     ids,
-//                     ..
-//                 }) = to_manifest_type(&args)
-//                 else {
-//                     // TODO: Error? Panic?
-//                     return;
-//                 };
-
-//                 (
-//                     resource_address,
-//                     WithdrawInformation::NonFungible(
-//                         NonFungibleWithdraw::ByIds(ids),
-//                     ),
-//                 )
-//             } else {
-//                 return;
-//             };
-
-//         self.callbacks.iter_mut().for_each(
-//             |callback: &mut &mut dyn ExecutionSummaryCallback| {
-//                 callback.on_account_withdraw(
-//                     &account,
-//                     &resource_address,
-//                     &withdraw_information,
-//                 )
-//             },
-//         );
-//     }
-
-//     fn predicted_non_fungible_ids_put_on_worktop(
-//         &self,
-//         instruction_index: usize,
-//         resource_address: ResourceAddress,
-//     ) -> Option<IndexSet<NonFungibleLocalId>> {
-//         self.receipt.and_then(|receipt| {
-//             receipt
-//                 .execution_trace()
-//                 .worktop_changes()
-//                 .entry(instruction_index)
-//                 .or_default()
-//                 .iter()
-//                 .filter_map(|worktop_change| match worktop_change {
-//                     WorktopChange::Put(ResourceSpecifier::Ids(
-//                         worktop_change_resource_address,
-//                         ids,
-//                     )) if *worktop_change_resource_address
-//                         == resource_address =>
-//                     {
-//                         Some(ids)
-//                     }
-//                     _ => None,
-//                 })
-//                 .cloned()
-//                 .reduce(|mut acc, item| {
-//                     acc.extend(item);
-//                     acc
-//                 })
-//         })
-//     }
-
-// }
