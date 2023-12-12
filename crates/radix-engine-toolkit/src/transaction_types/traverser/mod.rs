@@ -19,10 +19,12 @@
 //! for auxiliary information or specialized for the detection of transaction
 //! types.
 
-pub mod auxiliary;
-pub mod traits;
-pub mod traverser;
-pub mod types;
+#![allow(clippy::module_inception)]
+
+mod auxiliary;
+mod traits;
+mod traverser;
+mod types;
 
 pub use auxiliary::*;
 pub use traits::*;
