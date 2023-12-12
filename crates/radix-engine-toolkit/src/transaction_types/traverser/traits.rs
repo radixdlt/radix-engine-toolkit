@@ -46,6 +46,19 @@ pub trait ManifestSummaryCallback {
 }
 
 pub trait ExecutionSummaryCallback {
+    /// Called when the traverser starts going through a new instruction with
+    /// the new instruction and the index that it is at and information on the
+    /// input resources that this instruction took and the output resources.
+    #[inline]
+    fn on_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+        instruction_index: usize,
+        input_resources: Vec<&SourceResourceSpecifier>,
+        output_resources: Vec<&SourceResourceSpecifier>,
+    ) {
+    }
+
     /// Called when a deposit is performed into an account with the information
     /// of the deposited resources.
     #[inline]
