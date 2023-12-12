@@ -1,9 +1,11 @@
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 
+use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
@@ -91,8 +93,8 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -106,7 +108,7 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
                     .expect("Must succeed!");
 
                 // TODO: Filter + Pattern matching is perhaps redundant?
-                let Some(SourceResourceSpecifier::Amount(XRD, xrd_amount)) =
+                let Some(ResourceSpecifier::Amount(XRD, xrd_amount)) =
                     input_resources
                         .iter()
                         .filter(|specifier| specifier.resource_address() == XRD)
@@ -117,7 +119,7 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
                     return;
                 };
 
-                let Some(SourceResourceSpecifier::Amount(
+                let Some(ResourceSpecifier::Amount(
                     stake_units_resource_address,
                     stake_units_amount,
                 )) = output_resources.first()
@@ -131,9 +133,9 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
 
                 self.tracked_stake.push(TrackedValidatorStake {
                     validator_address: validator_component,
-                    xrd_amount: **xrd_amount,
+                    xrd_amount: *xrd_amount,
                     liquid_stake_unit_address: *stake_units_resource_address,
-                    liquid_stake_unit_amount: **stake_units_amount,
+                    liquid_stake_unit_amount: *stake_units_amount,
                 });
             }
             _ => { /* No-op */ }

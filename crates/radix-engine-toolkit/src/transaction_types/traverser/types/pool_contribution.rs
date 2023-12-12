@@ -3,9 +3,11 @@ use std::ops::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::pool::*;
 
+use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 
 struct TrackedPoolContribution {
@@ -97,8 +99,8 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -116,7 +118,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                 // Determine the output pool units. If we can't find them then
                 // it means that no pool units were returned and that nothing
                 // was contributed.
-                let Some(SourceResourceSpecifier::Amount(
+                let Some(ResourceSpecifier::Amount(
                     pool_unit_resource_address,
                     pool_unit_amount,
                 )) = Self::pool_unit_resource_specifier(
@@ -130,17 +132,15 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                 let mut tracked_contribution = TrackedPoolContribution {
                     pool_address,
                     pool_units_resource_address: pool_unit_resource_address,
-                    pool_units_amount: *pool_unit_amount,
+                    pool_units_amount: pool_unit_amount,
                     contributed_resources: Default::default(),
                 };
 
                 // Accounting for how much resources were contributed from the
                 // input and the output (the change).
                 for resource_specifier in input_resources.iter() {
-                    let SourceResourceSpecifier::Amount(
-                        resource_address,
-                        amount,
-                    ) = resource_specifier
+                    let ResourceSpecifier::Amount(resource_address, amount) =
+                        resource_specifier
                     else {
                         continue;
                     };
@@ -149,13 +149,11 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                         .contributed_resources
                         .entry(*resource_address)
                         .or_default()
-                        .add_assign(**amount);
+                        .add_assign(*amount);
                 }
                 for resource_specifier in output_resources.iter() {
-                    let SourceResourceSpecifier::Amount(
-                        resource_address,
-                        amount,
-                    ) = resource_specifier
+                    let ResourceSpecifier::Amount(resource_address, amount) =
+                        resource_specifier
                     else {
                         continue;
                     };
@@ -165,7 +163,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
                     else {
                         continue;
                     };
-                    entry.sub_assign(**amount);
+                    entry.sub_assign(*amount);
                 }
                 tracked_contribution.contributed_resources =
                     tracked_contribution
@@ -256,9 +254,9 @@ impl PoolContributionDetector {
     }
 
     fn pool_unit_resource_specifier(
-        input: &Vec<&SourceResourceSpecifier>,
-        output: &Vec<&SourceResourceSpecifier>,
-    ) -> Option<SourceResourceSpecifier> {
+        input: &Vec<&ResourceSpecifier>,
+        output: &Vec<&ResourceSpecifier>,
+    ) -> Option<ResourceSpecifier> {
         // The pool unit resource specifier is that which is only present in the
         // output and not in the input. We also account for the pool returning
         // change so we do not use index based detection as it would't reliable

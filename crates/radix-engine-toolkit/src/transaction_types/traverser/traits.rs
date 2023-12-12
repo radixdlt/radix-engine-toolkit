@@ -21,12 +21,27 @@ pub trait ManifestSummaryCallback {
     #[inline]
     fn on_finish(&mut self, instructions_count: usize) {}
 
-    /// Called when a global entity is encountered in the manifest for the first
-    /// time to inform other observers of it.
+    /// Called when a global entity is encountered in the manifest
     #[inline]
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {}
+}
 
-    /* Higher-level abstractions & resource movements */
+pub trait ExecutionSummaryCallback
+where
+    Self: ManifestSummaryCallback,
+{
+    /// Called when the traverser starts going through a new instruction with
+    /// the new instruction and the index that it is at and information on the
+    /// input resources that this instruction took and the output resources.
+    #[inline]
+    fn on_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+        instruction_index: usize,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
+    ) {
+    }
 
     /// Called when a proof is created either out of calling an account method
     /// or from a bucket.
@@ -39,23 +54,7 @@ pub trait ManifestSummaryCallback {
     fn on_account_withdraw(
         &mut self,
         account: &ComponentAddress,
-        resource_address: &ResourceAddress,
-        withdraw_information: &WithdrawInformation,
-    ) {
-    }
-}
-
-pub trait ExecutionSummaryCallback: ManifestSummaryCallback {
-    /// Called when the traverser starts going through a new instruction with
-    /// the new instruction and the index that it is at and information on the
-    /// input resources that this instruction took and the output resources.
-    #[inline]
-    fn on_instruction(
-        &mut self,
-        instruction: &InstructionV1,
-        instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        resource_indicator: &ResourceIndicator,
     ) {
     }
 
@@ -65,7 +64,7 @@ pub trait ExecutionSummaryCallback: ManifestSummaryCallback {
     fn on_account_deposit(
         &mut self,
         account: &ComponentAddress,
-        deposit_information: &DepositInformation,
+        resource_indicator: &ResourceIndicator,
     ) {
     }
 }

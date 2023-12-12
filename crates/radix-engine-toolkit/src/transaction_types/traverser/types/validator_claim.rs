@@ -3,6 +3,7 @@ use std::ops::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 
@@ -93,8 +94,8 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -107,7 +108,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                 let validator_component = ComponentAddress::try_from(*address)
                     .expect("Must succeed!");
 
-                let Some(SourceResourceSpecifier::Ids(
+                let Some(ResourceSpecifier::Ids(
                     claim_nft_resource_address,
                     claim_nft_ids,
                 )) = input_resources.first()
@@ -115,7 +116,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                     return;
                 };
 
-                let Some(SourceResourceSpecifier::Amount(XRD, xrd_amount)) =
+                let Some(ResourceSpecifier::Amount(XRD, xrd_amount)) =
                     output_resources.first()
                 else {
                     return;
@@ -125,7 +126,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
                     validator_address: validator_component,
                     claim_nft_address: *claim_nft_resource_address,
                     claim_nft_ids: claim_nft_ids.deref().clone(),
-                    xrd_amount: **xrd_amount,
+                    xrd_amount: *xrd_amount,
                 });
             }
             _ => { /* No-op */ }

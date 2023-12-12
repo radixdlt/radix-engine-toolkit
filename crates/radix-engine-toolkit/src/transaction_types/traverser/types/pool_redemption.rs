@@ -3,6 +3,7 @@ use std::ops::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::pool::*;
 
@@ -97,8 +98,8 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -116,7 +117,7 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
                 // The pool unit resource is the only input resource - if none
                 // are found then an empty bucket of input resources was given
                 // so we need to just ignore this operation.
-                let Some(SourceResourceSpecifier::Amount(
+                let Some(ResourceSpecifier::Amount(
                     pool_unit_resource_address,
                     pool_unit_amount,
                 )) = input_resources.first()
@@ -127,15 +128,13 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
                 let mut tracked_redemption = TrackedPoolRedemption {
                     pool_address,
                     pool_units_resource_address: *pool_unit_resource_address,
-                    pool_units_amount: **pool_unit_amount,
+                    pool_units_amount: *pool_unit_amount,
                     redeemed_resources: Default::default(),
                 };
 
                 for resource_specifier in output_resources {
-                    let SourceResourceSpecifier::Amount(
-                        resource_address,
-                        amount,
-                    ) = resource_specifier
+                    let ResourceSpecifier::Amount(resource_address, amount) =
+                        resource_specifier
                     else {
                         continue;
                     };
@@ -143,7 +142,7 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
                         .redeemed_resources
                         .entry(*resource_address)
                         .or_default()
-                        .add_assign(**amount);
+                        .add_assign(*amount);
                 }
                 self.tracked_redemptions.push(tracked_redemption)
             }

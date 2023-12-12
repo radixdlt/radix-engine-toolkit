@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::ops::*;
 
 use scrypto::prelude::*;
 
@@ -31,14 +31,10 @@ pub struct ManifestSummary {
 /// A summary of the execution of the manifest and the information that can
 #[derive(Clone, Debug)]
 pub struct ExecutionSummary {
-    /// The withdraws done in the manifest. This information is obtained
-    /// through static analysis of the manifest and does not require any
-    /// kind of info from the execution trace.
-    account_withdraws: IndexMap<
-        ComponentAddress,
-        IndexMap<ResourceAddress, WithdrawInformation>,
-    >,
-    account_deposits: IndexMap<ComponentAddress, Vec<DepositInformation>>,
+    /// The withdraws done in the manifest.
+    account_withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+    /// The deposits done in the manifest.
+    account_deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
     presented_proofs: IndexSet<ResourceAddress>,
@@ -243,6 +239,10 @@ impl<'r> TransactionTypesReceipt<'r> {
     pub fn new_packages(&self) -> &'r IndexSet<PackageAddress> {
         self.commit_result.new_package_addresses()
     }
+
+    pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
+        self.execution_trace
+    }
 }
 
 impl<'r> Deref for TransactionTypesReceipt<'r> {
@@ -250,59 +250,6 @@ impl<'r> Deref for TransactionTypesReceipt<'r> {
 
     fn deref(&self) -> &Self::Target {
         &self.receipt
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum WithdrawInformation {
-    /// Withdraws of a fungible resource - all fungible withdraws are by
-    /// amount.
-    Fungible(Decimal),
-    /// Withdraws of a non-fungible resource where some withdraws could be by
-    /// amount and others could be by ids. We persist both to retain the full
-    /// information. The total withdrawn amount is the amount + len(set).
-    NonFungible(Decimal, IndexSet<NonFungibleLocalId>),
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum DepositInformation {
-    /// An account deposit of a fungible resources where the amount can either
-    /// be guaranteed or predicted.
-    Fungible {
-        resource_address: ResourceAddress,
-        amount: Source<Decimal>,
-    },
-    /// A set of tracked non-fungible resources. In this case, the amount and
-    /// ids may be guaranteed or predicted. A valid non-fungible tracker
-    /// may have a guaranteed amount but a non-guaranteed set of ids.
-    NonFungible {
-        resource_address: ResourceAddress,
-        amount: Source<Decimal>,
-        ids: Source<IndexSet<NonFungibleLocalId>>,
-    },
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Source<T> {
-    Guaranteed(T),
-    Predicted(usize, T),
-}
-
-impl<T> std::ops::Deref for Source<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        match self {
-            Self::Guaranteed(target) | Self::Predicted(_, target) => target,
-        }
-    }
-}
-
-impl<T> std::ops::DerefMut for Source<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        match self {
-            Self::Guaranteed(target) | Self::Predicted(_, target) => target,
-        }
     }
 }
 
@@ -370,15 +317,82 @@ impl FnRules {
 }
 
 #[derive(Clone, Debug)]
-pub enum SourceResourceSpecifier {
-    Amount(ResourceAddress, Source<Decimal>),
-    Ids(ResourceAddress, Source<IndexSet<NonFungibleLocalId>>),
+pub enum ResourceIndicator {
+    Fungible(ResourceAddress, FungibleResourceIndicator),
+    NonFungible(ResourceAddress, NonFungibleResourceIndicator),
 }
 
-impl SourceResourceSpecifier {
+#[derive(Clone, Debug)]
+pub enum FungibleResourceIndicator {
+    Guaranteed(Decimal),
+    Predicted(Predicted<Decimal>),
+}
+
+#[derive(Clone, Debug)]
+pub enum NonFungibleResourceIndicator {
+    ByAmount {
+        amount: Decimal,
+        predicted_ids: Predicted<IndexSet<NonFungibleLocalId>>,
+    },
+    ByIds(IndexSet<NonFungibleLocalId>),
+}
+
+#[derive(Clone, Debug)]
+pub struct Predicted<T> {
+    value: T,
+    instruction_index: usize,
+}
+
+impl<T> Deref for Predicted<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+
+impl<T> DerefMut for Predicted<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.value
+    }
+}
+
+impl Deref for FungibleResourceIndicator {
+    type Target = Decimal;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            Self::Guaranteed(value)
+            | Self::Predicted(Predicted { value, .. }) => value,
+        }
+    }
+}
+
+impl DerefMut for FungibleResourceIndicator {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            Self::Guaranteed(value)
+            | Self::Predicted(Predicted { value, .. }) => value,
+        }
+    }
+}
+
+impl ResourceIndicator {
     pub fn resource_address(&self) -> ResourceAddress {
         match self {
-            Self::Amount(item, ..) | Self::Ids(item, ..) => *item,
+            Self::Fungible(resource_address, _)
+            | Self::NonFungible(resource_address, _) => *resource_address,
+        }
+    }
+}
+
+#[extend::ext]
+pub impl
+    radix_engine::system::system_modules::execution_trace::ResourceSpecifier
+{
+    fn resource_address(&self) -> ResourceAddress {
+        match self {
+            Self::Amount(x, ..) | Self::Ids(x, ..) => *x,
         }
     }
 }

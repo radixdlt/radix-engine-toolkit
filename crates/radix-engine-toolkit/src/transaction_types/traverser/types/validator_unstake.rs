@@ -3,6 +3,7 @@ use std::ops::*;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 
@@ -94,8 +95,8 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
         &mut self,
         instruction: &InstructionV1,
         instruction_index: usize,
-        input_resources: Vec<&SourceResourceSpecifier>,
-        output_resources: Vec<&SourceResourceSpecifier>,
+        input_resources: Vec<&ResourceSpecifier>,
+        output_resources: Vec<&ResourceSpecifier>,
     ) {
         match instruction {
             InstructionV1::CallMethod {
@@ -108,7 +109,7 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
                 let validator_component = ComponentAddress::try_from(*address)
                     .expect("Must succeed!");
 
-                let Some(SourceResourceSpecifier::Amount(
+                let Some(ResourceSpecifier::Amount(
                     stake_unit_resource_address,
                     stake_unit_amount,
                 )) = input_resources.first()
@@ -118,7 +119,7 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
                     return;
                 };
 
-                let Some(SourceResourceSpecifier::Ids(
+                let Some(ResourceSpecifier::Ids(
                     claim_nft_resource_address,
                     claim_nft_ids,
                 )) = output_resources.first()
@@ -132,7 +133,7 @@ impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
                 self.tracked_unstake.push(TrackedValidatorUnstake {
                     validator_address: validator_component,
                     liquid_stake_unit_address: *stake_unit_resource_address,
-                    liquid_stake_unit_amount: **stake_unit_amount,
+                    liquid_stake_unit_amount: *stake_unit_amount,
                     claim_nft_address: *claim_nft_resource_address,
                     claim_nft_ids: claim_nft_ids.deref().clone(),
                 });
