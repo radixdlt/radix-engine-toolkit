@@ -4,4 +4,4 @@ version = "1.0.3"
 edition = "2021"
 
 [dependencies]
-uniffi = { git = "https://github.com/mozilla/uniffi-rs/", rev="8ace8047e569d688e5a06b198240970960666138", features = ["cli"] }
+uniffi = { git = "https://github.com/mstrug-rdx/uniffi-rs/", branch = "bugfix/result-type-in-lower-return", features = ["cli"] }
