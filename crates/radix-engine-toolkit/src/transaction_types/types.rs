@@ -29,15 +29,16 @@ pub struct ManifestSummary {
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
     pub presented_proofs: IndexSet<ResourceAddress>,
-    /// The set of all entities encountered in the manifest - this is used by
-    /// the wallet for the "using dApps" section.
-    pub encountered_entities: IndexSet<NodeId>,
+    /// The set of all the global entities encountered in the manifest. This is
+    /// to be primarily used for the "using dApps" section of the wallet's tx
+    /// review screen.
+    pub encountered_entities: IndexSet<GlobalAddress>,
     /// The set of accounts encountered in the manifest where privileged
     /// methods were called.
-    pub accounts_requiring_auth: IndexSet<NodeId>,
+    pub accounts_requiring_auth: IndexSet<ComponentAddress>,
     /// The set of identities encountered in the manifest where privileged
     /// methods were called.
-    pub identities_requiring_auth: IndexSet<NodeId>,
+    pub identities_requiring_auth: IndexSet<ComponentAddress>,
     /// The set of instructions encountered in the manifest that are reserved
     /// and can only be included in the manifest by the wallet itself.
     pub reserved_instructions: IndexSet<ReservedInstruction>,
@@ -77,7 +78,7 @@ pub struct ExecutionSummary {
 
 /// The classification process classifies manifests into classes. The following
 /// are the classes that the Radix Engine Toolkit supports.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum ManifestClass {
     /// A general manifest that involves any amount of arbitrary components
     /// and packages where nothing more concrete can be said about the manifest

@@ -30,6 +30,10 @@ pub struct TransferDetector {
 }
 
 impl TransferDetector {
+    pub fn is_valid(&self) -> bool {
+        self.is_valid
+    }
+
     pub fn output(self) -> Option<bool> {
         if self.is_valid {
             Some(self.instructions_match_simple_transfer)

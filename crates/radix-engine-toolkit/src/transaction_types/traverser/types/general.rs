@@ -27,6 +27,10 @@ pub struct GeneralDetector {
 }
 
 impl GeneralDetector {
+    pub fn is_valid(&self) -> bool {
+        self.is_valid
+    }
+
     pub fn output(self) -> Option<()> {
         if self.is_valid {
             Some(())
@@ -92,10 +96,6 @@ impl ManifestSummaryCallback for GeneralDetector {
 impl ExecutionSummaryCallback for GeneralDetector {}
 
 impl GeneralDetector {
-    pub fn is_valid(&self) -> bool {
-        self.is_valid
-    }
-
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
         match address {
             DynamicGlobalAddress::Named(..) => FnRules::all_disallowed(),
