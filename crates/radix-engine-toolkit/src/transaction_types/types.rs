@@ -78,6 +78,10 @@ pub struct ExecutionSummary {
     /// The set of instructions encountered in the manifest that are reserved
     /// and can only be included in the manifest by the wallet itself.
     pub reserved_instructions: IndexSet<ReservedInstruction>,
+    /// Information on how much fees were contingent and how much were not.
+    pub fee_locks: FeeLocks,
+    /// Detailed information on the amount of cost units consumed.
+    pub fee_summary: FeeSummary,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     pub detailed_classification: Vec<DetailedManifestClass>,
@@ -465,4 +469,12 @@ pub enum Update<T> {
 pub enum Operation {
     Added,
     Removed,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct FeeSummary {
+    pub execution_cost: Decimal,
+    pub finalization_cost: Decimal,
+    pub storage_expansion_cost: Decimal,
+    pub royalty_cost: Decimal,
 }

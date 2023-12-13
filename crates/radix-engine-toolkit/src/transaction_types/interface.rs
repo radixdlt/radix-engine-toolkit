@@ -287,6 +287,17 @@ pub fn execution_summary(
     .rev()
     .collect::<Vec<DetailedManifestClass>>();
 
+    let fee_locks = FeeLocks {
+        lock: receipt.execution_trace().fee_locks.lock,
+        contingent_lock: receipt.execution_trace().fee_locks.contingent_lock,
+    };
+    let fee_summary = FeeSummary {
+        execution_cost: receipt.fee_summary.total_execution_cost_in_xrd,
+        finalization_cost: receipt.fee_summary.total_finalization_cost_in_xrd,
+        storage_expansion_cost: receipt.fee_summary.total_storage_cost_in_xrd,
+        royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
+    };
+
     Ok(ExecutionSummary {
         account_withdraws,
         account_deposits,
@@ -296,6 +307,8 @@ pub fn execution_summary(
         accounts_requiring_auth,
         identities_requiring_auth,
         reserved_instructions,
+        fee_locks,
+        fee_summary,
         detailed_classification,
     })
 }
