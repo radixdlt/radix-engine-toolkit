@@ -414,6 +414,9 @@ mod native {
         SCRYPTO_SBOR_V1_PAYLOAD_PREFIX as NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX,
         MANIFEST_SBOR_V1_PAYLOAD_PREFIX as NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX,
     };
+    pub use radix_engine::transaction::{
+        FeeLocks as NativeFeeLocks
+    };
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,
     };

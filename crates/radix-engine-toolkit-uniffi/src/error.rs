@@ -105,6 +105,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("An error that occurred in the signer logic")]
     SignerError { error: String },
+
+    #[error("The receipt is not a valid preview receipt")]
+    InvalidReceipt,
 }
 
 macro_rules! dbg_str {
