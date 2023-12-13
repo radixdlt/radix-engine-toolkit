@@ -18,11 +18,23 @@
 use crate::transaction_types::*;
 use scrypto::prelude::*;
 
+#[derive(Default)]
 pub struct AccountResourceMovementsDetector {
     /// Account withdraws
     withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// Account deposits
     deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+}
+
+impl AccountResourceMovementsDetector {
+    pub fn output(
+        self,
+    ) -> (
+        IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+        IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
+    ) {
+        (self.withdraws, self.deposits)
+    }
 }
 
 impl ManifestSummaryCallback for AccountResourceMovementsDetector {}

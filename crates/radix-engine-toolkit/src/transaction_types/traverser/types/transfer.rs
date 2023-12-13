@@ -29,6 +29,16 @@ pub struct TransferDetector {
     instructions_match_simple_transfer: bool,
 }
 
+impl TransferDetector {
+    pub fn output(self) -> Option<bool> {
+        if self.is_valid {
+            Some(self.instructions_match_simple_transfer)
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for TransferDetector {
     fn on_instruction(
         &mut self,
@@ -189,6 +199,15 @@ impl TransferDetector {
                     }
                 }).unwrap_or(FnRules::all_disallowed())
             }
+        }
+    }
+}
+
+impl Default for TransferDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            instructions_match_simple_transfer: true,
         }
     }
 }

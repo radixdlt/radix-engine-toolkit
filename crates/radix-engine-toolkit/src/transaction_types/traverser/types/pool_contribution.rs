@@ -27,7 +27,7 @@ use radix_engine_interface::blueprints::pool::*;
 use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 
-struct TrackedPoolContribution {
+pub struct TrackedPoolContribution {
     pub pool_address: ComponentAddress,
     /* Input */
     pub contributed_resources: IndexMap<ResourceAddress, Decimal>,
@@ -42,6 +42,18 @@ pub struct PoolContributionDetector {
     pools: IndexSet<GlobalAddress>,
     /// Tracks the contributions that occurred in the transaction
     tracked_contributions: Vec<TrackedPoolContribution>,
+}
+
+impl PoolContributionDetector {
+    pub fn output(
+        self,
+    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedPoolContribution>)> {
+        if self.is_valid {
+            Some((self.pools, self.tracked_contributions))
+        } else {
+            None
+        }
+    }
 }
 
 impl ManifestSummaryCallback for PoolContributionDetector {
@@ -306,5 +318,15 @@ fn is_pool(address: &DynamicGlobalAddress) -> bool {
                 )
             }),
         DynamicGlobalAddress::Named(_) => false,
+    }
+}
+
+impl Default for PoolContributionDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            pools: Default::default(),
+            tracked_contributions: Default::default(),
+        }
     }
 }

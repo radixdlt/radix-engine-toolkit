@@ -43,6 +43,18 @@ pub struct ValidatorUnstakeDetector {
     tracked_unstake: Vec<TrackedValidatorUnstake>,
 }
 
+impl ValidatorUnstakeDetector {
+    pub fn output(
+        self,
+    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedValidatorUnstake>)> {
+        if self.is_valid {
+            Some((self.validators, self.tracked_unstake))
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for ValidatorUnstakeDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
@@ -217,6 +229,16 @@ impl ValidatorUnstakeDetector {
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }
+        }
+    }
+}
+
+impl Default for ValidatorUnstakeDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            validators: Default::default(),
+            tracked_unstake: Default::default(),
         }
     }
 }

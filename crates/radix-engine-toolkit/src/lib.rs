@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#![allow(clippy::type_complexity)]
+
 pub mod functions;
 pub mod models;
 pub mod sbor;

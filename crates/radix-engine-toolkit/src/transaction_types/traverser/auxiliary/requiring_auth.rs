@@ -21,9 +21,18 @@ use transaction::prelude::*;
 use crate::statics::*;
 use crate::transaction_types::*;
 
+#[derive(Default)]
 pub struct RequiringAuthDetector {
     accounts: IndexSet<ComponentAddress>,
     identities: IndexSet<ComponentAddress>,
+}
+
+impl RequiringAuthDetector {
+    pub fn output(
+        self,
+    ) -> (IndexSet<ComponentAddress>, IndexSet<ComponentAddress>) {
+        (self.accounts, self.identities)
+    }
 }
 
 impl ManifestSummaryCallback for RequiringAuthDetector {

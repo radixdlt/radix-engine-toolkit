@@ -26,7 +26,7 @@ use radix_engine_interface::blueprints::pool::*;
 
 use crate::transaction_types::*;
 
-struct TrackedPoolRedemption {
+pub struct TrackedPoolRedemption {
     pub pool_address: ComponentAddress,
     /* Input */
     pub pool_units_resource_address: ResourceAddress,
@@ -41,6 +41,18 @@ pub struct PoolRedemptionDetector {
     pools: IndexSet<GlobalAddress>,
     /// Tracks the redemptions that occurred in the transaction.
     tracked_redemptions: Vec<TrackedPoolRedemption>,
+}
+
+impl PoolRedemptionDetector {
+    pub fn output(
+        self,
+    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedPoolRedemption>)> {
+        if self.is_valid {
+            Some((self.pools, self.tracked_redemptions))
+        } else {
+            None
+        }
+    }
 }
 
 impl ManifestSummaryCallback for PoolRedemptionDetector {
@@ -257,5 +269,15 @@ fn is_pool(address: &DynamicGlobalAddress) -> bool {
                 )
             }),
         DynamicGlobalAddress::Named(_) => false,
+    }
+}
+
+impl Default for PoolRedemptionDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            pools: Default::default(),
+            tracked_redemptions: Default::default(),
+        }
     }
 }

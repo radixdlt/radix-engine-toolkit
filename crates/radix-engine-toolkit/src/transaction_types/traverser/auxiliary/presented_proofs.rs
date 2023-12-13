@@ -19,8 +19,15 @@ use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
+#[derive(Default)]
 pub struct PresentedProofsDetector {
     presented_proofs: IndexSet<ResourceAddress>,
+}
+
+impl PresentedProofsDetector {
+    pub fn output(self) -> IndexSet<ResourceAddress> {
+        self.presented_proofs
+    }
 }
 
 impl ManifestSummaryCallback for PresentedProofsDetector {

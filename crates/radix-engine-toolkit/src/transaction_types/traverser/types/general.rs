@@ -26,6 +26,16 @@ pub struct GeneralDetector {
     is_valid: bool,
 }
 
+impl GeneralDetector {
+    pub fn output(self) -> Option<()> {
+        if self.is_valid {
+            Some(())
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for GeneralDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
@@ -134,5 +144,11 @@ impl GeneralDetector {
                 }).unwrap_or(FnRules::all_disallowed())
             }
         }
+    }
+}
+
+impl Default for GeneralDetector {
+    fn default() -> Self {
+        Self { is_valid: true }
     }
 }

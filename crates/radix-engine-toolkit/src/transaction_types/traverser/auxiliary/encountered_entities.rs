@@ -19,8 +19,15 @@ use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
+#[derive(Default)]
 pub struct EncounteredGlobalEntities {
     entities: IndexSet<GlobalAddress>,
+}
+
+impl EncounteredGlobalEntities {
+    pub fn output(self) -> IndexSet<GlobalAddress> {
+        self.entities
+    }
 }
 
 impl ManifestSummaryCallback for EncounteredGlobalEntities {

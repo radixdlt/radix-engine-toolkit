@@ -42,6 +42,18 @@ pub struct ValidatorClaimDetector {
     tracked_claim: Vec<TrackedValidatorClaim>,
 }
 
+impl ValidatorClaimDetector {
+    pub fn output(
+        self,
+    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedValidatorClaim>)> {
+        if self.is_valid {
+            Some((self.validators, self.tracked_claim))
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for ValidatorClaimDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
@@ -208,6 +220,16 @@ impl ValidatorClaimDetector {
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }
+        }
+    }
+}
+
+impl Default for ValidatorClaimDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            validators: Default::default(),
+            tracked_claim: Default::default(),
         }
     }
 }

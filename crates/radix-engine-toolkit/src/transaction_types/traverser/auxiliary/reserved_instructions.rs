@@ -25,8 +25,15 @@ use crate::transaction_types::*;
 use crate::utils::*;
 use crate::*;
 
+#[derive(Default)]
 pub struct ReservedInstructionsDetector {
     reserved_instructions: IndexSet<ReservedInstruction>,
+}
+
+impl ReservedInstructionsDetector {
+    pub fn output(self) -> IndexSet<ReservedInstruction> {
+        self.reserved_instructions
+    }
 }
 
 impl ManifestSummaryCallback for ReservedInstructionsDetector {

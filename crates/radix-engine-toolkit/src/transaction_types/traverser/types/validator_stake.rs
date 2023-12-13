@@ -43,6 +43,18 @@ pub struct ValidatorStakeDetector {
     tracked_stake: Vec<TrackedValidatorStake>,
 }
 
+impl ValidatorStakeDetector {
+    pub fn output(
+        self,
+    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedValidatorStake>)> {
+        if self.is_valid {
+            Some((self.validators, self.tracked_stake))
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for ValidatorStakeDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
@@ -218,6 +230,16 @@ impl ValidatorStakeDetector {
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }
+        }
+    }
+}
+
+impl Default for ValidatorStakeDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            validators: Default::default(),
+            tracked_stake: Default::default(),
         }
     }
 }

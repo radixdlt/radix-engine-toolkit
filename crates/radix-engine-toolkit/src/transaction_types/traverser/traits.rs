@@ -27,7 +27,12 @@ pub trait ManifestSummaryCallback {
     /// Called when the traverser starts going through a new instruction with
     /// the new instruction and the index that it is at.
     #[inline]
-    fn on_instruction(&mut self, _instruction: &InstructionV1, _: usize) {}
+    fn on_instruction(
+        &mut self,
+        _instruction: &InstructionV1,
+        _instruction_index: usize,
+    ) {
+    }
 
     /// Called when a proof is created out of an account.
     #[inline]
@@ -53,7 +58,7 @@ where
     fn on_instruction(
         &mut self,
         _instruction: &InstructionV1,
-        _: usize,
+        _instruction_index: usize,
         _input_resources: &[ResourceSpecifier],
         _output_resources: &[ResourceSpecifier],
     ) {

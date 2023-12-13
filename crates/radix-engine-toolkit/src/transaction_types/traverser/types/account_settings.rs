@@ -37,6 +37,29 @@ pub struct AccountSettingsUpdateDetector {
         IndexMap<ComponentAddress, IndexMap<ResourceOrNonFungible, Update<()>>>,
 }
 
+impl AccountSettingsUpdateDetector {
+    pub fn output(
+        self,
+    ) -> Option<(
+        IndexMap<
+            ComponentAddress,
+            IndexMap<ResourceAddress, Update<ResourcePreference>>,
+        >,
+        IndexMap<ComponentAddress, DefaultDepositRule>,
+        IndexMap<ComponentAddress, IndexMap<ResourceOrNonFungible, Update<()>>>,
+    )> {
+        if self.is_valid {
+            Some((
+                self.resource_preferences,
+                self.default_deposit_rules,
+                self.authorized_depositors,
+            ))
+        } else {
+            None
+        }
+    }
+}
+
 impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
@@ -210,6 +233,17 @@ impl AccountSettingsUpdateDetector {
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }
+        }
+    }
+}
+
+impl Default for AccountSettingsUpdateDetector {
+    fn default() -> Self {
+        Self {
+            is_valid: true,
+            resource_preferences: Default::default(),
+            default_deposit_rules: Default::default(),
+            authorized_depositors: Default::default(),
         }
     }
 }
