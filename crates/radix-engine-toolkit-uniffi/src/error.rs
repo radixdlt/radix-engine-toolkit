@@ -162,7 +162,6 @@ impl_dbg_str_from! { NativeEncodeError, EncodeError }
 impl_dbg_str_from! { NativeDecodeError, DecodeError }
 impl_dbg_str_from! { NativeTransactionValidationError, TransactionValidationFailed }
 impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed }
-impl_dbg_str_from! { CoreExecutionExecutionModuleError, ExecutionModuleError }
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }

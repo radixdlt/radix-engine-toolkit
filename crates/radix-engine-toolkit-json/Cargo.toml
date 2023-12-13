@@ -37,7 +37,7 @@ indexmap = { version = "1.9.3", features = ["serde", "serde-1"] }
 typeshare = "1.0.1"
 
 # This makes the WASM builds work
-getrandom = { version = "*", features = ["js"] }
+# getrandom = { version = "*", features = ["js"] }
 
 [dev-dependencies]
 walkdir = "2.3.3"

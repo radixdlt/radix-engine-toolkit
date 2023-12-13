@@ -54,10 +54,6 @@ mod core {
         decompile as core_instructions_decompile,
         statically_validate as core_instructions_statically_validate,
         extract_addresses as core_instructions_extract_addresses,
-        identities_requiring_auth as core_instructions_identities_requiring_auth,
-        accounts_requiring_auth as core_instructions_accounts_requiring_auth,
-        accounts_withdrawn_from as core_instructions_accounts_withdrawn_from,
-        accounts_deposited_into as core_instructions_accounts_deposited_into,
         InstructionValidationError as CoreInstructionValidationError,
     };
     pub use radix_engine_toolkit::functions::utils::{
@@ -69,7 +65,8 @@ mod core {
         decompile as core_manifest_decompile,
         statically_validate as core_manifest_statically_validate,
         modify as core_manifest_modify,
-        parse_transfer_information as core_manifest_parse_transfer_information,
+        summary as core_manifest_summary,
+        execution_summary as core_manifest_execution_summary,
         TransactionManifestModifications as CoreManifestTransactionManifestModifications,
         Assertion as CoreManifestAssertion,
         ManifestModificationError as CoreManifestModificationError
@@ -92,22 +89,6 @@ mod core {
         decompile as core_notarized_transaction_decompile,
         statically_validate as core_notarized_transaction_statically_validate,
     };
-    pub use radix_engine_toolkit::functions::execution::{
-        analyze as core_execution_analyze,
-        ExecutionAnalysis as CoreExecutionExecutionAnalysis,
-        FeeSummary as CoreExecutionFeeSummary,
-        FeeLocks as CoreExecutionFeeLocks,
-        SimpleTransferTransactionType as CoreExecutionSimpleTransferTransactionType,
-        TransferTransactionType as CoreExecutionTransferTransactionType,
-        GeneralTransactionType as CoreExecutionGeneralTransactionType,
-        AccountDepositSettingsTransactionType as CoreExecutionAccountDepositSettingsTransactionType,
-        TransactionType as CoreExecutionTransactionType,
-        ExecutionModuleError as CoreExecutionExecutionModuleError,
-        ExecutionAnalysisTransactionReceipt as CoreExecutionAnalysisTransactionReceipt,
-        StakeTransactionType as CoreStakeTransactionType,
-        UnstakeTransactionType as CoreUnstakeTransactionType,
-        ClaimStakeTransactionType as CoreClaimStakeTransactionType
-    };
     pub use radix_engine_toolkit::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
         ManifestSborStringRepresentation as CoreManifestSborStringRepresentation,
@@ -123,29 +104,48 @@ mod core {
         sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
     };
 
-    /* Visitors */
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::reserved_instructions::{
+    /* TransactionTypes */
+    pub use radix_engine_toolkit::transaction_types::{
+        ManifestSummaryCallback as CoreManifestSummaryCallback,
+        ExecutionSummaryCallback as CoreExecutionSummaryCallback,
+        TransactionTypesError as CoreTransactionTypesError,
+        ManifestSummary as CoreManifestSummary,
+        ExecutionSummary as CoreExecutionSummary,
+        TransactionTypesReceipt as CoreTransactionTypesReceipt,
+        NewEntities as CoreNewEntities,
+        FnRules as CoreFnRules,
+        Predicted as CorePredicted,
+        FeeSummary as CoreFeeSummary,
+        ManifestClass as CoreManifestClass,
+        DetailedManifestClass as CoreDetailedManifestClass,
         ReservedInstruction as CoreReservedInstruction,
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::transfer_visitor::{
-        Resources as CoreResources,
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::account_deposit_settings_visitor::{
-        AuthorizedDepositorsChanges as CoreAuthorizedDepositorsChanges,
-        ResourcePreferenceAction as CoreResourcePreferenceAction,
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::general_transaction_visitor::{
-        Source as CoreSource,
-        ResourceTracker as CoreResourceTracker
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::stake_visitor::{
-        StakeInformation as CoreStakeInformation
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::unstake_visitor::{
-        UnstakeInformation as CoreUnstakeInformation
-    };
-    pub use radix_engine_toolkit::instruction_visitor::visitors::transaction_type::claim_stake_visitor::{
-        ClaimStakeInformation as CoreClaimStakeInformation
+        FnRule as CoreFnRule,
+        ResourceIndicator as CoreResourceIndicator,
+        FungibleResourceIndicator as CoreFungibleResourceIndicator,
+        NonFungibleResourceIndicator as CoreNonFungibleResourceIndicator,
+        Update as CoreUpdate,
+        Operation as CoreOperation,
+        EncounteredGlobalEntities as CoreEncounteredGlobalEntities,
+        PresentedProofsDetector as CorePresentedProofsDetector,
+        RequiringAuthDetector as CoreRequiringAuthDetector,
+        ReservedInstructionsDetector as CoreReservedInstructionsDetector,
+        StaticAccountResourceMovementsDetector as CoreStaticAccountResourceMovementsDetector,
+        AccountResourceMovementsDetector as CoreAccountResourceMovementsDetector,
+        AccountSettingsUpdateDetector as CoreAccountSettingsUpdateDetector,
+        GeneralDetector as CoreGeneralDetector,
+        PoolContributionDetector as CorePoolContributionDetector,
+        TrackedPoolContribution as CoreTrackedPoolContribution,
+        PoolRedemptionDetector as CorePoolRedemptionDetector,
+        TrackedPoolRedemption as CoreTrackedPoolRedemption,
+        TransferDetector as CoreTransferDetector,
+        ValidatorStakeDetector as CoreValidatorStakeDetector,
+        TrackedValidatorStake as CoreTrackedValidatorStake,
+        ValidatorUnstakeDetector as CoreValidatorUnstakeDetector,
+        TrackedValidatorUnstake as CoreTrackedValidatorUnstake,
+        ValidatorClaimDetector as CoreValidatorClaimDetector,
+        TrackedValidatorClaim as CoreTrackedValidatorClaim,
+        summary as core_summary,
+        execution_summary as core_execution_summary,
     };
 
     /* Utils */
@@ -158,8 +158,6 @@ mod core {
         validate_manifest_value_against_schema as core_validate_manifest_value_against_schema,
         is_account as core_is_account,
         is_identity as core_is_identity,
-        metadata_of_newly_created_entities as core_metadata_of_newly_created_entities,
-        data_of_newly_minted_non_fungibles as core_data_of_newly_minted_non_fungibles,
     };
 }
 
