@@ -43,11 +43,7 @@ pub struct ValidatorClaimDetector {
 }
 
 impl ManifestSummaryCallback for ValidatorClaimDetector {
-    fn on_instruction(
-        &mut self,
-        instruction: &InstructionV1,
-        _instruction_index: usize,
-    ) {
+    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
             InstructionV1::CallMethod {
@@ -106,7 +102,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
-        _instruction_index: usize,
+        _: usize,
         input_resources: &[ResourceSpecifier],
         output_resources: &[ResourceSpecifier],
     ) {

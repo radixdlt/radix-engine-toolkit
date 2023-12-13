@@ -27,11 +27,7 @@ pub struct GeneralDetector {
 }
 
 impl ManifestSummaryCallback for GeneralDetector {
-    fn on_instruction(
-        &mut self,
-        instruction: &InstructionV1,
-        _instruction_index: usize,
-    ) {
+    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         // Control whether or not this is allowed or not based on:
         // 1. Whether the instruction is allowed.
         // 2. Whether the instruction contents are allowed.
@@ -41,9 +37,7 @@ impl ManifestSummaryCallback for GeneralDetector {
                 address,
                 method_name,
                 ..
-            } => {
-                Self::construct_fn_rules(address).is_fn_permitted(method_name)
-            }
+            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }

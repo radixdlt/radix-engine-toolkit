@@ -30,11 +30,7 @@ pub struct ReservedInstructionsDetector {
 }
 
 impl ManifestSummaryCallback for ReservedInstructionsDetector {
-    fn on_instruction(
-        &mut self,
-        instruction: &InstructionV1,
-        _instruction_index: usize,
-    ) {
+    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         let InstructionV1::CallMethod {
             address,
             method_name,

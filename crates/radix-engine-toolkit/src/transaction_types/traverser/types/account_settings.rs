@@ -38,11 +38,7 @@ pub struct AccountSettingsUpdateDetector {
 }
 
 impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
-    fn on_instruction(
-        &mut self,
-        instruction: &InstructionV1,
-        _instruction_index: usize,
-    ) {
+    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         // Determine the validity based on the instructions
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
