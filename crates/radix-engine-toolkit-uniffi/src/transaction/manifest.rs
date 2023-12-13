@@ -478,8 +478,10 @@ pub enum DetailedManifestClass {
         resource_preferences_updates:
             HashMap<String, HashMap<String, ResourcePreferenceUpdate>>,
         deposit_mode_updates: HashMap<String, AccountDefaultDepositRule>,
-        authorized_depositors_updates:
-            HashMap<String, HashMap<ResourceOrNonFungible, Operation>>,
+        authorized_depositors_added:
+            HashMap<String, Vec<ResourceOrNonFungible>>,
+        authorized_depositors_removed:
+            HashMap<String, Vec<ResourceOrNonFungible>>,
     },
 }
 
@@ -635,8 +637,8 @@ impl DetailedManifestClass {
                         )
                     })
                     .collect(),
-                authorized_depositors_updates: authorized_depositors_updates
-                    .into_iter()
+                authorized_depositors_added: authorized_depositors_updates
+                    .iter()
                     .map(|(k, v)| {
                         (
                             Address::unsafe_from_raw(
@@ -646,11 +648,34 @@ impl DetailedManifestClass {
                             .address_string(),
                             v
                                 .into_iter()
-                                .map(|(k, v)| {
-                                    (
-                                        ResourceOrNonFungible::from_native(k, network_id),
-                                        Operation::from(v)
-                                    )
+                                .filter_map(|(k, v)| {
+                                    if let CoreOperation::Added = v {
+                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .collect()
+                        )
+                    })
+                    .collect(),
+                authorized_depositors_removed: authorized_depositors_updates
+                    .iter()
+                    .map(|(k, v)| {
+                        (
+                            Address::unsafe_from_raw(
+                                k.into_node_id(),
+                                network_id,
+                            )
+                            .address_string(),
+                            v
+                                .into_iter()
+                                .filter_map(|(k, v)| {
+                                    if let CoreOperation::Removed = v {
+                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                    } else {
+                                        None
+                                    }
                                 })
                                 .collect()
                         )
