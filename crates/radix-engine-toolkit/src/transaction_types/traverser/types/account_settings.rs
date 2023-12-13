@@ -38,6 +38,12 @@ pub struct AccountSettingsUpdateDetector {
 }
 
 impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
+    fn on_finish(&mut self, instructions_count: usize) {
+        if instructions_count == 0 {
+            self.is_valid = false
+        }
+    }
+
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         // Determine the validity based on the instructions
         self.is_valid &= match instruction {

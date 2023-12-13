@@ -43,6 +43,12 @@ pub struct ValidatorClaimDetector {
 }
 
 impl ManifestSummaryCallback for ValidatorClaimDetector {
+    fn on_finish(&mut self, instructions_count: usize) {
+        if instructions_count == 0 {
+            self.is_valid = false
+        }
+    }
+
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */

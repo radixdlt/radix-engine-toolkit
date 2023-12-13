@@ -27,6 +27,12 @@ pub struct GeneralDetector {
 }
 
 impl ManifestSummaryCallback for GeneralDetector {
+    fn on_finish(&mut self, instructions_count: usize) {
+        if instructions_count == 0 {
+            self.is_valid = false
+        }
+    }
+
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         // Control whether or not this is allowed or not based on:
         // 1. Whether the instruction is allowed.

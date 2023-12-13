@@ -99,6 +99,9 @@ impl ManifestSummaryCallback for TransferDetector {
         if instructions_count != 3 {
             self.instructions_match_simple_transfer = false
         }
+        if instructions_count == 0 {
+            self.is_valid = false
+        }
     }
 }
 
