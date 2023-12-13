@@ -31,6 +31,10 @@ pub struct ManifestSummary {
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
     pub presented_proofs: IndexSet<ResourceAddress>,
+    /// The set of accounts withdrawn from observed in the manifest.
+    pub accounts_withdrawn_from: IndexSet<ComponentAddress>,
+    /// The set of accounts deposited into observed in the manifest.
+    pub accounts_deposited_into: IndexSet<ComponentAddress>,
     /// The set of all the global entities encountered in the manifest. This is
     /// to be primarily used for the "using dApps" section of the wallet's tx
     /// review screen.

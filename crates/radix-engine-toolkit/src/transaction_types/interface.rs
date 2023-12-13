@@ -36,6 +36,8 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let mut requiring_auth_detector = RequiringAuthDetector::default();
     let mut reserved_instructions_detector =
         ReservedInstructionsDetector::default();
+    let mut account_resource_movements_detector =
+        StaticAccountResourceMovementsDetector::default();
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -54,6 +56,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut encountered_entities_detector,
             &mut requiring_auth_detector,
             &mut reserved_instructions_detector,
+            &mut account_resource_movements_detector,
             &mut general_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
@@ -72,6 +75,8 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let (accounts_requiring_auth, identities_requiring_auth) =
         requiring_auth_detector.output();
     let reserved_instructions = reserved_instructions_detector.output();
+    let (account_withdraws, account_deposits) =
+        account_resource_movements_detector.output();
     let classification = [
         (
             ManifestClass::General,
@@ -121,6 +126,8 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
 
     ManifestSummary {
         presented_proofs,
+        accounts_withdrawn_from: account_withdraws,
+        accounts_deposited_into: account_deposits,
         encountered_entities,
         accounts_requiring_auth,
         identities_requiring_auth,
