@@ -44,9 +44,6 @@ pub fn generate_function_schema(
             InstructionsStaticallyValidate,
             InstructionsExtractAddresses,
         ],
-        "execution" => function_schema![
-            ExecutionAnalyze
-        ],
         "manifest" => function_schema![
             ManifestHash,
             ManifestCompile,

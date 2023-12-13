@@ -17,7 +17,6 @@
 
 pub mod address;
 pub mod derive;
-pub mod execution;
 pub mod generator;
 pub mod information;
 pub mod instructions;
