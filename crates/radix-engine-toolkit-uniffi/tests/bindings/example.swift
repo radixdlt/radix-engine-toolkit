@@ -6,5 +6,5 @@ do {
     let buildInformation = radix_engine_toolkit_uniffi.buildInformation()
 
     // Assert
-    assert(buildInformation.version == "1.0.3")
+    assert(buildInformation.version == "1.0.6")
 }
