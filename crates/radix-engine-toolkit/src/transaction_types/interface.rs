@@ -192,6 +192,7 @@ pub fn execution_summary(
         component_addresses: receipt.new_components().clone(),
         resource_addresses: receipt.new_resources().clone(),
         package_addresses: receipt.new_packages().clone(),
+        metadata: receipt.metadata_of_new_entities(),
     };
     let encountered_entities = encountered_entities_detector.output();
     let (accounts_requiring_auth, identities_requiring_auth) =

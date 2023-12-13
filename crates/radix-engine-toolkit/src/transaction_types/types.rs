@@ -17,6 +17,10 @@
 
 use std::ops::*;
 
+use radix_engine::system::system_substates::*;
+use radix_engine::track::*;
+use radix_engine_queries::typed_substate_layout::*;
+use radix_engine_store_interface::interface::*;
 use scrypto::prelude::*;
 
 use radix_engine::system::system_modules::execution_trace::*;
@@ -273,6 +277,101 @@ impl<'r> TransactionTypesReceipt<'r> {
     pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
         self.execution_trace
     }
+
+    pub fn metadata_of_new_entities(
+        &self,
+    ) -> IndexMap<GlobalAddress, IndexMap<String, Option<MetadataValue>>> {
+        let mut map = IndexMap::<
+            GlobalAddress,
+            IndexMap<String, Option<MetadataValue>>,
+        >::new();
+
+        for global_address in self.new_entities() {
+            let entry = map.entry(global_address).or_default();
+            if let Some(NodeStateUpdates::Delta { by_partition }) = self
+                .commit_result
+                .state_updates
+                .by_node
+                .get(global_address.as_node_id())
+            {
+                let entries = match by_partition.get(&METADATA_BASE_PARTITION) {
+                    Some(PartitionStateUpdates::Delta { by_substate }) => {
+                        by_substate
+                            .iter()
+                            .filter_map(|(key, value)| match value {
+                                DatabaseUpdate::Set(value) => {
+                                    Some((key.clone(), value.clone()))
+                                }
+                                DatabaseUpdate::Delete => None,
+                            })
+                            .collect::<IndexMap<_, _>>()
+                    }
+                    Some(PartitionStateUpdates::Batch(
+                        BatchPartitionStateUpdate::Reset {
+                            new_substate_values,
+                        },
+                    )) => new_substate_values.clone(),
+                    None => continue,
+                };
+
+                for (substate_key, data) in entries.into_iter() {
+                    if let Ok((
+                        TypedSubstateKey::MetadataModule(key),
+                        TypedSubstateValue::MetadataModule(value),
+                    )) = to_typed_substate_key(
+                        global_address.as_node_id().entity_type().unwrap(),
+                        METADATA_BASE_PARTITION,
+                        &substate_key,
+                    )
+                    .and_then(|typed_substate_key| {
+                        to_typed_substate_value(&typed_substate_key, &data).map(
+                            |typed_substate_value| {
+                                (typed_substate_key, typed_substate_value)
+                            },
+                        )
+                    }) {
+                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(
+                            key,
+                        ) = key;
+                        let value = match value {
+                            TypedMetadataModuleSubstateValue::MetadataEntry(
+                                KeyValueEntrySubstate::V1(
+                                    KeyValueEntrySubstateV1 { value, .. },
+                                ),
+                            ) => value,
+                        };
+                        entry.insert(
+                            key,
+                            value.map(|metadata_entry| {
+                                let VersionedMetadataEntry::V1(metadata) =
+                                    metadata_entry.content;
+                                metadata
+                            }),
+                        );
+                    }
+                }
+            }
+        }
+
+        map
+    }
+
+    fn new_entities(&self) -> IndexSet<GlobalAddress> {
+        self.new_components()
+            .iter()
+            .map(|item| GlobalAddress::from(*item))
+            .chain(
+                self.new_resources()
+                    .iter()
+                    .map(|item| GlobalAddress::from(*item)),
+            )
+            .chain(
+                self.new_packages()
+                    .iter()
+                    .map(|item| GlobalAddress::from(*item)),
+            )
+            .collect()
+    }
 }
 
 impl<'r> Deref for TransactionTypesReceipt<'r> {
@@ -289,6 +388,8 @@ pub struct NewEntities {
     pub component_addresses: IndexSet<ComponentAddress>,
     pub resource_addresses: IndexSet<ResourceAddress>,
     pub package_addresses: IndexSet<PackageAddress>,
+    pub metadata:
+        IndexMap<GlobalAddress, IndexMap<String, Option<MetadataValue>>>,
 }
 
 /// The set of instructions that is only allowed in manifests created by the

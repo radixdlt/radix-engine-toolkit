@@ -1110,6 +1110,7 @@ pub struct NewEntities {
     pub component_addresses: Vec<Arc<Address>>,
     pub resource_addresses: Vec<Arc<Address>>,
     pub package_addresses: Vec<Arc<Address>>,
+    pub metadata: HashMap<String, HashMap<String, Option<MetadataValue>>>,
 }
 
 impl NewEntities {
@@ -1143,6 +1144,28 @@ impl NewEntities {
                         item.into_node_id(),
                         network_id,
                     ))
+                })
+                .collect(),
+            metadata: native
+                .metadata
+                .iter()
+                .map(|(key, value)| {
+                    (
+                        Address::from_typed_node_id(*key, network_id).as_str(),
+                        value
+                            .iter()
+                            .map(|(key, value)| {
+                                (
+                                    key.clone(),
+                                    value.as_ref().map(|value| {
+                                        MetadataValue::from_native(
+                                            value, network_id,
+                                        )
+                                    }),
+                                )
+                            })
+                            .collect(),
+                    )
                 })
                 .collect(),
         }
