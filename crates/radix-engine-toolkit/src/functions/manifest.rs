@@ -221,7 +221,7 @@ pub fn modify(
     })
 }
 
-pub fn summary(manifest: &TransactionManifestV1) -> IndexSet<ManifestSummary> {
+pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     crate::transaction_types::summary(manifest)
 }
 

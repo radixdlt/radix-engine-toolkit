@@ -61,6 +61,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut validator_stake_detector,
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
+            &mut accounts_settings_detector,
         ],
         manifest,
     );
@@ -97,6 +98,10 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             validator_unstake_detector.is_valid(),
         ),
         (
+            ManifestClass::ValidatorClaim,
+            validator_claim_detector.is_valid(),
+        ),
+        (
             ManifestClass::AccountDepositSettingsUpdate,
             accounts_settings_detector.is_valid(),
         ),
@@ -125,8 +130,165 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
 }
 
 pub fn execution_summary(
-    _manifest: &TransactionManifestV1,
-    _receipt: &TransactionReceipt,
+    manifest: &TransactionManifestV1,
+    receipt: &TransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
-    todo!()
+    // Attempt to create a tx types receipt from the passed receipt
+    let receipt = TransactionTypesReceipt::new(receipt)
+        .ok_or(TransactionTypesError::InvalidReceipt)?;
+
+    // Settings up the various detectors
+    let mut presented_proofs_detector = PresentedProofsDetector::default();
+    let mut encountered_entities_detector =
+        EncounteredGlobalEntities::default();
+    let mut requiring_auth_detector = RequiringAuthDetector::default();
+    let mut reserved_instructions_detector =
+        ReservedInstructionsDetector::default();
+    let mut account_resource_movements_detector =
+        AccountResourceMovementsDetector::default();
+
+    let mut general_transaction_detector = GeneralDetector::default();
+    let mut transfer_transaction_detector = TransferDetector::default();
+    let mut pool_contribution_detector = PoolContributionDetector::default();
+    let mut pool_redemption_detector = PoolRedemptionDetector::default();
+    let mut validator_stake_detector = ValidatorStakeDetector::default();
+    let mut validator_unstake_detector = ValidatorUnstakeDetector::default();
+    let mut validator_claim_detector = ValidatorClaimDetector::default();
+    let mut accounts_settings_detector =
+        AccountSettingsUpdateDetector::default();
+
+    // Traversing the manifest with the passed detectors
+    traverser::manifest_summary::traverse(
+        &mut [
+            &mut presented_proofs_detector,
+            &mut encountered_entities_detector,
+            &mut requiring_auth_detector,
+            &mut reserved_instructions_detector,
+            &mut account_resource_movements_detector,
+            &mut general_transaction_detector,
+            &mut transfer_transaction_detector,
+            &mut pool_contribution_detector,
+            &mut pool_redemption_detector,
+            &mut validator_stake_detector,
+            &mut validator_unstake_detector,
+            &mut validator_claim_detector,
+            &mut accounts_settings_detector,
+        ],
+        manifest,
+    );
+
+    // Extracting the data into an ExecutionSummary
+    let (account_withdraws, account_deposits) =
+        account_resource_movements_detector.output();
+    let presented_proofs = presented_proofs_detector.output();
+    let new_entities = NewEntities {
+        component_addresses: receipt.new_components().clone(),
+        resource_addresses: receipt.new_resources().clone(),
+        package_addresses: receipt.new_packages().clone(),
+    };
+    let encountered_entities = encountered_entities_detector.output();
+    let (accounts_requiring_auth, identities_requiring_auth) =
+        requiring_auth_detector.output();
+    let reserved_instructions = reserved_instructions_detector.output();
+
+    let detailed_classification = [
+        general_transaction_detector
+            .output()
+            .map(|_| DetailedManifestClass::General),
+        transfer_transaction_detector.output().map(|is_one_to_one| {
+            DetailedManifestClass::Transfer { is_one_to_one }
+        }),
+        pool_contribution_detector.output().map(
+            |(pool_addresses, pool_contributions)| {
+                DetailedManifestClass::PoolContribution {
+                    pool_addresses,
+                    pool_contributions,
+                }
+            },
+        ),
+        pool_redemption_detector.output().map(
+            |(pool_addresses, pool_redemptions)| {
+                DetailedManifestClass::PoolRedemption {
+                    pool_addresses,
+                    pool_redemptions,
+                }
+            },
+        ),
+        validator_stake_detector.output().map(
+            |(validator_addresses, validator_stakes)| {
+                DetailedManifestClass::ValidatorStake {
+                    validator_addresses,
+                    validator_stakes,
+                }
+            },
+        ),
+        validator_unstake_detector.output().map(
+            |(validator_addresses, validator_unstakes)| {
+                DetailedManifestClass::ValidatorUnstake {
+                    validator_addresses,
+                    validator_unstakes,
+                }
+            },
+        ),
+        validator_claim_detector.output().map(
+            |(validator_addresses, validator_claims)| {
+                DetailedManifestClass::ValidatorClaim {
+                    validator_addresses,
+                    validator_claims,
+                }
+            },
+        ),
+        accounts_settings_detector.output().map(
+            |(
+                resource_preferences_updates,
+                deposit_mode_updates,
+                authorized_depositors_updates,
+            )| {
+                DetailedManifestClass::AccountDepositSettingsUpdate {
+                    resource_preferences_updates,
+                    deposit_mode_updates,
+                    authorized_depositors_updates:
+                        authorized_depositors_updates
+                            .into_iter()
+                            .map(|(k, v)| {
+                                (
+                                    k,
+                                    v.into_iter()
+                                        .map(|(badge, operation)| {
+                                            (
+                                                badge,
+                                                match operation {
+                                                    Update::Set(()) => {
+                                                        Operation::Added
+                                                    }
+                                                    Update::Remove => {
+                                                        Operation::Removed
+                                                    }
+                                                },
+                                            )
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                }
+            },
+        ),
+    ]
+    .into_iter()
+    .flatten()
+    .rev()
+    .collect::<Vec<DetailedManifestClass>>();
+
+    Ok(ExecutionSummary {
+        account_withdraws,
+        account_deposits,
+        presented_proofs,
+        new_entities,
+        encountered_entities,
+        accounts_requiring_auth,
+        identities_requiring_auth,
+        reserved_instructions,
+        detailed_classification,
+    })
 }

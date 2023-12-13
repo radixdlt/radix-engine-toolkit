@@ -23,6 +23,8 @@ use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
 
+use super::*;
+
 /// A summary of the manifest
 #[derive(Clone, Debug)]
 pub struct ManifestSummary {
@@ -59,9 +61,10 @@ pub struct ExecutionSummary {
     pub presented_proofs: IndexSet<ResourceAddress>,
     /// Information on the global entities created in the transaction.
     pub new_entities: NewEntities,
-    /// The set of all entities encountered in the manifest - this is used by
-    /// the wallet for the "using dApps" section.
-    pub encountered_entities: IndexSet<NodeId>,
+    /// The set of all the global entities encountered in the manifest. This is
+    /// to be primarily used for the "using dApps" section of the wallet's tx
+    /// review screen.
+    pub encountered_entities: IndexSet<GlobalAddress>,
     /// The set of accounts encountered in the manifest where privileged
     /// methods were called.
     pub accounts_requiring_auth: IndexSet<ComponentAddress>,
@@ -73,7 +76,7 @@ pub struct ExecutionSummary {
     pub reserved_instructions: IndexSet<ReservedInstruction>,
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
-    pub detailed_classification: IndexSet<DetailedManifestClass>,
+    pub detailed_classification: Vec<DetailedManifestClass>,
 }
 
 /// The classification process classifies manifests into classes. The following
@@ -113,7 +116,7 @@ pub enum ManifestClass {
 /// This enum must have as many variants as the [`ManifestClass`] and there
 /// must always be a valid implementation of [`Into<ManifestClass>`] for this
 /// enum.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum DetailedManifestClass {
     /// A general manifest that involves any amount of arbitrary components
     /// and packages where nothing more concrete can be said about the manifest
@@ -134,57 +137,57 @@ pub enum DetailedManifestClass {
     /// pool that can be a one-resource pool, two-resource pool, or a
     /// multi-resource pool.
     PoolContribution {
-        /// The set of pool addresses contributed to in the manifest.
-        pools_contributed_to: IndexSet<ComponentAddress>,
-        /// The worth of pool units gotten back.
-        /// pool_unit_resource -> (pool_unit_amount, asset -> amount)
-        pool_units_worth: IndexMap<
-            ResourceAddress,
-            (Decimal, IndexMap<ResourceAddress, Decimal>),
-        >,
+        /// The set of pools in the transaction
+        pool_addresses: IndexSet<ComponentAddress>,
+        /// The contribution observed in the transaction
+        pool_contributions: Vec<TrackedPoolContribution>,
     },
     /// A manifest that redeemed resources from a liquidity pool. Similar to
     /// contributions, this can be any of the three pool blueprints available
     /// in the pool package.
     PoolRedemption {
-        /// The set of pool addresses redeemed from in the manifest.
-        pools_redeemed_from: IndexSet<ComponentAddress>,
-        /// The worth of pool units gotten back.
-        /// pool_unit_resource -> (pool_unit_amount, asset -> amount)
-        pool_units_worth: IndexMap<
-            ResourceAddress,
-            (Decimal, IndexMap<ResourceAddress, Decimal>),
-        >,
+        /// The set of pools in the transaction
+        pool_addresses: IndexSet<ComponentAddress>,
+        /// The redemptions observed in the transaction
+        pool_redemptions: Vec<TrackedPoolRedemption>,
     },
     /// A manifest where XRD is staked to one or more validators.
     ValidatorStake {
-        /// The set of validator addresses staked to in the manifest.
-        validators_staked_to: IndexSet<ComponentAddress>,
-        /// The worth of the various liquid stake units seen in the manifest.
-        /// lsu_resource -> (amount, xrd_worth)
-        liquid_stake_units_worth: IndexMap<ResourceAddress, (Decimal, Decimal)>,
+        /// The set of validators in the transaction
+        validator_addresses: IndexSet<ComponentAddress>,
+        /// The stake observed in the transaction
+        validator_stakes: Vec<TrackedValidatorStake>,
     },
     /// A manifest where XRD is unstaked from one or more validators.
     ValidatorUnstake {
-        /// The set of validator addresses unstaked from in the manifest.
-        validators_unstaked_from: IndexSet<ComponentAddress>,
+        /// The set of validators in the transaction
+        validator_addresses: IndexSet<ComponentAddress>,
+        /// The unstakes observed in the transaction
+        validator_unstakes: Vec<TrackedValidatorUnstake>,
     },
     /// A manifest where XRD is claimed from one or more validators.
     ValidatorClaim {
-        /// The set of validator addresses claimed from in the manifest.
-        validators_claimed_from: IndexSet<ComponentAddress>,
+        /// The set of validators in the transaction
+        validator_addresses: IndexSet<ComponentAddress>,
+        /// The claims observed in the transaction
+        validator_claims: Vec<TrackedValidatorClaim>,
     },
     /// A manifest that updated the deposit settings of the account.
     AccountDepositSettingsUpdate {
+        /// Updates to the resource preferences of the account deposit settings.
+        /// account_address -> (resource_address -> Update<new_preference>)
+        resource_preferences_updates: IndexMap<
+            ComponentAddress,
+            IndexMap<ResourceAddress, Update<ResourcePreference>>,
+        >,
         /// Changes to the account's deposit mode.
         /// account_address -> new_default_deposit_mode
-        deposit_mode_changes: IndexMap<ComponentAddress, DefaultDepositRule>,
-        /// Changes to the preference of particular resources in the account
-        /// deposit settings.
-        /// account_address -> (resource_address -> resource_preference).
-        resource_preference_changes: IndexMap<
+        deposit_mode_updates: IndexMap<ComponentAddress, DefaultDepositRule>,
+        /// Updates to the authorized depositors specifying which were added
+        /// and removed in the transaction.
+        authorized_depositors_updates: IndexMap<
             ComponentAddress,
-            IndexMap<ResourceAddress, ResourcePreference>,
+            IndexMap<ResourceOrNonFungible, Operation>,
         >,
     },
 }
@@ -448,7 +451,14 @@ pub impl ResourceSpecifier {
     }
 }
 
+#[derive(Clone, Debug)]
 pub enum Update<T> {
     Set(T),
     Remove,
+}
+
+#[derive(Clone, Debug)]
+pub enum Operation {
+    Added,
+    Removed,
 }

@@ -25,6 +25,7 @@ use radix_engine_interface::blueprints::consensus_manager::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
+#[derive(Clone, Debug)]
 pub struct TrackedValidatorClaim {
     pub validator_address: ComponentAddress,
     /* Input */
@@ -37,7 +38,7 @@ pub struct TrackedValidatorClaim {
 pub struct ValidatorClaimDetector {
     is_valid: bool,
     /// The validators encountered in this manifest that were staked to.
-    validators: IndexSet<GlobalAddress>,
+    validators: IndexSet<ComponentAddress>,
     /// Tracks the claim operations in the transaction.
     tracked_claim: Vec<TrackedValidatorClaim>,
 }
@@ -45,7 +46,7 @@ pub struct ValidatorClaimDetector {
 impl ValidatorClaimDetector {
     pub fn output(
         self,
-    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedValidatorClaim>)> {
+    ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedValidatorClaim>)> {
         if self.is_valid {
             Some((self.validators, self.tracked_claim))
         } else {
@@ -111,7 +112,9 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
                 matches!(entity_type, EntityType::GlobalValidator)
             })
         {
-            self.validators.insert(address);
+            self.validators.insert(
+                ComponentAddress::try_from(address).expect("Must succeed!"),
+            );
         }
     }
 }

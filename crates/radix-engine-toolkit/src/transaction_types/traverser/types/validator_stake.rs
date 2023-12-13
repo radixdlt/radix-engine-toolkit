@@ -26,6 +26,7 @@ use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
+#[derive(Clone, Debug)]
 pub struct TrackedValidatorStake {
     pub validator_address: ComponentAddress,
     /* Input */
@@ -38,7 +39,7 @@ pub struct TrackedValidatorStake {
 pub struct ValidatorStakeDetector {
     is_valid: bool,
     /// The validators encountered in this manifest that were staked to.
-    validators: IndexSet<GlobalAddress>,
+    validators: IndexSet<ComponentAddress>,
     /// Tracks the stake operations that ocurred in the transaction.
     tracked_stake: Vec<TrackedValidatorStake>,
 }
@@ -46,7 +47,7 @@ pub struct ValidatorStakeDetector {
 impl ValidatorStakeDetector {
     pub fn output(
         self,
-    ) -> Option<(IndexSet<GlobalAddress>, Vec<TrackedValidatorStake>)> {
+    ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedValidatorStake>)> {
         if self.is_valid {
             Some((self.validators, self.tracked_stake))
         } else {
@@ -112,7 +113,9 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
                 matches!(entity_type, EntityType::GlobalValidator)
             })
         {
-            self.validators.insert(address);
+            self.validators.insert(
+                ComponentAddress::try_from(address).expect("Must succeed!"),
+            );
         }
     }
 }
