@@ -189,7 +189,7 @@ jobs:
           repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
-          ref: 01c7fd379aed91632d6b40629456aaa1341814a3
+          ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -224,9 +224,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - name: Checkout Swift Engine Toolkit
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: radixdlt/swift-engine-toolkit
           token: ${{ secrets.RADIX_BOT_PAT }}
@@ -356,7 +358,9 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -388,7 +392,7 @@ jobs:
         with:
           version: 2
       - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: github/actions-oidc-debugger
           ref: main
@@ -412,6 +416,8 @@ jobs:
             MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
             GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -442,7 +448,9 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -477,7 +485,9 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -531,7 +541,9 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - name: Fetch secrets
         uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
         with:
