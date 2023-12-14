@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#[derive(Clone, Debug)]
 pub enum TransactionTypesError {
     /// The is invalid for execution summary. This is typically because the
     /// receipt does not have the execution trace information or due to the

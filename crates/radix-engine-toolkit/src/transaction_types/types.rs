@@ -383,7 +383,7 @@ impl<'r> Deref for TransactionTypesReceipt<'r> {
 }
 
 /// Information on the entities created in the transaction.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
 pub struct NewEntities {
     pub component_addresses: IndexSet<ComponentAddress>,
     pub resource_addresses: IndexSet<ResourceAddress>,
@@ -447,19 +447,19 @@ impl FnRules {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ResourceIndicator {
     Fungible(ResourceAddress, FungibleResourceIndicator),
     NonFungible(ResourceAddress, NonFungibleResourceIndicator),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FungibleResourceIndicator {
     Guaranteed(Decimal),
     Predicted(Predicted<Decimal>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NonFungibleResourceIndicator {
     ByAll {
         predicted_amount: Predicted<Decimal>,
@@ -472,7 +472,7 @@ pub enum NonFungibleResourceIndicator {
     ByIds(IndexSet<NonFungibleLocalId>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Predicted<T> {
     pub value: T,
     pub instruction_index: usize,
