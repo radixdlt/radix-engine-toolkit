@@ -27,7 +27,7 @@ use radix_engine_interface::blueprints::pool::*;
 use crate::contains;
 use crate::transaction_types::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackedPoolRedemption {
     pub pool_address: ComponentAddress,
     /* Input */
