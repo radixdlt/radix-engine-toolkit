@@ -24,6 +24,7 @@ use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::pool::*;
 
+use crate::contains;
 use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 
@@ -39,6 +40,7 @@ pub struct TrackedPoolContribution {
 
 pub struct PoolContributionDetector {
     is_valid: bool,
+    required_method_called: bool,
     /// The pools encountered in this manifest that were contributed to.
     pools: IndexSet<ComponentAddress>,
     /// Tracks the contributions that occurred in the transaction
@@ -50,7 +52,7 @@ impl PoolContributionDetector {
         self,
     ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedPoolContribution>)>
     {
-        if self.is_valid {
+        if self.is_valid() {
             Some((self.pools, self.tracked_contributions))
         } else {
             None
@@ -104,7 +106,25 @@ impl ManifestSummaryCallback for PoolContributionDetector {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::CallFunction { .. } => false,
-        }
+        };
+
+        // Handle required method call
+        match instruction {
+            InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } if is_pool(address)
+                && contains!(method_name => [
+                    ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+                    TWO_RESOURCE_POOL_CONTRIBUTE_IDENT,
+                    MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
+                ]) =>
+            {
+                self.required_method_called = true
+            }
+            _ => {}
+        };
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
@@ -214,7 +234,7 @@ impl ExecutionSummaryCallback for PoolContributionDetector {
 
 impl PoolContributionDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.required_method_called
     }
 
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
@@ -329,6 +349,7 @@ impl Default for PoolContributionDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            required_method_called: false,
             pools: Default::default(),
             tracked_contributions: Default::default(),
         }

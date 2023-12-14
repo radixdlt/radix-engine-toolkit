@@ -38,6 +38,7 @@ pub struct TrackedValidatorStake {
 
 pub struct ValidatorStakeDetector {
     is_valid: bool,
+    required_method_called: bool,
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<ComponentAddress>,
     /// Tracks the stake operations that ocurred in the transaction.
@@ -48,7 +49,7 @@ impl ValidatorStakeDetector {
     pub fn output(
         self,
     ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedValidatorStake>)> {
-        if self.is_valid {
+        if self.is_valid() {
             Some((self.validators, self.tracked_stake))
         } else {
             None
@@ -102,7 +103,21 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::CallFunction { .. } => false,
-        }
+        };
+
+        // Handle required method call
+        match instruction {
+            InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } if is_validator(address)
+                && method_name == VALIDATOR_STAKE_IDENT =>
+            {
+                self.required_method_called = true
+            }
+            _ => {}
+        };
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
@@ -176,7 +191,7 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
 
 impl ValidatorStakeDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.required_method_called
     }
 
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
@@ -241,6 +256,7 @@ impl Default for ValidatorStakeDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            required_method_called: false,
             validators: Default::default(),
             tracked_stake: Default::default(),
         }

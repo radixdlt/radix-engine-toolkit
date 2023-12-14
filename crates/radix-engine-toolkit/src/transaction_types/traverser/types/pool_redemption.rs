@@ -24,6 +24,7 @@ use radix_engine::system::system_modules::execution_trace::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::pool::*;
 
+use crate::contains;
 use crate::transaction_types::*;
 
 #[derive(Clone, Debug)]
@@ -38,6 +39,7 @@ pub struct TrackedPoolRedemption {
 
 pub struct PoolRedemptionDetector {
     is_valid: bool,
+    required_method_called: bool,
     /// The pools encountered in this manifest that were redeemed from.
     pools: IndexSet<ComponentAddress>,
     /// Tracks the redemptions that occurred in the transaction.
@@ -48,7 +50,7 @@ impl PoolRedemptionDetector {
     pub fn output(
         self,
     ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedPoolRedemption>)> {
-        if self.is_valid {
+        if self.is_valid() {
             Some((self.pools, self.tracked_redemptions))
         } else {
             None
@@ -102,7 +104,25 @@ impl ManifestSummaryCallback for PoolRedemptionDetector {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::CallFunction { .. } => false,
-        }
+        };
+
+        // Handle required method call
+        match instruction {
+            InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } if is_pool(address)
+                && contains!(method_name => [
+                    ONE_RESOURCE_POOL_REDEEM_IDENT,
+                    TWO_RESOURCE_POOL_REDEEM_IDENT,
+                    MULTI_RESOURCE_POOL_REDEEM_IDENT,
+                ]) =>
+            {
+                self.required_method_called = true
+            }
+            _ => {}
+        };
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
@@ -185,7 +205,7 @@ impl ExecutionSummaryCallback for PoolRedemptionDetector {
 
 impl PoolRedemptionDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.required_method_called
     }
 
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
@@ -279,6 +299,7 @@ impl Default for PoolRedemptionDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            required_method_called: false,
             pools: Default::default(),
             tracked_redemptions: Default::default(),
         }

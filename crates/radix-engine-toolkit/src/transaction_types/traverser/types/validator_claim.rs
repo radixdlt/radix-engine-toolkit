@@ -37,6 +37,7 @@ pub struct TrackedValidatorClaim {
 
 pub struct ValidatorClaimDetector {
     is_valid: bool,
+    required_method_called: bool,
     /// The validators encountered in this manifest that were staked to.
     validators: IndexSet<ComponentAddress>,
     /// Tracks the claim operations in the transaction.
@@ -47,7 +48,7 @@ impl ValidatorClaimDetector {
     pub fn output(
         self,
     ) -> Option<(IndexSet<ComponentAddress>, Vec<TrackedValidatorClaim>)> {
-        if self.is_valid {
+        if self.is_valid() {
             Some((self.validators, self.tracked_claim))
         } else {
             None
@@ -101,7 +102,21 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::CallFunction { .. } => false,
-        }
+        };
+
+        // Handle required method call
+        match instruction {
+            InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } if is_validator(address)
+                && method_name == VALIDATOR_CLAIM_XRD_IDENT =>
+            {
+                self.required_method_called = true
+            }
+            _ => {}
+        };
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
@@ -166,7 +181,7 @@ impl ExecutionSummaryCallback for ValidatorClaimDetector {
 
 impl ValidatorClaimDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.required_method_called
     }
 
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
@@ -231,6 +246,7 @@ impl Default for ValidatorClaimDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            required_method_called: false,
             validators: Default::default(),
             tracked_claim: Default::default(),
         }
