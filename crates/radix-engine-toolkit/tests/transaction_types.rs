@@ -21,6 +21,26 @@ use radix_engine_toolkit::transaction_types::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
 
+macro_rules! assert_eq_three {
+    (
+        $item1: expr,
+        $item2: expr,
+        $item3: expr $(,)?
+    ) => {
+        assert_eq!($item1, $item2);
+        assert_eq!($item2, $item3);
+    };
+    (
+        $item1: expr,
+        $item2: expr,
+        $item3: expr,
+        $($tokens: tt)?
+    ) => {
+        assert_eq!($item1, $item2, $($tokens)*);
+        assert_eq!($item2, $item3, $($tokens)*);
+    };
+}
+
 #[test]
 fn empty_manifest_matches_none_of_the_transaction_types() {
     // Arrange
@@ -53,7 +73,41 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        2
+    );
+
     assert_eq!(
         manifest_summary.accounts_withdrawn_from,
         indexset![account1]
@@ -62,20 +116,6 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         manifest_summary.accounts_deposited_into,
         indexset![account2]
     );
-    assert_eq!(
-        manifest_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        manifest_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(manifest_summary.reserved_instructions, indexset![]);
     assert_eq!(
         manifest_summary.classification,
         indexset![ManifestClass::Transfer, ManifestClass::General]
@@ -97,23 +137,7 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        execution_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(execution_summary.reserved_instructions, indexset![]);
-    assert_eq!(execution_summary.detailed_classification.len(), 2);
     assert!(matches!(
         execution_summary.detailed_classification[0],
         DetailedManifestClass::Transfer {
@@ -147,7 +171,41 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        2
+    );
+
     assert_eq!(
         manifest_summary.accounts_withdrawn_from,
         indexset![account1]
@@ -156,20 +214,6 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         manifest_summary.accounts_deposited_into,
         indexset![account2]
     );
-    assert_eq!(
-        manifest_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        manifest_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(manifest_summary.reserved_instructions, indexset![]);
     assert_eq!(
         manifest_summary.classification,
         indexset![ManifestClass::Transfer, ManifestClass::General]
@@ -180,7 +224,7 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
             ]
         }
     );
@@ -193,23 +237,7 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        execution_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(execution_summary.reserved_instructions, indexset![]);
-    assert_eq!(execution_summary.detailed_classification.len(), 2);
     assert!(matches!(
         execution_summary.detailed_classification[0],
         DetailedManifestClass::Transfer {
@@ -240,7 +268,41 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        0
+    );
+
     assert_eq!(
         manifest_summary.accounts_withdrawn_from,
         indexset![account1]
@@ -249,20 +311,6 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         manifest_summary.accounts_deposited_into,
         indexset![account2]
     );
-    assert_eq!(
-        manifest_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        manifest_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(manifest_summary.reserved_instructions, indexset![]);
     assert_eq!(manifest_summary.classification, indexset![]);
 
     assert_eq!(
@@ -281,23 +329,7 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        execution_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(execution_summary.reserved_instructions, indexset![]);
-    assert_eq!(execution_summary.detailed_classification.len(), 0);
 }
 
 #[test]
@@ -319,7 +351,41 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![ReservedInstruction::AccountLockFee]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        0
+    );
+
     assert_eq!(
         manifest_summary.accounts_withdrawn_from,
         indexset![account1]
@@ -327,23 +393,6 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
     assert_eq!(
         manifest_summary.accounts_deposited_into,
         indexset![account2]
-    );
-    assert_eq!(
-        manifest_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        manifest_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(
-        manifest_summary.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
     );
     assert_eq!(manifest_summary.classification, indexset![]);
 
@@ -363,26 +412,7 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        execution_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(
-        execution_summary.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
-    );
-    assert_eq!(execution_summary.detailed_classification.len(), 0);
 }
 
 #[test]
@@ -403,7 +433,41 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![ReservedInstruction::AccountLockFee]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        0
+    );
+
     assert_eq!(
         manifest_summary.accounts_withdrawn_from,
         indexset![account1]
@@ -411,23 +475,6 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
     assert_eq!(
         manifest_summary.accounts_deposited_into,
         indexset![account2]
-    );
-    assert_eq!(
-        manifest_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        manifest_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(
-        manifest_summary.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
     );
     assert_eq!(manifest_summary.classification, indexset![]);
 
@@ -447,26 +494,7 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(account1),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account2),
-        ]
-    );
-    assert_eq!(
-        execution_summary.accounts_requiring_auth,
-        indexset![account1]
-    );
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(
-        execution_summary.reserved_instructions,
-        indexset![ReservedInstruction::AccountLockFee]
-    );
-    assert_eq!(execution_summary.detailed_classification.len(), 0);
 }
 
 #[test]
@@ -486,23 +514,46 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
     let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert!(manifest_summary.presented_proofs.is_empty());
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account1]
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
     );
-    assert_eq!(
+    assert_eq_three!(
         manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
         indexset![
             GlobalAddress::from(FAUCET),
             GlobalAddress::from(XRD),
             GlobalAddress::from(account1),
         ]
     );
-    assert_eq!(manifest_summary.accounts_requiring_auth, indexset![]);
-    assert_eq!(manifest_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(manifest_summary.reserved_instructions, indexset![]);
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(
+        manifest_summary.accounts_deposited_into,
+        indexset![account1]
+    );
     assert_eq!(
         manifest_summary.classification,
         indexset![ManifestClass::General]
@@ -513,24 +564,11 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
         execution_summary.account_deposits,
         indexmap! {
             account1 => vec![
-                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000)))
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
             ]
         }
     );
-    assert!(execution_summary.presented_proofs.is_empty());
     assert_eq!(execution_summary.new_entities, NewEntities::default());
-    assert_eq!(
-        execution_summary.encountered_entities,
-        indexset![
-            GlobalAddress::from(FAUCET),
-            GlobalAddress::from(XRD),
-            GlobalAddress::from(account1),
-        ]
-    );
-    assert_eq!(execution_summary.accounts_requiring_auth, indexset![]);
-    assert_eq!(execution_summary.identities_requiring_auth, indexset![]);
-    assert_eq!(execution_summary.reserved_instructions, indexset![]);
-    assert_eq!(execution_summary.detailed_classification.len(), 1);
     assert!(matches!(
         execution_summary.detailed_classification[0],
         DetailedManifestClass::General
