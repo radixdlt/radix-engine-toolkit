@@ -246,6 +246,7 @@ impl<'r> TransactionTypesReceipt<'r> {
         if let TransactionResult::Commit(
             ref commit_result @ CommitResult {
                 execution_trace: Some(ref execution_trace),
+                outcome: TransactionOutcome::Success(..),
                 ..
             },
         ) = &receipt.result
