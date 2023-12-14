@@ -575,6 +575,236 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
     ));
 }
 
+#[test]
+fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (_, _, account1) = test_runner.new_account(false);
+
+    let manifest = ManifestBuilder::new()
+        .get_free_xrd_from_faucet()
+        .take_from_worktop(XRD, 10_000, "xrd")
+        .deposit(account1, "xrd")
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(FAUCET),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account1),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(
+        manifest_summary.accounts_deposited_into,
+        indexset![account1]
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
+
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert!(matches!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::General
+    ));
+}
+
+#[test]
+fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (_, _, account1) = test_runner.new_account(false);
+
+    let manifest = ManifestBuilder::new()
+        .get_free_xrd_from_faucet()
+        .deposit_batch(account1)
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![GlobalAddress::from(FAUCET), GlobalAddress::from(account1),]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(
+        manifest_summary.accounts_deposited_into,
+        indexset![account1]
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
+
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert!(matches!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::General
+    ));
+}
+
+#[test]
+fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (_, _, account1) = test_runner.new_account(false);
+
+    let manifest = ManifestBuilder::new()
+        .get_free_xrd_from_faucet()
+        .take_all_from_worktop(XRD, "xrd")
+        .deposit(account1, "xrd")
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(FAUCET),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account1),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(
+        manifest_summary.accounts_deposited_into,
+        indexset![account1]
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
+
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert!(matches!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::General
+    ));
+}
+
+
 #[extend::ext]
 impl<E, D> TestRunner<E, D>
 where
