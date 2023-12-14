@@ -3,3 +3,5 @@ package_name = "com.radixdlt.ret"
 
 [bindings.csharp]
 namespace_name = "RadixEngineToolkit"
+
+namespace = "RadixEngineToolkit"
