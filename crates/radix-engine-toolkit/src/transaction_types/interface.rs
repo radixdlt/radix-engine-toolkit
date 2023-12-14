@@ -165,7 +165,7 @@ pub fn execution_summary(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::manifest_summary::traverse(
+    traverser::execution_summary::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -182,6 +182,7 @@ pub fn execution_summary(
             &mut accounts_settings_detector,
         ],
         manifest,
+        &receipt,
     );
 
     // Extracting the data into an ExecutionSummary

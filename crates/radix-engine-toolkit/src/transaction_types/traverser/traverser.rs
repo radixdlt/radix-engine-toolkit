@@ -113,13 +113,13 @@ pub mod manifest_summary {
 }
 
 pub mod execution_summary {
-    use crate::sbor::indexed_manifest_value::IndexedManifestValue;
+    use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
     use radix_engine::system::system_modules::execution_trace::*;
     use radix_engine_interface::blueprints::account::*;
     use transaction::prelude::*;
-    use transaction::validation::ManifestIdAllocator;
+    use transaction::validation::*;
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
@@ -468,6 +468,11 @@ pub mod execution_summary {
             let account =
                 ComponentAddress::try_from(*address).expect("Must succeed!");
 
+            // TODO: If we plan on supporting the or_refund methods to at least
+            // recognizing them at this layer, then we must do something like
+            // output - input to determine how much we're actually depositing
+            // and not bouncing back. We would also ignore the call to deposit
+            // all together if the deposit bounces.
             if crate::contains!(method_name => [
                 ACCOUNT_DEPOSIT_IDENT,
                 ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
