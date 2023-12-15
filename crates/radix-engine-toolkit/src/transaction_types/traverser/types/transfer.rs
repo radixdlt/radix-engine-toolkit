@@ -56,7 +56,6 @@ impl ManifestSummaryCallback for TransferDetector {
                 && matches!(
                     instruction,
                     InstructionV1::TakeFromWorktop { .. }
-                        | InstructionV1::TakeNonFungiblesFromWorktop { .. }
                 ))
             || (instruction_index == 2
                 && matches!(
