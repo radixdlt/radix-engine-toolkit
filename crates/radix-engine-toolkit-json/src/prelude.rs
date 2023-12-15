@@ -23,7 +23,6 @@ pub use crate::utils::*;
 
 pub use crate::functions::address::*;
 pub use crate::functions::derive::*;
-pub use crate::functions::execution::*;
 pub use crate::functions::handler::*;
 pub use crate::functions::information::*;
 pub use crate::functions::instructions::*;

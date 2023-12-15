@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use sbor::HasLatestVersion;
+
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
@@ -76,71 +78,6 @@ impl TransactionManifest {
         map
     }
 
-    pub fn identities_requiring_auth(&self) -> Vec<Arc<Address>> {
-        core_instructions_identities_requiring_auth(&self.instructions.0)
-            .into_iter()
-            .map(|address| {
-                Arc::new(Address::from_typed_node_id(
-                    address,
-                    self.instructions.1,
-                ))
-            })
-            .collect()
-    }
-
-    pub fn accounts_requiring_auth(&self) -> Vec<Arc<Address>> {
-        core_instructions_accounts_requiring_auth(&self.instructions.0)
-            .into_iter()
-            .map(|address| {
-                Arc::new(Address::from_typed_node_id(
-                    address,
-                    self.instructions.1,
-                ))
-            })
-            .collect()
-    }
-
-    pub fn accounts_withdrawn_from(&self) -> Vec<Arc<Address>> {
-        core_instructions_accounts_withdrawn_from(&self.instructions.0)
-            .into_iter()
-            .map(|address| {
-                Arc::new(Address::from_typed_node_id(
-                    address,
-                    self.instructions.1,
-                ))
-            })
-            .collect()
-    }
-
-    pub fn accounts_deposited_into(&self) -> Vec<Arc<Address>> {
-        core_instructions_accounts_deposited_into(&self.instructions.0)
-            .into_iter()
-            .map(|address| {
-                Arc::new(Address::from_typed_node_id(
-                    address,
-                    self.instructions.1,
-                ))
-            })
-            .collect()
-    }
-
-    pub fn analyze_execution(
-        &self,
-        transaction_receipt: Vec<u8>,
-    ) -> Result<ExecutionAnalysis> {
-        let receipt = native_scrypto_decode::<NativeVersionedTransactionReceipt>(
-            &transaction_receipt,
-        )?;
-        let analysis = core_execution_analyze(
-            &self.instructions.0,
-            &CoreExecutionAnalysisTransactionReceipt::new(&receipt)?,
-        )?;
-        Ok(ExecutionAnalysis::from_native(
-            &analysis,
-            self.instructions.1,
-        ))
-    }
-
     pub fn modify(
         &self,
         modifications: TransactionManifestModifications,
@@ -153,55 +90,26 @@ impl TransactionManifest {
         Ok(Arc::new(manifest))
     }
 
-    /* Transaction Types attempted parsing */
+    pub fn summary(&self, network_id: u8) -> ManifestSummary {
+        let native = self.clone().to_native();
+        ManifestSummary::from_native(core_manifest_summary(&native), network_id)
+    }
 
-    pub fn parse_transfer_information(
+    pub fn execution_summary(
         &self,
-        allow_lock_fee_instructions: bool,
-    ) -> Result<Option<TransferTransactionType>> {
-        let maybe_transfer_information =
-            core_manifest_parse_transfer_information(
-                &self.to_native(),
-                allow_lock_fee_instructions,
-            )
-            .map_err(
-                CoreExecutionExecutionModuleError::InstructionVisitorError,
-            )?;
+        network_id: u8,
+        encoded_receipt: Vec<u8>,
+    ) -> Result<ExecutionSummary> {
+        let native = self.clone().to_native();
+        let receipt =
+            native_scrypto_decode::<NativeVersionedTransactionReceipt>(
+                &encoded_receipt,
+            )?
+            .into_latest();
 
-        match maybe_transfer_information {
-            Some((from, transfers)) => Ok(Some(TransferTransactionType {
-                from: Arc::new(Address::from_typed_node_id(
-                    from,
-                    self.instructions.1,
-                )),
-                transfers: transfers
-                    .iter()
-                    .map(|(key, value)| {
-                        (
-                            Address::from_typed_node_id(
-                                *key,
-                                self.instructions.1,
-                            )
-                            .as_str(),
-                            value
-                                .iter()
-                                .map(|(key, value)| {
-                                    (
-                                        Address::from_typed_node_id(
-                                            *key,
-                                            self.instructions.1,
-                                        )
-                                        .as_str(),
-                                        Resources::from_native(value),
-                                    )
-                                })
-                                .collect(),
-                        )
-                    })
-                    .collect(),
-            })),
-            None => Ok(None),
-        }
+        core_manifest_execution_summary(&native, &receipt)
+            .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
+            .map(|summary| ExecutionSummary::from_native(summary, network_id))
     }
 }
 
@@ -244,85 +152,42 @@ pub struct FeeSummary {
     pub royalty_cost: Arc<Decimal>,
 }
 
+impl FeeSummary {
+    pub fn from_native(
+        CoreFeeSummary {
+            execution_cost,
+            royalty_cost,
+            finalization_cost,
+            storage_expansion_cost,
+        }: &CoreFeeSummary,
+    ) -> Self {
+        Self {
+            execution_cost: Arc::new(Decimal(*execution_cost)),
+            royalty_cost: Arc::new(Decimal(*royalty_cost)),
+            finalization_cost: Arc::new(Decimal(*finalization_cost)),
+            storage_expansion_cost: Arc::new(Decimal(*storage_expansion_cost)),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Record)]
 pub struct FeeLocks {
     pub lock: Arc<Decimal>,
     pub contingent_lock: Arc<Decimal>,
 }
 
-#[allow(clippy::large_enum_variant)] // TODO: Consider complying with this
-#[derive(Clone, Debug, Enum)]
-pub enum TransactionType {
-    SimpleTransfer {
-        from: Arc<Address>,
-        to: Arc<Address>,
-        transferred: ResourceSpecifier,
-    },
-    Transfer {
-        from: Arc<Address>,
-        transfers: HashMap<String, HashMap<String, Resources>>,
-    },
-    AccountDepositSettings {
-        resource_preference_changes:
-            HashMap<String, HashMap<String, ResourcePreferenceAction>>,
-        default_deposit_rule_changes:
-            HashMap<String, AccountDefaultDepositRule>,
-        authorized_depositors_changes:
-            HashMap<String, AuthorizedDepositorsChanges>,
-    },
-    StakeTransaction {
-        stakes: Vec<StakeInformation>,
-    },
-    UnstakeTransaction {
-        unstakes: Vec<UnstakeInformation>,
-    },
-    ClaimStakeTransaction {
-        claims: Vec<ClaimStakeInformation>,
-    },
-    GeneralTransaction {
-        account_proofs: Vec<Arc<Address>>,
-        account_withdraws: HashMap<String, Vec<ResourceTracker>>,
-        account_deposits: HashMap<String, Vec<ResourceTracker>>,
-        addresses_in_manifest: HashMap<EntityType, Vec<Arc<Address>>>,
-        metadata_of_newly_created_entities:
-            HashMap<String, HashMap<String, Option<MetadataValue>>>,
-        data_of_newly_minted_non_fungibles:
-            HashMap<String, HashMap<NonFungibleLocalId, Vec<u8>>>,
-        addresses_of_newly_created_entities: Vec<Arc<Address>>,
-    },
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct StakeInformation {
-    pub from_account: Arc<Address>,
-    pub validator_address: Arc<Address>,
-    pub stake_unit_resource: Arc<Address>,
-    pub stake_unit_amount: Arc<Decimal>,
-    pub staked_xrd: Arc<Decimal>,
-}
-#[derive(Clone, Debug, Record)]
-pub struct UnstakeInformation {
-    pub from_account: Arc<Address>,
-    pub stake_unit_address: Arc<Address>,
-    pub stake_unit_amount: Arc<Decimal>,
-    pub validator_address: Arc<Address>,
-    pub claim_nft_resource: Arc<Address>,
-    pub claim_nft_local_id: NonFungibleLocalId,
-    pub claim_nft_data: UnstakeData,
-}
-#[derive(Clone, Debug, Record)]
-pub struct ClaimStakeInformation {
-    pub from_account: Arc<Address>,
-    pub validator_address: Arc<Address>,
-    pub claim_nft_resource: Arc<Address>,
-    pub claim_nft_local_ids: Vec<NonFungibleLocalId>,
-    pub claimed_xrd: Arc<Decimal>,
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct TransferTransactionType {
-    pub from: Arc<Address>,
-    pub transfers: HashMap<String, HashMap<String, Resources>>,
+impl FeeLocks {
+    pub fn from_native(
+        NativeFeeLocks {
+            contingent_lock,
+            lock,
+        }: &NativeFeeLocks,
+    ) -> Self {
+        Self {
+            contingent_lock: Arc::new(Decimal(*contingent_lock)),
+            lock: Arc::new(Decimal(*lock)),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Enum)]
@@ -335,67 +200,6 @@ pub enum ResourceSpecifier {
         resource_address: Arc<Address>,
         ids: Vec<NonFungibleLocalId>,
     },
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum Resources {
-    Amount { amount: Arc<Decimal> },
-    Ids { ids: Vec<NonFungibleLocalId> },
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct ExecutionAnalysis {
-    pub fee_locks: FeeLocks,
-    pub fee_summary: FeeSummary,
-    pub transaction_types: Vec<TransactionType>,
-    pub reserved_instructions: Vec<ReservedInstruction>,
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct UnstakeData {
-    pub name: String,
-    pub claim_epoch: u64,
-    pub claim_amount: Arc<Decimal>,
-}
-
-impl ExecutionAnalysis {
-    pub fn from_native(
-        CoreExecutionExecutionAnalysis {
-            fee_locks,
-            fee_summary,
-            transaction_types,
-            reserved_instructions,
-        }: &CoreExecutionExecutionAnalysis,
-        network_id: u8,
-    ) -> Self {
-        Self {
-            transaction_types: transaction_types
-                .iter()
-                .map(|transaction_type| {
-                    TransactionType::from_native(transaction_type, network_id)
-                })
-                .collect(),
-            fee_locks: FeeLocks::from_native(fee_locks),
-            fee_summary: FeeSummary::from_native(fee_summary),
-            reserved_instructions: reserved_instructions
-                .iter()
-                .map(|value| (*value).into())
-                .collect(),
-        }
-    }
-}
-
-impl Resources {
-    pub fn from_native(native: &CoreResources) -> Self {
-        match native {
-            CoreResources::Amount(value) => Self::Amount {
-                amount: Arc::new(Decimal(*value)),
-            },
-            CoreResources::Ids(value) => Self::Ids {
-                ids: value.iter().cloned().map(Into::into).collect(),
-            },
-        }
-    }
 }
 
 impl ResourceSpecifier {
@@ -424,436 +228,10 @@ impl ResourceSpecifier {
     }
 }
 
-impl TransactionType {
-    pub fn from_native(
-        native: &CoreExecutionTransactionType,
-        network_id: u8,
-    ) -> Self {
-        match native {
-            CoreExecutionTransactionType::SimpleTransfer(value) => {
-                let CoreExecutionSimpleTransferTransactionType {
-                    from,
-                    to,
-                    transferred,
-                } = value.as_ref();
-
-                Self::SimpleTransfer {
-                    from: Arc::new(Address::from_typed_node_id(
-                        *from, network_id,
-                    )),
-                    to: Arc::new(Address::from_typed_node_id(*to, network_id)),
-                    transferred: ResourceSpecifier::from_native(
-                        transferred,
-                        network_id,
-                    ),
-                }
-            }
-            CoreExecutionTransactionType::Transfer(value) => {
-                let CoreExecutionTransferTransactionType { from, transfers } =
-                    value.as_ref();
-
-                Self::Transfer {
-                    from: Arc::new(Address::from_typed_node_id(
-                        *from, network_id,
-                    )),
-                    transfers: transfers
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Address::from_typed_node_id(*key, network_id)
-                                    .as_str(),
-                                value
-                                    .iter()
-                                    .map(|(key, value)| {
-                                        (
-                                            Address::from_typed_node_id(
-                                                *key, network_id,
-                                            )
-                                            .as_str(),
-                                            Resources::from_native(value),
-                                        )
-                                    })
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                }
-            }
-            CoreExecutionTransactionType::AccountDepositSettings(value) => {
-                let CoreExecutionAccountDepositSettingsTransactionType {
-                    resource_preference_changes,
-                    default_deposit_rule_changes,
-                    authorized_depositors_changes,
-                } = value.as_ref();
-
-                Self::AccountDepositSettings {
-                    resource_preference_changes: resource_preference_changes
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
-                                value
-                                    .iter()
-                                    .map(|(key, value)| {
-                                        (
-                                            Arc::new(Address::from_typed_node_id(*key, network_id))
-                                                .as_str(),
-                                            <ResourcePreferenceAction as FromNative>::from_native(
-                                                *value,
-                                            ),
-                                        )
-                                    })
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                    default_deposit_rule_changes: default_deposit_rule_changes
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
-                                <AccountDefaultDepositRule as FromNative>::from_native(
-                                    *value,
-                                ),
-                            )
-                        })
-                        .collect(),
-                        authorized_depositors_changes: authorized_depositors_changes
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Arc::new(Address::from_typed_node_id(*key, network_id)).as_str(),
-                                <AuthorizedDepositorsChanges as FromNativeWithNetworkContext>::from_native(
-                                    value.clone(),
-                                    network_id
-                                ),
-                            )
-                        })
-                        .collect(),
-                }
-            }
-            CoreExecutionTransactionType::GeneralTransaction(value) => {
-                let CoreExecutionGeneralTransactionType {
-                    account_proofs,
-                    account_withdraws,
-                    account_deposits,
-                    addresses_in_manifest: (addresses_in_manifest, _),
-                    metadata_of_newly_created_entities,
-                    data_of_newly_minted_non_fungibles,
-                    addresses_of_newly_created_entities,
-                } = value.as_ref();
-
-                Self::GeneralTransaction {
-                    account_proofs: account_proofs
-                        .iter()
-                        .map(|value| {
-                            Arc::new(Address::from_typed_node_id(
-                                *value, network_id,
-                            ))
-                        })
-                        .collect(),
-                    account_withdraws: account_withdraws
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Address::from_typed_node_id(*key, network_id)
-                                    .as_str(),
-                                value
-                                    .iter()
-                                    .map(|value| {
-                                        ResourceTracker::from_native(
-                                            value, network_id,
-                                        )
-                                    })
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                    account_deposits: account_deposits
-                        .iter()
-                        .map(|(key, value)| {
-                            (
-                                Address::from_typed_node_id(*key, network_id)
-                                    .as_str(),
-                                value
-                                    .iter()
-                                    .map(|value| {
-                                        ResourceTracker::from_native(
-                                            value, network_id,
-                                        )
-                                    })
-                                    .collect(),
-                            )
-                        })
-                        .collect(),
-                    addresses_in_manifest: {
-                        let mut map =
-                            HashMap::<EntityType, Vec<Arc<Address>>>::new();
-                        for address in addresses_in_manifest {
-                            let entity_type =
-                                EntityType::from(address.entity_type());
-                            let address =
-                                Arc::new(Address::from_typed_node_id(
-                                    *address, network_id,
-                                ));
-                            map.entry(entity_type).or_default().push(address);
-                        }
-                        map
-                    },
-                    metadata_of_newly_created_entities:
-                        metadata_of_newly_created_entities
-                            .iter()
-                            .map(|(key, value)| {
-                                (
-                                    Address::from_typed_node_id(
-                                        *key, network_id,
-                                    )
-                                    .as_str(),
-                                    value
-                                        .iter()
-                                        .map(|(key, value)| {
-                                            (
-                                                key.clone(),
-                                                value.as_ref().map(|value| {
-                                                    MetadataValue::from_native(
-                                                        value, network_id,
-                                                    )
-                                                }),
-                                            )
-                                        })
-                                        .collect(),
-                                )
-                            })
-                            .collect(),
-                    data_of_newly_minted_non_fungibles:
-                        data_of_newly_minted_non_fungibles
-                            .iter()
-                            .map(|(key, value)| {
-                                (
-                                    Address::from_typed_node_id(
-                                        *key, network_id,
-                                    )
-                                    .as_str(),
-                                    value
-                                        .iter()
-                                        .map(|(key, value)| {
-                                            (
-                                                key.clone().into(),
-                                                native_scrypto_encode(value)
-                                                    .unwrap(),
-                                            )
-                                        })
-                                        .collect(),
-                                )
-                            })
-                            .collect(),
-                    addresses_of_newly_created_entities:
-                        addresses_of_newly_created_entities
-                            .iter()
-                            .map(|node_id| {
-                                Arc::new(Address::from_typed_node_id(
-                                    *node_id, network_id,
-                                ))
-                            })
-                            .collect(),
-                }
-            }
-            CoreExecutionTransactionType::StakeTransaction(value) => {
-                let CoreStakeTransactionType(stakes) = value.as_ref();
-                Self::StakeTransaction {
-                    stakes: stakes
-                        .iter()
-                        .map(|stake| {
-                            StakeInformation::from_native(stake, network_id)
-                        })
-                        .collect(),
-                }
-            }
-            CoreExecutionTransactionType::UnstakeTransaction(value) => {
-                let CoreUnstakeTransactionType(unstakes) = value.as_ref();
-                Self::UnstakeTransaction {
-                    unstakes: unstakes
-                        .iter()
-                        .map(|unstake| {
-                            UnstakeInformation::from_native(unstake, network_id)
-                        })
-                        .collect(),
-                }
-            }
-            CoreExecutionTransactionType::ClaimStakeTransaction(value) => {
-                let CoreClaimStakeTransactionType(claims) = value.as_ref();
-                Self::ClaimStakeTransaction {
-                    claims: claims
-                        .iter()
-                        .map(|claim| {
-                            ClaimStakeInformation::from_native(
-                                claim, network_id,
-                            )
-                        })
-                        .collect(),
-                }
-            }
-        }
-    }
-}
-
-impl FeeLocks {
-    pub fn from_native(
-        CoreExecutionFeeLocks {
-            contingent_lock,
-            lock,
-        }: &CoreExecutionFeeLocks,
-    ) -> Self {
-        Self {
-            contingent_lock: Arc::new(Decimal(*contingent_lock)),
-            lock: Arc::new(Decimal(*lock)),
-        }
-    }
-}
-
-impl FeeSummary {
-    pub fn from_native(
-        CoreExecutionFeeSummary {
-            execution_cost,
-            royalty_cost,
-            finalization_cost,
-            storage_expansion_cost,
-        }: &CoreExecutionFeeSummary,
-    ) -> Self {
-        Self {
-            execution_cost: Arc::new(Decimal(*execution_cost)),
-            royalty_cost: Arc::new(Decimal(*royalty_cost)),
-            finalization_cost: Arc::new(Decimal(*finalization_cost)),
-            storage_expansion_cost: Arc::new(Decimal(*storage_expansion_cost)),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum ResourceTracker {
-    Fungible {
-        resource_address: Arc<Address>,
-        amount: DecimalSource,
-    },
-    NonFungible {
-        resource_address: Arc<Address>,
-        amount: DecimalSource,
-        ids: NonFungibleLocalIdVecSource,
-    },
-}
-
-impl ResourceTracker {
-    pub fn from_native(
-        resource_tracker: &CoreResourceTracker,
-        network_id: u8,
-    ) -> Self {
-        match resource_tracker {
-            CoreResourceTracker::Fungible {
-                resource_address,
-                amount,
-            } => Self::Fungible {
-                resource_address: Arc::new(Address::from_typed_node_id(
-                    *resource_address,
-                    network_id,
-                )),
-                amount: match amount {
-                    CoreSource::Guaranteed(value) => {
-                        DecimalSource::Guaranteed {
-                            value: Arc::new(Decimal(*value)),
-                        }
-                    }
-                    CoreSource::Predicted(index, value) => {
-                        DecimalSource::Predicted {
-                            instruction_index: *index as u64,
-                            value: Arc::new(Decimal(*value)),
-                        }
-                    }
-                },
-            },
-            CoreResourceTracker::NonFungible {
-                resource_address,
-                amount,
-                ids,
-            } => Self::NonFungible {
-                resource_address: Arc::new(Address::from_typed_node_id(
-                    *resource_address,
-                    network_id,
-                )),
-                amount: match amount {
-                    CoreSource::Guaranteed(value) => {
-                        DecimalSource::Guaranteed {
-                            value: Arc::new(Decimal(*value)),
-                        }
-                    }
-                    CoreSource::Predicted(index, value) => {
-                        DecimalSource::Predicted {
-                            instruction_index: *index as u64,
-                            value: Arc::new(Decimal(*value)),
-                        }
-                    }
-                },
-                ids: match ids {
-                    CoreSource::Guaranteed(value) => {
-                        NonFungibleLocalIdVecSource::Guaranteed {
-                            value: value
-                                .iter()
-                                .cloned()
-                                .map(Into::into)
-                                .collect(),
-                        }
-                    }
-                    CoreSource::Predicted(index, value) => {
-                        NonFungibleLocalIdVecSource::Predicted {
-                            instruction_index: *index as u64,
-                            value: value
-                                .iter()
-                                .cloned()
-                                .map(Into::into)
-                                .collect(),
-                        }
-                    }
-                },
-            },
-        }
-    }
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum ResourcePreferenceAction {
-    Set { value: ResourcePreference },
-    Remove,
-}
-
 #[derive(Clone, Debug, Enum)]
 pub enum ResourcePreference {
     Allowed,
     Disallowed,
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum AccountDefaultDepositRule {
-    Accept,
-    Reject,
-    AllowExisting,
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct AuthorizedDepositorsChanges {
-    pub added: Vec<ResourceOrNonFungible>,
-    pub removed: Vec<ResourceOrNonFungible>,
-}
-
-impl FromNative for ResourcePreferenceAction {
-    type Native = CoreResourcePreferenceAction;
-
-    fn from_native(native: Self::Native) -> Self {
-        match native {
-            Self::Native::Set(value) => Self::Set {
-                value: <ResourcePreference as FromNative>::from_native(value),
-            },
-            Self::Native::Remove => Self::Remove,
-        }
-    }
 }
 
 impl FromNative for ResourcePreference {
@@ -876,6 +254,13 @@ impl ToNative for ResourcePreference {
             Self::Disallowed => Ok(Self::Native::Disallowed),
         }
     }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountDefaultDepositRule {
+    Accept,
+    Reject,
+    AllowExisting,
 }
 
 impl FromNative for AccountDefaultDepositRule {
@@ -904,117 +289,11 @@ impl ToNative for AccountDefaultDepositRule {
     }
 }
 
-impl FromNativeWithNetworkContext for AuthorizedDepositorsChanges {
-    type Native = CoreAuthorizedDepositorsChanges;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self {
-        Self {
-            added: native
-                .added
-                .into_iter()
-                .map(|value| {
-                    FromNativeWithNetworkContext::from_native(value, network_id)
-                })
-                .collect(),
-            removed: native
-                .removed
-                .into_iter()
-                .map(|value| {
-                    FromNativeWithNetworkContext::from_native(value, network_id)
-                })
-                .collect(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum ReservedInstruction {
-    AccountLockFee,
-    AccountSecurify,
-    IdentitySecurify,
-    AccountUpdateSettings,
-    AccessController,
-}
-
-impl From<ReservedInstruction> for CoreReservedInstruction {
-    fn from(value: ReservedInstruction) -> Self {
-        match value {
-            ReservedInstruction::AccessController => Self::AccessController,
-            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
-            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
-            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
-            ReservedInstruction::AccountUpdateSettings => {
-                Self::AccountUpdateSettings
-            }
-        }
-    }
-}
-
-impl From<CoreReservedInstruction> for ReservedInstruction {
-    fn from(value: CoreReservedInstruction) -> Self {
-        match value {
-            CoreReservedInstruction::AccessController => Self::AccessController,
-            CoreReservedInstruction::AccountLockFee => Self::AccountLockFee,
-            CoreReservedInstruction::AccountSecurify => Self::AccountSecurify,
-            CoreReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
-            CoreReservedInstruction::AccountUpdateSettings => {
-                Self::AccountUpdateSettings
-            }
-        }
-    }
-}
-
-macro_rules! define_source_enum {
-    ($type: ty) => {
-        paste::paste! {
-            define_source_enum!($type, [< $type Source >])
-        }
-    };
-    ($type: ty, $type_ident: ident) => {
-        #[derive(Clone, Debug, Enum)]
-        pub enum $type_ident {
-            Guaranteed {
-                value: $type,
-            },
-            Predicted {
-                instruction_index: u64,
-                value: $type,
-            },
-        }
-    };
-}
-define_source_enum!(Arc<Decimal>, DecimalSource);
-define_source_enum!(Vec<NonFungibleLocalId>, NonFungibleLocalIdVecSource);
-
 #[derive(Clone, Debug, Record)]
 pub struct TransactionManifestModifications {
     pub add_access_controller_proofs: Vec<Arc<Address>>,
     pub add_lock_fee: Option<LockFeeModification>,
     pub add_assertions: Vec<IndexedAssertion>,
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum Assertion {
-    Amount {
-        resource_address: Arc<Address>,
-        amount: Arc<Decimal>,
-    },
-    Ids {
-        resource_address: Arc<Address>,
-        ids: Vec<NonFungibleLocalId>,
-    },
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct IndexedAssertion {
-    pub index: u64,
-    pub assertion: Assertion,
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct LockFeeModification {
-    pub account_address: Arc<Address>,
-    pub amount: Arc<Decimal>,
 }
 
 impl ToNative for TransactionManifestModifications {
@@ -1049,6 +328,30 @@ impl ToNative for TransactionManifestModifications {
     }
 }
 
+#[derive(Clone, Debug, Record)]
+pub struct LockFeeModification {
+    pub account_address: Arc<Address>,
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct IndexedAssertion {
+    pub index: u64,
+    pub assertion: Assertion,
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum Assertion {
+    Amount {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    Ids {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
 impl ToNative for Assertion {
     type Native = CoreManifestAssertion;
 
@@ -1075,122 +378,955 @@ impl ToNative for Assertion {
     }
 }
 
-impl UnstakeData {
-    pub fn from_native(
-        NativeUnstakeData {
-            name,
-            claim_epoch,
-            claim_amount,
-        }: &NativeUnstakeData,
-        _: u8,
-    ) -> Self {
-        Self {
-            name: name.to_owned(),
-            claim_epoch: claim_epoch.number(),
-            claim_amount: Arc::new(Decimal(*claim_amount)),
+#[derive(Clone, Debug, Enum)]
+pub enum ReservedInstruction {
+    AccountLockFee,
+    AccountSecurify,
+    IdentitySecurify,
+    AccountUpdateSettings,
+    AccessControllerMethod,
+}
+
+impl From<ReservedInstruction> for CoreReservedInstruction {
+    fn from(value: ReservedInstruction) -> Self {
+        match value {
+            ReservedInstruction::AccessControllerMethod => {
+                Self::AccessControllerMethod
+            }
+            ReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            ReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            ReservedInstruction::AccountUpdateSettings => {
+                Self::AccountUpdateSettings
+            }
         }
     }
 }
 
-impl StakeInformation {
-    pub fn from_native(
-        CoreStakeInformation {
-            from_account,
-            validator_address,
-            stake_unit_resource,
-            stake_unit_amount,
-            staked_xrd,
-        }: &CoreStakeInformation,
-        network_id: u8,
-    ) -> Self {
-        Self {
-            from_account: Arc::new(Address::from_typed_node_id(
-                *from_account,
-                network_id,
-            )),
-            validator_address: Arc::new(Address::from_typed_node_id(
-                *validator_address,
-                network_id,
-            )),
-            stake_unit_resource: Arc::new(Address::from_typed_node_id(
-                *stake_unit_resource,
-                network_id,
-            )),
-            stake_unit_amount: Arc::new(Decimal(*stake_unit_amount)),
-            staked_xrd: Arc::new(Decimal(*staked_xrd)),
+impl From<CoreReservedInstruction> for ReservedInstruction {
+    fn from(value: CoreReservedInstruction) -> Self {
+        match value {
+            CoreReservedInstruction::AccessControllerMethod => {
+                Self::AccessControllerMethod
+            }
+            CoreReservedInstruction::AccountLockFee => Self::AccountLockFee,
+            CoreReservedInstruction::AccountSecurify => Self::AccountSecurify,
+            CoreReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
+            CoreReservedInstruction::AccountUpdateSettings => {
+                Self::AccountUpdateSettings
+            }
         }
     }
 }
 
-impl UnstakeInformation {
+#[derive(Clone, Debug, Enum)]
+pub enum ManifestClass {
+    General,
+    Transfer,
+    PoolContribution,
+    PoolRedemption,
+    ValidatorStake,
+    ValidatorUnstake,
+    ValidatorClaim,
+    AccountDepositSettingsUpdate,
+}
+
+impl From<CoreManifestClass> for ManifestClass {
+    fn from(value: CoreManifestClass) -> Self {
+        match value {
+            CoreManifestClass::General => Self::General,
+            CoreManifestClass::Transfer => Self::Transfer,
+            CoreManifestClass::PoolContribution => Self::PoolContribution,
+            CoreManifestClass::PoolRedemption => Self::PoolRedemption,
+            CoreManifestClass::ValidatorStake => Self::ValidatorStake,
+            CoreManifestClass::ValidatorUnstake => Self::ValidatorUnstake,
+            CoreManifestClass::ValidatorClaim => Self::ValidatorClaim,
+            CoreManifestClass::AccountDepositSettingsUpdate => {
+                Self::AccountDepositSettingsUpdate
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum DetailedManifestClass {
+    General,
+    Transfer {
+        is_one_to_one: bool,
+    },
+    PoolContribution {
+        pool_addresses: Vec<Arc<Address>>,
+        pool_contributions: Vec<TrackedPoolContribution>,
+    },
+    PoolRedemption {
+        pool_addresses: Vec<Arc<Address>>,
+        pool_redemptions: Vec<TrackedPoolRedemption>,
+    },
+    ValidatorStake {
+        validator_addresses: Vec<Arc<Address>>,
+        validator_stakes: Vec<TrackedValidatorStake>,
+    },
+    ValidatorUnstake {
+        validator_addresses: Vec<Arc<Address>>,
+        validator_unstakes: Vec<TrackedValidatorUnstake>,
+    },
+    ValidatorClaim {
+        validator_addresses: Vec<Arc<Address>>,
+        validator_claims: Vec<TrackedValidatorClaim>,
+    },
+    AccountDepositSettingsUpdate {
+        resource_preferences_updates:
+            HashMap<String, HashMap<String, ResourcePreferenceUpdate>>,
+        deposit_mode_updates: HashMap<String, AccountDefaultDepositRule>,
+        authorized_depositors_added:
+            HashMap<String, Vec<ResourceOrNonFungible>>,
+        authorized_depositors_removed:
+            HashMap<String, Vec<ResourceOrNonFungible>>,
+    },
+}
+
+impl DetailedManifestClass {
     pub fn from_native(
-        CoreUnstakeInformation {
-            from_account,
-            stake_unit_address,
-            stake_unit_amount,
-            validator_address,
-            claim_nft_resource,
-            claim_nft_local_id,
-            claim_nft_data,
-        }: &CoreUnstakeInformation<NativeUnstakeData>,
+        value: CoreDetailedManifestClass,
         network_id: u8,
     ) -> Self {
+        match value {
+            CoreDetailedManifestClass::General => Self::General,
+            CoreDetailedManifestClass::Transfer { is_one_to_one } => {
+                Self::Transfer { is_one_to_one }
+            }
+            CoreDetailedManifestClass::PoolContribution {
+                pool_addresses,
+                pool_contributions,
+            } => Self::PoolContribution {
+                pool_addresses: pool_addresses
+                    .into_iter()
+                    .map(|item| {
+                        Arc::new(Address::unsafe_from_raw(
+                            item.into_node_id(),
+                            network_id,
+                        ))
+                    })
+                    .collect(),
+                pool_contributions: pool_contributions
+                    .into_iter()
+                    .map(|item| {
+                        TrackedPoolContribution::from_native(item, network_id)
+                    })
+                    .collect(),
+            },
+            CoreDetailedManifestClass::PoolRedemption {
+                pool_addresses,
+                pool_redemptions,
+            } => Self::PoolRedemption {
+                pool_addresses: pool_addresses
+                    .into_iter()
+                    .map(|item| {
+                        Arc::new(Address::unsafe_from_raw(
+                            item.into_node_id(),
+                            network_id,
+                        ))
+                    })
+                    .collect(),
+                pool_redemptions: pool_redemptions
+                    .into_iter()
+                    .map(|item| {
+                        TrackedPoolRedemption::from_native(item, network_id)
+                    })
+                    .collect(),
+            },
+            CoreDetailedManifestClass::ValidatorStake {
+                validator_addresses,
+                validator_stakes,
+            } => Self::ValidatorStake {
+                validator_addresses: validator_addresses
+                    .into_iter()
+                    .map(|item| {
+                        Arc::new(Address::unsafe_from_raw(
+                            item.into_node_id(),
+                            network_id,
+                        ))
+                    })
+                    .collect(),
+                validator_stakes: validator_stakes
+                    .into_iter()
+                    .map(|item| {
+                        TrackedValidatorStake::from_native(item, network_id)
+                    })
+                    .collect(),
+            },
+            CoreDetailedManifestClass::ValidatorUnstake {
+                validator_addresses,
+                validator_unstakes,
+            } => Self::ValidatorUnstake {
+                validator_addresses: validator_addresses
+                    .into_iter()
+                    .map(|item| {
+                        Arc::new(Address::unsafe_from_raw(
+                            item.into_node_id(),
+                            network_id,
+                        ))
+                    })
+                    .collect(),
+                validator_unstakes: validator_unstakes
+                    .into_iter()
+                    .map(|item| {
+                        TrackedValidatorUnstake::from_native(item, network_id)
+                    })
+                    .collect(),
+            },
+            CoreDetailedManifestClass::ValidatorClaim {
+                validator_addresses,
+                validator_claims,
+            } => Self::ValidatorClaim {
+                validator_addresses: validator_addresses
+                    .into_iter()
+                    .map(|item| {
+                        Arc::new(Address::unsafe_from_raw(
+                            item.into_node_id(),
+                            network_id,
+                        ))
+                    })
+                    .collect(),
+                validator_claims: validator_claims
+                    .into_iter()
+                    .map(|item| {
+                        TrackedValidatorClaim::from_native(item, network_id)
+                    })
+                    .collect(),
+            },
+            CoreDetailedManifestClass::AccountDepositSettingsUpdate {
+                resource_preferences_updates,
+                deposit_mode_updates,
+                authorized_depositors_updates,
+            } => Self::AccountDepositSettingsUpdate {
+                resource_preferences_updates: resource_preferences_updates
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (
+                            Address::unsafe_from_raw(
+                                k.into_node_id(),
+                                network_id,
+                            )
+                            .address_string(),
+                            v.into_iter()
+                                .map(|(k, v)| {
+                                    (
+                                        Address::unsafe_from_raw(
+                                            k.into_node_id(),
+                                            network_id,
+                                        )
+                                        .address_string(),
+                                        ResourcePreferenceUpdate::from(v),
+                                    )
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect(),
+                deposit_mode_updates: deposit_mode_updates
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (
+                            Address::unsafe_from_raw(
+                                k.into_node_id(),
+                                network_id,
+                            )
+                            .address_string(),
+                            <AccountDefaultDepositRule as FromNative>::from_native(v)
+                        )
+                    })
+                    .collect(),
+                authorized_depositors_added: authorized_depositors_updates
+                    .iter()
+                    .map(|(k, v)| {
+                        (
+                            Address::unsafe_from_raw(
+                                k.into_node_id(),
+                                network_id,
+                            )
+                            .address_string(),
+                            v
+                                .into_iter()
+                                .filter_map(|(k, v)| {
+                                    if let CoreOperation::Added = v {
+                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .collect()
+                        )
+                    })
+                    .collect(),
+                authorized_depositors_removed: authorized_depositors_updates
+                    .iter()
+                    .map(|(k, v)| {
+                        (
+                            Address::unsafe_from_raw(
+                                k.into_node_id(),
+                                network_id,
+                            )
+                            .address_string(),
+                            v
+                                .into_iter()
+                                .filter_map(|(k, v)| {
+                                    if let CoreOperation::Removed = v {
+                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .collect()
+                        )
+                    })
+                    .collect(),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct ExecutionSummary {
+    pub account_withdraws: HashMap<String, Vec<ResourceIndicator>>,
+    pub account_deposits: HashMap<String, Vec<ResourceIndicator>>,
+    pub presented_proofs: Vec<Arc<Address>>,
+    pub new_entities: NewEntities,
+    pub encountered_entities: Vec<Arc<Address>>,
+    pub accounts_requiring_auth: Vec<Arc<Address>>,
+    pub identities_requiring_auth: Vec<Arc<Address>>,
+    pub reserved_instructions: Vec<ReservedInstruction>,
+    pub fee_locks: FeeLocks,
+    pub fee_summary: FeeSummary,
+    pub detailed_classification: Vec<DetailedManifestClass>,
+}
+
+impl ExecutionSummary {
+    pub fn from_native(native: CoreExecutionSummary, network_id: u8) -> Self {
         Self {
-            from_account: Arc::new(Address::from_typed_node_id(
-                *from_account,
-                network_id,
-            )),
-            stake_unit_address: Arc::new(Address::from_typed_node_id(
-                *stake_unit_address,
-                network_id,
-            )),
-            stake_unit_amount: Arc::new(Decimal(*stake_unit_amount)),
-            validator_address: Arc::new(Address::from_typed_node_id(
-                *validator_address,
-                network_id,
-            )),
-            claim_nft_resource: Arc::new(Address::from_typed_node_id(
-                *claim_nft_resource,
-                network_id,
-            )),
-            claim_nft_local_id: claim_nft_local_id.clone().into(),
-            claim_nft_data: UnstakeData::from_native(
-                claim_nft_data,
+            account_withdraws: native
+                .account_withdraws
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        Address::unsafe_from_raw(k.into_node_id(), network_id)
+                            .address_string(),
+                        v.into_iter()
+                            .map(|item| {
+                                ResourceIndicator::from_native(item, network_id)
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+            account_deposits: native
+                .account_deposits
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        Address::unsafe_from_raw(k.into_node_id(), network_id)
+                            .address_string(),
+                        v.into_iter()
+                            .map(|item| {
+                                ResourceIndicator::from_native(item, network_id)
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+            presented_proofs: native
+                .presented_proofs
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            new_entities: NewEntities::from_native(
+                native.new_entities,
                 network_id,
             ),
+            encountered_entities: native
+                .encountered_entities
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_requiring_auth: native
+                .accounts_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            identities_requiring_auth: native
+                .identities_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            reserved_instructions: native
+                .reserved_instructions
+                .into_iter()
+                .map(ReservedInstruction::from)
+                .collect(),
+            fee_locks: FeeLocks::from_native(&native.fee_locks),
+            fee_summary: FeeSummary::from_native(&native.fee_summary),
+            detailed_classification: native
+                .detailed_classification
+                .into_iter()
+                .map(|item| {
+                    DetailedManifestClass::from_native(item, network_id)
+                })
+                .collect(),
         }
     }
 }
 
-impl ClaimStakeInformation {
+#[derive(Clone, Debug, Record)]
+pub struct ManifestSummary {
+    pub presented_proofs: Vec<Arc<Address>>,
+    pub accounts_withdrawn_from: Vec<Arc<Address>>,
+    pub accounts_deposited_into: Vec<Arc<Address>>,
+    pub encountered_entities: Vec<Arc<Address>>,
+    pub accounts_requiring_auth: Vec<Arc<Address>>,
+    pub identities_requiring_auth: Vec<Arc<Address>>,
+    pub reserved_instructions: Vec<ReservedInstruction>,
+    pub classification: Vec<ManifestClass>,
+}
+
+impl ManifestSummary {
+    fn from_native(native: CoreManifestSummary, network_id: u8) -> Self {
+        Self {
+            presented_proofs: native
+                .presented_proofs
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_withdrawn_from: native
+                .accounts_withdrawn_from
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_deposited_into: native
+                .accounts_deposited_into
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            encountered_entities: native
+                .encountered_entities
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            accounts_requiring_auth: native
+                .accounts_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            identities_requiring_auth: native
+                .identities_requiring_auth
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            reserved_instructions: native
+                .reserved_instructions
+                .into_iter()
+                .map(ReservedInstruction::from)
+                .collect(),
+            classification: native
+                .classification
+                .into_iter()
+                .map(ManifestClass::from)
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrackedPoolContribution {
+    pub pool_address: Arc<Address>,
+    /* Input */
+    pub contributed_resources: HashMap<String, Arc<Decimal>>,
+    /* Output */
+    pub pool_units_resource_address: Arc<Address>,
+    pub pool_units_amount: Arc<Decimal>,
+}
+
+impl TrackedPoolContribution {
     pub fn from_native(
-        CoreClaimStakeInformation {
-            from_account,
-            validator_address,
-            claim_nft_resource,
-            claim_nft_local_ids,
-            claimed_xrd,
-        }: &CoreClaimStakeInformation,
+        native: CoreTrackedPoolContribution,
         network_id: u8,
     ) -> Self {
         Self {
-            from_account: Arc::new(Address::from_typed_node_id(
-                *from_account,
+            pool_address: Arc::new(Address::unsafe_from_raw(
+                native.pool_address.into_node_id(),
                 network_id,
             )),
-            validator_address: Arc::new(Address::from_typed_node_id(
-                *validator_address,
-                network_id,
-            )),
-            claim_nft_resource: Arc::new(Address::from_typed_node_id(
-                *claim_nft_resource,
-                network_id,
-            )),
-            claim_nft_local_ids: claim_nft_local_ids
-                .iter()
-                .map(|local_id| local_id.clone().into())
+            contributed_resources: native
+                .contributed_resources
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        Address::unsafe_from_raw(k.into_node_id(), network_id)
+                            .address_string(),
+                        Arc::new(Decimal(v)),
+                    )
+                })
                 .collect(),
-            claimed_xrd: Arc::new(Decimal(*claimed_xrd)),
+            pool_units_resource_address: Arc::new(Address::unsafe_from_raw(
+                native.pool_units_resource_address.into_node_id(),
+                network_id,
+            )),
+            pool_units_amount: Arc::new(Decimal(native.pool_units_amount)),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrackedPoolRedemption {
+    pub pool_address: Arc<Address>,
+    /* Input */
+    pub pool_units_resource_address: Arc<Address>,
+    pub pool_units_amount: Arc<Decimal>,
+    /* Output */
+    pub redeemed_resources: HashMap<String, Arc<Decimal>>,
+}
+
+impl TrackedPoolRedemption {
+    pub fn from_native(
+        native: CoreTrackedPoolRedemption,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            pool_address: Arc::new(Address::unsafe_from_raw(
+                native.pool_address.into_node_id(),
+                network_id,
+            )),
+            redeemed_resources: native
+                .redeemed_resources
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        Address::unsafe_from_raw(k.into_node_id(), network_id)
+                            .address_string(),
+                        Arc::new(Decimal(v)),
+                    )
+                })
+                .collect(),
+            pool_units_resource_address: Arc::new(Address::unsafe_from_raw(
+                native.pool_units_resource_address.into_node_id(),
+                network_id,
+            )),
+            pool_units_amount: Arc::new(Decimal(native.pool_units_amount)),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrackedValidatorStake {
+    pub validator_address: Arc<Address>,
+    /* Input */
+    pub xrd_amount: Arc<Decimal>,
+    /* Output */
+    pub liquid_stake_unit_address: Arc<Address>,
+    pub liquid_stake_unit_amount: Arc<Decimal>,
+}
+
+impl TrackedValidatorStake {
+    pub fn from_native(
+        native: CoreTrackedValidatorStake,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            validator_address: Arc::new(Address::unsafe_from_raw(
+                native.validator_address.into_node_id(),
+                network_id,
+            )),
+            xrd_amount: Arc::new(Decimal(native.xrd_amount)),
+            liquid_stake_unit_address: Arc::new(Address::unsafe_from_raw(
+                native.liquid_stake_unit_address.into_node_id(),
+                network_id,
+            )),
+            liquid_stake_unit_amount: Arc::new(Decimal(
+                native.liquid_stake_unit_amount,
+            )),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrackedValidatorUnstake {
+    pub validator_address: Arc<Address>,
+    /* Input */
+    pub liquid_stake_unit_address: Arc<Address>,
+    pub liquid_stake_unit_amount: Arc<Decimal>,
+    /* Output */
+    pub claim_nft_address: Arc<Address>,
+    pub claim_nft_ids: Vec<NonFungibleLocalId>,
+}
+
+impl TrackedValidatorUnstake {
+    pub fn from_native(
+        native: CoreTrackedValidatorUnstake,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            validator_address: Arc::new(Address::unsafe_from_raw(
+                native.validator_address.into_node_id(),
+                network_id,
+            )),
+            liquid_stake_unit_address: Arc::new(Address::unsafe_from_raw(
+                native.liquid_stake_unit_address.into_node_id(),
+                network_id,
+            )),
+            liquid_stake_unit_amount: Arc::new(Decimal(
+                native.liquid_stake_unit_amount,
+            )),
+            claim_nft_address: Arc::new(Address::unsafe_from_raw(
+                native.claim_nft_address.into_node_id(),
+                network_id,
+            )),
+            claim_nft_ids: native
+                .claim_nft_ids
+                .into_iter()
+                .map(NonFungibleLocalId::from)
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrackedValidatorClaim {
+    pub validator_address: Arc<Address>,
+    /* Input */
+    pub claim_nft_address: Arc<Address>,
+    pub claim_nft_ids: Vec<NonFungibleLocalId>,
+    /* Output */
+    pub xrd_amount: Arc<Decimal>,
+}
+
+impl TrackedValidatorClaim {
+    pub fn from_native(
+        native: CoreTrackedValidatorClaim,
+        network_id: u8,
+    ) -> Self {
+        Self {
+            validator_address: Arc::new(Address::unsafe_from_raw(
+                native.validator_address.into_node_id(),
+                network_id,
+            )),
+
+            xrd_amount: Arc::new(Decimal(native.xrd_amount)),
+            claim_nft_address: Arc::new(Address::unsafe_from_raw(
+                native.claim_nft_address.into_node_id(),
+                network_id,
+            )),
+            claim_nft_ids: native
+                .claim_nft_ids
+                .into_iter()
+                .map(NonFungibleLocalId::from)
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum Operation {
+    Add,
+    Remove,
+}
+
+impl From<CoreOperation> for Operation {
+    fn from(value: CoreOperation) -> Self {
+        match value {
+            CoreOperation::Added => Self::Add,
+            CoreOperation::Removed => Self::Remove,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourcePreferenceUpdate {
+    Set { value: ResourcePreference },
+    Remove,
+}
+
+impl From<CoreUpdate<NativeResourcePreference>> for ResourcePreferenceUpdate {
+    fn from(value: CoreUpdate<NativeResourcePreference>) -> Self {
+        match value {
+            CoreUpdate::Set(value) => Self::Set {
+                value: <ResourcePreference as FromNative>::from_native(value),
+            },
+            CoreUpdate::Remove => Self::Remove,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct NewEntities {
+    pub component_addresses: Vec<Arc<Address>>,
+    pub resource_addresses: Vec<Arc<Address>>,
+    pub package_addresses: Vec<Arc<Address>>,
+    pub metadata: HashMap<String, HashMap<String, Option<MetadataValue>>>,
+}
+
+impl NewEntities {
+    pub fn from_native(native: CoreNewEntities, network_id: u8) -> Self {
+        Self {
+            component_addresses: native
+                .component_addresses
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            package_addresses: native
+                .package_addresses
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            resource_addresses: native
+                .resource_addresses
+                .into_iter()
+                .map(|item| {
+                    Arc::new(Address::unsafe_from_raw(
+                        item.into_node_id(),
+                        network_id,
+                    ))
+                })
+                .collect(),
+            metadata: native
+                .metadata
+                .iter()
+                .map(|(key, value)| {
+                    (
+                        Address::from_typed_node_id(*key, network_id).as_str(),
+                        value
+                            .iter()
+                            .map(|(key, value)| {
+                                (
+                                    key.clone(),
+                                    value.as_ref().map(|value| {
+                                        MetadataValue::from_native(
+                                            value, network_id,
+                                        )
+                                    }),
+                                )
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum ResourceIndicator {
+    Fungible {
+        resource_address: Arc<Address>,
+        indicator: FungibleResourceIndicator,
+    },
+    NonFungible {
+        resource_address: Arc<Address>,
+        indicator: NonFungibleResourceIndicator,
+    },
+}
+
+impl ResourceIndicator {
+    pub fn from_native(native: CoreResourceIndicator, network_id: u8) -> Self {
+        match native {
+            CoreResourceIndicator::Fungible(resource_address, amount) => {
+                ResourceIndicator::Fungible {
+                    resource_address: Arc::new(Address::unsafe_from_raw(
+                        resource_address.into_node_id(),
+                        network_id,
+                    )),
+                    indicator: FungibleResourceIndicator::from(amount),
+                }
+            }
+            CoreResourceIndicator::NonFungible(resource_address, ids) => {
+                ResourceIndicator::NonFungible {
+                    resource_address: Arc::new(Address::unsafe_from_raw(
+                        resource_address.into_node_id(),
+                        network_id,
+                    )),
+                    indicator: NonFungibleResourceIndicator::from(ids),
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum FungibleResourceIndicator {
+    Guaranteed { amount: Arc<Decimal> },
+    Predicted { predicted_amount: PredictedDecimal },
+}
+
+impl From<CoreFungibleResourceIndicator> for FungibleResourceIndicator {
+    fn from(value: CoreFungibleResourceIndicator) -> Self {
+        match value {
+            CoreFungibleResourceIndicator::Guaranteed(amount) => {
+                FungibleResourceIndicator::Guaranteed {
+                    amount: Arc::new(Decimal(amount)),
+                }
+            }
+            CoreFungibleResourceIndicator::Predicted(predicted_amount) => {
+                FungibleResourceIndicator::Predicted {
+                    predicted_amount: PredictedDecimal {
+                        value: Arc::new(Decimal(predicted_amount.value)),
+                        instruction_index: predicted_amount.instruction_index
+                            as u64,
+                    },
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum NonFungibleResourceIndicator {
+    ByAll {
+        predicted_amount: PredictedDecimal,
+        predicted_ids: PredictedNonFungibleIds,
+    },
+    ByAmount {
+        amount: Arc<Decimal>,
+        predicted_ids: PredictedNonFungibleIds,
+    },
+    ByIds {
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+impl From<CoreNonFungibleResourceIndicator> for NonFungibleResourceIndicator {
+    fn from(value: CoreNonFungibleResourceIndicator) -> Self {
+        match value {
+            CoreNonFungibleResourceIndicator::ByAll {
+                predicted_amount,
+                predicted_ids,
+            } => NonFungibleResourceIndicator::ByAll {
+                predicted_amount: PredictedDecimal {
+                    value: Arc::new(Decimal(predicted_amount.value)),
+                    instruction_index: predicted_amount.instruction_index
+                        as u64,
+                },
+                predicted_ids: PredictedNonFungibleIds {
+                    value: predicted_ids
+                        .value
+                        .into_iter()
+                        .map(Into::into)
+                        .collect(),
+                    instruction_index: predicted_ids.instruction_index as u64,
+                },
+            },
+            CoreNonFungibleResourceIndicator::ByAmount {
+                amount,
+                predicted_ids,
+            } => NonFungibleResourceIndicator::ByAmount {
+                amount: Arc::new(Decimal(amount)),
+                predicted_ids: PredictedNonFungibleIds {
+                    value: predicted_ids
+                        .value
+                        .into_iter()
+                        .map(Into::into)
+                        .collect(),
+                    instruction_index: predicted_ids.instruction_index as u64,
+                },
+            },
+            CoreNonFungibleResourceIndicator::ByIds(ids) => {
+                NonFungibleResourceIndicator::ByIds {
+                    ids: ids.into_iter().map(Into::into).collect(),
+                }
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct PredictedDecimal {
+    pub value: Arc<Decimal>,
+    pub instruction_index: u64,
+}
+
+impl From<CorePredicted<NativeDecimal>> for PredictedDecimal {
+    fn from(value: CorePredicted<NativeDecimal>) -> Self {
+        Self {
+            value: Arc::new(Decimal(value.value)),
+            instruction_index: value.instruction_index as u64,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct PredictedNonFungibleIds {
+    pub value: Vec<NonFungibleLocalId>,
+    pub instruction_index: u64,
+}
+
+impl From<CorePredicted<IndexSet<NativeNonFungibleLocalId>>>
+    for PredictedNonFungibleIds
+{
+    fn from(value: CorePredicted<IndexSet<NativeNonFungibleLocalId>>) -> Self {
+        Self {
+            value: value
+                .value
+                .into_iter()
+                .map(NonFungibleLocalId::from)
+                .collect(),
+            instruction_index: value.instruction_index as u64,
         }
     }
 }

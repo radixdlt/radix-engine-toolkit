@@ -14,7 +14,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly-2023-11-24
         default: true
         components: rustfmt, clippy
     - name: Install cargo nextest
@@ -41,7 +41,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly-2023-11-24
         default: true
         components: rustfmt
     - name: Check formatting
@@ -53,7 +53,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly-2023-11-24
         default: true
         profile: minimal
     - name: Cargo Check
@@ -65,7 +65,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: actions-rs/toolchain@v1
       with:
-        toolchain: stable
+        toolchain: nightly-2023-11-24
         default: true
         components: rustfmt, clippy
     - name: Clippy Check

@@ -154,7 +154,7 @@ impl AccessRule {
     }
 }
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, Enum, Hash, PartialEq, Eq)]
 pub enum ResourceOrNonFungible {
     NonFungible { value: Arc<NonFungibleGlobalId> },
     Resource { value: Arc<Address> },

@@ -15,17 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+use scrypto::prelude::*;
+
+use crate::transaction_types::*;
+
+#[derive(Default)]
+pub struct EncounteredGlobalEntities {
+    entities: IndexSet<GlobalAddress>,
+}
+
+impl EncounteredGlobalEntities {
+    pub fn output(self) -> IndexSet<GlobalAddress> {
+        self.entities
+    }
+}
+
+impl ManifestSummaryCallback for EncounteredGlobalEntities {
+    fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
+        self.entities.insert(address);
+    }
+}
+
+impl ExecutionSummaryCallback for EncounteredGlobalEntities {}

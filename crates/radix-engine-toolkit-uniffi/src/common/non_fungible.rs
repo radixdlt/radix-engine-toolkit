@@ -19,7 +19,7 @@ use std::str::FromStr;
 
 use crate::prelude::*;
 
-#[derive(Debug, Clone, Object)]
+#[derive(Debug, Clone, Object, Hash, PartialEq, Eq)]
 pub struct NonFungibleGlobalId(
     pub(crate) NativeNonFungibleGlobalId,
     pub(crate) u8,

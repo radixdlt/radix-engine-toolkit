@@ -15,17 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+use scrypto::prelude::*;
+
+use crate::transaction_types::*;
+
+#[derive(Default)]
+pub struct PresentedProofsDetector {
+    presented_proofs: IndexSet<ResourceAddress>,
+}
+
+impl PresentedProofsDetector {
+    pub fn output(self) -> IndexSet<ResourceAddress> {
+        self.presented_proofs
+    }
+}
+
+impl ManifestSummaryCallback for PresentedProofsDetector {
+    fn on_create_proof(&mut self, resource_address: &ResourceAddress) {
+        self.presented_proofs.insert(*resource_address);
+    }
+}
+
+impl ExecutionSummaryCallback for PresentedProofsDetector {}

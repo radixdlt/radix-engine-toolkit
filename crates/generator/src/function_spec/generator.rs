@@ -35,7 +35,6 @@ pub fn generate_function_spec() -> OpenApi {
         InstructionsDecompile,
         InstructionsStaticallyValidate,
         InstructionsExtractAddresses,
-        ExecutionAnalyze,
         ManifestHash,
         ManifestCompile,
         ManifestDecompile,
