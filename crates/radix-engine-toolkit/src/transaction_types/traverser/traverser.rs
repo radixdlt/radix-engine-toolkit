@@ -44,7 +44,7 @@ pub mod manifest_summary {
             callback.on_instruction(instruction, instruction_index)
         });
 
-        // Notify the callbacks of the created created account proofs
+        // Notify the callbacks of the created account proofs
         handle_on_create_proof(callbacks, instruction);
 
         // Notify callbacks of the global entities encountered
