@@ -128,7 +128,7 @@ pub enum ManifestClass {
 /// This enum must have as many variants as the [`ManifestClass`] and there
 /// must always be a valid implementation of [`Into<ManifestClass>`] for this
 /// enum.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DetailedManifestClass {
     /// A general manifest that involves any amount of arbitrary components
     /// and packages where nothing more concrete can be said about the manifest
@@ -561,13 +561,13 @@ pub impl ResourceSpecifier {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Update<T> {
     Set(T),
     Remove,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Operation {
     Added,
     Removed,

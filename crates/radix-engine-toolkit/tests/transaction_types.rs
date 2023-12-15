@@ -15,8 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::system::bootstrap::DEFAULT_VALIDATOR_XRD_COST;
 use radix_engine::transaction::*;
 use radix_engine::vm::*;
+use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
 use radix_engine_queries::typed_substate_layout::multi_resource_pool::*;
 use radix_engine_queries::typed_substate_layout::one_resource_pool::*;
@@ -1509,6 +1511,492 @@ fn pool_redemption_transactions_are_recognized() {
     );
 }
 
+#[test]
+fn validator_stake_transactions_are_recognized() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (pk, _, account) = test_runner.new_account(false);
+    let (validator1, stake_unit1, _) = test_runner.new_validator(pk, account);
+    let (validator2, stake_unit2, _) = test_runner.new_validator(pk, account);
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account, XRD, 200)
+        .take_from_worktop(XRD, 100, "xrd1")
+        .take_from_worktop(XRD, 100, "xrd2")
+        .stake_validator(validator1, "xrd1")
+        .stake_validator(validator2, "xrd2")
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(validator1),
+            GlobalAddress::from(validator2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::ValidatorStake]
+    );
+
+    assert_eq!(
+        execution_summary.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    XRD,
+                    FungibleResourceIndicator::Guaranteed(dec!(200))
+                )
+            ]
+        }
+    );
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    stake_unit1,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted { value: dec!(100), instruction_index: 5 }
+                    )
+                ),
+                ResourceIndicator::Fungible(
+                    stake_unit2,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted { value: dec!(100), instruction_index: 5 }
+                    )
+                ),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::ValidatorStake {
+            validator_addresses: indexset![validator1, validator2],
+            validator_stakes: vec![
+                TrackedValidatorStake {
+                    validator_address: validator1,
+                    xrd_amount: dec!(100),
+                    liquid_stake_unit_address: stake_unit1,
+                    liquid_stake_unit_amount: dec!(100)
+                },
+                TrackedValidatorStake {
+                    validator_address: validator2,
+                    xrd_amount: dec!(100),
+                    liquid_stake_unit_address: stake_unit2,
+                    liquid_stake_unit_amount: dec!(100)
+                }
+            ]
+        }
+    );
+}
+
+#[test]
+fn validator_unstake_transactions_are_recognized() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (pk, _, account) = test_runner.new_account(false);
+    let (validator1, stake_unit1, claim_nft1) =
+        test_runner.new_validator(pk, account);
+    let (validator2, stake_unit2, claim_nft2) =
+        test_runner.new_validator(pk, account);
+
+    test_runner
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .withdraw_from_account(account, XRD, 200)
+                .take_from_worktop(XRD, 100, "xrd1")
+                .take_from_worktop(XRD, 100, "xrd2")
+                .stake_validator(validator1, "xrd1")
+                .stake_validator(validator2, "xrd2")
+                .try_deposit_entire_worktop_or_abort(account, None)
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        )
+        .expect_commit_success();
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account, stake_unit1, 100)
+        .withdraw_from_account(account, stake_unit2, 100)
+        .take_from_worktop(stake_unit1, 100, "stake_unit1")
+        .take_from_worktop(stake_unit2, 100, "stake_unit2")
+        .unstake_validator(validator1, "stake_unit1")
+        .unstake_validator(validator2, "stake_unit2")
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account),
+            GlobalAddress::from(stake_unit1),
+            GlobalAddress::from(stake_unit2),
+            GlobalAddress::from(validator1),
+            GlobalAddress::from(validator2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::ValidatorUnstake]
+    );
+
+    assert_eq!(
+        execution_summary.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    stake_unit1,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+                ResourceIndicator::Fungible(
+                    stake_unit2,
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::NonFungible(
+                    claim_nft1,
+                    NonFungibleResourceIndicator::ByAll {
+                        predicted_amount: Predicted {
+                            value: dec!(1),
+                            instruction_index: 6
+                        },
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                NonFungibleLocalId::from_str(
+                                    "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}"
+                                ).unwrap()
+                            ],
+                            instruction_index: 6
+                        },
+                    }
+                ),
+                ResourceIndicator::NonFungible(
+                    claim_nft2,
+                    NonFungibleResourceIndicator::ByAll {
+                        predicted_amount: Predicted {
+                            value: dec!(1),
+                            instruction_index: 6
+                        },
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                NonFungibleLocalId::from_str(
+                                    "{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}"
+                                ).unwrap()
+                            ],
+                            instruction_index: 6
+                        },
+                    }
+                ),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::ValidatorUnstake {
+            validator_addresses: indexset![validator1, validator2],
+            validator_unstakes: vec![
+                TrackedValidatorUnstake {
+                    validator_address: validator1,
+                    liquid_stake_unit_address: stake_unit1,
+                    liquid_stake_unit_amount: dec!(100),
+                    claim_nft_address: claim_nft1,
+                    claim_nft_ids: indexset![
+                        NonFungibleLocalId::from_str(
+                            "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}"
+                        ).unwrap()
+                    ]
+                },
+                TrackedValidatorUnstake {
+                    validator_address: validator2,
+                    liquid_stake_unit_address: stake_unit2,
+                    liquid_stake_unit_amount: dec!(100),
+                    claim_nft_address: claim_nft2,
+                    claim_nft_ids: indexset![
+                        NonFungibleLocalId::from_str(
+                            "{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}"
+                        ).unwrap()
+                    ]
+                }
+            ]
+        }
+    );
+}
+
+#[test]
+fn validator_claim_transactions_are_recognized() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (pk, _, account) = test_runner.new_account(false);
+    let (validator1, stake_unit1, claim_nft1) =
+        test_runner.new_validator(pk, account);
+    let (validator2, stake_unit2, claim_nft2) =
+        test_runner.new_validator(pk, account);
+
+    test_runner
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .withdraw_from_account(account, XRD, 200)
+                .take_from_worktop(XRD, 100, "xrd1")
+                .take_from_worktop(XRD, 100, "xrd2")
+                .stake_validator(validator1, "xrd1")
+                .stake_validator(validator2, "xrd2")
+                .try_deposit_entire_worktop_or_abort(account, None)
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        )
+        .expect_commit_success();
+    test_runner
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .withdraw_from_account(account, stake_unit1, 100)
+                .withdraw_from_account(account, stake_unit2, 100)
+                .take_from_worktop(stake_unit1, 100, "stake_unit1")
+                .take_from_worktop(stake_unit2, 100, "stake_unit2")
+                .unstake_validator(validator1, "stake_unit1")
+                .unstake_validator(validator2, "stake_unit2")
+                .try_deposit_entire_worktop_or_abort(account, None)
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&pk)],
+        )
+        .expect_commit_success();
+
+    test_runner.advance_epoch(100);
+
+    let manifest = ManifestBuilder::new()
+        .withdraw_from_account(account, claim_nft1, 1)
+        .withdraw_from_account(account, claim_nft2, 1)
+        .take_from_worktop(claim_nft1, 1, "claim_nft1")
+        .take_from_worktop(claim_nft2, 1, "claim_nft2")
+        .with_bucket("claim_nft1", |builder, bucket| {
+            builder.call_method(
+                validator1,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                ValidatorClaimXrdManifestInput { bucket },
+            )
+        })
+        .with_bucket("claim_nft2", |builder, bucket| {
+            builder.call_method(
+                validator2,
+                VALIDATOR_CLAIM_XRD_IDENT,
+                ValidatorClaimXrdManifestInput { bucket },
+            )
+        })
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account),
+            GlobalAddress::from(claim_nft1),
+            GlobalAddress::from(claim_nft2),
+            GlobalAddress::from(validator1),
+            GlobalAddress::from(validator2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::ValidatorClaim]
+    );
+
+    assert_eq!(
+        execution_summary.account_withdraws,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::NonFungible(
+                    claim_nft1,
+                    NonFungibleResourceIndicator::ByAmount {
+                        amount: dec!(1),
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                NonFungibleLocalId::from_str(
+                                    "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}"
+                                ).unwrap()
+                            ],
+                            instruction_index: 0
+                        },
+                    }
+                ),
+                ResourceIndicator::NonFungible(
+                    claim_nft2,
+                    NonFungibleResourceIndicator::ByAmount {
+                        amount: dec!(1),
+                        predicted_ids: Predicted {
+                            value: indexset![
+                                NonFungibleLocalId::from_str(
+                                    "{03c4420890c75309-ba0fc0af2b23105d-70c7912c61912798-ff789c9f0d3a0ac5}"
+                                ).unwrap()
+                            ],
+                            instruction_index: 1
+                        },
+                    }
+                ),
+            ]
+        }
+    );
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account => vec![
+                ResourceIndicator::Fungible(
+                    XRD,
+                    FungibleResourceIndicator::Predicted(
+                        Predicted {
+                            value: dec!(200),
+                            instruction_index: 6
+                        }
+                    )
+                ),
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::ValidatorClaim {
+            validator_addresses: indexset![validator1, validator2],
+            validator_claims: vec![
+                TrackedValidatorClaim {
+                    validator_address: validator1,
+                    claim_nft_address: claim_nft1,
+                    claim_nft_ids: indexset![
+                        NonFungibleLocalId::from_str(
+                            "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}"
+                        ).unwrap()
+                    ],
+                    xrd_amount: dec!(100)
+                },
+                TrackedValidatorClaim {
+                    validator_address: validator2,
+                    claim_nft_address: claim_nft2,
+                    claim_nft_ids: indexset![
+                        NonFungibleLocalId::from_str(
+                            "{03c4420890c75309-ba0fc0af2b23105d-70c7912c61912798-ff789c9f0d3a0ac5}"
+                        ).unwrap()
+                    ],
+                    xrd_amount: dec!(100)
+                }
+            ]
+        }
+    );
+}
+
 fn create_pools(
     test_runner: &mut DefaultTestRunner,
     account: ComponentAddress,
@@ -1622,6 +2110,9 @@ where
         manifest: TransactionManifestV1,
     ) -> (ManifestSummary, ExecutionSummary) {
         let receipt = TestRunnerEDExt::preview(self, manifest.clone());
+        if !receipt.is_commit_success() {
+            panic!("Not commit success: {receipt:?}")
+        }
 
         let manifest_summary =
             radix_engine_toolkit::transaction_types::summary(&manifest);
@@ -1632,5 +2123,61 @@ where
             .unwrap();
 
         (manifest_summary, execution_summary)
+    }
+
+    fn new_validator(
+        &mut self,
+        pub_key: Secp256k1PublicKey,
+        account: ComponentAddress,
+    ) -> (ComponentAddress, ResourceAddress, ResourceAddress) {
+        let manifest = ManifestBuilder::new()
+            .lock_fee_from_faucet()
+            .get_free_xrd_from_faucet()
+            .take_from_worktop(
+                XRD,
+                *DEFAULT_VALIDATOR_XRD_COST,
+                "xrd_creation_fee",
+            )
+            .create_validator(pub_key, Decimal::ONE, "xrd_creation_fee")
+            .try_deposit_entire_worktop_or_abort(account, None)
+            .build();
+        let receipt = self.execute_manifest(manifest, vec![]);
+        let commit_result = receipt.expect_commit_success();
+
+        let address = commit_result.new_component_addresses()[0];
+        let claim_nft = commit_result.new_resource_addresses()[0];
+        let lsu = commit_result.new_resource_addresses()[1];
+
+        self.execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .withdraw_from_account(account, VALIDATOR_OWNER_BADGE, 1)
+                .take_from_worktop(VALIDATOR_OWNER_BADGE, 1, "badge")
+                .create_proof_from_bucket_of_all("badge", "proof")
+                .push_to_auth_zone("proof")
+                .register_validator(address)
+                .call_method(
+                    address,
+                    VALIDATOR_UPDATE_ACCEPT_DELEGATED_STAKE_IDENT,
+                    ValidatorUpdateAcceptDelegatedStakeInput {
+                        accept_delegated_stake: true,
+                    },
+                )
+                .drop_auth_zone_proofs()
+                .return_to_worktop("badge")
+                .try_deposit_entire_worktop_or_abort(account, None)
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&pub_key)],
+        )
+        .expect_commit_success();
+
+        self.advance_epoch(10);
+
+        (address, lsu, claim_nft)
+    }
+
+    fn advance_epoch(&mut self, by: u64) {
+        let current_epoch = self.get_current_epoch();
+        self.set_current_epoch(current_epoch.after(by).unwrap());
     }
 }

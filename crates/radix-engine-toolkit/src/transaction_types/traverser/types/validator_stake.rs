@@ -26,7 +26,7 @@ use crate::transaction_types::types::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackedValidatorStake {
     pub validator_address: ComponentAddress,
     /* Input */

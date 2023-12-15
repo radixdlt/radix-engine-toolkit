@@ -25,7 +25,7 @@ use radix_engine_interface::blueprints::consensus_manager::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrackedValidatorClaim {
     pub validator_address: ComponentAddress,
     /* Input */
