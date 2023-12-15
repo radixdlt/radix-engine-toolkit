@@ -22,7 +22,7 @@ use crate::prelude::*;
 macro_rules! define_uniffi_decimal {
     ($type: ty) => {
         paste::paste!{
-            define_uniffi_decimal!{[<$type>], $crate::prelude::[<Native $type>]}
+            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>]}
         }
     };
     ($ident: ident, $native_type: ty) => {

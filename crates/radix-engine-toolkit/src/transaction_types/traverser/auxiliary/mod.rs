@@ -15,17 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+mod encountered_entities;
+mod presented_proofs;
+mod requiring_auth;
+mod reserved_instructions;
+mod static_account_resource_movements;
+
+pub use encountered_entities::*;
+pub use presented_proofs::*;
+pub use requiring_auth::*;
+pub use reserved_instructions::*;
+pub use static_account_resource_movements::*;

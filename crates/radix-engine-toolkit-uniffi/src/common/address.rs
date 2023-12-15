@@ -183,6 +183,13 @@ impl Address {
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
     }
+
+    pub(crate) fn unsafe_from_raw(
+        node_id: NativeNodeId,
+        network_id: u8,
+    ) -> Self {
+        Self(CoreTypedNodeId::new(node_id).unwrap(), network_id)
+    }
 }
 
 impl From<Address> for NativeNodeId {

@@ -17,15 +17,14 @@
 
 use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
-use sbor::*;
-use scrypto::prelude::*;
+
 use transaction::errors::*;
 use transaction::prelude::*;
 use transaction::validation::*;
 
-use crate::instruction_visitor::core::error::InstructionVisitorError;
-use crate::instruction_visitor::core::traverser::traverse;
-use crate::instruction_visitor::visitors::transaction_type::transfer_visitor::*;
+use radix_engine::transaction::*;
+
+use crate::transaction_types::*;
 
 pub fn hash(manifest: &TransactionManifestV1) -> Result<Hash, EncodeError> {
     compile(manifest).map(scrypto::prelude::hash)
@@ -222,21 +221,15 @@ pub fn modify(
     })
 }
 
-#[allow(clippy::type_complexity)]
-pub fn parse_transfer_information(
+pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
+    crate::transaction_types::summary(manifest)
+}
+
+pub fn execution_summary(
     manifest: &TransactionManifestV1,
-    allow_lock_fee_instructions: bool,
-) -> Result<
-    Option<(
-        ComponentAddress,
-        HashMap<ComponentAddress, HashMap<ResourceAddress, Resources>>,
-    )>,
-    InstructionVisitorError,
-> {
-    let mut transfer_visitor =
-        TransferTransactionTypeVisitor::new(allow_lock_fee_instructions);
-    traverse(&manifest.instructions, &mut [&mut transfer_visitor])?;
-    Ok(transfer_visitor.output())
+    receipt: &TransactionReceipt,
+) -> Result<ExecutionSummary, TransactionTypesError> {
+    crate::transaction_types::execution_summary(manifest, receipt)
 }
 
 #[derive(Clone, Debug)]

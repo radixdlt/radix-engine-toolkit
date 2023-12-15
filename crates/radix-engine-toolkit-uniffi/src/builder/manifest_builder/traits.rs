@@ -439,7 +439,7 @@ macro_rules! impl_tuple {
         paste::paste! {
             impl<
                 $(
-                    [< A $ident >], [< B $ident >]
+                    [< A $ident >],[< B $ident >]
                 ),+
             > FromWithNameRecordContext<( $([< A $ident >],)+ )> for ( $([< B $ident >],)+ )
             where
@@ -450,7 +450,7 @@ macro_rules! impl_tuple {
                 fn from(($([< a $ident >],)+): ($([< A $ident >],)+), name_record: &NameRecord) -> Result<Self> {
                     Ok((
                         $(
-                            <[< B $ident >] as FromWithNameRecordContext<[< A $ident >]>>::from([< a $ident >], name_record)?,
+                            <[< B $ident >] as FromWithNameRecordContext<[< A $ident >]>>::from([< a $ident >],name_record)?,
                         )+
                     ))
                 }

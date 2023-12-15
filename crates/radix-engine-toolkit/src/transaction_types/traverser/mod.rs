@@ -15,17 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+//! A module for the main traverser as well as any specialized traverser used
+//! for auxiliary information or specialized for the detection of transaction
+//! types.
+
+#![allow(clippy::module_inception)]
+
+mod auxiliary;
+mod traits;
+mod traverser;
+mod types;
+
+pub use auxiliary::*;
+pub use traits::*;
+pub use traverser::*;
+pub use types::*;

@@ -15,17 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod address;
-pub mod derive;
-pub mod handler;
-pub mod information;
-pub mod instructions;
-pub mod intent;
-pub mod macros;
-pub mod manifest;
-pub mod manifest_sbor;
-pub mod notarized_transaction;
-pub mod scrypto_sbor;
-pub mod signed_intent;
-pub mod traits;
-pub mod utils;
+#[derive(Clone, Debug)]
+pub enum TransactionTypesError {
+    /// The is invalid for execution summary. This is typically because the
+    /// receipt does not have the execution trace information or due to the
+    /// transaction failing.
+    InvalidReceipt,
+}

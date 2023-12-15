@@ -140,7 +140,7 @@ macro_rules! construct_addresses {
         paste::paste! {
             $struct_ident {
                 $(
-                    $field: SerializableNodeId::from_global_address([< $field:upper >], $network_id),
+                    $field: SerializableNodeId::from_global_address([< $field:upper >],$network_id),
                 )*
             }
         }
