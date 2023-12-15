@@ -15,9 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::system::bootstrap::DEFAULT_VALIDATOR_XRD_COST;
+use radix_engine::system::bootstrap::*;
 use radix_engine::transaction::*;
 use radix_engine::vm::*;
+use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
 use radix_engine_queries::typed_substate_layout::multi_resource_pool::*;
@@ -1993,6 +1994,144 @@ fn validator_claim_transactions_are_recognized() {
                     xrd_amount: dec!(100)
                 }
             ]
+        }
+    );
+}
+
+#[test]
+fn account_deposit_settings_changes_are_recognized() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_account(false);
+
+    let manifest = ManifestBuilder::new()
+        .call_method(
+            account,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Accept,
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+            AccountSetDefaultDepositRuleInput {
+                default: DefaultDepositRule::Reject,
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+            AccountAddAuthorizedDepositorInput {
+                badge: ResourceOrNonFungible::Resource(XRD),
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+            AccountRemoveAuthorizedDepositorInput {
+                badge: ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE),
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
+                resource_address: ACCOUNT_OWNER_BADGE,
+                resource_preference: ResourcePreference::Allowed,
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
+                resource_address: ACCOUNT_OWNER_BADGE,
+                resource_preference: ResourcePreference::Disallowed,
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+            AccountSetResourcePreferenceInput {
+                resource_address: VALIDATOR_OWNER_BADGE,
+                resource_preference: ResourcePreference::Allowed,
+            },
+        )
+        .call_method(
+            account,
+            ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+            AccountRemoveResourcePreferenceInput {
+                resource_address: IDENTITY_OWNER_BADGE,
+            },
+        )
+        .build();
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(ACCOUNT_OWNER_BADGE),
+            GlobalAddress::from(VALIDATOR_OWNER_BADGE),
+            GlobalAddress::from(IDENTITY_OWNER_BADGE),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![ReservedInstruction::AccountUpdateSettings]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![]);
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::AccountDepositSettingsUpdate]
+    );
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert!(execution_summary.account_deposits.is_empty());
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::AccountDepositSettingsUpdate {
+            resource_preferences_updates: indexmap! {
+                account => indexmap! {
+                    ACCOUNT_OWNER_BADGE => Update::Set(ResourcePreference::Disallowed),
+                    VALIDATOR_OWNER_BADGE => Update::Set(ResourcePreference::Allowed),
+                    IDENTITY_OWNER_BADGE => Update::Remove,
+                }
+            },
+            deposit_mode_updates: indexmap! {
+                account => DefaultDepositRule::Reject
+            },
+            authorized_depositors_updates: indexmap! {
+                account => indexmap! {
+                    ResourceOrNonFungible::Resource(XRD) => Operation::Added,
+                    ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE) => Operation::Removed
+                }
+            },
         }
     );
 }
