@@ -156,6 +156,11 @@ pub mod execution_summary {
         // to handle the manifest summary bits of this manifest and then we can
         // move on to the other aspects.
         super::manifest_summary::on_instruction(
+            // This is the reason why we need to depend on nightly builds of
+            // rust. The manifest summary traverser takes in an array of
+            // &mut [&mut dyn ManifestSummaryCallback] and the only way to cast
+            // the individual callbacks into a dyn ManifestSummaryCallback is
+            // through nightly rust.
             &mut callbacks
                 .iter_mut()
                 .map(|item| *item as &mut dyn ManifestSummaryCallback)
@@ -202,6 +207,11 @@ pub mod execution_summary {
         instructions_count: usize,
     ) {
         super::manifest_summary::on_finish(
+            // This is the reason why we need to depend on nightly builds of
+            // rust. The manifest summary traverser takes in an array of
+            // &mut [&mut dyn ManifestSummaryCallback] and the only way to cast
+            // the individual callbacks into a dyn ManifestSummaryCallback is
+            // through nightly rust.
             &mut callbacks
                 .iter_mut()
                 .map(|item| *item as &mut dyn ManifestSummaryCallback)
