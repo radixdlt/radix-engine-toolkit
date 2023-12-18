@@ -204,7 +204,10 @@ impl AccountSettingsUpdateDetector {
                                 ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
                                 ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
                                 /* Default Deposit Rule */
-                                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT
+                                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+                                /* Locking of fees */
+                                ACCOUNT_LOCK_FEE_IDENT,
+                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed,
