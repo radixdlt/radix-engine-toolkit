@@ -148,7 +148,7 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dbg!(&execution_summary.detailed_classification[0]),
         DetailedManifestClass::Transfer {
             is_one_to_one: true
         }

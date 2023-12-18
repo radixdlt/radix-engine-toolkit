@@ -20,12 +20,14 @@ use transaction::prelude::*;
 
 use radix_engine_interface::blueprints::account::*;
 
+use crate::contains;
 use crate::statics::*;
 use crate::transaction_types::*;
 use crate::utils::*;
 
 pub struct TransferDetector {
     is_valid: bool,
+    is_first_instruction_lock_fee: bool,
     instructions_match_simple_transfer: bool,
 }
 
@@ -49,18 +51,67 @@ impl ManifestSummaryCallback for TransferDetector {
         instruction: &InstructionV1,
         instruction_index: usize,
     ) {
+        if instruction_index == 0 {
+            self.is_first_instruction_lock_fee = matches!(
+                instruction,
+                InstructionV1::CallMethod {
+                    address,
+                    method_name,
+                    ..
+                } if is_account(address)
+                    && contains!(method_name => [
+                        ACCOUNT_LOCK_FEE_IDENT,
+                        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                    ])
+            );
+        }
+        let offset = if self.is_first_instruction_lock_fee {
+            1
+        } else {
+            0
+        };
+
         /* Simple transfer accounting */
         self.instructions_match_simple_transfer &= (instruction_index == 0
-            && matches!(instruction, InstructionV1::CallMethod { address, method_name, .. } if is_account(address) && ACCOUNT_WITHDRAW_METHODS.contains(method_name)))
-            || (instruction_index == 1
+            && matches!(
+                instruction,
+                InstructionV1::CallMethod {
+                    address,
+                    method_name,
+                    ..
+                } if is_account(address)
+                    && contains!(method_name => [
+                        ACCOUNT_LOCK_FEE_IDENT,
+                        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                    ])
+            ))
+            || (instruction_index == offset
+                && matches!(instruction, InstructionV1::CallMethod {
+                    address,
+                    method_name,
+                    ..
+                } if is_account(address)
+                    && ACCOUNT_WITHDRAW_METHODS.contains(method_name)
+                ))
+            || (instruction_index == 1 + offset
                 && matches!(
                     instruction,
                     InstructionV1::TakeFromWorktop { .. }
                 ))
-            || (instruction_index == 2
+            || (instruction_index == 2 + offset
                 && matches!(
                     instruction,
-                    InstructionV1::CallMethod { address, method_name, .. } if is_account(address) && ACCOUNT_DEPOSIT_METHODS.contains(method_name)
+                    InstructionV1::CallMethod {
+                        address,
+                        method_name,
+                        ..
+                    } if is_account(address)
+                        && ACCOUNT_DEPOSIT_METHODS.contains(method_name
+                    )
                 ));
 
         /* Rules */
@@ -105,11 +156,15 @@ impl ManifestSummaryCallback for TransferDetector {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => false,
-        }
+        };
     }
 
     fn on_finish(&mut self, instructions_count: usize) {
-        if instructions_count != 3 {
+        if self.is_first_instruction_lock_fee {
+            if instructions_count != 4 {
+                self.instructions_match_simple_transfer = false
+            }
+        } else if instructions_count != 3 {
             self.instructions_match_simple_transfer = false
         }
         if instructions_count == 0 {
@@ -186,6 +241,7 @@ impl Default for TransferDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            is_first_instruction_lock_fee: false,
             instructions_match_simple_transfer: true,
         }
     }
