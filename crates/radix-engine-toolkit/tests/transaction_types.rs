@@ -63,6 +63,103 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
 }
 
 #[test]
+fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
+) {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+
+    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account2) = test_runner.new_account(false);
+
+    let manifest = ManifestBuilder::new()
+        .lock_fee(account1, 10)
+        .withdraw_from_account(account1, XRD, 10)
+        .take_from_worktop(XRD, 10, "xrd")
+        .try_deposit_or_abort(account2, None, "xrd")
+        .build();
+
+    // Act
+    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        0
+    );
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(account1),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account2),
+        ]
+    );
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account1]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+    assert_eq_three!(
+        manifest_summary.reserved_instructions,
+        execution_summary.reserved_instructions,
+        indexset![ReservedInstruction::AccountLockFee]
+    );
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        2
+    );
+
+    assert_eq!(
+        manifest_summary.accounts_withdrawn_from,
+        indexset![account1]
+    );
+    assert_eq!(
+        manifest_summary.accounts_deposited_into,
+        indexset![account2]
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::Transfer, ManifestClass::General]
+    );
+
+    assert_eq!(
+        execution_summary.account_withdraws,
+        indexmap! {
+            account1 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(
+        execution_summary.account_deposits,
+        indexmap! {
+            account2 => vec![
+                ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
+            ]
+        }
+    );
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert!(matches!(
+        execution_summary.detailed_classification[0],
+        DetailedManifestClass::Transfer {
+            is_one_to_one: true
+        }
+    ));
+    assert!(matches!(
+        execution_summary.detailed_classification[1],
+        DetailedManifestClass::General
+    ));
+}
+
+#[test]
 fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();

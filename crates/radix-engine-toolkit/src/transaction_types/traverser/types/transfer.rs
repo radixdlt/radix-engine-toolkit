@@ -147,37 +147,13 @@ impl TransferDetector {
                                 ACCOUNT_DEPOSIT_BATCH_IDENT,
                                 ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                                 ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
-                            ],
-                            disallowed: &[
-                                /* Securification */
-                                ACCOUNT_SECURIFY_IDENT,
-                                /* Direct Burn from Account */
-                                ACCOUNT_BURN_IDENT,
-                                ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
-                                /* Manipulation of the Authorized Depositors list */
-                                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                                /* Deposit or Refund Methods */
-                                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
-                                /* Manipulation of the Resource Preferences */
-                                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                                ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                                ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
-                                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                                /* Deposit or Refund */
-                                ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
-                                /* All fee locking methods */
+                                /* Account Lock Fees */
                                 ACCOUNT_LOCK_FEE_IDENT,
                                 ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
                                 ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
                                 ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
-                                /* All proof creation methods */
-                                ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
-                                ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
                             ],
+                            disallowed: &[],
                             default: FnRule::Disallowed,
                         },
                         /* Disallowed */

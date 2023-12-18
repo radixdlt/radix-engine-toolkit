@@ -117,6 +117,11 @@ impl GeneralDetector {
                                 /* All proof creation methods */
                                 ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT,
                                 ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT,
+                                /* Locking of fees */
+                                ACCOUNT_LOCK_FEE_IDENT,
+                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed,
