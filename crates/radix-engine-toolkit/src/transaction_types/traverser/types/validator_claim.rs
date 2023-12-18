@@ -199,11 +199,17 @@ impl ValidatorClaimDetector {
                             allowed: &[
                                 /* All withdraw methods */
                                 ACCOUNT_WITHDRAW_IDENT,
+                                ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
                                 /* All deposit methods */
                                 ACCOUNT_DEPOSIT_IDENT,
                                 ACCOUNT_DEPOSIT_BATCH_IDENT,
                                 ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
                                 ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                                /* Lock Fees */
+                                ACCOUNT_LOCK_FEE_IDENT,
+                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
                             ],
                             disallowed: &[],
                             default: FnRule::Disallowed,
