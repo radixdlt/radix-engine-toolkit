@@ -38,6 +38,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
         ReservedInstructionsDetector::default();
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
+    let mut trusted_worktop = TrustedWorktop::default();
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -57,6 +58,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut requiring_auth_detector,
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
+            &mut trusted_worktop,
             &mut general_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
