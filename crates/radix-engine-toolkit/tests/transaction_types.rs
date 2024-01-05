@@ -157,6 +157,8 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
         execution_summary.detailed_classification[1],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -252,6 +254,8 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         execution_summary.detailed_classification[1],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -352,6 +356,8 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         execution_summary.detailed_classification[1],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -434,6 +440,8 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         }
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -517,6 +525,8 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
         }
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -599,6 +609,8 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
         }
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -677,6 +689,8 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
         execution_summary.detailed_classification[0],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -755,6 +769,8 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
         execution_summary.detailed_classification[0],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -828,6 +844,8 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
         execution_summary.detailed_classification[0],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -906,6 +924,8 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
         execution_summary.detailed_classification[0],
         DetailedManifestClass::General
     ));
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1136,6 +1156,8 @@ fn pool_contribution_transactions_are_recognized() {
             },
         ]
     );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1349,6 +1371,8 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
             }
         ]
     );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1607,6 +1631,8 @@ fn pool_redemption_transactions_are_recognized() {
             },
         ]
     );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1725,6 +1751,8 @@ fn validator_stake_transactions_are_recognized() {
             ]
         }
     );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1811,6 +1839,15 @@ fn validator_unstake_transactions_are_recognized() {
         indexset![ManifestClass::ValidatorUnstake]
     );
 
+    let nf_id_local_1 = NonFungibleLocalId::from_str(
+        "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}",
+    )
+    .unwrap();
+    let nf_id_local_2 = NonFungibleLocalId::from_str(
+        "{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}",
+    )
+    .unwrap();
+
     assert_eq!(
         execution_summary.account_withdraws,
         indexmap! {
@@ -1839,9 +1876,7 @@ fn validator_unstake_transactions_are_recognized() {
                         },
                         predicted_ids: Predicted {
                             value: indexset![
-                                NonFungibleLocalId::from_str(
-                                    "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}"
-                                ).unwrap()
+                                nf_id_local_1.clone()
                             ],
                             instruction_index: 6
                         },
@@ -1856,9 +1891,7 @@ fn validator_unstake_transactions_are_recognized() {
                         },
                         predicted_ids: Predicted {
                             value: indexset![
-                                NonFungibleLocalId::from_str(
-                                    "{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}"
-                                ).unwrap()
+                                nf_id_local_2.clone()
                             ],
                             instruction_index: 6
                         },
@@ -1878,25 +1911,27 @@ fn validator_unstake_transactions_are_recognized() {
                     liquid_stake_unit_address: stake_unit1,
                     liquid_stake_unit_amount: dec!(100),
                     claim_nft_address: claim_nft1,
-                    claim_nft_ids: indexset![
-                        NonFungibleLocalId::from_str(
-                            "{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}"
-                        ).unwrap()
-                    ]
+                    claim_nft_ids: indexset![nf_id_local_1.clone()]
                 },
                 TrackedValidatorUnstake {
                     validator_address: validator2,
                     liquid_stake_unit_address: stake_unit2,
                     liquid_stake_unit_amount: dec!(100),
                     claim_nft_address: claim_nft2,
-                    claim_nft_ids: indexset![
-                        NonFungibleLocalId::from_str(
-                            "{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}"
-                        ).unwrap()
-                    ]
+                    claim_nft_ids: indexset![nf_id_local_2.clone()]
                 }
             ]
         }
+    );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 2);
+    assert_eq!(
+        execution_summary.newly_created_non_fungibles[0],
+        NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)
+    );
+    assert_eq!(
+        execution_summary.newly_created_non_fungibles[1],
+        NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)
     );
 }
 
@@ -2013,6 +2048,15 @@ fn validator_claim_transactions_are_recognized() {
         indexset![ManifestClass::ValidatorClaim]
     );
 
+    let nf_id_local_1 = NonFungibleLocalId::from_str(
+        "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}",
+    )
+    .unwrap();
+    let nf_id_local_2 = NonFungibleLocalId::from_str(
+        "{03c4420890c75309-ba0fc0af2b23105d-70c7912c61912798-ff789c9f0d3a0ac5}",
+    )
+    .unwrap();
+
     assert_eq!(
         execution_summary.account_withdraws,
         indexmap! {
@@ -2023,9 +2067,7 @@ fn validator_claim_transactions_are_recognized() {
                         amount: dec!(1),
                         predicted_ids: Predicted {
                             value: indexset![
-                                NonFungibleLocalId::from_str(
-                                    "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}"
-                                ).unwrap()
+                                nf_id_local_1.clone()
                             ],
                             instruction_index: 0
                         },
@@ -2037,9 +2079,7 @@ fn validator_claim_transactions_are_recognized() {
                         amount: dec!(1),
                         predicted_ids: Predicted {
                             value: indexset![
-                                NonFungibleLocalId::from_str(
-                                    "{03c4420890c75309-ba0fc0af2b23105d-70c7912c61912798-ff789c9f0d3a0ac5}"
-                                ).unwrap()
+                                nf_id_local_2.clone()
                             ],
                             instruction_index: 1
                         },
@@ -2073,25 +2113,27 @@ fn validator_claim_transactions_are_recognized() {
                 TrackedValidatorClaim {
                     validator_address: validator1,
                     claim_nft_address: claim_nft1,
-                    claim_nft_ids: indexset![
-                        NonFungibleLocalId::from_str(
-                            "{88187e7fec84a59c-9713f20d4bdd245a-90c9c04347db595f-07a038d384ce12a4}"
-                        ).unwrap()
-                    ],
+                    claim_nft_ids: indexset![nf_id_local_1.clone()],
                     xrd_amount: dec!(100)
                 },
                 TrackedValidatorClaim {
                     validator_address: validator2,
                     claim_nft_address: claim_nft2,
-                    claim_nft_ids: indexset![
-                        NonFungibleLocalId::from_str(
-                            "{03c4420890c75309-ba0fc0af2b23105d-70c7912c61912798-ff789c9f0d3a0ac5}"
-                        ).unwrap()
-                    ],
+                    claim_nft_ids: indexset![nf_id_local_2.clone()],
                     xrd_amount: dec!(100)
                 }
             ]
         }
+    );
+
+    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 2);
+    assert_eq!(
+        execution_summary.newly_created_non_fungibles[0],
+        NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)
+    );
+    assert_eq!(
+        execution_summary.newly_created_non_fungibles[1],
+        NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)
     );
 }
 
