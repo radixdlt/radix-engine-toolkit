@@ -375,6 +375,32 @@ impl<'r> TransactionTypesReceipt<'r> {
             )
             .collect()
     }
+
+    pub fn new_nonfungibles(&self) -> Vec<NonFungibleGlobalId> {
+        let mut newly_created_non_fungibles = Vec::new();
+        for (node_id, states_to_update) in self.commit_result.state_updates()
+        {
+            if node_id.is_global_non_fungible_resource_manager() {
+                for (_, states) in states_to_update {
+                    for (substate_key, _) in states {
+                        if let Ok(payload) =
+                            NonFungibleResourceManagerDataKeyPayload::try_from(
+                                &substate_key,
+                            )
+                        {
+                            newly_created_non_fungibles.push(
+                                NonFungibleGlobalId::new(
+                                    node_id.try_into().unwrap(),
+                                    payload.content,
+                                ),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        newly_created_non_fungibles
+    }
 }
 
 impl<'r> Deref for TransactionTypesReceipt<'r> {

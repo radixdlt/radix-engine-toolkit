@@ -154,7 +154,7 @@ pub fn execution_summary(
         ReservedInstructionsDetector::default();
     let mut account_resource_movements_detector =
         AccountResourceMovementsDetector::default();
-    let mut newly_created_non_fungibles = Vec::new();
+    let newly_created_non_fungibles = receipt.new_nonfungibles();
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -301,29 +301,6 @@ pub fn execution_summary(
         storage_expansion_cost: receipt.fee_summary.total_storage_cost_in_xrd,
         royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
     };
-
-    for (node_id, states_to_update) in
-        receipt.expect_commit_ignore_outcome().state_updates()
-    {
-        if node_id.is_global_non_fungible_resource_manager() {
-            for (_, states) in states_to_update {
-                for (substate_key, _) in states {
-                    if let Ok(payload) =
-                        NonFungibleResourceManagerDataKeyPayload::try_from(
-                            &substate_key,
-                        )
-                    {
-                        newly_created_non_fungibles.push(
-                            NonFungibleGlobalId::new(
-                                node_id.try_into().unwrap(),
-                                payload.content,
-                            ),
-                        );
-                    }
-                }
-            }
-        }
-    }
 
     Ok(ExecutionSummary {
         account_withdraws,
