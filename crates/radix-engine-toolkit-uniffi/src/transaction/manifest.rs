@@ -699,6 +699,7 @@ pub struct ExecutionSummary {
     pub fee_locks: FeeLocks,
     pub fee_summary: FeeSummary,
     pub detailed_classification: Vec<DetailedManifestClass>,
+    pub newly_created_non_fungibles: Vec<Arc<NonFungibleGlobalId>>,
 }
 
 impl ExecutionSummary {
@@ -790,6 +791,20 @@ impl ExecutionSummary {
                 .into_iter()
                 .map(|item| {
                     DetailedManifestClass::from_native(item, network_id)
+                })
+                .collect(),
+            newly_created_non_fungibles: native
+                .newly_created_non_fungibles
+                .into_iter()
+                .map(|item| {
+                    NonFungibleGlobalId::from_parts(
+                        Arc::new(Address::unsafe_from_raw(
+                            item.resource_address().into_node_id(),
+                            network_id,
+                        )),
+                        NonFungibleLocalId::from(item.local_id().clone()),
+                    )
+                    .unwrap()
                 })
                 .collect(),
         }

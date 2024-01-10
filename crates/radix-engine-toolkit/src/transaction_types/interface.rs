@@ -19,7 +19,6 @@
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
 
-use radix_engine::blueprints::resource::*;
 use radix_engine::prelude::*;
 use radix_engine::transaction::*;
 use transaction::prelude::*;
