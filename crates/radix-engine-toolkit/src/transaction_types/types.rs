@@ -377,29 +377,62 @@ impl<'r> TransactionTypesReceipt<'r> {
     }
 
     pub fn new_nonfungibles(&self) -> Vec<NonFungibleGlobalId> {
-        let mut newly_created_non_fungibles = Vec::new();
-        for (node_id, states_to_update) in self.commit_result.state_updates()
+        let mut minted_id_list = Vec::new();
+        for (event_type, event_payload) in
+            self.commit_result.application_events.iter()
         {
-            if node_id.is_global_non_fungible_resource_manager() {
-                for (_, states) in states_to_update {
-                    for (substate_key, _) in states {
-                        if let Ok(payload) =
-                            NonFungibleResourceManagerDataKeyPayload::try_from(
-                                &substate_key,
-                            )
-                        {
-                            newly_created_non_fungibles.push(
-                                NonFungibleGlobalId::new(
-                                    node_id.try_into().unwrap(),
-                                    payload.content,
-                                ),
-                            );
+            match event_type.0 {
+                Emitter::Method(node_id, ..) => {
+                    if node_id.entity_type().unwrap()
+                        == EntityType::GlobalNonFungibleResourceManager
+                        && event_type.1
+                            == MintNonFungibleResourceEvent::EVENT_NAME
+                    {
+                        let event: MintNonFungibleResourceEvent =
+                            scrypto_decode(event_payload).unwrap();
+                        let address: ResourceAddress =
+                            node_id.try_into().unwrap();
+
+                        for local_id in event.ids {
+                            minted_id_list.push(NonFungibleGlobalId::new(
+                                address, local_id,
+                            ));
                         }
                     }
                 }
+                _ => (),
             }
         }
-        newly_created_non_fungibles
+
+        let mut burnt_id_list = Vec::new();
+        for (event_type, event_payload) in
+            self.commit_result.application_events.iter()
+        {
+            match event_type.0 {
+                Emitter::Method(node_id, ..) => {
+                    if node_id.entity_type().unwrap()
+                        == EntityType::GlobalNonFungibleResourceManager
+                        && event_type.1
+                            == BurnNonFungibleResourceEvent::EVENT_NAME
+                    {
+                        let event: BurnNonFungibleResourceEvent =
+                            scrypto_decode(event_payload).unwrap();
+                        let address: ResourceAddress =
+                            node_id.try_into().unwrap();
+
+                        for local_id in event.ids {
+                            burnt_id_list.push(NonFungibleGlobalId::new(
+                                address, local_id,
+                            ));
+                        }
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        minted_id_list.retain(|item| !burnt_id_list.contains(item));
+        minted_id_list
     }
 }
 
