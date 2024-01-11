@@ -109,7 +109,7 @@ impl TransactionManifest {
 
         core_manifest_execution_summary(&native, &receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
-            .map(|summary| ExecutionSummary::from_native(summary, network_id))
+            .map(|summary| ExecutionSummary::from_native(summary, network_id))?
     }
 }
 
@@ -703,8 +703,8 @@ pub struct ExecutionSummary {
 }
 
 impl ExecutionSummary {
-    pub fn from_native(native: CoreExecutionSummary, network_id: u8) -> Self {
-        Self {
+    pub fn from_native(native: CoreExecutionSummary, network_id: u8) -> Result<Self> {
+        Ok(Self {
             account_withdraws: native
                 .account_withdraws
                 .into_iter()
@@ -804,10 +804,9 @@ impl ExecutionSummary {
                         )),
                         NonFungibleLocalId::from(item.local_id().clone()),
                     )
-                    .unwrap()
                 })
-                .collect(),
-        }
+                .collect::<Result<Vec<_>>>()?,
+        })
     }
 }
 
