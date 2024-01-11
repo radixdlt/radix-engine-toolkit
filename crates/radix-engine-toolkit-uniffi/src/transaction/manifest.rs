@@ -703,7 +703,10 @@ pub struct ExecutionSummary {
 }
 
 impl ExecutionSummary {
-    pub fn from_native(native: CoreExecutionSummary, network_id: u8) -> Result<Self> {
+    pub fn from_native(
+        native: CoreExecutionSummary,
+        network_id: u8,
+    ) -> Result<Self> {
         Ok(Self {
             account_withdraws: native
                 .account_withdraws
