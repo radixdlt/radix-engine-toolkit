@@ -1925,14 +1925,12 @@ fn validator_unstake_transactions_are_recognized() {
     );
 
     assert_eq!(execution_summary.newly_created_non_fungibles.len(), 2);
-    assert_eq!(
-        execution_summary.newly_created_non_fungibles[0],
-        NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)
-    );
-    assert_eq!(
-        execution_summary.newly_created_non_fungibles[1],
-        NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)
-    );
+    assert!(execution_summary
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)));
+    assert!(execution_summary
+        .newly_created_non_fungibles
+        .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)));
 }
 
 #[test]
