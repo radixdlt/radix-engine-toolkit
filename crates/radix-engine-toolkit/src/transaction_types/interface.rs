@@ -153,6 +153,7 @@ pub fn execution_summary(
         ReservedInstructionsDetector::default();
     let mut account_resource_movements_detector =
         AccountResourceMovementsDetector::default();
+    let newly_created_non_fungibles = receipt.new_non_fungibles();
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -312,5 +313,6 @@ pub fn execution_summary(
         fee_locks,
         fee_summary,
         detailed_classification,
+        newly_created_non_fungibles,
     })
 }

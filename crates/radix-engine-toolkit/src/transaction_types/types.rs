@@ -89,6 +89,8 @@ pub struct ExecutionSummary {
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     pub detailed_classification: Vec<DetailedManifestClass>,
+    /// List of newly created Non-Fungibles during this transaction.
+    pub newly_created_non_fungibles: HashSet<NonFungibleGlobalId>,
 }
 
 /// The classification process classifies manifests into classes. The following
@@ -372,6 +374,53 @@ impl<'r> TransactionTypesReceipt<'r> {
                     .map(|item| GlobalAddress::from(*item)),
             )
             .collect()
+    }
+
+    pub fn new_non_fungibles(&self) -> HashSet<NonFungibleGlobalId> {
+        let mut minted_id_list = HashSet::new();
+        let mut burnt_id_list = HashSet::new();
+        for (event_type, event_payload) in
+            self.commit_result.application_events.iter()
+        {
+            match event_type.0 {
+                Emitter::Method(node_id, ..) => {
+                    match ResourceAddress::try_from(node_id.as_bytes()) {
+                        Ok(address) if !address.is_fungible() => {
+                            if event_type.1
+                                == MintNonFungibleResourceEvent::EVENT_NAME
+                            {
+                                let event: MintNonFungibleResourceEvent =
+                                    scrypto_decode(event_payload).unwrap();
+                                for local_id in event.ids {
+                                    minted_id_list.insert(
+                                        NonFungibleGlobalId::new(
+                                            address, local_id,
+                                        ),
+                                    );
+                                }
+                            } else if event_type.1
+                                == BurnNonFungibleResourceEvent::EVENT_NAME
+                            {
+                                let event: BurnNonFungibleResourceEvent =
+                                    scrypto_decode(event_payload).unwrap();
+                                for local_id in event.ids {
+                                    burnt_id_list.insert(
+                                        NonFungibleGlobalId::new(
+                                            address, local_id,
+                                        ),
+                                    );
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        minted_id_list.retain(|item| !burnt_id_list.contains(item));
+        minted_id_list
     }
 }
 
