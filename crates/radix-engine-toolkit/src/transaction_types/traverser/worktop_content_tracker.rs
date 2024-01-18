@@ -47,9 +47,7 @@ impl From<ResourceIndicator> for WorktopContentItem {
             ResourceSpecifier::Amount(_, value) => {
                 WorktopContentItem::Amount(value)
             }
-            ResourceSpecifier::Ids(_, value) => {
-                WorktopContentItem::Ids(value)
-            }
+            ResourceSpecifier::Ids(_, value) => WorktopContentItem::Ids(value),
         }
     }
 }
@@ -119,12 +117,40 @@ impl WorktopContent {
     }
 }
 
+pub trait WorktopContentTrackerObserver {
+    fn on_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+        instruction_index: usize,
+        worktop_content: &Vec<WorktopContent>,
+    );
+}
+
 #[derive(Default)]
-pub struct WorktopContentTracker {
+pub struct WorktopContentTracker<'a, T: WorktopContentTrackerObserver> {
+    subscribers: Vec<&'a mut T>,
     state_per_instruction: Vec<WorktopContent>,
 }
 
-impl WorktopContentTracker {
+impl<'a, T: WorktopContentTrackerObserver> WorktopContentTracker<'a, T> {
+    pub fn register_subscriber(&mut self, subscriber: &'a mut T) {
+        self.subscribers.push(subscriber);
+    }
+
+    fn notify_subscribers(
+        &mut self,
+        instruction: &InstructionV1,
+        instruction_index: usize,
+    ) {
+        for subscriber in &mut self.subscribers {
+            subscriber.on_instruction(
+                instruction,
+                instruction_index,
+                &self.state_per_instruction,
+            )
+        }
+    }
+
     fn add_new_instruction(&mut self) {
         let new_item = if let Some(item) = self.state_per_instruction.last() {
             item.clone()
@@ -136,13 +162,18 @@ impl WorktopContentTracker {
     }
 
     pub fn get_results(&mut self) -> Vec<WorktopContent> {
-        self.state_per_instruction.clone()
+        self.state_per_instruction.to_owned()
     }
 }
 
-impl ManifestSummaryCallback for WorktopContentTracker {}
+impl<'a, T: WorktopContentTrackerObserver> ManifestSummaryCallback
+    for WorktopContentTracker<'a, T>
+{
+}
 
-impl ExecutionSummaryCallback for WorktopContentTracker {
+impl<'a, T: WorktopContentTrackerObserver> ExecutionSummaryCallback
+    for WorktopContentTracker<'a, T>
+{
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -198,6 +229,8 @@ impl ExecutionSummaryCallback for WorktopContentTracker {
             }
             _ => (),
         }
+
+        self.notify_subscribers(instruction, instruction_index);
     }
 
     fn on_account_withdraw(

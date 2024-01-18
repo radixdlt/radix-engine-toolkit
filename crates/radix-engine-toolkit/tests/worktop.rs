@@ -39,14 +39,14 @@ fn worktop_simple() {
     let (_, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.worktop_content.len(), 4);
-    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
-    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.worktop_content[2].content.get(&address).is_none());
-    assert!(execution_summary.worktop_content[3].content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
+    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.trusted_worktop_content[2].0.content.get(&address).is_none());
+    assert!(execution_summary.trusted_worktop_content[3].0.content.get(&address).is_none());
 
     println!("worktop content:");
-    for (i, val) in execution_summary.worktop_content.iter().enumerate() {
+    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
         println!("instruction {}: {:?}", i, val);
     }
 }
@@ -67,14 +67,14 @@ fn worktop_simple2() {
     let (_, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.worktop_content.len(), 4);
-    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
-    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.worktop_content[2].content.get(&address).is_none()); // automatically inserted instructino TakeAllFromWorktop
-    assert!(execution_summary.worktop_content[3].content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
+    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.trusted_worktop_content[2].0.content.get(&address).is_none()); // automatically inserted instructino TakeAllFromWorktop
+    assert!(execution_summary.trusted_worktop_content[3].0.content.get(&address).is_none());
 
     println!("\nworktop content:");
-    for (i, val) in execution_summary.worktop_content.iter().enumerate() {
+    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
         println!("instruction {}: {:?}", i, val);
     }
 }
@@ -97,14 +97,14 @@ fn worktop_simple3() {
     let (_, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.worktop_content.len(), 5);
-    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
-    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert_eq!(execution_summary.worktop_content[2].content.get(&address).unwrap().amount().unwrap(), dec!(4));
-    assert_eq!(execution_summary.worktop_content[3].content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content.len(), 5);
+    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
+    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert_eq!(execution_summary.trusted_worktop_content[2].0.content.get(&address).unwrap().amount().unwrap(), dec!(4));
+    assert_eq!(execution_summary.trusted_worktop_content[3].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
     println!("\nworktop content:");
-    for (i, val) in execution_summary.worktop_content.iter().enumerate() {
+    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
         println!("instruction {}: {:?}", i, val);
     }
 }

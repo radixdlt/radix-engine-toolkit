@@ -39,11 +39,6 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
 
-    // trusted worktop
-    let mut worktop_content_tracker = WorktopContentTracker::default();
-//    let mut worktop_action = WorktopActionPublisher::new();
-//    worktop_action.register_subscriber(&mut worktop_content_tracker);
-
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -62,7 +57,6 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut requiring_auth_detector,
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
-            //&mut worktop_action,
             &mut general_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
@@ -163,9 +157,9 @@ pub fn execution_summary(
 
     // trusted worktop
     let mut worktop_content_tracker = WorktopContentTracker::default();
-    // let mut worktop_action = WorktopActionPublisher::new();
-    // worktop_action.register_subscriber(&mut trusted_worktop);
-    
+    let mut trusted_worktop = TrustedWorktop::default();
+    worktop_content_tracker.register_subscriber(&mut trusted_worktop);
+
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -313,6 +307,13 @@ pub fn execution_summary(
         royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
     };
 
+    let trusted_worktop_content =
+        worktop_content_tracker.get_results()
+            .iter()
+            .enumerate()
+            .map(|(idx, item)| (item.clone(), trusted_worktop.is_worktop_trusted(idx).unwrap()))
+            .collect::<Vec<(WorktopContent, bool)>>();
+
     Ok(ExecutionSummary {
         account_withdraws,
         account_deposits,
@@ -326,6 +327,6 @@ pub fn execution_summary(
         fee_summary,
         detailed_classification,
         newly_created_non_fungibles,
-        worktop_content: worktop_content_tracker.get_results(),
+        trusted_worktop_content,
     })
 }
