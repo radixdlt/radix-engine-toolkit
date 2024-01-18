@@ -21,7 +21,7 @@ use scrypto::prelude::*;
 use std::ops::{AddAssign, Deref, SubAssign};
 use transaction::prelude::*;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum WorktopContentItem {
     Amount(Decimal),
     Ids(IndexSet<NonFungibleLocalId>),
@@ -52,7 +52,7 @@ impl From<ResourceIndicator> for WorktopContentItem {
     }
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Default, Debug, PartialEq)]
 pub struct WorktopContent {
     pub content: IndexMap<ResourceAddress, WorktopContentItem>,
 }

@@ -23,26 +23,31 @@ use transaction::manifest::ast::Instruction;
 use transaction::prelude::*;
 
 use radix_engine::system::system_modules::execution_trace::*;
+use radix_engine_common::prelude::rust::sync::Arc;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
-use radix_engine_common::prelude::rust::sync::Arc;
 
 use crate::transaction_types::*;
 use crate::utils::*;
 
-
 #[derive(Default)]
 pub struct TrustedWorktop {
-    trusted_state_per_instruction: Vec<bool>
+    trusted_state_per_instruction: Vec<bool>,
 }
 
 impl TrustedWorktop {
+    fn add_new_instruction(&mut self, trusted: bool) {
+        self.trusted_state_per_instruction.push(trusted);
+    }
+
     pub fn get_results(&self) -> Vec<bool> {
         self.trusted_state_per_instruction.to_owned()
     }
 
     pub fn is_worktop_trusted(&self, instruction_index: usize) -> Option<bool> {
-        self.trusted_state_per_instruction.get(instruction_index).map(|value| *value)
+        self.trusted_state_per_instruction
+            .get(instruction_index)
+            .map(|value| *value)
     }
 }
 
@@ -53,8 +58,57 @@ impl WorktopContentTrackerObserver for TrustedWorktop {
         instruction_index: usize,
         worktop_content: &Vec<WorktopContent>,
     ) {
-        self.trusted_state_per_instruction.push(false);
+        assert_eq!(self.trusted_state_per_instruction.len(), instruction_index);
+
+        match instruction {
+            InstructionV1::TakeAllFromWorktop { .. }
+            | InstructionV1::TakeFromWorktop { .. }
+            | InstructionV1::TakeNonFungiblesFromWorktop { .. } => {
+                self.add_new_instruction(true)
+            }
+
+            InstructionV1::ReturnToWorktop { .. } => {
+                self.add_new_instruction(false)
+            }
+
+            InstructionV1::AssertWorktopContainsAny { .. }
+            | InstructionV1::AssertWorktopContains { .. }
+            | InstructionV1::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV1::PopFromAuthZone
+            | InstructionV1::PushToAuthZone { .. }
+            | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
+            | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
+            | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
+            | InstructionV1::DropAuthZoneProofs
+            | InstructionV1::DropAuthZoneRegularProofs
+            | InstructionV1::DropAuthZoneSignatureProofs
+            | InstructionV1::CreateProofFromBucketOfAmount { .. }
+            | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
+            | InstructionV1::CreateProofFromBucketOfAll { .. }
+            | InstructionV1::BurnResource { .. }
+            | InstructionV1::CloneProof { .. }
+            | InstructionV1::DropProof { .. }
+            | InstructionV1::DropNamedProofs
+            | InstructionV1::DropAllProofs
+            | InstructionV1::AllocateGlobalAddress { .. } => {
+                self.add_new_instruction(true)
+            }
+
+            InstructionV1::CallFunction { .. }
+            | InstructionV1::CallMethod { .. }
+            | InstructionV1::CallRoyaltyMethod { .. }
+            | InstructionV1::CallMetadataMethod { .. }
+            | InstructionV1::CallRoleAssignmentMethod { .. }
+            | InstructionV1::CallDirectVaultMethod { .. } => {
+                if instruction_index == 0 {
+                    self.add_new_instruction(true)
+                } else {
+                    self.add_new_instruction(
+                        worktop_content[instruction_index]
+                            == worktop_content[instruction_index - 1],
+                    );
+                }
+            }
+        }
     }
 }
-
-
