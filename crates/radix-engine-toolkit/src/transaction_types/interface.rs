@@ -38,7 +38,11 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
         ReservedInstructionsDetector::default();
     let mut account_resource_movements_detector =
         StaticAccountResourceMovementsDetector::default();
+
+    // trusted worktop
     let mut trusted_worktop = TrustedWorktop::default();
+    let mut worktop_action = WorktopActionPublisher::new();
+    worktop_action.register_subscriber(&mut trusted_worktop);
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -58,7 +62,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut requiring_auth_detector,
             &mut reserved_instructions_detector,
             &mut account_resource_movements_detector,
-            &mut trusted_worktop,
+            //&mut worktop_action,
             &mut general_transaction_detector,
             &mut transfer_transaction_detector,
             &mut pool_contribution_detector,
@@ -157,6 +161,11 @@ pub fn execution_summary(
         AccountResourceMovementsDetector::default();
     let newly_created_non_fungibles = receipt.new_non_fungibles();
 
+    // trusted worktop
+    let mut trusted_worktop = TrustedWorktop::default();
+    // let mut worktop_action = WorktopActionPublisher::new();
+    // worktop_action.register_subscriber(&mut trusted_worktop);
+    
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -183,6 +192,7 @@ pub fn execution_summary(
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
+            &mut trusted_worktop,
         ],
         manifest,
         &receipt,
@@ -316,5 +326,6 @@ pub fn execution_summary(
         fee_summary,
         detailed_classification,
         newly_created_non_fungibles,
+        worktop_content: trusted_worktop.get_results(),
     })
 }
