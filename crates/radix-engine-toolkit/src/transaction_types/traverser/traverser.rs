@@ -323,6 +323,7 @@ pub mod execution_summary {
                 instruction_index,
                 &inputs,
                 &outputs,
+                &bucket_tracker,
             )
         });
     }

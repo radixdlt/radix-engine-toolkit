@@ -120,6 +120,7 @@ impl<'a, T: WorktopActionSubscriber> ExecutionSummaryCallback for WorktopActionP
         instruction_index: usize,
         _input_resources: &[ResourceSpecifier],
         _output_resources: &[ResourceSpecifier],
+        _bucket_list: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
         self.instruction_idx = instruction_index;
 

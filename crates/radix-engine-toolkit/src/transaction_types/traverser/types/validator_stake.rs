@@ -142,6 +142,7 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
         _: usize,
         input_resources: &[ResourceSpecifier],
         output_resources: &[ResourceSpecifier],
+        _bucket_list: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
         match instruction {
             InstructionV1::CallMethod {

@@ -16,9 +16,7 @@
 // under the License.
 
 use scrypto_unit::*;
-use transaction::prelude::node_modules::ModuleConfig;
 use transaction::prelude::*;
-use radix_engine_toolkit::transaction_types::WorktopContentItem;
 
 mod test_runner_extension;
 use test_runner_extension::TestRunnerEDExt;
@@ -29,23 +27,24 @@ fn worktop_simple() {
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let (_, _, account2) = test_runner.new_allocated_account();
-
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
 
     //Act
-
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .withdraw_from_account(account, address, 10)
-        .take_from_worktop(address, 10, "b1")
-        //.burn_all_from_worktop(*address)
-        //.try_deposit_entire_worktop_or_abort(account2, None)
-        .try_deposit_or_abort(account2, None, "b1")
-        //        .try_deposit_entire_worktop_or_abort(account, None)
+        .take_from_worktop(address, 10, "bucket_1")
+        .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
     let (_, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
+    assert_eq!(execution_summary.worktop_content.len(), 4);
+    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
+    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.worktop_content[2].content.get(&address).is_none());
+    assert!(execution_summary.worktop_content[3].content.get(&address).is_none());
+
     println!("worktop content:");
     for (i, val) in execution_summary.worktop_content.iter().enumerate() {
         println!("instruction {}: {:?}", i, val);
@@ -60,18 +59,51 @@ fn worktop_simple2() {
     let address = test_runner.create_freely_mintable_and_burnable_fungible_resource(OwnerRole::None, Some(dec!(100)), 0, account);
 
     //Act
-
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .withdraw_from_account(account, address, 10)
-        //.take_from_worktop(address, 10, "b1")
         .burn_all_from_worktop(address)
-        //.try_deposit_entire_worktop_or_abort(account, None)
         .build();
     let (_, execution_summary) = test_runner.summarize(manifest);
 
     // Assert
-    println!("worktop content:");
+    assert_eq!(execution_summary.worktop_content.len(), 4);
+    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
+    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.worktop_content[2].content.get(&address).is_none()); // automatically inserted instructino TakeAllFromWorktop
+    assert!(execution_summary.worktop_content[3].content.get(&address).is_none());
+
+    println!("\nworktop content:");
+    for (i, val) in execution_summary.worktop_content.iter().enumerate() {
+        println!("instruction {}: {:?}", i, val);
+    }
+}
+
+#[test]
+fn worktop_simple3() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_freely_mintable_and_burnable_fungible_resource(OwnerRole::None, Some(dec!(100)), 0, account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 10)
+        .take_from_worktop(address, 6, "bucket_1")
+        .return_to_worktop("bucket_1")
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+    let (_, execution_summary) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(execution_summary.worktop_content.len(), 5);
+    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
+    assert_eq!(execution_summary.worktop_content[1].content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert_eq!(execution_summary.worktop_content[2].content.get(&address).unwrap().amount().unwrap(), dec!(4));
+    assert_eq!(execution_summary.worktop_content[3].content.get(&address).unwrap().amount().unwrap(), dec!(10));
+    assert!(execution_summary.worktop_content[0].content.get(&address).is_none());
+    println!("\nworktop content:");
     for (i, val) in execution_summary.worktop_content.iter().enumerate() {
         println!("instruction {}: {:?}", i, val);
     }

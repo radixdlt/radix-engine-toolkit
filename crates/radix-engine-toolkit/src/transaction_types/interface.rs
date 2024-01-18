@@ -40,9 +40,9 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
         StaticAccountResourceMovementsDetector::default();
 
     // trusted worktop
-    let mut trusted_worktop = TrustedWorktop::default();
-    let mut worktop_action = WorktopActionPublisher::new();
-    worktop_action.register_subscriber(&mut trusted_worktop);
+    let mut worktop_content_tracker = WorktopContentTracker::default();
+//    let mut worktop_action = WorktopActionPublisher::new();
+//    worktop_action.register_subscriber(&mut worktop_content_tracker);
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -162,7 +162,7 @@ pub fn execution_summary(
     let newly_created_non_fungibles = receipt.new_non_fungibles();
 
     // trusted worktop
-    let mut trusted_worktop = TrustedWorktop::default();
+    let mut worktop_content_tracker = WorktopContentTracker::default();
     // let mut worktop_action = WorktopActionPublisher::new();
     // worktop_action.register_subscriber(&mut trusted_worktop);
     
@@ -192,7 +192,7 @@ pub fn execution_summary(
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
-            &mut trusted_worktop,
+            &mut worktop_content_tracker,
         ],
         manifest,
         &receipt,
@@ -326,6 +326,6 @@ pub fn execution_summary(
         fee_summary,
         detailed_classification,
         newly_created_non_fungibles,
-        worktop_content: trusted_worktop.get_results(),
+        worktop_content: worktop_content_tracker.get_results(),
     })
 }
