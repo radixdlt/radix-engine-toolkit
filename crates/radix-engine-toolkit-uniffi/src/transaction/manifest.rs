@@ -700,6 +700,7 @@ pub struct ExecutionSummary {
     pub fee_summary: FeeSummary,
     pub detailed_classification: Vec<DetailedManifestClass>,
     pub newly_created_non_fungibles: Vec<Arc<NonFungibleGlobalId>>,
+    pub trusted_worktop_content: Vec<TrustedWorktopItem>,
 }
 
 impl ExecutionSummary {
@@ -809,6 +810,11 @@ impl ExecutionSummary {
                     )
                 })
                 .collect::<Result<Vec<_>>>()?,
+            trusted_worktop_content: native
+                .trusted_worktop_content
+                .iter()
+                .map(|v| TrustedWorktopItem::from_native(v, network_id))
+                .collect(),
         })
     }
 }
@@ -1344,6 +1350,28 @@ impl From<CorePredicted<IndexSet<NativeNonFungibleLocalId>>>
                 .map(NonFungibleLocalId::from)
                 .collect(),
             instruction_index: value.instruction_index as u64,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct TrustedWorktopItem {
+    pub resources: Vec<ResourceSpecifier>,
+    pub trusted: bool,
+}
+
+impl TrustedWorktopItem {
+    fn from_native(value: &(radix_engine_toolkit::transaction_types::WorktopContent, bool), network_id: u8) -> Self {
+        Self {
+            resources: value
+                .0
+                .as_resource_specifiers()
+                .iter()
+                .map(|resource| {
+                    ResourceSpecifier::from_native(resource, network_id)
+                })
+                .collect(),
+            trusted: value.1,
         }
     }
 }

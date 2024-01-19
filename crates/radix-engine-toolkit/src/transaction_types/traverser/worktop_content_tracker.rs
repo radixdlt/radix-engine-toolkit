@@ -39,6 +39,20 @@ impl WorktopContentItem {
             _ => None,
         }
     }
+
+    fn as_resource_specifier(
+        &self,
+        address: &ResourceAddress,
+    ) -> ResourceSpecifier {
+        match self {
+            WorktopContentItem::Amount(d) => {
+                ResourceSpecifier::Amount(address.clone(), *d)
+            }
+            WorktopContentItem::Ids(ids) => {
+                ResourceSpecifier::Ids(address.clone(), ids.clone())
+            }
+        }
+    }
 }
 
 impl From<ResourceIndicator> for WorktopContentItem {
@@ -114,6 +128,15 @@ impl WorktopContent {
                 }
             }
         }
+    }
+
+    pub fn as_resource_specifiers(&self) -> Vec<ResourceSpecifier> {
+        self.content
+            .iter()
+            .map(|(resource_address, item)| {
+                item.as_resource_specifier(resource_address)
+            })
+            .collect()
     }
 }
 
