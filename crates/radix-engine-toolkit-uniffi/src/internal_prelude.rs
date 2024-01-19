@@ -484,23 +484,29 @@ mod native {
         ValidatorEmissionAppliedEvent as NativeValidatorEmissionAppliedEvent,
         ValidatorRewardAppliedEvent as NativeValidatorRewardAppliedEvent,
     };
-    pub use radix_engine::blueprints::pool::one_resource_pool::{
+    pub use radix_engine::blueprints::pool::v1::events::one_resource_pool::{
         ContributionEvent as NativeOneResourcePoolContributionEvent,
         RedemptionEvent as NativeOneResourcePoolRedemptionEvent,
         WithdrawEvent as NativeOneResourcePoolWithdrawEvent,
         DepositEvent as NativeOneResourcePoolDepositEvent,
     };
-    pub use radix_engine::blueprints::pool::two_resource_pool::{
+    pub use radix_engine::blueprints::pool::v1::events::two_resource_pool::{
         ContributionEvent as NativeTwoResourcePoolContributionEvent,
         RedemptionEvent as NativeTwoResourcePoolRedemptionEvent,
         WithdrawEvent as NativeTwoResourcePoolWithdrawEvent,
         DepositEvent as NativeTwoResourcePoolDepositEvent,
     };
-    pub use radix_engine::blueprints::pool::multi_resource_pool::{
+    pub use radix_engine::blueprints::pool::v1::events::multi_resource_pool::{
         ContributionEvent as NativeMultiResourcePoolContributionEvent,
         RedemptionEvent as NativeMultiResourcePoolRedemptionEvent,
         WithdrawEvent as NativeMultiResourcePoolWithdrawEvent,
         DepositEvent as NativeMultiResourcePoolDepositEvent,
+    };
+    pub use radix_engine::blueprints::pool::v1::constants::{
+        POOL_MANAGER_ROLE as NATIVE_POOL_MANAGER_ROLE,
+        ONE_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_ONE_RESOURCE_POOL_BLUEPRINT_IDENT,
+        TWO_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_TWO_RESOURCE_POOL_BLUEPRINT_IDENT,
+        MULTI_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_MULTI_RESOURCE_POOL_BLUEPRINT_IDENT
     };
     pub use radix_engine::blueprints::resource::{
         VaultCreationEvent as NativeVaultCreationEvent,

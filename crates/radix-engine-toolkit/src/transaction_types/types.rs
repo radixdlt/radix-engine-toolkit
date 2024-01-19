@@ -17,6 +17,7 @@
 
 use std::ops::*;
 
+use radix_engine::blueprints::models::KeyValueKeyPayload;
 use radix_engine::system::system_substates::*;
 use radix_engine::track::*;
 use radix_engine_queries::typed_substate_layout::*;
@@ -89,6 +90,8 @@ pub struct ExecutionSummary {
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     pub detailed_classification: Vec<DetailedManifestClass>,
+    /// List of newly created Non-Fungibles during this transaction.
+    pub newly_created_non_fungibles: HashSet<NonFungibleGlobalId>,
 }
 
 /// The classification process classifies manifests into classes. The following
@@ -176,6 +179,8 @@ pub enum DetailedManifestClass {
         validator_addresses: IndexSet<ComponentAddress>,
         /// The unstakes observed in the transaction
         validator_unstakes: Vec<TrackedValidatorUnstake>,
+        /// The data associated with the various claim NFTs
+        claims_non_fungible_data: IndexMap<NonFungibleGlobalId, UnstakeData>,
     },
     /// A manifest where XRD is claimed from one or more validators.
     ValidatorClaim {
@@ -372,6 +377,105 @@ impl<'r> TransactionTypesReceipt<'r> {
                     .map(|item| GlobalAddress::from(*item)),
             )
             .collect()
+    }
+
+    pub fn new_non_fungibles(&self) -> HashSet<NonFungibleGlobalId> {
+        let mut minted_id_list = HashSet::new();
+        let mut burnt_id_list = HashSet::new();
+        for (event_type, event_payload) in
+            self.commit_result.application_events.iter()
+        {
+            match event_type.0 {
+                Emitter::Method(node_id, ..) => {
+                    match ResourceAddress::try_from(node_id.as_bytes()) {
+                        Ok(address) if !address.is_fungible() => {
+                            if event_type.1
+                                == MintNonFungibleResourceEvent::EVENT_NAME
+                            {
+                                let event: MintNonFungibleResourceEvent =
+                                    scrypto_decode(event_payload).unwrap();
+                                for local_id in event.ids {
+                                    minted_id_list.insert(
+                                        NonFungibleGlobalId::new(
+                                            address, local_id,
+                                        ),
+                                    );
+                                }
+                            } else if event_type.1
+                                == BurnNonFungibleResourceEvent::EVENT_NAME
+                            {
+                                let event: BurnNonFungibleResourceEvent =
+                                    scrypto_decode(event_payload).unwrap();
+                                for local_id in event.ids {
+                                    burnt_id_list.insert(
+                                        NonFungibleGlobalId::new(
+                                            address, local_id,
+                                        ),
+                                    );
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        minted_id_list.retain(|item| !burnt_id_list.contains(item));
+        minted_id_list
+    }
+
+    pub fn non_fungible_data(
+        &self,
+        resource_address: &ResourceAddress,
+        non_fungible_local_id: &NonFungibleLocalId,
+    ) -> Option<Vec<u8>> {
+        let key = NonFungibleResourceManagerDataKeyPayload::from_content(
+            non_fungible_local_id.clone(),
+        );
+
+        self.commit_result
+            .state_updates
+            .by_node
+            .get(resource_address.as_node_id())
+            .and_then(|item| {
+                let partition_number = MAIN_BASE_PARTITION
+                    .at_offset(
+                        NonFungibleResourceManagerPartitionOffset::DataKeyValue
+                            .as_partition_offset(),
+                    )
+                    .unwrap();
+
+                let NodeStateUpdates::Delta { by_partition } = item;
+
+                by_partition.get(&partition_number)
+            })
+            .and_then(|item| match item {
+                PartitionStateUpdates::Delta { by_substate } => by_substate
+                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
+                    .and_then(|item| match item {
+                        DatabaseUpdate::Set(value) => Some(value.clone()),
+                        DatabaseUpdate::Delete => None,
+                    }),
+                PartitionStateUpdates::Batch(
+                    BatchPartitionStateUpdate::Reset {
+                        new_substate_values,
+                    },
+                ) => new_substate_values
+                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
+                    .cloned(),
+            })
+            .and_then(|item| {
+                scrypto_decode::<
+                    KeyValueEntrySubstate<
+                        NonFungibleResourceManagerDataEntryPayload,
+                    >,
+                >(&item)
+                .ok()
+                .and_then(|item| item.into_value())
+                .and_then(|item| scrypto_encode(&item).ok())
+            })
     }
 }
 

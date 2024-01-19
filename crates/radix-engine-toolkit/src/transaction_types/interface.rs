@@ -21,6 +21,7 @@
 
 use radix_engine::prelude::*;
 use radix_engine::transaction::*;
+use radix_engine_queries::typed_substate_layout::*;
 use transaction::prelude::*;
 
 use crate::transaction_types::*;
@@ -153,6 +154,7 @@ pub fn execution_summary(
         ReservedInstructionsDetector::default();
     let mut account_resource_movements_detector =
         AccountResourceMovementsDetector::default();
+    let newly_created_non_fungibles = receipt.new_non_fungibles();
 
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
@@ -234,6 +236,31 @@ pub fn execution_summary(
         validator_unstake_detector.output().map(
             |(validator_addresses, validator_unstakes)| {
                 DetailedManifestClass::ValidatorUnstake {
+                    claims_non_fungible_data: validator_unstakes
+                        .iter()
+                        .flat_map(|unstake| {
+                            unstake.claim_nft_ids.iter().map(|local_id| {
+                                (unstake.claim_nft_address, local_id)
+                            })
+                        })
+                        .map(|(resource_address, local_id)| {
+                            (
+                                NonFungibleGlobalId::new(
+                                    resource_address,
+                                    local_id.clone(),
+                                ),
+                                scrypto_decode::<UnstakeData>(
+                                    &receipt
+                                        .non_fungible_data(
+                                            &resource_address,
+                                            local_id,
+                                        )
+                                        .expect("Must succeed!"),
+                                )
+                                .unwrap(),
+                            )
+                        })
+                        .collect(),
                     validator_addresses,
                     validator_unstakes,
                 }
@@ -312,5 +339,6 @@ pub fn execution_summary(
         fee_locks,
         fee_summary,
         detailed_classification,
+        newly_created_non_fungibles,
     })
 }
