@@ -557,7 +557,7 @@ impl DetailedManifestClass {
             },
             CoreDetailedManifestClass::ValidatorUnstake {
                 validator_addresses,
-                validator_unstakes,
+                validator_unstakes, ..
             } => Self::ValidatorUnstake {
                 validator_addresses: validator_addresses
                     .into_iter()

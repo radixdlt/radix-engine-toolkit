@@ -19,6 +19,7 @@ use radix_engine::blueprints::pool::v1::constants::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
+use radix_engine_queries::typed_substate_layout::UnstakeData;
 use radix_engine_toolkit::transaction_types::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
@@ -146,7 +147,7 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
     assert!(matches!(
-        dbg!(&execution_summary.detailed_classification[0]),
+        &execution_summary.detailed_classification[0],
         DetailedManifestClass::Transfer {
             is_one_to_one: true
         }
@@ -1917,8 +1918,26 @@ fn validator_unstake_transactions_are_recognized() {
                     liquid_stake_unit_amount: dec!(100),
                     claim_nft_address: claim_nft2,
                     claim_nft_ids: indexset![nf_id_local_2.clone()]
+                },
+            ],
+            claims_non_fungible_data: indexmap! {
+                NonFungibleGlobalId::new(
+                    claim_nft1,
+                    NonFungibleLocalId::from_str("{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}").unwrap()
+                ) => UnstakeData {
+                    name: "Stake Claim".to_owned(),
+                    claim_epoch: Epoch::of(23),
+                    claim_amount: dec!(100)
+                },
+                NonFungibleGlobalId::new(
+                    claim_nft2,
+                    NonFungibleLocalId::from_str("{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}").unwrap()
+                ) => UnstakeData {
+                    name: "Stake Claim".to_owned(),
+                    claim_epoch: Epoch::of(23),
+                    claim_amount: dec!(100)
                 }
-            ]
+            }
         }
     );
 
