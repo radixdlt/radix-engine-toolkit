@@ -1361,7 +1361,13 @@ pub struct TrustedWorktopItem {
 }
 
 impl TrustedWorktopItem {
-    fn from_native(value: &(radix_engine_toolkit::transaction_types::WorktopContent, bool), network_id: u8) -> Self {
+    fn from_native(
+        value: &(
+            radix_engine_toolkit::transaction_types::WorktopContent,
+            bool,
+        ),
+        network_id: u8,
+    ) -> Self {
         Self {
             resources: value
                 .0
