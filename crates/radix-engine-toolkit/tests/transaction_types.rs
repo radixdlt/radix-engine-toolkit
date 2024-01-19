@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::blueprints::pool::v1::constants::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
-use radix_engine_queries::typed_substate_layout::multi_resource_pool::*;
-use radix_engine_queries::typed_substate_layout::one_resource_pool::*;
-use radix_engine_queries::typed_substate_layout::two_resource_pool::*;
+use radix_engine_queries::typed_substate_layout::UnstakeData;
 use radix_engine_toolkit::transaction_types::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
@@ -148,7 +147,7 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
     );
     assert_eq!(execution_summary.new_entities, NewEntities::default());
     assert!(matches!(
-        dbg!(&execution_summary.detailed_classification[0]),
+        &execution_summary.detailed_classification[0],
         DetailedManifestClass::Transfer {
             is_one_to_one: true
         }
@@ -1102,7 +1101,7 @@ fn pool_contribution_transactions_are_recognized() {
                     multi_pool_unit,
                     FungibleResourceIndicator::Predicted(
                         Predicted {
-                            value: dec!(10000),
+                            value: dec!(100),
                             instruction_index: 15
                         }
                     )
@@ -1152,7 +1151,7 @@ fn pool_contribution_transactions_are_recognized() {
                     resource4 => dec!(100)
                 },
                 pool_units_resource_address: multi_pool_unit,
-                pool_units_amount: dec!(10000)
+                pool_units_amount: dec!(100)
             },
         ]
     );
@@ -1290,7 +1289,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
                     multi_pool_unit,
                     FungibleResourceIndicator::Predicted(
                         Predicted {
-                            value: dec!(10000),
+                            value: dec!(100),
                             instruction_index: 5
                         }
                     )
@@ -1299,7 +1298,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
                     multi_pool_unit,
                     FungibleResourceIndicator::Predicted(
                         Predicted {
-                            value: dec!(5000),
+                            value: dec!(50),
                             instruction_index: 11
                         }
                     )
@@ -1356,7 +1355,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
                     resource4 => dec!(100)
                 },
                 pool_units_resource_address: multi_pool_unit,
-                pool_units_amount: dec!(10000)
+                pool_units_amount: dec!(100)
             },
             TrackedPoolContribution {
                 pool_address: multi_pool,
@@ -1367,7 +1366,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
                     resource4 => dec!(50)
                 },
                 pool_units_resource_address: multi_pool_unit,
-                pool_units_amount: dec!(5000)
+                pool_units_amount: dec!(50)
             }
         ]
     );
@@ -1461,7 +1460,7 @@ fn pool_redemption_transactions_are_recognized() {
             )
         })
         /* Multi Pool */
-        .withdraw_from_account(account, multi_pool_unit, 10000)
+        .withdraw_from_account(account, multi_pool_unit, 100)
         .take_all_from_worktop(multi_pool_unit, "multi_pool_unit")
         .with_bucket("multi_pool_unit", |builder, bucket| {
             builder.call_method(
@@ -1536,7 +1535,7 @@ fn pool_redemption_transactions_are_recognized() {
                 ),
                 ResourceIndicator::Fungible(
                     multi_pool_unit,
-                    FungibleResourceIndicator::Guaranteed(dec!(10000))
+                    FungibleResourceIndicator::Guaranteed(dec!(100))
                 ),
             ]
         }
@@ -1627,7 +1626,7 @@ fn pool_redemption_transactions_are_recognized() {
                     resource4 => dec!(100)
                 },
                 pool_units_resource_address: multi_pool_unit,
-                pool_units_amount: dec!(10000)
+                pool_units_amount: dec!(100)
             },
         ]
     );
@@ -1919,8 +1918,26 @@ fn validator_unstake_transactions_are_recognized() {
                     liquid_stake_unit_amount: dec!(100),
                     claim_nft_address: claim_nft2,
                     claim_nft_ids: indexset![nf_id_local_2.clone()]
+                },
+            ],
+            claims_non_fungible_data: indexmap! {
+                NonFungibleGlobalId::new(
+                    claim_nft1,
+                    NonFungibleLocalId::from_str("{9da60161aa56f3dc-b05ee091e6e496eb-926b11ceb384a4cb-16af5319924a3426}").unwrap()
+                ) => UnstakeData {
+                    name: "Stake Claim".to_owned(),
+                    claim_epoch: Epoch::of(23),
+                    claim_amount: dec!(100)
+                },
+                NonFungibleGlobalId::new(
+                    claim_nft2,
+                    NonFungibleLocalId::from_str("{3f227ceec72040aa-843bb0cffe837873-44bc4e240172759b-482113584acda37c}").unwrap()
+                ) => UnstakeData {
+                    name: "Stake Claim".to_owned(),
+                    claim_epoch: Epoch::of(23),
+                    claim_amount: dec!(100)
                 }
-            ]
+            }
         }
     );
 

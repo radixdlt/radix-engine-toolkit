@@ -45,6 +45,22 @@ impl Hash {
         Arc::new(Self(native_hash(bytes)))
     }
 
+    #[uniffi::constructor]
+    pub fn sbor_decode(bytes: Vec<u8>) -> Result<Arc<Self>> {
+        let native = match bytes.first().copied() {
+            Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+                native_scrypto_decode::<NativeHash>(&bytes).map_err(Into::into)
+            }
+            Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
+                native_manifest_decode::<NativeHash>(&bytes).map_err(Into::into)
+            }
+            v => Err(RadixEngineToolkitError::DecodeError {
+                error: format!("Invalid index byte: {v:?}"),
+            }),
+        }?;
+        Ok(Arc::new(Self::from(native)))
+    }
+
     pub fn bytes(&self) -> Vec<u8> {
         self.0.to_vec()
     }

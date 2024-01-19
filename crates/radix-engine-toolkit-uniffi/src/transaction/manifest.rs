@@ -469,6 +469,7 @@ pub enum DetailedManifestClass {
     ValidatorUnstake {
         validator_addresses: Vec<Arc<Address>>,
         validator_unstakes: Vec<TrackedValidatorUnstake>,
+        claims_non_fungible_data: Vec<UnstakeDataEntry>,
     },
     ValidatorClaim {
         validator_addresses: Vec<Arc<Address>>,
@@ -558,6 +559,7 @@ impl DetailedManifestClass {
             CoreDetailedManifestClass::ValidatorUnstake {
                 validator_addresses,
                 validator_unstakes,
+                claims_non_fungible_data
             } => Self::ValidatorUnstake {
                 validator_addresses: validator_addresses
                     .into_iter()
@@ -574,6 +576,15 @@ impl DetailedManifestClass {
                         TrackedValidatorUnstake::from_native(item, network_id)
                     })
                     .collect(),
+                claims_non_fungible_data: claims_non_fungible_data
+                    .into_iter()
+                    .map(|(id, value)|
+                        UnstakeDataEntry {
+                            non_fungible_global_id: Arc::new(NonFungibleGlobalId(id, network_id)),
+                            data: value.into()
+                        }
+                    )
+                    .collect()
             },
             CoreDetailedManifestClass::ValidatorClaim {
                 validator_addresses,
@@ -1344,6 +1355,29 @@ impl From<CorePredicted<IndexSet<NativeNonFungibleLocalId>>>
                 .map(NonFungibleLocalId::from)
                 .collect(),
             instruction_index: value.instruction_index as u64,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct UnstakeDataEntry {
+    pub non_fungible_global_id: Arc<NonFungibleGlobalId>,
+    pub data: UnstakeData,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct UnstakeData {
+    pub name: String,
+    pub claim_epoch: u64,
+    pub claim_amount: Arc<Decimal>,
+}
+
+impl From<NativeUnstakeData> for UnstakeData {
+    fn from(value: NativeUnstakeData) -> Self {
+        Self {
+            name: value.name,
+            claim_epoch: value.claim_epoch.number(),
+            claim_amount: Arc::new(Decimal(value.claim_amount)),
         }
     }
 }
