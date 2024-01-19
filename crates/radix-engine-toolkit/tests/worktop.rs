@@ -40,15 +40,35 @@ fn worktop_simple() {
 
     // Assert
     assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
-    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
-    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.trusted_worktop_content[2].0.content.get(&address).is_none());
-    assert!(execution_summary.trusted_worktop_content[3].0.content.get(&address).is_none());
-
-    println!("worktop content:");
-    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
-        println!("instruction {}: {:?}", i, val);
-    }
+    assert!(execution_summary.trusted_worktop_content[0]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[0].1);
+    assert_eq!(
+        execution_summary.trusted_worktop_content[1]
+            .0
+            .content
+            .get(&address)
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(execution_summary.trusted_worktop_content[1].1);
+    assert!(execution_summary.trusted_worktop_content[2]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[2].1);
+    assert!(execution_summary.trusted_worktop_content[3]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[3].1);
 }
 
 #[test]
@@ -56,7 +76,13 @@ fn worktop_simple2() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_freely_mintable_and_burnable_fungible_resource(OwnerRole::None, Some(dec!(100)), 0, account);
+    let address = test_runner
+        .create_freely_mintable_and_burnable_fungible_resource(
+            OwnerRole::None,
+            Some(dec!(100)),
+            0,
+            account,
+        );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -68,15 +94,35 @@ fn worktop_simple2() {
 
     // Assert
     assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
-    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
-    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.trusted_worktop_content[2].0.content.get(&address).is_none()); // automatically inserted instructino TakeAllFromWorktop
-    assert!(execution_summary.trusted_worktop_content[3].0.content.get(&address).is_none());
-
-    println!("\nworktop content:");
-    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
-        println!("instruction {}: {:?}", i, val);
-    }
+    assert!(execution_summary.trusted_worktop_content[0]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[0].1);
+    assert_eq!(
+        execution_summary.trusted_worktop_content[1]
+            .0
+            .content
+            .get(&address)
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(execution_summary.trusted_worktop_content[1].1);
+    assert!(execution_summary.trusted_worktop_content[2]
+        .0
+        .content
+        .get(&address)
+        .is_none()); // automatically inserted instructino TakeAllFromWorktop
+    assert!(execution_summary.trusted_worktop_content[2].1);
+    assert!(execution_summary.trusted_worktop_content[3]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[3].1);
 }
 
 #[test]
@@ -84,7 +130,13 @@ fn worktop_simple3() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_freely_mintable_and_burnable_fungible_resource(OwnerRole::None, Some(dec!(100)), 0, account);
+    let address = test_runner
+        .create_freely_mintable_and_burnable_fungible_resource(
+            OwnerRole::None,
+            Some(dec!(100)),
+            0,
+            account,
+        );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -98,13 +150,49 @@ fn worktop_simple3() {
 
     // Assert
     assert_eq!(execution_summary.trusted_worktop_content.len(), 5);
-    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
-    assert_eq!(execution_summary.trusted_worktop_content[1].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert_eq!(execution_summary.trusted_worktop_content[2].0.content.get(&address).unwrap().amount().unwrap(), dec!(4));
-    assert_eq!(execution_summary.trusted_worktop_content[3].0.content.get(&address).unwrap().amount().unwrap(), dec!(10));
-    assert!(execution_summary.trusted_worktop_content[0].0.content.get(&address).is_none());
-    println!("\nworktop content:");
-    for (i, val) in execution_summary.trusted_worktop_content.iter().enumerate() {
-        println!("instruction {}: {:?}", i, val);
-    }
+    assert!(execution_summary.trusted_worktop_content[0]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[0].1);
+    assert_eq!(
+        execution_summary.trusted_worktop_content[1]
+            .0
+            .content
+            .get(&address)
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(execution_summary.trusted_worktop_content[1].1);
+    assert_eq!(
+        execution_summary.trusted_worktop_content[2]
+            .0
+            .content
+            .get(&address)
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(4)
+    );
+    assert!(execution_summary.trusted_worktop_content[2].1);
+    assert_eq!(
+        execution_summary.trusted_worktop_content[3]
+            .0
+            .content
+            .get(&address)
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(!execution_summary.trusted_worktop_content[3].1);
+    assert!(execution_summary.trusted_worktop_content[4]
+        .0
+        .content
+        .get(&address)
+        .is_none());
+    assert!(execution_summary.trusted_worktop_content[4].1);
 }

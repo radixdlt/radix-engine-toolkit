@@ -15,20 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use std::borrow::Borrow;
-use std::borrow::BorrowMut;
-
-use scrypto::prelude::*;
-use transaction::manifest::ast::Instruction;
-use transaction::prelude::*;
-
-use radix_engine::system::system_modules::execution_trace::*;
-use radix_engine_common::prelude::rust::sync::Arc;
-use radix_engine_interface::blueprints::account::*;
-use radix_engine_interface::blueprints::consensus_manager::*;
-
 use crate::transaction_types::*;
-use crate::utils::*;
+use scrypto::prelude::*;
+use transaction::prelude::*;
 
 #[derive(Default)]
 pub struct TrustedWorktop {

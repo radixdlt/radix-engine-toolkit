@@ -24,7 +24,6 @@ mod transfer;
 mod validator_claim;
 mod validator_stake;
 mod validator_unstake;
-mod worktop_action_notifier;
 
 pub use account_resource_movements::*;
 pub use account_settings::*;
@@ -35,4 +34,3 @@ pub use transfer::*;
 pub use validator_claim::*;
 pub use validator_stake::*;
 pub use validator_unstake::*;
-pub use worktop_action_notifier::*;
