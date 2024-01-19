@@ -307,12 +307,17 @@ pub fn execution_summary(
         royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
     };
 
-    let trusted_worktop_content =
-        worktop_content_tracker.get_results()
-            .iter()
-            .enumerate()
-            .map(|(idx, item)| (item.clone(), trusted_worktop.is_worktop_trusted(idx).unwrap()))
-            .collect::<Vec<(WorktopContent, bool)>>();
+    let trusted_worktop_content = worktop_content_tracker
+        .get_results()
+        .iter()
+        .enumerate()
+        .map(|(idx, item)| {
+            (
+                item.clone(),
+                trusted_worktop.is_worktop_trusted(idx).unwrap(),
+            )
+        })
+        .collect::<Vec<(WorktopContent, bool)>>();
 
     Ok(ExecutionSummary {
         account_withdraws,
