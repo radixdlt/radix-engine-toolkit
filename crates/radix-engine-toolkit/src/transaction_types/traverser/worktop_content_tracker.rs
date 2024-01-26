@@ -150,14 +150,14 @@ pub trait WorktopContentTrackerObserver {
 }
 
 #[derive(Default)]
-pub struct WorktopContentTracker<'a, T: WorktopContentTrackerObserver> {
-    subscribers: Vec<&'a mut T>,
+pub struct WorktopContentTracker<'a> {
+    subscribers: Vec<Box<&'a mut dyn WorktopContentTrackerObserver>>,
     state_per_instruction: Vec<WorktopContent>,
 }
 
-impl<'a, T: WorktopContentTrackerObserver> WorktopContentTracker<'a, T> {
-    pub fn register_subscriber(&mut self, subscriber: &'a mut T) {
-        self.subscribers.push(subscriber);
+impl<'a> WorktopContentTracker<'a> {
+    pub fn register_subscriber(&mut self, subscriber: &'a mut dyn WorktopContentTrackerObserver) {
+        self.subscribers.push(Box::new(subscriber));
     }
 
     fn notify_subscribers(
@@ -165,12 +165,11 @@ impl<'a, T: WorktopContentTrackerObserver> WorktopContentTracker<'a, T> {
         instruction: &InstructionV1,
         instruction_index: usize,
     ) {
-        for subscriber in &mut self.subscribers {
-            subscriber.on_instruction(
+        for i in (0..self.subscribers.len()).into_iter() {
+            self.subscribers[i].on_instruction(
                 instruction,
                 instruction_index,
-                &self.state_per_instruction,
-            )
+                &self.state_per_instruction)
         }
     }
 
@@ -189,13 +188,13 @@ impl<'a, T: WorktopContentTrackerObserver> WorktopContentTracker<'a, T> {
     }
 }
 
-impl<'a, T: WorktopContentTrackerObserver> ManifestSummaryCallback
-    for WorktopContentTracker<'a, T>
+impl<'a> ManifestSummaryCallback
+    for WorktopContentTracker<'a>
 {
 }
 
-impl<'a, T: WorktopContentTrackerObserver> ExecutionSummaryCallback
-    for WorktopContentTracker<'a, T>
+impl<'a> ExecutionSummaryCallback
+    for WorktopContentTracker<'a>
 {
     fn on_instruction(
         &mut self,
