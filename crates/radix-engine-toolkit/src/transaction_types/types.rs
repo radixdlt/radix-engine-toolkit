@@ -91,9 +91,6 @@ pub struct ExecutionSummary {
     pub detailed_classification: Vec<DetailedManifestClass>,
     /// List of newly created Non-Fungibles during this transaction.
     pub newly_created_non_fungibles: HashSet<NonFungibleGlobalId>,
-    /// Content of the worktop and information if it is trusted at executed
-    /// manifest instruction (instruction is the index of the vector)
-    pub trusted_worktop_content: Vec<(WorktopContent, bool)>,
 }
 
 /// The classification process classifies manifests into classes. The following

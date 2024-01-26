@@ -20,6 +20,7 @@ use radix_engine::system::system_modules::execution_trace::*;
 use scrypto::prelude::*;
 use std::ops::{AddAssign, Deref, SubAssign};
 use transaction::prelude::*;
+use crate::utils::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum WorktopContentItem {
@@ -191,6 +192,66 @@ impl<'a> WorktopContentTracker<'a> {
 impl<'a> ManifestSummaryCallback
     for WorktopContentTracker<'a>
 {
+    fn on_instruction(
+        &mut self,
+        instruction: &InstructionV1,
+        instruction_index: usize,
+    ) {
+        assert_eq!(instruction_index, self.state_per_instruction.len());
+        self.add_new_instruction();
+
+        match instruction {
+            InstructionV1::TakeAllFromWorktop { resource_address } => self
+                .state_per_instruction
+                .last_mut()
+                .expect("Must succeed")
+                .remove_by_address(&resource_address),
+            // InstructionV1::TakeFromWorktop {
+            //     resource_address,
+            //     amount,
+            // } => self
+            //     .state_per_instruction
+            //     .last_mut()
+            //     .expect("Must succeed")
+            //     .remove(&ResourceIndicator::Fungible(
+            //         *resource_address,
+            //         FungibleResourceIndicator::Guaranteed(*amount),
+            //     )),
+            InstructionV1::TakeNonFungiblesFromWorktop {
+                resource_address,
+                ids,
+            } => {
+                // let mut list: IndexSet<NonFungibleLocalId> =
+                //     IndexSet::with_capacity(ids.len());
+                // ids.iter().for_each(|item| {
+                //     list.insert(item.clone());
+                // });
+                // self.state_per_instruction
+                //     .last_mut()
+                //     .expect("Must succeed")
+                //     .remove(&ResourceIndicator::NonFungible(
+                //         *resource_address,
+                //         NonFungibleResourceIndicator::ByIds(list),
+                //     ));
+            }
+            InstructionV1::ReturnToWorktop { bucket_id } => {
+                // let resource =
+                //     bucket_list.get(bucket_id).expect("Must succeed");
+                // self.state_per_instruction
+                //     .last_mut()
+                //     .expect("Must succeed")
+                //     .add(resource);
+            }
+            InstructionV1::CallFunction { package_address, blueprint_name, function_name, args } => {
+                if is_account(package_address) {
+
+                }
+            }
+            _ => (),
+        }
+
+        self.notify_subscribers(instruction, instruction_index);
+    }
 }
 
 impl<'a> ExecutionSummaryCallback

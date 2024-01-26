@@ -49,6 +49,11 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let mut accounts_settings_detector =
         AccountSettingsUpdateDetector::default();
 
+    // trusted worktop
+    let mut worktop_content_tracker = WorktopContentTracker::default();
+    let mut trusted_worktop = TrustedWorktop::default();
+    worktop_content_tracker.register_subscriber(&mut trusted_worktop);
+
     // Traversing the manifest with the passed detectors
     traverser::manifest_summary::traverse(
         &mut [
@@ -65,6 +70,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
+            &mut worktop_content_tracker,
         ],
         manifest,
     );
@@ -155,11 +161,6 @@ pub fn execution_summary(
         AccountResourceMovementsDetector::default();
     let newly_created_non_fungibles = receipt.new_non_fungibles();
 
-    // trusted worktop
-    let mut worktop_content_tracker = WorktopContentTracker::default();
-    let mut trusted_worktop = TrustedWorktop::default();
-    worktop_content_tracker.register_subscriber(&mut trusted_worktop);
-
     let mut general_transaction_detector = GeneralDetector::default();
     let mut transfer_transaction_detector = TransferDetector::default();
     let mut pool_contribution_detector = PoolContributionDetector::default();
@@ -186,7 +187,6 @@ pub fn execution_summary(
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
-            &mut worktop_content_tracker,
         ],
         manifest,
         &receipt,
@@ -307,18 +307,6 @@ pub fn execution_summary(
         royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
     };
 
-    let trusted_worktop_content = worktop_content_tracker
-        .get_results()
-        .iter()
-        .enumerate()
-        .map(|(idx, item)| {
-            (
-                item.clone(),
-                trusted_worktop.is_worktop_trusted(idx).unwrap(),
-            )
-        })
-        .collect::<Vec<(WorktopContent, bool)>>();
-
     Ok(ExecutionSummary {
         account_withdraws,
         account_deposits,
@@ -332,6 +320,5 @@ pub fn execution_summary(
         fee_summary,
         detailed_classification,
         newly_created_non_fungibles,
-        trusted_worktop_content,
     })
 }
