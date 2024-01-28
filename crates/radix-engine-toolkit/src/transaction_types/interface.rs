@@ -48,11 +48,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let mut validator_claim_detector = ValidatorClaimDetector::default();
     let mut accounts_settings_detector =
         AccountSettingsUpdateDetector::default();
-
-    // trusted worktop
-    let mut worktop_content_tracker = WorktopContentTracker::default();
     let mut trusted_worktop = TrustedWorktop::default();
-    worktop_content_tracker.register_subscriber(&mut trusted_worktop);
 
     // Traversing the manifest with the passed detectors
     traverser::manifest_summary::traverse(
@@ -70,7 +66,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut validator_unstake_detector,
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
-            &mut worktop_content_tracker,
+            &mut trusted_worktop,
         ],
         manifest,
     );
