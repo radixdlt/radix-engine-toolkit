@@ -20,7 +20,71 @@ use scrypto_unit::*;
 use transaction::prelude::*;
 
 mod test_runner_extension;
+use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+use radix_engine_toolkit::transaction_types::ManifestSummary;
 use test_runner_extension::TestRunnerEDExt;
+
+// helper function
+fn validate(
+    manifest_summary: &ManifestSummary,
+    instruction: usize,
+    trusted: bool,
+    resources: Option<ResourceSpecifier>,
+) {
+    assert_eq!(
+        manifest_summary.trusted_worktop_instructions[instruction].trusted,
+        trusted,
+        "Instruction: {}",
+        instruction
+    );
+    if resources.is_none() {
+        assert!(
+            manifest_summary.trusted_worktop_instructions[instruction]
+                .resources
+                .is_none(),
+            "Instruction: {}",
+            instruction
+        );
+    } else {
+        match resources.unwrap() {
+            ResourceSpecifier::Amount(address, amount) => {
+                assert_eq!(
+                    manifest_summary.trusted_worktop_instructions[instruction]
+                        .resources
+                        .as_ref()
+                        .unwrap()
+                        .resource_address(),
+                    address,
+                    "Instruction: {}",
+                    instruction
+                );
+                assert_eq!(
+                    *manifest_summary.trusted_worktop_instructions[instruction]
+                        .resources
+                        .as_ref()
+                        .unwrap()
+                        .amount()
+                        .unwrap(),
+                    amount,
+                    "Instruction: {}",
+                    instruction
+                );
+            }
+            ResourceSpecifier::Ids(address, _ids) => {
+                assert_eq!(
+                    manifest_summary.trusted_worktop_instructions[instruction]
+                        .resources
+                        .as_ref()
+                        .unwrap()
+                        .resource_address(),
+                    address,
+                    "Instruction: {}",
+                    instruction
+                );
+            }
+        }
+    }
+}
 
 #[test]
 fn worktop_simple() {
@@ -41,36 +105,25 @@ fn worktop_simple() {
 
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
-    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
-    assert!(manifest_summary.trusted_worktop_instructions[0]
-        .resources
-        .is_none());
-    assert_eq!(
-        manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .resource_address(),
-        address
+    validate(&manifest_summary, 0, true, None);
+    validate(
+        &manifest_summary,
+        1,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
     );
-    assert_eq!(
-        *manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .amount()
-            .unwrap(),
-        dec!(10)
+    validate(
+        &manifest_summary,
+        2,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
     );
-    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
-    assert!(manifest_summary.trusted_worktop_instructions[2]
-        .resources
-        .is_none());
-    assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
-    assert!(manifest_summary.trusted_worktop_instructions[3]
-        .resources
-        .is_none());
-    assert!(!manifest_summary.trusted_worktop_instructions[3].trusted);
+    validate(
+        &manifest_summary,
+        3,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
+    );
 }
 
 #[test]
@@ -96,36 +149,15 @@ fn worktop_simple2() {
 
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
-    assert!(manifest_summary.trusted_worktop_instructions[0]
-        .resources
-        .is_none());
-    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
-    assert_eq!(
-        manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .resource_address(),
-        address
+    validate(&manifest_summary, 0, true, None);
+    validate(
+        &manifest_summary,
+        1,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
     );
-    assert_eq!(
-        *manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .amount()
-            .unwrap(),
-        dec!(10)
-    );
-    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
-    assert!(manifest_summary.trusted_worktop_instructions[2]
-        .resources
-        .is_none()); // automatically inserted instruction TakeAllFromWorktop
-    assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
-    assert!(manifest_summary.trusted_worktop_instructions[3]
-        .resources
-        .is_none());
-    assert!(manifest_summary.trusted_worktop_instructions[3].trusted);
+    validate(&manifest_summary, 2, false, None); // automatically inserted instruction TakeAllFromWorktop
+    validate(&manifest_summary, 3, true, None);
 }
 
 #[test]
@@ -153,62 +185,24 @@ fn worktop_simple3() {
 
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
-    assert!(manifest_summary.trusted_worktop_instructions[0]
-        .resources
-        .is_none());
-    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
-
-    assert_eq!(
-        manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .resource_address(),
-        address
+    validate(&manifest_summary, 0, true, None);
+    validate(
+        &manifest_summary,
+        1,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
     );
-    assert_eq!(
-        *manifest_summary.trusted_worktop_instructions[1]
-            .resources
-            .as_ref()
-            .unwrap()
-            .amount()
-            .unwrap(),
-        dec!(10)
+    validate(
+        &manifest_summary,
+        2,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(6))),
     );
-    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
-    // assert_eq!(
-    //     manifest_summary.trusted_worktop_instructions[2]
-    //         .resources.as_ref()
-    //         .unwrap()
-    //         .resource_address(),
-    //     address
-    // );
-    // assert_eq!(
-    //     *manifest_summary.trusted_worktop_instructions[2]
-    //         .resources.as_ref()
-    //         .unwrap()
-    //         .amount()
-    //         .unwrap(),
-    //     dec!(4)
-    // );
-    // assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
-    // assert_eq!(
-    //     manifest_summary.trusted_worktop_instructions[3]
-    //         .resources.as_ref()
-    //         .unwrap()
-    //         .resource_address(),
-    //     address
-    // );
-    // assert_eq!(
-    //     *manifest_summary.trusted_worktop_instructions[3]
-    //         .resources.as_ref()
-    //         .unwrap()
-    //         .amount()
-    //         .unwrap(),
-    //     dec!(10)
-    // );
-    // assert!(!manifest_summary.trusted_worktop_instructions[3].trusted);
-    // assert!(manifest_summary.trusted_worktop_instructions[4].resources
-    //     .is_none());
-    // assert!(manifest_summary.trusted_worktop_instructions[4].trusted);
+    validate(
+        &manifest_summary,
+        3,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(6))),
+    );
+    validate(&manifest_summary, 4, false, None);
 }
