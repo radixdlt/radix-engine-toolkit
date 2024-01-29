@@ -156,7 +156,12 @@ fn worktop_simple2() {
         true,
         Some(ResourceSpecifier::Amount(address, dec!(10))),
     );
-    validate(&manifest_summary, 2, false, None); // automatically inserted instruction TakeAllFromWorktop
+    validate(
+        &manifest_summary,
+        2,
+        true,
+        Some(ResourceSpecifier::Amount(address, dec!(10))),
+    ); // automatically inserted instruction TakeAllFromWorktop
     validate(&manifest_summary, 3, true, None);
 }
 
