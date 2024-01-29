@@ -61,7 +61,6 @@ where
         _instruction_index: usize,
         _input_resources: &[ResourceSpecifier],
         _output_resources: &[ResourceSpecifier],
-        _bucket_list: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
     }
 
