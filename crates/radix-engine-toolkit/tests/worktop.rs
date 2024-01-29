@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_toolkit::transaction_types::ResourceSpecifierExt;
 use scrypto_unit::*;
 use transaction::prelude::*;
 
@@ -36,39 +37,40 @@ fn worktop_simple() {
         .take_from_worktop(address, 10, "bucket_1")
         .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    // assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
-    // assert!(execution_summary.trusted_worktop_content[0]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[0].1);
-    // assert_eq!(
-    //     execution_summary.trusted_worktop_content[1]
-    //         .0
-    //         .content
-    //         .get(&address)
-    //         .unwrap()
-    //         .amount()
-    //         .unwrap(),
-    //     dec!(10)
-    // );
-    // assert!(execution_summary.trusted_worktop_content[1].1);
-    // assert!(execution_summary.trusted_worktop_content[2]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[2].1);
-    // assert!(execution_summary.trusted_worktop_content[3]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[3].1);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
+    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
+    assert!(manifest_summary.trusted_worktop_instructions[0]
+        .resources
+        .is_none());
+    assert_eq!(
+        manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .resource_address(),
+        address
+    );
+    assert_eq!(
+        *manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
+    assert!(manifest_summary.trusted_worktop_instructions[2]
+        .resources
+        .is_none());
+    assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
+    assert!(manifest_summary.trusted_worktop_instructions[3]
+        .resources
+        .is_none());
+    assert!(!manifest_summary.trusted_worktop_instructions[3].trusted);
 }
 
 #[test]
@@ -90,39 +92,40 @@ fn worktop_simple2() {
         .withdraw_from_account(account, address, 10)
         .burn_all_from_worktop(address)
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    // assert_eq!(execution_summary.trusted_worktop_content.len(), 4);
-    // assert!(execution_summary.trusted_worktop_content[0]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[0].1);
-    // assert_eq!(
-    //     execution_summary.trusted_worktop_content[1]
-    //         .0
-    //         .content
-    //         .get(&address)
-    //         .unwrap()
-    //         .amount()
-    //         .unwrap(),
-    //     dec!(10)
-    // );
-    // assert!(execution_summary.trusted_worktop_content[1].1);
-    // assert!(execution_summary.trusted_worktop_content[2]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none()); // automatically inserted instructino TakeAllFromWorktop
-    // assert!(execution_summary.trusted_worktop_content[2].1);
-    // assert!(execution_summary.trusted_worktop_content[3]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[3].1);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
+    assert!(manifest_summary.trusted_worktop_instructions[0]
+        .resources
+        .is_none());
+    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
+    assert_eq!(
+        manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .resource_address(),
+        address
+    );
+    assert_eq!(
+        *manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
+    assert!(manifest_summary.trusted_worktop_instructions[2]
+        .resources
+        .is_none()); // automatically inserted instruction TakeAllFromWorktop
+    assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
+    assert!(manifest_summary.trusted_worktop_instructions[3]
+        .resources
+        .is_none());
+    assert!(manifest_summary.trusted_worktop_instructions[3].trusted);
 }
 
 #[test]
@@ -146,53 +149,66 @@ fn worktop_simple3() {
         .return_to_worktop("bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    // assert_eq!(execution_summary.trusted_worktop_content.len(), 5);
-    // assert!(execution_summary.trusted_worktop_content[0]
-    //     .0
-    //     .content
-    //     .get(&address)
-    //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[0].1);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
+    assert!(manifest_summary.trusted_worktop_instructions[0]
+        .resources
+        .is_none());
+    assert!(manifest_summary.trusted_worktop_instructions[0].trusted);
+
+    assert_eq!(
+        manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .resource_address(),
+        address
+    );
+    assert_eq!(
+        *manifest_summary.trusted_worktop_instructions[1]
+            .resources
+            .as_ref()
+            .unwrap()
+            .amount()
+            .unwrap(),
+        dec!(10)
+    );
+    assert!(manifest_summary.trusted_worktop_instructions[1].trusted);
     // assert_eq!(
-    //     execution_summary.trusted_worktop_content[1]
-    //         .0
-    //         .content
-    //         .get(&address)
+    //     manifest_summary.trusted_worktop_instructions[2]
+    //         .resources.as_ref()
     //         .unwrap()
-    //         .amount()
-    //         .unwrap(),
-    //     dec!(10)
+    //         .resource_address(),
+    //     address
     // );
-    // assert!(execution_summary.trusted_worktop_content[1].1);
     // assert_eq!(
-    //     execution_summary.trusted_worktop_content[2]
-    //         .0
-    //         .content
-    //         .get(&address)
+    //     *manifest_summary.trusted_worktop_instructions[2]
+    //         .resources.as_ref()
     //         .unwrap()
     //         .amount()
     //         .unwrap(),
     //     dec!(4)
     // );
-    // assert!(execution_summary.trusted_worktop_content[2].1);
+    // assert!(manifest_summary.trusted_worktop_instructions[2].trusted);
     // assert_eq!(
-    //     execution_summary.trusted_worktop_content[3]
-    //         .0
-    //         .content
-    //         .get(&address)
+    //     manifest_summary.trusted_worktop_instructions[3]
+    //         .resources.as_ref()
+    //         .unwrap()
+    //         .resource_address(),
+    //     address
+    // );
+    // assert_eq!(
+    //     *manifest_summary.trusted_worktop_instructions[3]
+    //         .resources.as_ref()
     //         .unwrap()
     //         .amount()
     //         .unwrap(),
     //     dec!(10)
     // );
-    // assert!(!execution_summary.trusted_worktop_content[3].1);
-    // assert!(execution_summary.trusted_worktop_content[4]
-    //     .0
-    //     .content
-    //     .get(&address)
+    // assert!(!manifest_summary.trusted_worktop_instructions[3].trusted);
+    // assert!(manifest_summary.trusted_worktop_instructions[4].resources
     //     .is_none());
-    // assert!(execution_summary.trusted_worktop_content[4].1);
+    // assert!(manifest_summary.trusted_worktop_instructions[4].trusted);
 }

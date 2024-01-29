@@ -29,8 +29,8 @@ use transaction::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
-    trusted: bool,
-    resources: Option<ResourceSpecifier>,
+    pub trusted: bool,
+    pub resources: Option<ResourceSpecifier>,
 }
 
 #[derive(Default)]
@@ -400,8 +400,11 @@ impl TrustedWorktop {
                             args,
                         );
                     } else {
-                        // other global or internal component call
-                        self.add_new_instruction(false, None);
+                        self.handle_global_generic_component_method_call(
+                            address,
+                            method_name,
+                            args,
+                        );
                     }
                 }
             }
@@ -421,6 +424,23 @@ impl TrustedWorktop {
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self.add_new_instruction(true, None),
+        }
+    }
+
+    fn handle_global_generic_component_method_call(
+        &mut self,
+        address: &GlobalAddress,
+        _method_name: &String,
+        _args: &ManifestValue,
+    ) {
+        if FAUCET_COMPONENT.as_node_id() == address.as_node_id()
+            || TRANSACTION_TRACKER.as_node_id() == address.as_node_id()
+            || GENESIS_HELPER.as_node_id() == address.as_node_id()
+        {
+            self.add_new_instruction(true, None);
+        } else {
+            // other unknown global or internal component call
+            self.add_new_instruction(false, None);
         }
     }
 }
