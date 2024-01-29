@@ -31,13 +31,12 @@ use transaction::validation::ManifestIdAllocator;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
     pub trusted: bool,
-    pub resources: Option<ResourceSpecifier>,
+    pub resources: Vec<ResourceSpecifier>,
 }
 
 #[derive(Default)]
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
-    // bucket id -> known resources or unknown resources in a bucket
     buckets: IndexMap<ManifestBucket, Option<ResourceSpecifier>>,
     id_allocator: ManifestIdAllocator,
     untrack_buckets: bool,
@@ -53,7 +52,20 @@ impl TrustedWorktop {
     fn add_new_instruction(
         &mut self,
         trusted: bool,
-        resources: Option<ResourceSpecifier>,
+        input_resources: Option<ResourceSpecifier>,
+    ) {
+        let resources = match input_resources {
+            Some(res) => vec![res],
+            None => vec![],
+        };
+        self.trusted_state_per_instruction
+            .push(TrustedWorktopInstruction { trusted, resources });
+    }
+
+    fn add_new_instruction_with_many_resources(
+        &mut self,
+        trusted: bool,
+        resources: Vec<ResourceSpecifier>,
     ) {
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction { trusted, resources });
@@ -168,13 +180,25 @@ impl TrustedWorktop {
         }
     }
 
-    fn take_all_from_worktop(
+    fn take_from_worktop_by_address(
         &mut self,
         resource_address: ResourceAddress,
     ) -> Option<ResourceSpecifier> {
         self.worktop_content
-            .get(&resource_address)
+            .remove(&resource_address)
             .map(|item| item.clone())
+    }
+
+    fn take_all_from_worktop(&mut self) -> Vec<ResourceSpecifier> {
+        let ret = self
+            .worktop_content
+            .iter()
+            .map(|(_k, v)| v.to_owned())
+            .collect();
+        // worktop is cleared so we can start tracking it back (if untracked)
+        self.untrack_worktop_content = false;
+        self.worktop_content.clear();
+        ret
     }
 
     fn handle_account_methods(
@@ -255,15 +279,40 @@ impl TrustedWorktop {
             ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT => {
                 if !self.untrack_buckets {
                     let input_args = IndexedManifestValue::from_typed(args);
-                    assert_eq!(input_args.buckets().len(), 1);
-                    let bucket_id =
-                        input_args.buckets().first().expect("Expected bucket");
-                    let resources = self
-                        .bucket_consumed(bucket_id)
-                        .expect("Bucket not found");
-                    self.add_new_instruction(true, resources);
 
-                    // todo: input_args.expressions()
+                    if input_args.expressions().len() > 0 {
+                        assert_eq!(input_args.expressions().len(), 1);
+
+                        match input_args
+                            .expressions()
+                            .first()
+                            .expect("Expected expresion")
+                        {
+                            ManifestExpression::EntireWorktop => {
+                                if !self.untrack_worktop_content {
+                                    let resources =
+                                        self.take_all_from_worktop();
+                                    self.add_new_instruction_with_many_resources(true, resources);
+                                } else {
+                                    self.add_new_instruction(false, None);
+                                }
+
+                                // setting untracked buckets mode as we are not supporting handling vectors of buckets
+                                self.untrack_buckets = true;
+                            }
+                            _ => (),
+                        }
+                    } else {
+                        assert_eq!(input_args.buckets().len(), 1);
+                        let bucket_id = input_args
+                            .buckets()
+                            .first()
+                            .expect("Expected bucket");
+                        let resources = self
+                            .bucket_consumed(bucket_id)
+                            .expect("Bucket not found");
+                        self.add_new_instruction(true, resources);
+                    }
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -645,7 +694,7 @@ impl ManifestSummaryCallback for TrustedWorktop {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
                 if !self.untrack_worktop_content {
                     let resources = self
-                        .take_all_from_worktop(*resource_address)
+                        .take_from_worktop_by_address(*resource_address)
                         .expect("Expected resources");
                     self.new_bucket_known_resources(resources.clone());
                     self.add_new_instruction(true, Some(resources));

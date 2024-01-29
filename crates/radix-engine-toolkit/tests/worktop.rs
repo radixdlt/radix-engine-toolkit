@@ -41,7 +41,7 @@ fn validate(
         assert!(
             manifest_summary.trusted_worktop_instructions[instruction]
                 .resources
-                .is_none(),
+                .is_empty(),
             "Instruction: {}",
             instruction
         );
@@ -51,7 +51,7 @@ fn validate(
                 assert_eq!(
                     manifest_summary.trusted_worktop_instructions[instruction]
                         .resources
-                        .as_ref()
+                        .first()
                         .unwrap()
                         .resource_address(),
                     address,
@@ -61,7 +61,7 @@ fn validate(
                 assert_eq!(
                     *manifest_summary.trusted_worktop_instructions[instruction]
                         .resources
-                        .as_ref()
+                        .first()
                         .unwrap()
                         .amount()
                         .unwrap(),
@@ -74,7 +74,7 @@ fn validate(
                 assert_eq!(
                     manifest_summary.trusted_worktop_instructions[instruction]
                         .resources
-                        .as_ref()
+                        .first()
                         .unwrap()
                         .resource_address(),
                     address,
