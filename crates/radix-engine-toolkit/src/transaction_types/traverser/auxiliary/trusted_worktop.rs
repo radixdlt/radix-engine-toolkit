@@ -26,6 +26,7 @@ use radix_engine_interface::blueprints::{
 };
 use scrypto::prelude::*;
 use transaction::prelude::*;
+use transaction::validation::ManifestIdAllocator;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
@@ -36,6 +37,10 @@ pub struct TrustedWorktopInstruction {
 #[derive(Default)]
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
+    // bucket id -> known resources or unknown resources in a bucket
+    buckets: IndexMap<ManifestBucket, Option<ResourceSpecifier>>,
+    id_allocator: ManifestIdAllocator,
+    untrack_buckets: bool,
 }
 
 impl TrustedWorktop {
@@ -50,6 +55,27 @@ impl TrustedWorktop {
     ) {
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction { trusted, resources });
+    }
+
+    fn new_bucket_known_resources(&mut self, resources: ResourceSpecifier) {
+        if !self.untrack_buckets {
+            self.buckets
+                .insert(self.id_allocator.new_bucket_id(), Some(resources));
+        }
+    }
+
+    fn new_bucket_unknown_resources(&mut self) {
+        if !self.untrack_buckets {
+            self.buckets.insert(self.id_allocator.new_bucket_id(), None);
+        }
+    }
+
+    // returns true if bucket was found
+    fn bucket_consumed(
+        &mut self,
+        bucket_id: &ManifestBucket,
+    ) -> Option<Option<ResourceSpecifier>> {
+        self.buckets.remove(bucket_id)
     }
 
     fn handle_account_methods(
@@ -106,7 +132,7 @@ impl TrustedWorktop {
                         )),
                     );
                 } else {
-                    // put nonfungible by amount to worktop -> non trusted
+                    // put non fungible by amount to worktop -> non trusted
                     self.add_new_instruction(false, None);
                 }
             }
@@ -125,14 +151,37 @@ impl TrustedWorktop {
             }
 
             // deposits into an account
-            ACCOUNT_DEPOSIT_IDENT
-            | ACCOUNT_DEPOSIT_BATCH_IDENT
-            | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT
-            | ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
-            | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
+            ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT => {
+                if !self.untrack_buckets {
+                    let input_args = IndexedManifestValue::from_typed(args);
+                    assert_eq!(input_args.buckets().len(), 1);
+                    let bucket_id =
+                        input_args.buckets().first().expect("Expected bucket");
+                    let resources = self
+                        .bucket_consumed(bucket_id)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(true, resources);
+
+                    // todo: input_args.expressions()
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            ACCOUNT_DEPOSIT_BATCH_IDENT
+            | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
+                if !self.untrack_buckets {
+                    let input_args = IndexedManifestValue::from_typed(args);
+                    for bucket_id in input_args.buckets() {
+                        self.bucket_consumed(bucket_id)
+                            .expect("Bucket not found");
+                    }
+                }
+                self.add_new_instruction(false, None);
+            }
+            ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // non trusted as we currently don't know what is in the bucket
+                // returns unknown bucket
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None);
             }
 
@@ -150,16 +199,25 @@ impl TrustedWorktop {
             VALIDATOR_APPLY_REWARD_IDENT
             | VALIDATOR_APPLY_EMISSION_IDENT
             | VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT => {
-                // todo invalidate input bucket
-                self.add_new_instruction(true, None);
+                if !self.untrack_buckets {
+                    // invalidate input bucket
+                    let input_args = IndexedManifestValue::from_typed(args);
+                    assert_eq!(input_args.buckets().len(), 1);
+                    let bucket_id =
+                        input_args.buckets().first().expect("Expected bucket");
+                    let resources = self
+                        .bucket_consumed(bucket_id)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(true, resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // non trusted as we currently don't know what is in the output bucket
-
-                // todo: store bucket id as not trusted (unknown content)
-                self.add_new_instruction(false, None); // todo: instruciton is trusted but bucket is not trusted
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -170,13 +228,13 @@ impl TrustedWorktop {
     fn handle_identity_methods(
         &mut self,
         method_name: &String,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name.as_str() {
             IDENTITY_CREATE_IDENT | IDENTITY_SECURIFY_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // non trusted as we currently don't know what is in the output bucket
-                self.add_new_instruction(false, None); // todo: instruciton is trusted but bucket is not trusted
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -191,15 +249,26 @@ impl TrustedWorktop {
     ) {
         match method_name.as_str() {
             ACCESS_CONTROLLER_CREATE_IDENT => {
-                // invalidates passed bucket
-                self.add_new_instruction(true, None); // todo: instruciton is trusted but bucket is not trusted
+                if !self.untrack_buckets {
+                    // invalidate input bucket
+                    let input_args = IndexedManifestValue::from_typed(args);
+                    assert_eq!(input_args.buckets().len(), 1);
+                    let bucket_id =
+                        input_args.buckets().first().expect("Expected bucket");
+                    let resources = self
+                        .bucket_consumed(bucket_id)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(true, resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // non trusted as we currently don't know what is in the output bucket
+                // returns unknown bucket
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None);
             }
 
@@ -211,12 +280,12 @@ impl TrustedWorktop {
     fn handle_package_methods(
         &mut self,
         method_name: &String,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name.as_str() {
             PACKAGE_PUBLISH_WASM_IDENT | PACKAGE_CLAIM_ROYALTIES_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // non trusted as we currently don't know what is in the output bucket
+                // returns unknown bucket
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None);
             }
 
@@ -228,14 +297,14 @@ impl TrustedWorktop {
     fn handle_fungible_resource_manager_methods(
         &mut self,
         method_name: &String,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name.as_str() {
             FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
             | FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // creates buckets with resources
-                self.add_new_instruction(true, None);
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -246,7 +315,7 @@ impl TrustedWorktop {
     fn handle_non_fungible_resource_manager_methods(
         &mut self,
         method_name: &String,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name.as_str() {
             NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
@@ -254,9 +323,9 @@ impl TrustedWorktop {
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // creates buckets with resources
-                self.add_new_instruction(true, None);
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -272,15 +341,24 @@ impl TrustedWorktop {
         match method_name.as_str() {
             ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
             | ONE_RESOURCE_POOL_REDEEM_IDENT
-            | ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // takes bucket as input and returns bucket
-                self.add_new_instruction(true, None);
+            | ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
-            ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // returns bucket
-                self.add_new_instruction(false, None);
+            ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
+                if !self.untrack_buckets {
+                    // invalidate input bucket
+                    let input_args: OneResourcePoolProtectedDepositManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+                    let resources = self
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(true, resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -296,15 +374,24 @@ impl TrustedWorktop {
         match method_name.as_str() {
             TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
             | TWO_RESOURCE_POOL_REDEEM_IDENT
-            | TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // takes bucket as input and returns bucket
-                self.add_new_instruction(true, None);
+            | TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                // returns unknown bucket
+                self.untrack_buckets = true;
+                self.add_new_instruction(false, None);
             }
 
-            TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // returns bucket
-                self.add_new_instruction(false, None);
+            TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
+                if !self.untrack_buckets {
+                    // invalidate input bucket
+                    let input_args: TwoResourcePoolProtectedDepositManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+                    let resources = self
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(true, resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -315,19 +402,15 @@ impl TrustedWorktop {
     fn handle_multi_resource_pool_methods(
         &mut self,
         method_name: &String,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name.as_str() {
             MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT
             | MULTI_RESOURCE_POOL_REDEEM_IDENT
-            | MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
-                let _input_args = IndexedManifestValue::from_typed(args);
-                // takes bucket as input and returns bucket
-                self.add_new_instruction(true, None);
-            }
-
-            MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // returns bucket
+            | MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT
+            | MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                // returns unknown bucket
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None);
             }
 
@@ -355,7 +438,8 @@ impl TrustedWorktop {
         } else {
             match address {
                 DynamicGlobalAddress::Named(_) => {
-                    // unknown component call
+                    // unknown component call, may return some unknown bucket
+                    self.untrack_buckets = true;
                     self.add_new_instruction(false, None);
                 }
                 DynamicGlobalAddress::Static(address) => {
@@ -418,7 +502,8 @@ impl TrustedWorktop {
     ) {
         match method_name.as_str() {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
-                // returns bucket
+                // returns unknown bucket
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None);
             }
 
@@ -437,9 +522,11 @@ impl TrustedWorktop {
             || TRANSACTION_TRACKER.as_node_id() == address.as_node_id()
             || GENESIS_HELPER.as_node_id() == address.as_node_id()
         {
+            // methods are trusted as they doesn't change the worktop state
             self.add_new_instruction(true, None);
         } else {
-            // other unknown global or internal component call
+            // other unknown global or internal component call, may return some unknown bucket
+            self.untrack_buckets = true;
             self.add_new_instruction(false, None);
         }
     }
@@ -452,14 +539,52 @@ impl ManifestSummaryCallback for TrustedWorktop {
         instruction_index: usize,
     ) {
         match instruction {
-            InstructionV1::TakeAllFromWorktop { .. }
-            | InstructionV1::TakeFromWorktop { .. }
-            | InstructionV1::TakeNonFungiblesFromWorktop { .. } => {
-                self.add_new_instruction(true, None)
+            InstructionV1::TakeAllFromWorktop { .. } => {
+                // we don't know what is exactly on the worktop
+                self.new_bucket_unknown_resources();
+                self.add_new_instruction(false, None)
+            }
+            InstructionV1::TakeFromWorktop {
+                resource_address,
+                amount,
+            } => {
+                if resource_address.is_fungible() {
+                    let resources =
+                        ResourceSpecifier::Amount(*resource_address, *amount);
+
+                    self.new_bucket_known_resources(resources.clone());
+                    self.add_new_instruction(true, Some(resources));
+                } else {
+                    // we don't know exact non fungible ids
+                    self.new_bucket_unknown_resources();
+                    self.add_new_instruction(false, None);
+                }
+            }
+            InstructionV1::TakeNonFungiblesFromWorktop {
+                resource_address,
+                ids,
+            } => {
+                let indexed_ids: IndexSet<NonFungibleLocalId> =
+                    ids.iter().map(|i| i.clone()).collect();
+                let resources =
+                    ResourceSpecifier::Ids(*resource_address, indexed_ids);
+
+                self.new_bucket_known_resources(resources.clone());
+                self.add_new_instruction(true, Some(resources))
             }
 
-            InstructionV1::ReturnToWorktop { .. } => {
-                self.add_new_instruction(false, None)
+            InstructionV1::ReturnToWorktop { bucket_id } => {
+                if !self.untrack_buckets {
+                    if let Some(resources) =
+                        self.buckets.get(bucket_id).expect("Must succeed")
+                    {
+                        self.add_new_instruction(true, Some(resources.clone()));
+                    } else {
+                        self.add_new_instruction(false, None);
+                    }
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             InstructionV1::AssertWorktopContainsAny { .. }
@@ -478,15 +603,54 @@ impl ManifestSummaryCallback for TrustedWorktop {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => {
-                self.add_new_instruction(true, None)
+                self.add_new_instruction(true, None);
             }
 
-            InstructionV1::CreateProofFromBucketOfAmount { .. }
-            | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromBucketOfAll { .. }
-            | InstructionV1::BurnResource { .. } => {
-                // changes buckets
-                self.add_new_instruction(true, None)
+            InstructionV1::CreateProofFromBucketOfAmount {
+                bucket_id,
+                amount,
+            } => {
+                if !self.untrack_buckets {
+                    if let Some(resources) =
+                        self.buckets.get_mut(bucket_id).expect("Must succeed")
+                    {
+                        if resources.resource_address().is_fungible() {
+                            // if operation is done on fungible resource then remove amount from specified bucket
+                            resources
+                                .amount()
+                                .expect("Must succeed")
+                                .checked_sub(*amount);
+                        } else {
+                            // otherwise set bucket resources as unknown
+                            self.buckets.insert(*bucket_id, None);
+                        }
+                    } // else we already don't know what is in the bucket
+                }
+                self.add_new_instruction(true, None);
+            }
+            InstructionV1::CreateProofFromBucketOfNonFungibles {
+                bucket_id,
+                ids,
+            } => {
+                if !self.untrack_buckets {
+                    if let Some(resources) =
+                        self.buckets.get_mut(bucket_id).expect("Must succeed")
+                    {
+                        match resources {
+                            ResourceSpecifier::Ids(_, bucket_ids) => {
+                                // preserve in bucket non fungibles not used to create a proof
+                                bucket_ids.retain(|item| !ids.contains(item));
+                            }
+                            _ => panic!("Expected non fungible"),
+                        }
+                    } // else we already don't know what is in the bucket
+                }
+                self.add_new_instruction(true, None);
+            }
+            InstructionV1::CreateProofFromBucketOfAll { bucket_id }
+            | InstructionV1::BurnResource { bucket_id } => {
+                self.buckets.remove(bucket_id);
+                self.add_new_instruction(true, None);
             }
 
             InstructionV1::CallMethod {
@@ -497,6 +661,9 @@ impl ManifestSummaryCallback for TrustedWorktop {
 
             // call of a function from unknown blueprint
             InstructionV1::CallFunction { .. } => {
+                // we don't know if bucket is returned -> enter untracked buckets mode
+                self.untrack_buckets = true;
+                // we don't know if something is put on worktop
                 self.add_new_instruction(false, None)
             }
 
@@ -506,10 +673,13 @@ impl ManifestSummaryCallback for TrustedWorktop {
 
             InstructionV1::CallRoleAssignmentMethod { .. }
             | InstructionV1::CallMetadataMethod { .. } => {
+                // methods are trusted as they doesn't change the worktop state
                 self.add_new_instruction(true, None)
             }
 
             InstructionV1::CallDirectVaultMethod { .. } => {
+                // may affect worktop
+                self.untrack_buckets = true;
                 self.add_new_instruction(false, None)
             }
         }
