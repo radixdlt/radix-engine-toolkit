@@ -79,6 +79,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let reserved_instructions = reserved_instructions_detector.output();
     let (account_withdraws, account_deposits) =
         account_resource_movements_detector.output();
+    let trusted_worktop_instructions = trusted_worktop.output();
     let classification = [
         (
             ManifestClass::General,
@@ -135,6 +136,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
         identities_requiring_auth,
         reserved_instructions,
         classification,
+        trusted_worktop_instructions,
     }
 }
 

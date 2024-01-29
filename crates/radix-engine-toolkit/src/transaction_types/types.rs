@@ -55,6 +55,9 @@ pub struct ManifestSummary {
     /// The various classifications that this manifest matched against. Note
     /// that an empty set means that the manifest is non-conforming.
     pub classification: IndexSet<ManifestClass>,
+    /// The set of instructions state related to worktop operation indicating
+    /// if they are trusted, also provides instruction resource if possible.
+    pub trusted_worktop_instructions: Vec<TrustedWorktopInstruction>,
 }
 
 /// A summary of the execution of the manifest and the information that can

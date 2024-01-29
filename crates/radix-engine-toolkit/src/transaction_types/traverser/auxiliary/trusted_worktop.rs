@@ -27,28 +27,29 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct TrustedWorktopInstruction {
+    trusted: bool,
+    resources: Option<ResourceSpecifier>,
+}
+
 #[derive(Default)]
 pub struct TrustedWorktop {
-    trusted_state_per_instruction: Vec<(bool, Option<ResourceSpecifier>)>,
+    trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
 }
 
 impl TrustedWorktop {
+    pub fn output(self) -> Vec<TrustedWorktopInstruction> {
+        self.trusted_state_per_instruction
+    }
+
     fn add_new_instruction(
         &mut self,
         trusted: bool,
-        worktop_content: Option<ResourceSpecifier>,
+        resources: Option<ResourceSpecifier>,
     ) {
         self.trusted_state_per_instruction
-            .push((trusted, worktop_content));
-    }
-
-    pub fn is_worktop_trusted(
-        &self,
-        instruction_index: usize,
-    ) -> Option<(bool, Option<ResourceSpecifier>)> {
-        self.trusted_state_per_instruction
-            .get(instruction_index)
-            .map(|value| value.clone())
+            .push(TrustedWorktopInstruction { trusted, resources });
     }
 
     fn handle_account_methods(
