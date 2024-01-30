@@ -86,6 +86,22 @@ fn validate(
     }
 }
 
+// helper function
+fn validate_amount(
+    manifest_summary: &ManifestSummary,
+    instruction: usize,
+    trusted: bool,
+    resource_address: ResourceAddress,
+    amount: Decimal,
+) {
+    validate(
+        manifest_summary,
+        instruction,
+        trusted,
+        Some(ResourceSpecifier::Amount(resource_address, amount)),
+    );
+}
+
 #[test]
 fn worktop_simple() {
     // Arrange
@@ -106,24 +122,9 @@ fn worktop_simple() {
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
     validate(&manifest_summary, 0, true, None);
-    validate(
-        &manifest_summary,
-        1,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    );
-    validate(
-        &manifest_summary,
-        2,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    );
-    validate(
-        &manifest_summary,
-        3,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    );
+    validate_amount(&manifest_summary, 1, true, address, dec!(10));
+    validate_amount(&manifest_summary, 2, true, address, dec!(10));
+    validate_amount(&manifest_summary, 3, true, address, dec!(10));
 }
 
 #[test]
@@ -150,18 +151,8 @@ fn worktop_simple2() {
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
     validate(&manifest_summary, 0, true, None);
-    validate(
-        &manifest_summary,
-        1,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    );
-    validate(
-        &manifest_summary,
-        2,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    ); // automatically inserted instruction TakeAllFromWorktop
+    validate_amount(&manifest_summary, 1, true, address, dec!(10));
+    validate_amount(&manifest_summary, 2, true, address, dec!(10)); // inserted instruction TakeAllFromWorktop by test framework
     validate(&manifest_summary, 3, true, None);
 }
 
@@ -191,23 +182,8 @@ fn worktop_simple3() {
     // Assert
     assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
     validate(&manifest_summary, 0, true, None);
-    validate(
-        &manifest_summary,
-        1,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(10))),
-    );
-    validate(
-        &manifest_summary,
-        2,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(6))),
-    );
-    validate(
-        &manifest_summary,
-        3,
-        true,
-        Some(ResourceSpecifier::Amount(address, dec!(6))),
-    );
+    validate_amount(&manifest_summary, 1, true, address, dec!(10));
+    validate_amount(&manifest_summary, 2, true, address, dec!(6));
+    validate_amount(&manifest_summary, 3, true, address, dec!(6));
     validate(&manifest_summary, 4, false, None);
 }

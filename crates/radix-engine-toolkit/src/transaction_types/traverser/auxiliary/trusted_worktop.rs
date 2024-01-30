@@ -666,15 +666,26 @@ impl TrustedWorktop {
     fn handle_global_generic_component_method_call(
         &mut self,
         address: &GlobalAddress,
-        _method_name: &String,
+        method_name: &String,
         _args: &ManifestValue,
     ) {
-        if FAUCET_COMPONENT.as_node_id() == address.as_node_id()
-            || TRANSACTION_TRACKER.as_node_id() == address.as_node_id()
-            || GENESIS_HELPER.as_node_id() == address.as_node_id()
-        {
-            // methods are trusted as they doesn't change the worktop state
+        if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
+            if method_name == "free" {
+                // puts on worktop 10k XRD
+                let resources = ResourceSpecifier::Amount(XRD, dec!(10000));
+                self.put_to_worktop(resources.clone());
+                self.add_new_instruction(true, Some(resources));
+            } else {
+                // method 'new' is trusted as it doesn't change the worktop state
+                self.add_new_instruction(true, None);
+            }
+        } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
+            // method 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
+        } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
+            self.untrack_worktop_content = true;
+            self.untrack_buckets = true;
+            self.add_new_instruction(false, None);
         } else {
             // other unknown global or internal component call, may return some unknown bucket
             self.untrack_worktop_content = true;
@@ -690,6 +701,7 @@ impl ManifestSummaryCallback for TrustedWorktop {
         instruction: &InstructionV1,
         instruction_index: usize,
     ) {
+        println!(" ==> TW: {}: {:?}", instruction_index, instruction);
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
                 if !self.untrack_worktop_content {
