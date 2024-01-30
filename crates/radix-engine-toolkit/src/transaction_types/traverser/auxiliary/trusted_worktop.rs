@@ -201,6 +201,53 @@ impl TrustedWorktop {
         ret
     }
 
+    fn merge_same_resources(
+        resources: &[ResourceSpecifier],
+    ) -> Vec<ResourceSpecifier> {
+        let mut set: IndexMap<ResourceAddress, Vec<&ResourceSpecifier>> =
+            IndexMap::new();
+
+        resources.iter().for_each(|resource| {
+            if let Some((_, key, item)) =
+                set.get_full_mut(&resource.resource_address())
+            {
+                assert_eq!(
+                    resource.resource_address().is_fungible(),
+                    key.is_fungible()
+                );
+                item.push(resource);
+            } else {
+                set.insert(resource.resource_address(), vec![resource]);
+            }
+        });
+
+        let mut ret: Vec<ResourceSpecifier> = Vec::new();
+        for (k, v) in set.iter() {
+            if !v.is_empty() {
+                ret.push(match v[0] {
+                    ResourceSpecifier::Amount(_, _) => {
+                        let mut amount = dec!(0);
+                        for resource in v {
+                            amount = amount
+                                .checked_add(*resource.amount().unwrap())
+                                .unwrap();
+                        }
+                        ResourceSpecifier::Amount(*k, amount)
+                    }
+                    ResourceSpecifier::Ids(_, _) => {
+                        let mut new_ids: IndexSet<NonFungibleLocalId> =
+                            IndexSet::new();
+                        for resource in v {
+                            new_ids.extend(resource.ids().unwrap().clone());
+                        }
+                        ResourceSpecifier::Ids(*k, new_ids)
+                    }
+                })
+            }
+        }
+        ret
+    }
+
     fn handle_account_methods(
         &mut self,
         method_name: &String,
@@ -300,7 +347,7 @@ impl TrustedWorktop {
                                 // setting untracked buckets mode as we are not supporting handling vectors of buckets
                                 self.untrack_buckets = true;
                             }
-                            _ => (),
+                            _ => self.add_new_instruction(false, None),
                         }
                     } else {
                         assert_eq!(input_args.buckets().len(), 1);
@@ -321,12 +368,52 @@ impl TrustedWorktop {
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
                 if !self.untrack_buckets {
                     let input_args = IndexedManifestValue::from_typed(args);
-                    for bucket_id in input_args.buckets() {
-                        self.bucket_consumed(bucket_id)
-                            .expect("Bucket not found");
+
+                    if input_args.expressions().len() > 0 {
+                        match input_args
+                            .expressions()
+                            .first()
+                            .expect("Expected expresion")
+                        {
+                            ManifestExpression::EntireWorktop => {
+                                if !self.untrack_worktop_content {
+                                    let resources =
+                                        self.take_all_from_worktop();
+                                    self.add_new_instruction_with_many_resources(true, resources);
+                                } else {
+                                    self.add_new_instruction(false, None);
+                                }
+                            }
+                            _ => self.add_new_instruction(false, None),
+                        }
+                    } else {
+                        let mut found_all_resources = true;
+                        let mut resources =
+                            Vec::with_capacity(input_args.buckets().len());
+                        for bucket_id in input_args.buckets() {
+                            if let Some(res) = self
+                                .bucket_consumed(bucket_id)
+                                .expect("Bucket not found")
+                            {
+                                resources.push(res);
+                            } else {
+                                // bucket with unknown resource -> untrusted instruction,
+                                // iterate to consume rest of the buckets
+                                found_all_resources = false;
+                            }
+                        }
+                        if found_all_resources {
+                            self.add_new_instruction_with_many_resources(
+                                true,
+                                Self::merge_same_resources(&resources),
+                            );
+                        } else {
+                            self.add_new_instruction(false, None);
+                        }
                     }
+                } else {
+                    self.add_new_instruction(false, None);
                 }
-                self.add_new_instruction(false, None);
             }
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
@@ -701,7 +788,6 @@ impl ManifestSummaryCallback for TrustedWorktop {
         instruction: &InstructionV1,
         instruction_index: usize,
     ) {
-        println!(" ==> TW: {}: {:?}", instruction_index, instruction);
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
                 if !self.untrack_worktop_content {
