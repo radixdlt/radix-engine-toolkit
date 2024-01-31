@@ -30,17 +30,28 @@ use transaction::validation::ManifestIdAllocator;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
+    // Information if worktop content is fully known at current instruction
     pub trusted: bool,
+    // Resources moved in context of the instruction
     pub resources: Vec<ResourceSpecifier>,
 }
 
 #[derive(Default)]
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
+
+    // Buckates tracking
     buckets: IndexMap<ManifestBucket, Option<ResourceSpecifier>>,
+    // Buckets id generation
     id_allocator: ManifestIdAllocator,
+    // Information if we are in 'untracked buckets' mode which is triggered 
+    // by use of buckets with unknown content.
     untrack_buckets: bool,
+
+    // Worktop content tracking
     worktop_content: IndexMap<ResourceAddress, ResourceSpecifier>,
+    // Information if we are in 'untracked worktop' mode which is triggered 
+    // when we don't know what was put or taken from the worktop.
     untrack_worktop_content: bool,
 }
 
@@ -84,7 +95,7 @@ impl TrustedWorktop {
         }
     }
 
-    // returns true if bucket was found
+    // returns consumed resources if found
     fn bucket_consumed(
         &mut self,
         bucket_id: &ManifestBucket,
