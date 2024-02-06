@@ -445,26 +445,15 @@ impl TrustedWorktop {
                 }
             }
             ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // todo
                 let input_args: OneResourcePoolProtectedWithdrawManifestInput =
                     to_manifest_type(args).expect("Must succeed");
 
+                // we don't know resource address so instruction is untrasted
+                self.add_new_instruction(false, None);
+
                 // capture returned resources in the bucket
                 self.bucket_tracker.new_bucket_unknown_resources();
-
-                self.add_new_instruction(
-                    matches!(
-                        input_args.withdraw_strategy,
-                        WithdrawStrategy::Exact
-                    ),
-                    None,
-                );
-
-                // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
-                self.add_new_instruction(false, None);
             }
-
             ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
@@ -491,14 +480,75 @@ impl TrustedWorktop {
         args: &ManifestValue,
     ) {
         match method_name {
-            TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
-            | TWO_RESOURCE_POOL_REDEEM_IDENT
-            | TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
-                self.add_new_instruction(false, None);
-            }
+            TWO_RESOURCE_POOL_CONTRIBUTE_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let input_args: TwoResourcePoolContributeManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
 
+                    // capture returned pool units in the bucket
+                    self.bucket_tracker.new_bucket_unknown_resources();
+
+                    let resources_1 = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.buckets.0)
+                        .expect("Bucket not found");
+                    let resources_2 = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.buckets.1)
+                        .expect("Bucket not found");
+                    if resources_1.is_some() && resources_2.is_some() {
+                        self.add_new_instruction_with_many_resources(
+                            true,
+                            vec![resources_1.unwrap(), resources_2.unwrap()],
+                        );
+                    } else {
+                        self.add_new_instruction(false, None);
+                    }
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            TWO_RESOURCE_POOL_REDEEM_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let input_args: TwoResourcePoolRedeemManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+
+                    // capture returned resources in the bucket
+                    self.bucket_tracker.new_bucket_unknown_resources();
+
+                    let resources = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(resources.is_some(), resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                let input_args: TwoResourcePoolProtectedWithdrawManifestInput =
+                    to_manifest_type(args).expect("Must succeed");
+
+                if input_args.resource_address.is_fungible()
+                    && matches!(
+                        input_args.withdraw_strategy,
+                        WithdrawStrategy::Exact
+                    )
+                {
+                    self.add_new_instruction(
+                        true,
+                        Some(ResourceSpecifier::Amount(
+                            input_args.resource_address,
+                            input_args.amount,
+                        )),
+                    );
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+
+                // capture returned resources in the bucket
+                self.bucket_tracker.new_bucket_unknown_resources();
+            }
             TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
@@ -525,14 +575,79 @@ impl TrustedWorktop {
         _args: &ManifestValue,
     ) {
         match method_name {
-            MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT
-            | MULTI_RESOURCE_POOL_REDEEM_IDENT
-            | MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT
-            | MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // todo: check withdraw according to strategy
-                // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+            MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let input_args: MultiResourcePoolContributeManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+
+                    // capture returned pool units in the bucket
+                    self.bucket_tracker.new_bucket_unknown_resources();
+
+                    let resources: Vec<ResourceSpecifier> = input_args
+                        .buckets
+                        .iter()
+                        .map(|bucket| {
+                            self.bucket_tracker
+                                .bucket_consumed(&bucket)
+                                .expect("Bucket not found")
+                        })
+                        .filter(|item| item.is_some())
+                        .collect();
+
+                    // if we found all buckets in bucket tracker and all buckets has known resources
+                    if resources.len() == input_args.buckets.len() {
+                        self.add_new_instruction_with_many_resources(
+                            true, resources,
+                        );
+                    } else {
+                        self.add_new_instruction(false, None);
+                    }
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            MULTI_RESOURCE_POOL_REDEEM_IDENT => {
+                // method returns many buckets so we need to enter untracked bucket mode
+                self.bucket_tracker.enter_untracked_mode();
                 self.add_new_instruction(false, None);
+            }
+            MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                let input_args: MultiResourcePoolProtectedWithdrawManifestInput =
+                    to_manifest_type(args).expect("Must succeed");
+
+                if input_args.resource_address.is_fungible()
+                    && matches!(
+                        input_args.withdraw_strategy,
+                        WithdrawStrategy::Exact
+                    )
+                {
+                    self.add_new_instruction(
+                        true,
+                        Some(ResourceSpecifier::Amount(
+                            input_args.resource_address,
+                            input_args.amount,
+                        )),
+                    );
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+
+                // capture returned resources in the bucket
+                self.bucket_tracker.new_bucket_unknown_resources();
+            }
+            MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    // invalidate input bucket
+                    let input_args: MultiResourcePoolProtectedDepositManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+                    let resources = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(resources.is_some(), resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
