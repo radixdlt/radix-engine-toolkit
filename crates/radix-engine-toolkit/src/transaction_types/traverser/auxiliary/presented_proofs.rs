@@ -38,26 +38,33 @@ impl ManifestSummaryCallback for PresentedProofsDetector {
         resource: &ResourceSpecifier,
     ) {
         self.presented_proofs.entry(*account).and_modify(|item| {
-            if let Some(res) = item.iter().find(|res| {
-                res.resource_address() == resource.resource_address()
-            }) {
+            if let Some((idx, res)) =
+                item.iter().enumerate().find(|(_, res)| {
+                    res.resource_address() == resource.resource_address()
+                })
+            {
                 match res {
-                    ResourceSpecifier::Amount(_, mut amount) => {
-                        match resource {
-                            ResourceSpecifier::Amount(_, new_amount) => {
-                                amount = amount
+                    ResourceSpecifier::Amount(address, amount) => {
+                        if let ResourceSpecifier::Amount(_, new_amount) =
+                            resource
+                        {
+                            item[idx] = ResourceSpecifier::Amount(
+                                *address,
+                                amount
                                     .checked_add(*new_amount)
-                                    .expect("Overflow");
-                            }
-                            ResourceSpecifier::Ids(_, _) => (),
+                                    .expect("Overflow"),
+                            )
                         }
                     }
-                    ResourceSpecifier::Ids(_, mut ids) => match resource {
-                        ResourceSpecifier::Amount(_, _) => (),
-                        ResourceSpecifier::Ids(_, new_ids) => {
-                            ids.extend(new_ids.clone());
+                    ResourceSpecifier::Ids(address, ids) => {
+                        if let ResourceSpecifier::Ids(_, ids_to_add) = resource
+                        {
+                            let mut new_ids = ids.clone();
+                            new_ids.extend(ids_to_add.clone());
+                            item[idx] =
+                                ResourceSpecifier::Ids(*address, new_ids);
                         }
-                    },
+                    }
                 }
             } else {
                 item.push(resource.clone());
