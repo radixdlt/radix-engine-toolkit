@@ -110,7 +110,7 @@ impl TrustedWorktop {
 
             // deposits into an account
             ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     let input_args = IndexedManifestValue::from_typed(args);
 
                     if input_args.expressions().len() > 0 {
@@ -124,7 +124,7 @@ impl TrustedWorktop {
                             ManifestExpression::EntireWorktop => {
                                 if !self
                                     .worktop_content_tracker
-                                    .is_worktop_untracked()
+                                    .is_untracked_mode()
                                 {
                                     let resources = self
                                         .worktop_content_tracker
@@ -138,7 +138,7 @@ impl TrustedWorktop {
                                 }
 
                                 // setting untracked buckets mode as we are not supporting handling vectors of buckets
-                                //self.untrack_buckets = true;
+                                //self.untrack?_buckets = true; //todo
                             }
                             _ => self.add_new_instruction(false, None),
                         }
@@ -149,6 +149,7 @@ impl TrustedWorktop {
                             .first()
                             .expect("Expected bucket");
                         let resources = self
+                            .bucket_tracker
                             .bucket_consumed(bucket_id)
                             .expect("Bucket not found");
                         self.add_new_instruction(
@@ -162,7 +163,7 @@ impl TrustedWorktop {
             }
             ACCOUNT_DEPOSIT_BATCH_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     let input_args = IndexedManifestValue::from_typed(args);
 
                     if input_args.expressions().len() > 0 {
@@ -174,7 +175,7 @@ impl TrustedWorktop {
                             ManifestExpression::EntireWorktop => {
                                 if !self
                                     .worktop_content_tracker
-                                    .is_worktop_untracked()
+                                    .is_untracked_mode()
                                 {
                                     let resources = self
                                         .worktop_content_tracker
@@ -192,6 +193,7 @@ impl TrustedWorktop {
                             Vec::with_capacity(input_args.buckets().len());
                         for bucket_id in input_args.buckets() {
                             if let Some(res) = self
+                                .bucket_tracker
                                 .bucket_consumed(bucket_id)
                                 .expect("Bucket not found")
                             {
@@ -218,7 +220,7 @@ impl TrustedWorktop {
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -236,13 +238,14 @@ impl TrustedWorktop {
             VALIDATOR_APPLY_REWARD_IDENT
             | VALIDATOR_APPLY_EMISSION_IDENT
             | VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args = IndexedManifestValue::from_typed(args);
                     assert_eq!(input_args.buckets().len(), 1);
                     let bucket_id =
                         input_args.buckets().first().expect("Expected bucket");
                     let resources = self
+                        .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
                     self.add_new_instruction(resources.is_some(), resources);
@@ -253,7 +256,7 @@ impl TrustedWorktop {
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -270,7 +273,7 @@ impl TrustedWorktop {
         match method_name {
             IDENTITY_SECURIFY_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -289,7 +292,7 @@ impl TrustedWorktop {
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -306,7 +309,7 @@ impl TrustedWorktop {
         match method_name {
             PACKAGE_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -324,7 +327,7 @@ impl TrustedWorktop {
             FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
                 // todo: mint: global address is res.addr and it is trusted
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -343,7 +346,7 @@ impl TrustedWorktop {
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -362,16 +365,17 @@ impl TrustedWorktop {
             | ONE_RESOURCE_POOL_REDEEM_IDENT
             | ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
             ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args: OneResourcePoolProtectedDepositManifestInput =
                         to_manifest_type(args).expect("Must succeed");
                     let resources = self
+                        .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
                     self.add_new_instruction(resources.is_some(), resources);
@@ -395,16 +399,17 @@ impl TrustedWorktop {
             | TWO_RESOURCE_POOL_REDEEM_IDENT
             | TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
             TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args: TwoResourcePoolProtectedDepositManifestInput =
                         to_manifest_type(args).expect("Must succeed");
                     let resources = self
+                        .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
                     self.add_new_instruction(resources.is_some(), resources);
@@ -430,7 +435,7 @@ impl TrustedWorktop {
             | MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // todo: check withdrow according to strategy
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -459,7 +464,7 @@ impl TrustedWorktop {
             match address {
                 DynamicGlobalAddress::Named(_) => {
                     // unknown component call, may return some unknown bucket
-                    self.untrack_buckets = true;
+                    self.bucket_tracker.enter_untracked_mode();
                     self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
@@ -524,7 +529,7 @@ impl TrustedWorktop {
         match method_name {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.new_bucket_unknown_resources();
+                self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -563,12 +568,12 @@ impl TrustedWorktop {
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
             self.worktop_content_tracker.enter_untracked_mode();
-            self.untrack_buckets = true;
+            self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);
         } else {
             // other unknown global or internal component call, may return some unknown bucket
             self.worktop_content_tracker.enter_untracked_mode();
-            self.untrack_buckets = true;
+            self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);
         }
     }

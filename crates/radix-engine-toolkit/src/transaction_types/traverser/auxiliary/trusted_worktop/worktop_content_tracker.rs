@@ -26,20 +26,20 @@ pub struct WorktopContentTracker {
     // Information if we are in 'untracked worktop' mode, which is enabled
     // when we don't know what was put or taken from the worktop, triggered
     // by the upper layer.
-    untrack_worktop_content: bool,
+    untracked_mode: bool,
 }
 
 impl WorktopContentTracker {
-    pub fn is_worktop_untracked(&self) -> bool {
-        self.untrack_worktop_content
+    pub fn is_untracked_mode(&self) -> bool {
+        self.untracked_mode
     }
 
     pub fn enter_untracked_mode(&mut self) {
-        self.untrack_worktop_content = true;
+        self.untracked_mode = true;
     }
 
     pub fn put_to_worktop(&mut self, resources: ResourceSpecifier) {
-        if !self.untrack_worktop_content {
+        if !self.untracked_mode {
             if let Some(res) =
                 self.worktop_content.get(&resources.resource_address())
             {
@@ -116,7 +116,7 @@ impl WorktopContentTracker {
                         true
                     } else {
                         // cannot take fungible -> worktop content is invalid
-                        self.untrack_worktop_content = true;
+                        self.untracked_mode = true;
                         false
                     }
                 }
@@ -142,7 +142,7 @@ impl WorktopContentTracker {
             .map(|(_k, v)| v.to_owned())
             .collect();
         // worktop is cleared so we can start tracking it back (if untracked)
-        self.untrack_worktop_content = false;
+        self.untracked_mode = false;
         self.worktop_content.clear();
         ret
     }

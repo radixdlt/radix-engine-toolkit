@@ -19,12 +19,12 @@ use crate::transaction_types::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use transaction::prelude::*;
-use transaction::validation::ManifestIdAllocator;
-use self::worktop_content_tracker::WorktopContentTracker;
+use self::{worktop_content_tracker::*, bucket_tracker::*};
 
 mod handler_function_calls;
 mod handler_method_calls;
 mod worktop_content_tracker;
+mod bucket_tracker;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
@@ -73,13 +73,8 @@ pub struct TrustedWorktopInstruction {
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
 
-    // Buckates tracking
-    buckets: IndexMap<ManifestBucket, Option<ResourceSpecifier>>,
-    // Buckets id generation
-    id_allocator: ManifestIdAllocator,
-    // Information if we are in 'untracked buckets' mode which is triggered
-    // by use of buckets with unknown content.
-    untrack_buckets: bool,
+    // Buckets tracking
+    bucket_tracker: BucketTracker,
 
     // Worktop content tracking
     worktop_content_tracker: WorktopContentTracker,
@@ -111,28 +106,6 @@ impl TrustedWorktop {
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction { trusted, resources });
     }
-
-    fn new_bucket_known_resources(&mut self, resources: ResourceSpecifier) {
-        if !self.untrack_buckets {
-            self.buckets
-                .insert(self.id_allocator.new_bucket_id(), Some(resources));
-        }
-    }
-
-    fn new_bucket_unknown_resources(&mut self) {
-        if !self.untrack_buckets {
-            self.buckets.insert(self.id_allocator.new_bucket_id(), None);
-        }
-    }
-
-    // returns consumed resources if found
-    fn bucket_consumed(
-        &mut self,
-        bucket_id: &ManifestBucket,
-    ) -> Option<Option<ResourceSpecifier>> {
-        self.buckets.remove(bucket_id)
-    }
-
 }
 
 impl ManifestSummaryCallback for TrustedWorktop {
@@ -143,15 +116,15 @@ impl ManifestSummaryCallback for TrustedWorktop {
     ) {
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
-                if !self.worktop_content_tracker.is_worktop_untracked() {
+                if !self.worktop_content_tracker.is_untracked_mode() {
                     let resources = self.worktop_content_tracker
                         .take_from_worktop_by_address(*resource_address)
                         .expect("Expected resources");
-                    self.new_bucket_known_resources(resources.clone());
+                    self.bucket_tracker.new_bucket_known_resources(resources.clone());
                     self.add_new_instruction(true, Some(resources));
                 } else {
                     // we don't know what is exactly on the worktop
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
             }
@@ -159,20 +132,20 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 resource_address,
                 amount,
             } => {
-                if !self.worktop_content_tracker.is_worktop_untracked() {
+                if !self.worktop_content_tracker.is_untracked_mode() {
                     let resources =
                         ResourceSpecifier::Amount(*resource_address, *amount);
                     if self.worktop_content_tracker.take_from_worktop(resources.clone()) {
-                        self.new_bucket_known_resources(resources.clone());
+                        self.bucket_tracker.new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // non fungible take by ammount
-                        self.new_bucket_unknown_resources();
+                        self.bucket_tracker.new_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -180,34 +153,34 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 resource_address,
                 ids,
             } => {
-                if !self.worktop_content_tracker.is_worktop_untracked() {
+                if !self.worktop_content_tracker.is_untracked_mode() {
                     let indexed_ids: IndexSet<NonFungibleLocalId> =
                         ids.iter().map(|i| i.clone()).collect();
                     let resources =
                         ResourceSpecifier::Ids(*resource_address, indexed_ids);
 
                     if self.worktop_content_tracker.take_from_worktop(resources.clone()) {
-                        self.new_bucket_known_resources(resources.clone());
+                        self.bucket_tracker.new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // invalid operation fungible take by ammount
-                        self.new_bucket_unknown_resources();
+                        self.bucket_tracker.new_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }
 
             InstructionV1::ReturnToWorktop { bucket_id } => {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     if let Some(resources) =
-                        self.bucket_consumed(bucket_id).expect("Must succeed")
+                        self.bucket_tracker.bucket_consumed(bucket_id).expect("Must succeed")
                     {
                         self.add_new_instruction(true, Some(resources.clone()));
-                        if !self.worktop_content_tracker.is_worktop_untracked() {
+                        if !self.worktop_content_tracker.is_untracked_mode() {
                             self.worktop_content_tracker.put_to_worktop(resources);
                         }
                     } else {
@@ -245,9 +218,9 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 bucket_id,
                 amount,
             } => { // todo: change to trusted instruction
-                if !self.untrack_buckets {
+                /*if !self.bucket_tracker.is_untracked_mode() {
                     if let Some(resources) =
-                        self.buckets.get_mut(bucket_id).expect("Must succeed")
+                        self.bucket_tracker.buckets.get_mut(bucket_id).expect("Must succeed")
                     {
                         if resources.resource_address().is_fungible() {
                             // if operation is done on fungible resource then remove amount from specified bucket
@@ -257,17 +230,17 @@ impl ManifestSummaryCallback for TrustedWorktop {
                                 .checked_sub(*amount);
                         } else {
                             // otherwise set bucket resources as unknown
-                            self.buckets.insert(*bucket_id, None);
+                            self.bucket_tracker.new_bucket_unknown_resources()buckets.insert(*bucket_id, None);
                         }
                     } // else we already don't know what is in the bucket
-                }
+                }*/
                 self.add_new_instruction(true, None);
             }
             InstructionV1::CreateProofFromBucketOfNonFungibles {
                 bucket_id,
                 ids,
             } => {// todo: change to trusted instruction
-                if !self.untrack_buckets {
+                /*if !self.untrack_buckets {
                     if let Some(resources) =
                         self.buckets.get_mut(bucket_id).expect("Must succeed")
                     {
@@ -279,13 +252,17 @@ impl ManifestSummaryCallback for TrustedWorktop {
                             _ => panic!("Expected non fungible"),
                         }
                     } // else we already don't know what is in the bucket
-                }
+                }*/
                 self.add_new_instruction(true, None);
             }
             InstructionV1::CreateProofFromBucketOfAll { bucket_id } // todo: change to trusted instruction
             | InstructionV1::BurnResource { bucket_id } => {
-                self.buckets.remove(bucket_id); // use bucket conume fn
-                self.add_new_instruction(true, None);
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let resources = self.bucket_tracker.bucket_consumed(bucket_id).expect("Bucket not found");
+                    self.add_new_instruction(resources.is_some(), resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
             }
 
             InstructionV1::CallMethod {
@@ -316,7 +293,7 @@ impl ManifestSummaryCallback for TrustedWorktop {
             InstructionV1::CallDirectVaultMethod { .. } => {
                 // we don't know if something was put on worktop -> enter untracked worktop content mode
                 self.worktop_content_tracker.enter_untracked_mode();
-                self.untrack_buckets = true;
+                self.bucket_tracker.enter_untracked_mode();
                 self.add_new_instruction(false, None)
             }
         }

@@ -28,7 +28,7 @@ use super::TrustedWorktop;
 
 impl TrustedWorktop {
     fn unknown_function_call(&mut self) {
-        self.untrack_buckets = true;
+        self.bucket_tracker.enter_untracked_mode();
         self.worktop_content_tracker.enter_untracked_mode();
         self.add_new_instruction(false, None);
     }
@@ -47,7 +47,7 @@ impl TrustedWorktop {
                 }
                 ACCOUNT_CREATE_IDENT => {
                     // resturns bucket with newly generated address
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),
@@ -66,7 +66,7 @@ impl TrustedWorktop {
                 }
                 IDENTITY_CREATE_IDENT => {
                     // resturns unknown bucket
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
                 _ => self.unknown_function_call(),
@@ -74,7 +74,7 @@ impl TrustedWorktop {
         } else if is_access_controller(address) {
             match function_name {
                 ACCESS_CONTROLLER_CREATE_IDENT => {
-                    if !self.untrack_buckets {
+                    if !self.bucket_tracker.is_untracked_mode() {
                         // invalidate input bucket
                         let input_args = IndexedManifestValue::from_typed(args);
                         assert_eq!(input_args.buckets().len(), 1);
@@ -83,6 +83,7 @@ impl TrustedWorktop {
                             .first()
                             .expect("Expected bucket");
                         let resources = self
+                            .bucket_tracker
                             .bucket_consumed(bucket_id)
                             .expect("Bucket not found");
                         self.add_new_instruction(
@@ -99,7 +100,7 @@ impl TrustedWorktop {
             match address {
                 DynamicPackageAddress::Named(_) => {
                     // unknown package function call, may return some unknown bucket
-                    self.untrack_buckets = true;
+                    self.bucket_tracker.enter_untracked_mode();
                     self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
@@ -129,7 +130,7 @@ impl TrustedWorktop {
                 }
                 PACKAGE_PUBLISH_WASM_IDENT => {
                     // resturns unknown bucket
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
                 _ => self.unknown_function_call(),
@@ -138,7 +139,7 @@ impl TrustedWorktop {
             match function_name {
                 FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT => {
                     // returns unknown bucket
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),
@@ -152,7 +153,7 @@ impl TrustedWorktop {
                 | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT =>
                 {
                     // returns unknown bucket
-                    self.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),
@@ -206,13 +207,14 @@ impl TrustedWorktop {
     ) {
         if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
             if function_name == "new" {
-                if !self.untrack_buckets {
+                if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args = IndexedManifestValue::from_typed(args);
                     assert_eq!(input_args.buckets().len(), 1);
                     let bucket_id =
                         input_args.buckets().first().expect("Expected bucket");
                     let resources = self
+                        .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
                     self.add_new_instruction(resources.is_some(), resources);
@@ -227,12 +229,12 @@ impl TrustedWorktop {
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
             self.worktop_content_tracker.enter_untracked_mode();
-            self.untrack_buckets = true;
+            self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);
         } else {
             // other unknown global package function call, may return some unknown bucket
             self.worktop_content_tracker.enter_untracked_mode();
-            self.untrack_buckets = true;
+            self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);
         }
     }
