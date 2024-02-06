@@ -163,7 +163,10 @@ impl TrustedWorktop {
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
                 let input_args = IndexedManifestValue::from_typed(args);
 
-                let (trusted, expression_resources) = if !input_args.expressions().is_empty() {
+                let (trusted, expression_resources) = if !input_args
+                    .expressions()
+                    .is_empty()
+                {
                     match input_args
                         .expressions()
                         .first()
@@ -178,7 +181,12 @@ impl TrustedWorktop {
                                 // self.add_new_instruction_with_many_resources(
                                 //     true, resources,
                                 // );
-                                (true, Some(Self::merge_same_resources(&resources)))
+                                (
+                                    true,
+                                    Some(Self::merge_same_resources(
+                                        &resources,
+                                    )),
+                                )
                             } else {
                                 // take all from worktop will clear worktop so
                                 // switch back to worktop tracked mode
@@ -188,9 +196,11 @@ impl TrustedWorktop {
                                 (false, None)
                             }
                         }
-                        _ => (false, None) //self.add_new_instruction(false, None),
+                        _ => (false, None), //self.add_new_instruction(false, None),
                     }
-                } else {(false, None)};
+                } else {
+                    (false, None)
+                };
 
                 if !input_args.buckets().is_empty() {
                     if !self.bucket_tracker.is_untracked_mode() {
@@ -210,7 +220,10 @@ impl TrustedWorktop {
                                 found_all_resources = false;
                             }
                         }
-                        if found_all_resources && trusted && expression_resources.is_some() {
+                        if found_all_resources
+                            && trusted
+                            && expression_resources.is_some()
+                        {
                             // merge resources from expression part
                             resources.extend(expression_resources.unwrap());
 
@@ -234,7 +247,9 @@ impl TrustedWorktop {
                 } else {
                     // only expression was specified so use that data now
                     if let Some(resources) = expression_resources {
-                        self.add_new_instruction_with_many_resources(trusted, resources);
+                        self.add_new_instruction_with_many_resources(
+                            trusted, resources,
+                        );
                     } else {
                         self.add_new_instruction(false, None);
                     }
@@ -364,14 +379,22 @@ impl TrustedWorktop {
 
     fn handle_non_fungible_resource_manager_methods(
         &mut self,
+        address: ResourceAddress,
         method_name: &str,
-        _args: &ManifestValue,
+        args: &ManifestValue,
     ) {
         match method_name {
-            NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT // todo: trusted
-            | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
+            NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
+                let input_args: NonFungibleResourceManagerMintManifestInput =
+                    to_manifest_type(args).expect("Must succeed");
+
+                let r = ResourceSpecifier::Ids(address, input_args.entries.keys().cloned().collect());
+                self.worktop_content_tracker.put_to_worktop(r.clone());
+                self.add_new_instruction(true, Some(r));
+            }
+            NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
-                // returns unknown bucket
+                // returns unknown resources
                 self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
@@ -387,9 +410,56 @@ impl TrustedWorktop {
         args: &ManifestValue,
     ) {
         match method_name {
-            ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
-            | ONE_RESOURCE_POOL_REDEEM_IDENT
-            | ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+            ONE_RESOURCE_POOL_CONTRIBUTE_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let input_args: OneResourcePoolContributeManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+
+                    // capture returned pool units in the bucket
+                    self.bucket_tracker.new_bucket_unknown_resources();
+
+                    let resources = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(resources.is_some(), resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            ONE_RESOURCE_POOL_REDEEM_IDENT => {
+                if !self.bucket_tracker.is_untracked_mode() {
+                    let input_args: OneResourcePoolRedeemManifestInput =
+                        to_manifest_type(args).expect("Must succeed");
+
+                    // capture returned resources in the bucket
+                    self.bucket_tracker.new_bucket_unknown_resources();
+
+                    let resources = self
+                        .bucket_tracker
+                        .bucket_consumed(&input_args.bucket)
+                        .expect("Bucket not found");
+                    self.add_new_instruction(resources.is_some(), resources);
+                } else {
+                    self.add_new_instruction(false, None);
+                }
+            }
+            ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
+                // todo
+                let input_args: OneResourcePoolProtectedWithdrawManifestInput =
+                    to_manifest_type(args).expect("Must succeed");
+
+                // capture returned resources in the bucket
+                self.bucket_tracker.new_bucket_unknown_resources();
+
+                self.add_new_instruction(
+                    matches!(
+                        input_args.withdraw_strategy,
+                        WithdrawStrategy::Exact
+                    ),
+                    None,
+                );
+
                 // returns unknown bucket
                 self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
@@ -459,7 +529,7 @@ impl TrustedWorktop {
             | MULTI_RESOURCE_POOL_REDEEM_IDENT
             | MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT
             | MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // todo: check withdrow according to strategy
+                // todo: check withdraw according to strategy
                 // returns unknown bucket
                 self.bucket_tracker.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
@@ -500,7 +570,9 @@ impl TrustedWorktop {
                         .is_global_fungible_resource_manager()
                     {
                         self.handle_fungible_resource_manager_methods(
-                            ResourceAddress::new_or_panic(address.as_node_id().0),
+                            ResourceAddress::new_or_panic(
+                                address.as_node_id().0,
+                            ),
                             method_name,
                             args,
                         );
@@ -509,6 +581,9 @@ impl TrustedWorktop {
                         .is_global_non_fungible_resource_manager()
                     {
                         self.handle_non_fungible_resource_manager_methods(
+                            ResourceAddress::new_or_panic(
+                                address.as_node_id().0,
+                            ),
                             method_name,
                             args,
                         );

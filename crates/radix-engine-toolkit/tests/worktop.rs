@@ -362,7 +362,7 @@ fn trusted_worktop_mint_fungible_two_resources() {
 }
 
 #[test]
-fn trusted_worktop_mint_fungible_two_resources_deposit() {
+fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
