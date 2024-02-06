@@ -115,7 +115,7 @@ impl WorktopContentTracker {
                         );
                         true
                     } else {
-                        // cannot take fungible -> worktop content is invalid
+                        // cannot take fungible -> worktop content is untracked
                         self.untracked_mode = true;
                         false
                     }

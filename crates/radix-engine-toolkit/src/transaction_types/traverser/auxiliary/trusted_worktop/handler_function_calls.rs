@@ -225,7 +225,7 @@ impl TrustedWorktop {
                 self.unknown_function_call();
             }
         } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
-            // method 'create' is trusted as it doesn't change the worktop state
+            // function 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
             self.worktop_content_tracker.enter_untracked_mode();

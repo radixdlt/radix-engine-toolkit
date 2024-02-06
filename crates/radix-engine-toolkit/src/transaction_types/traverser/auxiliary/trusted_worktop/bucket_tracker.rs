@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::transaction_types::types::ResourceSpecifierExt;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use transaction::validation::ManifestIdAllocator;
@@ -58,5 +59,63 @@ impl BucketTracker {
         bucket_id: &ManifestBucket,
     ) -> Option<Option<ResourceSpecifier>> {
         self.buckets.remove(bucket_id)
+    }
+
+    pub fn try_consume_fungible_from_bucket(
+        &mut self,
+        bucket_id: &ManifestBucket,
+        amount: &Decimal,
+    ) -> Option<ResourceSpecifier> {
+        if !self.untracked_mode {
+            if let Some(resources) =
+                self.buckets.get_mut(bucket_id).expect("Bucket not found")
+            {
+                // if operation is done on fungible resource then try to remove amount from specified bucket
+                if resources.resource_address().is_fungible() {
+                    if let Some(value) = resources
+                        .amount()
+                        .expect("Must succeed")
+                        .checked_sub(*amount)
+                    {
+                        return Some(ResourceSpecifier::Amount(
+                            resources.resource_address(),
+                            value,
+                        ));
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    pub fn try_consume_non_fungible_from_bucket(
+        &mut self,
+        bucket_id: &ManifestBucket,
+        ids: &Vec<NonFungibleLocalId>,
+    ) -> Option<ResourceSpecifier> {
+        if !self.untracked_mode {
+            if let Some(resources) =
+                self.buckets.get_mut(bucket_id).expect("Bucket not found")
+            {
+                match resources {
+                    ResourceSpecifier::Ids(address, bucket_ids) => {
+                        if ids
+                            .iter()
+                            .filter(|item| bucket_ids.contains(*item))
+                            .count()
+                            == 0
+                        {
+                            // all ids are found in this bucket -> operation succeeded
+                            return Some(ResourceSpecifier::Ids(
+                                *address,
+                                IndexSet::from_iter(ids.iter().cloned()),
+                            ));
+                        }
+                    }
+                    _ => (),
+                }
+            }
+        }
+        None
     }
 }

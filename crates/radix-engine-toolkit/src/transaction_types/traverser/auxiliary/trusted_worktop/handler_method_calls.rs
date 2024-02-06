@@ -110,39 +110,37 @@ impl TrustedWorktop {
 
             // deposits into an account
             ACCOUNT_DEPOSIT_IDENT | ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT => {
-                if !self.bucket_tracker.is_untracked_mode() {
-                    let input_args = IndexedManifestValue::from_typed(args);
+                let input_args = IndexedManifestValue::from_typed(args);
 
-                    if input_args.expressions().len() > 0 {
-                        assert_eq!(input_args.expressions().len(), 1);
+                if !input_args.expressions().is_empty() {
+                    assert_eq!(input_args.expressions().len(), 1);
 
-                        match input_args
-                            .expressions()
-                            .first()
-                            .expect("Expected expresion")
-                        {
-                            ManifestExpression::EntireWorktop => {
-                                if !self
+                    match input_args
+                        .expressions()
+                        .first()
+                        .expect("Expected expresion")
+                    {
+                        ManifestExpression::EntireWorktop => {
+                            if !self.worktop_content_tracker.is_untracked_mode()
+                            {
+                                let resources = self
                                     .worktop_content_tracker
-                                    .is_untracked_mode()
-                                {
-                                    let resources = self
-                                        .worktop_content_tracker
-                                        .take_all_from_worktop();
-                                    self.add_new_instruction_with_many_resources(true, resources);
-                                } else {
-                                    // take all from worktop will switch back to worktop tracked mode
-                                    self.worktop_content_tracker
-                                        .take_all_from_worktop();
-                                    self.add_new_instruction(false, None);
-                                }
-
-                                // setting untracked buckets mode as we are not supporting handling vectors of buckets
-                                //self.untrack?_buckets = true; //todo
+                                    .take_all_from_worktop();
+                                self.add_new_instruction_with_many_resources(
+                                    true, resources,
+                                );
+                            } else {
+                                // take all from worktop will clear worktop so
+                                // switch back to worktop tracked mode
+                                self.worktop_content_tracker
+                                    .take_all_from_worktop();
+                                self.add_new_instruction(false, None);
                             }
-                            _ => self.add_new_instruction(false, None),
                         }
-                    } else {
+                        _ => self.add_new_instruction(false, None),
+                    }
+                } else {
+                    if !self.bucket_tracker.is_untracked_mode() {
                         assert_eq!(input_args.buckets().len(), 1);
                         let bucket_id = input_args
                             .buckets()
@@ -156,38 +154,46 @@ impl TrustedWorktop {
                             resources.is_some(),
                             resources,
                         );
+                    } else {
+                        self.add_new_instruction(false, None);
                     }
-                } else {
-                    self.add_new_instruction(false, None);
                 }
             }
             ACCOUNT_DEPOSIT_BATCH_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT => {
-                if !self.bucket_tracker.is_untracked_mode() {
-                    let input_args = IndexedManifestValue::from_typed(args);
+                let input_args = IndexedManifestValue::from_typed(args);
 
-                    if input_args.expressions().len() > 0 {
-                        match input_args
-                            .expressions()
-                            .first()
-                            .expect("Expected expresion")
-                        {
-                            ManifestExpression::EntireWorktop => {
-                                if !self
+                let (trusted, expression_resources) = if !input_args.expressions().is_empty() {
+                    match input_args
+                        .expressions()
+                        .first()
+                        .expect("Expected expresion")
+                    {
+                        ManifestExpression::EntireWorktop => {
+                            if !self.worktop_content_tracker.is_untracked_mode()
+                            {
+                                let resources = self
                                     .worktop_content_tracker
-                                    .is_untracked_mode()
-                                {
-                                    let resources = self
-                                        .worktop_content_tracker
-                                        .take_all_from_worktop();
-                                    self.add_new_instruction_with_many_resources(true, resources);
-                                } else {
-                                    self.add_new_instruction(false, None);
-                                }
+                                    .take_all_from_worktop();
+                                // self.add_new_instruction_with_many_resources(
+                                //     true, resources,
+                                // );
+                                (true, Some(Self::merge_same_resources(&resources)))
+                            } else {
+                                // take all from worktop will clear worktop so
+                                // switch back to worktop tracked mode
+                                self.worktop_content_tracker
+                                    .take_all_from_worktop();
+                                //self.add_new_instruction(false, None);
+                                (false, None)
                             }
-                            _ => self.add_new_instruction(false, None),
                         }
-                    } else {
+                        _ => (false, None) //self.add_new_instruction(false, None),
+                    }
+                } else {(false, None)};
+
+                if !input_args.buckets().is_empty() {
+                    if !self.bucket_tracker.is_untracked_mode() {
                         let mut found_all_resources = true;
                         let mut resources =
                             Vec::with_capacity(input_args.buckets().len());
@@ -204,7 +210,15 @@ impl TrustedWorktop {
                                 found_all_resources = false;
                             }
                         }
-                        if found_all_resources {
+                        if found_all_resources && trusted && expression_resources.is_some() {
+                            // merge resources from expression part
+                            resources.extend(expression_resources.unwrap());
+
+                            self.add_new_instruction_with_many_resources(
+                                true,
+                                Self::merge_same_resources(&resources),
+                            );
+                        } else if found_all_resources && !trusted {
                             self.add_new_instruction_with_many_resources(
                                 true,
                                 Self::merge_same_resources(&resources),
@@ -212,9 +226,18 @@ impl TrustedWorktop {
                         } else {
                             self.add_new_instruction(false, None);
                         }
+                    } else {
+                        // even if expression was used we don't have list of all
+                        // resources so instruction must be untrasted
+                        self.add_new_instruction(false, None);
                     }
                 } else {
-                    self.add_new_instruction(false, None);
+                    // only expression was specified so use that data now
+                    if let Some(resources) = expression_resources {
+                        self.add_new_instruction_with_many_resources(trusted, resources);
+                    } else {
+                        self.add_new_instruction(false, None);
+                    }
                 }
             }
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
@@ -320,15 +343,18 @@ impl TrustedWorktop {
 
     fn handle_fungible_resource_manager_methods(
         &mut self,
+        address: ResourceAddress,
         method_name: &str,
-        _args: &ManifestValue,
+        args: &ManifestValue,
     ) {
         match method_name {
             FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
-                // todo: mint: global address is res.addr and it is trusted
-                // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
-                self.add_new_instruction(false, None);
+                let input_args: FungibleResourceManagerMintInput =
+                    to_manifest_type(args).expect("Must succeed");
+
+                let r = ResourceSpecifier::Amount(address, input_args.amount);
+                self.worktop_content_tracker.put_to_worktop(r.clone());
+                self.add_new_instruction(true, Some(r));
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -474,6 +500,7 @@ impl TrustedWorktop {
                         .is_global_fungible_resource_manager()
                     {
                         self.handle_fungible_resource_manager_methods(
+                            ResourceAddress::new_or_panic(address.as_node_id().0),
                             method_name,
                             args,
                         );

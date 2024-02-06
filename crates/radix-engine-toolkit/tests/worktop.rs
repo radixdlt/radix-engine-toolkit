@@ -161,7 +161,7 @@ fn trusted_worktop_burn_all() {
     validate(&manifest_summary, 0, true, None);
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]); // inserted instruction TakeAllFromWorktop by test framework
-    validate(&manifest_summary, 3, true, None);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(10))]);
 }
 
 #[test]
@@ -266,4 +266,144 @@ fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
     validate_amount(&ms, 4, true, &[(address, dec!(6))]);
     validate_amount(&ms, 5, true, &[(XRD, dec!(3000)), (address, dec!(6))]);
     validate_amount(&ms, 6, true, &[(XRD, dec!(7000)), (address, dec!(4))]);
+}
+
+#[test]
+fn trusted_worktop_two_withdraws() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let (_, _, account2) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 10)
+        .withdraw_from_account(account, address, 20)
+        .take_from_worktop(address, 30, "bucket_1")
+        .try_deposit_or_abort(account2, None, "bucket_1")
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(20))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(30))]);
+    validate_amount(&manifest_summary, 4, true, &[(address, dec!(30))]);
+}
+
+#[test]
+fn trusted_worktop_mint_fungible() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_freely_mintable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .mint_fungible(address, 10)
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]);
+}
+
+#[test]
+fn trusted_worktop_mint_fungible_two_resources() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let addr_1 = test_runner.create_freely_mintable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
+    let addr_2 = test_runner.create_freely_mintable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .mint_fungible(addr_1, 10)
+        .mint_fungible(addr_2, 5)
+        .mint_fungible(addr_1, 20)
+        .mint_fungible(addr_2, 7)
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+    let (ms, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(ms.trusted_worktop_instructions.len(), 6);
+    validate(&ms, 0, true, None);
+    validate_amount(&ms, 1, true, &[(addr_1, dec!(10))]);
+    validate_amount(&ms, 2, true, &[(addr_2, dec!(5))]);
+    validate_amount(&ms, 3, true, &[(addr_1, dec!(20))]);
+    validate_amount(&ms, 4, true, &[(addr_2, dec!(7))]);
+    validate_amount(&ms, 5, true, &[(addr_1, dec!(30)), (addr_2, dec!(12))]);
+}
+
+#[test]
+fn trusted_worktop_mint_fungible_two_resources_deposit() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let addr_1 = test_runner.create_freely_mintable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
+    let addr_2 = test_runner.create_freely_mintable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .mint_fungible(addr_1, 10)
+        .mint_fungible(addr_2, 5)
+        .mint_fungible(addr_1, 20)
+        .mint_fungible(addr_2, 7)
+        .take_from_worktop(addr_1, 25, "bucket_1")
+        .try_deposit_or_abort(account, None, "bucket_1")
+        .take_from_worktop(addr_2, 1, "bucket_2")
+        .try_deposit_or_abort(account, None, "bucket_2")
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+    let (ms, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(ms.trusted_worktop_instructions.len(), 10);
+    validate(&ms, 0, true, None);
+    validate_amount(&ms, 1, true, &[(addr_1, dec!(10))]);
+    validate_amount(&ms, 2, true, &[(addr_2, dec!(5))]);
+    validate_amount(&ms, 3, true, &[(addr_1, dec!(20))]);
+    validate_amount(&ms, 4, true, &[(addr_2, dec!(7))]);
+    validate_amount(&ms, 5, true, &[(addr_1, dec!(25))]);
+    validate_amount(&ms, 6, true, &[(addr_1, dec!(25))]);
+    validate_amount(&ms, 7, true, &[(addr_2, dec!(1))]);
+    validate_amount(&ms, 8, true, &[(addr_2, dec!(1))]);
+    validate_amount(&ms, 9, true, &[(addr_1, dec!(5)), (addr_2, dec!(11))]);
 }
