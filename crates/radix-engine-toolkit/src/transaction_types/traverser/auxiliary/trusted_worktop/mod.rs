@@ -20,9 +20,11 @@ use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 use transaction::validation::ManifestIdAllocator;
+use self::worktop_content_tracker::WorktopContentTracker;
 
 mod handler_function_calls;
 mod handler_method_calls;
+mod worktop_content_tracker;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
@@ -80,10 +82,7 @@ pub struct TrustedWorktop {
     untrack_buckets: bool,
 
     // Worktop content tracking
-    worktop_content: IndexMap<ResourceAddress, ResourceSpecifier>,
-    // Information if we are in 'untracked worktop' mode which is triggered
-    // when we don't know what was put or taken from the worktop.
-    untrack_worktop_content: bool,
+    worktop_content_tracker: WorktopContentTracker,
 }
 
 impl TrustedWorktop {
@@ -134,161 +133,6 @@ impl TrustedWorktop {
         self.buckets.remove(bucket_id)
     }
 
-    fn put_to_worktop(&mut self, resources: ResourceSpecifier) {
-        if !self.untrack_worktop_content {
-            if let Some(res) =
-                self.worktop_content.get(&resources.resource_address())
-            {
-                // if found then exted with passed values
-                match res {
-                    ResourceSpecifier::Amount(_address, amount) => {
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Amount(
-                                resources.resource_address(),
-                                amount
-                                    .checked_add(*resources.amount().unwrap())
-                                    .unwrap(),
-                            ),
-                        );
-                    }
-                    ResourceSpecifier::Ids(_address, ids) => {
-                        let mut new_ids = ids.clone();
-                        new_ids.extend(resources.ids().unwrap().clone());
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Ids(
-                                resources.resource_address(),
-                                new_ids,
-                            ),
-                        );
-                    }
-                }
-            } else {
-                self.worktop_content
-                    .insert(resources.resource_address(), resources);
-            }
-        }
-    }
-
-    // return true in case of success
-    fn take_from_worktop(&mut self, resources: ResourceSpecifier) -> bool {
-        if let Some(res) =
-            self.worktop_content.get(&resources.resource_address())
-        {
-            // if found then subtract passed values
-            match res {
-                ResourceSpecifier::Amount(_address, amount) => {
-                    if resources.resource_address().is_fungible() {
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Amount(
-                                resources.resource_address(),
-                                amount
-                                    .checked_sub(*resources.amount().unwrap())
-                                    .unwrap(),
-                            ),
-                        );
-                        true
-                    } else {
-                        // don't know which non fungibles will be taken
-                        // not setting untracked worktop content mode, as other instructions can still be valid
-                        false
-                    }
-                }
-                ResourceSpecifier::Ids(_address, ids) => {
-                    if !resources.resource_address().is_fungible() {
-                        let mut new_ids = ids.clone();
-                        new_ids.retain(|item| {
-                            !resources.ids().unwrap().contains(item)
-                        });
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Ids(
-                                resources.resource_address(),
-                                new_ids,
-                            ),
-                        );
-                        true
-                    } else {
-                        // cannot take fungible -> worktop content is invalid
-                        self.untrack_worktop_content = true;
-                        false
-                    }
-                }
-            }
-        } else {
-            false
-        }
-    }
-
-    fn take_from_worktop_by_address(
-        &mut self,
-        resource_address: ResourceAddress,
-    ) -> Option<ResourceSpecifier> {
-        self.worktop_content
-            .remove(&resource_address)
-            .map(|item| item.clone())
-    }
-
-    fn take_all_from_worktop(&mut self) -> Vec<ResourceSpecifier> {
-        let ret = self
-            .worktop_content
-            .iter()
-            .map(|(_k, v)| v.to_owned())
-            .collect();
-        // worktop is cleared so we can start tracking it back (if untracked)
-        self.untrack_worktop_content = false;
-        self.worktop_content.clear();
-        ret
-    }
-
-    fn merge_same_resources(
-        resources: &[ResourceSpecifier],
-    ) -> Vec<ResourceSpecifier> {
-        let mut set: IndexMap<ResourceAddress, Vec<&ResourceSpecifier>> =
-            IndexMap::new();
-
-        resources.iter().for_each(|resource| {
-            if let Some((_, key, item)) =
-                set.get_full_mut(&resource.resource_address())
-            {
-                assert_eq!(
-                    resource.resource_address().is_fungible(),
-                    key.is_fungible()
-                );
-                item.push(resource);
-            } else {
-                set.insert(resource.resource_address(), vec![resource]);
-            }
-        });
-
-        let mut ret: Vec<ResourceSpecifier> = Vec::new();
-        for (k, v) in set.iter() {
-            if !v.is_empty() {
-                ret.push(match v[0] {
-                    ResourceSpecifier::Amount(_, _) => {
-                        let mut amount = dec!(0);
-                        for resource in v {
-                            amount = amount
-                                .checked_add(*resource.amount().unwrap())
-                                .unwrap();
-                        }
-                        ResourceSpecifier::Amount(*k, amount)
-                    }
-                    ResourceSpecifier::Ids(_, _) => {
-                        let mut new_ids: IndexSet<NonFungibleLocalId> =
-                            IndexSet::new();
-                        for resource in v {
-                            new_ids.extend(resource.ids().unwrap().clone());
-                        }
-                        ResourceSpecifier::Ids(*k, new_ids)
-                    }
-                })
-            }
-        }
-        ret
-    }
 }
 
 impl ManifestSummaryCallback for TrustedWorktop {
@@ -299,8 +143,8 @@ impl ManifestSummaryCallback for TrustedWorktop {
     ) {
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
-                if !self.untrack_worktop_content {
-                    let resources = self
+                if !self.worktop_content_tracker.is_worktop_untracked() {
+                    let resources = self.worktop_content_tracker
                         .take_from_worktop_by_address(*resource_address)
                         .expect("Expected resources");
                     self.new_bucket_known_resources(resources.clone());
@@ -315,10 +159,10 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 resource_address,
                 amount,
             } => {
-                if !self.untrack_worktop_content {
+                if !self.worktop_content_tracker.is_worktop_untracked() {
                     let resources =
                         ResourceSpecifier::Amount(*resource_address, *amount);
-                    if self.take_from_worktop(resources.clone()) {
+                    if self.worktop_content_tracker.take_from_worktop(resources.clone()) {
                         self.new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
@@ -336,13 +180,13 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 resource_address,
                 ids,
             } => {
-                if !self.untrack_worktop_content {
+                if !self.worktop_content_tracker.is_worktop_untracked() {
                     let indexed_ids: IndexSet<NonFungibleLocalId> =
                         ids.iter().map(|i| i.clone()).collect();
                     let resources =
                         ResourceSpecifier::Ids(*resource_address, indexed_ids);
 
-                    if self.take_from_worktop(resources.clone()) {
+                    if self.worktop_content_tracker.take_from_worktop(resources.clone()) {
                         self.new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
@@ -363,17 +207,17 @@ impl ManifestSummaryCallback for TrustedWorktop {
                         self.bucket_consumed(bucket_id).expect("Must succeed")
                     {
                         self.add_new_instruction(true, Some(resources.clone()));
-                        if !self.untrack_worktop_content {
-                            self.put_to_worktop(resources);
+                        if !self.worktop_content_tracker.is_worktop_untracked() {
+                            self.worktop_content_tracker.put_to_worktop(resources);
                         }
                     } else {
                         // we don't know exactly what is put on worktop
-                        self.untrack_worktop_content = true;
+                        self.worktop_content_tracker.enter_untracked_mode();
                         self.add_new_instruction(false, None);
                     }
                 } else {
                     // we don't know exactly what is put on worktop
-                    self.untrack_worktop_content = true;
+                    self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -471,7 +315,7 @@ impl ManifestSummaryCallback for TrustedWorktop {
 
             InstructionV1::CallDirectVaultMethod { .. } => {
                 // we don't know if something was put on worktop -> enter untracked worktop content mode
-                self.untrack_worktop_content = true;
+                self.worktop_content_tracker.enter_untracked_mode();
                 self.untrack_buckets = true;
                 self.add_new_instruction(false, None)
             }

@@ -1,4 +1,22 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 use crate::sbor::indexed_manifest_value::IndexedManifestValue;
+use crate::transaction_types::*;
 use crate::utils::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_interface::api::node_modules::royalty::*;
@@ -29,12 +47,13 @@ impl TrustedWorktop {
                         input_args.resource_address,
                         input_args.amount.clone(),
                     );
-                    self.put_to_worktop(resources.clone());
+                    self.worktop_content_tracker
+                        .put_to_worktop(resources.clone());
                     self.add_new_instruction(true, Some(resources));
                 } else {
                     // put nonfungible by amount to worktop -> non trusted
                     // we don't know what is on worktop so entering untracked mode
-                    self.untrack_worktop_content = true;
+                    self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -48,7 +67,8 @@ impl TrustedWorktop {
                     input_args.ids.clone(),
                 );
 
-                self.put_to_worktop(resources.clone());
+                self.worktop_content_tracker
+                    .put_to_worktop(resources.clone());
                 self.add_new_instruction(true, Some(resources));
             }
 
@@ -63,12 +83,13 @@ impl TrustedWorktop {
                         input_args.resource_address,
                         input_args.amount.clone(),
                     );
-                    self.put_to_worktop(resources.clone());
+                    self.worktop_content_tracker
+                        .put_to_worktop(resources.clone());
                     self.add_new_instruction(true, Some(resources));
                 } else {
                     // put non fungible by amount to worktop -> non trusted,
                     // we don't know what is on worktop so entering untracked mode
-                    self.untrack_worktop_content = true;
+                    self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -82,7 +103,8 @@ impl TrustedWorktop {
                     input_args.ids.clone(),
                 );
 
-                self.put_to_worktop(resources.clone());
+                self.worktop_content_tracker
+                    .put_to_worktop(resources.clone());
                 self.add_new_instruction(true, Some(resources));
             }
 
@@ -100,11 +122,18 @@ impl TrustedWorktop {
                             .expect("Expected expresion")
                         {
                             ManifestExpression::EntireWorktop => {
-                                if !self.untrack_worktop_content {
-                                    let resources =
-                                        self.take_all_from_worktop();
+                                if !self
+                                    .worktop_content_tracker
+                                    .is_worktop_untracked()
+                                {
+                                    let resources = self
+                                        .worktop_content_tracker
+                                        .take_all_from_worktop();
                                     self.add_new_instruction_with_many_resources(true, resources);
                                 } else {
+                                    // take all from worktop will switch back to worktop tracked mode
+                                    self.worktop_content_tracker
+                                        .take_all_from_worktop();
                                     self.add_new_instruction(false, None);
                                 }
 
@@ -143,9 +172,13 @@ impl TrustedWorktop {
                             .expect("Expected expresion")
                         {
                             ManifestExpression::EntireWorktop => {
-                                if !self.untrack_worktop_content {
-                                    let resources =
-                                        self.take_all_from_worktop();
+                                if !self
+                                    .worktop_content_tracker
+                                    .is_worktop_untracked()
+                                {
+                                    let resources = self
+                                        .worktop_content_tracker
+                                        .take_all_from_worktop();
                                     self.add_new_instruction_with_many_resources(true, resources);
                                 } else {
                                     self.add_new_instruction(false, None);
@@ -249,7 +282,7 @@ impl TrustedWorktop {
     fn handle_access_controller_methods(
         &mut self,
         method_name: &str,
-        args: &ManifestValue,
+        _args: &ManifestValue,
     ) {
         match method_name {
             ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
@@ -427,7 +460,7 @@ impl TrustedWorktop {
                 DynamicGlobalAddress::Named(_) => {
                     // unknown component call, may return some unknown bucket
                     self.untrack_buckets = true;
-                    self.untrack_worktop_content = true;
+                    self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
                 DynamicGlobalAddress::Static(address) => {
@@ -514,7 +547,8 @@ impl TrustedWorktop {
                         XRD,
                         faucet::FAUCET_FREE_AMOUNT.into(),
                     );
-                    self.put_to_worktop(resources.clone());
+                    self.worktop_content_tracker
+                        .put_to_worktop(resources.clone());
                     self.add_new_instruction(true, Some(resources));
                 }
                 "lock_fee" => {
@@ -528,14 +562,61 @@ impl TrustedWorktop {
         } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
-            self.untrack_worktop_content = true;
+            self.worktop_content_tracker.enter_untracked_mode();
             self.untrack_buckets = true;
             self.add_new_instruction(false, None);
         } else {
             // other unknown global or internal component call, may return some unknown bucket
-            self.untrack_worktop_content = true;
+            self.worktop_content_tracker.enter_untracked_mode();
             self.untrack_buckets = true;
             self.add_new_instruction(false, None);
         }
+    }
+
+    fn merge_same_resources(
+        resources: &[ResourceSpecifier],
+    ) -> Vec<ResourceSpecifier> {
+        let mut set: IndexMap<ResourceAddress, Vec<&ResourceSpecifier>> =
+            IndexMap::new();
+
+        resources.iter().for_each(|resource| {
+            if let Some((_, key, item)) =
+                set.get_full_mut(&resource.resource_address())
+            {
+                assert_eq!(
+                    resource.resource_address().is_fungible(),
+                    key.is_fungible()
+                );
+                item.push(resource);
+            } else {
+                set.insert(resource.resource_address(), vec![resource]);
+            }
+        });
+
+        let mut ret: Vec<ResourceSpecifier> = Vec::new();
+        for (k, v) in set.iter() {
+            if !v.is_empty() {
+                ret.push(match v[0] {
+                    ResourceSpecifier::Amount(_, _) => {
+                        let mut amount = dec!(0);
+                        for resource in v {
+                            amount = amount
+                                .checked_add(*resource.amount().unwrap())
+                                .unwrap();
+                        }
+                        ResourceSpecifier::Amount(*k, amount)
+                    }
+                    ResourceSpecifier::Ids(_, _) => {
+                        let mut new_ids: IndexSet<NonFungibleLocalId> =
+                            IndexSet::new();
+                        for resource in v {
+                            new_ids.extend(resource.ids().unwrap().clone());
+                        }
+                        ResourceSpecifier::Ids(*k, new_ids)
+                    }
+                })
+            }
+        }
+        ret
     }
 }

@@ -1,3 +1,20 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 use crate::sbor::indexed_manifest_value::IndexedManifestValue;
 use crate::utils::*;
 use radix_engine_interface::blueprints::{
@@ -12,7 +29,7 @@ use super::TrustedWorktop;
 impl TrustedWorktop {
     fn unknown_function_call(&mut self) {
         self.untrack_buckets = true;
-        self.untrack_worktop_content = true;
+        self.worktop_content_tracker.enter_untracked_mode();
         self.add_new_instruction(false, None);
     }
 
@@ -83,7 +100,7 @@ impl TrustedWorktop {
                 DynamicPackageAddress::Named(_) => {
                     // unknown package function call, may return some unknown bucket
                     self.untrack_buckets = true;
-                    self.untrack_worktop_content = true;
+                    self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
                 }
                 DynamicPackageAddress::Static(address) => self
@@ -209,12 +226,12 @@ impl TrustedWorktop {
             // method 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
-            self.untrack_worktop_content = true;
+            self.worktop_content_tracker.enter_untracked_mode();
             self.untrack_buckets = true;
             self.add_new_instruction(false, None);
         } else {
             // other unknown global package function call, may return some unknown bucket
-            self.untrack_worktop_content = true;
+            self.worktop_content_tracker.enter_untracked_mode();
             self.untrack_buckets = true;
             self.add_new_instruction(false, None);
         }
