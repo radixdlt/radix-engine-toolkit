@@ -33,9 +33,8 @@ use super::*;
 /// A summary of the manifest
 #[derive(Clone, Debug)]
 pub struct ManifestSummary {
-    /// The set of the resource addresses of proofs that were presented in
-    /// the manifest.
-    pub presented_proofs: IndexSet<ResourceAddress>,
+    /// The set of the resources of proofs that were presented in the manifest.
+    pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
     /// The set of accounts withdrawn from observed in the manifest.
     pub accounts_withdrawn_from: IndexSet<ComponentAddress>,
     /// The set of accounts deposited into observed in the manifest.
@@ -67,7 +66,7 @@ pub struct ExecutionSummary {
     pub account_deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The set of the resource addresses of proofs that were presented in
     /// the manifest.
-    pub presented_proofs: IndexSet<ResourceAddress>,
+    pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
     /// Information on the global entities created in the transaction.
     pub new_entities: NewEntities,
     /// The set of all the global entities encountered in the manifest. This is
