@@ -14,10 +14,10 @@ use super::TrustedWorktop;
 impl TrustedWorktop {
     fn handle_account_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             // withdraw resources from account by address and amount
             ACCOUNT_WITHDRAW_IDENT => {
                 let input_args: AccountWithdrawInput =
@@ -109,7 +109,7 @@ impl TrustedWorktop {
                                 }
 
                                 // setting untracked buckets mode as we are not supporting handling vectors of buckets
-                                self.untrack_buckets = true;
+                                //self.untrack_buckets = true;
                             }
                             _ => self.add_new_instruction(false, None),
                         }
@@ -122,7 +122,10 @@ impl TrustedWorktop {
                         let resources = self
                             .bucket_consumed(bucket_id)
                             .expect("Bucket not found");
-                        self.add_new_instruction(true, resources);
+                        self.add_new_instruction(
+                            resources.is_some(),
+                            resources,
+                        );
                     }
                 } else {
                     self.add_new_instruction(false, None);
@@ -193,10 +196,10 @@ impl TrustedWorktop {
 
     fn handle_validator_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             VALIDATOR_APPLY_REWARD_IDENT
             | VALIDATOR_APPLY_EMISSION_IDENT
             | VALIDATOR_LOCK_OWNER_STAKE_UNITS_IDENT => {
@@ -209,7 +212,7 @@ impl TrustedWorktop {
                     let resources = self
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
-                    self.add_new_instruction(true, resources);
+                    self.add_new_instruction(resources.is_some(), resources);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -228,15 +231,14 @@ impl TrustedWorktop {
 
     fn handle_identity_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
-            IDENTITY_CREATE_IDENT | IDENTITY_SECURIFY_IDENT => {
-                // todo check if it is not fn
+        match method_name {
+            IDENTITY_SECURIFY_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
-                self.add_new_instruction(false, None);
+                self.new_bucket_unknown_resources();
+                self.add_new_instruction(true, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -246,27 +248,10 @@ impl TrustedWorktop {
 
     fn handle_access_controller_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
-        match method_name.as_str() {
-            ACCESS_CONTROLLER_CREATE_IDENT => {
-                // todo: it is a function
-                if !self.untrack_buckets {
-                    // invalidate input bucket
-                    let input_args = IndexedManifestValue::from_typed(args);
-                    assert_eq!(input_args.buckets().len(), 1);
-                    let bucket_id =
-                        input_args.buckets().first().expect("Expected bucket");
-                    let resources = self
-                        .bucket_consumed(bucket_id)
-                        .expect("Bucket not found");
-                    self.add_new_instruction(true, resources);
-                } else {
-                    self.add_new_instruction(false, None);
-                }
-            }
-
+        match method_name {
             ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
@@ -282,10 +267,10 @@ impl TrustedWorktop {
 
     fn handle_package_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             PACKAGE_PUBLISH_WASM_IDENT | PACKAGE_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
                 self.untrack_buckets = true;
@@ -299,10 +284,10 @@ impl TrustedWorktop {
 
     fn handle_fungible_resource_manager_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
             | FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
                 // todo: mint: global address is res.addr and it is trusted
@@ -318,10 +303,10 @@ impl TrustedWorktop {
 
     fn handle_non_fungible_resource_manager_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
             | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT // todo: trusted
@@ -339,10 +324,10 @@ impl TrustedWorktop {
 
     fn handle_one_resource_pool_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             ONE_RESOURCE_POOL_CONTRIBUTE_IDENT
             | ONE_RESOURCE_POOL_REDEEM_IDENT
             | ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
@@ -359,7 +344,7 @@ impl TrustedWorktop {
                     let resources = self
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(true, resources);
+                    self.add_new_instruction(resources.is_some(), resources);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -372,10 +357,10 @@ impl TrustedWorktop {
 
     fn handle_two_resource_pool_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             TWO_RESOURCE_POOL_CONTRIBUTE_IDENT
             | TWO_RESOURCE_POOL_REDEEM_IDENT
             | TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
@@ -392,7 +377,7 @@ impl TrustedWorktop {
                     let resources = self
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(true, resources);
+                    self.add_new_instruction(resources.is_some(), resources);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -405,10 +390,10 @@ impl TrustedWorktop {
 
     fn handle_multi_resource_pool_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT
             | MULTI_RESOURCE_POOL_REDEEM_IDENT
             | MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT
@@ -427,7 +412,7 @@ impl TrustedWorktop {
     pub fn handle_call_methods(
         &mut self,
         address: &DynamicGlobalAddress,
-        method_name: &String,
+        method_name: &str,
         args: &ManifestValue,
     ) {
         if is_account(address) {
@@ -503,10 +488,10 @@ impl TrustedWorktop {
 
     pub fn handle_call_royalty_methods(
         &mut self,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
-        match method_name.as_str() {
+        match method_name {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
                 self.untrack_buckets = true;
@@ -521,12 +506,12 @@ impl TrustedWorktop {
     fn handle_global_generic_component_method_call(
         &mut self,
         address: &GlobalAddress,
-        method_name: &String,
+        method_name: &str,
         _args: &ManifestValue,
     ) {
         if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
             if method_name == "free" {
-                // puts on worktop 10k XRD // todo: change to constant
+                // puts on worktop faucet::FAUCET_FREE_AMOUNT XRD count
                 let resources = ResourceSpecifier::Amount(
                     XRD,
                     faucet::FAUCET_FREE_AMOUNT.into(),

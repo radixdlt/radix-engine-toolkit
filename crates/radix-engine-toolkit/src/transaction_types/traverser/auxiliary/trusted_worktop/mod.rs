@@ -33,6 +33,38 @@ pub struct TrustedWorktopInstruction {
 }
 
 #[derive(Default)]
+// Instruction is trusted when we know exact resources transfer assiociated 
+// to that instruction (so we need to know what instruction is doing and if
+// it transfers resources including exact count/list of these resources or not
+// deals with resources at all).
+//
+// Worktop content tracker operation logic:
+//  If Instruction doesn't change worktop state and doesn't use buckets then it is trusted.
+//  If Instruction changes worktop state:
+//    1. Puts resources on the worktop (ex. Account withdraws, Return to workotop, etc.)
+//       - if we know what resources has been put on the worktop then instruction is trusted
+//       - if we don't know what has been put on the worktop then instruction is untrasted
+//         and we are entering into untracked worktop content mode (from now we don't know 
+//         exactly what is on the worktop)
+//    2. Takes resources from the worktop (ex. Take from worktop instructions)
+//       - if we are in untracked worktop content mode then instruction is untrasted
+//       - if we know the resources then instruction is trusted
+//  If Instruction uses a bucket and we are not in bucket untracked mode:
+//    1. If bucket is known and resources are known, then it is consumed and instruction is trusted
+//    2. If bucket is known but resources are unknown then it is consumed and instruction is untrasted
+//    3. If bucket is unknown then we are entering into bucket untracked mode and instruction is untrusted
+//
+// Bucket tracker operaion logic:
+//  Function/method call 
+//    1. Returns a bucket and we are not in untracked buckets mode:
+//       - if we know what is in the bucket -> call new_bucket_known_resources()
+//       - if we don't know what is in the bucket -> call new_bucket_unknown_resources()
+//    2. We don't know what is returned: 
+//       - enter untracked buckets mode
+//
+// We can indentify an instruction as trusted if we are in untracked worktop mode in
+// case of an instruction which returns known bucket and that bucket is later consumed.
+//
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
 
@@ -423,14 +455,6 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 args,
              } => self.handle_call_functions(package_address, blueprint_name, function_name,
                 args),
-             /*{ // todo: check for global comonents
-                // we don't know if bucket is returned -> enter untracked buckets mode
-                self.untrack_buckets = true;
-                // we don't know if something was put on worktop -> enter untracked worktop content mode
-                self.untrack_worktop_content = true;
-                // we don't know if something is put on worktop
-                self.add_new_instruction(false, None)
-            }*/
 
             InstructionV1::CallRoyaltyMethod {
                 method_name, args, ..
