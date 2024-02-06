@@ -185,7 +185,7 @@ impl TrustedWorktop {
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -220,7 +220,7 @@ impl TrustedWorktop {
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -238,7 +238,7 @@ impl TrustedWorktop {
             IDENTITY_SECURIFY_IDENT => {
                 // returns unknown bucket
                 self.new_bucket_unknown_resources();
-                self.add_new_instruction(true, None);
+                self.add_new_instruction(false, None);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -256,7 +256,7 @@ impl TrustedWorktop {
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -271,9 +271,9 @@ impl TrustedWorktop {
         _args: &ManifestValue,
     ) {
         match method_name {
-            PACKAGE_PUBLISH_WASM_IDENT | PACKAGE_CLAIM_ROYALTIES_IDENT => {
+            PACKAGE_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -288,11 +288,10 @@ impl TrustedWorktop {
         _args: &ManifestValue,
     ) {
         match method_name {
-            FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
-            | FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
+            FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT => {
                 // todo: mint: global address is res.addr and it is trusted
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -307,13 +306,11 @@ impl TrustedWorktop {
         _args: &ManifestValue,
     ) {
         match method_name {
-            NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
-            | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT
-            | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT // todo: trusted
+            NON_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT // todo: trusted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -332,7 +329,7 @@ impl TrustedWorktop {
             | ONE_RESOURCE_POOL_REDEEM_IDENT
             | ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -365,7 +362,7 @@ impl TrustedWorktop {
             | TWO_RESOURCE_POOL_REDEEM_IDENT
             | TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -400,7 +397,7 @@ impl TrustedWorktop {
             | MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // todo: check withdrow according to strategy
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -494,7 +491,7 @@ impl TrustedWorktop {
         match method_name {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.untrack_buckets = true;
+                self.new_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -510,20 +507,25 @@ impl TrustedWorktop {
         _args: &ManifestValue,
     ) {
         if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
-            if method_name == "free" {
-                // puts on worktop faucet::FAUCET_FREE_AMOUNT XRD count
-                let resources = ResourceSpecifier::Amount(
-                    XRD,
-                    faucet::FAUCET_FREE_AMOUNT.into(),
-                );
-                self.put_to_worktop(resources.clone());
-                self.add_new_instruction(true, Some(resources));
-            } else {
-                // method 'new' is trusted as it doesn't change the worktop state
-                self.add_new_instruction(true, None);
+            match method_name {
+                "free" => {
+                    // puts on worktop faucet::FAUCET_FREE_AMOUNT XRD count
+                    let resources = ResourceSpecifier::Amount(
+                        XRD,
+                        faucet::FAUCET_FREE_AMOUNT.into(),
+                    );
+                    self.put_to_worktop(resources.clone());
+                    self.add_new_instruction(true, Some(resources));
+                }
+                "lock_fee" => {
+                    self.add_new_instruction(true, None);
+                }
+                _ => {
+                    // unknown method call
+                    self.add_new_instruction(false, None);
+                }
             }
         } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
-            // method 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
             self.untrack_worktop_content = true;

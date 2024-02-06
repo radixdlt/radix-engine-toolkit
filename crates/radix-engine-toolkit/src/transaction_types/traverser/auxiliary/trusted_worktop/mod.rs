@@ -26,18 +26,21 @@ mod handler_method_calls;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
-    // Information if worktop content is fully known at current instruction
+    // Information if instruction is trusted.
+    // Instruction is trusted if we know exact resources transfer assiociated 
+    // to that instruction (so we need to know what instruction is doing and if
+    // it transfers resources including exact count/list of these resources or not
+    // deals with resources at all).
     pub trusted: bool,
-    // Resources moved in context of the instruction
+    // Resources moved in context of the instruction.
     pub resources: Vec<ResourceSpecifier>,
 }
 
 #[derive(Default)]
-// Instruction is trusted when we know exact resources transfer assiociated 
-// to that instruction (so we need to know what instruction is doing and if
-// it transfers resources including exact count/list of these resources or not
-// deals with resources at all).
-//
+// Trusted Worktop analyzes manifest instruction to tracks worktop content and
+// buckets list and basing on that it decides if manifest instruction is trusted
+// (definition in TrustedWorktopInstruction).
+// 
 // Worktop content tracker operation logic:
 //  If Instruction doesn't change worktop state and doesn't use buckets then it is trusted.
 //  If Instruction changes worktop state:
