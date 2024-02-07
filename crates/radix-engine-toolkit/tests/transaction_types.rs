@@ -2300,10 +2300,10 @@ fn presented_proofs_fungible() {
     //Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
-        .create_proof_from_account_of_amount(account_1, address_1, 1)
+        .create_proof_from_account_of_amount(account_1, address_1, 60)
         .create_proof_from_account_of_amount(account_2, address_3, 30)
         .create_proof_from_account_of_amount(account_1, address_2, 100)
-        .create_proof_from_account_of_amount(account_1, address_1, 2)
+        .create_proof_from_account_of_amount(account_1, address_1, 80)
         .create_proof_from_account_of_amount(account_2, address_3, 5)
         .build();
     let (manifest_summary, _) = test_runner.summarize(manifest);
@@ -2315,7 +2315,7 @@ fn presented_proofs_fungible() {
     assert_eq!(account_1_proofs.len(), 2);
     assert_eq!(
         account_1_proofs[0],
-        ResourceSpecifier::Amount(address_1, dec!(3))
+        ResourceSpecifier::Amount(address_1, dec!(80))
     );
     assert_eq!(
         account_1_proofs[1],
@@ -2326,7 +2326,7 @@ fn presented_proofs_fungible() {
     assert_eq!(account_2_proofs.len(), 1);
     assert_eq!(
         account_2_proofs[0],
-        ResourceSpecifier::Amount(address_3, dec!(35))
+        ResourceSpecifier::Amount(address_3, dec!(30))
     );
 }
 

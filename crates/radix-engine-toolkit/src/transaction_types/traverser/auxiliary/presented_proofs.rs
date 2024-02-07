@@ -52,9 +52,7 @@ impl ManifestSummaryCallback for PresentedProofsDetector {
                             {
                                 item[idx] = ResourceSpecifier::Amount(
                                     *address,
-                                    amount
-                                        .checked_add(*new_amount)
-                                        .expect("Overflow"),
+                                    *amount.max(new_amount),
                                 )
                             }
                         }
