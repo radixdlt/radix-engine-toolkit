@@ -37,39 +37,43 @@ impl ManifestSummaryCallback for PresentedProofsDetector {
         account: &ComponentAddress,
         resource: &ResourceSpecifier,
     ) {
-        self.presented_proofs.entry(*account).and_modify(|item| {
-            if let Some((idx, res)) =
-                item.iter().enumerate().find(|(_, res)| {
-                    res.resource_address() == resource.resource_address()
-                })
-            {
-                match res {
-                    ResourceSpecifier::Amount(address, amount) => {
-                        if let ResourceSpecifier::Amount(_, new_amount) =
-                            resource
-                        {
-                            item[idx] = ResourceSpecifier::Amount(
-                                *address,
-                                amount
-                                    .checked_add(*new_amount)
-                                    .expect("Overflow"),
-                            )
+        self.presented_proofs
+            .entry(*account)
+            .and_modify(|item| {
+                if let Some((idx, res)) =
+                    item.iter().enumerate().find(|(_, res)| {
+                        res.resource_address() == resource.resource_address()
+                    })
+                {
+                    match res {
+                        ResourceSpecifier::Amount(address, amount) => {
+                            if let ResourceSpecifier::Amount(_, new_amount) =
+                                resource
+                            {
+                                item[idx] = ResourceSpecifier::Amount(
+                                    *address,
+                                    amount
+                                        .checked_add(*new_amount)
+                                        .expect("Overflow"),
+                                )
+                            }
+                        }
+                        ResourceSpecifier::Ids(address, ids) => {
+                            if let ResourceSpecifier::Ids(_, ids_to_add) =
+                                resource
+                            {
+                                let mut new_ids = ids.clone();
+                                new_ids.extend(ids_to_add.clone());
+                                item[idx] =
+                                    ResourceSpecifier::Ids(*address, new_ids);
+                            }
                         }
                     }
-                    ResourceSpecifier::Ids(address, ids) => {
-                        if let ResourceSpecifier::Ids(_, ids_to_add) = resource
-                        {
-                            let mut new_ids = ids.clone();
-                            new_ids.extend(ids_to_add.clone());
-                            item[idx] =
-                                ResourceSpecifier::Ids(*address, new_ids);
-                        }
-                    }
+                } else {
+                    item.push(resource.clone());
                 }
-            } else {
-                item.push(resource.clone());
-            }
-        });
+            })
+            .or_insert(vec![resource.clone()]);
     }
 }
 
