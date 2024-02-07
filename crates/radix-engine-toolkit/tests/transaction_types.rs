@@ -2312,21 +2312,29 @@ fn presented_proofs_fungible() {
     assert_eq!(manifest_summary.presented_proofs.len(), 2);
     let account_1_proofs =
         manifest_summary.presented_proofs.get(&account_1).unwrap();
-    assert_eq!(account_1_proofs.len(), 2);
+    assert_eq!(account_1_proofs.len(), 3);
     assert_eq!(
         account_1_proofs[0],
-        ResourceSpecifier::Amount(address_1, dec!(80))
+        ResourceSpecifier::Amount(address_1, dec!(60))
     );
     assert_eq!(
         account_1_proofs[1],
         ResourceSpecifier::Amount(address_2, dec!(100))
     );
+    assert_eq!(
+        account_1_proofs[2],
+        ResourceSpecifier::Amount(address_1, dec!(80))
+    );
     let account_2_proofs =
         manifest_summary.presented_proofs.get(&account_2).unwrap();
-    assert_eq!(account_2_proofs.len(), 1);
+    assert_eq!(account_2_proofs.len(), 2);
     assert_eq!(
         account_2_proofs[0],
         ResourceSpecifier::Amount(address_3, dec!(30))
+    );
+    assert_eq!(
+        account_2_proofs[1],
+        ResourceSpecifier::Amount(address_3, dec!(5))
     );
 }
 
@@ -2366,6 +2374,14 @@ fn presented_proofs_non_fungible() {
         .create_proof_from_account_of_non_fungibles(
             account_1,
             address_1,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2),
+            ],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_2,
+            address_3,
             [NonFungibleLocalId::integer(2)],
         )
         .build();
@@ -2375,16 +2391,12 @@ fn presented_proofs_non_fungible() {
     assert_eq!(manifest_summary.presented_proofs.len(), 2);
     let account_1_proofs =
         manifest_summary.presented_proofs.get(&account_1).unwrap();
-    assert_eq!(account_1_proofs.len(), 2);
+    assert_eq!(account_1_proofs.len(), 3);
     assert_eq!(
         account_1_proofs[0],
         ResourceSpecifier::Ids(
             address_1,
-            [
-                NonFungibleLocalId::integer(1),
-                NonFungibleLocalId::integer(2)
-            ]
-            .into()
+            [NonFungibleLocalId::integer(1)].into()
         )
     );
     assert_eq!(
@@ -2394,9 +2406,20 @@ fn presented_proofs_non_fungible() {
             [NonFungibleLocalId::integer(3)].into()
         )
     );
+    assert_eq!(
+        account_1_proofs[2],
+        ResourceSpecifier::Ids(
+            address_1,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2)
+            ]
+            .into()
+        )
+    );
     let account_2_proofs =
         manifest_summary.presented_proofs.get(&account_2).unwrap();
-    assert_eq!(account_2_proofs.len(), 1);
+    assert_eq!(account_2_proofs.len(), 2);
     assert_eq!(
         account_2_proofs[0],
         ResourceSpecifier::Ids(
@@ -2406,6 +2429,13 @@ fn presented_proofs_non_fungible() {
                 NonFungibleLocalId::integer(3)
             ]
             .into()
+        )
+    );
+    assert_eq!(
+        account_2_proofs[01],
+        ResourceSpecifier::Ids(
+            address_3,
+            [NonFungibleLocalId::integer(2)].into()
         )
     );
 }
