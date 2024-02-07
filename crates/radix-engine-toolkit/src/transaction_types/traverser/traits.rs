@@ -36,7 +36,12 @@ pub trait ManifestSummaryCallback {
 
     /// Called when a proof is created out of an account.
     #[inline]
-    fn on_create_proof(&mut self, _resource_address: &ResourceAddress) {}
+    fn on_create_proof(
+        &mut self,
+        _account: &ComponentAddress,
+        _resource: &ResourceSpecifier,
+    ) {
+    }
 
     /// Called when a global entity is encountered in the manifest
     #[inline]

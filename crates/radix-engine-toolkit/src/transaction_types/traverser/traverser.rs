@@ -19,6 +19,7 @@ pub mod manifest_summary {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
+    use radix_engine::system::system_modules::execution_trace::*;
     use radix_engine_interface::blueprints::account::*;
     use transaction::prelude::*;
 
@@ -67,7 +68,7 @@ pub mod manifest_summary {
         instruction: &InstructionV1,
     ) {
         if let InstructionV1::CallMethod {
-            address: dynamic_address @ DynamicGlobalAddress::Static(_address),
+            address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
         } = instruction
@@ -76,25 +77,40 @@ pub mod manifest_summary {
                 return;
             }
 
+            let account =
+                ComponentAddress::try_from(*address).expect("Must succeed");
+
             if method_name == ACCOUNT_CREATE_PROOF_OF_AMOUNT_IDENT {
                 if let Some(AccountCreateProofOfAmountInput {
                     resource_address,
-                    ..
+                    amount,
                 }) = to_manifest_type(args)
                 {
                     callbacks.iter_mut().for_each(|callback| {
-                        callback.on_create_proof(&resource_address)
+                        callback.on_create_proof(
+                            &account,
+                            &ResourceSpecifier::Amount(
+                                resource_address,
+                                amount,
+                            ),
+                        )
                     });
                 }
             } else if method_name == ACCOUNT_CREATE_PROOF_OF_NON_FUNGIBLES_IDENT
             {
                 if let Some(AccountCreateProofOfNonFungiblesInput {
                     resource_address,
-                    ..
+                    ids,
                 }) = to_manifest_type(args)
                 {
                     callbacks.iter_mut().for_each(|callback| {
-                        callback.on_create_proof(&resource_address)
+                        callback.on_create_proof(
+                            &account,
+                            &ResourceSpecifier::Ids(
+                                resource_address,
+                                ids.clone(),
+                            ),
+                        )
                     });
                 }
             }

@@ -701,7 +701,7 @@ impl DetailedManifestClass {
 pub struct ExecutionSummary {
     pub account_withdraws: HashMap<String, Vec<ResourceIndicator>>,
     pub account_deposits: HashMap<String, Vec<ResourceIndicator>>,
-    pub presented_proofs: Vec<Arc<Address>>,
+    pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
     pub new_entities: NewEntities,
     pub encountered_entities: Vec<Arc<Address>>,
     pub accounts_requiring_auth: Vec<Arc<Address>>,
@@ -753,10 +753,19 @@ impl ExecutionSummary {
                 .presented_proofs
                 .into_iter()
                 .map(|item| {
-                    Arc::new(Address::unsafe_from_raw(
-                        item.into_node_id(),
-                        network_id,
-                    ))
+                    (
+                        Address::unsafe_from_raw(
+                            item.0.into_node_id(),
+                            network_id,
+                        )
+                        .address_string(),
+                        item.1
+                            .iter()
+                            .map(|i| {
+                                ResourceSpecifier::from_native(i, network_id)
+                            })
+                            .collect(),
+                    )
                 })
                 .collect(),
             new_entities: NewEntities::from_native(
@@ -826,7 +835,7 @@ impl ExecutionSummary {
 
 #[derive(Clone, Debug, Record)]
 pub struct ManifestSummary {
-    pub presented_proofs: Vec<Arc<Address>>,
+    pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
     pub accounts_withdrawn_from: Vec<Arc<Address>>,
     pub accounts_deposited_into: Vec<Arc<Address>>,
     pub encountered_entities: Vec<Arc<Address>>,
@@ -843,10 +852,19 @@ impl ManifestSummary {
                 .presented_proofs
                 .into_iter()
                 .map(|item| {
-                    Arc::new(Address::unsafe_from_raw(
-                        item.into_node_id(),
-                        network_id,
-                    ))
+                    (
+                        Address::unsafe_from_raw(
+                            item.0.into_node_id(),
+                            network_id,
+                        )
+                        .address_string(),
+                        item.1
+                            .iter()
+                            .map(|i| {
+                                ResourceSpecifier::from_native(i, network_id)
+                            })
+                            .collect(),
+                    )
                 })
                 .collect(),
             accounts_withdrawn_from: native
