@@ -2282,6 +2282,134 @@ fn account_deposit_settings_changes_are_recognized() {
     );
 }
 
+#[test]
+fn presented_proofs_fungible() {
+    use radix_engine::system::system_modules::execution_trace::*;
+
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account_1) = test_runner.new_allocated_account();
+    let (_, _, account_2) = test_runner.new_allocated_account();
+    let address_1 =
+        test_runner.create_fungible_resource(dec!(100), 0, account_1);
+    let address_2 =
+        test_runner.create_fungible_resource(dec!(100), 0, account_1);
+    let address_3 =
+        test_runner.create_fungible_resource(dec!(100), 0, account_2);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .create_proof_from_account_of_amount(account_1, address_1, 1)
+        .create_proof_from_account_of_amount(account_2, address_3, 30)
+        .create_proof_from_account_of_amount(account_1, address_2, 100)
+        .create_proof_from_account_of_amount(account_1, address_1, 2)
+        .create_proof_from_account_of_amount(account_2, address_3, 5)
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.presented_proofs.len(), 2);
+    let account_1_proofs =
+        manifest_summary.presented_proofs.get(&account_1).unwrap();
+    assert_eq!(account_1_proofs.len(), 2);
+    assert_eq!(
+        account_1_proofs[0],
+        ResourceSpecifier::Amount(address_1, dec!(3))
+    );
+    assert_eq!(
+        account_1_proofs[1],
+        ResourceSpecifier::Amount(address_2, dec!(100))
+    );
+    let account_2_proofs =
+        manifest_summary.presented_proofs.get(&account_2).unwrap();
+    assert_eq!(account_2_proofs.len(), 1);
+    assert_eq!(
+        account_2_proofs[0],
+        ResourceSpecifier::Amount(address_3, dec!(35))
+    );
+}
+
+#[test]
+fn presented_proofs_non_fungible() {
+    use radix_engine::system::system_modules::execution_trace::*;
+
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account_1) = test_runner.new_allocated_account();
+    let (_, _, account_2) = test_runner.new_allocated_account();
+    let address_1 = test_runner.create_non_fungible_resource(account_1);
+    let address_2 = test_runner.create_non_fungible_resource(account_1);
+    let address_3 = test_runner.create_non_fungible_resource(account_2);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_1,
+            [NonFungibleLocalId::integer(1)],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_2,
+            [NonFungibleLocalId::integer(3)],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_2,
+            address_3,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2),
+            ],
+        )
+        .create_proof_from_account_of_non_fungibles(
+            account_1,
+            address_1,
+            [NonFungibleLocalId::integer(2)],
+        )
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.presented_proofs.len(), 2);
+    let account_1_proofs =
+        manifest_summary.presented_proofs.get(&account_1).unwrap();
+    assert_eq!(account_1_proofs.len(), 2);
+    assert_eq!(
+        account_1_proofs[0],
+        ResourceSpecifier::Ids(
+            address_1,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2)
+            ]
+            .into()
+        )
+    );
+    assert_eq!(
+        account_1_proofs[1],
+        ResourceSpecifier::Ids(
+            address_2,
+            [NonFungibleLocalId::integer(3)].into()
+        )
+    );
+    let account_2_proofs =
+        manifest_summary.presented_proofs.get(&account_2).unwrap();
+    assert_eq!(account_2_proofs.len(), 1);
+    assert_eq!(
+        account_2_proofs[0],
+        ResourceSpecifier::Ids(
+            address_3,
+            [
+                NonFungibleLocalId::integer(1),
+                NonFungibleLocalId::integer(2)
+            ]
+            .into()
+        )
+    );
+}
+
 fn create_pools(
     test_runner: &mut DefaultTestRunner,
     account: ComponentAddress,
