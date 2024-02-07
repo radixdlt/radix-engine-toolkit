@@ -155,6 +155,7 @@ jobs:
           echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
           echo "CC=x86_64-w64-mingw32-gcc" >> $GITHUB_ENV
           echo "AR=x86_64-w64-mingw32-gcc-ar" >> $GITHUB_ENV
+          echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
 
       - name: Build
         working-directory: crates/${{ matrix.build-target.crate }}
