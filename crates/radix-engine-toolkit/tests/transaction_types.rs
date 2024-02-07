@@ -2359,8 +2359,8 @@ fn presented_proofs_non_fungible() {
             account_2,
             address_3,
             [
-                NonFungibleLocalId::integer(1),
                 NonFungibleLocalId::integer(2),
+                NonFungibleLocalId::integer(3),
             ],
         )
         .create_proof_from_account_of_non_fungibles(
@@ -2402,8 +2402,8 @@ fn presented_proofs_non_fungible() {
         ResourceSpecifier::Ids(
             address_3,
             [
-                NonFungibleLocalId::integer(1),
-                NonFungibleLocalId::integer(2)
+                NonFungibleLocalId::integer(2),
+                NonFungibleLocalId::integer(3)
             ]
             .into()
         )
