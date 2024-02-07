@@ -125,6 +125,7 @@ jobs:
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
           echo "CC=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
           echo "AR=aarch64-linux-gnu-gcc-ar" >> $GITHUB_ENV
+          echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
       - name: Build Dependencies (android)
         uses: nttld/setup-ndk@v1
         id: setup-ndk
@@ -220,6 +221,7 @@ jobs:
           name: uniffi-bindings
           path: uniffi-bindings
   publish-swift-spm:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     steps:
@@ -351,6 +353,7 @@ jobs:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -381,6 +384,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-kotlin-maven-central:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -441,6 +445,7 @@ jobs:
           arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -478,6 +483,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-dotnet-nuget:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -533,6 +539,7 @@ jobs:
         working-directory: interop/csharp/
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
   publish-python-package:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
