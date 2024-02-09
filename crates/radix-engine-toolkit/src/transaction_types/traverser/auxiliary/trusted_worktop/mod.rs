@@ -310,7 +310,8 @@ impl ManifestSummaryCallback for TrustedWorktop {
 
         assert_eq!(
             self.trusted_state_per_instruction.len(),
-            instruction_index + 1
+            instruction_index + 1,
+            "Manifest instruction not covered by trusted worktop!"
         );
     }
 }

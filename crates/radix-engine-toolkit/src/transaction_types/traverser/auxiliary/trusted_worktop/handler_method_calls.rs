@@ -178,9 +178,6 @@ impl TrustedWorktop {
                                 let resources = self
                                     .worktop_content_tracker
                                     .take_all_from_worktop();
-                                // self.add_new_instruction_with_many_resources(
-                                //     true, resources,
-                                // );
                                 (
                                     true,
                                     Some(Self::merge_same_resources(
@@ -192,7 +189,6 @@ impl TrustedWorktop {
                                 // switch back to worktop tracked mode
                                 self.worktop_content_tracker
                                     .take_all_from_worktop();
-                                //self.add_new_instruction(false, None);
                                 (false, None)
                             }
                         }
@@ -445,9 +441,6 @@ impl TrustedWorktop {
                 }
             }
             ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                let input_args: OneResourcePoolProtectedWithdrawManifestInput =
-                    to_manifest_type(args).expect("Must succeed");
-
                 // we don't know resource address so instruction is untrasted
                 self.add_new_instruction(false, None);
 
@@ -572,36 +565,69 @@ impl TrustedWorktop {
     fn handle_multi_resource_pool_methods(
         &mut self,
         method_name: &str,
-        _args: &ManifestValue,
+        args: &ManifestValue,
     ) {
         match method_name {
             MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
-                    let input_args: MultiResourcePoolContributeManifestInput =
-                        to_manifest_type(args).expect("Must succeed");
+                    let input_args = IndexedManifestValue::from_typed(args);
+
+                    if !input_args.expressions().is_empty() {
+                        match input_args
+                            .expressions()
+                            .first()
+                            .expect("Expected expresion")
+                        {
+                            ManifestExpression::EntireWorktop => {
+                                if !self
+                                    .worktop_content_tracker
+                                    .is_untracked_mode()
+                                {
+                                    let resources = self
+                                        .worktop_content_tracker
+                                        .take_all_from_worktop();
+                                    self.add_new_instruction_with_many_resources(
+                                         true, Self::merge_same_resources(
+                                            &resources,
+                                    ));
+                                } else {
+                                    // take all from worktop will clear worktop so
+                                    // switch back to worktop tracked mode
+                                    self.worktop_content_tracker
+                                        .take_all_from_worktop();
+                                    self.add_new_instruction(false, None);
+                                }
+                            }
+                            _ => self.add_new_instruction(false, None),
+                        }
+                    } else {
+                        let input_args: MultiResourcePoolContributeManifestInput =
+                            to_manifest_type(args).expect("Must succeed");
+
+                        let resources: Vec<ResourceSpecifier> = input_args
+                            .buckets
+                            .iter()
+                            .map(|bucket| {
+                                self.bucket_tracker
+                                    .bucket_consumed(&bucket)
+                                    .expect("Bucket not found")
+                            })
+                            .filter(|item| item.is_some())
+                            .flatten()
+                            .collect();
+
+                        // if we found all buckets in bucket tracker and all buckets has known resources
+                        if resources.len() == input_args.buckets.len() {
+                            self.add_new_instruction_with_many_resources(
+                                true, resources,
+                            );
+                        } else {
+                            self.add_new_instruction(false, None);
+                        }
+                    };
 
                     // capture returned pool units in the bucket
                     self.bucket_tracker.new_bucket_unknown_resources();
-
-                    let resources: Vec<ResourceSpecifier> = input_args
-                        .buckets
-                        .iter()
-                        .map(|bucket| {
-                            self.bucket_tracker
-                                .bucket_consumed(&bucket)
-                                .expect("Bucket not found")
-                        })
-                        .filter(|item| item.is_some())
-                        .collect();
-
-                    // if we found all buckets in bucket tracker and all buckets has known resources
-                    if resources.len() == input_args.buckets.len() {
-                        self.add_new_instruction_with_many_resources(
-                            true, resources,
-                        );
-                    } else {
-                        self.add_new_instruction(false, None);
-                    }
                 } else {
                     self.add_new_instruction(false, None);
                 }

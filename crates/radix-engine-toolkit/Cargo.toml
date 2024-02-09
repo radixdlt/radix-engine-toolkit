@@ -15,7 +15,7 @@ radix-engine-common = { workspace = true }
 radix-engine-queries = { workspace = true }
 radix-engine-interface = { workspace = true }
 radix-engine-store-interface = { workspace = true }
-faucet = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "d33b9a2" }
+faucet = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "9b2de066a110ccf6dcf071f7b7158baf14b96836" }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }
