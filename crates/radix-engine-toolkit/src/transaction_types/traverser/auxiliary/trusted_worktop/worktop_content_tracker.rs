@@ -93,6 +93,15 @@ impl WorktopContentTracker {
                                     .unwrap(),
                             ),
                         );
+                        if let Some(res) = self
+                            .worktop_content
+                            .get(&resources.resource_address())
+                        {
+                            if res.is_empty() {
+                                self.worktop_content
+                                    .remove(&resources.resource_address());
+                            }
+                        }
                         true
                     } else {
                         // don't know which non fungibles will be taken
@@ -113,6 +122,15 @@ impl WorktopContentTracker {
                                 new_ids,
                             ),
                         );
+                        if let Some(res) = self
+                            .worktop_content
+                            .get(&resources.resource_address())
+                        {
+                            if res.is_empty() {
+                                self.worktop_content
+                                    .remove(&resources.resource_address());
+                            }
+                        }
                         true
                     } else {
                         // cannot take fungible -> worktop content is untracked

@@ -47,7 +47,7 @@ impl TrustedWorktop {
                 }
                 ACCOUNT_CREATE_IDENT => {
                     // resturns bucket with newly generated address
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),
@@ -66,7 +66,7 @@ impl TrustedWorktop {
                 }
                 IDENTITY_CREATE_IDENT => {
                     // resturns unknown bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
                 _ => self.unknown_function_call(),
@@ -130,7 +130,7 @@ impl TrustedWorktop {
                 }
                 PACKAGE_PUBLISH_WASM_IDENT => {
                     // resturns unknown bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
                 _ => self.unknown_function_call(),
@@ -139,7 +139,7 @@ impl TrustedWorktop {
             match function_name {
                 FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT => {
                     // returns unknown bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),
@@ -153,7 +153,7 @@ impl TrustedWorktop {
                 | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT =>
                 {
                     // returns unknown bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
                 _ => self.unknown_function_call(),

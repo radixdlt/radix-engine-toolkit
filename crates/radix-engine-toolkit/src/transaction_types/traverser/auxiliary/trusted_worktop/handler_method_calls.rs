@@ -173,11 +173,25 @@ impl TrustedWorktop {
                         .expect("Expected expresion")
                     {
                         ManifestExpression::EntireWorktop => {
+                            // handle worktop & buckets
                             if !self.worktop_content_tracker.is_untracked_mode()
+                                && !self.bucket_tracker.is_untracked_mode()
+                                && !self
+                                    .bucket_tracker
+                                    .is_bucket_with_unknown_resources()
                             {
-                                let resources = self
+                                // Safe to unwrap as we verified that there are no buckets with unknown resources.
+                                let bucket_resources: Vec<ResourceSpecifier> =
+                                    self.bucket_tracker
+                                        .consume_all_buckets()
+                                        .iter()
+                                        .map(|item| item.to_owned().unwrap())
+                                        .collect();
+                                let mut resources = self
                                     .worktop_content_tracker
                                     .take_all_from_worktop();
+                                resources.extend(bucket_resources);
+
                                 (
                                     true,
                                     Some(Self::merge_same_resources(
@@ -189,6 +203,8 @@ impl TrustedWorktop {
                                 // switch back to worktop tracked mode
                                 self.worktop_content_tracker
                                     .take_all_from_worktop();
+                                // same for buckets
+                                self.bucket_tracker.consume_all_buckets();
                                 (false, None)
                             }
                         }
@@ -254,7 +270,7 @@ impl TrustedWorktop {
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -290,7 +306,7 @@ impl TrustedWorktop {
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -307,7 +323,7 @@ impl TrustedWorktop {
         match method_name {
             IDENTITY_SECURIFY_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -326,7 +342,7 @@ impl TrustedWorktop {
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -343,7 +359,7 @@ impl TrustedWorktop {
         match method_name {
             PACKAGE_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -391,7 +407,7 @@ impl TrustedWorktop {
             NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
                 // returns unknown resources
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -412,7 +428,7 @@ impl TrustedWorktop {
                         to_manifest_type(args).expect("Must succeed");
 
                     // capture returned pool units in the bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
 
                     let resources = self
                         .bucket_tracker
@@ -429,7 +445,7 @@ impl TrustedWorktop {
                         to_manifest_type(args).expect("Must succeed");
 
                     // capture returned resources in the bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
 
                     let resources = self
                         .bucket_tracker
@@ -445,7 +461,7 @@ impl TrustedWorktop {
                 self.add_new_instruction(false, None);
 
                 // capture returned resources in the bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
             }
             ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
@@ -479,7 +495,7 @@ impl TrustedWorktop {
                         to_manifest_type(args).expect("Must succeed");
 
                     // capture returned pool units in the bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
 
                     let resources_1 = self
                         .bucket_tracker
@@ -507,7 +523,7 @@ impl TrustedWorktop {
                         to_manifest_type(args).expect("Must succeed");
 
                     // capture returned resources in the bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
 
                     let resources = self
                         .bucket_tracker
@@ -540,7 +556,7 @@ impl TrustedWorktop {
                 }
 
                 // capture returned resources in the bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
             }
             TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
@@ -627,7 +643,7 @@ impl TrustedWorktop {
                     };
 
                     // capture returned pool units in the bucket
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -659,7 +675,7 @@ impl TrustedWorktop {
                 }
 
                 // capture returned resources in the bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
             }
             MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
@@ -772,7 +788,7 @@ impl TrustedWorktop {
         match method_name {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
                 // returns unknown bucket
-                self.bucket_tracker.new_bucket_unknown_resources();
+                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
                 self.add_new_instruction(false, None);
             }
 
@@ -821,7 +837,7 @@ impl TrustedWorktop {
         }
     }
 
-    fn merge_same_resources(
+    pub fn merge_same_resources(
         resources: &[ResourceSpecifier],
     ) -> Vec<ResourceSpecifier> {
         let mut set: IndexMap<ResourceAddress, Vec<&ResourceSpecifier>> =

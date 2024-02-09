@@ -116,17 +116,62 @@ impl ManifestSummaryCallback for TrustedWorktop {
     ) {
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
-                if !self.worktop_content_tracker.is_untracked_mode() {
-                    let resources = self
-                        .worktop_content_tracker
-                        .take_from_worktop_by_address(*resource_address)
-                        .expect("Expected resources");
-                    self.bucket_tracker
-                        .new_bucket_known_resources(resources.clone());
-                    self.add_new_instruction(true, Some(resources));
+                if !self.worktop_content_tracker.is_untracked_mode()
+                    && !self.bucket_tracker.is_untracked_mode()
+                {
+                    // take also all unnamed buckets
+                    let unnamed_buckets_resources = self
+                        .bucket_tracker
+                        .consume_unnamed_buckets(resource_address);
+                    if unnamed_buckets_resources
+                        .iter()
+                        .find(|item| item.is_none())
+                        .is_some()
+                    {
+                        // we don't know what is exactly on the worktop
+                        self.bucket_tracker
+                            .new_named_bucket_unknown_resources();
+                        self.add_new_instruction(false, None)
+                    } else {
+                        // safe to unwrap as we checked that in if condition
+                        let mut res_list: Vec<ResourceSpecifier> =
+                            unnamed_buckets_resources
+                                .iter()
+                                .map(|item| item.to_owned().unwrap())
+                                .collect();
+
+                        if let Some(resources) = self
+                            .worktop_content_tracker
+                            .take_from_worktop_by_address(*resource_address)
+                        {
+                            res_list.push(resources);
+                        }
+
+                        let merged_resources =
+                            Self::merge_same_resources(&res_list);
+
+                        if merged_resources.is_empty() {
+                            // empty in case of taking only unnamed buckets with unknown resources
+                            self.bucket_tracker
+                                .new_named_bucket_unknown_resources();
+                            self.add_new_instruction(false, None);
+                        } else {
+                            // there sould be only one resource address now
+                            assert_eq!(merged_resources.len(), 1);
+
+                            self.bucket_tracker
+                                .new_named_bucket_known_resources(
+                                    merged_resources[0].clone(),
+                                );
+                            self.add_new_instruction(
+                                true,
+                                Some(merged_resources[0].to_owned()),
+                            );
+                        }
+                    }
                 } else {
                     // we don't know what is exactly on the worktop
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_named_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
             }
@@ -141,17 +186,19 @@ impl ManifestSummaryCallback for TrustedWorktop {
                         .worktop_content_tracker
                         .take_from_worktop(resources.clone())
                     {
-                        self.bucket_tracker
-                            .new_bucket_known_resources(resources.clone());
+                        self.bucket_tracker.new_named_bucket_known_resources(
+                            resources.clone(),
+                        );
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // non fungible take by ammount
-                        self.bucket_tracker.new_bucket_unknown_resources();
+                        self.bucket_tracker
+                            .new_named_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_named_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -169,17 +216,19 @@ impl ManifestSummaryCallback for TrustedWorktop {
                         .worktop_content_tracker
                         .take_from_worktop(resources.clone())
                     {
-                        self.bucket_tracker
-                            .new_bucket_known_resources(resources.clone());
+                        self.bucket_tracker.new_named_bucket_known_resources(
+                            resources.clone(),
+                        );
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // invalid operation fungible take by ammount
-                        self.bucket_tracker.new_bucket_unknown_resources();
+                        self.bucket_tracker
+                            .new_named_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.bucket_tracker.new_bucket_unknown_resources();
+                    self.bucket_tracker.new_named_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }

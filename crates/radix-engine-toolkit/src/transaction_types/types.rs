@@ -623,6 +623,12 @@ pub impl ResourceSpecifier {
             _ => None,
         }
     }
+    fn is_empty(&self) -> bool {
+        match self {
+            Self::Ids(.., ids) => ids.is_empty(),
+            Self::Amount(.., amount) => amount.is_zero(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

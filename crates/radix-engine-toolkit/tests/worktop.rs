@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine_interface::blueprints::pool::*;
 use radix_engine_toolkit::transaction_types::ResourceSpecifierExt;
 use scrypto_unit::*;
 use transaction::prelude::*;
-
 mod test_runner_extension;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_toolkit::transaction_types::ManifestSummary;
@@ -42,7 +42,7 @@ fn validate(
             manifest_summary.trusted_worktop_instructions[instruction]
                 .resources
                 .is_empty(),
-            "Instruction: {} (resoruce address not found)",
+            "Instruction: {} (resoruce not specified)",
             instruction
         );
     } else {
@@ -54,18 +54,25 @@ fn validate(
                         .iter()
                         .find(|item| item.resource_address() == address)
                         .is_some(),
-                    "Instruction: {} (resource address not found)",
-                    instruction
+                    "Instruction: {}, resource address not found: {:?}",
+                    instruction,
+                    address
                 );
+                let mut val = dec!(0);
                 assert!(
                     manifest_summary.trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
-                        .find(|item| item.resource_address() == address
-                            && *item.amount().unwrap() == amount)
+                        .find(|item| {
+                            val = *item.amount().unwrap();
+                            item.resource_address() == address
+                                && *item.amount().unwrap() == amount
+                        })
                         .is_some(),
-                    "Instruction: {} (amount not equal)",
-                    instruction
+                    "Instruction: {}, amount not equal, is: {} required: {}",
+                    instruction,
+                    amount,
+                    val
                 );
             }
             ResourceSpecifier::Ids(address, ids) => {
@@ -75,8 +82,9 @@ fn validate(
                         .iter()
                         .find(|item| item.resource_address() == address)
                         .is_some(),
-                    "Instruction: {} (resource address not found)",
-                    instruction
+                    "Instruction: {}, resource address not found: {:?}",
+                    instruction,
+                    address
                 );
                 assert!(
                     manifest_summary.trusted_worktop_instructions[instruction]
@@ -406,4 +414,76 @@ fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
     validate_amount(&ms, 7, true, &[(addr_2, dec!(1))]);
     validate_amount(&ms, 8, true, &[(addr_2, dec!(1))]);
     validate_amount(&ms, 9, true, &[(addr_1, dec!(5)), (addr_2, dec!(11))]);
+}
+
+#[test]
+fn trusted_worktop_one_resource_pool() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (component_address, _resource_address) =
+        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 100)
+        .take_from_worktop(address, 100, "bucket")
+        .call_method_with_name_lookup(
+            component_address,
+            ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+            |lookup| OneResourcePoolContributeManifestInput {
+                bucket: lookup.bucket("bucket"),
+            },
+        )
+        .try_deposit_entire_worktop_or_abort(account, None)
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(100))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(100))]);
+    // Untrusted as we don't know what is in bucket returned by resource pool.
+    validate(&manifest_summary, 4, false, None);
+}
+
+#[test]
+fn trusted_worktop_one_resource_pool2() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (component_address, resource_address) =
+        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 100)
+        .take_from_worktop(address, 100, "bucket")
+        .call_method_with_name_lookup(
+            component_address,
+            ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+            |lookup| OneResourcePoolContributeManifestInput {
+                bucket: lookup.bucket("bucket"),
+            },
+        )
+        .take_all_from_worktop(resource_address, "pool_units_bucket")
+        .deposit(account, "pool_units_bucket")
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 6);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(100))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(100))]);
+    // Untrasted as we don't know what is in bucket returned by resource pool.
+    validate(&manifest_summary, 4, false, None);
+    validate(&manifest_summary, 5, false, None);
 }
