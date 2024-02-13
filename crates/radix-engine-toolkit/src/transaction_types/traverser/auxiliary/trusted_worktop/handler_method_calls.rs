@@ -146,14 +146,11 @@ impl TrustedWorktop {
                             .buckets()
                             .first()
                             .expect("Expected bucket");
-                        let resources = self
+                        let bucket = self
                             .bucket_tracker
                             .bucket_consumed(bucket_id)
                             .expect("Bucket not found");
-                        self.add_new_instruction(
-                            resources.is_some(),
-                            resources,
-                        );
+                        self.add_new_instruction_from_bucket(&bucket);
                     } else {
                         self.add_new_instruction(false, None);
                     }
@@ -178,7 +175,7 @@ impl TrustedWorktop {
                                 && !self.bucket_tracker.is_untracked_mode()
                                 && !self
                                     .bucket_tracker
-                                    .is_bucket_with_unknown_resources()
+                                    .is_any_bucket_with_unknown_resources()
                             {
                                 // Safe to unwrap as we verified that there are no buckets with unknown resources.
                                 let bucket_resources: Vec<ResourceSpecifier> =
@@ -217,15 +214,19 @@ impl TrustedWorktop {
                 if !input_args.buckets().is_empty() {
                     if !self.bucket_tracker.is_untracked_mode() {
                         let mut found_all_resources = true;
-                        let mut resources =
+                        let mut resources: Vec<ResourceSpecifier> =
                             Vec::with_capacity(input_args.buckets().len());
                         for bucket_id in input_args.buckets() {
-                            if let Some(res) = self
+                            let bucket = self
                                 .bucket_tracker
                                 .bucket_consumed(bucket_id)
-                                .expect("Bucket not found")
-                            {
-                                resources.push(res);
+                                .expect("Bucket not found");
+                            if bucket.is_known_resources() {
+                                if let Some(resource) = bucket.take_resources()
+                                {
+                                    // put resource on list only when bucket is not empty
+                                    resources.push(resource);
+                                }
                             } else {
                                 // bucket with unknown resource -> untrusted instruction,
                                 // iterate to consume rest of the buckets
@@ -269,9 +270,9 @@ impl TrustedWorktop {
             }
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -294,20 +295,20 @@ impl TrustedWorktop {
                     assert_eq!(input_args.buckets().len(), 1);
                     let bucket_id =
                         input_args.buckets().first().expect("Expected bucket");
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
                     self.add_new_instruction(false, None);
                 }
             }
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -322,9 +323,9 @@ impl TrustedWorktop {
     ) {
         match method_name {
             IDENTITY_SECURIFY_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -341,9 +342,9 @@ impl TrustedWorktop {
             ACCESS_CONTROLLER_QUICK_CONFIRM_PRIMARY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -358,9 +359,9 @@ impl TrustedWorktop {
     ) {
         match method_name {
             PACKAGE_CLAIM_ROYALTIES_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -406,9 +407,9 @@ impl TrustedWorktop {
             }
             NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
-                // returns unknown resources
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
@@ -427,14 +428,15 @@ impl TrustedWorktop {
                     let input_args: OneResourcePoolContributeManifestInput =
                         to_manifest_type(args).expect("Must succeed");
 
-                    // capture returned pool units in the bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
+
+                    // returned pool units are put on worktop, but we don't know exact resource type
+                    // so we are entering untracked worktop mode
+                    self.worktop_content_tracker.enter_untracked_mode();
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -444,35 +446,34 @@ impl TrustedWorktop {
                     let input_args: OneResourcePoolRedeemManifestInput =
                         to_manifest_type(args).expect("Must succeed");
 
-                    // capture returned resources in the bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
+
+                    // returned pool units are put on worktop, but we don't know exact resource type
+                    // so we are entering untracked worktop mode
+                    self.worktop_content_tracker.enter_untracked_mode();
                 } else {
                     self.add_new_instruction(false, None);
                 }
             }
             ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // we don't know resource address so instruction is untrasted
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
-
-                // capture returned resources in the bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                self.worktop_content_tracker.enter_untracked_mode();
             }
             ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args: OneResourcePoolProtectedDepositManifestInput =
                         to_manifest_type(args).expect("Must succeed");
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -494,25 +495,35 @@ impl TrustedWorktop {
                     let input_args: TwoResourcePoolContributeManifestInput =
                         to_manifest_type(args).expect("Must succeed");
 
-                    // capture returned pool units in the bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-
-                    let resources_1 = self
+                    let bucket_1 = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.buckets.0)
                         .expect("Bucket not found");
-                    let resources_2 = self
+                    let bucket_2 = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.buckets.1)
                         .expect("Bucket not found");
-                    if resources_1.is_some() && resources_2.is_some() {
-                        self.add_new_instruction_with_many_resources(
-                            true,
-                            vec![resources_1.unwrap(), resources_2.unwrap()],
-                        );
+
+                    if bucket_1.is_known_resources()
+                        && bucket_2.is_known_resources()
+                    {
+                        let resource_1 = bucket_1.take_resources();
+                        let resource_2 = bucket_2.take_resources();
+                        if resource_1.is_some() && resource_2.is_some() {
+                            self.add_new_instruction_with_many_resources(
+                                true,
+                                vec![resource_1.unwrap(), resource_2.unwrap()],
+                            );
+                        } else {
+                            self.add_new_instruction(false, None);
+                        }
                     } else {
                         self.add_new_instruction(false, None);
                     }
+
+                    // returned pool units are put on worktop, but we don't know exact resource type
+                    // so we are entering untracked worktop mode
+                    self.worktop_content_tracker.enter_untracked_mode();
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -522,14 +533,15 @@ impl TrustedWorktop {
                     let input_args: TwoResourcePoolRedeemManifestInput =
                         to_manifest_type(args).expect("Must succeed");
 
-                    // capture returned resources in the bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
+
+                    // returned pool units are put on worktop, but we don't know exact resource type
+                    // so we are entering untracked worktop mode
+                    self.worktop_content_tracker.enter_untracked_mode();
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -555,19 +567,20 @@ impl TrustedWorktop {
                     self.add_new_instruction(false, None);
                 }
 
-                // capture returned resources in the bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // returned pool units are put on worktop, but we don't know exact resource type
+                // so we are entering untracked worktop mode
+                self.worktop_content_tracker.enter_untracked_mode();
             }
             TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args: TwoResourcePoolProtectedDepositManifestInput =
                         to_manifest_type(args).expect("Must succeed");
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -628,7 +641,11 @@ impl TrustedWorktop {
                                     .bucket_consumed(&bucket)
                                     .expect("Bucket not found")
                             })
-                            .filter(|item| item.is_some())
+                            .filter(|bucket| {
+                                !bucket.is_empty()
+                                    && bucket.is_known_resources()
+                            })
+                            .map(|bucket| bucket.take_resources())
                             .flatten()
                             .collect();
 
@@ -642,16 +659,17 @@ impl TrustedWorktop {
                         }
                     };
 
-                    // capture returned pool units in the bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                    // returned pool units are put on worktop, but we don't know exact resource type
+                    // so we are entering untracked worktop mode
+                    self.worktop_content_tracker.enter_untracked_mode();
                 } else {
                     self.add_new_instruction(false, None);
                 }
             }
             MULTI_RESOURCE_POOL_REDEEM_IDENT => {
-                // method returns many buckets so we need to enter untracked bucket mode
-                self.bucket_tracker.enter_untracked_mode();
+                // resturns unknown resources put on worktop
                 self.add_new_instruction(false, None);
+                self.worktop_content_tracker.enter_untracked_mode();
             }
             MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 let input_args: MultiResourcePoolProtectedWithdrawManifestInput =
@@ -674,19 +692,20 @@ impl TrustedWorktop {
                     self.add_new_instruction(false, None);
                 }
 
-                // capture returned resources in the bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // returned pool units are put on worktop, but we don't know exact resource type
+                // so we are entering untracked worktop mode
+                self.worktop_content_tracker.enter_untracked_mode();
             }
             MULTI_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
                     let input_args: MultiResourcePoolProtectedDepositManifestInput =
                         to_manifest_type(args).expect("Must succeed");
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(&input_args.bucket)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
                     self.add_new_instruction(false, None);
                 }
@@ -787,8 +806,8 @@ impl TrustedWorktop {
     ) {
         match method_name {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
-                // returns unknown bucket
-                self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                // we don't know exactly what is put on worktop
+                self.worktop_content_tracker.enter_untracked_mode();
                 self.add_new_instruction(false, None);
             }
 

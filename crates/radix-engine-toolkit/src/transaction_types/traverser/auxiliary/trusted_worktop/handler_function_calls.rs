@@ -46,9 +46,9 @@ impl TrustedWorktop {
                     self.add_new_instruction(true, None)
                 }
                 ACCOUNT_CREATE_IDENT => {
-                    // resturns bucket with newly generated address
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                    // resturns unknown resources put on worktop
                     self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
@@ -62,12 +62,12 @@ impl TrustedWorktop {
         } else if is_identity(address) {
             match function_name {
                 IDENTITY_CREATE_ADVANCED_IDENT => {
-                    self.add_new_instruction(true, None)
+                    self.add_new_instruction(true, None);
                 }
                 IDENTITY_CREATE_IDENT => {
-                    // resturns unknown bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-                    self.add_new_instruction(false, None)
+                    // resturns unknown resources put on worktop
+                    self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
@@ -82,14 +82,11 @@ impl TrustedWorktop {
                             .buckets()
                             .first()
                             .expect("Expected bucket");
-                        let resources = self
+                        let bucket = self
                             .bucket_tracker
                             .bucket_consumed(bucket_id)
                             .expect("Bucket not found");
-                        self.add_new_instruction(
-                            resources.is_some(),
-                            resources,
-                        );
+                        self.add_new_instruction_from_bucket(&bucket);
                     } else {
                         self.add_new_instruction(false, None);
                     }
@@ -129,18 +126,18 @@ impl TrustedWorktop {
                     self.add_new_instruction(true, None)
                 }
                 PACKAGE_PUBLISH_WASM_IDENT => {
-                    // resturns unknown bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
-                    self.add_new_instruction(false, None)
+                    // resturns unknown resources put on worktop
+                    self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
         } else if address.as_node_id().is_global_fungible_resource_manager() {
             match function_name {
                 FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT => {
-                    // returns unknown bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                    // resturns unknown resources put on worktop
                     self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
@@ -152,9 +149,9 @@ impl TrustedWorktop {
                 NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
                 | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT =>
                 {
-                    // returns unknown bucket
-                    self.bucket_tracker.new_unnamed_bucket_unknown_resources();
+                    // resturns unknown resources put on worktop
                     self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
@@ -213,11 +210,11 @@ impl TrustedWorktop {
                     assert_eq!(input_args.buckets().len(), 1);
                     let bucket_id =
                         input_args.buckets().first().expect("Expected bucket");
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
                     self.add_new_instruction(false, None);
                 }

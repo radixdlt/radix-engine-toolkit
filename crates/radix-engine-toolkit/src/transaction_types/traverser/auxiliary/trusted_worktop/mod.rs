@@ -25,6 +25,7 @@ mod bucket_tracker;
 mod handler_function_calls;
 mod handler_method_calls;
 mod worktop_content_tracker;
+use bucket_tracker::Bucket;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
@@ -62,10 +63,9 @@ pub struct TrustedWorktopInstruction {
 // Bucket tracker operaion logic:
 //  Function/method call
 //    1. Returns a bucket and we are not in untracked buckets mode:
-//       - if we know what is in the bucket -> call new_bucket_known_resources()
-//       - if we don't know what is in the bucket -> call new_bucket_unknown_resources()
+//       - Put resources on the worktop
 //    2. We don't know what is returned:
-//       - enter untracked buckets mode
+//       - enter untracked untracked worktop mode
 //
 // We can indentify an instruction as trusted if we are in untracked worktop mode in
 // case of an instruction which returns known bucket and that bucket is later consumed.
@@ -91,11 +91,24 @@ impl TrustedWorktop {
         input_resources: Option<ResourceSpecifier>,
     ) {
         let resources = match input_resources {
-            Some(res) => vec![res],
+            Some(res) => {
+                if res.is_empty() {
+                    vec![]
+                } else {
+                    vec![res]
+                }
+            }
             None => vec![],
         };
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction { trusted, resources });
+    }
+
+    fn add_new_instruction_from_bucket(&mut self, bucket: &Bucket) {
+        self.add_new_instruction(
+            bucket.is_known_resources(),
+            bucket.take_resources(),
+        );
     }
 
     fn add_new_instruction_with_many_resources(
@@ -116,62 +129,24 @@ impl ManifestSummaryCallback for TrustedWorktop {
     ) {
         match instruction {
             InstructionV1::TakeAllFromWorktop { resource_address } => {
-                if !self.worktop_content_tracker.is_untracked_mode()
-                    && !self.bucket_tracker.is_untracked_mode()
-                {
-                    // take also all unnamed buckets
-                    let unnamed_buckets_resources = self
-                        .bucket_tracker
-                        .consume_unnamed_buckets(resource_address);
-                    if unnamed_buckets_resources
-                        .iter()
-                        .find(|item| item.is_none())
-                        .is_some()
+                if !self.worktop_content_tracker.is_untracked_mode() {
+                    if let Some(resources) = self
+                        .worktop_content_tracker
+                        .take_from_worktop_by_address(*resource_address)
                     {
-                        // we don't know what is exactly on the worktop
                         self.bucket_tracker
-                            .new_named_bucket_unknown_resources();
-                        self.add_new_instruction(false, None)
+                            .new_bucket_known_resources(resources.clone());
+                        self.add_new_instruction(
+                            true,
+                            Some(resources.to_owned()),
+                        );
                     } else {
-                        // safe to unwrap as we checked that in if condition
-                        let mut res_list: Vec<ResourceSpecifier> =
-                            unnamed_buckets_resources
-                                .iter()
-                                .map(|item| item.to_owned().unwrap())
-                                .collect();
-
-                        if let Some(resources) = self
-                            .worktop_content_tracker
-                            .take_from_worktop_by_address(*resource_address)
-                        {
-                            res_list.push(resources);
-                        }
-
-                        let merged_resources =
-                            Self::merge_same_resources(&res_list);
-
-                        if merged_resources.is_empty() {
-                            // empty in case of taking only unnamed buckets with unknown resources
-                            self.bucket_tracker
-                                .new_named_bucket_unknown_resources();
-                            self.add_new_instruction(false, None);
-                        } else {
-                            // there sould be only one resource address now
-                            assert_eq!(merged_resources.len(), 1);
-
-                            self.bucket_tracker
-                                .new_named_bucket_known_resources(
-                                    merged_resources[0].clone(),
-                                );
-                            self.add_new_instruction(
-                                true,
-                                Some(merged_resources[0].to_owned()),
-                            );
-                        }
+                        self.bucket_tracker.new_empty_bucket_known_resources();
+                        self.add_new_instruction(true, None)
                     }
                 } else {
                     // we don't know what is exactly on the worktop
-                    self.bucket_tracker.new_named_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None)
                 }
             }
@@ -182,23 +157,22 @@ impl ManifestSummaryCallback for TrustedWorktop {
                 if !self.worktop_content_tracker.is_untracked_mode() {
                     let resources =
                         ResourceSpecifier::Amount(*resource_address, *amount);
-                    if self
-                        .worktop_content_tracker
-                        .take_from_worktop(resources.clone())
+                    if amount.is_zero()
+                        || self
+                            .worktop_content_tracker
+                            .take_from_worktop(resources.clone())
                     {
-                        self.bucket_tracker.new_named_bucket_known_resources(
-                            resources.clone(),
-                        );
+                        self.bucket_tracker
+                            .new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // non fungible take by ammount
-                        self.bucket_tracker
-                            .new_named_bucket_unknown_resources();
+                        self.bucket_tracker.new_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.bucket_tracker.new_named_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }
@@ -216,39 +190,33 @@ impl ManifestSummaryCallback for TrustedWorktop {
                         .worktop_content_tracker
                         .take_from_worktop(resources.clone())
                     {
-                        self.bucket_tracker.new_named_bucket_known_resources(
-                            resources.clone(),
-                        );
+                        self.bucket_tracker
+                            .new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
                         // invalid operation fungible take by ammount
-                        self.bucket_tracker
-                            .new_named_bucket_unknown_resources();
+                        self.bucket_tracker.new_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }
                 } else {
                     // we don't know what is taken from worktop
-                    self.bucket_tracker.new_named_bucket_unknown_resources();
+                    self.bucket_tracker.new_bucket_unknown_resources();
                     self.add_new_instruction(false, None);
                 }
             }
 
             InstructionV1::ReturnToWorktop { bucket_id } => {
                 if !self.bucket_tracker.is_untracked_mode() {
-                    if let Some(resources) = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(bucket_id)
-                        .expect("Must succeed")
-                    {
-                        self.add_new_instruction(true, Some(resources.clone()));
-                        if !self.worktop_content_tracker.is_untracked_mode() {
-                            self.worktop_content_tracker
-                                .put_to_worktop(resources);
-                        }
+                        .expect("Must succeed");
+                    self.add_new_instruction_from_bucket(&bucket);
+                    if let Some(resources) = bucket.take_resources() {
+                        self.worktop_content_tracker.put_to_worktop(resources);
                     } else {
                         // we don't know exactly what is put on worktop
                         self.worktop_content_tracker.enter_untracked_mode();
-                        self.add_new_instruction(false, None);
                     }
                 } else {
                     // we don't know exactly what is put on worktop
@@ -311,11 +279,14 @@ impl ManifestSummaryCallback for TrustedWorktop {
             InstructionV1::CreateProofFromBucketOfAll { bucket_id }
             | InstructionV1::BurnResource { bucket_id } => {
                 if !self.bucket_tracker.is_untracked_mode() {
-                    let resources = self
+                    let bucket = self
                         .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
-                    self.add_new_instruction(resources.is_some(), resources);
+                    self.add_new_instruction(
+                        bucket.is_known_resources(),
+                        bucket.take_resources(),
+                    );
                 } else {
                     self.add_new_instruction(false, None);
                 }

@@ -21,13 +21,34 @@ use scrypto::prelude::*;
 use transaction::validation::ManifestIdAllocator;
 
 #[derive(Default, Clone)]
-struct Bucket {
+pub struct Bucket {
+    // resources can be None for empty buckets
     resources: Option<ResourceSpecifier>,
-    named: bool,
+    unknown_resources: bool,
 }
 impl Bucket {
-    fn new(resources: Option<ResourceSpecifier>, named: bool) -> Self {
-        Self { resources, named }
+    fn new(
+        resources: Option<ResourceSpecifier>,
+        unknown_resources: bool,
+    ) -> Self {
+        Self {
+            resources,
+            unknown_resources,
+        }
+    }
+    // Empty bucket means known resource is None
+    pub fn is_empty(&self) -> bool {
+        self.resources.is_none() && !self.unknown_resources
+    }
+    pub fn is_known_resources(&self) -> bool {
+        !self.unknown_resources
+    }
+    pub fn take_resources(&self) -> Option<ResourceSpecifier> {
+        if self.is_empty() {
+            None
+        } else {
+            self.resources.to_owned()
+        }
     }
     fn try_remove_amount(&mut self, amount: &Decimal) -> Option<Decimal> {
         if let Some(res) = self.resources.as_mut() {
@@ -74,41 +95,29 @@ impl BucketTracker {
         self.untracked_mode = true;
     }
 
-    pub fn new_named_bucket_known_resources(
-        &mut self,
-        resources: ResourceSpecifier,
-    ) {
-        if !self.untracked_mode {
-            self.buckets.insert(
-                self.id_allocator.new_bucket_id(),
-                Bucket::new(Some(resources), true),
-            );
-        }
-    }
-
-    /*pub fn new_unnamed_bucket_known_resources(&mut self, resources: ResourceSpecifier) {
+    pub fn new_bucket_known_resources(&mut self, resources: ResourceSpecifier) {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
                 Bucket::new(Some(resources), false),
             );
         }
-    }*/
-
-    pub fn new_named_bucket_unknown_resources(&mut self) {
-        if !self.untracked_mode {
-            self.buckets.insert(
-                self.id_allocator.new_bucket_id(),
-                Bucket::new(None, true),
-            );
-        }
     }
 
-    pub fn new_unnamed_bucket_unknown_resources(&mut self) {
+    pub fn new_empty_bucket_known_resources(&mut self) {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
                 Bucket::new(None, false),
+            );
+        }
+    }
+
+    pub fn new_bucket_unknown_resources(&mut self) {
+        if !self.untracked_mode {
+            self.buckets.insert(
+                self.id_allocator.new_bucket_id(),
+                Bucket::new(None, true),
             );
         }
     }
@@ -125,54 +134,19 @@ impl BucketTracker {
         ret
     }
 
-    pub fn consume_unnamed_buckets(
-        &mut self,
-        address: &ResourceAddress,
-    ) -> Vec<Option<ResourceSpecifier>> {
-        let unnamed_buckets: Vec<(ManifestBucket, Bucket)> = self
-            .buckets
-            .iter()
-            .filter(|(_, bucket)| {
-                if bucket.resources.is_some() {
-                    bucket.resources.as_ref().unwrap().resource_address()
-                        == *address
-                        && !bucket.named
-                } else {
-                    false
-                }
-            })
-            .map(|(k, v)| (*k, v.clone()))
-            .collect();
-
-        unnamed_buckets.iter().for_each(|(k, _)| {
-            self.buckets.remove(k);
-        });
-
-        unnamed_buckets
-            .iter()
-            .map(|(_, v)| v.resources.to_owned())
-            .collect()
-    }
-
-    pub fn is_bucket_with_unknown_resources(&self) -> bool {
+    pub fn is_any_bucket_with_unknown_resources(&self) -> bool {
         self.buckets
             .iter()
-            .find(|i| i.1.resources.is_none())
+            .find(|i| i.1.unknown_resources)
             .is_some()
     }
-
-    /*pub fn is_unnamed_bucket(&self) -> bool {
-        self.buckets.iter().find(|i| !i.1.named).is_some()
-    }*/
 
     // returns consumed resources if found
     pub fn bucket_consumed(
         &mut self,
         bucket_id: &ManifestBucket,
-    ) -> Option<Option<ResourceSpecifier>> {
-        self.buckets
-            .remove(bucket_id)
-            .map(|bucket| bucket.resources)
+    ) -> Option<Bucket> {
+        self.buckets.remove(bucket_id)
     }
 
     pub fn try_consume_fungible_from_bucket(
