@@ -144,6 +144,50 @@ fn trusted_worktop_deposit_from_bucket() {
 }
 
 #[test]
+fn trusted_worktop_deposit_empty_bucket() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .take_all_from_worktop(address, "empty_bucket")
+        .try_deposit_or_abort(account, None, "empty_bucket")
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
+    validate(&manifest_summary, 0, true, None);
+    validate(&manifest_summary, 1, true, None);
+    validate(&manifest_summary, 2, true, None);
+}
+
+#[test]
+fn trusted_worktop_take_zero() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .take_from_worktop(address, 0, "empty_bucket")
+        .try_deposit_or_abort(account, None, "empty_bucket")
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
+    validate(&manifest_summary, 0, true, None);
+    validate(&manifest_summary, 1, true, None);
+    validate(&manifest_summary, 2, true, None);
+}
+
+#[test]
 fn trusted_worktop_burn_all() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
@@ -170,6 +214,33 @@ fn trusted_worktop_burn_all() {
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]); // inserted instruction TakeAllFromWorktop by test framework
     validate_amount(&manifest_summary, 3, true, &[(address, dec!(10))]);
+}
+
+#[test]
+fn trusted_worktop_burn_empty() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner
+        .create_freely_mintable_and_burnable_fungible_resource(
+            OwnerRole::None,
+            Some(dec!(100)),
+            0,
+            account,
+        );
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .burn_all_from_worktop(address)
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
+    validate(&manifest_summary, 0, true, None);
+    validate(&manifest_summary, 1, true, None); // inserted instruction TakeAllFromWorktop by test framework
+    validate(&manifest_summary, 2, true, None);
 }
 
 #[test]
@@ -447,12 +518,12 @@ fn trusted_worktop_one_resource_pool() {
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 3, true, &[(address, dec!(100))]);
-    // Untrusted as we don't know what is in bucket returned by resource pool.
+    // Untrusted as we don't know what is returned by resource pool.
     validate(&manifest_summary, 4, false, None);
 }
 
 #[test]
-fn trusted_worktop_one_resource_pool2() {
+fn trusted_worktop_one_resource_pool_redeem() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
@@ -473,17 +544,29 @@ fn trusted_worktop_one_resource_pool2() {
             },
         )
         .take_all_from_worktop(resource_address, "pool_units_bucket")
-        .deposit(account, "pool_units_bucket")
+        .call_method_with_name_lookup(
+            component_address,
+            ONE_RESOURCE_POOL_REDEEM_IDENT,
+            |lookup| OneResourcePoolRedeemManifestInput {
+                bucket: lookup.bucket("pool_units_bucket"),
+            },
+        )
+        .take_all_from_worktop(resource_address, "returned_res_bucket")
+        .deposit(account, "returned_res_bucket")
+        .try_deposit_entire_worktop_or_abort(account, None)
         .build();
     let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 6);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 9);
     validate(&manifest_summary, 0, true, None);
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 3, true, &[(address, dec!(100))]);
-    // Untrasted as we don't know what is in bucket returned by resource pool.
+    // Untrasted as we don't know what is returned by resource pool.
     validate(&manifest_summary, 4, false, None);
     validate(&manifest_summary, 5, false, None);
+    validate(&manifest_summary, 6, false, None);
+    validate(&manifest_summary, 7, false, None);
+    validate(&manifest_summary, 8, false, None);
 }
