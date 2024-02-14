@@ -536,7 +536,8 @@ fn trusted_worktop_one_resource_pool_redeem() {
         .lock_fee_from_faucet()
         .withdraw_from_account(account, address, 100)
         .take_from_worktop(address, 50, "bucket")
-        .take_from_worktop(address, 50, "bucket_2")
+        .take_from_worktop(address, 20, "bucket_20")
+        .take_from_worktop(address, 30, "bucket_30")
         .call_method_with_name_lookup(
             component_address,
             ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
@@ -554,24 +555,27 @@ fn trusted_worktop_one_resource_pool_redeem() {
         )
         .take_all_from_worktop(resource_address, "returned_res_bucket")
         .deposit(account, "returned_res_bucket")
+        .deposit(account, "bucket_20")
         .try_deposit_entire_worktop_or_abort(account, None)
-        .deposit(account, "bucket_2")
+        .deposit(account, "bucket_30")
         .build();
     let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 11);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 13);
     validate(&manifest_summary, 0, true, None);
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 4, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(20))]);
+    validate_amount(&manifest_summary, 4, true, &[(address, dec!(30))]);
+    validate_amount(&manifest_summary, 5, true, &[(address, dec!(50))]);
     // Untrasted as we don't know what is returned by resource pool.
-    validate(&manifest_summary, 5, false, None);
     validate(&manifest_summary, 6, false, None);
     validate(&manifest_summary, 7, false, None);
     validate(&manifest_summary, 8, false, None);
     validate(&manifest_summary, 9, false, None);
-    validate_amount(&manifest_summary, 10, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 10, true, &[(address, dec!(20))]);
+    validate(&manifest_summary, 11, false, None);
+    validate_amount(&manifest_summary, 12, true, &[(address, dec!(30))]);
 }
 

@@ -450,7 +450,8 @@ impl TrustedWorktop {
                 }
             }
             ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
-                // resturns unknown resources put on worktop
+                // returned resources are put on worktop, but we don't know exact resource address
+                // so we are entering untracked worktop mode
                 self.add_new_instruction(false, None);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
@@ -546,20 +547,16 @@ impl TrustedWorktop {
                         WithdrawStrategy::Exact
                     )
                 {
-                    self.add_new_instruction(
-                        true,
-                        Some(ResourceSpecifier::Amount(
-                            input_args.resource_address,
-                            input_args.amount,
-                        )),
+                    let resource = ResourceSpecifier::Amount(
+                        input_args.resource_address,
+                        input_args.amount,
                     );
+                    self.add_new_instruction(true, Some(resource.clone()));
+                    self.worktop_content_tracker.put_to_worktop(resource);
                 } else {
                     self.add_new_instruction(false, None);
+                    self.worktop_content_tracker.enter_untracked_mode();
                 }
-
-                // returned pool units are put on worktop, but we don't know exact resource type
-                // so we are entering untracked worktop mode
-                self.worktop_content_tracker.enter_untracked_mode();
             }
             TWO_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
                 if !self.bucket_tracker.is_untracked_mode() {
@@ -657,7 +654,7 @@ impl TrustedWorktop {
                 }
             }
             MULTI_RESOURCE_POOL_REDEEM_IDENT => {
-                // resturns unknown resources put on worktop
+                // resturns unknown resources and puts them on worktop
                 self.add_new_instruction(false, None);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
@@ -725,7 +722,7 @@ impl TrustedWorktop {
         } else {
             match address {
                 DynamicGlobalAddress::Named(_) => {
-                    // unknown component call, may return some unknown bucket
+                    // unknown component call
                     self.bucket_tracker.enter_untracked_mode();
                     self.worktop_content_tracker.enter_untracked_mode();
                     self.add_new_instruction(false, None);
@@ -839,7 +836,7 @@ impl TrustedWorktop {
             self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);
         } else {
-            // other unknown global or internal component call, may return some unknown bucket
+            // other unknown global or internal component call
             self.worktop_content_tracker.enter_untracked_mode();
             self.bucket_tracker.enter_untracked_mode();
             self.add_new_instruction(false, None);

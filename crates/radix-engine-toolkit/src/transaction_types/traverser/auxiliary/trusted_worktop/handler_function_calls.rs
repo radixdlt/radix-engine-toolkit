@@ -96,10 +96,7 @@ impl TrustedWorktop {
         } else {
             match address {
                 DynamicPackageAddress::Named(_) => {
-                    // unknown package function call, may return some unknown bucket
-                    self.bucket_tracker.enter_untracked_mode();
-                    self.worktop_content_tracker.enter_untracked_mode();
-                    self.add_new_instruction(false, None);
+                    self.unknown_function_call();
                 }
                 DynamicPackageAddress::Static(address) => self
                     .handle_static_package_address(
@@ -225,14 +222,9 @@ impl TrustedWorktop {
             // function 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
-            self.worktop_content_tracker.enter_untracked_mode();
-            self.bucket_tracker.enter_untracked_mode();
-            self.add_new_instruction(false, None);
+            self.unknown_function_call();
         } else {
-            // other unknown global package function call, may return some unknown bucket
-            self.worktop_content_tracker.enter_untracked_mode();
-            self.bucket_tracker.enter_untracked_mode();
-            self.add_new_instruction(false, None);
+            self.unknown_function_call();
         }
     }
 }
