@@ -122,18 +122,6 @@ impl BucketTracker {
         }
     }
 
-    // returns option to indicate buckets with unknown resources
-    pub fn consume_all_buckets(&mut self) -> Vec<Option<ResourceSpecifier>> {
-        let ret = self
-            .buckets
-            .iter()
-            .map(|(_, v)| v.resources.to_owned())
-            .collect();
-        self.buckets.clear();
-        self.untracked_mode = false;
-        ret
-    }
-
     pub fn is_any_bucket_with_unknown_resources(&self) -> bool {
         self.buckets
             .iter()

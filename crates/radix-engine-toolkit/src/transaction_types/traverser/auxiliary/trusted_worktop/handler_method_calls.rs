@@ -177,17 +177,9 @@ impl TrustedWorktop {
                                     .bucket_tracker
                                     .is_any_bucket_with_unknown_resources()
                             {
-                                // Safe to unwrap as we verified that there are no buckets with unknown resources.
-                                let bucket_resources: Vec<ResourceSpecifier> =
-                                    self.bucket_tracker
-                                        .consume_all_buckets()
-                                        .iter()
-                                        .map(|item| item.to_owned().unwrap())
-                                        .collect();
-                                let mut resources = self
+                                let resources = self
                                     .worktop_content_tracker
                                     .take_all_from_worktop();
-                                resources.extend(bucket_resources);
 
                                 (
                                     true,
@@ -200,12 +192,10 @@ impl TrustedWorktop {
                                 // switch back to worktop tracked mode
                                 self.worktop_content_tracker
                                     .take_all_from_worktop();
-                                // same for buckets
-                                self.bucket_tracker.consume_all_buckets();
                                 (false, None)
                             }
                         }
-                        _ => (false, None), //self.add_new_instruction(false, None),
+                        _ => (false, None),
                     }
                 } else {
                     (false, None)
