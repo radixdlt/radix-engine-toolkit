@@ -553,16 +553,15 @@ fn trusted_worktop_one_resource_pool_redeem() {
                 bucket: lookup.bucket("pool_units_bucket"),
             },
         )
-        .take_all_from_worktop(resource_address, "returned_res_bucket")
-        .deposit(account, "returned_res_bucket")
+        .take_all_from_worktop(address, "returned_res_bucket")
         .deposit(account, "bucket_20")
-        .try_deposit_entire_worktop_or_abort(account, None)
+        .deposit(account, "returned_res_bucket")
         .deposit(account, "bucket_30")
         .build();
     let (manifest_summary, _) = test_runner.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 13);
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 12);
     validate(&manifest_summary, 0, true, None);
     validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
     validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
@@ -573,9 +572,90 @@ fn trusted_worktop_one_resource_pool_redeem() {
     validate(&manifest_summary, 6, false, None);
     validate(&manifest_summary, 7, false, None);
     validate(&manifest_summary, 8, false, None);
-    validate(&manifest_summary, 9, false, None);
-    validate_amount(&manifest_summary, 10, true, &[(address, dec!(20))]);
-    validate(&manifest_summary, 11, false, None);
-    validate_amount(&manifest_summary, 12, true, &[(address, dec!(30))]);
+    validate_amount(&manifest_summary, 9, true, &[(address, dec!(20))]);
+    validate(&manifest_summary, 10, false, None);
+    validate_amount(&manifest_summary, 11, true, &[(address, dec!(30))]);
 }
 
+#[test]
+fn trusted_worktop_one_resource_protected_withdraw() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (component_address, resource_address) =
+        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 50)
+        .take_from_worktop(address, 50, "bucket")
+        .call_method_with_name_lookup(
+            component_address,
+            ONE_RESOURCE_POOL_CONTRIBUTE_IDENT,
+            |lookup| OneResourcePoolContributeManifestInput {
+                bucket: lookup.bucket("bucket"),
+            },
+        )
+        .take_all_from_worktop(resource_address, "pool_units_bucket")
+        .deposit(account, "pool_units_bucket")
+        .call_method(
+            component_address,
+            ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT,
+            OneResourcePoolProtectedWithdrawManifestInput {
+                amount: dec!(10),
+                withdraw_strategy: WithdrawStrategy::Exact,
+            },
+        )
+        .take_all_from_worktop(address, "returned_res_bucket")
+        .deposit(account, "returned_res_bucket")
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 9);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(50))]);
+    // Untrusted as we don't know what is returned by resource pool.
+    validate(&manifest_summary, 4, false, None);
+    validate(&manifest_summary, 5, false, None);
+    // we don't know the pool resource type
+    validate(&manifest_summary, 6, false, None);
+    validate(&manifest_summary, 7, false, None);
+    validate(&manifest_summary, 8, false, None);
+}
+
+#[test]
+fn trusted_worktop_one_resource_protected_deposit() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (component_address, _resource_address) =
+        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .withdraw_from_account(account, address, 50)
+        .take_from_worktop(address, 50, "bucket")
+        .call_method_with_name_lookup(
+            component_address,
+            ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT,
+            |lookup| OneResourcePoolProtectedDepositManifestInput {
+                bucket: lookup.bucket("bucket"),
+            },
+        )
+        .build();
+    let (manifest_summary, _) = test_runner.summarize(manifest);
+
+    // Assert
+    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
+    validate(&manifest_summary, 0, true, None);
+    validate_amount(&manifest_summary, 1, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
+    validate_amount(&manifest_summary, 3, true, &[(address, dec!(50))]);
+}
