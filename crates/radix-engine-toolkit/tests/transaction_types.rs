@@ -18,9 +18,7 @@
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
-use radix_engine_queries::typed_substate_layout::multi_resource_pool::*;
-use radix_engine_queries::typed_substate_layout::one_resource_pool::*;
-use radix_engine_queries::typed_substate_layout::two_resource_pool::*;
+use radix_engine::blueprints::pool::v1::constants::*;
 use radix_engine_toolkit::transaction_types::*;
 use scrypto_unit::*;
 use transaction::prelude::*;
