@@ -40,7 +40,7 @@ pub struct TrustedWorktopInstruction {
 }
 
 #[derive(Default)]
-// Trusted Worktop analyzes manifest instruction to tracks worktop content and
+// Trusted Worktop analyses manifest instructions to track worktop content and
 // buckets list and basing on that it decides if manifest instruction is trusted
 // (definition in TrustedWorktopInstruction).
 //
@@ -49,15 +49,15 @@ pub struct TrustedWorktopInstruction {
 //  If Instruction changes worktop state:
 //    1. Puts resources on the worktop (ex. Account withdraws, Return to workotop, etc.)
 //       - if we know what resources has been put on the worktop then instruction is trusted
-//       - if we don't know what has been put on the worktop then instruction is untrasted
+//       - if we don't know what has been put on the worktop then instruction is untrusted
 //         and we are entering into untracked worktop content mode (from now we don't know
 //         exactly what is on the worktop)
 //    2. Takes resources from the worktop (ex. Take from worktop instructions)
-//       - if we are in untracked worktop content mode then instruction is untrasted
+//       - if we are in untracked worktop content mode then instruction is untrusted
 //       - if we know the resources then instruction is trusted
 //  If Instruction uses a bucket and we are not in bucket untracked mode:
 //    1. If bucket is known and resources are known, then it is consumed and instruction is trusted
-//    2. If bucket is known but resources are unknown then it is consumed and instruction is untrasted
+//    2. If bucket is known but resources are unknown then it is consumed and instruction is untrusted
 //    3. If bucket is unknown then we are entering into bucket untracked mode and instruction is untrusted
 //
 // Bucket tracker operaion logic:
@@ -65,10 +65,11 @@ pub struct TrustedWorktopInstruction {
 //    1. Returns a bucket and we are not in untracked buckets mode:
 //       - Put resources on the worktop
 //    2. We don't know what is returned:
-//       - enter untracked untracked worktop mode
+//       - enter untracked worktop mode
 //
-// We can indentify an instruction as trusted if we are in untracked worktop mode in
+// We can identify an instruction as trusted if we are in untracked worktop mode in
 // case of an instruction which returns known bucket and that bucket is later consumed.
+// Taking all from worktop switches back from untracked mode.
 //
 pub struct TrustedWorktop {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
