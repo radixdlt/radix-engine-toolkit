@@ -540,9 +540,18 @@ jobs:
       - name: NuGet Pack
         working-directory: interop/csharp/
         run: dotnet pack --configuration Release --output .
+      - name: Fetch secrets
+        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: ${{ secrets.SECRETS_ROLE_NAME }}
+          app_name: 'radix-engine-toolkit'
+          step_name: 'nuget'
+          secret_prefix: 'NUGET'
+          secret_name: "github-actions/radixdlt/radix-engine-toolkit/nuget"
+          parse_json: true
       - name: Publish Packages
         working-directory: interop/csharp/
-        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
+        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
   publish-python-package:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
