@@ -502,6 +502,12 @@ mod native {
         WithdrawEvent as NativeMultiResourcePoolWithdrawEvent,
         DepositEvent as NativeMultiResourcePoolDepositEvent,
     };
+    pub use radix_engine::blueprints::pool::v1::constants::{
+        POOL_MANAGER_ROLE as NATIVE_POOL_MANAGER_ROLE,
+        ONE_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_ONE_RESOURCE_POOL_BLUEPRINT_IDENT,
+        TWO_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_TWO_RESOURCE_POOL_BLUEPRINT_IDENT,
+        MULTI_RESOURCE_POOL_BLUEPRINT_IDENT as NATIVE_MULTI_RESOURCE_POOL_BLUEPRINT_IDENT
+    };
     pub use radix_engine::blueprints::resource::{
         VaultCreationEvent as NativeVaultCreationEvent,
         MintFungibleResourceEvent as NativeMintFungibleResourceEvent,

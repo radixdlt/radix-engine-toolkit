@@ -17,6 +17,7 @@
 
 use std::ops::*;
 
+use radix_engine::blueprints::models::KeyValueKeyPayload;
 use radix_engine::system::system_substates::*;
 use radix_engine::track::*;
 use radix_engine_queries::typed_substate_layout::*;
@@ -32,9 +33,8 @@ use super::*;
 /// A summary of the manifest
 #[derive(Clone, Debug)]
 pub struct ManifestSummary {
-    /// The set of the resource addresses of proofs that were presented in
-    /// the manifest.
-    pub presented_proofs: IndexSet<ResourceAddress>,
+    /// The list of the resources of proofs that were presented in the manifest.
+    pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
     /// The set of accounts withdrawn from observed in the manifest.
     pub accounts_withdrawn_from: IndexSet<ComponentAddress>,
     /// The set of accounts deposited into observed in the manifest.
@@ -67,9 +67,8 @@ pub struct ExecutionSummary {
     pub account_withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The deposits done in the manifest.
     pub account_deposits: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
-    /// The set of the resource addresses of proofs that were presented in
-    /// the manifest.
-    pub presented_proofs: IndexSet<ResourceAddress>,
+    /// The list of the resources of proofs that were presented in the manifest.
+    pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
     /// Information on the global entities created in the transaction.
     pub new_entities: NewEntities,
     /// The set of all the global entities encountered in the manifest. This is
@@ -181,6 +180,8 @@ pub enum DetailedManifestClass {
         validator_addresses: IndexSet<ComponentAddress>,
         /// The unstakes observed in the transaction
         validator_unstakes: Vec<TrackedValidatorUnstake>,
+        /// The data associated with the various claim NFTs
+        claims_non_fungible_data: IndexMap<NonFungibleGlobalId, UnstakeData>,
     },
     /// A manifest where XRD is claimed from one or more validators.
     ValidatorClaim {
@@ -424,6 +425,58 @@ impl<'r> TransactionTypesReceipt<'r> {
 
         minted_id_list.retain(|item| !burnt_id_list.contains(item));
         minted_id_list
+    }
+
+    pub fn non_fungible_data(
+        &self,
+        resource_address: &ResourceAddress,
+        non_fungible_local_id: &NonFungibleLocalId,
+    ) -> Option<Vec<u8>> {
+        let key = NonFungibleResourceManagerDataKeyPayload::from_content(
+            non_fungible_local_id.clone(),
+        );
+
+        self.commit_result
+            .state_updates
+            .by_node
+            .get(resource_address.as_node_id())
+            .and_then(|item| {
+                let partition_number = MAIN_BASE_PARTITION
+                    .at_offset(
+                        NonFungibleResourceManagerPartitionOffset::DataKeyValue
+                            .as_partition_offset(),
+                    )
+                    .unwrap();
+
+                let NodeStateUpdates::Delta { by_partition } = item;
+
+                by_partition.get(&partition_number)
+            })
+            .and_then(|item| match item {
+                PartitionStateUpdates::Delta { by_substate } => by_substate
+                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
+                    .and_then(|item| match item {
+                        DatabaseUpdate::Set(value) => Some(value.clone()),
+                        DatabaseUpdate::Delete => None,
+                    }),
+                PartitionStateUpdates::Batch(
+                    BatchPartitionStateUpdate::Reset {
+                        new_substate_values,
+                    },
+                ) => new_substate_values
+                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
+                    .cloned(),
+            })
+            .and_then(|item| {
+                scrypto_decode::<
+                    KeyValueEntrySubstate<
+                        NonFungibleResourceManagerDataEntryPayload,
+                    >,
+                >(&item)
+                .ok()
+                .and_then(|item| item.into_value())
+                .and_then(|item| scrypto_encode(&item).ok())
+            })
     }
 }
 

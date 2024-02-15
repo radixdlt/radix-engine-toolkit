@@ -15,24 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_engine::system::system_modules::execution_trace::*;
 use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
 #[derive(Default)]
 pub struct PresentedProofsDetector {
-    presented_proofs: IndexSet<ResourceAddress>,
+    presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
 }
 
 impl PresentedProofsDetector {
-    pub fn output(self) -> IndexSet<ResourceAddress> {
+    pub fn output(self) -> IndexMap<ComponentAddress, Vec<ResourceSpecifier>> {
         self.presented_proofs
     }
 }
 
 impl ManifestSummaryCallback for PresentedProofsDetector {
-    fn on_create_proof(&mut self, resource_address: &ResourceAddress) {
-        self.presented_proofs.insert(*resource_address);
+    fn on_create_proof(
+        &mut self,
+        account: &ComponentAddress,
+        resource: &ResourceSpecifier,
+    ) {
+        self.presented_proofs
+            .entry(*account)
+            .and_modify(|res_vector| res_vector.push(resource.clone()))
+            .or_insert(vec![resource.clone()]);
     }
 }
 
