@@ -22,6 +22,7 @@ bech32 = { version = "0.9.1" }
 # The serde-json dependency without the serde dependency. This is used for the SBOR serialization
 # in the `scrypto_sbor.rs` and `manifest_sbor.rs` modules and ONLY there. 
 serde_json = { version = "1.0.96", features = ["preserve_order"] }
+serde_with = "3.6.1"
 
 # Used by the Radix Engine Toolkit to cashe the result of some operations that should only be 
 # computed once.

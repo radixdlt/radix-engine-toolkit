@@ -17,3 +17,4 @@
 
 pub mod node_id;
 pub mod transaction_hash;
+pub mod canonical_address_types;
