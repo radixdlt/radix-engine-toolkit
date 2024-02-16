@@ -29,6 +29,13 @@ pub enum CanonicalAddressError {
     FailedToEncodeBech32,
 }
 
+// Required for serde Serializer
+impl Display for CanonicalAddressError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        write!(formatter, "{:?}", self)
+    }
+}
+
 pub type NetworkId = u8;
 
 pub trait CanonicalAddress: FromStr + std::fmt::Display {
@@ -40,12 +47,12 @@ pub trait CanonicalAddressResourceType {
     fn is_fungible(&self) -> bool;
 }
 
-impl Display for CanonicalAddressError {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(formatter, "{:?}", self)
-    }
-}
-
+// Macro which declares dedicated Canonical Addres types.
+// Arguments:
+//  - $name: used for composition of the new type name Canonical_NAME_Address
+//  - $entity_type: pattern of valid entity types for this new type
+//  - $fungibility_validator: optional, if specified additionally CanonicalAddressResourceType trait
+//    is declared, this expects closure with parameter &NodeId which can be used to validate type of resource
 macro_rules! make_canonical_address {
 
     ($name: ident, $entity_type: pat) => {
@@ -157,56 +164,75 @@ macro_rules! make_canonical_address {
                 }
             }
         }
-    }
+    };
+
+    ($name: ident, $entity_type: pat, $fungibility_validator: expr) => {
+        make_canonical_address!($name, $entity_type);
+
+        paste! {
+            impl CanonicalAddressResourceType for [<Canonical $name Address>] {
+                fn is_fungible(&self) -> bool {
+                    $fungibility_validator(&self.address)
+                }
+            }
+        }
+    };
 
 }
 
+// CanonicalAccoutAddress type definition
 make_canonical_address!(
     Account,
     EntityType::GlobalAccount
         | EntityType::GlobalVirtualSecp256k1Account
         | EntityType::GlobalVirtualEd25519Account
 );
+
+// CanonicalIdentityAddress type definition
 make_canonical_address!(
     Identity,
     EntityType::GlobalIdentity
         | EntityType::GlobalVirtualSecp256k1Identity
         | EntityType::GlobalVirtualEd25519Identity
 );
+
+// CanonicalResourceAddress type definition
+make_canonical_address!(
+    Resource,
+    EntityType::GlobalFungibleResourceManager
+        | EntityType::GlobalNonFungibleResourceManager,
+    |address: &NodeId| { address.is_global_fungible_resource_manager() }
+);
+
+// CanonicalPackageAddress type definition
 make_canonical_address!(Package, EntityType::GlobalPackage);
+
+// CanonicalComponentAddress type definition
 make_canonical_address!(
     Component,
     EntityType::GlobalGenericComponent | EntityType::InternalGenericComponent
 );
+
+// CanonicalAccessControllerAddress type definition
 make_canonical_address!(AccessController, EntityType::GlobalAccessController);
+
+// CanonicalValidatorAddress type definition
 make_canonical_address!(Validator, EntityType::GlobalValidator);
+
+// CanonicalVaultAddress type definition
+make_canonical_address!(
+    Vault,
+    EntityType::InternalFungibleVault | EntityType::InternalNonFungibleVault,
+    |address: &NodeId| { address.is_internal_fungible_vault() }
+);
+
+// CanonicalResourcePoolAddress type definition
 make_canonical_address!(
     ResourcePool,
     EntityType::GlobalOneResourcePool
         | EntityType::GlobalTwoResourcePool
         | EntityType::GlobalMultiResourcePool
 );
-make_canonical_address!(
-    Resource,
-    EntityType::GlobalFungibleResourceManager
-        | EntityType::GlobalNonFungibleResourceManager
-);
-make_canonical_address!(
-    Vault,
-    EntityType::InternalFungibleVault | EntityType::InternalNonFungibleVault
-);
-
-impl CanonicalAddressResourceType for CanonicalResourceAddress {
-    fn is_fungible(&self) -> bool {
-        self.address.is_global_fungible_resource_manager()
-    }
-}
-
-impl CanonicalAddressResourceType for CanonicalVaultAddress {
-    fn is_fungible(&self) -> bool {
-        self.address.is_internal_fungible_vault()
-    }
-}
 
 #[cfg(test)]
 mod tests {
