@@ -15,6 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
+pub mod canonical_address_types;
 pub mod node_id;
 pub mod transaction_hash;
-pub mod canonical_address_types;
