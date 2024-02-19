@@ -43,9 +43,6 @@ pub trait CanonicalAddress: FromStr + std::fmt::Display {
     fn network_id(&self) -> NetworkId;
     fn to_bech32(&self) -> Result<String, CanonicalAddressError>;
 }
-pub trait CanonicalAddressResourceType {
-    fn is_fungible(&self) -> bool;
-}
 
 // Macro which declares dedicated Canonical Addres types.
 // Arguments:
@@ -170,8 +167,8 @@ macro_rules! make_canonical_address {
         make_canonical_address!($name, $entity_type);
 
         paste! {
-            impl CanonicalAddressResourceType for [<Canonical $name Address>] {
-                fn is_fungible(&self) -> bool {
+            impl [<Canonical $name Address>] {
+                pub fn is_fungible(&self) -> bool {
                     $fungibility_validator(&self.address)
                 }
             }
