@@ -67,6 +67,10 @@ macro_rules! define_canonical_addresses {
                 pub struct [<Canonical $name Address>] {
                     address: NodeId,
                     network_id: NetworkId,
+                    /// The entity type of the address. This is checked in the
+                    /// constructor that it is one of the allowed entity types
+                    /// for this particular address type.
+                    entity_type: EntityType
                 }
 
                 impl [<Canonical $name Address>] {
@@ -93,6 +97,7 @@ macro_rules! define_canonical_addresses {
                                 Some(Self {
                                     address: node_id.clone(),
                                     network_id,
+                                    entity_type
                                 })
                             } else {
                                 None
@@ -139,8 +144,7 @@ macro_rules! define_canonical_addresses {
                     ];
 
                     fn entity_type(&self) -> EntityType {
-                        // Safe to unwrap as entity type is validated during this objcet creation.
-                        self.address.entity_type().unwrap()
+                        self.entity_type
                     }
 
                     fn network_id(&self) -> NetworkId {
