@@ -39,14 +39,14 @@ jobs:
         toolchain: nightly-2023-11-24
         default: true
         profile: minimal
-    - name: Run sccache-cache
-      uses: RDXWorks-actions/sccache-action@main
+    # - name: Run sccache-cache
+    #   uses: mozilla-actions/sccache-action@v0.0.3
     - name: Generate Test Kit
       run: cargo run
       env:
         # Enable sccache
         SCCACHE_GHA_ENABLED: "true"
-        RUSTC_WRAPPER: "sccache"
+        # RUSTC_WRAPPER: "sccache"
       working-directory: crates/generator
     - name: Upload Generated Artifacts
       uses: RDXWorks-actions/upload-artifact@main
@@ -113,8 +113,8 @@ jobs:
           default: true
           profile: minimal
           target: ${{ matrix.build-target.target-triple }}
-      - name: Run sccache-cache
-        uses: RDXWorks-actions/sccache-action@main
+      # - name: Run sccache-cache
+      #   uses: mozilla-actions/sccache-action@v0.0.3
 
       # Installing Build Dependencies
       - name: Build Dependencies (aarch64 linux)
@@ -165,7 +165,7 @@ jobs:
           IPHONEOS_DEPLOYMENT_TARGET: "11.0"
           # Enable sccache
           SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
+          # RUSTC_WRAPPER: "sccache"
         run: | 
           echo $IPHONEOS_DEPLOYMENT_TARGET
           cargo build \
