@@ -37,6 +37,12 @@ impl Display for CanonicalAddressError {
 pub type NetworkId = u8;
 
 pub trait CanonicalAddress: FromStr + std::fmt::Display {
+    /// A constant of the entity types that we are allowed to have on this
+    /// canonical address. This is a static array to support addresses which
+    /// can have multiple entity types such as the account address with virtual
+    /// and non-virtual addresses.
+    const ALLOWED_ENTITY_TYPES: &'static [EntityType];
+
     fn entity_type(&self) -> EntityType;
     fn network_id(&self) -> NetworkId;
     fn to_bech32(&self) -> Result<String, CanonicalAddressError>;
@@ -47,7 +53,7 @@ pub trait CanonicalAddress: FromStr + std::fmt::Display {
 //  - $name: used for composition of the new type name Canonical_NAME_Address
 //  - $entity_type: pattern of valid entity types for this new type
 macro_rules! make_canonical_address {
-    ($name: ident, $entity_type: pat) => {
+    ($name: ident, [$($entity_type: expr),* $(,)?]) => {
         paste! {
             #[derive(
                 Clone, Debug, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr,
@@ -116,12 +122,16 @@ macro_rules! make_canonical_address {
                 fn is_entity_type_valid(entity_type: EntityType) -> bool {
                     matches!(
                         entity_type,
-                        $entity_type
+                        $($entity_type)|*
                     )
                 }
             }
 
             impl CanonicalAddress for [<Canonical $name Address>] {
+                const ALLOWED_ENTITY_TYPES: &'static [EntityType] = &[
+                    $($entity_type),*
+                ];
+
                 fn entity_type(&self) -> EntityType {
                     // Safe to unwrap as entity type is validated during this objcet creation.
                     self.address.entity_type().unwrap()
@@ -159,56 +169,70 @@ macro_rules! make_canonical_address {
     };
 }
 
-// CanonicalAccoutAddress type definition
+// CanonicalAccountAddress type definition
 make_canonical_address!(
     Account,
-    EntityType::GlobalAccount
-        | EntityType::GlobalVirtualSecp256k1Account
-        | EntityType::GlobalVirtualEd25519Account
+    [
+        EntityType::GlobalAccount,
+        EntityType::GlobalVirtualSecp256k1Account,
+        EntityType::GlobalVirtualEd25519Account
+    ]
 );
 
 // CanonicalIdentityAddress type definition
 make_canonical_address!(
     Identity,
-    EntityType::GlobalIdentity
-        | EntityType::GlobalVirtualSecp256k1Identity
-        | EntityType::GlobalVirtualEd25519Identity
+    [
+        EntityType::GlobalIdentity,
+        EntityType::GlobalVirtualSecp256k1Identity,
+        EntityType::GlobalVirtualEd25519Identity
+    ]
 );
 
 // CanonicalResourceAddress type definition
 make_canonical_address!(
     Resource,
-    EntityType::GlobalFungibleResourceManager
-        | EntityType::GlobalNonFungibleResourceManager
+    [
+        EntityType::GlobalFungibleResourceManager,
+        EntityType::GlobalNonFungibleResourceManager
+    ]
 );
 
 // CanonicalPackageAddress type definition
-make_canonical_address!(Package, EntityType::GlobalPackage);
+make_canonical_address!(Package, [EntityType::GlobalPackage]);
 
 // CanonicalComponentAddress type definition
 make_canonical_address!(
     Component,
-    EntityType::GlobalGenericComponent | EntityType::InternalGenericComponent
+    [
+        EntityType::GlobalGenericComponent,
+        EntityType::InternalGenericComponent
+    ]
 );
 
 // CanonicalAccessControllerAddress type definition
-make_canonical_address!(AccessController, EntityType::GlobalAccessController);
+make_canonical_address!(AccessController, [EntityType::GlobalAccessController]);
 
 // CanonicalValidatorAddress type definition
-make_canonical_address!(Validator, EntityType::GlobalValidator);
+make_canonical_address!(Validator, [EntityType::GlobalValidator]);
 
 // CanonicalVaultAddress type definition
 make_canonical_address!(
     Vault,
-    EntityType::InternalFungibleVault | EntityType::InternalNonFungibleVault
+    [
+        EntityType::InternalFungibleVault,
+        EntityType::InternalNonFungibleVault
+    ]
 );
 
 // CanonicalResourcePoolAddress type definition
 make_canonical_address!(
     ResourcePool,
-    EntityType::GlobalOneResourcePool
-        | EntityType::GlobalTwoResourcePool
-        | EntityType::GlobalMultiResourcePool
+    [
+        EntityType::GlobalOneResourcePool,
+        EntityType::GlobalTwoResourcePool,
+        EntityType::GlobalMultiResourcePool
+    ]
 );
 
 // Additional implementations
