@@ -15,13 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use crate::utils::{
-    network_definition_from_network_id, network_id_from_address_string,
-};
-use paste::paste;
+use crate::utils::*;
+use paste::*;
 use radix_engine_common::prelude::*;
-use scrypto::prelude::AddressBech32Decoder;
-use serde_with::{DeserializeFromStr, SerializeDisplay};
+use scrypto::prelude::*;
+use serde_with::*;
 
 #[derive(Debug)]
 pub enum CanonicalAddressError {
@@ -44,14 +42,11 @@ pub trait CanonicalAddress: FromStr + std::fmt::Display {
     fn to_bech32(&self) -> Result<String, CanonicalAddressError>;
 }
 
-// Macro which declares dedicated Canonical Addres types.
+// Macro which declares dedicated Canonical Address types.
 // Arguments:
 //  - $name: used for composition of the new type name Canonical_NAME_Address
 //  - $entity_type: pattern of valid entity types for this new type
-//  - $fungibility_validator: optional, if specified additionally CanonicalAddressResourceType trait
-//    is declared, this expects closure with parameter &NodeId which can be used to validate type of resource
 macro_rules! make_canonical_address {
-
     ($name: ident, $entity_type: pat) => {
         paste! {
             #[derive(
@@ -162,19 +157,6 @@ macro_rules! make_canonical_address {
             }
         }
     };
-
-    ($name: ident, $entity_type: pat, $fungibility_validator: expr) => {
-        make_canonical_address!($name, $entity_type);
-
-        paste! {
-            impl [<Canonical $name Address>] {
-                pub fn is_fungible(&self) -> bool {
-                    $fungibility_validator(&self.address)
-                }
-            }
-        }
-    };
-
 }
 
 // CanonicalAccoutAddress type definition
@@ -197,8 +179,7 @@ make_canonical_address!(
 make_canonical_address!(
     Resource,
     EntityType::GlobalFungibleResourceManager
-        | EntityType::GlobalNonFungibleResourceManager,
-    |address: &NodeId| { address.is_global_fungible_resource_manager() }
+        | EntityType::GlobalNonFungibleResourceManager
 );
 
 // CanonicalPackageAddress type definition
@@ -219,8 +200,7 @@ make_canonical_address!(Validator, EntityType::GlobalValidator);
 // CanonicalVaultAddress type definition
 make_canonical_address!(
     Vault,
-    EntityType::InternalFungibleVault | EntityType::InternalNonFungibleVault,
-    |address: &NodeId| { address.is_internal_fungible_vault() }
+    EntityType::InternalFungibleVault | EntityType::InternalNonFungibleVault
 );
 
 // CanonicalResourcePoolAddress type definition
@@ -231,10 +211,30 @@ make_canonical_address!(
         | EntityType::GlobalMultiResourcePool
 );
 
+// Additional implementations
+impl CanonicalResourceAddress {
+    pub fn is_fungible(&self) -> bool {
+        self.address.is_global_fungible_resource_manager()
+    }
+
+    pub fn is_non_fungible(&self) -> bool {
+        !self.is_fungible()
+    }
+}
+
+impl CanonicalVaultAddress {
+    pub fn is_fungible(&self) -> bool {
+        self.address.is_internal_fungible_vault()
+    }
+
+    pub fn is_non_fungible(&self) -> bool {
+        !self.is_fungible()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    extern crate serde_json;
 
     #[test]
     fn canonical_account_address_test() {
@@ -282,7 +282,7 @@ mod tests {
         assert_eq!(x.network_id, 0x0a);
         assert_eq!(x.to_string(), canonical_input);
         assert_eq!(x.to_bech32().unwrap(), canonical_input);
-        assert_eq!(x.is_fungible(), false);
+        assert!(!x.is_fungible());
 
         let json_string = serde_json::to_string(&x).unwrap();
         assert_eq!(json_string, format!("\"{}\"", canonical_input));
@@ -304,7 +304,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(x.to_string(), canonical_input);
-        assert_eq!(x.is_fungible(), true);
+        assert!(x.is_fungible());
     }
 
     #[test]
@@ -319,7 +319,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(x.to_string(), canonical_input);
-        assert_eq!(x.is_fungible(), false);
+        assert!(!x.is_fungible());
     }
 
     #[test]
@@ -334,6 +334,6 @@ mod tests {
         )
         .unwrap();
         assert_eq!(x.to_string(), canonical_input);
-        assert_eq!(x.is_fungible(), true);
+        assert!(x.is_fungible());
     }
 }
