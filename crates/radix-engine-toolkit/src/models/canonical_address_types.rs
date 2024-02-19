@@ -24,8 +24,8 @@ use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum CanonicalAddressError {
-    FailedToDecodeBech32,
-    FailedToEncodeBech32,
+    Bech32mEncodeError(AddressBech32EncodeError),
+    Bech32mDecodeError(AddressBech32DecodeError),
     InvalidEntityType {
         expected: &'static [EntityType],
         actual: EntityType,
@@ -34,6 +34,25 @@ pub enum CanonicalAddressError {
     NoEntityType {
         node_id: NodeId,
     },
+    FailedToFindNetworkIdFromBech32mString {
+        bech32m_encoded_address: String,
+    },
+    InvalidNodeIdLength {
+        expected: usize,
+        actual: usize,
+    },
+}
+
+impl From<AddressBech32EncodeError> for CanonicalAddressError {
+    fn from(value: AddressBech32EncodeError) -> Self {
+        Self::Bech32mEncodeError(value)
+    }
+}
+
+impl From<AddressBech32DecodeError> for CanonicalAddressError {
+    fn from(value: AddressBech32DecodeError) -> Self {
+        Self::Bech32mDecodeError(value)
+    }
 }
 
 // Required for serde Serializer
@@ -121,8 +140,35 @@ macro_rules! define_canonical_addresses {
                         }
                     }
 
-                    pub fn try_from_bech32(_: &str) -> Result<Self, CanonicalAddressError> {
-                        todo!()
+                    /// Attempts to construct this type from a Bech32m string.
+                    /// The network id does not need to be passed as it will be
+                    /// determined based on the HRP of the address
+                    pub fn try_from_bech32(
+                        address_string: &str,
+                    ) -> Result<Self, CanonicalAddressError> {
+                        // Find the network definition based on the network of the passed
+                        // address.
+                        let network_definition = network_id_from_address_string(address_string)
+                            .map(network_definition_from_network_id)
+                            .ok_or(
+                                CanonicalAddressError::FailedToFindNetworkIdFromBech32mString {
+                                    bech32m_encoded_address: address_string.to_owned(),
+                                },
+                            )?;
+
+                        // Construct the decoder and decode the address
+                        let decoder = AddressBech32Decoder::new(&network_definition);
+                        let (_, data) = decoder.validate_and_decode(address_string)?;
+
+                        // Construct a NodeId from the returned data.
+                        let node_id = data.try_into().map(NodeId).map_err(|vec| {
+                            CanonicalAddressError::InvalidNodeIdLength {
+                                expected: NodeId::LENGTH,
+                                actual: vec.len(),
+                            }
+                        })?;
+
+                        Self::new(node_id, network_definition.id)
                     }
                 }
 
@@ -151,7 +197,7 @@ macro_rules! define_canonical_addresses {
                         );
                         encode
                             .encode(self.node_id.as_bytes())
-                            .map_err(|_| CanonicalAddressError::FailedToEncodeBech32)
+                            .map_err(CanonicalAddressError::from)
                     }
                 }
 
