@@ -26,6 +26,14 @@ use std::fmt::Display;
 pub enum CanonicalAddressError {
     FailedToDecodeBech32,
     FailedToEncodeBech32,
+    InvalidEntityType {
+        expected: &'static [EntityType],
+        actual: EntityType,
+        node_id: NodeId,
+    },
+    NoEntityType {
+        node_id: NodeId,
+    },
 }
 
 // Required for serde Serializer
@@ -62,79 +70,61 @@ macro_rules! define_canonical_addresses {
         paste! {
             $(
                 #[derive(
-                    Clone, Debug, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr,
+                    Clone,
+                    Copy,
+                    Debug,
+                    PartialEq,
+                    Eq,
+                    Hash,
+                    SerializeDisplay,
+                    DeserializeFromStr,
                 )]
                 pub struct [<Canonical $name Address>] {
                     address: NodeId,
                     network_id: NetworkId,
                     /// The entity type of the address. This is checked in the
                     /// constructor that it is one of the allowed entity types
-                    /// for this particular address type.
+                    /// for this particular address type and then cached here
+                    /// to avoid any additional unwraps when being retrieved.
                     entity_type: EntityType
                 }
 
                 impl [<Canonical $name Address>] {
-                    pub fn try_from_global_address(
-                        global_address: &GlobalAddress,
-                        network_id: NetworkId,
-                    ) -> Option<Self> {
-                        Self::try_from_node_id(&global_address.into_node_id(), network_id)
-                    }
-
-                    pub fn try_from_internal_address(
-                        internal_address: &InternalAddress,
-                        network_id: NetworkId,
-                    ) -> Option<Self> {
-                        Self::try_from_node_id(&internal_address.into_node_id(), network_id)
-                    }
-
-                    pub fn try_from_node_id(
-                        node_id: &NodeId,
-                        network_id: NetworkId,
-                    ) -> Option<Self> {
+                    pub fn new(
+                        node_id: impl Into<NodeId>,
+                        network_id: NetworkId
+                    ) -> Result<Self, CanonicalAddressError> {
+                        let node_id = node_id.into();
                         if let Some(entity_type) = node_id.entity_type() {
-                            if Self::is_entity_type_valid(entity_type) {
-                                Some(Self {
-                                    address: node_id.clone(),
+                            if matches!(
+                                entity_type,
+                                $($entity_type)|*
+                            ) {
+                                Ok(Self {
+                                    address: node_id,
                                     network_id,
                                     entity_type
                                 })
                             } else {
-                                None
+                                Err(CanonicalAddressError::InvalidEntityType {
+                                    expected: Self::ALLOWED_ENTITY_TYPES,
+                                    actual: entity_type,
+                                    node_id
+                                })
                             }
                         } else {
-                            None
+                            Err(CanonicalAddressError::NoEntityType { node_id })
                         }
                     }
 
-                    pub fn try_from_bech32(bech32: &str) -> Option<Self> {
-                        let network_id = network_id_from_address_string(bech32)?;
-
-                        let decoder = AddressBech32Decoder::new(
-                            &network_definition_from_network_id(network_id),
-                        );
-                        if let Ok((entity_type, mut full_data)) =
-                            decoder.validate_and_decode(bech32)
-                        {
-                            full_data.remove(0); // skip entity type
-                            if let Ok(node_id) = full_data.as_slice().try_into() {
-                                Self::try_from_node_id(
-                                    &NodeId::new(entity_type as u8, node_id),
-                                    network_id,
-                                )
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        }
+                    pub fn try_from_bech32(_: &str) -> Result<Self, CanonicalAddressError> {
+                        todo!()
                     }
+                }
 
-                    fn is_entity_type_valid(entity_type: EntityType) -> bool {
-                        matches!(
-                            entity_type,
-                            $($entity_type)|*
-                        )
+                impl From<[<Canonical $name Address>]> for NodeId {
+                    fn from(value: [<Canonical $name Address>]) -> Self {
+                        value.address
                     }
                 }
 
@@ -166,7 +156,6 @@ macro_rules! define_canonical_addresses {
 
                     fn from_str(bech32: &str) -> Result<Self, Self::Err> {
                         Self::try_from_bech32(bech32)
-                            .ok_or(CanonicalAddressError::FailedToDecodeBech32)
                     }
                 }
 
@@ -278,8 +267,8 @@ mod tests {
             "9a5d92f6bc4a0a8b43abe39c0fba235e357fc89286111b78844c5b57e587";
         let canonical_input = "resource_tdx_a_1nfwe9a4ufg9gksatuwwqlw3rtc6hljyjscg3k7yyf3d40ev85cjrzp";
 
-        let x = CanonicalResourceAddress::try_from_node_id(
-            &NodeId::try_from_hex(input).unwrap(),
+        let x = CanonicalResourceAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
             0x0a,
         )
         .unwrap();
@@ -309,8 +298,8 @@ mod tests {
             "5dbd2333630248b3e688c93892cec2d199bd917b8a4e019864a552e1f774";
         let canonical_input = "resource_rdx1tk7jxvmrqfyt8e5geyuf9nkz6xvmmytm3f8qrxry54fwram5cwvcw9";
 
-        let x = CanonicalResourceAddress::try_from_node_id(
-            &NodeId::try_from_hex(input).unwrap(),
+        let x = CanonicalResourceAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
             0x01,
         )
         .unwrap();
@@ -324,8 +313,8 @@ mod tests {
             "9818740463586485efcbd5fcff22cc4fd0f401f44836cb53235fc42f9623";
         let canonical_input = "internal_vault_rdx1nqv8gprrtpjgtm7t6h707gkvflg0gq05fqmvk5ertlzzl93rrmns58";
 
-        let x = CanonicalVaultAddress::try_from_node_id(
-            &NodeId::try_from_hex(input).unwrap(),
+        let x = CanonicalVaultAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
             0x01,
         )
         .unwrap();
@@ -339,8 +328,8 @@ mod tests {
             "58619833de031de3aad69cad02a22656e083e307fb617b28e1b275bd7ed7";
         let canonical_input = "internal_vault_rdx1tpsesv77qvw782kknjks9g3x2msg8cc8ldshk28pkf6m6lkhzcw3fr";
 
-        let x = CanonicalVaultAddress::try_from_node_id(
-            &NodeId::try_from_hex(input).unwrap(),
+        let x = CanonicalVaultAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
             0x01,
         )
         .unwrap();
