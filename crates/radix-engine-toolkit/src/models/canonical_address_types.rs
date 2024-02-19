@@ -20,6 +20,7 @@ use paste::*;
 use radix_engine_common::prelude::*;
 use scrypto::prelude::*;
 use serde_with::*;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub enum CanonicalAddressError {
@@ -36,7 +37,7 @@ impl Display for CanonicalAddressError {
 
 pub type NetworkId = u8;
 
-pub trait CanonicalAddress: FromStr + std::fmt::Display {
+pub trait CanonicalAddress: FromStr + Display {
     /// A constant of the entity types that we are allowed to have on this
     /// canonical address. This is a static array to support addresses which
     /// can have multiple entity types such as the account address with virtual
@@ -52,183 +53,165 @@ pub trait CanonicalAddress: FromStr + std::fmt::Display {
 // Arguments:
 //  - $name: used for composition of the new type name Canonical_NAME_Address
 //  - $entity_type: pattern of valid entity types for this new type
-macro_rules! make_canonical_address {
-    ($name: ident, [$($entity_type: expr),* $(,)?]) => {
+macro_rules! define_canonical_addresses {
+    (
+        $(
+            $name: ident => [$($entity_type: expr),* $(,)?]
+        ),* $(,)?
+    ) => {
         paste! {
-            #[derive(
-                Clone, Debug, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr,
-            )]
-            pub struct [<Canonical $name Address>] {
-                address: NodeId,
-                network_id: NetworkId,
-            }
-
-            impl [<Canonical $name Address>] {
-                pub fn try_from_global_address(
-                    global_address: &GlobalAddress,
+            $(
+                #[derive(
+                    Clone, Debug, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr,
+                )]
+                pub struct [<Canonical $name Address>] {
+                    address: NodeId,
                     network_id: NetworkId,
-                ) -> Option<Self> {
-                    Self::try_from_node_id(&global_address.into_node_id(), network_id)
                 }
 
-                pub fn try_from_internal_address(
-                    internal_address: &InternalAddress,
-                    network_id: NetworkId,
-                ) -> Option<Self> {
-                    Self::try_from_node_id(&internal_address.into_node_id(), network_id)
-                }
+                impl [<Canonical $name Address>] {
+                    pub fn try_from_global_address(
+                        global_address: &GlobalAddress,
+                        network_id: NetworkId,
+                    ) -> Option<Self> {
+                        Self::try_from_node_id(&global_address.into_node_id(), network_id)
+                    }
 
-                pub fn try_from_node_id(
-                    node_id: &NodeId,
-                    network_id: NetworkId,
-                ) -> Option<Self> {
-                    if let Some(entity_type) = node_id.entity_type() {
-                        if Self::is_entity_type_valid(entity_type) {
-                            Some(Self {
-                                address: node_id.clone(),
-                                network_id,
-                            })
+                    pub fn try_from_internal_address(
+                        internal_address: &InternalAddress,
+                        network_id: NetworkId,
+                    ) -> Option<Self> {
+                        Self::try_from_node_id(&internal_address.into_node_id(), network_id)
+                    }
+
+                    pub fn try_from_node_id(
+                        node_id: &NodeId,
+                        network_id: NetworkId,
+                    ) -> Option<Self> {
+                        if let Some(entity_type) = node_id.entity_type() {
+                            if Self::is_entity_type_valid(entity_type) {
+                                Some(Self {
+                                    address: node_id.clone(),
+                                    network_id,
+                                })
+                            } else {
+                                None
+                            }
                         } else {
                             None
                         }
-                    } else {
-                        None
                     }
-                }
 
-                pub fn try_from_bech32(bech32: &str) -> Option<Self> {
-                    let network_id = network_id_from_address_string(bech32)?;
+                    pub fn try_from_bech32(bech32: &str) -> Option<Self> {
+                        let network_id = network_id_from_address_string(bech32)?;
 
-                    let decoder = AddressBech32Decoder::new(
-                        &network_definition_from_network_id(network_id),
-                    );
-                    if let Ok((entity_type, mut full_data)) =
-                        decoder.validate_and_decode(bech32)
-                    {
-                        full_data.remove(0); // skip entity type
-                        if let Ok(node_id) = full_data.as_slice().try_into() {
-                            Self::try_from_node_id(
-                                &NodeId::new(entity_type as u8, node_id),
-                                network_id,
-                            )
+                        let decoder = AddressBech32Decoder::new(
+                            &network_definition_from_network_id(network_id),
+                        );
+                        if let Ok((entity_type, mut full_data)) =
+                            decoder.validate_and_decode(bech32)
+                        {
+                            full_data.remove(0); // skip entity type
+                            if let Ok(node_id) = full_data.as_slice().try_into() {
+                                Self::try_from_node_id(
+                                    &NodeId::new(entity_type as u8, node_id),
+                                    network_id,
+                                )
+                            } else {
+                                None
+                            }
                         } else {
                             None
                         }
-                    } else {
-                        None
+                    }
+
+                    fn is_entity_type_valid(entity_type: EntityType) -> bool {
+                        matches!(
+                            entity_type,
+                            $($entity_type)|*
+                        )
                     }
                 }
 
-                fn is_entity_type_valid(entity_type: EntityType) -> bool {
-                    matches!(
-                        entity_type,
-                        $($entity_type)|*
-                    )
+                impl CanonicalAddress for [<Canonical $name Address>] {
+                    const ALLOWED_ENTITY_TYPES: &'static [EntityType] = &[
+                        $($entity_type),*
+                    ];
+
+                    fn entity_type(&self) -> EntityType {
+                        // Safe to unwrap as entity type is validated during this objcet creation.
+                        self.address.entity_type().unwrap()
+                    }
+
+                    fn network_id(&self) -> NetworkId {
+                        self.network_id
+                    }
+
+                    fn to_bech32(&self) -> Result<String, CanonicalAddressError> {
+                        let encode = AddressBech32Encoder::new(
+                            &network_definition_from_network_id(self.network_id),
+                        );
+                        encode
+                            .encode(self.address.as_bytes())
+                            .map_err(|_| CanonicalAddressError::FailedToEncodeBech32)
+                    }
                 }
-            }
 
-            impl CanonicalAddress for [<Canonical $name Address>] {
-                const ALLOWED_ENTITY_TYPES: &'static [EntityType] = &[
-                    $($entity_type),*
-                ];
+                impl FromStr for [<Canonical $name Address>] {
+                    type Err = CanonicalAddressError;
 
-                fn entity_type(&self) -> EntityType {
-                    // Safe to unwrap as entity type is validated during this objcet creation.
-                    self.address.entity_type().unwrap()
+                    fn from_str(bech32: &str) -> Result<Self, Self::Err> {
+                        Self::try_from_bech32(bech32)
+                            .ok_or(CanonicalAddressError::FailedToDecodeBech32)
+                    }
                 }
 
-                fn network_id(&self) -> NetworkId {
-                    self.network_id
+                impl Display for [<Canonical $name Address>] {
+                    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                        formatter.write_str(&self.to_bech32().map_err(|_| fmt::Error)?)
+                    }
                 }
-
-                fn to_bech32(&self) -> Result<String, CanonicalAddressError> {
-                    let encode = AddressBech32Encoder::new(
-                        &network_definition_from_network_id(self.network_id),
-                    );
-                    encode
-                        .encode(self.address.as_bytes())
-                        .map_err(|_| CanonicalAddressError::FailedToEncodeBech32)
-                }
-            }
-
-            impl FromStr for [<Canonical $name Address>] {
-                type Err = CanonicalAddressError;
-
-                fn from_str(bech32: &str) -> Result<Self, Self::Err> {
-                    Self::try_from_bech32(bech32)
-                        .ok_or(CanonicalAddressError::FailedToDecodeBech32)
-                }
-            }
-
-            impl Display for [<Canonical $name Address>] {
-                fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                    formatter.write_str(&self.to_bech32().map_err(|_| fmt::Error)?)
-                }
-            }
+            )*
         }
     };
 }
 
-// CanonicalAccountAddress type definition
-make_canonical_address!(
-    Account,
-    [
+define_canonical_addresses!(
+    // CanonicalAccountAddress type definition
+    Account => [
         EntityType::GlobalAccount,
         EntityType::GlobalVirtualSecp256k1Account,
         EntityType::GlobalVirtualEd25519Account
-    ]
-);
-
-// CanonicalIdentityAddress type definition
-make_canonical_address!(
-    Identity,
-    [
+    ],
+    // CanonicalIdentityAddress type definition
+    Identity => [
         EntityType::GlobalIdentity,
         EntityType::GlobalVirtualSecp256k1Identity,
         EntityType::GlobalVirtualEd25519Identity
-    ]
-);
-
-// CanonicalResourceAddress type definition
-make_canonical_address!(
-    Resource,
-    [
+    ],
+    // CanonicalResourceAddress type definition
+    Resource => [
         EntityType::GlobalFungibleResourceManager,
         EntityType::GlobalNonFungibleResourceManager
-    ]
-);
-
-// CanonicalPackageAddress type definition
-make_canonical_address!(Package, [EntityType::GlobalPackage]);
-
-// CanonicalComponentAddress type definition
-make_canonical_address!(
-    Component,
-    [
+    ],
+    // CanonicalPackageAddress type definition
+    Package => [EntityType::GlobalPackage],
+    // CanonicalComponentAddress type definition
+    Component => [
         EntityType::GlobalGenericComponent,
         EntityType::InternalGenericComponent
-    ]
-);
-
-// CanonicalAccessControllerAddress type definition
-make_canonical_address!(AccessController, [EntityType::GlobalAccessController]);
-
-// CanonicalValidatorAddress type definition
-make_canonical_address!(Validator, [EntityType::GlobalValidator]);
-
-// CanonicalVaultAddress type definition
-make_canonical_address!(
-    Vault,
-    [
+    ],
+    // CanonicalAccessControllerAddress type definition
+    AccessController => [EntityType::GlobalAccessController],
+    // CanonicalValidatorAddress type definition
+    Validator => [EntityType::GlobalValidator],
+    // CanonicalVaultAddress type definition
+    Vault => [
         EntityType::InternalFungibleVault,
         EntityType::InternalNonFungibleVault
-    ]
-);
-
-// CanonicalResourcePoolAddress type definition
-make_canonical_address!(
-    ResourcePool,
-    [
+    ],
+    // CanonicalPoolAddress type definition
+    Pool =>  [
         EntityType::GlobalOneResourcePool,
         EntityType::GlobalTwoResourcePool,
         EntityType::GlobalMultiResourcePool
