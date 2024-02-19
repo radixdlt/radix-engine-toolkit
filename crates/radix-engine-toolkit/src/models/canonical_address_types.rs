@@ -80,7 +80,11 @@ macro_rules! define_canonical_addresses {
                     DeserializeFromStr,
                 )]
                 pub struct [<Canonical $name Address>] {
-                    address: NodeId,
+                    /// The NodeId of the address.
+                    node_id: NodeId,
+                    /// The network that the address is to be used for. This is
+                    /// used in the Bech32m encoding and decoding of the address
+                    /// essentially providing us with the network context.
                     network_id: NetworkId,
                     /// The entity type of the address. This is checked in the
                     /// constructor that it is one of the allowed entity types
@@ -101,7 +105,7 @@ macro_rules! define_canonical_addresses {
                                 $($entity_type)|*
                             ) {
                                 Ok(Self {
-                                    address: node_id,
+                                    node_id,
                                     network_id,
                                     entity_type
                                 })
@@ -124,7 +128,7 @@ macro_rules! define_canonical_addresses {
 
                 impl From<[<Canonical $name Address>]> for NodeId {
                     fn from(value: [<Canonical $name Address>]) -> Self {
-                        value.address
+                        value.node_id
                     }
                 }
 
@@ -146,7 +150,7 @@ macro_rules! define_canonical_addresses {
                             &network_definition_from_network_id(self.network_id),
                         );
                         encode
-                            .encode(self.address.as_bytes())
+                            .encode(self.node_id.as_bytes())
                             .map_err(|_| CanonicalAddressError::FailedToEncodeBech32)
                     }
                 }
@@ -214,7 +218,7 @@ define_canonical_addresses!(
 // Additional implementations
 impl CanonicalResourceAddress {
     pub fn is_fungible(&self) -> bool {
-        self.address.is_global_fungible_resource_manager()
+        self.node_id.is_global_fungible_resource_manager()
     }
 
     pub fn is_non_fungible(&self) -> bool {
@@ -224,7 +228,7 @@ impl CanonicalResourceAddress {
 
 impl CanonicalVaultAddress {
     pub fn is_fungible(&self) -> bool {
-        self.address.is_internal_fungible_vault()
+        self.node_id.is_internal_fungible_vault()
     }
 
     pub fn is_non_fungible(&self) -> bool {
@@ -242,7 +246,7 @@ mod tests {
 
         let x = CanonicalAccountAddress::from_str(input).unwrap();
         assert_eq!(
-            x.address.as_bytes(),
+            x.node_id.as_bytes(),
             [
                 193, 24, 131, 70, 47, 57, 121, 109, 168, 63, 47, 130, 202, 239,
                 166, 121, 170, 241, 241, 137, 37, 126, 189, 60, 140, 39, 125,
@@ -278,7 +282,7 @@ mod tests {
             .map(|i| u8::from_str_radix(&input[i..=i + 1], 16).unwrap())
             .collect();
 
-        assert_eq!(x.address.as_bytes(), input_vec);
+        assert_eq!(x.node_id.as_bytes(), input_vec);
         assert_eq!(x.network_id, 0x0a);
         assert_eq!(x.to_string(), canonical_input);
         assert_eq!(x.to_bech32().unwrap(), canonical_input);
