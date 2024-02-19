@@ -71,9 +71,9 @@ pub trait CanonicalAddress: FromStr + Display {
     /// and non-virtual addresses.
     const ALLOWED_ENTITY_TYPES: &'static [EntityType];
 
+    fn node_id(&self) -> NodeId;
     fn entity_type(&self) -> EntityType;
     fn network_id(&self) -> NetworkId;
-    fn to_bech32(&self) -> Result<String, CanonicalAddressError>;
 }
 
 // Macro which declares dedicated Canonical Address types.
@@ -146,8 +146,8 @@ macro_rules! define_canonical_addresses {
                     pub fn try_from_bech32(
                         address_string: &str,
                     ) -> Result<Self, CanonicalAddressError> {
-                        // Find the network definition based on the network of the passed
-                        // address.
+                        // Find the network definition based on the network of
+                        // the passed address.
                         let network_definition = network_id_from_address_string(address_string)
                             .map(network_definition_from_network_id)
                             .ok_or(
@@ -183,21 +183,16 @@ macro_rules! define_canonical_addresses {
                         $($entity_type),*
                     ];
 
+                    fn node_id(&self) -> NodeId {
+                        self.node_id
+                    }
+
                     fn entity_type(&self) -> EntityType {
                         self.entity_type
                     }
 
                     fn network_id(&self) -> NetworkId {
                         self.network_id
-                    }
-
-                    fn to_bech32(&self) -> Result<String, CanonicalAddressError> {
-                        let encode = AddressBech32Encoder::new(
-                            &network_definition_from_network_id(self.network_id),
-                        );
-                        encode
-                            .encode(self.node_id.as_bytes())
-                            .map_err(CanonicalAddressError::from)
                     }
                 }
 
@@ -211,7 +206,12 @@ macro_rules! define_canonical_addresses {
 
                 impl Display for [<Canonical $name Address>] {
                     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                        formatter.write_str(&self.to_bech32().map_err(|_| fmt::Error)?)
+                        let encoder = AddressBech32Encoder::new(
+                            &network_definition_from_network_id(self.network_id),
+                        );
+                        encoder
+                            .encode_to_fmt(formatter, &self.node_id.0)
+                            .map_err(|_| fmt::Error)
                     }
                 }
             )*
@@ -301,7 +301,6 @@ mod tests {
         );
         assert_eq!(x.network_id, 0xf2);
         assert_eq!(x.to_string(), input);
-        assert_eq!(x.to_bech32().unwrap(), input);
 
         let json_string = serde_json::to_string(&x).unwrap();
         assert_eq!(json_string, format!("\"{}\"", input));
@@ -331,7 +330,6 @@ mod tests {
         assert_eq!(x.node_id.as_bytes(), input_vec);
         assert_eq!(x.network_id, 0x0a);
         assert_eq!(x.to_string(), canonical_input);
-        assert_eq!(x.to_bech32().unwrap(), canonical_input);
         assert!(!x.is_fungible());
 
         let json_string = serde_json::to_string(&x).unwrap();
