@@ -22,7 +22,7 @@ use scrypto::prelude::*;
 use serde_with::*;
 use std::fmt::Display;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CanonicalAddressError {
     Bech32mEncodeError(AddressBech32EncodeError),
     Bech32mDecodeError(AddressBech32DecodeError),
@@ -148,13 +148,13 @@ macro_rules! define_canonical_addresses {
                     ) -> Result<Self, CanonicalAddressError> {
                         // Find the network definition based on the network of
                         // the passed address.
+                        let unrecognized_network_err = CanonicalAddressError::FailedToFindNetworkIdFromBech32mString {
+                            bech32m_encoded_address: address_string.to_owned(),
+                        };
                         let network_definition = network_id_from_address_string(address_string)
-                            .map(network_definition_from_network_id)
-                            .ok_or(
-                                CanonicalAddressError::FailedToFindNetworkIdFromBech32mString {
-                                    bech32m_encoded_address: address_string.to_owned(),
-                                },
-                            )?;
+                            .ok_or(unrecognized_network_err.clone())
+                            .map(network_definition_from_network_id_strict)
+                            .and_then(|o: Option<NetworkDefinition>| o.ok_or(unrecognized_network_err))?;
 
                         // Construct the decoder and decode the address
                         let decoder = AddressBech32Decoder::new(&network_definition);
@@ -285,6 +285,39 @@ impl CanonicalVaultAddress {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unknown_id_results_in() {
+        // Arrange
+        let address_unknown_id = CanonicalAccountAddress::new(
+            NodeId::new(
+                EntityType::GlobalVirtualEd25519Account as u8,
+                &[0xff; 29],
+            ),
+            222, // unknown network id
+        )
+        .unwrap();
+
+        let bech32 = address_unknown_id.to_string();
+
+        assert_eq!(
+            CanonicalAccountAddress::try_from_bech32(&bech32),
+            Err(
+                CanonicalAddressError::FailedToFindNetworkIdFromBech32mString {
+                    bech32m_encoded_address: bech32
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn test_network_id_from_zabanet_address() {
+        let s = "account_tdx_e_128vkt2fur65p4hqhulfv3h0cknrppwtjsstlttkfamj4jnnpm82gsw";
+        assert_eq!(
+            CanonicalAccountAddress::from_str(s).unwrap().network_id(),
+            0xe // zabanet
+        );
+    }
 
     #[test]
     fn canonical_account_address_test() {
