@@ -10,22 +10,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
     - name: Install Rust Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: RDXWorks-actions/toolchain@master
       with:
         toolchain: nightly-2023-11-24
         default: true
         components: rustfmt, clippy
     - name: Install cargo nextest
-      uses: baptiste0928/cargo-install@v1
+      uses: RDXWorks-actions/cargo-install@v1
       with:
         crate: cargo-nextest
         locked: true
     - name: Install JNA
       run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.3
+      uses: RDXWorks-actions/sccache-action@main
     - name: Run tests
       run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
       env:
@@ -37,9 +37,9 @@ jobs:
   check-formatting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
     - name: Install Rust Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: RDXWorks-actions/toolchain@master
       with:
         toolchain: nightly-2023-11-24
         default: true
@@ -49,9 +49,9 @@ jobs:
   cargo-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
     - name: Install Rust Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: RDXWorks-actions/toolchain@master
       with:
         toolchain: nightly-2023-11-24
         default: true
@@ -61,9 +61,9 @@ jobs:
   clippy-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
     - name: Install Rust Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: RDXWorks-actions/toolchain@master
       with:
         toolchain: nightly-2023-11-24
         default: true

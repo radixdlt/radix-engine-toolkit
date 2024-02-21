@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
       with:
         ref: ${{ env.GITHUB_REF }}
     - name: Prepare C# Version

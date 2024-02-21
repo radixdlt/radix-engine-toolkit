@@ -30,11 +30,11 @@ jobs:
   build-schemas-and-test-kit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: RDXWorks-actions/checkout@main
       with:
         ref: ${{ inputs.ref }}
     - name: Install Rust Toolchain
-      uses: actions-rs/toolchain@v1
+      uses: RDXWorks-actions/toolchain@master
       with:
         toolchain: nightly-2023-11-24
         default: true
@@ -49,7 +49,7 @@ jobs:
         # RUSTC_WRAPPER: "sccache"
       working-directory: crates/generator
     - name: Upload Generated Artifacts
-      uses: actions/upload-artifact@v3
+      uses: RDXWorks-actions/upload-artifact@main
       with:
         name: "schemas-and-test-kit"
         path: "crates/generator/output"
@@ -103,11 +103,11 @@ jobs:
             target-triple: aarch64-apple-ios-sim
             runner: macos-13
     steps:
-      - uses: actions/checkout@v4
+      - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
       - name: Install Rust Toolchain
-        uses: actions-rs/toolchain@v1
+        uses: RDXWorks-actions/toolchain@master
         with:
           toolchain: nightly-2023-11-24
           default: true
@@ -127,7 +127,7 @@ jobs:
           echo "AR=aarch64-linux-gnu-gcc-ar" >> $GITHUB_ENV
           echo "HOST_CC=x86_64-linux-gnu-gcc" >> $GITHUB_ENV
       - name: Build Dependencies (android)
-        uses: nttld/setup-ndk@v1
+        uses: RDXWorks-actions/setup-ndk@v1
         id: setup-ndk
         if: ${{ matrix.build-target.target-triple == 'aarch64-linux-android' || matrix.build-target.target-triple == 'armv7-linux-androideabi' }}
         with:
@@ -174,7 +174,7 @@ jobs:
       - name: Clean Build Artifacts
         run: find "target/${{ matrix.build-target.target-triple }}/release" -mindepth 1 -maxdepth 1 -type d -exec rm -r {} \;
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: RDXWorks-actions/upload-artifact@main
         with:
           name: ${{ matrix.build-target.crate }}-${{ matrix.build-target.target-triple }}
           path: "target/${{ matrix.build-target.target-triple }}/release"
@@ -182,17 +182,17 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
       - name: Clone uniffi-bindgen-cs
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           repository: radixdlt/uniffi-bindgen-cs
           path: uniffi-bindgen-cs
           submodules: 'recursive'
           ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Generate the Bindings
@@ -217,7 +217,7 @@ jobs:
             --out-dir $OUTPUT_DIRECTORY \
             --lib-file $DYNAMIC_LIBRARY_PATH
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: RDXWorks-actions/upload-artifact@main
         with:
           name: uniffi-bindings
           path: uniffi-bindings
@@ -226,16 +226,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
       - name: Checkout Swift Engine Toolkit
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           repository: radixdlt/swift-engine-toolkit
           token: ${{ secrets.RADIX_BOT_PAT }}
           path: ./swift-engine-toolkit
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Build XCFramework
@@ -348,7 +348,7 @@ jobs:
           git push $SET_UPSTREAM_FLAG origin $BRANCH
           git push origin $SPM_VERSION
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: RDXWorks-actions/upload-artifact@main
         with:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
@@ -360,10 +360,10 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -371,12 +371,12 @@ jobs:
         run:
           ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Build and publish Kotlin
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           arguments: build publishMavenGithubPublicationToGitHubPackagesRepository
           build-root-directory: interop/kotlin/ret-kotlin
@@ -390,11 +390,11 @@ jobs:
       id-token: write
     steps:
       - name: Install AWS CLI
-        uses: unfor19/install-aws-cli-action@ee0eb151cf1bca186ccf8c35d314b08d62e0e878 # v1
+        uses: RDXWorks-actions/install-aws-cli-action@master
         with:
           version: 2
       - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           repository: github/actions-oidc-debugger
           ref: main
@@ -405,22 +405,22 @@ jobs:
         with:
           audience: 'https://github.com/github'
       - name: Configure AWS credentials to fetch secrets
-        uses: aws-actions/configure-aws-credentials@97271860067ec931c45b8d104fbf0d15954ab85c # branch v1-node16
+        uses: RDXWorks-actions/configure-aws-credentials@main
         with:
           role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
           aws-region: eu-west-2
           role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Fetch AWS secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@287592d14d9c9c48199db83dc182ae12af3df18e # v1.0.1
+        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
         with:
           parse-json-secrets: true
           secret-ids: |
             MAVEN_CENTRAL,${{ secrets.MAVEN_CENTRAL_SECRET_ID }},
             GPG_PASSPHRASE,${{ secrets.GPG_PASSPHRASE_SECRET_ID }}
-      - uses: actions/checkout@v4
+      - uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Create Kotlin Library
@@ -428,7 +428,7 @@ jobs:
         run: |
           ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           gradle-version: 8.4
           arguments: wrapper -p interop/kotlin/ret-kotlin
@@ -438,7 +438,7 @@ jobs:
           aws secretsmanager get-secret-value --secret-id ${{ secrets.GPG_BINARY_SECRET_ID }}  --query SecretBinary --output text | base64 --decode > rdx-secring.gpg
           cp rdx-secring.gpg lib/rdx-secring.gpg
       - name: Build and publish Kotlin
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
@@ -450,30 +450,30 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Set up JDK 1.8
-        uses: actions/setup-java@v3
+        uses: RDXWorks-actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '17'
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+        uses: RDXWorks-actions/setup-android@v2
       - name: Create Android Library
         working-directory: interop/android
         run:
           ./bootstrap.sh ${{ inputs.kotlin-version }}
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           gradle-version: 8.0.2
           arguments: wrapper -p interop/android/ret-android
       - name: Build and publish Android
-        uses: gradle/gradle-build-action@v2
+        uses: RDXWorks-actions/gradle-build-action@main
         with:
           arguments: build publish
           build-root-directory: interop/android/ret-android
@@ -487,14 +487,14 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
+        uses: RDXWorks-actions/setup-dotnet@5a3fa01c67e60dba8f95e2878436c7151c4b5f01
         with:
           dotnet-version: 7.0.x
       - name: Configure Version
@@ -543,7 +543,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
       - name: Fetch secrets
@@ -557,11 +557,11 @@ jobs:
           parse_json: true
       - name: Print Env
         run: env
-      - uses: actions/download-artifact@v3
+      - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: RDXWorks-actions/setup-python@main
         with:
           python-version: 3.11
       - name: Install Dependencies
