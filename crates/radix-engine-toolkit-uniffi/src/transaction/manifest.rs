@@ -19,7 +19,7 @@ use sbor::HasLatestVersion;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Object)]
+#[derive(Clone, Debug, PartialEq, Eq, Object)]
 pub struct TransactionManifest {
     pub instructions: Arc<Instructions>,
     pub blobs: Vec<Vec<u8>>,
@@ -1397,5 +1397,131 @@ impl From<NativeUnstakeData> for UnstakeData {
             claim_epoch: value.claim_epoch.number(),
             claim_amount: Arc::new(Decimal(value.claim_amount)),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+
+    fn manifest_with_network_id_blobs<I>(
+        instructions: I,
+        network_id: u8,
+        blobs: Vec<Vec<u8>>,
+    ) -> TransactionManifest
+    where
+        I: IntoIterator<Item = Instruction>,
+    {
+        TransactionManifest {
+            instructions: Instructions::from_instructions(
+                instructions.into_iter().collect::<Vec<_>>(),
+                network_id,
+            )
+            .unwrap(),
+            blobs,
+        }
+    }
+
+    fn manifest_with_network_id<I>(
+        instructions: I,
+        network_id: u8,
+    ) -> TransactionManifest
+    where
+        I: IntoIterator<Item = Instruction>,
+    {
+        manifest_with_network_id_blobs(instructions, network_id, Vec::new())
+    }
+
+    fn manifest<I>(instructions: I) -> TransactionManifest
+    where
+        I: IntoIterator<Item = Instruction>,
+    {
+        manifest_with_network_id(instructions, 1)
+    }
+
+    fn test_eq<I>(instructions: I)
+    where
+        I: Clone + IntoIterator<Item = Instruction>,
+    {
+        assert_eq!(manifest(instructions.clone()), manifest(instructions));
+    }
+
+    #[test]
+    fn eq_manifest() {
+        test_eq([
+            Instruction::DropAllProofs,
+            Instruction::DropNamedProofs,
+            Instruction::DropAuthZoneProofs,
+            Instruction::DropAuthZoneRegularProofs,
+            Instruction::DropAuthZoneSignatureProofs,
+        ]);
+        test_eq([
+            Instruction::DropAuthZoneRegularProofs,
+            Instruction::DropAuthZoneSignatureProofs,
+        ]);
+        test_eq([Instruction::DropAuthZoneSignatureProofs]);
+        test_eq([]);
+    }
+
+    #[test]
+    fn inequality_different_instructions() {
+        assert_ne!(
+            manifest([
+                Instruction::DropAllProofs,
+                Instruction::DropNamedProofs,
+                Instruction::DropAuthZoneProofs,
+                Instruction::DropAuthZoneRegularProofs,
+                Instruction::DropAuthZoneSignatureProofs,
+            ]),
+            manifest([
+                Instruction::DropAllProofs,
+                Instruction::DropNamedProofs,
+                Instruction::DropAuthZoneSignatureProofs,
+            ])
+        );
+    }
+
+    #[test]
+    fn inequality_same_instructions_different_order() {
+        assert_ne!(
+            manifest([
+                Instruction::DropAllProofs,
+                Instruction::DropNamedProofs,
+            ]),
+            manifest([
+                Instruction::DropNamedProofs,
+                Instruction::DropAllProofs,
+            ])
+        );
+    }
+
+    #[test]
+    fn inequality_same_instructions_but_different_network() {
+        assert_ne!(
+            manifest_with_network_id(
+                [Instruction::DropAllProofs, Instruction::DropNamedProofs,],
+                1
+            ),
+            manifest_with_network_id(
+                [Instruction::DropAllProofs, Instruction::DropNamedProofs,],
+                2
+            )
+        );
+    }
+
+    #[test]
+    fn inequality_same_instructions_different_blobs() {
+        assert_ne!(
+            manifest_with_network_id_blobs(
+                [Instruction::DropAllProofs, Instruction::DropNamedProofs,],
+                1,
+                Vec::new()
+            ),
+            manifest_with_network_id_blobs(
+                [Instruction::DropNamedProofs, Instruction::DropAllProofs,],
+                1,
+                vec![b"deadbeef".to_vec()]
+            )
+        );
     }
 }

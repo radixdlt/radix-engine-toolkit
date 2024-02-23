@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Object)]
+#[derive(Clone, Debug, PartialEq, Eq, Object)]
 pub struct SignedIntent {
     pub intent: Arc<Intent>,
     pub intent_signatures: Vec<SignatureWithPublicKey>,
