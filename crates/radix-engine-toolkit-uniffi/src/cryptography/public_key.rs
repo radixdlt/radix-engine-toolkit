@@ -17,18 +17,18 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Enum, Debug)]
+#[derive(Clone, Enum, PartialEq, Eq, Debug)]
 pub enum PublicKey {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },
 }
 
-#[derive(Clone, Record, Debug)]
+#[derive(Clone, Record, Debug, PartialEq, Eq)]
 pub struct Ed25519PublicKey {
     value: Vec<u8>,
 }
 
-#[derive(Clone, Record, Debug)]
+#[derive(Clone, Record, Debug, PartialEq, Eq)]
 pub struct Secp256k1PublicKey {
     value: Vec<u8>,
 }

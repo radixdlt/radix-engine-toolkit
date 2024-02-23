@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Object)]
+#[derive(Clone, Debug, PartialEq, Eq, Object)]
 pub struct Instructions(pub(crate) Vec<NativeInstruction>, pub(crate) u8);
 
 #[uniffi::export]

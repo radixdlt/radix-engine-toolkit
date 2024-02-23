@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Object)]
+#[derive(Clone, Debug, PartialEq, Eq, Object)]
 pub struct NotarizedTransaction {
     pub signed_intent: Arc<SignedIntent>,
     pub notary_signature: Signature,
