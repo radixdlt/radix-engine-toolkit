@@ -383,7 +383,6 @@ pub enum ReservedInstruction {
     AccountLockFee,
     AccountSecurify,
     IdentitySecurify,
-    AccountUpdateSettings,
     AccessControllerMethod,
 }
 
@@ -396,9 +395,6 @@ impl From<ReservedInstruction> for CoreReservedInstruction {
             ReservedInstruction::AccountLockFee => Self::AccountLockFee,
             ReservedInstruction::AccountSecurify => Self::AccountSecurify,
             ReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
-            ReservedInstruction::AccountUpdateSettings => {
-                Self::AccountUpdateSettings
-            }
         }
     }
 }
@@ -412,9 +408,6 @@ impl From<CoreReservedInstruction> for ReservedInstruction {
             CoreReservedInstruction::AccountLockFee => Self::AccountLockFee,
             CoreReservedInstruction::AccountSecurify => Self::AccountSecurify,
             CoreReservedInstruction::IdentitySecurify => Self::IdentitySecurify,
-            CoreReservedInstruction::AccountUpdateSettings => {
-                Self::AccountUpdateSettings
-            }
         }
     }
 }
