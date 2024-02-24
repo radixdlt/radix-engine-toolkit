@@ -17,26 +17,26 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, PartialEq, Eq, Enum)]
 pub enum Message {
     None,
     PlainText { value: PlainTextMessage },
     Encrypted { value: EncryptedMessage },
 }
 
-#[derive(Clone, Debug, Record)]
+#[derive(Clone, Debug, PartialEq, Eq, Record)]
 pub struct PlainTextMessage {
     pub mime_type: String,
     pub message: MessageContent,
 }
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, PartialEq, Eq, Enum)]
 pub enum MessageContent {
     Str { value: String },
     Bytes { value: Vec<u8> },
 }
 
-#[derive(Clone, Debug, Record)]
+#[derive(Clone, Debug, PartialEq, Eq, Record)]
 pub struct EncryptedMessage {
     pub encrypted: Vec<u8>,
     pub decryptors_by_curve: HashMap<CurveType, DecryptorsByCurve>,
@@ -48,7 +48,7 @@ pub enum CurveType {
     Secp256k1,
 }
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, PartialEq, Eq, Enum)]
 pub enum DecryptorsByCurve {
     Ed25519 {
         dh_ephemeral_public_key: Ed25519PublicKey,

@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Record)]
+#[derive(Clone, Debug, PartialEq, Eq, Record)]
 pub struct TransactionHeader {
     pub network_id: u8,
     pub start_epoch_inclusive: u64,

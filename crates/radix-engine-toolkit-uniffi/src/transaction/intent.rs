@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Object)]
+#[derive(Clone, Debug, PartialEq, Eq, Object)]
 pub struct Intent {
     pub header: TransactionHeader,
     pub manifest: Arc<TransactionManifest>,
@@ -145,5 +145,40 @@ impl TryFrom<Intent> for NativeIntent {
             header,
             instructions,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+
+    #[test]
+    fn equality() {
+        let make = |nonce| {
+            Intent {
+            header: TransactionHeader {
+                network_id: 1,
+                start_epoch_inclusive: 237,
+                end_epoch_exclusive: 1337,
+                nonce,
+                notary_public_key: PublicKey::Ed25519 { value: hex::decode("ec172b93ad5e563bf4932c70e1245034c35467ef2efd4d64ebf819683467e2bf").unwrap() } ,
+                notary_is_signatory: true,
+                tip_percentage: 2,
+            },
+            manifest: TransactionManifest {
+                instructions: Instructions::from_instructions(
+                    vec![
+                        Instruction::DropAuthZoneRegularProofs,
+                    Instruction::DropAuthZoneSignatureProofs,],
+                    1,
+                )
+                .unwrap(),
+                blobs: Vec::new()
+            }.into(),
+            message: Message::None
+        }
+        };
+        assert_eq!(make(42), make(42));
+        assert_ne!(make(42), make(1337));
     }
 }
