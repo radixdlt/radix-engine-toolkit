@@ -41,31 +41,32 @@ impl WorktopContentTracker {
     pub fn put_to_worktop(&mut self, resources: ResourceSpecifier) {
         if !self.untracked_mode {
             if let Some(res) =
-                self.worktop_content.get(&resources.resource_address())
+                self.worktop_content.get_mut(&resources.resource_address())
             {
                 // if found then exted with passed values
                 match res {
                     ResourceSpecifier::Amount(_address, amount) => {
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Amount(
-                                resources.resource_address(),
-                                amount
-                                    .checked_add(*resources.amount().unwrap())
-                                    .unwrap(),
-                            ),
-                        );
+                        if let Some(incomming_amount) = resources.amount() {
+                            if let Some(new_value) =
+                                amount.checked_add(*incomming_amount)
+                            {
+                                *amount = new_value;
+                            } else {
+                                // set untracked mode as amount was unable to subtract
+                                self.untracked_mode = true;
+                            }
+                        } else {
+                            // set untracked mode as incomming amount was unable to obtain
+                            self.untracked_mode = true;
+                        }
                     }
                     ResourceSpecifier::Ids(_address, ids) => {
-                        let mut new_ids = ids.clone();
-                        new_ids.extend(resources.ids().unwrap().clone());
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Ids(
-                                resources.resource_address(),
-                                new_ids,
-                            ),
-                        );
+                        if let Some(incomming_ids) = resources.ids() {
+                            ids.extend(incomming_ids.clone());
+                        } else {
+                            // set untracked mode as incomming ids was unable to obtain
+                            self.untracked_mode = true;
+                        }
                     }
                 }
             } else {
@@ -77,71 +78,51 @@ impl WorktopContentTracker {
 
     // return true in case of success
     pub fn take_from_worktop(&mut self, resources: ResourceSpecifier) -> bool {
-        if let Some(res) =
-            self.worktop_content.get(&resources.resource_address())
+        if let Some(resource_worktop_content) =
+            self.worktop_content.get_mut(&resources.resource_address())
         {
             // if found then subtract passed values
-            match res {
+            match resource_worktop_content {
                 ResourceSpecifier::Amount(_address, amount) => {
                     if resources.resource_address().is_fungible() {
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Amount(
-                                resources.resource_address(),
-                                amount
-                                    .checked_sub(*resources.amount().unwrap())
-                                    .unwrap(),
-                            ),
-                        );
-                        if let Some(res) = self
-                            .worktop_content
-                            .get(&resources.resource_address())
-                        {
-                            if res.is_empty() {
-                                self.worktop_content
-                                    .remove(&resources.resource_address());
+                        if let Some(incomming_amount) = resources.amount() {
+                            if let Some(new_value) =
+                                amount.checked_sub(*incomming_amount)
+                            {
+                                *amount = new_value;
+
+                                if amount.is_zero() {
+                                    self.worktop_content
+                                        .remove(&resources.resource_address());
+                                }
+                                return true;
                             }
                         }
-                        true
-                    } else {
-                        // don't know which non fungibles will be taken
-                        // not setting untracked worktop content mode, as other instructions can still be valid
-                        false
+                        // else set untracked mode as amount was unable to subtract
+                        self.untracked_mode = true;
                     }
+                    // else return false as we don't know which non fungibles will be taken
+                    // not setting untracked worktop content mode, as other instructions can still be valid
                 }
                 ResourceSpecifier::Ids(_address, ids) => {
                     if !resources.resource_address().is_fungible() {
-                        let mut new_ids = ids.clone();
-                        new_ids.retain(|item| {
-                            !resources.ids().unwrap().contains(item)
-                        });
-                        self.worktop_content.insert(
-                            resources.resource_address(),
-                            ResourceSpecifier::Ids(
-                                resources.resource_address(),
-                                new_ids,
-                            ),
-                        );
-                        if let Some(res) = self
-                            .worktop_content
-                            .get(&resources.resource_address())
-                        {
-                            if res.is_empty() {
+                        if let Some(incomming_ids) = resources.ids() {
+                            ids.retain(|item| !incomming_ids.contains(item));
+
+                            if ids.is_empty() {
                                 self.worktop_content
                                     .remove(&resources.resource_address());
                             }
+                            return true;
                         }
-                        true
-                    } else {
-                        // cannot take fungible -> worktop content is untracked
-                        self.untracked_mode = true;
-                        false
                     }
+
+                    // else cannot take fungible or ids -> worktop content is untracked
+                    self.untracked_mode = true;
                 }
             }
-        } else {
-            false
         }
+        false
     }
 
     pub fn take_from_worktop_by_address(
