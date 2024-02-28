@@ -106,7 +106,10 @@ impl StaticWorktopContentsTracker {
             None => vec![],
         };
         self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction { is_trusted: trusted, resources });
+            .push(TrustedWorktopInstruction {
+                is_trusted: trusted,
+                resources,
+            });
     }
 
     fn add_new_instruction_from_bucket(&mut self, bucket: &BucketContent) {
@@ -122,7 +125,10 @@ impl StaticWorktopContentsTracker {
         resources: Vec<ResourceSpecifier>,
     ) {
         self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction { is_trusted: trusted, resources });
+            .push(TrustedWorktopInstruction {
+                is_trusted: trusted,
+                resources,
+            });
     }
 }
 
