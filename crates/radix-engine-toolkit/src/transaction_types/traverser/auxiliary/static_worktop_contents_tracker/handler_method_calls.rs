@@ -127,7 +127,7 @@ impl StaticWorktopContentsTracker {
                                     .worktop_content_tracker
                                     .take_all_from_worktop();
                                 self.add_new_instruction_with_many_resources(
-                                    true, resources,
+                                    true, &resources,
                                 );
                             } else {
                                 // take all from worktop will clear worktop so
@@ -232,12 +232,12 @@ impl StaticWorktopContentsTracker {
 
                             self.add_new_instruction_with_many_resources(
                                 true,
-                                Self::merge_same_resources(&resources),
+                                &Self::merge_same_resources(&resources),
                             );
                         } else if found_all_resources && !trusted {
                             self.add_new_instruction_with_many_resources(
                                 true,
-                                Self::merge_same_resources(&resources),
+                                &Self::merge_same_resources(&resources),
                             );
                         } else {
                             self.add_new_instruction(false, None);
@@ -251,7 +251,7 @@ impl StaticWorktopContentsTracker {
                     // only expression was specified so use that data now
                     if let Some(resources) = expression_resources {
                         self.add_new_instruction_with_many_resources(
-                            trusted, resources,
+                            trusted, &resources,
                         );
                     } else {
                         self.add_new_instruction(false, None);
@@ -503,7 +503,7 @@ impl StaticWorktopContentsTracker {
                         if resource_1.is_some() && resource_2.is_some() {
                             self.add_new_instruction_with_many_resources(
                                 true,
-                                vec![resource_1.unwrap(), resource_2.unwrap()],
+                                &[resource_1.unwrap(), resource_2.unwrap()],
                             );
                         } else {
                             self.add_new_instruction(false, None);
@@ -603,7 +603,7 @@ impl StaticWorktopContentsTracker {
                                         .worktop_content_tracker
                                         .take_all_from_worktop();
                                     self.add_new_instruction_with_many_resources(
-                                         true, Self::merge_same_resources(
+                                         true, &Self::merge_same_resources(
                                             &resources,
                                     ));
                                 } else {
@@ -639,7 +639,7 @@ impl StaticWorktopContentsTracker {
                         // if we found all buckets in bucket tracker and all buckets has known resources
                         if resources.len() == input_args.buckets.len() {
                             self.add_new_instruction_with_many_resources(
-                                true, resources,
+                                true, &resources,
                             );
                         } else {
                             self.add_new_instruction(false, None);

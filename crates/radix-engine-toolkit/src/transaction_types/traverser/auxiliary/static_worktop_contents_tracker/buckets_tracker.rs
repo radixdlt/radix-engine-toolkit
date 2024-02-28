@@ -57,18 +57,11 @@ impl BucketContent {
             None
         }
     }
-    fn try_remove_non_fungible(
-        &mut self,
-        ids: &Vec<NonFungibleLocalId>,
-    ) -> bool {
-        if let Some(res) = self.resources.as_mut() {
-            match res {
-                ResourceSpecifier::Ids(_, bucket_ids) => {
-                    ids.iter().filter(|item| bucket_ids.contains(*item)).count()
-                        == 0
-                }
-                _ => false,
-            }
+    fn try_remove_non_fungible(&mut self, ids: &[NonFungibleLocalId]) -> bool {
+        if let Some(ResourceSpecifier::Ids(_, bucket_ids)) =
+            self.resources.as_mut()
+        {
+            ids.iter().filter(|item| bucket_ids.contains(*item)).count() == 0
         } else {
             false
         }
@@ -162,7 +155,7 @@ impl BucketsTracker {
     pub fn try_consume_non_fungible_from_bucket(
         &mut self,
         bucket_id: &ManifestBucket,
-        ids: &Vec<NonFungibleLocalId>,
+        ids: &[NonFungibleLocalId],
     ) -> Option<ResourceSpecifier> {
         if !self.untracked_mode {
             let bucket =

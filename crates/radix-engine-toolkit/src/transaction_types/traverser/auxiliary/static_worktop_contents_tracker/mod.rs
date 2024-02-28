@@ -122,12 +122,12 @@ impl StaticWorktopContentsTracker {
     fn add_new_instruction_with_many_resources(
         &mut self,
         trusted: bool,
-        resources: Vec<ResourceSpecifier>,
+        resources: &[ResourceSpecifier],
     ) {
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction {
                 is_trusted: trusted,
-                resources,
+                resources: resources.to_vec(),
             });
     }
 }
