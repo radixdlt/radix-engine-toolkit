@@ -199,7 +199,7 @@ impl StaticWorktopContentsTracker {
         function_name: &str,
         args: &ManifestValue,
     ) {
-        if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
+        if FAUCET_PACKAGE == *address {
             if function_name == "new" {
                 if !self.bucket_tracker.is_untracked_mode() {
                     // invalidate input bucket
@@ -218,10 +218,10 @@ impl StaticWorktopContentsTracker {
             } else {
                 self.unknown_function_call();
             }
-        } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
+        } else if TRANSACTION_TRACKER_PACKAGE == *address {
             // function 'create' is trusted as it doesn't change the worktop state
             self.add_new_instruction(true, None);
-        } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
+        } else if GENESIS_HELPER_PACKAGE == *address {
             self.unknown_function_call();
         } else {
             self.unknown_function_call();
