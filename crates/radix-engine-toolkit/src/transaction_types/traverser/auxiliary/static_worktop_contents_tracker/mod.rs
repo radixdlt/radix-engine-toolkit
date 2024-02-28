@@ -15,73 +15,77 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use self::{bucket_tracker::*, worktop_content_tracker::*};
+use self::{buckets_tracker::*, worktop_content_tracker::*};
 use crate::transaction_types::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-mod bucket_tracker;
+mod buckets_tracker;
 mod handler_function_calls;
 mod handler_method_calls;
 mod worktop_content_tracker;
-use bucket_tracker::Bucket;
+use buckets_tracker::BucketContent;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct TrustedWorktopInstruction {
-    // Information if instruction is trusted.
-    // Instruction is trusted if we know exact resources transfer assiociated
-    // to that instruction (so we need to know what instruction is doing and if
-    // it transfers resources including exact count/list of these resources or not
-    // deals with resources at all).
-    pub trusted: bool,
-    // Resources moved in context of the instruction.
+    /// Information if instruction is trusted.
+    /// Instruction is trusted if we know exact resources transfer assiociated
+    /// to that instruction (so we need to know what instruction is doing and if
+    /// it transfers resources including exact count/list of these resources or not
+    /// deals with resources at all).
+    pub is_trusted: bool,
+    /// Resources moved in context of the instruction.
     pub resources: Vec<ResourceSpecifier>,
 }
 
 #[derive(Default)]
-// Trusted Worktop analyses manifest instructions to track worktop content and
-// buckets list and basing on that it decides if manifest instruction is trusted
-// (definition in TrustedWorktopInstruction).
-//
-// Worktop content tracker operation logic:
-//  If Instruction doesn't change worktop state and doesn't use buckets then it is trusted.
-//  If Instruction changes worktop state:
-//    1. Puts resources on the worktop (ex. Account withdraws, Return to workotop, etc.)
-//       - if we know what resources has been put on the worktop then instruction is trusted
-//       - if we don't know what has been put on the worktop then instruction is untrusted
-//         and we are entering into untracked worktop content mode (from now we don't know
-//         exactly what is on the worktop)
-//    2. Takes resources from the worktop (ex. Take from worktop instructions)
-//       - if we are in untracked worktop content mode then instruction is untrusted
-//       - if we know the resources then instruction is trusted
-//  If Instruction uses a bucket and we are not in bucket untracked mode:
-//    1. If bucket is known and resources are known, then it is consumed and instruction is trusted
-//    2. If bucket is known but resources are unknown then it is consumed and instruction is untrusted
-//    3. If bucket is unknown then we are entering into bucket untracked mode and instruction is untrusted
-//
-// Bucket tracker operaion logic:
-//  Function/method call
-//    1. Returns a bucket and we are not in untracked buckets mode:
-//       - Put resources on the worktop
-//    2. We don't know what is returned:
-//       - enter untracked worktop mode
-//
-// We can identify an instruction as trusted if we are in untracked worktop mode in
-// case of an instruction which returns known bucket and that bucket is later consumed.
-// Taking all from worktop switches back from untracked mode.
-//
-pub struct TrustedWorktop {
+/// Static Worktop Contents Tracker analyses manifest instructions to track worktop content
+/// and buckets list and basing on that it decides if manifest instruction is trusted
+/// (definition in TrustedWorktopInstruction).
+///
+/// The worktop is said to be trusted so long as we can statically tell what the effect
+/// of the instructions are on the worktop. A single instruction whose effect on the worktop
+/// can't be determined statically turns the worktop into an untrusted worktop.
+///
+/// Worktop content tracker operation logic:
+///  If Instruction doesn't change worktop state and doesn't use buckets then it is trusted.
+///  If Instruction changes worktop state:
+///    1. Puts resources on the worktop (ex. Account withdraws, Return to workotop, etc.)
+///       - if we know what resources has been put on the worktop then instruction is trusted
+///       - if we don't know what has been put on the worktop then instruction is untrusted
+///         and we are entering into untracked worktop content mode (from now we don't know
+///         exactly what is on the worktop)
+///    2. Takes resources from the worktop (ex. Take from worktop instructions)
+///       - if we are in untracked worktop content mode then instruction is untrusted
+///       - if we know the resources then instruction is trusted
+///  If Instruction uses a bucket and we are not in bucket untracked mode:
+///    1. If bucket is known and resources are known, then it is consumed and instruction is trusted
+///    2. If bucket is known but resources are unknown then it is consumed and instruction is untrusted
+///    3. If bucket is unknown then we are entering into bucket untracked mode and instruction is untrusted
+///
+/// Bucket tracker operaion logic:
+///  Function/method call
+///    1. Returns a bucket and we are not in untracked buckets mode:
+///       - Put resources on the worktop
+///    2. We don't know what is returned:
+///       - enter untracked worktop mode
+///
+/// We can identify an instruction as trusted if we are in untracked worktop mode in
+/// case of an instruction which returns known bucket and that bucket is later consumed.
+/// Taking all from worktop switches back from untracked mode.
+///
+pub struct StaticWorktopContentsTracker {
     trusted_state_per_instruction: Vec<TrustedWorktopInstruction>,
 
     // Buckets tracking
-    bucket_tracker: BucketTracker,
+    bucket_tracker: BucketsTracker,
 
     // Worktop content tracking
     worktop_content_tracker: WorktopContentTracker,
 }
 
-impl TrustedWorktop {
+impl StaticWorktopContentsTracker {
     pub fn output(self) -> Vec<TrustedWorktopInstruction> {
         self.trusted_state_per_instruction
     }
@@ -102,10 +106,10 @@ impl TrustedWorktop {
             None => vec![],
         };
         self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction { trusted, resources });
+            .push(TrustedWorktopInstruction { is_trusted: trusted, resources });
     }
 
-    fn add_new_instruction_from_bucket(&mut self, bucket: &Bucket) {
+    fn add_new_instruction_from_bucket(&mut self, bucket: &BucketContent) {
         self.add_new_instruction(
             bucket.is_known_resources(),
             bucket.take_resources(),
@@ -118,11 +122,11 @@ impl TrustedWorktop {
         resources: Vec<ResourceSpecifier>,
     ) {
         self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction { trusted, resources });
+            .push(TrustedWorktopInstruction { is_trusted: trusted, resources });
     }
 }
 
-impl ManifestSummaryCallback for TrustedWorktop {
+impl ManifestSummaryCallback for StaticWorktopContentsTracker {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV1,
@@ -167,7 +171,7 @@ impl ManifestSummaryCallback for TrustedWorktop {
                             .new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(true, Some(resources));
                     } else {
-                        // non fungible take by ammount
+                        // non fungible take by amount
                         self.bucket_tracker.new_bucket_unknown_resources();
                         self.add_new_instruction(false, None)
                     }

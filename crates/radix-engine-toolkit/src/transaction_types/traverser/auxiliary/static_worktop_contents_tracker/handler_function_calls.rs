@@ -24,9 +24,9 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-use super::TrustedWorktop;
+use super::StaticWorktopContentsTracker;
 
-impl TrustedWorktop {
+impl StaticWorktopContentsTracker {
     fn unknown_function_call(&mut self) {
         self.bucket_tracker.enter_untracked_mode();
         self.worktop_content_tracker.enter_untracked_mode();
@@ -46,7 +46,7 @@ impl TrustedWorktop {
                     self.add_new_instruction(true, None)
                 }
                 ACCOUNT_CREATE_IDENT => {
-                    // resturns unknown resources put on worktop
+                    // returns unknown resources put on worktop
                     self.add_new_instruction(false, None);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }

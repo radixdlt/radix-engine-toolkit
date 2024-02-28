@@ -27,9 +27,9 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-use super::TrustedWorktop;
+use super::StaticWorktopContentsTracker;
 
-impl TrustedWorktop {
+impl StaticWorktopContentsTracker {
     fn handle_account_methods(
         &mut self,
         method_name: &str,

@@ -32,7 +32,7 @@ fn validate(
     resources: Option<ResourceSpecifier>,
 ) {
     assert_eq!(
-        trusted_worktop_instructions[instruction].trusted, trusted,
+        trusted_worktop_instructions[instruction].is_trusted, trusted,
         "Instruction: {} (wrong trusted state)",
         instruction
     );

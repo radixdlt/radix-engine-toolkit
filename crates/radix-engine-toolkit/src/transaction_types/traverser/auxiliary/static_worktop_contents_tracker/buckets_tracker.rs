@@ -21,12 +21,12 @@ use scrypto::prelude::*;
 use transaction::validation::ManifestIdAllocator;
 
 #[derive(Default, Clone)]
-pub struct Bucket {
+pub struct BucketContent {
     // resources can be None for empty buckets
     resources: Option<ResourceSpecifier>,
     unknown_resources: bool,
 }
-impl Bucket {
+impl BucketContent {
     fn new(
         resources: Option<ResourceSpecifier>,
         unknown_resources: bool,
@@ -76,9 +76,9 @@ impl Bucket {
 }
 
 #[derive(Default)]
-pub struct BucketTracker {
+pub struct BucketsTracker {
     // Buckates tracking
-    buckets: IndexMap<ManifestBucket, Bucket>,
+    buckets: IndexMap<ManifestBucket, BucketContent>,
     // Buckets id generation
     id_allocator: ManifestIdAllocator,
     // Information if we are in 'untracked buckets' mode which is enabled
@@ -86,7 +86,7 @@ pub struct BucketTracker {
     untracked_mode: bool,
 }
 
-impl BucketTracker {
+impl BucketsTracker {
     pub fn is_untracked_mode(&self) -> bool {
         self.untracked_mode
     }
@@ -99,7 +99,7 @@ impl BucketTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                Bucket::new(Some(resources), false),
+                BucketContent::new(Some(resources), false),
             );
         }
     }
@@ -108,7 +108,7 @@ impl BucketTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                Bucket::new(None, false),
+                BucketContent::new(None, false),
             );
         }
     }
@@ -117,7 +117,7 @@ impl BucketTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                Bucket::new(None, true),
+                BucketContent::new(None, true),
             );
         }
     }
@@ -133,7 +133,7 @@ impl BucketTracker {
     pub fn bucket_consumed(
         &mut self,
         bucket_id: &ManifestBucket,
-    ) -> Option<Bucket> {
+    ) -> Option<BucketContent> {
         self.buckets.remove(bucket_id)
     }
 

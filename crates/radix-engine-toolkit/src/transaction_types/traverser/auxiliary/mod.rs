@@ -20,11 +20,11 @@ mod presented_proofs;
 mod requiring_auth;
 mod reserved_instructions;
 mod static_account_resource_movements;
-mod trusted_worktop;
+mod static_worktop_contents_tracker;
 
 pub use encountered_entities::*;
 pub use presented_proofs::*;
 pub use requiring_auth::*;
 pub use reserved_instructions::*;
 pub use static_account_resource_movements::*;
-pub use trusted_worktop::*;
+pub use static_worktop_contents_tracker::*;

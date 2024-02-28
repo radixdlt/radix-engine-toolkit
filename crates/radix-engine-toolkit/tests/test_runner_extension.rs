@@ -130,7 +130,7 @@ where
             panic!("Not commit success: {receipt:?}")
         }
 
-        let mut trusted_worktop = TrustedWorktop::default();
+        let mut trusted_worktop = StaticWorktopContentsTracker::default();
 
         manifest_summary::traverse(&mut [&mut trusted_worktop], &manifest);
 
