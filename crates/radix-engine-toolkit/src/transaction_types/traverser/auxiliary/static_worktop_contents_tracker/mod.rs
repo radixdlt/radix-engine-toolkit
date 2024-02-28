@@ -346,3 +346,5 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
         );
     }
 }
+
+impl ExecutionSummaryCallback for StaticWorktopContentsTracker {}
