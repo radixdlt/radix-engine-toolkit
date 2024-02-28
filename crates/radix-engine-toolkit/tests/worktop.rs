@@ -21,25 +21,24 @@ use scrypto_unit::*;
 use transaction::prelude::*;
 mod test_runner_extension;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine_toolkit::transaction_types::ManifestSummary;
+use radix_engine_toolkit::transaction_types::TrustedWorktopInstruction;
 use test_runner_extension::TestRunnerEDExt;
 
 // helper function
 fn validate(
-    manifest_summary: &ManifestSummary,
+    trusted_worktop_instructions: &Vec<TrustedWorktopInstruction>,
     instruction: usize,
     trusted: bool,
     resources: Option<ResourceSpecifier>,
 ) {
     assert_eq!(
-        manifest_summary.trusted_worktop_instructions[instruction].trusted,
-        trusted,
+        trusted_worktop_instructions[instruction].trusted, trusted,
         "Instruction: {} (wrong trusted state)",
         instruction
     );
     if resources.is_none() {
         assert!(
-            manifest_summary.trusted_worktop_instructions[instruction]
+            trusted_worktop_instructions[instruction]
                 .resources
                 .is_empty(),
             "Instruction: {} (resoruce not specified)",
@@ -49,7 +48,7 @@ fn validate(
         match resources.unwrap() {
             ResourceSpecifier::Amount(address, amount) => {
                 assert!(
-                    manifest_summary.trusted_worktop_instructions[instruction]
+                    trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
                         .find(|item| item.resource_address() == address)
@@ -60,7 +59,7 @@ fn validate(
                 );
                 let mut val = dec!(0);
                 assert!(
-                    manifest_summary.trusted_worktop_instructions[instruction]
+                    trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
                         .find(|item| {
@@ -77,7 +76,7 @@ fn validate(
             }
             ResourceSpecifier::Ids(address, ids) => {
                 assert!(
-                    manifest_summary.trusted_worktop_instructions[instruction]
+                    trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
                         .find(|item| item.resource_address() == address)
@@ -87,7 +86,7 @@ fn validate(
                     address
                 );
                 assert!(
-                    manifest_summary.trusted_worktop_instructions[instruction]
+                    trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
                         .find(|item| item.resource_address() == address
@@ -103,14 +102,14 @@ fn validate(
 
 // helper function
 fn validate_amount(
-    manifest_summary: &ManifestSummary,
+    trusted_worktop_instructions: &Vec<TrustedWorktopInstruction>,
     instruction: usize,
     trusted: bool,
     resource: &[(ResourceAddress, Decimal)],
 ) {
     resource.iter().for_each(|(resource_address, amount)| {
         validate(
-            manifest_summary,
+            trusted_worktop_instructions,
             instruction,
             trusted,
             Some(ResourceSpecifier::Amount(*resource_address, *amount)),
@@ -133,14 +132,14 @@ fn trusted_worktop_deposit_from_bucket() {
         .take_from_worktop(address, 10, "bucket_1")
         .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(10))]);
+    assert_eq!(twi.len(), 4);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(10))]);
 }
 
 #[test]
@@ -156,13 +155,13 @@ fn trusted_worktop_deposit_empty_bucket() {
         .take_all_from_worktop(address, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
-    validate(&manifest_summary, 0, true, None);
-    validate(&manifest_summary, 1, true, None);
-    validate(&manifest_summary, 2, true, None);
+    assert_eq!(twi.len(), 3);
+    validate(&twi, 0, true, None);
+    validate(&twi, 1, true, None);
+    validate(&twi, 2, true, None);
 }
 
 #[test]
@@ -178,13 +177,13 @@ fn trusted_worktop_take_zero() {
         .take_from_worktop(address, 0, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
-    validate(&manifest_summary, 0, true, None);
-    validate(&manifest_summary, 1, true, None);
-    validate(&manifest_summary, 2, true, None);
+    assert_eq!(twi.len(), 3);
+    validate(&twi, 0, true, None);
+    validate(&twi, 1, true, None);
+    validate(&twi, 2, true, None);
 }
 
 #[test]
@@ -206,14 +205,14 @@ fn trusted_worktop_burn_all() {
         .withdraw_from_account(account, address, 10)
         .burn_all_from_worktop(address)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]); // inserted instruction TakeAllFromWorktop by test framework
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(10))]);
+    assert_eq!(twi.len(), 4);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(10))]); // inserted instruction TakeAllFromWorktop by test framework
+    validate_amount(&twi, 3, true, &[(address, dec!(10))]);
 }
 
 #[test]
@@ -234,13 +233,13 @@ fn trusted_worktop_burn_empty() {
         .lock_fee_from_faucet()
         .burn_all_from_worktop(address)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
-    validate(&manifest_summary, 0, true, None);
-    validate(&manifest_summary, 1, true, None); // inserted instruction TakeAllFromWorktop by test framework
-    validate(&manifest_summary, 2, true, None);
+    assert_eq!(twi.len(), 3);
+    validate(&twi, 0, true, None);
+    validate(&twi, 1, true, None); // inserted instruction TakeAllFromWorktop by test framework
+    validate(&twi, 2, true, None);
 }
 
 #[test]
@@ -264,15 +263,15 @@ fn trusted_worktop_deposit_entire_worktop() {
         .return_to_worktop("bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(6))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(6))]);
-    validate_amount(&manifest_summary, 4, true, &[(address, dec!(10))]);
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(6))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(6))]);
+    validate_amount(&twi, 4, true, &[(address, dec!(10))]);
 }
 
 #[test]
@@ -296,15 +295,15 @@ fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
         .deposit(account, "bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(6))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(6))]);
-    validate_amount(&manifest_summary, 4, true, &[(address, dec!(4))]);
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(6))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(6))]);
+    validate_amount(&twi, 4, true, &[(address, dec!(4))]);
 }
 
 #[test]
@@ -334,17 +333,17 @@ fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (ms, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(ms.trusted_worktop_instructions.len(), 7);
-    validate_amount(&ms, 0, true, &[(XRD, dec!(10000))]);
-    validate_amount(&ms, 1, true, &[(XRD, dec!(1000))]);
-    validate_amount(&ms, 2, true, &[(XRD, dec!(2000))]);
-    validate_amount(&ms, 3, true, &[(address, dec!(10))]);
-    validate_amount(&ms, 4, true, &[(address, dec!(6))]);
-    validate_amount(&ms, 5, true, &[(XRD, dec!(3000)), (address, dec!(6))]);
-    validate_amount(&ms, 6, true, &[(XRD, dec!(7000)), (address, dec!(4))]);
+    assert_eq!(twi.len(), 7);
+    validate_amount(&twi, 0, true, &[(XRD, dec!(10000))]);
+    validate_amount(&twi, 1, true, &[(XRD, dec!(1000))]);
+    validate_amount(&twi, 2, true, &[(XRD, dec!(2000))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 4, true, &[(address, dec!(6))]);
+    validate_amount(&twi, 5, true, &[(XRD, dec!(3000)), (address, dec!(6))]);
+    validate_amount(&twi, 6, true, &[(XRD, dec!(7000)), (address, dec!(4))]);
 }
 
 #[test]
@@ -363,15 +362,15 @@ fn trusted_worktop_two_withdraws() {
         .take_from_worktop(address, 30, "bucket_1")
         .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(20))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(30))]);
-    validate_amount(&manifest_summary, 4, true, &[(address, dec!(30))]);
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(20))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(30))]);
+    validate_amount(&twi, 4, true, &[(address, dec!(30))]);
 }
 
 #[test]
@@ -392,13 +391,13 @@ fn trusted_worktop_mint_fungible() {
         .mint_fungible(address, 10)
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 3);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(10))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(10))]);
+    assert_eq!(twi.len(), 3);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(10))]);
 }
 
 #[test]
@@ -428,16 +427,16 @@ fn trusted_worktop_mint_fungible_two_resources() {
         .mint_fungible(addr_2, 7)
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (ms, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(ms.trusted_worktop_instructions.len(), 6);
-    validate(&ms, 0, true, None);
-    validate_amount(&ms, 1, true, &[(addr_1, dec!(10))]);
-    validate_amount(&ms, 2, true, &[(addr_2, dec!(5))]);
-    validate_amount(&ms, 3, true, &[(addr_1, dec!(20))]);
-    validate_amount(&ms, 4, true, &[(addr_2, dec!(7))]);
-    validate_amount(&ms, 5, true, &[(addr_1, dec!(30)), (addr_2, dec!(12))]);
+    assert_eq!(twi.len(), 6);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(addr_1, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(addr_2, dec!(5))]);
+    validate_amount(&twi, 3, true, &[(addr_1, dec!(20))]);
+    validate_amount(&twi, 4, true, &[(addr_2, dec!(7))]);
+    validate_amount(&twi, 5, true, &[(addr_1, dec!(30)), (addr_2, dec!(12))]);
 }
 
 #[test]
@@ -471,20 +470,20 @@ fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
         .try_deposit_or_abort(account, None, "bucket_2")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (ms, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(ms.trusted_worktop_instructions.len(), 10);
-    validate(&ms, 0, true, None);
-    validate_amount(&ms, 1, true, &[(addr_1, dec!(10))]);
-    validate_amount(&ms, 2, true, &[(addr_2, dec!(5))]);
-    validate_amount(&ms, 3, true, &[(addr_1, dec!(20))]);
-    validate_amount(&ms, 4, true, &[(addr_2, dec!(7))]);
-    validate_amount(&ms, 5, true, &[(addr_1, dec!(25))]);
-    validate_amount(&ms, 6, true, &[(addr_1, dec!(25))]);
-    validate_amount(&ms, 7, true, &[(addr_2, dec!(1))]);
-    validate_amount(&ms, 8, true, &[(addr_2, dec!(1))]);
-    validate_amount(&ms, 9, true, &[(addr_1, dec!(5)), (addr_2, dec!(11))]);
+    assert_eq!(twi.len(), 10);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(addr_1, dec!(10))]);
+    validate_amount(&twi, 2, true, &[(addr_2, dec!(5))]);
+    validate_amount(&twi, 3, true, &[(addr_1, dec!(20))]);
+    validate_amount(&twi, 4, true, &[(addr_2, dec!(7))]);
+    validate_amount(&twi, 5, true, &[(addr_1, dec!(25))]);
+    validate_amount(&twi, 6, true, &[(addr_1, dec!(25))]);
+    validate_amount(&twi, 7, true, &[(addr_2, dec!(1))]);
+    validate_amount(&twi, 8, true, &[(addr_2, dec!(1))]);
+    validate_amount(&twi, 9, true, &[(addr_1, dec!(5)), (addr_2, dec!(11))]);
 }
 
 #[test]
@@ -510,16 +509,16 @@ fn trusted_worktop_one_resource_pool() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 5);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(100))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(100))]);
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(100))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(100))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(100))]);
     // Untrusted as we don't know what is returned by resource pool.
-    validate(&manifest_summary, 4, false, None);
+    validate(&twi, 4, false, None);
 }
 
 #[test]
@@ -558,23 +557,23 @@ fn trusted_worktop_one_resource_pool_redeem() {
         .deposit(account, "returned_res_bucket")
         .deposit(account, "bucket_30")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 12);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(100))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(20))]);
-    validate_amount(&manifest_summary, 4, true, &[(address, dec!(30))]);
-    validate_amount(&manifest_summary, 5, true, &[(address, dec!(50))]);
+    assert_eq!(twi.len(), 12);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(100))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(50))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(20))]);
+    validate_amount(&twi, 4, true, &[(address, dec!(30))]);
+    validate_amount(&twi, 5, true, &[(address, dec!(50))]);
     // Untrasted as we don't know what is returned by resource pool.
-    validate(&manifest_summary, 6, false, None);
-    validate(&manifest_summary, 7, false, None);
-    validate(&manifest_summary, 8, false, None);
-    validate_amount(&manifest_summary, 9, true, &[(address, dec!(20))]);
-    validate(&manifest_summary, 10, false, None);
-    validate_amount(&manifest_summary, 11, true, &[(address, dec!(30))]);
+    validate(&twi, 6, false, None);
+    validate(&twi, 7, false, None);
+    validate(&twi, 8, false, None);
+    validate_amount(&twi, 9, true, &[(address, dec!(20))]);
+    validate(&twi, 10, false, None);
+    validate_amount(&twi, 11, true, &[(address, dec!(30))]);
 }
 
 #[test]
@@ -611,21 +610,21 @@ fn trusted_worktop_one_resource_protected_withdraw() {
         .take_all_from_worktop(address, "returned_res_bucket")
         .deposit(account, "returned_res_bucket")
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 9);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(50))]);
+    assert_eq!(twi.len(), 9);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(50))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(50))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(50))]);
     // Untrusted as we don't know what is returned by resource pool.
-    validate(&manifest_summary, 4, false, None);
-    validate(&manifest_summary, 5, false, None);
+    validate(&twi, 4, false, None);
+    validate(&twi, 5, false, None);
     // we don't know the pool resource type
-    validate(&manifest_summary, 6, false, None);
-    validate(&manifest_summary, 7, false, None);
-    validate(&manifest_summary, 8, false, None);
+    validate(&twi, 6, false, None);
+    validate(&twi, 7, false, None);
+    validate(&twi, 8, false, None);
 }
 
 #[test]
@@ -650,12 +649,12 @@ fn trusted_worktop_one_resource_protected_deposit() {
             },
         )
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
-    assert_eq!(manifest_summary.trusted_worktop_instructions.len(), 4);
-    validate(&manifest_summary, 0, true, None);
-    validate_amount(&manifest_summary, 1, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 2, true, &[(address, dec!(50))]);
-    validate_amount(&manifest_summary, 3, true, &[(address, dec!(50))]);
+    assert_eq!(twi.len(), 4);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(50))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(50))]);
+    validate_amount(&twi, 3, true, &[(address, dec!(50))]);
 }

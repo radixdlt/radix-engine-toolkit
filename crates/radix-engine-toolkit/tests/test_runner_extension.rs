@@ -120,4 +120,20 @@ where
         let current_epoch = self.get_current_epoch();
         self.set_current_epoch(current_epoch.after(by).unwrap());
     }
+
+    fn validate_and_get_trusted_worktop(
+        &mut self,
+        manifest: &TransactionManifestV1,
+    ) -> Vec<TrustedWorktopInstruction> {
+        let receipt = TestRunnerEDExt::preview(self, manifest.clone());
+        if !receipt.is_commit_success() {
+            panic!("Not commit success: {receipt:?}")
+        }
+
+        let mut trusted_worktop = TrustedWorktop::default();
+
+        manifest_summary::traverse(&mut [&mut trusted_worktop], &manifest);
+
+        trusted_worktop.output()
+    }
 }
