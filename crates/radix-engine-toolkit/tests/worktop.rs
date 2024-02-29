@@ -100,7 +100,7 @@ fn validate(
     }
 }
 
-// helper function
+// helper functions
 fn validate_amount(
     trusted_worktop_instructions: &Vec<TrustedWorktopInstruction>,
     instruction: usize,
@@ -113,6 +113,21 @@ fn validate_amount(
             instruction,
             trusted,
             Some(ResourceSpecifier::Amount(*resource_address, *amount)),
+        )
+    });
+}
+fn validate_ids(
+    trusted_worktop_instructions: &Vec<TrustedWorktopInstruction>,
+    instruction: usize,
+    trusted: bool,
+    resource: &[(ResourceAddress, IndexSet<NonFungibleLocalId>)],
+) {
+    resource.iter().for_each(|(resource_address, ids)| {
+        validate(
+            trusted_worktop_instructions,
+            instruction,
+            trusted,
+            Some(ResourceSpecifier::Ids(*resource_address, ids.clone())),
         )
     });
 }
@@ -165,7 +180,36 @@ fn trusted_worktop_deposit_empty_bucket() {
 }
 
 #[test]
-fn trusted_worktop_take_zero() {
+fn trusted_worktop_take_empty() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address_fungible =
+        test_runner.create_fungible_resource(dec!(100), 0, account);
+    let address_non_fungible =
+        test_runner.create_non_fungible_resource(account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .take_all_from_worktop(address_fungible, "empty_bucket")
+        .take_all_from_worktop(address_non_fungible, "empty_bucket2")
+        .try_deposit_or_abort(account, None, "empty_bucket")
+        .try_deposit_or_abort(account, None, "empty_bucket2")
+        .build();
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+
+    // Assert
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_amount(&twi, 1, true, &[(address_fungible, dec!(0))]);
+    validate_ids(&twi, 2, true, &[(address_non_fungible, indexset! {})]);
+    validate_amount(&twi, 3, true, &[(address_fungible, dec!(0))]);
+    validate_ids(&twi, 4, true, &[(address_non_fungible, indexset! {})]);
+}
+
+#[test]
+fn trusted_worktop_take_fungible_zero() {
     // Arrange
     let mut test_runner = TestRunnerBuilder::new().without_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
@@ -184,6 +228,32 @@ fn trusted_worktop_take_zero() {
     validate(&twi, 0, true, None);
     validate_amount(&twi, 1, true, &[(address, dec!(0))]);
     validate_amount(&twi, 2, true, &[(address, dec!(0))]);
+}
+
+#[test]
+fn trusted_worktop_take_nonfungible_empty() {
+    // Arrange
+    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let (_, _, account) = test_runner.new_allocated_account();
+    let address = test_runner.create_non_fungible_resource(account);
+
+    //Act
+    let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
+        .take_from_worktop(address, 0, "empty_bucket")
+        .take_non_fungibles_from_worktop(address, [], "empty_bucket2")
+        .try_deposit_or_abort(account, None, "empty_bucket")
+        .try_deposit_or_abort(account, None, "empty_bucket2")
+        .build();
+    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+
+    // Assert
+    assert_eq!(twi.len(), 5);
+    validate(&twi, 0, true, None);
+    validate_ids(&twi, 1, true, &[(address, indexset! {})]);
+    validate_ids(&twi, 2, true, &[(address, indexset! {})]);
+    validate_ids(&twi, 3, true, &[(address, indexset! {})]);
+    validate_ids(&twi, 4, true, &[(address, indexset! {})]);
 }
 
 #[test]

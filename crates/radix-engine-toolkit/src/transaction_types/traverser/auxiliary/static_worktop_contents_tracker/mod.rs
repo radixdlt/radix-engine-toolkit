@@ -181,20 +181,38 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                 amount,
             } => {
                 if !self.worktop_content_tracker.is_untracked_mode() {
-                    let resources =
-                        ResourceSpecifier::Amount(*resource_address, *amount);
-                    if amount.is_zero()
-                        || self
-                            .worktop_content_tracker
-                            .take_from_worktop(resources.clone())
-                    {
-                        self.bucket_tracker
-                            .new_bucket_known_resources(resources.clone());
-                        self.add_new_instruction(true, Some(resources));
+                    if resource_address.is_fungible() {
+                        let resources = ResourceSpecifier::Amount(
+                            *resource_address,
+                            *amount,
+                        );
+                        if amount.is_zero()
+                            || self
+                                .worktop_content_tracker
+                                .take_from_worktop(resources.clone())
+                        {
+                            self.bucket_tracker
+                                .new_bucket_known_resources(resources.clone());
+                            self.add_new_instruction(true, Some(resources));
+                        } else {
+                            // unabe to take fungible by amount
+                            self.bucket_tracker.new_bucket_unknown_resources();
+                            self.add_new_instruction(false, None)
+                        }
                     } else {
-                        // non fungible take by amount
-                        self.bucket_tracker.new_bucket_unknown_resources();
-                        self.add_new_instruction(false, None)
+                        if amount.is_zero() {
+                            let resources = ResourceSpecifier::Ids(
+                                *resource_address,
+                                indexset! {},
+                            );
+                            self.bucket_tracker
+                                .new_bucket_known_resources(resources.clone());
+                            self.add_new_instruction(true, Some(resources));
+                        } else {
+                            // non fungible take by amount
+                            self.bucket_tracker.new_bucket_unknown_resources();
+                            self.add_new_instruction(false, None)
+                        }
                     }
                 } else {
                     // we don't know what is taken from worktop
@@ -212,9 +230,10 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                     let resources =
                         ResourceSpecifier::Ids(*resource_address, indexed_ids);
 
-                    if self
-                        .worktop_content_tracker
-                        .take_from_worktop(resources.clone())
+                    if ids.is_empty()
+                        || self
+                            .worktop_content_tracker
+                            .take_from_worktop(resources.clone())
                     {
                         self.bucket_tracker
                             .new_bucket_known_resources(resources.clone());
