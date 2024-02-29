@@ -97,11 +97,19 @@ impl BucketsTracker {
         }
     }
 
-    pub fn new_empty_bucket_known_resources(&mut self) {
+    pub fn new_empty_bucket_known_resources(
+        &mut self,
+        resource_address: &ResourceAddress,
+    ) {
         if !self.untracked_mode {
+            let resource = if resource_address.is_fungible() {
+                ResourceSpecifier::Amount(*resource_address, dec!(0))
+            } else {
+                ResourceSpecifier::Ids(*resource_address, indexset! {})
+            };
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(None, false),
+                BucketContent::new(Some(resource), false),
             );
         }
     }

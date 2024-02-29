@@ -160,8 +160,8 @@ fn trusted_worktop_deposit_empty_bucket() {
     // Assert
     assert_eq!(twi.len(), 3);
     validate(&twi, 0, true, None);
-    validate(&twi, 1, true, None);
-    validate(&twi, 2, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(0))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(0))]);
 }
 
 #[test]
@@ -182,8 +182,8 @@ fn trusted_worktop_take_zero() {
     // Assert
     assert_eq!(twi.len(), 3);
     validate(&twi, 0, true, None);
-    validate(&twi, 1, true, None);
-    validate(&twi, 2, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(0))]);
+    validate_amount(&twi, 2, true, &[(address, dec!(0))]);
 }
 
 #[test]
@@ -238,8 +238,8 @@ fn trusted_worktop_burn_empty() {
     // Assert
     assert_eq!(twi.len(), 3);
     validate(&twi, 0, true, None);
-    validate(&twi, 1, true, None); // inserted instruction TakeAllFromWorktop by test framework
-    validate(&twi, 2, true, None);
+    validate_amount(&twi, 1, true, &[(address, dec!(0))]); // inserted instruction TakeAllFromWorktop by test framework
+    validate_amount(&twi, 1, true, &[(address, dec!(0))]);
 }
 
 #[test]

@@ -96,19 +96,30 @@ impl StaticWorktopContentsTracker {
         input_resources: Option<ResourceSpecifier>,
     ) {
         let resources = match input_resources {
-            Some(res) => {
-                if res.is_empty() {
-                    vec![]
-                } else {
-                    vec![res]
-                }
-            }
+            Some(res) => vec![res],
             None => vec![],
         };
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction {
                 is_trusted: trusted,
                 resources,
+            });
+    }
+
+    fn add_new_instruction_with_empty_resource(
+        &mut self,
+        trusted: bool,
+        resource_address: &ResourceAddress,
+    ) {
+        let resource = if resource_address.is_fungible() {
+            ResourceSpecifier::Amount(*resource_address, dec!(0))
+        } else {
+            ResourceSpecifier::Ids(*resource_address, indexset! {})
+        };
+        self.trusted_state_per_instruction
+            .push(TrustedWorktopInstruction {
+                is_trusted: trusted,
+                resources: vec![resource],
             });
     }
 
@@ -152,8 +163,12 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                             Some(resources.to_owned()),
                         );
                     } else {
-                        self.bucket_tracker.new_empty_bucket_known_resources();
-                        self.add_new_instruction(true, None)
+                        self.bucket_tracker
+                            .new_empty_bucket_known_resources(resource_address);
+                        self.add_new_instruction_with_empty_resource(
+                            true,
+                            resource_address,
+                        )
                     }
                 } else {
                     // we don't know what is exactly on the worktop
