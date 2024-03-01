@@ -20,50 +20,61 @@ use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use transaction::validation::ManifestIdAllocator;
 
+use super::TrackedResource;
+
 #[derive(Default, Clone)]
 pub struct BucketContent {
-    // resources can be None for empty buckets
-    resources: Option<ResourceSpecifier>,
-    unknown_resources: bool,
+    resources: TrackedResource,
 }
+
 impl BucketContent {
-    fn new(
-        resources: Option<ResourceSpecifier>,
-        unknown_resources: bool,
-    ) -> Self {
-        Self {
-            resources,
-            unknown_resources,
-        }
+    fn new(resources: TrackedResource) -> Self {
+        Self { resources }
     }
-    // Empty bucket means known resource is None
+
     pub fn is_empty(&self) -> bool {
-        self.resources.is_none() && !self.unknown_resources
+        matches!(self.resources, TrackedResource::StaticallyKnownEmpty(..))
     }
+
     pub fn is_known_resources(&self) -> bool {
-        !self.unknown_resources
+        !matches!(self.resources, TrackedResource::Unknown)
     }
+
     pub fn take_resources(&self) -> Option<ResourceSpecifier> {
-        if self.is_empty() {
-            None
-        } else {
-            self.resources.to_owned()
+        match &self.resources {
+            TrackedResource::StaticallyKnown(res) => Some(res.clone()),
+            TrackedResource::StaticallyKnownEmpty(address) => {
+                let resource = if address.is_fungible() {
+                    ResourceSpecifier::Amount(*address, dec!(0))
+                } else {
+                    ResourceSpecifier::Ids(*address, indexset! {})
+                };
+                Some(resource)
+            }
+            _ => None,
         }
     }
+
     fn try_remove_amount(&mut self, amount: &Decimal) -> Option<Decimal> {
-        if let Some(res) = self.resources.as_mut() {
-            res.amount().expect("Must succeed").checked_sub(*amount)
-        } else {
-            None
+        match &self.resources {
+            TrackedResource::StaticallyKnown(res) => {
+                res.amount().expect("Must succeed").checked_sub(*amount)
+            }
+            _ => None,
         }
     }
+
     fn try_remove_non_fungible(&mut self, ids: &[NonFungibleLocalId]) -> bool {
-        if let Some(ResourceSpecifier::Ids(_, bucket_ids)) =
-            self.resources.as_mut()
-        {
-            ids.iter().filter(|item| bucket_ids.contains(*item)).count() == 0
-        } else {
-            false
+        match &self.resources {
+            TrackedResource::StaticallyKnown(res) => {
+                ids.iter()
+                    .filter(|item| {
+                        !res.ids().expect("Must succeed").contains(*item)
+                    })
+                    .count()
+                    == 0
+            }
+            _ => false,
         }
     }
 }
@@ -92,7 +103,7 @@ impl BucketsTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(Some(resources), false),
+                BucketContent::new(TrackedResource::StaticallyKnown(resources)),
             );
         }
     }
@@ -102,14 +113,11 @@ impl BucketsTracker {
         resource_address: &ResourceAddress,
     ) {
         if !self.untracked_mode {
-            let resource = if resource_address.is_fungible() {
-                ResourceSpecifier::Amount(*resource_address, dec!(0))
-            } else {
-                ResourceSpecifier::Ids(*resource_address, indexset! {})
-            };
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(Some(resource), false),
+                BucketContent::new(TrackedResource::StaticallyKnownEmpty(
+                    *resource_address,
+                )),
             );
         }
     }
@@ -118,7 +126,7 @@ impl BucketsTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(None, true),
+                BucketContent::new(TrackedResource::Unknown),
             );
         }
     }
@@ -126,7 +134,7 @@ impl BucketsTracker {
     pub fn is_any_bucket_with_unknown_resources(&self) -> bool {
         self.buckets
             .iter()
-            .find(|i| i.1.unknown_resources)
+            .find(|i| matches!(i.1.resources, TrackedResource::Unknown))
             .is_some()
     }
 
@@ -146,13 +154,16 @@ impl BucketsTracker {
         if !self.untracked_mode {
             let bucket =
                 self.buckets.get_mut(bucket_id).expect("Bucket not found");
-            if bucket.resources.is_some() {
-                let address =
-                    bucket.resources.as_ref().unwrap().resource_address();
+
+            if let Some(resource) = bucket.take_resources() {
+                let address = resource.resource_address();
                 // if operation is done on fungible resource then try to remove amount from specified bucket
                 if address.is_fungible() {
-                    if let Some(value) = bucket.try_remove_amount(amount) {
-                        return Some(ResourceSpecifier::Amount(address, value));
+                    if bucket.try_remove_amount(amount).is_some() {
+                        // successfully subtracted amount
+                        return Some(ResourceSpecifier::Amount(
+                            address, *amount,
+                        ));
                     }
                 }
             }
@@ -168,15 +179,17 @@ impl BucketsTracker {
         if !self.untracked_mode {
             let bucket =
                 self.buckets.get_mut(bucket_id).expect("Bucket not found");
-            if bucket.resources.is_some() {
-                let address =
-                    bucket.resources.as_ref().unwrap().resource_address();
-                if bucket.try_remove_non_fungible(ids) {
-                    // all ids are found in this bucket -> operation succeeded
-                    return Some(ResourceSpecifier::Ids(
-                        address,
-                        IndexSet::from_iter(ids.iter().cloned()),
-                    ));
+
+            if let Some(resource) = bucket.take_resources() {
+                let address = resource.resource_address();
+                if !address.is_fungible() {
+                    if bucket.try_remove_non_fungible(ids) {
+                        // all ids are found in this bucket -> operation succeeded
+                        return Some(ResourceSpecifier::Ids(
+                            address,
+                            IndexSet::from_iter(ids.iter().cloned()),
+                        ));
+                    }
                 }
             }
         }

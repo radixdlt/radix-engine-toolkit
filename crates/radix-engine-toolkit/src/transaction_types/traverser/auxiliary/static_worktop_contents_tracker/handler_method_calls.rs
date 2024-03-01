@@ -27,7 +27,7 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-use super::{InstructionResource, StaticWorktopContentsTracker};
+use super::{TrackedResource, StaticWorktopContentsTracker};
 
 impl StaticWorktopContentsTracker {
     fn handle_account_methods(
@@ -50,13 +50,13 @@ impl StaticWorktopContentsTracker {
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnown(resources),
+                        TrackedResource::StaticallyKnown(resources),
                     );
                 } else {
                     // put nonfungible by amount to worktop -> non trusted
                     // we don't know what is on worktop so entering untracked mode
                     self.worktop_content_tracker.enter_untracked_mode();
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
@@ -71,7 +71,7 @@ impl StaticWorktopContentsTracker {
 
                 self.worktop_content_tracker
                     .put_to_worktop(resources.clone());
-                self.add_new_instruction(InstructionResource::StaticallyKnown(
+                self.add_new_instruction(TrackedResource::StaticallyKnown(
                     resources,
                 ));
             }
@@ -90,13 +90,13 @@ impl StaticWorktopContentsTracker {
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnown(resources),
+                        TrackedResource::StaticallyKnown(resources),
                     );
                 } else {
                     // put non fungible by amount to worktop -> non trusted,
                     // we don't know what is on worktop so entering untracked mode
                     self.worktop_content_tracker.enter_untracked_mode();
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
@@ -111,7 +111,7 @@ impl StaticWorktopContentsTracker {
 
                 self.worktop_content_tracker
                     .put_to_worktop(resources.clone());
-                self.add_new_instruction(InstructionResource::StaticallyKnown(
+                self.add_new_instruction(TrackedResource::StaticallyKnown(
                     resources,
                 ));
             }
@@ -135,8 +135,8 @@ impl StaticWorktopContentsTracker {
                                     .worktop_content_tracker
                                     .take_all_from_worktop();
                                 self.add_new_instruction(
-                                    InstructionResource::StaticallyKnownMany(
-                                        &resources,
+                                    TrackedResource::StaticallyKnownMany(
+                                        resources,
                                     ),
                                 );
                             } else {
@@ -145,12 +145,12 @@ impl StaticWorktopContentsTracker {
                                 self.worktop_content_tracker
                                     .take_all_from_worktop();
                                 self.add_new_instruction(
-                                    InstructionResource::Unknown,
+                                    TrackedResource::Unknown,
                                 );
                             }
                         }
                         _ => self
-                            .add_new_instruction(InstructionResource::Unknown),
+                            .add_new_instruction(TrackedResource::Unknown),
                     }
                 } else {
                     if !self.bucket_tracker.is_untracked_mode() {
@@ -165,7 +165,7 @@ impl StaticWorktopContentsTracker {
                             .expect("Bucket not found");
                         self.add_new_instruction_from_bucket(&bucket);
                     } else {
-                        self.add_new_instruction(InstructionResource::Unknown);
+                        self.add_new_instruction(TrackedResource::Unknown);
                     }
                 }
             }
@@ -244,49 +244,49 @@ impl StaticWorktopContentsTracker {
                             resources.extend(expression_resources.unwrap());
 
                             self.add_new_instruction(
-                                InstructionResource::StaticallyKnownMany(
-                                    &Self::merge_same_resources(&resources),
+                                TrackedResource::StaticallyKnownMany(
+                                    Self::merge_same_resources(&resources),
                                 ),
                             );
                         } else if found_all_resources && !trusted {
                             self.add_new_instruction(
-                                InstructionResource::StaticallyKnownMany(
-                                    &Self::merge_same_resources(&resources),
+                                TrackedResource::StaticallyKnownMany(
+                                    Self::merge_same_resources(&resources),
                                 ),
                             );
                         } else {
                             self.add_new_instruction(
-                                InstructionResource::Unknown,
+                                TrackedResource::Unknown,
                             );
                         }
                     } else {
                         // even if expression was used we don't have list of all
                         // resources so instruction must be untrasted
-                        self.add_new_instruction(InstructionResource::Unknown);
+                        self.add_new_instruction(TrackedResource::Unknown);
                     }
                 } else {
                     // only expression was specified so use that data now
                     if let Some(resources) = expression_resources {
                         self.add_new_instruction(
-                            InstructionResource::StaticallyKnownMany(
-                                &resources,
+                            TrackedResource::StaticallyKnownMany(
+                                resources,
                             ),
                         );
                     } else {
-                        self.add_new_instruction(InstructionResource::Unknown);
+                        self.add_new_instruction(TrackedResource::Unknown);
                     }
                 }
             }
             ACCOUNT_TRY_DEPOSIT_OR_REFUND_IDENT
             | ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -311,19 +311,19 @@ impl StaticWorktopContentsTracker {
                         .expect("Bucket not found");
                     self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
             VALIDATOR_FINISH_UNLOCK_OWNER_STAKE_UNITS_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -335,13 +335,13 @@ impl StaticWorktopContentsTracker {
         match method_name {
             IDENTITY_SECURIFY_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -355,13 +355,13 @@ impl StaticWorktopContentsTracker {
             | ACCESS_CONTROLLER_QUICK_CONFIRM_RECOVERY_ROLE_BADGE_WITHDRAW_ATTEMPT_IDENT
             | ACCESS_CONTROLLER_MINT_RECOVERY_BADGES_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -373,13 +373,13 @@ impl StaticWorktopContentsTracker {
         match method_name {
             PACKAGE_CLAIM_ROYALTIES_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -396,14 +396,14 @@ impl StaticWorktopContentsTracker {
 
                 let r = ResourceSpecifier::Amount(address, input_args.amount);
                 self.worktop_content_tracker.put_to_worktop(r.clone());
-                self.add_new_instruction(InstructionResource::StaticallyKnown(
+                self.add_new_instruction(TrackedResource::StaticallyKnown(
                     r,
                 ));
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -420,17 +420,17 @@ impl StaticWorktopContentsTracker {
 
                 let r = ResourceSpecifier::Ids(address, input_args.entries.keys().cloned().collect());
                 self.worktop_content_tracker.put_to_worktop(r.clone());
-                self.add_new_instruction( InstructionResource::StaticallyKnown(r));
+                self.add_new_instruction( TrackedResource::StaticallyKnown(r));
             }
             NON_FUNGIBLE_RESOURCE_MANAGER_MINT_RUID_IDENT // don't know id so untrasted
             | NON_FUNGIBLE_RESOURCE_MANAGER_MINT_SINGLE_RUID_IDENT => {
                 // resturns unknown resources put on worktop
-                self.add_new_instruction( InstructionResource::Unknown);
+                self.add_new_instruction( TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
 
             // all other methods are trusted as they doesn't change the worktop state
-            _ => self.add_new_instruction( InstructionResource::StaticallyKnownNone),
+            _ => self.add_new_instruction( TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -455,7 +455,7 @@ impl StaticWorktopContentsTracker {
                     // so we are entering untracked worktop mode
                     self.worktop_content_tracker.enter_untracked_mode();
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             ONE_RESOURCE_POOL_REDEEM_IDENT => {
@@ -473,13 +473,13 @@ impl StaticWorktopContentsTracker {
                     // so we are entering untracked worktop mode
                     self.worktop_content_tracker.enter_untracked_mode();
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             ONE_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
                 // returned resources are put on worktop, but we don't know exact resource address
                 // so we are entering untracked worktop mode
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
             ONE_RESOURCE_POOL_PROTECTED_DEPOSIT_IDENT => {
@@ -493,13 +493,13 @@ impl StaticWorktopContentsTracker {
                         .expect("Bucket not found");
                     self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -530,25 +530,25 @@ impl StaticWorktopContentsTracker {
                         let resource_2 = bucket_2.take_resources();
                         if resource_1.is_some() && resource_2.is_some() {
                             self.add_new_instruction(
-                                InstructionResource::StaticallyKnownMany(&[
+                                TrackedResource::StaticallyKnownMany(vec![
                                     resource_1.unwrap(),
                                     resource_2.unwrap(),
                                 ]),
                             );
                         } else {
                             self.add_new_instruction(
-                                InstructionResource::Unknown,
+                                TrackedResource::Unknown,
                             );
                         }
                     } else {
-                        self.add_new_instruction(InstructionResource::Unknown);
+                        self.add_new_instruction(TrackedResource::Unknown);
                     }
 
                     // returned pool units are put on worktop, but we don't know exact resource type
                     // so we are entering untracked worktop mode
                     self.worktop_content_tracker.enter_untracked_mode();
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             TWO_RESOURCE_POOL_REDEEM_IDENT => {
@@ -566,7 +566,7 @@ impl StaticWorktopContentsTracker {
                     // so we are entering untracked worktop mode
                     self.worktop_content_tracker.enter_untracked_mode();
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             TWO_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
@@ -584,11 +584,11 @@ impl StaticWorktopContentsTracker {
                         input_args.amount,
                     );
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnown(resource.clone()),
+                        TrackedResource::StaticallyKnown(resource.clone()),
                     );
                     self.worktop_content_tracker.put_to_worktop(resource);
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
             }
@@ -603,13 +603,13 @@ impl StaticWorktopContentsTracker {
                         .expect("Bucket not found");
                     self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -638,7 +638,7 @@ impl StaticWorktopContentsTracker {
                                         .worktop_content_tracker
                                         .take_all_from_worktop();
                                     self.add_new_instruction(
-                                         InstructionResource::StaticallyKnownMany(&Self::merge_same_resources(
+                                         TrackedResource::StaticallyKnownMany(Self::merge_same_resources(
                                             &resources
                                     )));
                                 } else {
@@ -647,12 +647,12 @@ impl StaticWorktopContentsTracker {
                                     self.worktop_content_tracker
                                         .take_all_from_worktop();
                                     self.add_new_instruction(
-                                        InstructionResource::Unknown,
+                                        TrackedResource::Unknown,
                                     );
                                 }
                             }
                             _ => self.add_new_instruction(
-                                InstructionResource::Unknown,
+                                TrackedResource::Unknown,
                             ),
                         }
                     } else {
@@ -678,13 +678,13 @@ impl StaticWorktopContentsTracker {
                         // if we found all buckets in bucket tracker and all buckets has known resources
                         if resources.len() == input_args.buckets.len() {
                             self.add_new_instruction(
-                                InstructionResource::StaticallyKnownMany(
-                                    &resources,
+                                TrackedResource::StaticallyKnownMany(
+                                    resources,
                                 ),
                             );
                         } else {
                             self.add_new_instruction(
-                                InstructionResource::Unknown,
+                                TrackedResource::Unknown,
                             );
                         }
                     };
@@ -693,12 +693,12 @@ impl StaticWorktopContentsTracker {
                     // so we are entering untracked worktop mode
                     self.worktop_content_tracker.enter_untracked_mode();
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             MULTI_RESOURCE_POOL_REDEEM_IDENT => {
                 // resturns unknown resources and puts them on worktop
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
                 self.worktop_content_tracker.enter_untracked_mode();
             }
             MULTI_RESOURCE_POOL_PROTECTED_WITHDRAW_IDENT => {
@@ -712,7 +712,7 @@ impl StaticWorktopContentsTracker {
                     )
                 {
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnown(
+                        TrackedResource::StaticallyKnown(
                             ResourceSpecifier::Amount(
                                 input_args.resource_address,
                                 input_args.amount,
@@ -720,7 +720,7 @@ impl StaticWorktopContentsTracker {
                         ),
                     );
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
 
                 // returned pool units are put on worktop, but we don't know exact resource type
@@ -738,13 +738,13 @@ impl StaticWorktopContentsTracker {
                         .expect("Bucket not found");
                     self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -770,7 +770,7 @@ impl StaticWorktopContentsTracker {
                     // unknown component call
                     self.bucket_tracker.enter_untracked_mode();
                     self.worktop_content_tracker.enter_untracked_mode();
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
                 DynamicGlobalAddress::Static(address) => {
                     if address
@@ -840,12 +840,12 @@ impl StaticWorktopContentsTracker {
             COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT => {
                 // we don't know exactly what is put on worktop
                 self.worktop_content_tracker.enter_untracked_mode();
-                self.add_new_instruction(InstructionResource::Unknown);
+                self.add_new_instruction(TrackedResource::Unknown);
             }
 
             // all other methods are trusted as they doesn't change the worktop state
             _ => self
-                .add_new_instruction(InstructionResource::StaticallyKnownNone),
+                .add_new_instruction(TrackedResource::StaticallyKnownNone),
         }
     }
 
@@ -866,30 +866,30 @@ impl StaticWorktopContentsTracker {
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnown(resources),
+                        TrackedResource::StaticallyKnown(resources),
                     );
                 }
                 "lock_fee" => {
                     self.add_new_instruction(
-                        InstructionResource::StaticallyKnownNone,
+                        TrackedResource::StaticallyKnownNone,
                     );
                 }
                 _ => {
                     // unknown method call
-                    self.add_new_instruction(InstructionResource::Unknown);
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
         } else if TRANSACTION_TRACKER.as_node_id() == address.as_node_id() {
-            self.add_new_instruction(InstructionResource::StaticallyKnownNone);
+            self.add_new_instruction(TrackedResource::StaticallyKnownNone);
         } else if GENESIS_HELPER.as_node_id() == address.as_node_id() {
             self.worktop_content_tracker.enter_untracked_mode();
             self.bucket_tracker.enter_untracked_mode();
-            self.add_new_instruction(InstructionResource::Unknown);
+            self.add_new_instruction(TrackedResource::Unknown);
         } else {
             // other unknown global or internal component call
             self.worktop_content_tracker.enter_untracked_mode();
             self.bucket_tracker.enter_untracked_mode();
-            self.add_new_instruction(InstructionResource::Unknown);
+            self.add_new_instruction(TrackedResource::Unknown);
         }
     }
 
