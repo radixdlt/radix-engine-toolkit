@@ -85,61 +85,60 @@ pub struct StaticWorktopContentsTracker {
     worktop_content_tracker: WorktopContentTracker,
 }
 
+enum InstructionResource<'a> {
+    StaticallyKnown(ResourceSpecifier),
+    StaticallyKnownMany(&'a [ResourceSpecifier]),
+    StaticallyKnownEmpty(ResourceAddress),
+    StaticallyKnownNone,
+    Unknown,
+}
+
+impl<'a> From<&BucketContent> for InstructionResource<'a> {
+    fn from(bucket: &BucketContent) -> Self {
+        if !bucket.is_known_resources() {
+            InstructionResource::Unknown
+        } else {
+            match bucket.take_resources() {
+                Some(res) => InstructionResource::StaticallyKnown(res),
+                None => InstructionResource::Unknown,
+            }
+        }
+    }
+}
+
 impl StaticWorktopContentsTracker {
     pub fn output(self) -> Vec<TrustedWorktopInstruction> {
         self.trusted_state_per_instruction
     }
 
-    fn add_new_instruction(
-        &mut self,
-        trusted: bool,
-        input_resources: Option<ResourceSpecifier>,
-    ) {
-        let resources = match input_resources {
-            Some(res) => vec![res],
-            None => vec![],
+    fn add_new_instruction(&mut self, input_resources: InstructionResource) {
+        let (is_trusted, resources) = match input_resources {
+            InstructionResource::StaticallyKnown(resource) => {
+                (true, vec![resource])
+            }
+            InstructionResource::StaticallyKnownMany(resources) => {
+                (true, resources.to_vec())
+            }
+            InstructionResource::StaticallyKnownEmpty(address) => {
+                let resource = if address.is_fungible() {
+                    ResourceSpecifier::Amount(address, dec!(0))
+                } else {
+                    ResourceSpecifier::Ids(address, indexset! {})
+                };
+                (true, vec![resource])
+            }
+            InstructionResource::StaticallyKnownNone => (true, vec![]),
+            InstructionResource::Unknown => (false, vec![]),
         };
         self.trusted_state_per_instruction
             .push(TrustedWorktopInstruction {
-                is_trusted: trusted,
+                is_trusted,
                 resources,
             });
     }
 
-    fn add_new_instruction_with_empty_resource(
-        &mut self,
-        trusted: bool,
-        resource_address: &ResourceAddress,
-    ) {
-        let resource = if resource_address.is_fungible() {
-            ResourceSpecifier::Amount(*resource_address, dec!(0))
-        } else {
-            ResourceSpecifier::Ids(*resource_address, indexset! {})
-        };
-        self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction {
-                is_trusted: trusted,
-                resources: vec![resource],
-            });
-    }
-
     fn add_new_instruction_from_bucket(&mut self, bucket: &BucketContent) {
-        self.add_new_instruction(
-            bucket.is_known_resources(),
-            bucket.take_resources(),
-        );
-    }
-
-    fn add_new_instruction_with_many_resources(
-        &mut self,
-        trusted: bool,
-        resources: &[ResourceSpecifier],
-    ) {
-        self.trusted_state_per_instruction
-            .push(TrustedWorktopInstruction {
-                is_trusted: trusted,
-                resources: resources.to_vec(),
-            });
+        self.add_new_instruction(bucket.into());
     }
 }
 
@@ -159,21 +158,23 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                         self.bucket_tracker
                             .new_bucket_known_resources(resources.clone());
                         self.add_new_instruction(
-                            true,
-                            Some(resources.to_owned()),
+                            InstructionResource::StaticallyKnown(
+                                resources.to_owned(),
+                            ),
                         );
                     } else {
                         self.bucket_tracker
                             .new_empty_bucket_known_resources(resource_address);
-                        self.add_new_instruction_with_empty_resource(
-                            true,
-                            resource_address,
+                        self.add_new_instruction(
+                            InstructionResource::StaticallyKnownEmpty(
+                                *resource_address,
+                            ),
                         )
                     }
                 } else {
                     // we don't know what is exactly on the worktop
                     self.bucket_tracker.new_bucket_unknown_resources();
-                    self.add_new_instruction(false, None)
+                    self.add_new_instruction(InstructionResource::Unknown)
                 }
             }
             InstructionV1::TakeFromWorktop {
@@ -193,11 +194,15 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                         {
                             self.bucket_tracker
                                 .new_bucket_known_resources(resources.clone());
-                            self.add_new_instruction(true, Some(resources));
+                            self.add_new_instruction(
+                                InstructionResource::StaticallyKnown(resources),
+                            );
                         } else {
                             // unabe to take fungible by amount
                             self.bucket_tracker.new_bucket_unknown_resources();
-                            self.add_new_instruction(false, None)
+                            self.add_new_instruction(
+                                InstructionResource::Unknown,
+                            )
                         }
                     } else {
                         if amount.is_zero() {
@@ -207,17 +212,21 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                             );
                             self.bucket_tracker
                                 .new_bucket_known_resources(resources.clone());
-                            self.add_new_instruction(true, Some(resources));
+                            self.add_new_instruction(
+                                InstructionResource::StaticallyKnown(resources),
+                            );
                         } else {
                             // non fungible take by amount
                             self.bucket_tracker.new_bucket_unknown_resources();
-                            self.add_new_instruction(false, None)
+                            self.add_new_instruction(
+                                InstructionResource::Unknown,
+                            )
                         }
                     }
                 } else {
                     // we don't know what is taken from worktop
                     self.bucket_tracker.new_bucket_unknown_resources();
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
             InstructionV1::TakeNonFungiblesFromWorktop {
@@ -237,16 +246,18 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                     {
                         self.bucket_tracker
                             .new_bucket_known_resources(resources.clone());
-                        self.add_new_instruction(true, Some(resources));
+                        self.add_new_instruction(
+                            InstructionResource::StaticallyKnown(resources),
+                        );
                     } else {
                         // invalid operation fungible take by ammount
                         self.bucket_tracker.new_bucket_unknown_resources();
-                        self.add_new_instruction(false, None)
+                        self.add_new_instruction(InstructionResource::Unknown)
                     }
                 } else {
                     // we don't know what is taken from worktop
                     self.bucket_tracker.new_bucket_unknown_resources();
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
 
@@ -266,7 +277,7 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                 } else {
                     // we don't know exactly what is put on worktop
                     self.worktop_content_tracker.enter_untracked_mode();
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
 
@@ -286,7 +297,9 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
             | InstructionV1::DropNamedProofs
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => {
-                self.add_new_instruction(true, None);
+                self.add_new_instruction(
+                    InstructionResource::StaticallyKnownNone,
+                );
             }
 
             InstructionV1::CreateProofFromBucketOfAmount {
@@ -300,9 +313,11 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                     .bucket_tracker
                     .try_consume_fungible_from_bucket(bucket_id, amount)
                 {
-                    self.add_new_instruction(true, Some(res));
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnown(res),
+                    );
                 } else {
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
             InstructionV1::CreateProofFromBucketOfNonFungibles {
@@ -316,9 +331,11 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                     .bucket_tracker
                     .try_consume_non_fungible_from_bucket(bucket_id, ids)
                 {
-                    self.add_new_instruction(true, Some(res));
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnown(res),
+                    );
                 } else {
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
             InstructionV1::CreateProofFromBucketOfAll { bucket_id }
@@ -328,12 +345,9 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                         .bucket_tracker
                         .bucket_consumed(bucket_id)
                         .expect("Bucket not found");
-                    self.add_new_instruction(
-                        bucket.is_known_resources(),
-                        bucket.take_resources(),
-                    );
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             }
 
@@ -362,14 +376,16 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
             InstructionV1::CallRoleAssignmentMethod { .. }
             | InstructionV1::CallMetadataMethod { .. } => {
                 // methods are trusted as they doesn't change the worktop state
-                self.add_new_instruction(true, None)
+                self.add_new_instruction(
+                    InstructionResource::StaticallyKnownNone,
+                )
             }
 
             InstructionV1::CallDirectVaultMethod { .. } => {
                 // we don't know if something was put on worktop -> enter untracked worktop content mode
                 self.worktop_content_tracker.enter_untracked_mode();
                 self.bucket_tracker.enter_untracked_mode();
-                self.add_new_instruction(false, None)
+                self.add_new_instruction(InstructionResource::Unknown)
             }
         }
 

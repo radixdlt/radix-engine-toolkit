@@ -24,13 +24,13 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-use super::StaticWorktopContentsTracker;
+use super::{InstructionResource, StaticWorktopContentsTracker};
 
 impl StaticWorktopContentsTracker {
     fn unknown_function_call(&mut self) {
         self.bucket_tracker.enter_untracked_mode();
         self.worktop_content_tracker.enter_untracked_mode();
-        self.add_new_instruction(false, None);
+        self.add_new_instruction(InstructionResource::Unknown);
     }
 
     pub fn handle_call_functions(
@@ -42,31 +42,33 @@ impl StaticWorktopContentsTracker {
     ) {
         if is_account(address) {
             match function_name {
-                ACCOUNT_CREATE_ADVANCED_IDENT => {
-                    self.add_new_instruction(true, None)
-                }
+                ACCOUNT_CREATE_ADVANCED_IDENT => self.add_new_instruction(
+                    InstructionResource::StaticallyKnownNone,
+                ),
                 ACCOUNT_CREATE_IDENT => {
                     // returns unknown resources put on worktop
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
             }
         } else if is_validator(address) {
             match function_name {
-                CONSENSUS_MANAGER_CREATE_IDENT => {
-                    self.add_new_instruction(true, None)
-                }
+                CONSENSUS_MANAGER_CREATE_IDENT => self.add_new_instruction(
+                    InstructionResource::StaticallyKnownNone,
+                ),
                 _ => self.unknown_function_call(),
             }
         } else if is_identity(address) {
             match function_name {
                 IDENTITY_CREATE_ADVANCED_IDENT => {
-                    self.add_new_instruction(true, None);
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnownNone,
+                    );
                 }
                 IDENTITY_CREATE_IDENT => {
                     // resturns unknown resources put on worktop
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
@@ -88,7 +90,7 @@ impl StaticWorktopContentsTracker {
                             .expect("Bucket not found");
                         self.add_new_instruction_from_bucket(&bucket);
                     } else {
-                        self.add_new_instruction(false, None);
+                        self.add_new_instruction(InstructionResource::Unknown);
                     }
                 }
                 _ => self.unknown_function_call(),
@@ -119,12 +121,12 @@ impl StaticWorktopContentsTracker {
         if *address == PACKAGE_PACKAGE {
             match function_name {
                 PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
-                | PACKAGE_PUBLISH_NATIVE_IDENT => {
-                    self.add_new_instruction(true, None)
-                }
+                | PACKAGE_PUBLISH_NATIVE_IDENT => self.add_new_instruction(
+                    InstructionResource::StaticallyKnownNone,
+                ),
                 PACKAGE_PUBLISH_WASM_IDENT => {
                     // resturns unknown resources put on worktop
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
@@ -133,7 +135,7 @@ impl StaticWorktopContentsTracker {
             match function_name {
                 FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT => {
                     // resturns unknown resources put on worktop
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
@@ -147,7 +149,7 @@ impl StaticWorktopContentsTracker {
                 | NON_FUNGIBLE_RESOURCE_MANAGER_CREATE_RUID_WITH_INITIAL_SUPPLY_IDENT =>
                 {
                     // resturns unknown resources put on worktop
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                     self.worktop_content_tracker.enter_untracked_mode();
                 }
                 _ => self.unknown_function_call(),
@@ -158,7 +160,9 @@ impl StaticWorktopContentsTracker {
         ) {
             match function_name {
                 ONE_RESOURCE_POOL_INSTANTIATE_IDENT => {
-                    self.add_new_instruction(true, None);
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnownNone,
+                    );
                 }
                 _ => self.unknown_function_call(),
             }
@@ -168,7 +172,9 @@ impl StaticWorktopContentsTracker {
         ) {
             match function_name {
                 TWO_RESOURCE_POOL_INSTANTIATE_IDENT => {
-                    self.add_new_instruction(true, None);
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnownNone,
+                    );
                 }
                 _ => self.unknown_function_call(),
             }
@@ -178,7 +184,9 @@ impl StaticWorktopContentsTracker {
         ) {
             match function_name {
                 MULTI_RESOURCE_POOL_INSTANTIATE_IDENT => {
-                    self.add_new_instruction(true, None);
+                    self.add_new_instruction(
+                        InstructionResource::StaticallyKnownNone,
+                    );
                 }
                 _ => self.unknown_function_call(),
             }
@@ -213,14 +221,14 @@ impl StaticWorktopContentsTracker {
                         .expect("Bucket not found");
                     self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    self.add_new_instruction(false, None);
+                    self.add_new_instruction(InstructionResource::Unknown);
                 }
             } else {
                 self.unknown_function_call();
             }
         } else if TRANSACTION_TRACKER_PACKAGE == *address {
             // function 'create' is trusted as it doesn't change the worktop state
-            self.add_new_instruction(true, None);
+            self.add_new_instruction(InstructionResource::StaticallyKnownNone);
         } else if GENESIS_HELPER_PACKAGE == *address {
             self.unknown_function_call();
         } else {
