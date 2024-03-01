@@ -24,7 +24,7 @@ use radix_engine_interface::blueprints::{
 use scrypto::prelude::*;
 use transaction::prelude::*;
 
-use super::{TrackedResource, StaticWorktopContentsTracker};
+use super::{StaticWorktopContentsTracker, TrackedResource};
 
 impl StaticWorktopContentsTracker {
     fn unknown_function_call(&mut self) {
@@ -42,9 +42,8 @@ impl StaticWorktopContentsTracker {
     ) {
         if is_account(address) {
             match function_name {
-                ACCOUNT_CREATE_ADVANCED_IDENT => self.add_new_instruction(
-                    TrackedResource::StaticallyKnownNone,
-                ),
+                ACCOUNT_CREATE_ADVANCED_IDENT => self
+                    .add_new_instruction(TrackedResource::StaticallyKnownNone),
                 ACCOUNT_CREATE_IDENT => {
                     // returns unknown resources put on worktop
                     self.add_new_instruction(TrackedResource::Unknown);
@@ -54,9 +53,8 @@ impl StaticWorktopContentsTracker {
             }
         } else if is_validator(address) {
             match function_name {
-                CONSENSUS_MANAGER_CREATE_IDENT => self.add_new_instruction(
-                    TrackedResource::StaticallyKnownNone,
-                ),
+                CONSENSUS_MANAGER_CREATE_IDENT => self
+                    .add_new_instruction(TrackedResource::StaticallyKnownNone),
                 _ => self.unknown_function_call(),
             }
         } else if is_identity(address) {
@@ -121,9 +119,8 @@ impl StaticWorktopContentsTracker {
         if *address == PACKAGE_PACKAGE {
             match function_name {
                 PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
-                | PACKAGE_PUBLISH_NATIVE_IDENT => self.add_new_instruction(
-                    TrackedResource::StaticallyKnownNone,
-                ),
+                | PACKAGE_PUBLISH_NATIVE_IDENT => self
+                    .add_new_instruction(TrackedResource::StaticallyKnownNone),
                 PACKAGE_PUBLISH_WASM_IDENT => {
                     // resturns unknown resources put on worktop
                     self.add_new_instruction(TrackedResource::Unknown);
