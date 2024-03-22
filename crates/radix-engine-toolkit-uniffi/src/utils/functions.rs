@@ -18,12 +18,12 @@
 use crate::prelude::*;
 
 #[uniffi::export]
-pub fn known_addresses(network_id: u8) -> KnownAddresses {
+pub fn get_known_addresses(network_id: u8) -> KnownAddresses {
     KnownAddresses::new_from_network(network_id)
 }
 
 #[uniffi::export]
-pub fn hash(data: Vec<u8>) -> Arc<Hash> {
+pub fn get_hash(data: Vec<u8>) -> Arc<Hash> {
     Hash::from_unhashed_bytes(data)
 }
 
