@@ -10,6 +10,13 @@ bindgen() {
         --lib-file $SCRIPT_DIR/../target/debug/libradix_engine_toolkit_uniffi.dylib
 }
 
+bindgen_ext_tool() {
+    $1 \
+    "$SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl" \
+    --lib-file "$SCRIPT_DIR/../target/debug/libradix_engine_toolkit_uniffi.dylib" --out-dir output \
+    --config "$SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi/uniffi.toml"
+}
+
 cd $SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi;
 cargo build
 
@@ -17,6 +24,5 @@ bindgen swift
 bindgen kotlin
 bindgen python
 
-uniffi-bindgen-cs \
-    "$SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl" \
-    --lib-file "$SCRIPT_DIR/../target/debug/libradix_engine_toolkit_uniffi.dylib" --out-dir output
+bindgen_ext_tool uniffi-bindgen-cs
+bindgen_ext_tool uniffi-bindgen-go
