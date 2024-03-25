@@ -14,6 +14,7 @@ bindgen_ext_tool() {
     $1 \
     "$SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl" \
     --lib-file "$SCRIPT_DIR/../target/debug/libradix_engine_toolkit_uniffi.dylib" --out-dir output \
+    --no-format
     --config "$SCRIPT_DIR/../crates/radix-engine-toolkit-uniffi/uniffi.toml"
 }
 
