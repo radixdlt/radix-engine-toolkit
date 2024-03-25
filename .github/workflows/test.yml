@@ -28,8 +28,8 @@ jobs:
       uses: RDXWorks-actions/sccache-action@main
     - name: Install Golang & uniffi-bindgen-go
       run: |
-        apt-get update
-        apt-get install golang
+        sudo apt-get update
+        sudo apt-get install -y golang
         cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.2.1+v0.25.0
     - name: Run tests
       run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
