@@ -1,7 +1,7 @@
 use std::{path::PathBuf, process::*};
 
 #[test]
-fn test_go_binding() {
+fn uniffi_foreign_language_testcase_example_go() {
     // Check if Golang and uniffi-bindgen-go are installed
     assert!(
         Command::new("go")
