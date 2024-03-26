@@ -2,15 +2,34 @@ use std::{path::PathBuf, process::*};
 
 #[test]
 fn uniffi_foreign_language_testcase_example_go() {
+    let min_supported_go_version = (1, 22); // version 1.22.x
+
     // Check if Golang and uniffi-bindgen-go are installed
+    let output = Command::new("go")
+        .arg("version")
+        .output()
+        .expect("go version command failed, Golang not installed?");
+    let version = String::from_utf8_lossy(&output.stdout)
+        .strip_prefix("go version go")
+        .expect("Malformed go version command output")
+        .split(' ')
+        .collect::<Vec<_>>()
+        .first()
+        .expect("Malformed go version command output")
+        .split('.')
+        .map(|a| a.parse::<usize>().expect("Not supported go version"))
+        .collect::<Vec<usize>>();
     assert!(
-        Command::new("go")
-            .arg("version")
-            .stdout(Stdio::null())
-            .status()
-            .is_ok(),
-        "Golang not installed"
+        version.len() == 3
+            && version[0] >= min_supported_go_version.0
+            && version[1] >= min_supported_go_version.1,
+        "Not supported go version: {}.{}, minimum is {}.{}",
+        version[0],
+        version[1],
+        min_supported_go_version.0,
+        min_supported_go_version.1
     );
+
     assert!(
         Command::new("uniffi-bindgen-go")
             .arg("--version")
@@ -109,18 +128,9 @@ fn uniffi_foreign_language_testcase_example_go() {
     let mut target_dir = target_path.clone();
     target_dir.pop(); // lib name
 
-    let mut target_go_path = target_dir.clone();
-    target_go_path.push("go");
-    target_go_path.push("test_go");
-
-    // Compile go test program
+    // Run go tests
     let output = Command::new("go")
-        .args([
-            "build",
-            "-o",
-            target_go_path.display().to_string().as_str(),
-            "example.go",
-        ])
+        .args(["test", "-v"])
         .current_dir(go_src)
         .envs([
             ("GO111MODULE", "auto"),
@@ -134,23 +144,10 @@ fn uniffi_foreign_language_testcase_example_go() {
         ])
         .output()
         .unwrap();
-    assert!(
-        output.status.success(),
-        "go program compilation failed: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
 
     assert!(
-        target_go_path.exists(),
-        "test_go program does not exists: {}",
-        target_go_path.display().to_string()
-    );
-
-    // Run test program
-    let output = Command::new(target_go_path).output().unwrap();
-    assert!(
         output.status.success(),
-        "test_go program failed: {}",
-        String::from_utf8_lossy(&output.stderr)
+        "go test command failed:\n{}",
+        String::from_utf8_lossy(&output.stdout)
     );
 }
