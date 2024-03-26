@@ -2,7 +2,7 @@ use std::{path::PathBuf, process::*};
 
 #[test]
 fn uniffi_foreign_language_testcase_example_go() {
-    let min_supported_go_version = (1, 22); // version 1.22.x
+    let min_supported_go_version = (1, 21); // version 1.21.x
 
     // Check if Golang and uniffi-bindgen-go are installed
     let output = Command::new("go")
