@@ -192,6 +192,13 @@ jobs:
           path: uniffi-bindgen-cs
           submodules: 'recursive'
           ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
+      - name: Clone uniffi-bindgen-go
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: https://github.com/NordSecurity/uniffi-bindgen-go
+          path: uniffi-bindgen-go
+          submodules: 'recursive'
+          ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
       - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
@@ -216,6 +223,13 @@ jobs:
             ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --out-dir $OUTPUT_DIRECTORY \
             --lib-file $DYNAMIC_LIBRARY_PATH
+
+          cargo run \
+            --manifest-path="./uniffi-bindgen-go/bindgen/Cargo.toml" -- \
+            ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH \
+            --no-format
       - name: Upload Artifacts
         uses: RDXWorks-actions/upload-artifact@main
         with:
