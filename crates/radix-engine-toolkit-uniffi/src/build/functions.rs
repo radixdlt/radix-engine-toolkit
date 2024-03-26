@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[uniffi::export]
-pub fn build_information() -> BuildInformation {
+pub fn get_build_information() -> BuildInformation {
     core_information().into()
 }
 
