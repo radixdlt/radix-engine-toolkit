@@ -9,7 +9,7 @@ package main
 */
 
 import (
-	"crypto/rand"
+	"encoding/hex"
 	"testing"
 
 	"../../output/radix_engine_toolkit_uniffi"
@@ -31,7 +31,10 @@ func assert(t *testing.T, condition bool, message string) {
 
 func newVirtualAccount(t *testing.T, networkId uint8) (*radix_engine_toolkit_uniffi.Address, *radix_engine_toolkit_uniffi.PrivateKey, *radix_engine_toolkit_uniffi.PublicKey) {
 	var token = make([]byte, 32)
-	rand.Read(token)
+	var i uint8
+	for i = 0; i < 32; i++ {
+		token[i] = i + 1
+	}
 
 	privateKey, err := radix_engine_toolkit_uniffi.PrivateKeyNewSecp256k1(token)
 	assert(t, err == nil, "Unable to generate new private key secp256k1")
@@ -103,8 +106,19 @@ func TestRetManifestBuilder(t *testing.T) {
 	_, err = intent.Hash()
 	assert(t, err == nil, "Transaction Intent hash failed")
 
-	_, err = intent.Compile()
-	assert(t, err == nil, "Transaction Intent compile failed")
+	var intentBytes, error = intent.Compile()
+	assert(t, error == nil, "Transaction Intent compile failed")
+
+	intentHex := hex.EncodeToString(intentBytes)
+	assert(t, intentHex == "4d220104210707010a01000000000000000a0a0000000000000009010000002200012007210284bf" + 
+		"7562262bbd6940085748f3be6afa52ae317155181ece31b66351ccffa4b0010108000020220441038000c0566318c6318c6" +
+		"4f798cacc6318c6318cf7be8af78a78f8a6318c6318c60c086c6f636b5f666565210185000010632d5ec76b050000000000" +
+		"0000000000000000000041038000c0566318c6318c64f798cacc6318c6318cf7be8af78a78f8a6318c6318c60c046672656" +
+		"52100020180005da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c641038000d1e120200bde95a525" +
+		"81c9284dab790cd0a1fd242eee0096186d6e5ef3670c147472795f6465706f7369745f6f725f61626f72742102810000000" +
+		"022000020200022010121020c0a746578742f706c61696e2200010c11536f6d7220585244205472616e73666572",
+		"Intent bytes not equal")
+
 }
 
 func TestRetNotarizedTransaction(t *testing.T) {
@@ -157,6 +171,20 @@ func TestRetNotarizedTransaction(t *testing.T) {
 	_, err = notarizedTransaction.Hash()
 	assert(t, err == nil, "Notarized Transaction hash failed")
 
-	_, err = notarizedTransaction.Compile()
-	assert(t, err == nil, "Notarized Transaction compile failed")
+	var transactionBytes, _ = notarizedTransaction.Compile()
+
+	transactionHex := hex.EncodeToString(transactionBytes)
+	assert(t, transactionHex == "4d22030221022104210707010a01000000000000000a0a00000000000000090100000022000" +
+		"12007210284bf7562262bbd6940085748f3be6afa52ae317155181ece31b66351ccffa4b0010108000020220341038000c0" +
+		"566318c6318c64f798cacc6318c6318cf7be8af78a78f8a6318c6318c60c086c6f636b5f666565210185000010632d5ec76" +
+		"b0500000000000000000000000000000041038000d1e120200bde95a52581c9284dab790cd0a1fd242eee0096186d6e5ef3" +
+		"670c087769746864726177210280005da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c685000064a" +
+		"7b3b6e00d0000000000000000000000000000000041038000d1e120200bde95a52581c9284dab790cd0a1fd242eee009618" +
+		"6d6e5ef3670c0d6465706f7369745f62617463682101830020200022010121020c0a746578742f706c61696e2200010c115" +
+		"36f6d7220585244205472616e736665722022020001210120074100df99c5ae00f9b69903074625de0d5175a89a0b2ae19d" +
+		"5cf599dbcb0be93512d838b58d9829a2b9afd3f511b97d3ce01f24a990186eb75f7092e496c54aef8406000121012007410" +
+		"0df99c5ae00f9b69903074625de0d5175a89a0b2ae19d5cf599dbcb0be93512d838b58d9829a2b9afd3f511b97d3ce01f24" +
+		"a990186eb75f7092e496c54aef84062200012101200741018588242bce5f10c823b7a7cc59cafaa958e2380a95867ee1f7b" +
+		"e78f8772092300373c892fb35f22f1392e2b9edd0833c3d655961e400ae954d2a6e18d1ad55e8",
+		"Notarized Transaction bytes not equal")
 }
