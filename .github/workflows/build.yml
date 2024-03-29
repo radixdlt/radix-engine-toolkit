@@ -20,6 +20,10 @@ on:
         type: string
         required: true
         description: The version to use for the C# package
+      go-version:
+        type: string
+        required: true
+        description: The version to use for the Go package
       ref:
         type: string
         default: "main"
@@ -119,7 +123,7 @@ jobs:
       # Installing Build Dependencies
       - name: Build Dependencies (aarch64 linux)
         if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
-        run: | 
+        run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
@@ -159,14 +163,14 @@ jobs:
 
       - name: Build
         working-directory: crates/${{ matrix.build-target.crate }}
-        env: 
+        env:
           # The minumum iOS version of the iOS builds - has no effect outside
           # iOS builds.
           IPHONEOS_DEPLOYMENT_TARGET: "11.0"
           # Enable sccache
           SCCACHE_GHA_ENABLED: "true"
           # RUSTC_WRAPPER: "sccache"
-        run: | 
+        run: |
           echo $IPHONEOS_DEPLOYMENT_TARGET
           cargo build \
             --target ${{ matrix.build-target.target-triple }} \
@@ -208,7 +212,7 @@ jobs:
           DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
           OUTPUT_DIRECTORY="./uniffi-bindings"
 
-          for LANGUAGE in "swift" "kotlin" "python" 
+          for LANGUAGE in "swift" "kotlin" "python"
           do
             cargo run \
               --manifest-path="./crates/uniffi-bindgen/Cargo.toml" -- \
@@ -236,6 +240,7 @@ jobs:
           name: uniffi-bindings
           path: uniffi-bindings
   publish-swift-spm:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     steps:
@@ -367,6 +372,7 @@ jobs:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -397,6 +403,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-kotlin-maven-central:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -457,6 +464,7 @@ jobs:
           arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -494,6 +502,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-dotnet-nuget:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -549,6 +558,7 @@ jobs:
         working-directory: interop/csharp/
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
   publish-python-package:
+    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -633,5 +643,54 @@ jobs:
           TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
         run: |
           python3 -m twine upload dist/* --verbose
-  
-
+  publish-go-package:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: radixdlt/radix-engine-toolkit-go
+          token: ${{ secrets.RET_GO_REPO }}
+          path: radix-engine-toolkit-go
+      - uses: RDXWorks-actions/download-artifact@main
+        with:
+          path: artifacts
+      - name: Set up Go
+        run: |
+          wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+          printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+          source $HOME/.profile
+      - name: Install goreleaser
+        run: go install github.com/goreleaser/goreleaser@latest
+      - name: Copy bindings
+        run: |
+          mkdir -p ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
+          cp ./artifacts/uniffi-bindings/radix-engine-toolkit-uniffi ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
+      - name: Update git repo
+        run: |
+          git add -A
+          git commit -m 'Updated binding for version ${{ inputs.go-version }}'
+          git push
+          git tag -a ${{ inputs.go-version }} -m "Updated binding to latest version"
+          git push origin --tags
+      - name: Copy Dynamic Libraries
+        run: |
+          cd artifacts
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz /radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz /radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz /radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz /radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz /radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/libradix_engine_toolkit_uniffi.dll
+          cd ..
+          mkdir -p ./radix-engine-toolkit-go/lib
+          cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
+      - name: Release Go package
+        run: |
+          goreleaser check
+          goreleaser release --clean
