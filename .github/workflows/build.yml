@@ -651,11 +651,20 @@ jobs:
       id-token: write
       packages: write
     steps:
+      - name: Fetch secrets
+        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: ${{ secrets.AWS_RET_ROLE_NAME }}
+          app_name: 'radix-engine-toolkit'
+          step_name: 'ssh-git-creds'
+          secret_prefix: 'RET_GO_REPO'
+          secret_name: "github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo"
+          parse_json: true
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
         with:
           repository: radixdlt/radix-engine-toolkit-go
-          token: ${{ secrets.RET_GO_REPO }}
+          ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
           path: radix-engine-toolkit-go
       - uses: RDXWorks-actions/download-artifact@main
         with:
