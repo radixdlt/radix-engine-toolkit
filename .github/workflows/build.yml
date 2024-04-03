@@ -682,17 +682,18 @@ jobs:
         run: go install github.com/goreleaser/goreleaser@latest
       - name: Copy bindings
         run: |
-          mkdir -p ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
-          cp -r ./artifacts/uniffi-bindings/radix-engine-toolkit-uniffi* ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
-          cd radix-engine-toolkit-go
-          ls -R
+          mkdir -p ./radix-engine-toolkit-go/radix_enigne_toolkit_uniffi
+          cp ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi ./radix-engine-toolkit-go/radix_enigne_toolkit_uniffi
       - name: Update git repo
         run: |
+          cd radix-engine-toolkit-go
+          ls -R
           git add -A
           git commit -m 'Updated binding for version ${{ inputs.go-version }}'
           git push
-          git tag -a ${{ inputs.go-version }} -m "Updated binding to latest version"
+          git tag -a ${{ inputs.go-version }} -m "Updated binding to the latest version"
           git push origin --tags
+          cd ..
       - name: Copy Dynamic Libraries
         run: |
           cd artifacts
