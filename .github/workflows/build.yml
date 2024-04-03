@@ -709,5 +709,5 @@ jobs:
       - name: Release Go package
         run: |
           cd radix-engine-toolkit-go
-          goreleaser check
-          goreleaser release --clean
+          ../go/bin/goreleaser check
+          ../go/bin/goreleaser release --clean
