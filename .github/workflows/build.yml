@@ -688,6 +688,8 @@ jobs:
         run: |
           cd radix-engine-toolkit-go
           ls -R
+          git config user.name "radixbot"
+          git config user.email "<>"
           git add -A
           git commit -m 'Updated binding for version ${{ inputs.go-version }}'
           git push
