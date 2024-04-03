@@ -199,7 +199,7 @@ jobs:
       - name: Clone uniffi-bindgen-go
         uses: RDXWorks-actions/checkout@main
         with:
-          repository: https://github.com/NordSecurity/uniffi-bindgen-go
+          repository: NordSecurity/uniffi-bindgen-go
           path: uniffi-bindgen-go
           submodules: 'recursive'
           ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
