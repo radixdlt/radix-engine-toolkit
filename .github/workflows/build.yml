@@ -683,7 +683,9 @@ jobs:
       - name: Copy bindings
         run: |
           mkdir -p ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
-          cp ./artifacts/uniffi-bindings/radix-engine-toolkit-uniffi ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
+          cp -r ./artifacts/uniffi-bindings/radix-engine-toolkit-uniffi ./radix-engine-toolkit-go/radix-enigne-toolkit-uniffi
+          cd radix-engine-toolkit-go
+          ls -R
       - name: Update git repo
         run: |
           git add -A
