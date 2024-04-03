@@ -698,14 +698,14 @@ jobs:
           cd ..
       - name: Copy Dynamic Libraries
         run: |
-          cd artifacts
-          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz /radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
-          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz /radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
-          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz /radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
-          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz /radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
-          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz /radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/libradix_engine_toolkit_uniffi.dll
-          cd ..
           mkdir -p ./radix-engine-toolkit-go/lib
+          cd artifacts
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/libradix_engine_toolkit_uniffi.dll
+          cd ..
           cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
       - name: Release Go package
         run: |
