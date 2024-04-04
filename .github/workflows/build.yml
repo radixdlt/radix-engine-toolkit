@@ -682,9 +682,6 @@ jobs:
         run: |
           export GOBIN=$RUNNER_WORKSPACE/go
           go install github.com/goreleaser/goreleaser@latest
-          printenv
-          pwd
-          find / -name goreleaser 2>/dev/null
           $GOBIN/goreleaser --version
       - name: Copy bindings
         run: |
