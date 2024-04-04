@@ -657,12 +657,18 @@ jobs:
           role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
           aws-region: eu-west-2
           role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
-      - name: Fetch AWS secrets
+      - name: Fetch AWS secrets for SSH
         uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
         with:
           parse-json-secrets: false
           secret-ids: |
             RET_GO_REPO_SSH_KEY,github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo
+      - name: Fetch AWS secrets for GoReleaser
+        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
+        with:
+          parse-json-secrets: true
+          secret-ids:
+            GORELEASER,github-actions/radixdlt/radix-engine-toolkit/goreleaser
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
         with:
@@ -716,3 +722,5 @@ jobs:
           ls -R
           $GOBIN/goreleaser check
           $GOBIN/goreleaser release --clean
+        env:
+          GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
