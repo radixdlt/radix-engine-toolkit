@@ -693,7 +693,7 @@ jobs:
           git config user.name "radixbot"
           git config user.email "<>"
           git add -A
-          git commit -m 'Updated binding for version ${{ inputs.go-version }}'
+          git commit --allow-empty -m 'Updated binding for version ${{ inputs.go-version }}'
           git push
           git tag -a ${{ inputs.go-version }} -m "Updated binding to the latest version"
           git push origin --tags
@@ -711,7 +711,8 @@ jobs:
           cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
       - name: Release Go package
         run: |
-          ls -R
+          export GOBIN=$RUNNER_WORKSPACE/go
           cd radix-engine-toolkit-go
+          ls -R
           $GOBIN/goreleaser check
           $GOBIN/goreleaser release --clean
