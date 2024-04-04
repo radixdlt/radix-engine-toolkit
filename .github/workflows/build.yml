@@ -679,7 +679,12 @@ jobs:
           printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
           source $HOME/.profile
       - name: Install goreleaser
-        run: go install github.com/goreleaser/goreleaser@latest
+        run: |
+          go install github.com/goreleaser/goreleaser@latest
+          printenv
+          pwd
+          find / -name goreleaser 2>/dev/null
+          goreleaser --version
       - name: Copy bindings
         run: |
           mkdir -p ./radix-engine-toolkit-go/radix_engine_toolkit_uniffi
