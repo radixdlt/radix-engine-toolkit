@@ -680,11 +680,12 @@ jobs:
           source $HOME/.profile
       - name: Install goreleaser
         run: |
+          export GOBIN=$RUNNER_WORKSPACE/go
           go install github.com/goreleaser/goreleaser@latest
           printenv
           pwd
           find / -name goreleaser 2>/dev/null
-          goreleaser --version
+          $GOBIN/goreleaser --version
       - name: Copy bindings
         run: |
           mkdir -p ./radix-engine-toolkit-go/radix_engine_toolkit_uniffi
@@ -715,5 +716,5 @@ jobs:
         run: |
           ls -R
           cd radix-engine-toolkit-go
-          ../bin/goreleaser check
-          ../bin/goreleaser release --clean
+          $GOBIN/goreleaser check
+          $GOBIN/goreleaser release --clean
