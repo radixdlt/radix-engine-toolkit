@@ -708,6 +708,7 @@ jobs:
           cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
       - name: Release Go package
         run: |
+          ls -R
           cd radix-engine-toolkit-go
-          ../go/bin/goreleaser check
-          ../go/bin/goreleaser release --clean
+          ../bin/goreleaser check
+          ../bin/goreleaser release --clean
