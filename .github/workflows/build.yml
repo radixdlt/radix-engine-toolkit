@@ -681,7 +681,7 @@ jobs:
       - name: Install goreleaser
         run: |
           export GOBIN=$RUNNER_WORKSPACE/go
-          go install github.com/goreleaser/goreleaser@latest
+          go install github.com/goreleaser/goreleaser@v1.25.1
           $GOBIN/goreleaser --version
       - name: Copy bindings
         run: |
