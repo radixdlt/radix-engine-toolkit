@@ -7,23 +7,23 @@ on:
       swift-version:
         type: string
         required: true
-        description: The version to use for the Swift package
+        description: The version to use for the Swift package (format: v1.2.3)
       kotlin-version:
         type: string
         required: true
-        description: The version to use for the Kotlin & Android packages
+        description: The version to use for the Kotlin & Android packages (format: v1.2.3)
       python-version:
         type: string
         required: true
-        description: The version to use for the Python package
+        description: The version to use for the Python package (format: v1.2.3)
       cs-version:
         type: string
         required: true
-        description: The version to use for the C# package
+        description: The version to use for the C# package (format: 1.2.3)
       go-version:
         type: string
         required: true
-        description: The version to use for the Go package
+        description: The version to use for the Go package (format: v1.2.3)
       ref:
         type: string
         default: "main"
@@ -240,7 +240,6 @@ jobs:
           name: uniffi-bindings
           path: uniffi-bindings
   publish-swift-spm:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     steps:
@@ -372,7 +371,6 @@ jobs:
           name: "RadixEngineToolkit.xcframework"
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -403,7 +401,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-kotlin-maven-central:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -464,7 +461,6 @@ jobs:
           arguments: build javadoc publishMavenCentralPublicationToMavenCentralRepository -Psigning.secretKeyRingFile=rdx-secring.gpg -Psigning.password=${{ env.GPG_PASSPHRASE_GPG_PASSPHRASE }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -PossrhUsername=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_USERNAME }} -PossrhPassword=${{ env.MAVEN_CENTRAL_MAVEN_CENTRAL_PASSWORD }}
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
     permissions:
@@ -502,7 +498,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-dotnet-nuget:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -523,9 +518,7 @@ jobs:
       - name: Configure Version
         run: |
           VERSION=${{ inputs.cs-version }}
-  
           sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
-  
           echo "Configured Version: $VERSION"
       - name: Copying UniFFI Bindings
         run: |
@@ -536,19 +529,14 @@ jobs:
         run: |
           # We copy the UniFFI bindings to the interop/csharp/native directory
           mkdir ./interop/csharp/native
-  
           mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
-          
           mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
-          
           mkdir ./interop/csharp/native/x86_64-apple-darwin
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
-          
           mkdir ./interop/csharp/native/aarch64-apple-darwin
           cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
-          
           mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
       - name: NuGet Pack
@@ -558,7 +546,6 @@ jobs:
         working-directory: interop/csharp/
         run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
   publish-python-package:
-    if: false
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
     permissions:
@@ -589,7 +576,7 @@ jobs:
         with:
           python-version: 3.11
       - name: Install Dependencies
-        run: | 
+        run: |
           python3 -m pip install black build twine
           sudo apt-get install mypy
       - name: Copy bindings
@@ -719,7 +706,6 @@ jobs:
         run: |
           export GOBIN=$RUNNER_WORKSPACE/go
           cd radix-engine-toolkit-go
-          ls -R
           $GOBIN/goreleaser check
           $GOBIN/goreleaser release --clean
         env:
