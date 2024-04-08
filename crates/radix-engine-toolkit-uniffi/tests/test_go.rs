@@ -71,6 +71,8 @@ fn uniffi_foreign_language_testcase_example_go() {
 
     let mut out_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     out_dir.push("output");
+    let mut config_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    config_path.push("uniffi.toml");
 
     // Generate go binding module
     assert!(
@@ -80,7 +82,9 @@ fn uniffi_foreign_language_testcase_example_go() {
                 "--lib-file",
                 target_path.display().to_string().as_str(),
                 "--out-dir",
-                out_dir.display().to_string().as_str()
+                out_dir.display().to_string().as_str(),
+                "--config",
+                config_path.display().to_string().as_str()
             ])
             .status()
             .is_ok(),

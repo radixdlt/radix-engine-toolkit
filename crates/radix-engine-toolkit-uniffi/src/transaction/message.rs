@@ -63,39 +63,8 @@ pub enum DecryptorsByCurve {
 pub type AesWrapped128BitKey = Vec<u8>;
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
-pub struct PublicKeyFingerprint(String);
-const PUBLIC_KEY_FINGERPRINT_LEN: usize = NativePublicKeyFingerprint::LENGTH;
-impl From<[u8; PUBLIC_KEY_FINGERPRINT_LEN]> for PublicKeyFingerprint {
-    fn from(value: [u8; PUBLIC_KEY_FINGERPRINT_LEN]) -> Self {
-        Self(hex::encode(value))
-    }
-}
-impl TryInto<[u8; PUBLIC_KEY_FINGERPRINT_LEN]> for PublicKeyFingerprint {
-    type Error = RadixEngineToolkitError;
-
-    fn try_into(self) -> Result<[u8; PUBLIC_KEY_FINGERPRINT_LEN]> {
-        let data = hex::decode(self.0).map_err(|e| {
-            RadixEngineToolkitError::DecodeError {
-                error: format!(
-                    "PublicKeyFingerprint decoding hex error: {:?}",
-                    e
-                )
-                .into(),
-            }
-        })?;
-        data.iter()
-            .take(PUBLIC_KEY_FINGERPRINT_LEN)
-            .map(|v| *v)
-            .collect::<Vec<_>>()
-            .try_into()
-            .map_err(|_| RadixEngineToolkitError::InvalidLength {
-                expected: PUBLIC_KEY_FINGERPRINT_LEN as u64,
-                actual: data.len() as u64,
-                data,
-            })
-    }
-}
-uniffi::custom_newtype!(PublicKeyFingerprint, String);
+pub struct PublicKeyFingerprint(Vec<u8>);
+uniffi::custom_newtype!(PublicKeyFingerprint, Vec<u8>);
 
 //==================
 // From Trait Impls
@@ -111,7 +80,9 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 dh_ephemeral_public_key: dh_ephemeral_public_key.into(),
                 decryptors: decryptors
                     .into_iter()
-                    .map(|(key, value)| (key.0.into(), value.0.into()))
+                    .map(|(key, value)| {
+                        (PublicKeyFingerprint(key.0.into()), value.0.into())
+                    })
                     .collect(),
             },
             NativeDecryptorsByCurve::Ed25519 {
@@ -121,7 +92,9 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 dh_ephemeral_public_key: dh_ephemeral_public_key.into(),
                 decryptors: decryptors
                     .into_iter()
-                    .map(|(key, value)| (key.0.into(), value.0.into()))
+                    .map(|(key, value)| {
+                        (PublicKeyFingerprint(key.0.into()), value.0.into())
+                    })
                     .collect(),
             },
         }
@@ -141,8 +114,17 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.try_into().map(NativePublicKeyFingerprint).and_then(
-                            |key| {
+                        key.0
+                            .try_into()
+                            .map(NativePublicKeyFingerprint)
+                            .map_err(|e| RadixEngineToolkitError::DecodeError {
+                                error: format!(
+                                    "PublicKeyFingerprint decoding error: {:?}",
+                                    e
+                                )
+                                .into(),
+                            })
+                            .and_then(|key| {
                                 value
                                     .try_into()
                                     .map(NativeAesWrapped128BitKey)
@@ -156,8 +138,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                         }
                                     })
                                     .map(|value| (key, value))
-                            },
-                        )
+                            })
                     })
                     .collect::<Result<_>>()?,
             }),
@@ -169,8 +150,17 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.try_into().map(NativePublicKeyFingerprint).and_then(
-                            |key| {
+                        key.0
+                            .try_into()
+                            .map(NativePublicKeyFingerprint)
+                            .map_err(|e| RadixEngineToolkitError::DecodeError {
+                                error: format!(
+                                    "PublicKeyFingerprint decoding error: {:?}",
+                                    e
+                                )
+                                .into(),
+                            })
+                            .and_then(|key| {
                                 value
                                     .try_into()
                                     .map(NativeAesWrapped128BitKey)
@@ -184,8 +174,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                         }
                                     })
                                     .map(|value| (key, value))
-                            },
-                        )
+                            })
                     })
                     .collect::<Result<_>>()?,
             }),
