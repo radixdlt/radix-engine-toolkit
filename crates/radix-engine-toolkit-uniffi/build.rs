@@ -20,5 +20,5 @@ pub fn main() {
         .expect("Build script panics can be ignored");
 
     #[cfg(target_os = "macos")]
-    println!("cargo:rustc-link-arg=-Wl,-install_name,libradix_engine_toolkit_uniffi.dylib,-current_version,1.0.10");
+    println!("cargo:rustc-link-arg=-Wl,-install_name,libradix_engine_toolkit_uniffi.dylib,-current_version,{}", env!("CARGO_PKG_VERSION"));
 }
