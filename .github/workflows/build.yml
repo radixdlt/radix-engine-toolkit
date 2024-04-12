@@ -703,10 +703,12 @@ jobs:
           cd ..
           cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
       - name: Release Go package
+        env:
+          GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
         run: |
           export GOBIN=$RUNNER_WORKSPACE/go
           cd radix-engine-toolkit-go
           $GOBIN/goreleaser check
           $GOBIN/goreleaser release --clean
-        env:
-          GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
+      - name: Updated pkg.go.dev cache
+        run: curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
