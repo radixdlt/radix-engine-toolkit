@@ -15,5 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod functions;
-pub mod hashable_bytes;
+use crate::prelude::*;
+
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
+pub struct HashableBytes(pub(crate) Vec<u8>);
+uniffi::custom_newtype!(HashableBytes, Vec<u8>);

@@ -16,6 +16,7 @@
 // under the License.
 
 use crate::prelude::*;
+use crate::utils::hashable_bytes::HashableBytes;
 
 #[derive(Clone, Debug, Enum)]
 pub enum Message {
@@ -61,10 +62,7 @@ pub enum DecryptorsByCurve {
 }
 
 pub type AesWrapped128BitKey = Vec<u8>;
-
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
-pub struct PublicKeyFingerprint(Vec<u8>);
-uniffi::custom_newtype!(PublicKeyFingerprint, Vec<u8>);
+pub type PublicKeyFingerprint = HashableBytes;
 
 //==================
 // From Trait Impls
@@ -81,7 +79,7 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        (PublicKeyFingerprint(key.0.into()), value.0.into())
+                        (HashableBytes(key.0.into()), value.0.into())
                     })
                     .collect(),
             },
@@ -93,7 +91,7 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        (PublicKeyFingerprint(key.0.into()), value.0.into())
+                        (HashableBytes(key.0.into()), value.0.into())
                     })
                     .collect(),
             },

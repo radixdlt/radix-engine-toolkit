@@ -6,7 +6,7 @@ namespace_name = "RadixEngineToolkit"
 
 namespace = "RadixEngineToolkit"
 
-[bindings.go.custom_types.PublicKeyFingerprint]
+[bindings.go.custom_types.HashableBytes]
 type_name = "string"
 from_custom = "[]byte({})"
 into_custom = "return string({})"

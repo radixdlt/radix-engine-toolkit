@@ -2,8 +2,8 @@ package main
 
 /*
  To build this file manually export following environment variable:
- `export CGO_LDFLAGS="-L<path to directory with libradix_engine_toolkit_uniffi library> -lradix_engine_toolkit_uniffi"`
- Ensure generated Go bindings are in ../../output/ folder.
+ `export CGO_LDFLAGS="-L. -lradix_engine_toolkit_uniffi"`
+ Ensure generated Go bindings are in ../../output/ folder, and generated dynamic library is in this folder.
  Execute tests with command:
  `GO111MODULE=auto go test -v`
 */
