@@ -711,4 +711,4 @@ jobs:
           $GOBIN/goreleaser check
           $GOBIN/goreleaser release --clean
       - name: Update pkg.go.dev cache
-        run: curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
+        run: sleep 5 && curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
