@@ -7,19 +7,23 @@ on:
       swift-version:
         type: string
         required: true
-        description: The version to use for the Swift package
+        description: The version to use for the Swift package (format v1.2.3)
       kotlin-version:
         type: string
         required: true
-        description: The version to use for the Kotlin & Android packages
+        description: The version to use for the Kotlin & Android packages (format v1.2.3)
       python-version:
         type: string
         required: true
-        description: The version to use for the Python package
+        description: The version to use for the Python package (format v1.2.3)
       cs-version:
         type: string
         required: true
-        description: The version to use for the C# package
+        description: The version to use for the C# package (format 1.2.3)
+      go-version:
+        type: string
+        required: true
+        description: The version to use for the Go package (format v1.2.3)
       ref:
         type: string
         default: "main"
@@ -119,7 +123,7 @@ jobs:
       # Installing Build Dependencies
       - name: Build Dependencies (aarch64 linux)
         if: ${{ matrix.build-target.target-triple == 'aarch64-unknown-linux-gnu' }}
-        run: | 
+        run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
@@ -159,14 +163,14 @@ jobs:
 
       - name: Build
         working-directory: crates/${{ matrix.build-target.crate }}
-        env: 
+        env:
           # The minumum iOS version of the iOS builds - has no effect outside
           # iOS builds.
           IPHONEOS_DEPLOYMENT_TARGET: "11.0"
           # Enable sccache
           SCCACHE_GHA_ENABLED: "true"
           # RUSTC_WRAPPER: "sccache"
-        run: | 
+        run: |
           echo $IPHONEOS_DEPLOYMENT_TARGET
           cargo build \
             --target ${{ matrix.build-target.target-triple }} \
@@ -192,6 +196,13 @@ jobs:
           path: uniffi-bindgen-cs
           submodules: 'recursive'
           ref: bc78e828d86ffb2d0e674ddc990726c78299ff89
+      - name: Clone uniffi-bindgen-go
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: NordSecurity/uniffi-bindgen-go
+          path: uniffi-bindgen-go
+          submodules: 'recursive'
+          ref: 062d054e8ffd9206fc5231d6eba074d3b40cada9
       - uses: RDXWorks-actions/download-artifact@main
         with:
           path: artifacts
@@ -201,7 +212,7 @@ jobs:
           DYNAMIC_LIBRARY_PATH="./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so"
           OUTPUT_DIRECTORY="./uniffi-bindings"
 
-          for LANGUAGE in "swift" "kotlin" "python" 
+          for LANGUAGE in "swift" "kotlin" "python"
           do
             cargo run \
               --manifest-path="./crates/uniffi-bindgen/Cargo.toml" -- \
@@ -216,6 +227,13 @@ jobs:
             ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
             --out-dir $OUTPUT_DIRECTORY \
             --lib-file $DYNAMIC_LIBRARY_PATH
+
+          cargo run \
+            --manifest-path="./uniffi-bindgen-go/bindgen/Cargo.toml" -- \
+            ./crates/radix-engine-toolkit-uniffi/src/radix_engine_toolkit_uniffi.udl \
+            --out-dir $OUTPUT_DIRECTORY \
+            --lib-file $DYNAMIC_LIBRARY_PATH \
+            --no-format
       - name: Upload Artifacts
         uses: RDXWorks-actions/upload-artifact@main
         with:
@@ -500,9 +518,7 @@ jobs:
       - name: Configure Version
         run: |
           VERSION=${{ inputs.cs-version }}
-  
           sed -i "s/\(<version>\)[^<>]*\(<\/version>\)/\1$VERSION\2/g" ./interop/csharp/RadixDlt.RadixEngineToolkit.nuspec
-  
           echo "Configured Version: $VERSION"
       - name: Copying UniFFI Bindings
         run: |
@@ -513,19 +529,14 @@ jobs:
         run: |
           # We copy the UniFFI bindings to the interop/csharp/native directory
           mkdir ./interop/csharp/native
-  
           mkdir ./interop/csharp/native/x86_64-unknown-linux-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/x86_64-unknown-linux-gnu
-          
           mkdir ./interop/csharp/native/aarch64-unknown-linux-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so ./interop/csharp/native/aarch64-unknown-linux-gnu
-          
           mkdir ./interop/csharp/native/x86_64-apple-darwin
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/x86_64-apple-darwin
-          
           mkdir ./interop/csharp/native/aarch64-apple-darwin
           cp ./artifacts/radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib ./interop/csharp/native/aarch64-apple-darwin
-          
           mkdir ./interop/csharp/native/x86_64-pc-windows-gnu
           cp ./artifacts/radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll ./interop/csharp/native/x86_64-pc-windows-gnu
       - name: NuGet Pack
@@ -565,7 +576,7 @@ jobs:
         with:
           python-version: 3.11
       - name: Install Dependencies
-        run: | 
+        run: |
           python3 -m pip install black build twine
           sudo apt-get install mypy
       - name: Copy bindings
@@ -619,5 +630,85 @@ jobs:
           TWINE_PASSWORD: ${{ env.PYPI_PASSWORD }}
         run: |
           python3 -m twine upload dist/* --verbose
-  
-
+  publish-go-package:
+    needs: [build, generate-uniffi-bindings]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: Configure AWS credentials to fetch secrets
+        uses: RDXWorks-actions/configure-aws-credentials@main
+        with:
+          role-to-assume: ${{ secrets.AWS_RET_ROLE_NAME }}
+          aws-region: eu-west-2
+          role-session-name: ret-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Fetch AWS secrets for SSH
+        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
+        with:
+          parse-json-secrets: false
+          secret-ids: |
+            RET_GO_REPO_SSH_KEY,github-actions/radixdlt/radix-engine-toolkit/ssh-ret-go-repo
+      - name: Fetch AWS secrets for GoReleaser
+        uses: RDXWorks-actions/aws-secretsmanager-get-secrets@main
+        with:
+          parse-json-secrets: true
+          secret-ids:
+            GORELEASER,github-actions/radixdlt/radix-engine-toolkit/goreleaser
+      - name: Checkout
+        uses: RDXWorks-actions/checkout@main
+        with:
+          repository: radixdlt/radix-engine-toolkit-go
+          ssh-key: ${{ env.RET_GO_REPO_SSH_KEY }}
+          path: radix-engine-toolkit-go
+      - uses: RDXWorks-actions/download-artifact@main
+        with:
+          path: artifacts
+      - name: Set up Go
+        run: |
+          wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+          printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+          source $HOME/.profile
+      - name: Install goreleaser
+        run: |
+          export GOBIN=$RUNNER_WORKSPACE/go
+          go install github.com/goreleaser/goreleaser@6a7a9ba3995728a4bdf7b5fff770d8caeb3d2cc8
+          $GOBIN/goreleaser --version
+      - name: Copy bindings
+        run: |
+          mkdir -p ./radix-engine-toolkit-go/radix_engine_toolkit_uniffi
+          cp -r ./artifacts/uniffi-bindings/radix_engine_toolkit_uniffi ./radix-engine-toolkit-go
+      - name: Update git repo
+        run: |
+          cd radix-engine-toolkit-go
+          git config user.name "radixbot"
+          git config user.email "<>"
+          git add -A
+          git commit --allow-empty -m 'Updated binding for version ${{ inputs.go-version }}'
+          git push
+          git tag -a ${{ inputs.go-version }} -m "Updated binding to the latest version"
+          git push origin --tags
+          cd ..
+      - name: Copy Dynamic Libraries
+        run: |
+          mkdir -p ./radix-engine-toolkit-go/lib
+          cd artifacts
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-aarch64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_apple_darwin.tar.gz ./radix-engine-toolkit-uniffi-x86_64-apple-darwin/libradix_engine_toolkit_uniffi.dylib
+          tar -zcvf libradix_engine_toolkit_uniffi_aarch64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-aarch64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_unknown_linux_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-unknown-linux-gnu/libradix_engine_toolkit_uniffi.so
+          tar -zcvf libradix_engine_toolkit_uniffi_x86_64_pc_windows_gnu.tar.gz ./radix-engine-toolkit-uniffi-x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll
+          cd ..
+          cp ./artifacts/*.tar.gz ./radix-engine-toolkit-go/lib
+      - name: Release Go package
+        env:
+          GITHUB_TOKEN: ${{ env.GORELEASER_TOKEN }}
+        run: |
+          export GOBIN=$RUNNER_WORKSPACE/go
+          cd radix-engine-toolkit-go
+          $GOBIN/goreleaser check
+          $GOBIN/goreleaser release --clean
+      - name: Update pkg.go.dev cache
+        run: sleep 5 && curl 'https://sum.golang.org/lookup/github.com/radixdlt/radix-engine-toolkit-go@${{ inputs.go-version }}'
