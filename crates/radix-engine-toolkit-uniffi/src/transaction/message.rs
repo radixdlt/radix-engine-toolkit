@@ -62,7 +62,25 @@ pub enum DecryptorsByCurve {
 }
 
 pub type AesWrapped128BitKey = Vec<u8>;
-pub type PublicKeyFingerprint = HashableBytes;
+
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Record)]
+pub struct PublicKeyFingerprint {
+    bytes: HashableBytes,
+}
+
+// required for conversion tests on bindgen side
+#[uniffi::export]
+pub fn public_key_fingerprint_from_vec(bytes: Vec<u8>) -> PublicKeyFingerprint {
+    PublicKeyFingerprint {
+        bytes: HashableBytes(bytes),
+    }
+}
+
+// required for conversion tests on bindgen side
+#[uniffi::export]
+pub fn public_key_fingerprint_to_vec(value: PublicKeyFingerprint) -> Vec<u8> {
+    value.bytes.0
+}
 
 //==================
 // From Trait Impls
@@ -79,7 +97,10 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        (HashableBytes(key.0.into()), value.0.into())
+                        (
+                            public_key_fingerprint_from_vec(key.0.into()),
+                            value.0.into(),
+                        )
                     })
                     .collect(),
             },
@@ -91,7 +112,10 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        (HashableBytes(key.0.into()), value.0.into())
+                        (
+                            public_key_fingerprint_from_vec(key.0.into()),
+                            value.0.into(),
+                        )
                     })
                     .collect(),
             },
@@ -112,7 +136,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.0
+                        public_key_fingerprint_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| {
@@ -149,7 +173,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.0
+                        public_key_fingerprint_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| {

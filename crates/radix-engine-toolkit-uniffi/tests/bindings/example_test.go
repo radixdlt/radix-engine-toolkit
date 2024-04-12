@@ -10,6 +10,7 @@ package main
 
 import (
 	"encoding/hex"
+	"reflect"
 	"testing"
 
 	"../../output/radix_engine_toolkit_uniffi"
@@ -187,4 +188,15 @@ func TestRetNotarizedTransaction(t *testing.T) {
 		"a990186eb75f7092e496c54aef84062200012101200741018588242bce5f10c823b7a7cc59cafaa958e2380a95867ee1f7b" +
 		"e78f8772092300373c892fb35f22f1392e2b9edd0833c3d655961e400ae954d2a6e18d1ad55e8",
 		"Notarized Transaction bytes not equal")
+}
+
+func TestRetPublicKeyFingerprint(t *testing.T) {
+	var bytes = []byte{65, 66, 67, 68, 69, 70, 71, 72, 73, 74}
+	var fingerprint = radix_engine_toolkit_uniffi.PublicKeyFingerprintFromVec(bytes)
+	var converted = radix_engine_toolkit_uniffi.PublicKeyFingerprintToVec(fingerprint)
+
+	assert(t, len(fingerprint.Bytes) == 10, "Length of string is invalid")
+	assert(t, fingerprint.Bytes == "ABCDEFGHIJ", "Conversion of string failed")
+	assert(t, len(converted) == 10, "Length of byte array is invalid")
+	assert(t, reflect.DeepEqual(converted, bytes), "Conversion of byte array failed")
 }
