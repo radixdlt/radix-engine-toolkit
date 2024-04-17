@@ -1,5 +1,8 @@
 # Radix Engine Toolkit
 
+> [!NOTE]  
+> The Radix Engine Toolkit is documented more thoroughly in our documentation site in the [Radix Engine Toolkit](https://docs.radixdlt.com/docs/radix-engine-toolkit) section. The documentation provided there is more appropriate for users while the documentation provided here might be more appropriate for contributors.
+
 The Radix Engine Toolkit is a multiplatform library written in Rust that exposes a set of functions to help clients written in languages other than Rust compile and decompile transactions, perform SBOR encoding and decoding, derive virtual account and virtual badge addresses, and other functionalities.
 
 ## Background
