@@ -16,3 +16,4 @@
 // under the License.
 
 pub mod functions;
+pub mod hashable_bytes;

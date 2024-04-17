@@ -660,6 +660,24 @@ pub impl ResourceSpecifier {
             Self::Amount(x, ..) | Self::Ids(x, ..) => *x,
         }
     }
+    fn amount(&self) -> Option<&Decimal> {
+        match self {
+            Self::Amount(.., amount) => Some(amount),
+            _ => None,
+        }
+    }
+    fn ids(&self) -> Option<&IndexSet<NonFungibleLocalId>> {
+        match self {
+            Self::Ids(.., ids) => Some(ids),
+            _ => None,
+        }
+    }
+    fn is_empty(&self) -> bool {
+        match self {
+            Self::Ids(.., ids) => ids.is_empty(),
+            Self::Amount(.., amount) => amount.is_zero(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

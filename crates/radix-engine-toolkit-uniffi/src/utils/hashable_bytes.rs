@@ -15,10 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub fn main() {
-    uniffi::generate_scaffolding("src/radix_engine_toolkit_uniffi.udl")
-        .expect("Build script panics can be ignored");
+use crate::prelude::*;
 
-    #[cfg(target_os = "macos")]
-    println!("cargo:rustc-link-arg=-Wl,-install_name,libradix_engine_toolkit_uniffi.dylib,-current_version,{}", env!("CARGO_PKG_VERSION"));
-}
+#[derive(Clone, Debug, Hash, Eq, PartialEq)]
+pub struct HashableBytes(pub(crate) Vec<u8>);
+uniffi::custom_newtype!(HashableBytes, Vec<u8>);

@@ -26,6 +26,13 @@ jobs:
       run: wget https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar
     - name: Run sccache-cache
       uses: RDXWorks-actions/sccache-action@main
+    - name: Install Golang & uniffi-bindgen-go
+      run: |
+        wget https://go.dev/dl/go1.22.1.linux-amd64.tar.gz
+        sudo tar -C /usr/local -xzf go1.22.1.linux-amd64.tar.gz
+        printf '\nexport PATH=$PATH:/usr/local/go/bin' >> $HOME/.profile
+        source $HOME/.profile
+        cargo install uniffi-bindgen-go --git https://github.com/NordSecurity/uniffi-bindgen-go --tag v0.2.1+v0.25.0
     - name: Run tests
       run: CLASSPATH="$PWD/jna-5.13.0.jar" cargo nextest run
       env:

@@ -16,6 +16,7 @@
 // under the License.
 
 use crate::prelude::*;
+use crate::utils::hashable_bytes::HashableBytes;
 
 #[derive(Clone, Debug, PartialEq, Eq, Enum)]
 pub enum Message {
@@ -61,7 +62,25 @@ pub enum DecryptorsByCurve {
 }
 
 pub type AesWrapped128BitKey = Vec<u8>;
-pub type PublicKeyFingerprint = Vec<u8>;
+
+#[derive(Clone, Debug, Hash, Eq, PartialEq, Record)]
+pub struct PublicKeyFingerprint {
+    bytes: HashableBytes,
+}
+
+// required for conversion tests on bindgen side
+#[uniffi::export]
+pub fn public_key_fingerprint_from_vec(bytes: Vec<u8>) -> PublicKeyFingerprint {
+    PublicKeyFingerprint {
+        bytes: HashableBytes(bytes),
+    }
+}
+
+// required for conversion tests on bindgen side
+#[uniffi::export]
+pub fn public_key_fingerprint_to_vec(value: PublicKeyFingerprint) -> Vec<u8> {
+    value.bytes.0
+}
 
 //==================
 // From Trait Impls
@@ -77,7 +96,12 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 dh_ephemeral_public_key: dh_ephemeral_public_key.into(),
                 decryptors: decryptors
                     .into_iter()
-                    .map(|(key, value)| (key.0.into(), value.0.into()))
+                    .map(|(key, value)| {
+                        (
+                            public_key_fingerprint_from_vec(key.0.into()),
+                            value.0.into(),
+                        )
+                    })
                     .collect(),
             },
             NativeDecryptorsByCurve::Ed25519 {
@@ -87,7 +111,12 @@ impl From<NativeDecryptorsByCurve> for DecryptorsByCurve {
                 dh_ephemeral_public_key: dh_ephemeral_public_key.into(),
                 decryptors: decryptors
                     .into_iter()
-                    .map(|(key, value)| (key.0.into(), value.0.into()))
+                    .map(|(key, value)| {
+                        (
+                            public_key_fingerprint_from_vec(key.0.into()),
+                            value.0.into(),
+                        )
+                    })
                     .collect(),
             },
         }
@@ -107,11 +136,12 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.try_into()
+                        public_key_fingerprint_to_vec(key)
+                            .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| {
                                 RadixEngineToolkitError::InvalidLength {
-                                    expected: NativeSecp256k1PublicKey::LENGTH
+                                    expected: NativePublicKeyFingerprint::LENGTH
                                         as u64,
                                     actual: value.len() as u64,
                                     data: value,
@@ -124,7 +154,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
                                             expected:
-                                                NativeSecp256k1PublicKey::LENGTH
+                                            NativeAesWrapped128BitKey::LENGTH
                                                     as u64,
                                             actual: value.len() as u64,
                                             data: value,
@@ -143,11 +173,12 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        key.try_into()
+                        public_key_fingerprint_to_vec(key)
+                            .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| {
                                 RadixEngineToolkitError::InvalidLength {
-                                    expected: NativeSecp256k1PublicKey::LENGTH
+                                    expected: NativePublicKeyFingerprint::LENGTH
                                         as u64,
                                     actual: value.len() as u64,
                                     data: value,
@@ -160,7 +191,7 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
                                             expected:
-                                                NativeSecp256k1PublicKey::LENGTH
+                                            NativeAesWrapped128BitKey::LENGTH
                                                     as u64,
                                             actual: value.len() as u64,
                                             data: value,
