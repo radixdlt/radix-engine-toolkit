@@ -242,6 +242,10 @@ jobs:
   publish-swift-spm:
     needs: [build, generate-uniffi-bindings]
     runs-on: macos-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
@@ -385,6 +389,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
