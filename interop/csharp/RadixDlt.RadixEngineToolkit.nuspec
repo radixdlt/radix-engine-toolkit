@@ -23,6 +23,6 @@
     <!-- Windows Targets -->
     <file src="native/x86_64-pc-windows-gnu/radix_engine_toolkit_uniffi.dll" target="runtimes/win-x64/native/radix_engine_toolkit_uniffi.dll" />
     
-    <file src="bin\Release\net7.0\RadixDlt.RadixEngineToolkit.dll" target="lib\net7.0" />
+    <file src="bin\Release\net8.0\RadixDlt.RadixEngineToolkit.dll" target="lib\net8.0" />
   </files>
 </package>
