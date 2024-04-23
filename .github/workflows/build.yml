@@ -420,6 +420,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
     steps:
       - name: Install AWS CLI
         uses: RDXWorks-actions/install-aws-cli-action@master
@@ -517,6 +518,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
