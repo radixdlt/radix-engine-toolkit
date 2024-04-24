@@ -420,6 +420,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
     steps:
       - name: Install AWS CLI
         uses: RDXWorks-actions/install-aws-cli-action@master
@@ -432,10 +433,10 @@ jobs:
           ref: main
           token: ${{ github.token }}
           path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: 'https://github.com/github'
+#      - name: Debug OIDC Claims
+#        uses: ./.github/actions/actions-oidc-debugger
+#        with:
+#          audience: 'https://github.com/github'
       - name: Configure AWS credentials to fetch secrets
         uses: RDXWorks-actions/configure-aws-credentials@main
         with:
@@ -517,6 +518,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
