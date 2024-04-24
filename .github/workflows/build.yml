@@ -433,10 +433,10 @@ jobs:
           ref: main
           token: ${{ github.token }}
           path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: 'https://github.com/github'
+#      - name: Debug OIDC Claims
+#        uses: ./.github/actions/actions-oidc-debugger
+#        with:
+#          audience: 'https://github.com/github'
       - name: Configure AWS credentials to fetch secrets
         uses: RDXWorks-actions/configure-aws-credentials@main
         with:
