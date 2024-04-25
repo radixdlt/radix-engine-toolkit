@@ -19,7 +19,7 @@ use std::ops::Deref;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::TransactionManifestV1;
+use radix_transactions::prelude::TransactionManifestV1;
 
 use crate::prelude::*;
 

@@ -17,12 +17,11 @@
 
 use radix_engine_interface::blueprints::pool::*;
 use radix_engine_toolkit::transaction_types::ResourceSpecifierExt;
-use scrypto_unit::*;
-use transaction::prelude::*;
+use scrypto_test::prelude::*;
 mod test_runner_extension;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_toolkit::transaction_types::TrustedWorktopInstruction;
-use test_runner_extension::TestRunnerEDExt;
+use test_runner_extension::LedgerSimulatorEDExt;
 
 // helper function
 fn validate(
@@ -135,7 +134,8 @@ fn validate_ids(
 #[test]
 fn trusted_worktop_deposit_fungible_from_bucket() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let (_, _, account2) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
@@ -160,7 +160,8 @@ fn trusted_worktop_deposit_fungible_from_bucket() {
 #[test]
 fn trusted_worktop_deposit_non_fungible_from_bucket() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let (_, _, account2) = test_runner.new_allocated_account();
     let address = test_runner.create_non_fungible_resource(account);
@@ -199,7 +200,8 @@ fn trusted_worktop_deposit_non_fungible_from_bucket() {
 #[test]
 fn trusted_worktop_deposit_empty_bucket() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
 
@@ -221,7 +223,8 @@ fn trusted_worktop_deposit_empty_bucket() {
 #[test]
 fn trusted_worktop_take_empty() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address_fungible =
         test_runner.create_fungible_resource(dec!(100), 0, account);
@@ -250,7 +253,8 @@ fn trusted_worktop_take_empty() {
 #[test]
 fn trusted_worktop_take_fungible_zero() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
 
@@ -272,7 +276,8 @@ fn trusted_worktop_take_fungible_zero() {
 #[test]
 fn trusted_worktop_take_nonfungible_empty() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_non_fungible_resource(account);
 
@@ -298,7 +303,8 @@ fn trusted_worktop_take_nonfungible_empty() {
 #[test]
 fn trusted_worktop_burn_all() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner
         .create_freely_mintable_and_burnable_fungible_resource(
@@ -327,7 +333,8 @@ fn trusted_worktop_burn_all() {
 #[test]
 fn trusted_worktop_burn_empty() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner
         .create_freely_mintable_and_burnable_fungible_resource(
@@ -354,7 +361,8 @@ fn trusted_worktop_burn_empty() {
 #[test]
 fn trusted_worktop_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner
         .create_freely_mintable_and_burnable_fungible_resource(
@@ -386,7 +394,8 @@ fn trusted_worktop_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner
         .create_freely_mintable_and_burnable_fungible_resource(
@@ -418,7 +427,8 @@ fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner
         .create_freely_mintable_and_burnable_fungible_resource(
@@ -458,7 +468,8 @@ fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_two_withdraws() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let (_, _, account2) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
@@ -485,7 +496,8 @@ fn trusted_worktop_two_withdraws() {
 #[test]
 fn trusted_worktop_mint_fungible() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_freely_mintable_fungible_resource(
         OwnerRole::None,
@@ -512,7 +524,8 @@ fn trusted_worktop_mint_fungible() {
 #[test]
 fn trusted_worktop_mint_fungible_two_resources() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let addr_1 = test_runner.create_freely_mintable_fungible_resource(
         OwnerRole::None,
@@ -551,7 +564,8 @@ fn trusted_worktop_mint_fungible_two_resources() {
 #[test]
 fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let addr_1 = test_runner.create_freely_mintable_fungible_resource(
         OwnerRole::None,
@@ -598,7 +612,8 @@ fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
 #[test]
 fn trusted_worktop_one_resource_pool() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
     let (component_address, _resource_address) =
@@ -633,7 +648,8 @@ fn trusted_worktop_one_resource_pool() {
 #[test]
 fn trusted_worktop_one_resource_pool_redeem() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
     let (component_address, resource_address) =
@@ -688,7 +704,8 @@ fn trusted_worktop_one_resource_pool_redeem() {
 #[test]
 fn trusted_worktop_one_resource_protected_withdraw() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
     let (component_address, resource_address) =
@@ -739,7 +756,8 @@ fn trusted_worktop_one_resource_protected_withdraw() {
 #[test]
 fn trusted_worktop_one_resource_protected_deposit() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
     let address = test_runner.create_fungible_resource(dec!(100), 0, account);
     let (component_address, _resource_address) =
@@ -771,7 +789,8 @@ fn trusted_worktop_one_resource_protected_deposit() {
 #[test]
 fn trusted_worktop_create_proof_fungible() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     //Act
@@ -796,7 +815,8 @@ fn trusted_worktop_create_proof_fungible() {
 #[test]
 fn trusted_worktop_create_proof_non_fungible() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_account(true);
     let address = test_runner.create_non_fungible_resource(account);
 

@@ -19,13 +19,13 @@ use crate::sbor::indexed_manifest_value::IndexedManifestValue;
 use crate::transaction_types::*;
 use crate::utils::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-use radix_engine_interface::api::node_modules::royalty::*;
 use radix_engine_interface::blueprints::{
     access_controller::*, account::*, consensus_manager::*, identity::*,
     package::*, pool::*,
 };
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_common::constants::FAUCET_FREE_AMOUNT;
 
 use super::{StaticWorktopContentsTracker, TrackedResource};
 
@@ -835,10 +835,10 @@ impl StaticWorktopContentsTracker {
         if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
             match method_name {
                 "free" => {
-                    // puts on worktop faucet::FAUCET_FREE_AMOUNT XRD count
+                    // puts on worktop FAUCET_FREE_AMOUNT XRD count
                     let resources = ResourceSpecifier::Amount(
                         XRD,
-                        faucet::FAUCET_FREE_AMOUNT.into(),
+                        FAUCET_FREE_AMOUNT.into(),
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());

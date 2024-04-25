@@ -19,10 +19,10 @@
 
 use radix_engine_toolkit::functions::*;
 use scrypto::prelude::*;
-use transaction::builder::*;
-use transaction::model::*;
-use transaction::prelude::*;
-use transaction::validation::*;
+use radix_transactions::builder::*;
+use radix_transactions::model::*;
+use radix_transactions::prelude::*;
+use radix_transactions::validation::*;
 
 pub fn notarized_transaction() -> NotarizedTransactionV1 {
     let account1 = derive::virtual_account_address_from_public_key(

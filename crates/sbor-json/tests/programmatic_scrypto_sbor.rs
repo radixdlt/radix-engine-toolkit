@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::*;
-use radix_engine_interface::{dec, pdec};
+use radix_common::prelude::*;
+use radix_engine_interface::macros::{dec, pdec};
 use sbor::generate_full_schema_from_single_type;
 use sbor::representations::*;
 use sbor_json::common::address::SerializableNodeId;

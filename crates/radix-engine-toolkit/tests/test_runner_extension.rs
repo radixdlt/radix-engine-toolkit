@@ -20,11 +20,10 @@ use radix_engine::transaction::*;
 use radix_engine::vm::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_toolkit::transaction_types::*;
-use scrypto_unit::*;
-use transaction::prelude::*;
+use scrypto_test::prelude::*;
 
 #[extend::ext]
-pub impl<E, D> TestRunner<E, D>
+pub impl<E, D> LedgerSimulator<E, D>
 where
     E: NativeVmExtension,
     D: TestDatabase,
@@ -41,6 +40,7 @@ where
                 use_free_credit: true,
                 assume_all_signature_proofs: true,
                 skip_epoch_check: true,
+                disable_auth: true,
             },
         )
     }
@@ -49,7 +49,7 @@ where
         &mut self,
         manifest: TransactionManifestV1,
     ) -> (ManifestSummary, ExecutionSummary) {
-        let receipt = TestRunnerEDExt::preview(self, manifest.clone());
+        let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
         if !receipt.is_commit_success() {
             panic!("Not commit success: {receipt:?}")
         }
@@ -125,7 +125,7 @@ where
         &mut self,
         manifest: &TransactionManifestV1,
     ) -> Vec<TrustedWorktopInstruction> {
-        let receipt = TestRunnerEDExt::preview(self, manifest.clone());
+        let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
         if !receipt.is_commit_success() {
             panic!("Not commit success: {receipt:?}")
         }

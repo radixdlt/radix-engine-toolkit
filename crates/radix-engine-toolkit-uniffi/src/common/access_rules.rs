@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine::types::FromPublicKey;
+use radix_common::prelude::FromPublicKey;
 
 use crate::prelude::*;
 

@@ -8,11 +8,11 @@ build = "build.rs"
 # radixdlt-scrypto dependencies.
 sbor = { workspace = true }
 scrypto = { workspace = true }
-transaction = { workspace = true }
+radix-common = { workspace = true }
 radix-engine = { workspace = true }
-radix-engine-common = { workspace = true }
-radix-engine-queries = { workspace = true }
 radix-engine-interface = { workspace = true }
+radix-substate-store-queries = { workspace = true }
+radix-transactions = { workspace = true }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
@@ -30,9 +30,9 @@ uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", featur
 [dev-dependencies]
 # The UniFFI crate for generating bindings to other languages
 uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", features = ["bindgen-tests"] }
-scrypto-unit = { workspace = true }
-radix-engine-stores = { workspace = true }
-transaction-scenarios = { workspace = true }
+scrypto-test = { workspace = true }
+radix-substate-store-impls = { workspace = true }
+radix-transaction-scenarios = { workspace = true }
 
 [lib]
 crate-type = ["staticlib", "cdylib", "lib"]

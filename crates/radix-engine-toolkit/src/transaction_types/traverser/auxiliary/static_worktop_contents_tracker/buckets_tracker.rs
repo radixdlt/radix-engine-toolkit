@@ -18,7 +18,7 @@
 use crate::transaction_types::types::ResourceSpecifierExt;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
-use transaction::validation::ManifestIdAllocator;
+use radix_transactions::validation::ManifestIdAllocator;
 
 use super::TrackedResource;
 

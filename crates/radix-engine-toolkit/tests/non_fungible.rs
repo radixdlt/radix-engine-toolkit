@@ -15,17 +15,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto_unit::*;
-use transaction::prelude::node_modules::ModuleConfig;
-use transaction::prelude::*;
+use scrypto_test::prelude::*;
 
 mod test_runner_extension;
-use test_runner_extension::TestRunnerEDExt;
+use test_runner_extension::LedgerSimulatorEDExt;
 
 #[test]
 fn execution_summary_new_non_fungible_list_initial_supply() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     // Act
@@ -65,7 +64,8 @@ fn execution_summary_new_non_fungible_list_initial_supply() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_mint() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     let nf_id_1 =
@@ -109,7 +109,8 @@ fn execution_summary_new_non_fungible_list_after_mint() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_burn() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     let nf_id_1 =
@@ -150,7 +151,8 @@ fn execution_summary_new_non_fungible_list_after_burn() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     let nf_id_1 =
@@ -207,7 +209,8 @@ fn execution_summary_new_non_fungible_list_after_update() {
     impl NonFungibleData for NfData {
         const MUTABLE_FIELDS: &'static [&'static str] = &["name"];
     }
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_allocated_account();
 
     let nf_id_1 =

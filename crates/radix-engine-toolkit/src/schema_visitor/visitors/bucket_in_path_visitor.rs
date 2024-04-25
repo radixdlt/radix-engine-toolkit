@@ -17,7 +17,7 @@
 
 use crate::schema_visitor::core::error::SchemaVisitorError;
 use crate::schema_visitor::core::traits::SchemaVisitor;
-use radix_engine_common::prelude::{
+use radix_common::prelude::{
     OwnValidation, ScryptoCustomSchema, ScryptoCustomTypeKind,
     ScryptoCustomTypeValidation,
 };

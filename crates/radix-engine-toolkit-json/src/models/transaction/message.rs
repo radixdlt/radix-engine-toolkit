@@ -21,7 +21,7 @@ use std::ops::Deref;
 use ::indexmap::IndexMap;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::{
+use radix_transactions::prelude::{
     AesGcmPayload, AesWrapped128BitKey, CurveType, DecryptorsByCurve,
     EncryptedMessageV1, MessageContentsV1, MessageV1, PlaintextMessageV1,
     PublicKeyFingerprint,

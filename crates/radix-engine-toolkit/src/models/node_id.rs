@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::types::*;
+use radix_common::types::*;
 
 /// Defines a typed NodeId type which is a NodeId guaranteed to have an
 /// EntityType and guaranteed to be Bech32m encodable. The stored [`EntityType`]

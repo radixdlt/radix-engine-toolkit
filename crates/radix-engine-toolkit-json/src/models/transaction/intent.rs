@@ -17,7 +17,7 @@
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 use crate::prelude::*;
 

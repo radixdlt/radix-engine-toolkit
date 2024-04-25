@@ -16,7 +16,7 @@
 // under the License.
 
 use radix_engine_toolkit_json::prelude::*;
-use transaction::validation::ValidationConfig;
+use radix_transactions::validation::ValidationConfig;
 
 use super::manifest_provider::*;
 use super::traits::HasExamples;

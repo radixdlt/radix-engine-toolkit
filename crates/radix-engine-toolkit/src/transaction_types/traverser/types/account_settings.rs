@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 use radix_engine_interface::blueprints::account::*;
 
@@ -231,6 +231,7 @@ impl AccountSettingsUpdateDetector {
                         | EntityType::GlobalOneResourcePool
                         | EntityType::GlobalTwoResourcePool
                         | EntityType::GlobalMultiResourcePool
+                        | EntityType::GlobalAccountLocker
                          => FnRules::all_disallowed(),
                     }
                     })

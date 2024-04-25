@@ -17,7 +17,7 @@
 
 use bech32::{FromBase32, Variant};
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 pub fn decode_transaction_id(
     transaction_id: &str,

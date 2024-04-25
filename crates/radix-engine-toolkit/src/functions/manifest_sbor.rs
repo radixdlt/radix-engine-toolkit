@@ -20,7 +20,7 @@ use sbor::representations::{SerializationMode, SerializationParameters};
 use sbor::*;
 use scrypto::address::*;
 use scrypto::prelude::*;
-use transaction::data::{
+use radix_transactions::data::{
     format_manifest_value, ManifestDecompilationDisplayContext,
 };
 

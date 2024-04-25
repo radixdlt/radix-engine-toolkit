@@ -18,10 +18,10 @@
 use crate::prelude::*;
 
 use radix_engine_toolkit::utils::*;
+use radix_transactions::manifest::*;
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::manifest::*;
-use transaction::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]
@@ -48,7 +48,7 @@ impl SerializableInstructions {
             SerializableInstructionsKind::String => {
                 let network_definition =
                     network_definition_from_network_id(network_id);
-                let string = transaction::manifest::decompile(
+                let string = radix_transactions::manifest::decompile(
                     instructions,
                     &network_definition,
                 )?;
@@ -67,7 +67,7 @@ impl SerializableInstructions {
         network_id: u8,
     ) -> Result<Vec<InstructionV1>, SerializableInstructionsError> {
         match self {
-            Self::String(string) => transaction::manifest::compile(
+            Self::String(string) => radix_transactions::manifest::compile(
                 string,
                 &network_definition_from_network_id(network_id),
                 MockBlobProvider::new(),
@@ -99,7 +99,7 @@ impl SerializableInstructions {
                 Ok(())
             }
             (Self::String(string), SerializableInstructionsKind::Parsed) => {
-                let instructions = transaction::manifest::compile(
+                let instructions = radix_transactions::manifest::compile(
                     string,
                     &network_definition_from_network_id(network_id),
                     MockBlobProvider::new(),

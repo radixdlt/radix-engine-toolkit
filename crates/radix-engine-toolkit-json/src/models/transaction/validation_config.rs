@@ -17,7 +17,7 @@
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::validation::{MessageValidationConfig, ValidationConfig};
+use radix_transactions::validation::{MessageValidationConfig, ValidationConfig};
 
 use crate::prelude::*;
 

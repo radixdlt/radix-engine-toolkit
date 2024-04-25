@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::prelude::*;
-use transaction::prelude::{HashHasHrp, TransactionHashBech32Encoder};
+use radix_transactions::prelude::{HashHasHrp, TransactionHashBech32Encoder};
 
 pub struct TransactionHash {
     pub hash: Hash,

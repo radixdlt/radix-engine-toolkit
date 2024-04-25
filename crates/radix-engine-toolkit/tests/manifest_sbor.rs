@@ -15,10 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::{
+use radix_common::prelude::{
     manifest_encode, AddressBech32Encoder, ManifestValue, ScryptoCustomSchema,
 };
-use radix_engine_common::{ManifestSbor, ScryptoSbor};
+use radix_common::{ManifestSbor, ScryptoSbor};
 use radix_engine_toolkit::functions::manifest_sbor::ManifestSborStringRepresentation;
 use sbor::representations::SerializationMode;
 use sbor::{generate_full_schema_from_single_type, VersionedSchema};

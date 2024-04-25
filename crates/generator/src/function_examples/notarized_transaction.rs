@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::types::*;
+use radix_common::prelude::{Ed25519PrivateKey, Secp256k1PrivateKey};
+use radix_common::types::*;
 use radix_engine_toolkit_json::prelude::*;
-use transaction::prelude::{
-    Ed25519PrivateKey, Secp256k1PrivateKey, TransactionBuilder,
-    TransactionHeaderV1, TransactionManifestV1,
+use radix_transactions::prelude::{
+    TransactionBuilder, TransactionHeaderV1, TransactionManifestV1,
 };
-use transaction::validation::ValidationConfig;
+use radix_transactions::validation::ValidationConfig;
 
 use super::manifest_provider::*;
 use super::traits::HasExamples;

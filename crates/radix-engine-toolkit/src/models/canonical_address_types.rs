@@ -17,7 +17,7 @@
 
 use crate::utils::*;
 use paste::*;
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use scrypto::prelude::*;
 use serde_with::*;
 use std::fmt::Display;

@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use radix_engine_toolkit_json::prelude::*;
-use transaction::manifest::*;
+use radix_transactions::manifest::*;
 use walkdir::WalkDir;
 
 pub const NUMBER_OF_MANIFESTS: usize = 26;

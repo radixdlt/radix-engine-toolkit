@@ -107,7 +107,7 @@ impl From<NativeIntent> for Intent {
             blobs: blobs
                 .iter()
                 .map(|blob| (native_hash(&blob.0), blob.0.clone()))
-                .collect::<BTreeMap<_, _>>(),
+                .collect::<IndexMap<_, _>>(),
         };
 
         Self {

@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use radix_engine_interface::prelude::*;
-use radix_engine_queries::typed_native_events::*;
+use radix_substate_store_queries::typed_native_events::*;
 
 /// Attempts to decode the passed in event into a structured
 /// [`TypedNativeEvent`] if the event is emitted from a native blueprint of a

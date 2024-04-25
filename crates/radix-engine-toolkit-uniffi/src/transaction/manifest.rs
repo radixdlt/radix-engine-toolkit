@@ -134,7 +134,7 @@ impl TransactionManifest {
             .blobs
             .iter()
             .map(|blob| (native_hash(blob), blob.clone()))
-            .collect::<BTreeMap<_, _>>();
+            .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
         NativeTransactionManifest {

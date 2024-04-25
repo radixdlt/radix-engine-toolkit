@@ -18,9 +18,9 @@
 use super::traits::HasExamples;
 use crate::function_examples::notarized_transaction::*;
 use radix_engine_toolkit_json::prelude::*;
-use scrypto::api::node_modules::metadata::*;
+use radix_transactions::prelude::*;
+use scrypto::object_modules::metadata::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 impl<'f> HasExamples<'f> for SerializableInstruction {
     fn examples() -> Vec<Self> {

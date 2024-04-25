@@ -22,7 +22,7 @@ use radix_engine_interface::blueprints::{
     package::*, pool::*,
 };
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 use super::{StaticWorktopContentsTracker, TrackedResource};
 

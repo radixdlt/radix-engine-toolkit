@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::ScryptoCustomSchema;
-use radix_engine_common::ScryptoSbor;
+use radix_common::prelude::ScryptoCustomSchema;
+use radix_common::ScryptoSbor;
 use radix_engine_toolkit::schema_visitor::core::traverser::traverse;
 use radix_engine_toolkit::schema_visitor::visitors::bucket_in_path_visitor::BucketInPathVisitor;
 use radix_engine_toolkit::schema_visitor::visitors::proof_in_path_visitor::ProofInPathVisitor;

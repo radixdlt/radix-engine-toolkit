@@ -17,9 +17,10 @@
 
 use crate::prelude::*;
 
+use radix_common::prelude::*;
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]

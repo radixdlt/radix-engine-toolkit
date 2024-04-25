@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_common::prelude::*;
 use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
-
-use transaction::errors::*;
-use transaction::prelude::*;
-use transaction::validation::*;
+use radix_transactions::errors::*;
+use radix_transactions::prelude::*;
+use radix_transactions::validation::*;
 
 use radix_engine::transaction::*;
 

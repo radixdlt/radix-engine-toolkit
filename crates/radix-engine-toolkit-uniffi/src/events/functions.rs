@@ -1426,16 +1426,16 @@ macro_rules! define_structure {
             }
 
             impl FromNativeWithNetworkContext for TypedNativeEvent {
-                type Native = radix_engine_queries::typed_native_events::TypedNativeEvent;
+                type Native = radix_substate_store_queries::typed_native_events::TypedNativeEvent;
 
                 fn from_native(native: Self::Native, network_id: u8) -> Self {
                     match native {
                         $(
                             $(
                                 $(
-                                    radix_engine_queries::typed_native_events::TypedNativeEvent::$package_ident(
-                                        radix_engine_queries::typed_native_events::[< Typed $package_ident PackageEvent >]::$blueprint_ident(
-                                            radix_engine_queries::typed_native_events::[< Typed $blueprint_ident BlueprintEvent >]::$event_ty(event)
+                                    radix_substate_store_queries::typed_native_events::TypedNativeEvent::$package_ident(
+                                        radix_substate_store_queries::typed_native_events::[< Typed $package_ident PackageEvent >]::$blueprint_ident(
+                                            radix_substate_store_queries::typed_native_events::[< Typed $blueprint_ident BlueprintEvent >]::$event_ty(event)
                                         )
                                     ) => TypedNativeEvent::$package_ident{
                                         value: [< Typed $package_ident PackageEvent >]::$blueprint_ident{

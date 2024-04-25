@@ -17,8 +17,8 @@
 
 use crate::prelude::*;
 
-use radix_engine_common::prelude::{
-    AddressBech32Decoder, AddressBech32Encoder,
+use radix_common::prelude::{
+    AddressBech32Decoder, AddressBech32Encoder, NonFungibleGlobalId,
 };
 use radix_engine_toolkit::utils::network_definition_from_network_id;
 use schemars::JsonSchema;
@@ -26,7 +26,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 use std::fmt::{Debug, Display};
 use std::str::FromStr;
-use transaction::prelude::NonFungibleGlobalId;
 
 #[serde_as]
 #[derive(Serialize, Deserialize, JsonSchema, Clone, Debug, PartialEq, Eq)]

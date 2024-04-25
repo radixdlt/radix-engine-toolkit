@@ -17,9 +17,9 @@
 
 use sbor::*;
 use scrypto::prelude::*;
-use transaction::errors::*;
-use transaction::model::*;
-use transaction::validation::*;
+use radix_transactions::errors::*;
+use radix_transactions::model::*;
+use radix_transactions::validation::*;
 
 use crate::models::transaction_hash::TransactionHash;
 

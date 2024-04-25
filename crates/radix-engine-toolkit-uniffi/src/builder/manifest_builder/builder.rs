@@ -18,8 +18,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use crate::prelude::*;
-use radix_engine::types::FromPublicKey;
-use radix_engine_common::prelude::to_manifest_value;
+use radix_common::prelude::{to_manifest_value, FromPublicKey};
 
 #[derive(Debug, Clone, Object, Default)]
 pub struct ManifestBuilder {
@@ -1056,24 +1055,24 @@ macro_rules! manifest_args {
     ($($args: expr),*$(,)?) => {{
         use ::sbor::Encoder;
         let mut buf = ::sbor::rust::vec::Vec::new();
-        let mut encoder = radix_engine_common::data::manifest::ManifestEncoder::new(
+        let mut encoder = radix_common::data::manifest::ManifestEncoder::new(
             &mut buf,
-            radix_engine_common::data::manifest::MANIFEST_SBOR_V1_MAX_DEPTH
+            radix_common::data::manifest::MANIFEST_SBOR_V1_MAX_DEPTH
         );
         encoder.write_payload_prefix(
-            radix_engine_common::data::manifest::MANIFEST_SBOR_V1_PAYLOAD_PREFIX
+            radix_common::data::manifest::MANIFEST_SBOR_V1_PAYLOAD_PREFIX
         ).unwrap();
         encoder.write_value_kind(
-            radix_engine_common::data::manifest::ManifestValueKind::Tuple
+            radix_common::data::manifest::ManifestValueKind::Tuple
         ).unwrap();
         // Hack: stringify to skip ownership move semantics
-        encoder.write_size(radix_engine_common::count!($(stringify!($args)),*)).unwrap();
+        encoder.write_size(radix_common::count!($(stringify!($args)),*)).unwrap();
         $(
             let arg = $args;
             encoder.encode(&arg).unwrap();
         )*
-        let value = radix_engine_common::data::manifest::manifest_decode(&buf).unwrap();
-        radix_engine_common::data::manifest::ManifestArgs::new_from_tuple_or_panic(value)
+        let value = radix_common::data::manifest::manifest_decode(&buf).unwrap();
+        radix_common::data::manifest::ManifestArgs::new_from_tuple_or_panic(value)
     }};
 }
 use manifest_args;

@@ -18,9 +18,9 @@
 use radix_engine::utils::*;
 use sbor::*;
 use scrypto::prelude::*;
-use transaction::errors::*;
-use transaction::prelude::*;
-use transaction::validation::*;
+use radix_transactions::errors::*;
+use radix_transactions::prelude::*;
+use radix_transactions::validation::*;
 
 use crate::models::node_id::TypedNodeId;
 use crate::sbor::indexed_manifest_value::*;

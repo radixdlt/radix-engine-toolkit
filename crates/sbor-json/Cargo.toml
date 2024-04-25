@@ -7,7 +7,7 @@ description = "The implementation of the SBOR JSON representations"
 [dependencies]
 # The Scrypto dependencies needed.
 sbor = { workspace = true }
-radix-engine-common = { workspace = true }
+radix-common = { workspace = true }
 radix-engine-interface = { workspace = true }
 
 # The serde dependenices used for the serialization and deserialization of the JSON representations.

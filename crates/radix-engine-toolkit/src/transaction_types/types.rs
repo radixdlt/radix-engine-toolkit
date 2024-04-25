@@ -18,13 +18,14 @@
 use std::ops::*;
 
 use radix_engine::blueprints::models::KeyValueKeyPayload;
+use radix_engine::object_modules::metadata::VersionedMetadataEntry;
 use radix_engine::system::system_substates::*;
 use radix_engine::track::*;
-use radix_engine_queries::typed_substate_layout::*;
-use radix_engine_store_interface::interface::*;
+use radix_substate_store_interface::interface::*;
+use radix_substate_store_queries::typed_substate_layout::*;
 use scrypto::prelude::*;
 
-use radix_engine::system::system_modules::execution_trace::*;
+use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
 

@@ -19,7 +19,7 @@ use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::identity::*;
 
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
 use crate::utils::*;

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 

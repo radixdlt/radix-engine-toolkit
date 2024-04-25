@@ -18,9 +18,9 @@
 #![allow(dead_code)]
 #![allow(clippy::expect_fun_call)]
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use radix_engine_toolkit_json::models::transaction::instruction::*;
-use transaction::manifest::*;
+use radix_transactions::manifest::*;
 use walkdir::WalkDir;
 
 #[test]

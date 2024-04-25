@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 use radix_engine_interface::blueprints::account::*;
 
@@ -144,7 +144,8 @@ impl GeneralDetector {
                         | EntityType::GlobalAccessController
                         | EntityType::GlobalOneResourcePool
                         | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool => FnRules::all_disallowed(),
+                        | EntityType::GlobalMultiResourcePool
+                        | EntityType::GlobalAccountLocker => FnRules::all_disallowed(),
                     }
                 }).unwrap_or(FnRules::all_disallowed())
             }

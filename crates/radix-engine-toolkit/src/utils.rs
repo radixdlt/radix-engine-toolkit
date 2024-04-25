@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::NetworkDefinition;
+use radix_common::prelude::NetworkDefinition;
 
 use regex::Regex;
 use sbor::{
@@ -23,8 +23,8 @@ use sbor::{
 };
 
 use scrypto::prelude::*;
-use transaction::model::IntentV1;
-use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
+use radix_transactions::model::IntentV1;
+use radix_transactions::prelude::{DynamicGlobalAddress, TransactionManifestV1};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {

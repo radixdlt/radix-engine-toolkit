@@ -16,7 +16,7 @@
 // under the License.
 
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 use crate::statics::*;
 use crate::transaction_types::*;

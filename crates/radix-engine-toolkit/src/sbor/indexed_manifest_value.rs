@@ -16,15 +16,15 @@
 // under the License.
 
 use core::cell::RefCell;
-use radix_engine_common::data::manifest::*;
-use radix_engine_common::types::*;
+use radix_common::data::manifest::*;
+use radix_common::prelude::{
+    ManifestAddress, ManifestBucket, ManifestExpression,
+};
+use radix_common::types::*;
 use sbor::rust::cell::Ref;
 use sbor::rust::prelude::*;
 use sbor::traversal::*;
 use sbor::*;
-use transaction::prelude::{
-    ManifestAddress, ManifestBucket, ManifestExpression,
-};
 
 use crate::models::node_id::TypedNodeId;
 

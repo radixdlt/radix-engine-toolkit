@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use transaction::validation::ValidationConfig;
+use radix_transactions::validation::ValidationConfig;
 mod test_data;
 
 #[test]

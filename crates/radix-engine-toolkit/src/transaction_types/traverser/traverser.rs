@@ -19,9 +19,10 @@ pub mod manifest_summary {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
     use radix_engine_interface::blueprints::account::*;
-    use transaction::prelude::*;
+    use radix_transactions::prelude::*;
+    use scrypto::prelude::*;
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
@@ -132,10 +133,13 @@ pub mod execution_summary {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_common::prelude::*;
+    use radix_engine::system::system_modules::execution_trace::{
+        ResourceSpecifier, WorktopChange,
+    };
     use radix_engine_interface::blueprints::account::*;
-    use transaction::prelude::*;
-    use transaction::validation::*;
+    use radix_transactions::prelude::*;
+    use radix_transactions::validation::*;
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],

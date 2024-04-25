@@ -19,13 +19,12 @@ use radix_engine::blueprints::pool::v1::constants::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
-use radix_engine_queries::typed_substate_layout::UnstakeData;
 use radix_engine_toolkit::transaction_types::*;
-use scrypto_unit::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
+use scrypto_test::prelude::*;
 
 mod test_runner_extension;
-use test_runner_extension::TestRunnerEDExt;
+use test_runner_extension::LedgerSimulatorEDExt;
 
 macro_rules! assert_eq_three {
     (
@@ -50,7 +49,8 @@ macro_rules! assert_eq_three {
 #[test]
 fn empty_manifest_matches_none_of_the_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let manifest = ManifestBuilder::new().build();
 
     // Act
@@ -65,7 +65,8 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
 fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -163,7 +164,8 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
 #[test]
 fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -260,7 +262,8 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 #[test]
 fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -362,7 +365,8 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 #[test]
 fn transfers_with_try_deposit_or_refund_are_invalid() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -446,7 +450,8 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
 #[test]
 fn lock_fee_is_recognized_as_a_reserved_instruction1() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -531,7 +536,8 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
 #[test]
 fn lock_fee_is_recognized_as_a_reserved_instruction2() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
     let (_, _, account2) = test_runner.new_account(false);
@@ -615,7 +621,8 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
 #[test]
 fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
 
@@ -695,7 +702,8 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
 #[test]
 fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
 
@@ -775,7 +783,8 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
 #[test]
 fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
 
@@ -850,7 +859,8 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
 #[test]
 fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account1) = test_runner.new_account(false);
 
@@ -930,7 +940,8 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
 #[test]
 fn pool_contribution_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account) = test_runner.new_account(false);
 
@@ -1162,7 +1173,8 @@ fn pool_contribution_transactions_are_recognized() {
 #[test]
 fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (_, _, account) = test_runner.new_account(false);
 
@@ -1377,7 +1389,8 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
 #[test]
 fn pool_redemption_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (pk, _, account) = test_runner.new_account(false);
 
@@ -1388,6 +1401,7 @@ fn pool_redemption_transactions_are_recognized() {
     ) = create_pools(&mut test_runner, account);
 
     let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
         /* One Resource Pool */
         .withdraw_from_account(account, resource1, 100)
         .take_from_worktop(resource1, 100, "one_pool_bucket1")
@@ -1432,7 +1446,7 @@ fn pool_redemption_transactions_are_recognized() {
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
     test_runner
-        .execute_manifest_ignoring_fee(
+        .execute_manifest(
             manifest,
             vec![NonFungibleGlobalId::from_public_key(&pk)],
         )
@@ -1637,7 +1651,8 @@ fn pool_redemption_transactions_are_recognized() {
 #[test]
 fn validator_stake_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (pk, _, account) = test_runner.new_account(false);
     let (validator1, stake_unit1, _) = test_runner.new_validator(pk, account);
@@ -1757,7 +1772,8 @@ fn validator_stake_transactions_are_recognized() {
 #[test]
 fn validator_unstake_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (pk, _, account) = test_runner.new_account(false);
     let (validator1, stake_unit1, claim_nft1) =
@@ -1953,7 +1969,8 @@ fn validator_unstake_transactions_are_recognized() {
 #[test]
 fn validator_claim_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
     let (pk, _, account) = test_runner.new_account(false);
     let (validator1, stake_unit1, claim_nft1) =
@@ -2147,7 +2164,8 @@ fn validator_claim_transactions_are_recognized() {
 #[test]
 fn account_deposit_settings_changes_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account) = test_runner.new_account(false);
 
     let manifest = ManifestBuilder::new()
@@ -2284,10 +2302,11 @@ fn account_deposit_settings_changes_are_recognized() {
 
 #[test]
 fn presented_proofs_fungible() {
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account_1) = test_runner.new_allocated_account();
     let (_, _, account_2) = test_runner.new_allocated_account();
     let address_1 =
@@ -2340,10 +2359,11 @@ fn presented_proofs_fungible() {
 
 #[test]
 fn presented_proofs_non_fungible() {
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (_, _, account_1) = test_runner.new_allocated_account();
     let (_, _, account_2) = test_runner.new_allocated_account();
     let address_1 = test_runner.create_non_fungible_resource(account_1);
@@ -2441,7 +2461,7 @@ fn presented_proofs_non_fungible() {
 }
 
 fn create_pools(
-    test_runner: &mut DefaultTestRunner,
+    test_runner: &mut DefaultLedgerSimulator,
     account: ComponentAddress,
 ) -> (
     [ResourceAddress; 4],

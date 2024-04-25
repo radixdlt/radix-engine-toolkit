@@ -19,7 +19,7 @@ use self::{buckets_tracker::*, worktop_content_tracker::*};
 use crate::transaction_types::*;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
 
 mod buckets_tracker;
 mod handler_function_calls;
