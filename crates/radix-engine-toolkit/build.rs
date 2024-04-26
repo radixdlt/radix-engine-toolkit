@@ -26,25 +26,24 @@ fn main() {
 
     let scrypto_dependency =
         manifest.dependencies.get("scrypto").expect("Can't panic");
-    let string =
-        match scrypto_dependency {
-            Dependency::Simple(version) => format!("version={version}"),
-            Dependency::Inherited(_) => {
-                panic!("Inherited dependency is not supported")
+    let string = match scrypto_dependency {
+        Dependency::Simple(version) => format!("version={version}"),
+        Dependency::Inherited(_) => {
+            panic!("Inherited dependency is not supported")
+        }
+        Dependency::Detailed(detailed) => {
+            if let Some(ref version) = detailed.version {
+                format!("version={version}")
+            } else if let Some(ref branch) = detailed.branch {
+                format!("branch={branch}")
+            } else if let Some(ref tag) = detailed.tag {
+                format!("tag={tag}")
+            } else if let Some(ref rev) = detailed.rev {
+                format!("rev={rev}")
+            } else {
+                panic!("Can't find version of Scrypto dependency")
             }
-            Dependency::Detailed(detailed) => {
-                if let Some(ref version) = detailed.version {
-                    format!("version={version}")
-                } else if let Some(ref branch) = detailed.branch {
-                    format!("branch={branch}")
-                } else if let Some(ref tag) = detailed.tag {
-                    format!("tag={tag}")
-                } else if let Some(ref rev) = detailed.rev {
-                    format!("rev={rev}")
-                } else {
-                    panic!("Can't find version of Scrypto dependency")
-                }
-            }
-        };
+        }
+    };
     println!("cargo:rustc-env=SCRYPTO_DEPENDENCY={}", string);
 }
