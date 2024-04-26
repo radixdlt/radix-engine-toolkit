@@ -42,9 +42,9 @@ pub mod manifest_summary {
         instruction_index: usize,
     ) {
         // At the beginning of an instruction, call the on_instruction callback
-        callbacks.iter_mut().for_each(
-            |callback| callback.on_instruction(instruction, instruction_index)
-        );
+        callbacks.iter_mut().for_each(|callback| {
+            callback.on_instruction(instruction, instruction_index)
+        });
 
         // Notify the callbacks of the created account proofs
         handle_on_create_proof(callbacks, instruction);
@@ -58,9 +58,9 @@ pub mod manifest_summary {
             let Ok(global_address) = GlobalAddress::try_from(node_id) else {
                 continue;
             };
-            callbacks.iter_mut().for_each(
-                |callback| callback.on_global_entity_encounter(global_address)
-            );
+            callbacks.iter_mut().for_each(|callback| {
+                callback.on_global_entity_encounter(global_address)
+            });
         }
     }
 
@@ -290,9 +290,9 @@ pub mod execution_summary {
                     if let Some(resource_indicator) =
                         bucket_tracker.get(bucket_id)
                     {
-                        inputs.push(
-                            ResourceSpecifier::from(resource_indicator.clone())
-                        )
+                        inputs.push(ResourceSpecifier::from(
+                            resource_indicator.clone(),
+                        ))
                     }
                 }
                 /* Non-sink methods */
@@ -326,17 +326,16 @@ pub mod execution_summary {
 
             inputs
         };
-        let outputs =
-            worktop_changes_entry
-                .iter()
-                .filter_map(|item| {
-                    if let WorktopChange::Put(resource_specifier) = item {
-                        Some(resource_specifier.clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
+        let outputs = worktop_changes_entry
+            .iter()
+            .filter_map(|item| {
+                if let WorktopChange::Put(resource_specifier) = item {
+                    Some(resource_specifier.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
         callbacks.iter_mut().for_each(|callback| {
             ExecutionSummaryCallback::on_instruction(
                 *callback,

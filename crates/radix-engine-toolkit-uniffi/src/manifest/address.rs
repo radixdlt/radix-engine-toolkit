@@ -57,7 +57,9 @@ impl ManifestAddress {
                 Self::Named { value: *value }
             }
             NativeDynamicGlobalAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
+                value: Arc::new(Address::from_typed_node_id(
+                    *value, network_id,
+                )),
             },
         }
     }
@@ -71,7 +73,9 @@ impl ManifestAddress {
                 Self::Named { value: *value }
             }
             NativeDynamicPackageAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
+                value: Arc::new(Address::from_typed_node_id(
+                    *value, network_id,
+                )),
             },
         }
     }

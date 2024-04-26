@@ -133,22 +133,21 @@ fn uniffi_foreign_language_testcase_example_go() {
     target_dir.pop(); // lib name
 
     // Run go tests
-    let output =
-        Command::new("go")
-            .args(["test", "-v"])
-            .current_dir(go_src)
-            .envs([
-                ("GO111MODULE", "auto"),
-                (
-                    "CGO_LDFLAGS", // specify lib search path and lib name
-                    &format!(
-                        "-L{} -lradix_engine_toolkit_uniffi",
-                        target_dir.display().to_string()
-                    ),
+    let output = Command::new("go")
+        .args(["test", "-v"])
+        .current_dir(go_src)
+        .envs([
+            ("GO111MODULE", "auto"),
+            (
+                "CGO_LDFLAGS", // specify lib search path and lib name
+                &format!(
+                    "-L{} -lradix_engine_toolkit_uniffi",
+                    target_dir.display().to_string()
                 ),
-            ])
-            .output()
-            .unwrap();
+            ),
+        ])
+        .output()
+        .unwrap();
 
     assert!(
         output.status.success(),

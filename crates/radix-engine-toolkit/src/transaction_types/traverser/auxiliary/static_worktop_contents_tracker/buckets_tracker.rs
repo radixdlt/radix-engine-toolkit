@@ -115,9 +115,9 @@ impl BucketsTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(
-                    TrackedResource::StaticallyKnownEmpty(*resource_address)
-                ),
+                BucketContent::new(TrackedResource::StaticallyKnownEmpty(
+                    *resource_address,
+                )),
             );
         }
     }
@@ -161,9 +161,9 @@ impl BucketsTracker {
                 if address.is_fungible() {
                     if bucket.try_remove_amount(amount).is_some() {
                         // successfully subtracted amount
-                        return Some(
-                            ResourceSpecifier::Amount(address, *amount)
-                        );
+                        return Some(ResourceSpecifier::Amount(
+                            address, *amount,
+                        ));
                     }
                 }
             }

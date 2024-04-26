@@ -30,12 +30,10 @@ where
 {
     fn from(item: Option<A>, name_record: &NameRecord) -> Result<Option<B>> {
         match item {
-            Some(item) => {
-                Ok(Some(<B as FromWithNameRecordContext<A>>::from(
-                    item,
-                    name_record,
-                )?))
-            }
+            Some(item) => Ok(Some(<B as FromWithNameRecordContext<A>>::from(
+                item,
+                name_record,
+            )?)),
             None => Ok(None),
         }
     }

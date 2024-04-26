@@ -634,9 +634,10 @@ impl From<ResourceIndicator> for ResourceSpecifier {
             )
             | ResourceIndicator::Fungible(
                 resource_address,
-                FungibleResourceIndicator::Predicted(
-                    Predicted { value: amount, .. }
-                ),
+                FungibleResourceIndicator::Predicted(Predicted {
+                    value: amount,
+                    ..
+                }),
             ) => ResourceSpecifier::Amount(resource_address, amount),
             ResourceIndicator::NonFungible(
                 resource_address,

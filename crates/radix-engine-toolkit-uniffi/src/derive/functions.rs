@@ -49,7 +49,10 @@ pub fn derive_virtual_signature_non_fungible_global_id_from_public_key(
         core_virtual_signature_non_fungible_global_id_from_public_key(
             &public_key,
         );
-    Ok(Arc::new(NonFungibleGlobalId(non_fungible_global_id, network_id)))
+    Ok(Arc::new(NonFungibleGlobalId(
+        non_fungible_global_id,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
@@ -61,7 +64,10 @@ pub fn derive_virtual_account_address_from_olympia_account_address(
         core_virtual_account_address_from_olympia_account_address(
             &olympia_account_address.0,
         )?;
-    Ok(Arc::new(Address::from_typed_node_id(component_address, network_id)))
+    Ok(Arc::new(Address::from_typed_node_id(
+        component_address,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
@@ -72,7 +78,10 @@ pub fn derive_resource_address_from_olympia_resource_address(
     let resource_address = core_resource_address_from_olympia_resource_address(
         &olympia_resource_address.0,
     )?;
-    Ok(Arc::new(Address::from_typed_node_id(resource_address, network_id)))
+    Ok(Arc::new(Address::from_typed_node_id(
+        resource_address,
+        network_id,
+    )))
 }
 
 #[uniffi::export]
