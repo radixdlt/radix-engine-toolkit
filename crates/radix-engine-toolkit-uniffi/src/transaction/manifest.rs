@@ -18,7 +18,6 @@
 use sbor::Versioned;
 
 use crate::prelude::*;
-use radix_engine_interface::blueprints::locker::ResourceSpecifier as NativeLockerResourceSpecifier;
 
 #[derive(Clone, Debug, Object)]
 pub struct TransactionManifest {
