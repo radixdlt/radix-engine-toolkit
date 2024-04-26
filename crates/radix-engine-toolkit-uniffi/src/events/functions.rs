@@ -446,6 +446,27 @@ pub struct NonFungibleVaultRecallEvent {
     pub ids: Vec<NonFungibleLocalId>,
 }
 
+#[derive(Clone, Debug, Record)]
+pub struct ClaimEvent {
+    pub claimant: Arc<Address>,
+    pub resource_address: Arc<Address>,
+    pub resources: ResourceSpecifier,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct RecoverEvent {
+    pub claimant: Arc<Address>,
+    pub resource_address: Arc<Address>,
+    pub resources: ResourceSpecifier,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct StoreEvent {
+    pub claimant: Arc<Address>,
+    pub resource_address: Arc<Address>,
+    pub resources: ResourceSpecifier,
+}
+
 impl FromNative for RuleSet {
     type Native = NativeRuleSet;
 
@@ -1267,6 +1288,75 @@ impl FromNative for NonFungibleVaultRecallEvent {
     }
 }
 
+impl FromNativeWithNetworkContext for ClaimEvent {
+    type Native = NativeClaimEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        let address = Arc::new(Address::from_typed_node_id(
+            native.resource_address,
+            network_id,
+        ));
+        Self {
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
+            resource_address: address.clone(),
+            resources: ResourceSpecifier::from_native_for_locker_blueprint(
+                &native.resources,
+                &native.resource_address,
+                network_id,
+            ),
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for RecoverEvent {
+    type Native = NativeRecoverEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        let address = Arc::new(Address::from_typed_node_id(
+            native.resource_address,
+            network_id,
+        ));
+        Self {
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
+            resource_address: address.clone(),
+            resources: ResourceSpecifier::from_native_for_locker_blueprint(
+                &native.resources,
+                &native.resource_address,
+                network_id,
+            ),
+        }
+    }
+}
+
+impl FromNativeWithNetworkContext for StoreEvent {
+    type Native = NativeStoreEvent;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        let address = Arc::new(Address::from_typed_node_id(
+            native.resource_address,
+            network_id,
+        ));
+        Self {
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
+            resource_address: address.clone(),
+            resources: ResourceSpecifier::from_native_for_locker_blueprint(
+                &native.resources,
+                &native.resource_address,
+                network_id,
+            ),
+        }
+    }
+}
+
 impl TryFrom<Emitter> for NativeEmitter {
     type Error = RadixEngineToolkitError;
 
@@ -1398,6 +1488,14 @@ define_structure! {
             RemoveMetadataEvent,
         ]
     },
+
+    Locker => {
+        AccountLocker => [
+            StoreEvent,
+            RecoverEvent,
+            ClaimEvent
+        ]
+    },
 }
 
 /// This macro uses some special syntax to define the structure of events. This
@@ -1448,7 +1546,7 @@ macro_rules! define_structure {
                             )*
                         )*
                         // Can't get here!
-                        _ => panic!("Can't get to this point")
+                        e => panic!("Can't get to this point. {:?}", e)
                     }
                 }
             }

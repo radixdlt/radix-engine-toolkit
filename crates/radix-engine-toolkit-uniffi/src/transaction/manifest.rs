@@ -227,6 +227,26 @@ impl ResourceSpecifier {
             },
         }
     }
+
+    pub fn from_native_for_locker_blueprint(
+        native: &radix_engine_interface::blueprints::locker::ResourceSpecifier,
+        resource_address: &NativeResourceAddress,
+        network_id: u8,
+    ) -> ResourceSpecifier {
+        let address = Arc::new(Address::from_typed_node_id(
+            *resource_address,
+            network_id,
+        ));
+        match native {
+            radix_engine_interface::blueprints::locker::ResourceSpecifier::Fungible(amount) => 
+                ResourceSpecifier::Amount { resource_address: address, amount: Arc::new(Decimal(*amount)) },
+            radix_engine_interface::blueprints::locker::ResourceSpecifier::NonFungible(native_ids) => 
+                ResourceSpecifier::Ids {
+                    resource_address: address,
+                    ids: native_ids.clone().into_iter().map(From::from).collect(),
+                }
+            }
+    }
 }
 
 #[derive(Clone, Debug, Enum)]

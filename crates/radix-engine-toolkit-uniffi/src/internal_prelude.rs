@@ -543,6 +543,11 @@ mod native {
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
         BlueprintId as NativeBlueprintId
     };
+    pub use radix_engine::blueprints::locker::{
+        ClaimEvent as NativeClaimEvent,
+        RecoverEvent as NativeRecoverEvent,
+        StoreEvent as NativeStoreEvent
+    };
     pub use radix_engine_interface::object_modules::royalty::{
         COMPONENT_ROYALTY_SETTER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_ROLE,
         COMPONENT_ROYALTY_SETTER_UPDATER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_UPDATER_ROLE,
