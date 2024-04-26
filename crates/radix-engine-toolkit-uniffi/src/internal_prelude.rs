@@ -426,6 +426,9 @@ mod native {
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,
     };
+    pub use radix_engine_interface::blueprints::locker::{
+        ResourceSpecifier as NativeLockerResourceSpecifier,
+    };
     pub use radix_engine::transaction::{
         VersionedTransactionReceipt as NativeVersionedTransactionReceipt,
         TransactionReceipt as NativeTransactionReceipt,
