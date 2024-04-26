@@ -153,9 +153,8 @@ fn path_contains_a_bucket(
     local_type_id: LocalTypeId,
     schema: &VersionedScryptoSchema,
 ) -> bool {
-    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = BucketInPathVisitor::default();
-    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
+    traverse(schema.v1(), local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_bucket()
 }
 
@@ -163,9 +162,8 @@ fn path_contains_a_proof(
     local_type_id: LocalTypeId,
     schema: &VersionedScryptoSchema,
 ) -> bool {
-    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = ProofInPathVisitor::default();
-    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
+    traverse(schema.v1(), local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_proof()
 }
 

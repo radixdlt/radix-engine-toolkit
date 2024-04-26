@@ -805,11 +805,11 @@ fn trusted_worktop_create_proof_fungible() {
 
     // Assert
     assert_eq!(twi.len(), 5);
-    validate_amount(&twi, 0, true, &[(XRD, faucet::FAUCET_FREE_AMOUNT.into())]);
-    validate_amount(&twi, 1, true, &[(XRD, faucet::FAUCET_FREE_AMOUNT.into())]);
+    validate_amount(&twi, 0, true, &[(XRD, FAUCET_FREE_AMOUNT.into())]);
+    validate_amount(&twi, 1, true, &[(XRD, FAUCET_FREE_AMOUNT.into())]);
     validate_amount(&twi, 2, true, &[(XRD, dec!(10))]);
     validate(&twi, 3, true, None);
-    validate_amount(&twi, 4, true, &[(XRD, faucet::FAUCET_FREE_AMOUNT.into())]);
+    validate_amount(&twi, 4, true, &[(XRD, FAUCET_FREE_AMOUNT.into())]);
 }
 
 #[test]

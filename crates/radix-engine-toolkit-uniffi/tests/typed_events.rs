@@ -18,16 +18,17 @@
 use radix_engine::transaction::*;
 use radix_engine::vm::wasm::*;
 use radix_engine::vm::*;
-use radix_substate_store_impls::memory_db::*;
 use radix_engine_toolkit_uniffi::Address;
-use scrypto_test::prelude::*;
-use radix_transactions::validation::*;
+use radix_substate_store_impls::memory_db::*;
 use radix_transaction_scenarios::scenario::*;
+use radix_transactions::validation::*;
+use scrypto_test::prelude::*;
 
 #[test]
 pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
     // Arrange
-    let mut test_runner = LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let mut test_runner =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     for (_, receipt) in execute_scenarios(&mut test_runner) {
         for (event_identifier, event_data) in receipt
             .expect_commit_ignore_outcome()
@@ -108,9 +109,7 @@ pub fn execute_scenarios(
             NotarizedTransactionValidator::new(ValidationConfig::simulator());
         let substate_db = test_runner.substate_db_mut();
         let scrypto_vm = ScryptoVm::<DefaultWasmEngine>::default();
-        let native_vm = DefaultNativeVm::new();
-        let vm = Vm::new(&scrypto_vm, native_vm);
-        let fee_reserve_config = CostingParameters::default();
+        let vm_init = VmInit::new(&scrypto_vm, NoExtension);
         let execution_config =
             ExecutionConfig::for_preview(NetworkDefinition::simulator());
 
@@ -128,8 +127,7 @@ pub fn execute_scenarios(
                         .unwrap();
                     let transaction_receipt = execute_and_commit_transaction(
                         substate_db,
-                        vm.clone(),
-                        &fee_reserve_config,
+                        vm_init.clone(),
                         &execution_config,
                         &transaction.get_executable(),
                     );

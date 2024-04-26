@@ -18,7 +18,7 @@
 use std::ops::*;
 
 use radix_engine::blueprints::models::KeyValueKeyPayload;
-use radix_engine::object_modules::metadata::VersionedMetadataEntry;
+use radix_engine::object_modules::metadata::MetadataEntryV1;
 use radix_engine::system::system_substates::*;
 use radix_engine::track::*;
 use radix_substate_store_interface::interface::*;
@@ -348,8 +348,8 @@ impl<'r> TransactionTypesReceipt<'r> {
                         entry.insert(
                             key,
                             value.map(|metadata_entry| {
-                                let VersionedMetadataEntry::V1(metadata) =
-                                    metadata_entry.content;
+                                let metadata: MetadataEntryV1 =
+                                    metadata_entry.as_unique_version().clone();
                                 metadata
                             }),
                         );

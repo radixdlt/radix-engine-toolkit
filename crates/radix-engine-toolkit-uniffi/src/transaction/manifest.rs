@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::HasLatestVersion;
+use sbor::Versioned;
 
 use crate::prelude::*;
 
@@ -101,11 +101,12 @@ impl TransactionManifest {
         encoded_receipt: Vec<u8>,
     ) -> Result<ExecutionSummary> {
         let native = self.clone().to_native();
-        let receipt =
-            native_scrypto_decode::<NativeVersionedTransactionReceipt>(
-                &encoded_receipt,
-            )?
-            .into_latest();
+        let versioned_transaction_receipt = native_scrypto_decode::<
+            NativeVersionedTransactionReceipt,
+        >(&encoded_receipt)?;
+        let receipt = versioned_transaction_receipt
+            .as_latest_version()
+            .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
 
         core_manifest_execution_summary(&native, &receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
