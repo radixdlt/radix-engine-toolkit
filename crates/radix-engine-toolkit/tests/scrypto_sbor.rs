@@ -56,15 +56,17 @@ fn scrypto_value_can_be_represented_as_a_string() {
     let value = MyStruct { value: true };
     let encoded_value = scrypto_encode(&value).unwrap();
 
-    let (local_type_id, schema) =
-        generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>(
-        );
+    let (local_type_id, schema) = generate_full_schema_from_single_type::<
+        MyStruct,
+        ScryptoCustomSchema,
+    >();
 
-    let serialization_modes_params = [
-        SerializationMode::Model,
-        SerializationMode::Natural,
-        SerializationMode::Programmatic,
-    ];
+    let serialization_modes_params =
+        [
+            SerializationMode::Model,
+            SerializationMode::Natural,
+            SerializationMode::Programmatic,
+        ];
     let schema_params = [None, Some((local_type_id, schema.v1().clone()))];
     let bech32_encoder = AddressBech32Encoder::for_simulator();
 

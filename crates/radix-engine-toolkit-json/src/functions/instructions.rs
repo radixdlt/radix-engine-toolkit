@@ -182,11 +182,12 @@ impl<'a> Function<'a> for InstructionsDecompile {
                 )
             })?;
 
-        let instructions = SerializableInstructions::new(
-            &instructions,
-            instructions_kind,
-            *network_id,
-        )?;
+        let instructions =
+            SerializableInstructions::new(
+                &instructions,
+                instructions_kind,
+                *network_id,
+            )?;
 
         Ok(instructions)
     }

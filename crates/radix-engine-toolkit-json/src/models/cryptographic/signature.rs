@@ -16,10 +16,10 @@
 // under the License.
 
 use radix_common::prelude::*;
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use radix_transactions::prelude::*;
 
 use crate::prelude::*;
 

@@ -17,9 +17,9 @@
 
 use std::ops::Deref;
 
+use radix_transactions::prelude::TransactionManifestV1;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use radix_transactions::prelude::TransactionManifestV1;
 
 use crate::prelude::*;
 

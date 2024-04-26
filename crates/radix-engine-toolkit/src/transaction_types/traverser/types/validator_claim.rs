@@ -119,13 +119,9 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
-        if address
-            .as_node_id()
-            .entity_type()
-            .is_some_and(|entity_type| {
-                matches!(entity_type, EntityType::GlobalValidator)
-            })
-        {
+        if address.as_node_id().entity_type().is_some_and(
+            |entity_type| matches!(entity_type, EntityType::GlobalValidator)
+        ) {
             self.validators.insert(
                 ComponentAddress::try_from(address).expect("Must succeed!"),
             );

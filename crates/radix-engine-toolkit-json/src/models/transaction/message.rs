@@ -19,13 +19,13 @@ use std::hash::Hash;
 use std::ops::Deref;
 
 use ::indexmap::IndexMap;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
 use radix_transactions::prelude::{
     AesGcmPayload, AesWrapped128BitKey, CurveType, DecryptorsByCurve,
     EncryptedMessageV1, MessageContentsV1, MessageV1, PlaintextMessageV1,
     PublicKeyFingerprint,
 };
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 

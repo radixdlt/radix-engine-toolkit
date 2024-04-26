@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use radix_transactions::prelude::*;
 
 use crate::prelude::*;
 
@@ -55,11 +55,12 @@ impl FromNative for SerializableSignedIntent {
         network_id: u8,
         context: Self::Context,
     ) -> Result<Self, Self::Error> {
-        let intent = SerializableIntent::from_native(
-            &native.intent,
-            network_id,
-            context,
-        )?;
+        let intent =
+            SerializableIntent::from_native(
+                &native.intent,
+                network_id,
+                context,
+            )?;
         let intent_signatures = native
             .intent_signatures
             .signatures

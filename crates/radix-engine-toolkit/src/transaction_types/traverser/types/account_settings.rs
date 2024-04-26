@@ -140,9 +140,9 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
                     .insert(resource_address, Update::Set(resource_preference));
             }
         } else if method_name == ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT {
-            if let Ok(AccountRemoveResourcePreferenceInput {
-                resource_address,
-            }) = manifest_decode(&encoded_args)
+            if let Ok(
+                AccountRemoveResourcePreferenceInput { resource_address }
+            ) = manifest_decode(&encoded_args)
             {
                 self.resource_preferences
                     .entry(address)

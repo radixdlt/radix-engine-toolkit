@@ -30,10 +30,11 @@ use std::str::FromStr;
 use utils::convert_open_api_adts_to_discriminated_unions;
 
 fn main() {
-    let output_directory = {
-        let manifest_directory = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        manifest_directory.join("output")
-    };
+    let output_directory =
+        {
+            let manifest_directory = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            manifest_directory.join("output")
+        };
     std::fs::create_dir_all(&output_directory).unwrap();
 
     // Generating the function examples
@@ -118,13 +119,14 @@ fn main() {
                 continue;
             }
 
-            let output_directory = PathBuf::from_str(
-                &path.parent().unwrap().to_str().unwrap().replace(
-                    manifest_directory.to_str().unwrap(),
-                    output_directory.to_str().unwrap(),
-                ),
-            )
-            .unwrap();
+            let output_directory =
+                PathBuf::from_str(
+                    &path.parent().unwrap().to_str().unwrap().replace(
+                        manifest_directory.to_str().unwrap(),
+                        output_directory.to_str().unwrap(),
+                    ),
+                )
+                .unwrap();
             std::fs::create_dir_all(&output_directory).unwrap();
 
             let output_path = output_directory.join(path.file_name().unwrap());
@@ -141,10 +143,11 @@ fn main() {
         spec.info.title = "Radix Engine Toolkit".to_string();
 
         let output_path = output_directory.join("spec.yaml");
-        let serialized = serde_yaml::to_string(
-            &convert_open_api_adts_to_discriminated_unions(&spec),
-        )
-        .unwrap();
+        let serialized =
+            serde_yaml::to_string(
+                &convert_open_api_adts_to_discriminated_unions(&spec),
+            )
+            .unwrap();
         std::fs::write(output_path, serialized).unwrap();
     }
 }

@@ -208,9 +208,9 @@ pub fn execution_summary(
         general_transaction_detector
             .output()
             .map(|_| DetailedManifestClass::General),
-        transfer_transaction_detector.output().map(|is_one_to_one| {
-            DetailedManifestClass::Transfer { is_one_to_one }
-        }),
+        transfer_transaction_detector.output().map(
+            |is_one_to_one| DetailedManifestClass::Transfer { is_one_to_one }
+        ),
         pool_contribution_detector.output().map(
             |(pool_addresses, pool_contributions)| {
                 DetailedManifestClass::PoolContribution {

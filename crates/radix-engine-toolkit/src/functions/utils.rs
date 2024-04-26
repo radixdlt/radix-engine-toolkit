@@ -16,8 +16,8 @@
 // under the License.
 
 use bech32::{FromBase32, Variant};
-use scrypto::prelude::*;
 use radix_transactions::prelude::*;
+use scrypto::prelude::*;
 
 pub fn decode_transaction_id(
     transaction_id: &str,
@@ -48,9 +48,9 @@ pub fn decode_transaction_id(
     match variant {
         Variant::Bech32m => {}
         _ => {
-            return Err(TransactionHashBech32DecodeError::InvalidVariant(
-                variant,
-            ))
+            return Err(
+                TransactionHashBech32DecodeError::InvalidVariant(variant)
+            )
         }
     };
 

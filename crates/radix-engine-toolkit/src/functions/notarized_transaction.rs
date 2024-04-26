@@ -15,11 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::*;
-use scrypto::prelude::*;
 use radix_transactions::errors::*;
 use radix_transactions::model::*;
 use radix_transactions::validation::*;
+use sbor::*;
+use scrypto::prelude::*;
 
 use crate::models::transaction_hash::TransactionHash;
 

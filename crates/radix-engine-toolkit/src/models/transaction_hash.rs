@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto::prelude::*;
 use radix_transactions::prelude::{HashHasHrp, TransactionHashBech32Encoder};
+use scrypto::prelude::*;
 
 pub struct TransactionHash {
     pub hash: Hash,

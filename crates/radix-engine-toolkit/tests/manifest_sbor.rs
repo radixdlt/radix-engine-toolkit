@@ -57,9 +57,10 @@ fn manifest_value_can_be_represented_as_a_string() {
     let value = MyStruct { value: true };
     let encoded_value = manifest_encode(&value).unwrap();
 
-    let (local_type_id, schema) =
-        generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>(
-        );
+    let (local_type_id, schema) = generate_full_schema_from_single_type::<
+        MyStruct,
+        ScryptoCustomSchema,
+    >();
 
     let serialization_modes_params = [
         ManifestSborStringRepresentation::ManifestString,

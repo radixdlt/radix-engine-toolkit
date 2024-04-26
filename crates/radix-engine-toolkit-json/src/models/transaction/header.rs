@@ -16,9 +16,9 @@
 // under the License.
 
 use radix_common::types::Epoch;
+use radix_transactions::prelude::TransactionHeaderV1;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use radix_transactions::prelude::TransactionHeaderV1;
 
 use crate::prelude::*;
 
