@@ -693,7 +693,7 @@ pub mod execution_summary {
             | InstructionV1::BurnResource { bucket_id } => {
                 // TODO: Do we want to check that the bucket was actually
                 // present and then removed?
-                bucket_tracker.remove(bucket_id);
+                bucket_tracker.swap_remove(bucket_id);
             }
             InstructionV1::CallFunction { args, .. }
             | InstructionV1::CallMethod { args, .. }
@@ -705,7 +705,7 @@ pub mod execution_summary {
                 for bucket in manifest_value.buckets() {
                     // TODO: Do we want to check that the bucket was actually
                     // present and then removed?
-                    bucket_tracker.remove(bucket);
+                    bucket_tracker.swap_remove(bucket);
                 }
             }
             /* Neither */
