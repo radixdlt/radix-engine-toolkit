@@ -22,10 +22,10 @@ use crate::prelude::*;
 macro_rules! define_uniffi_decimal {
     ($type: ty) => {
         paste::paste!{
-            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>]}
+            define_uniffi_decimal!{[<$type>],$crate::prelude::[<Native $type>],$crate::prelude::[<NativeInner $type>]}
         }
     };
-    ($ident: ident, $native_type: ty) => {
+    ($ident: ident, $native_type: ty, $native_inner_type: ty) => {
         paste::paste! {
             #[derive(Clone, Debug, $crate::prelude::Object, Default)]
             pub struct $ident(pub(crate) $native_type);
@@ -176,6 +176,18 @@ macro_rules! define_uniffi_decimal {
                 pub fn mantissa(&self) -> String {
                     self.0.0.to_string()
                 }
+
+                pub fn to_le_bytes(&self) -> Vec<u8> {
+                    self.0.0.to_le_bytes().to_vec()
+                }
+
+                #[uniffi::constructor]
+                pub fn from_le_bytes(value: &Vec<u8>) -> $crate::prelude::Arc<Self> {
+                    $crate::prelude::Arc::new(Self($native_type($native_inner_type::from_le_bytes(
+                        &value
+                    ))))
+                }
+
             }
         }
     }
