@@ -19,8 +19,8 @@ use radix_common::prelude::{
     scrypto_encode, AddressBech32Encoder, ScryptoCustomSchema, ScryptoValue,
 };
 use radix_common::ScryptoSbor;
+use sbor::generate_full_schema_from_single_type;
 use sbor::representations::SerializationMode;
-use sbor::{generate_full_schema_from_single_type, VersionedSchema};
 
 #[test]
 fn scrypto_value_can_be_encoded() {

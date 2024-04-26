@@ -17,7 +17,6 @@
 
 use radix_common::prelude::*;
 use radix_engine_toolkit_json::prelude::*;
-use radix_transactions::prelude::*;
 
 use super::traits::HasExamples;
 

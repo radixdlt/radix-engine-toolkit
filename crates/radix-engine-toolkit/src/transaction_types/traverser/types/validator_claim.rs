@@ -20,7 +20,6 @@ use scrypto::prelude::*;
 
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_interface::blueprints::account::*;
-use radix_engine_interface::blueprints::consensus_manager::*;
 
 use crate::transaction_types::*;
 use crate::utils::*;

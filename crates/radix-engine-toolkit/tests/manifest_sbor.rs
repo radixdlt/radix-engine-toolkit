@@ -20,8 +20,8 @@ use radix_common::prelude::{
 };
 use radix_common::{ManifestSbor, ScryptoSbor};
 use radix_engine_toolkit::functions::manifest_sbor::ManifestSborStringRepresentation;
+use sbor::generate_full_schema_from_single_type;
 use sbor::representations::SerializationMode;
-use sbor::{generate_full_schema_from_single_type, VersionedSchema};
 
 #[test]
 fn manifest_value_can_be_encoded() {
