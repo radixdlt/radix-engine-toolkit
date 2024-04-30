@@ -2542,3 +2542,120 @@ fn create_pools(
         ],
     )
 }
+
+#[test]
+fn account_locker_is_recognized_as_general_transaction() {
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (public_key, _, account) = ledger.new_account(false);
+
+    let [owner_badge, storer_badge, recoverer_badge] =
+        std::array::from_fn(|_| {
+            ledger.create_fungible_resource(dec!(1), 0, account)
+        });
+
+    let account_locker = ledger
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(
+                    LOCKER_PACKAGE,
+                    ACCOUNT_LOCKER_BLUEPRINT,
+                    ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+                    AccountLockerInstantiateManifestInput {
+                        owner_role: OwnerRole::Fixed(rule!(require(
+                            owner_badge
+                        ))),
+                        storer_role: rule!(require(storer_badge)),
+                        storer_updater_role: rule!(require(storer_badge)),
+                        recoverer_role: rule!(require(recoverer_badge)),
+                        recoverer_updater_role: rule!(require(recoverer_badge)),
+                        address_reservation: None,
+                    },
+                )
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&public_key)],
+        )
+        .expect_commit_success()
+        .new_component_addresses()
+        .first()
+        .copied()
+        .unwrap();
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .get_free_xrd_from_faucet()
+        .create_proof_from_account_of_amount(account, storer_badge, dec!(1))
+        .take_from_worktop(XRD, dec!(1), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(
+                account_locker,
+                ACCOUNT_LOCKER_STORE_IDENT,
+                AccountLockerStoreManifestInput {
+                    bucket,
+                    claimant: account,
+                    try_direct_send: false,
+                },
+            )
+        })
+        .deposit_batch(account)
+        .build();
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        1
+    );
+    let account_proofs =
+        manifest_summary.presented_proofs.get(&account).unwrap();
+    assert_eq!(account_proofs.len(), 1);
+    assert_eq!(
+        account_proofs[0],
+        ResourceSpecifier::Amount(storer_badge, dec!(1))
+    );
+
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(FAUCET),
+            GlobalAddress::from(account),
+            GlobalAddress::from(storer_badge),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account_locker),
+        ]
+    );
+
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+
+    assert_eq!(manifest_summary.accounts_deposited_into.len(), 1);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
+}
