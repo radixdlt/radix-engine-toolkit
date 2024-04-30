@@ -267,6 +267,7 @@ mod native {
         GENESIS_HELPER as NATIVE_GENESIS_HELPER,
         FAUCET as NATIVE_FAUCET,
         TRANSACTION_TRACKER as NATIVE_TRANSACTION_TRACKER,
+        LOCKER_PACKAGE as NATIVE_LOCKER_PACKAGE,
 
         ManifestValue as NativeManifestValue,
         ManifestCustomValue as NativeManifestCustomValue,
@@ -545,6 +546,29 @@ mod native {
     pub use radix_engine_interface::types::{
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
         BlueprintId as NativeBlueprintId
+    };
+    pub use radix_engine_interface::blueprints::locker::{
+        ACCOUNT_LOCKER_BLUEPRINT as NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
+        ACCOUNT_LOCKER_INSTANTIATE_IDENT as NATIVE_ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+        ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT as NATIVE_ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT,
+        ACCOUNT_LOCKER_STORE_IDENT as NATIVE_ACCOUNT_LOCKER_STORE_IDENT,
+        ACCOUNT_LOCKER_AIRDROP_IDENT as NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
+        ACCOUNT_LOCKER_RECOVER_IDENT as NATIVE_ACCOUNT_LOCKER_RECOVER_IDENT,
+        ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCKER_CLAIM_IDENT as NATIVE_ACCOUNT_LOCKER_CLAIM_IDENT,
+        ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCKER_GET_AMOUNT_IDENT as NATIVE_ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
+        ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT as NATIVE_ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
+        AccountLockerInstantiateManifestInput as NativeAccountLockerInstantiateManifestInput,
+        AccountLockerInstantiateSimpleManifestInput as NativeAccountLockerInstantiateSimpleManifestInput,
+        AccountLockerStoreManifestInput as NativeAccountLockerStoreManifestInput,
+        AccountLockerAirdropManifestInput as NativeAccountLockerAirdropManifestInput,
+        AccountLockerRecoverManifestInput as NativeAccountLockerRecoverManifestInput,
+        AccountLockerRecoverNonFungiblesManifestInput as NativeAccountLockerRecoverNonFungiblesManifestInput,
+        AccountLockerClaimManifestInput as NativeAccountLockerClaimManifestInput,
+        AccountLockerClaimNonFungiblesManifestInput as NativeAccountLockerClaimNonFungiblesManifestInput,
+        AccountLockerGetAmountManifestInput as NativeAccountLockerGetAmountManifestInput,
+        AccountLockerGetNonFungibleLocalIdsManifestInput as NativeAccountLockerGetNonFungibleLocalIdsManifestInput,
     };
     pub use radix_engine::blueprints::locker::{
         ClaimEvent as NativeClaimEvent,

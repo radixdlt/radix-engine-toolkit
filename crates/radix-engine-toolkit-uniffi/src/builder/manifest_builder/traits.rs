@@ -378,6 +378,25 @@ impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
     }
 }
 
+impl FromWithNameRecordContext<ResourceSpecifier>
+    for NativeLockerResourceSpecifier
+{
+    fn from(item: ResourceSpecifier, name_record: &NameRecord) -> Result<Self> {
+        match item {
+            ResourceSpecifier::Amount {
+                resource_address: _,
+                amount,
+            } => Ok(NativeLockerResourceSpecifier::Fungible(amount.0)),
+            ResourceSpecifier::Ids {
+                resource_address: _,
+                ids,
+            } => Ok(NativeLockerResourceSpecifier::NonFungible(
+                FromWithNameRecordContext::<Vec<_>>::from(ids, name_record)?,
+            )),
+        }
+    }
+}
+
 impl<A, B> FromWithNameRecordContext<Vec<A>> for (B, B)
 where
     B: FromWithNameRecordContext<A>,
