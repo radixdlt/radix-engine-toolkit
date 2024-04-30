@@ -134,11 +134,11 @@ fn validate_ids(
 #[test]
 fn trusted_worktop_deposit_fungible_from_bucket() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let (_, _, account2) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let (_, _, account2) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -147,7 +147,7 @@ fn trusted_worktop_deposit_fungible_from_bucket() {
         .take_from_worktop(address, 10, "bucket_1")
         .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 4);
@@ -160,11 +160,11 @@ fn trusted_worktop_deposit_fungible_from_bucket() {
 #[test]
 fn trusted_worktop_deposit_non_fungible_from_bucket() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let (_, _, account2) = test_runner.new_allocated_account();
-    let address = test_runner.create_non_fungible_resource(account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let (_, _, account2) = ledger.new_allocated_account();
+    let address = ledger.create_non_fungible_resource(account);
 
     let id1 = NonFungibleLocalId::integer(1);
     let id2 = NonFungibleLocalId::integer(2);
@@ -181,7 +181,7 @@ fn trusted_worktop_deposit_non_fungible_from_bucket() {
         .try_deposit_or_abort(account2, None, "bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -200,10 +200,10 @@ fn trusted_worktop_deposit_non_fungible_from_bucket() {
 #[test]
 fn trusted_worktop_deposit_empty_bucket() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -211,7 +211,7 @@ fn trusted_worktop_deposit_empty_bucket() {
         .take_all_from_worktop(address, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 3);
@@ -223,13 +223,12 @@ fn trusted_worktop_deposit_empty_bucket() {
 #[test]
 fn trusted_worktop_take_empty() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let (_, _, account) = ledger.new_allocated_account();
     let address_fungible =
-        test_runner.create_fungible_resource(dec!(100), 0, account);
-    let address_non_fungible =
-        test_runner.create_non_fungible_resource(account);
+        ledger.create_fungible_resource(dec!(100), 0, account);
+    let address_non_fungible = ledger.create_non_fungible_resource(account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -239,7 +238,7 @@ fn trusted_worktop_take_empty() {
         .try_deposit_or_abort(account, None, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket2")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -253,10 +252,10 @@ fn trusted_worktop_take_empty() {
 #[test]
 fn trusted_worktop_take_fungible_zero() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -264,7 +263,7 @@ fn trusted_worktop_take_fungible_zero() {
         .take_from_worktop(address, 0, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 3);
@@ -276,10 +275,10 @@ fn trusted_worktop_take_fungible_zero() {
 #[test]
 fn trusted_worktop_take_nonfungible_empty() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_non_fungible_resource(account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_non_fungible_resource(account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -289,7 +288,7 @@ fn trusted_worktop_take_nonfungible_empty() {
         .try_deposit_or_abort(account, None, "empty_bucket")
         .try_deposit_or_abort(account, None, "empty_bucket2")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -303,16 +302,15 @@ fn trusted_worktop_take_nonfungible_empty() {
 #[test]
 fn trusted_worktop_burn_all() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner
-        .create_freely_mintable_and_burnable_fungible_resource(
-            OwnerRole::None,
-            Some(dec!(100)),
-            0,
-            account,
-        );
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_and_burnable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -320,7 +318,7 @@ fn trusted_worktop_burn_all() {
         .withdraw_from_account(account, address, 10)
         .burn_all_from_worktop(address)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 4);
@@ -333,23 +331,22 @@ fn trusted_worktop_burn_all() {
 #[test]
 fn trusted_worktop_burn_empty() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner
-        .create_freely_mintable_and_burnable_fungible_resource(
-            OwnerRole::None,
-            Some(dec!(100)),
-            0,
-            account,
-        );
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_and_burnable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
 
     //Act
     let manifest = ManifestBuilder::new()
         .lock_fee_from_faucet()
         .burn_all_from_worktop(address)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 3);
@@ -361,16 +358,15 @@ fn trusted_worktop_burn_empty() {
 #[test]
 fn trusted_worktop_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner
-        .create_freely_mintable_and_burnable_fungible_resource(
-            OwnerRole::None,
-            Some(dec!(100)),
-            0,
-            account,
-        );
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_and_burnable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -380,7 +376,7 @@ fn trusted_worktop_deposit_entire_worktop() {
         .return_to_worktop("bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -394,16 +390,15 @@ fn trusted_worktop_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner
-        .create_freely_mintable_and_burnable_fungible_resource(
-            OwnerRole::None,
-            Some(dec!(100)),
-            0,
-            account,
-        );
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_and_burnable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -413,7 +408,7 @@ fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
         .deposit(account, "bucket_1")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -427,16 +422,15 @@ fn trusted_worktop_deposit_account_and_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner
-        .create_freely_mintable_and_burnable_fungible_resource(
-            OwnerRole::None,
-            Some(dec!(100)),
-            0,
-            account,
-        );
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_and_burnable_fungible_resource(
+        OwnerRole::None,
+        Some(dec!(100)),
+        0,
+        account,
+    );
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -452,7 +446,7 @@ fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 7);
@@ -468,11 +462,11 @@ fn trusted_worktop_deposit_batch_and_deposit_entire_worktop() {
 #[test]
 fn trusted_worktop_two_withdraws() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let (_, _, account2) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let (_, _, account2) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -482,7 +476,7 @@ fn trusted_worktop_two_withdraws() {
         .take_from_worktop(address, 30, "bucket_1")
         .try_deposit_or_abort(account2, None, "bucket_1")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -496,10 +490,10 @@ fn trusted_worktop_two_withdraws() {
 #[test]
 fn trusted_worktop_mint_fungible() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_freely_mintable_fungible_resource(
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_freely_mintable_fungible_resource(
         OwnerRole::None,
         Some(dec!(100)),
         0,
@@ -512,7 +506,7 @@ fn trusted_worktop_mint_fungible() {
         .mint_fungible(address, 10)
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 3);
@@ -524,16 +518,16 @@ fn trusted_worktop_mint_fungible() {
 #[test]
 fn trusted_worktop_mint_fungible_two_resources() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let addr_1 = test_runner.create_freely_mintable_fungible_resource(
+    let (_, _, account) = ledger.new_allocated_account();
+    let addr_1 = ledger.create_freely_mintable_fungible_resource(
         OwnerRole::None,
         Some(dec!(100)),
         0,
         account,
     );
-    let addr_2 = test_runner.create_freely_mintable_fungible_resource(
+    let addr_2 = ledger.create_freely_mintable_fungible_resource(
         OwnerRole::None,
         Some(dec!(100)),
         0,
@@ -549,7 +543,7 @@ fn trusted_worktop_mint_fungible_two_resources() {
         .mint_fungible(addr_2, 7)
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 6);
@@ -564,16 +558,16 @@ fn trusted_worktop_mint_fungible_two_resources() {
 #[test]
 fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let addr_1 = test_runner.create_freely_mintable_fungible_resource(
+    let (_, _, account) = ledger.new_allocated_account();
+    let addr_1 = ledger.create_freely_mintable_fungible_resource(
         OwnerRole::None,
         Some(dec!(100)),
         0,
         account,
     );
-    let addr_2 = test_runner.create_freely_mintable_fungible_resource(
+    let addr_2 = ledger.create_freely_mintable_fungible_resource(
         OwnerRole::None,
         Some(dec!(100)),
         0,
@@ -593,7 +587,7 @@ fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
         .try_deposit_or_abort(account, None, "bucket_2")
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 10);
@@ -612,12 +606,12 @@ fn trusted_worktop_mint_fungible_two_resources_and_deposits() {
 #[test]
 fn trusted_worktop_one_resource_pool() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
     let (component_address, _resource_address) =
-        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+        ledger.create_one_resource_pool(address, AccessRule::AllowAll);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -633,7 +627,7 @@ fn trusted_worktop_one_resource_pool() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -648,12 +642,12 @@ fn trusted_worktop_one_resource_pool() {
 #[test]
 fn trusted_worktop_one_resource_pool_redeem() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
     let (component_address, resource_address) =
-        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+        ledger.create_one_resource_pool(address, AccessRule::AllowAll);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -682,7 +676,7 @@ fn trusted_worktop_one_resource_pool_redeem() {
         .deposit(account, "returned_res_bucket")
         .deposit(account, "bucket_30")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 12);
@@ -704,12 +698,12 @@ fn trusted_worktop_one_resource_pool_redeem() {
 #[test]
 fn trusted_worktop_one_resource_protected_withdraw() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
     let (component_address, resource_address) =
-        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+        ledger.create_one_resource_pool(address, AccessRule::AllowAll);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -736,7 +730,7 @@ fn trusted_worktop_one_resource_protected_withdraw() {
         .take_all_from_worktop(address, "returned_res_bucket")
         .deposit(account, "returned_res_bucket")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 9);
@@ -756,12 +750,12 @@ fn trusted_worktop_one_resource_protected_withdraw() {
 #[test]
 fn trusted_worktop_one_resource_protected_deposit() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
-    let address = test_runner.create_fungible_resource(dec!(100), 0, account);
+    let (_, _, account) = ledger.new_allocated_account();
+    let address = ledger.create_fungible_resource(dec!(100), 0, account);
     let (component_address, _resource_address) =
-        test_runner.create_one_resource_pool(address, AccessRule::AllowAll);
+        ledger.create_one_resource_pool(address, AccessRule::AllowAll);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -776,7 +770,7 @@ fn trusted_worktop_one_resource_protected_deposit() {
             },
         )
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 4);
@@ -789,9 +783,9 @@ fn trusted_worktop_one_resource_protected_deposit() {
 #[test]
 fn trusted_worktop_create_proof_fungible() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let (_, _, account) = ledger.new_allocated_account();
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -801,7 +795,7 @@ fn trusted_worktop_create_proof_fungible() {
         .drop_all_proofs()
         .try_deposit_or_abort(account, None, "bucket")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 5);
@@ -815,10 +809,10 @@ fn trusted_worktop_create_proof_fungible() {
 #[test]
 fn trusted_worktop_create_proof_non_fungible() {
     // Arrange
-    let mut test_runner =
+    let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
-    let (_, _, account) = test_runner.new_account(true);
-    let address = test_runner.create_non_fungible_resource(account);
+    let (_, _, account) = ledger.new_account(true);
+    let address = ledger.create_non_fungible_resource(account);
 
     let id1 = NonFungibleLocalId::integer(1);
     let id2 = NonFungibleLocalId::integer(2);
@@ -840,7 +834,7 @@ fn trusted_worktop_create_proof_non_fungible() {
         .drop_all_proofs()
         .try_deposit_or_abort(account, None, "bucket")
         .build();
-    let twi = test_runner.validate_and_get_trusted_worktop(&manifest);
+    let twi = ledger.validate_and_get_trusted_worktop(&manifest);
 
     // Assert
     assert_eq!(twi.len(), 6);

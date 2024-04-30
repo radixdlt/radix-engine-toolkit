@@ -130,7 +130,8 @@ impl GeneralDetector {
                         | EntityType::GlobalIdentity
                         | EntityType::GlobalVirtualSecp256k1Identity
                         | EntityType::GlobalVirtualEd25519Identity
-                        | EntityType::InternalGenericComponent => FnRules::all_allowed(),
+                        | EntityType::InternalGenericComponent
+                        | EntityType::GlobalAccountLocker => FnRules::all_allowed(),
                         /* Disallowed */
                         EntityType::GlobalPackage
                         | EntityType::GlobalValidator
@@ -144,8 +145,7 @@ impl GeneralDetector {
                         | EntityType::GlobalAccessController
                         | EntityType::GlobalOneResourcePool
                         | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                        | EntityType::GlobalAccountLocker => FnRules::all_disallowed(),
+                        | EntityType::GlobalMultiResourcePool => FnRules::all_disallowed(),
                     }
                 }).unwrap_or(FnRules::all_disallowed())
             }
