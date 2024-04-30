@@ -281,3 +281,33 @@ impl From<crate::prelude::NativeRoundingMode> for RoundingMode {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decimal_to_le_bytes() {
+        let d = Decimal::new(String::from("1234567890.123456789")).unwrap();
+        assert_eq!(
+            [
+                0, 146, 124, 189, 145, 122, 121, 109, 235, 53, 253, 3, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            d.to_le_bytes().as_slice()
+        );
+    }
+
+    #[test]
+    fn decimal_from_le_bytes() {
+        let d1 = Decimal::new(String::from("1234567890.123456789")).unwrap();
+        let d2 = Decimal::from_le_bytes(
+            &[
+                0, 146, 124, 189, 145, 122, 121, 109, 235, 53, 253, 3, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]
+            .to_vec(),
+        );
+        assert!(d1.equal(d2));
+    }
+}
