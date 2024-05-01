@@ -233,7 +233,9 @@ mod native {
         hash as native_hash,
 
         Decimal as NativeDecimal,
+        InnerDecimal as NativeInnerDecimal,
         PreciseDecimal as NativePreciseDecimal,
+        InnerPreciseDecimal as NativeInnerPreciseDecimal,
         RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,

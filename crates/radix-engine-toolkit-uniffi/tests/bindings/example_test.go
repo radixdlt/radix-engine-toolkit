@@ -200,3 +200,17 @@ func TestRetPublicKeyFingerprint(t *testing.T) {
 	assert(t, len(converted) == 10, "Length of byte array is invalid")
 	assert(t, reflect.DeepEqual(converted, bytes), "Conversion of byte array failed")
 }
+
+func TestRetDecimalToFromBytes(t *testing.T) {
+	var bytes = []byte{78, 243, 148, 77, 255, 81, 151, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	var dec = "1.123456789012345678"
+
+	var number, err = radix_engine_toolkit_uniffi.NewDecimal(dec)
+	assert(t, err == nil, "New Decimal failed")
+	var bytes_converted = number.ToLeBytes();
+	var converted_back = radix_engine_toolkit_uniffi.DecimalFromLeBytes(bytes_converted)
+
+	assert(t, len(bytes_converted) == 24, "Length of byte array is invalid")
+	assert(t, reflect.DeepEqual(bytes_converted, bytes), "Conversion of byte array failed")
+	assert(t, converted_back.Equal(number), "Conversion of byte array back to Decimal failed")
+}
