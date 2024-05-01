@@ -19,10 +19,10 @@
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
 
-use radix_engine::prelude::*;
+use radix_common::prelude::*;
 use radix_engine::transaction::*;
-use radix_engine_queries::typed_substate_layout::*;
-use transaction::prelude::*;
+use radix_substate_store_queries::typed_substate_layout::*;
+use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
 

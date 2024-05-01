@@ -198,35 +198,48 @@ where
     }
 }
 
-impl FromWithNameRecordContext<Arc<Address>> for NativeGlobalAddress {
-    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
-        Self::try_from(*item)
-    }
+macro_rules! impl_from_with_name_record_for_address_from_arc_address {
+    (
+        $( $type: ty ),* $(,)?
+    ) => {
+        $(
+            impl FromWithNameRecordContext<Arc<Address>> for $type {
+                fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
+                    Self::try_from(*item)
+                }
+            }
+        )*
+    };
 }
+impl_from_with_name_record_for_address_from_arc_address![
+    NativeGlobalAddress,
+    NativeInternalAddress,
+    NativeResourceAddress,
+    NativeComponentAddress,
+    NativePackageAddress,
+];
 
-impl FromWithNameRecordContext<Arc<Address>> for NativeInternalAddress {
-    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
-        Self::try_from(*item)
-    }
+macro_rules! impl_from_with_name_record_for_address_from_string {
+    (
+        $( $type: ty ),* $(,)?
+    ) => {
+        $(
+            impl FromWithNameRecordContext<String> for $type {
+                fn from(item: String, _: &NameRecord) -> Result<Self> {
+                    $crate::common::address::Address::new(item)
+                        .and_then(|value| (*value).try_into())
+                }
+            }
+        )*
+    };
 }
-
-impl FromWithNameRecordContext<Arc<Address>> for NativeResourceAddress {
-    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
-        Self::try_from(*item)
-    }
-}
-
-impl FromWithNameRecordContext<Arc<Address>> for NativeComponentAddress {
-    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
-        Self::try_from(*item)
-    }
-}
-
-impl FromWithNameRecordContext<Arc<Address>> for NativePackageAddress {
-    fn from(item: Arc<Address>, _: &NameRecord) -> Result<Self> {
-        Self::try_from(*item)
-    }
-}
+impl_from_with_name_record_for_address_from_string![
+    NativeGlobalAddress,
+    NativeInternalAddress,
+    NativeResourceAddress,
+    NativeComponentAddress,
+    NativePackageAddress,
+];
 
 impl FromWithNameRecordContext<ManifestBuilderBucket> for NativeManifestBucket {
     fn from(
@@ -374,6 +387,25 @@ impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
             Ok(public_key)
         } else {
             Err(RadixEngineToolkitError::InvalidPublicKey)
+        }
+    }
+}
+
+impl FromWithNameRecordContext<ResourceSpecifier>
+    for NativeLockerResourceSpecifier
+{
+    fn from(item: ResourceSpecifier, name_record: &NameRecord) -> Result<Self> {
+        match item {
+            ResourceSpecifier::Amount {
+                resource_address: _,
+                amount,
+            } => Ok(NativeLockerResourceSpecifier::Fungible(amount.0)),
+            ResourceSpecifier::Ids {
+                resource_address: _,
+                ids,
+            } => Ok(NativeLockerResourceSpecifier::NonFungible(
+                FromWithNameRecordContext::<Vec<_>>::from(ids, name_record)?,
+            )),
         }
     }
 }

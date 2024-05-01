@@ -19,10 +19,10 @@ use std::ops::Deref;
 
 use crate::prelude::*;
 
-use radix_engine::types::*;
+use radix_common::prelude::*;
+use radix_transactions::prelude::*;
 use schemars::*;
 use serde::*;
-use transaction::prelude::*;
 
 #[typeshare::typeshare]
 #[derive(

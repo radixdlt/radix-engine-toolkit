@@ -15,14 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::data::{
+    format_manifest_value, ManifestDecompilationDisplayContext,
+};
 use sbor::prelude::ContextualSerialize;
 use sbor::representations::{SerializationMode, SerializationParameters};
 use sbor::*;
 use scrypto::address::*;
 use scrypto::prelude::*;
-use transaction::data::{
-    format_manifest_value, ManifestDecompilationDisplayContext,
-};
 
 pub fn encode(value: &ManifestValue) -> Result<Vec<u8>, EncodeError> {
     manifest_encode(value)

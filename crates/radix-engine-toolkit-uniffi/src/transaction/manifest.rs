@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use sbor::HasLatestVersion;
+use sbor::Versioned;
 
 use crate::prelude::*;
 
@@ -101,11 +101,12 @@ impl TransactionManifest {
         encoded_receipt: Vec<u8>,
     ) -> Result<ExecutionSummary> {
         let native = self.clone().to_native();
-        let receipt =
-            native_scrypto_decode::<NativeVersionedTransactionReceipt>(
-                &encoded_receipt,
-            )?
-            .into_latest();
+        let versioned_transaction_receipt = native_scrypto_decode::<
+            NativeVersionedTransactionReceipt,
+        >(&encoded_receipt)?;
+        let receipt = versioned_transaction_receipt
+            .as_latest_version()
+            .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
 
         core_manifest_execution_summary(&native, &receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
@@ -134,7 +135,7 @@ impl TransactionManifest {
             .blobs
             .iter()
             .map(|blob| (native_hash(blob), blob.clone()))
-            .collect::<BTreeMap<_, _>>();
+            .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
         NativeTransactionManifest {
@@ -224,6 +225,35 @@ impl ResourceSpecifier {
                 )),
                 ids: ids.iter().cloned().map(Into::into).collect(),
             },
+        }
+    }
+
+    pub fn from_native_for_locker_blueprint(
+        native: &NativeLockerResourceSpecifier,
+        resource_address: &NativeResourceAddress,
+        network_id: u8,
+    ) -> ResourceSpecifier {
+        let address = Arc::new(Address::from_typed_node_id(
+            *resource_address,
+            network_id,
+        ));
+        match native {
+            NativeLockerResourceSpecifier::Fungible(amount) => {
+                ResourceSpecifier::Amount {
+                    resource_address: address,
+                    amount: Arc::new(Decimal(*amount)),
+                }
+            }
+            NativeLockerResourceSpecifier::NonFungible(native_ids) => {
+                ResourceSpecifier::Ids {
+                    resource_address: address,
+                    ids: native_ids
+                        .clone()
+                        .into_iter()
+                        .map(From::from)
+                        .collect(),
+                }
+            }
         }
     }
 }

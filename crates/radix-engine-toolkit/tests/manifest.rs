@@ -18,8 +18,8 @@
 use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_toolkit::functions::manifest::*;
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 mod test_data;
 

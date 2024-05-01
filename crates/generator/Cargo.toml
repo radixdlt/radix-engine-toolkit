@@ -1,19 +1,19 @@
 [package]
 name = "generator"
-version = "2.0.0"
+version = "2.1.0-dev1"
 edition = "2021"
 
 [dependencies]
 # radixdlt-scrypto dependencies.
 sbor = { workspace = true }
 scrypto = { workspace = true }
-scrypto-unit = { workspace = true }
-transaction = { workspace = true }
-transaction-scenarios = { workspace = true }
+scrypto-test = { workspace = true }
+radix-common = { workspace = true }
 radix-engine = { workspace = true }
-radix-engine-stores = { workspace = true }
-radix-engine-common = { workspace = true }
 radix-engine-interface = { workspace = true }
+radix-substate-store-impls = { workspace = true }
+radix-transactions = { workspace = true }
+radix-transaction-scenarios = { workspace = true }
 
 # Core Radix Engine Toolkit and Toolkit Native Library
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }

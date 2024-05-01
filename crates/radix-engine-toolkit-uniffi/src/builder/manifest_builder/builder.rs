@@ -18,8 +18,7 @@
 #![allow(clippy::too_many_arguments)]
 
 use crate::prelude::*;
-use radix_engine::types::FromPublicKey;
-use radix_engine_common::prelude::to_manifest_value;
+use radix_common::prelude::{to_manifest_value, FromPublicKey};
 
 #[derive(Debug, Clone, Object, Default)]
 pub struct ManifestBuilder {
@@ -1056,24 +1055,24 @@ macro_rules! manifest_args {
     ($($args: expr),*$(,)?) => {{
         use ::sbor::Encoder;
         let mut buf = ::sbor::rust::vec::Vec::new();
-        let mut encoder = radix_engine_common::data::manifest::ManifestEncoder::new(
+        let mut encoder = radix_common::data::manifest::ManifestEncoder::new(
             &mut buf,
-            radix_engine_common::data::manifest::MANIFEST_SBOR_V1_MAX_DEPTH
+            radix_common::data::manifest::MANIFEST_SBOR_V1_MAX_DEPTH
         );
         encoder.write_payload_prefix(
-            radix_engine_common::data::manifest::MANIFEST_SBOR_V1_PAYLOAD_PREFIX
+            radix_common::data::manifest::MANIFEST_SBOR_V1_PAYLOAD_PREFIX
         ).unwrap();
         encoder.write_value_kind(
-            radix_engine_common::data::manifest::ManifestValueKind::Tuple
+            radix_common::data::manifest::ManifestValueKind::Tuple
         ).unwrap();
         // Hack: stringify to skip ownership move semantics
-        encoder.write_size(radix_engine_common::count!($(stringify!($args)),*)).unwrap();
+        encoder.write_size(radix_common::count!($(stringify!($args)),*)).unwrap();
         $(
             let arg = $args;
             encoder.encode(&arg).unwrap();
         )*
-        let value = radix_engine_common::data::manifest::manifest_decode(&buf).unwrap();
-        radix_engine_common::data::manifest::ManifestArgs::new_from_tuple_or_panic(value)
+        let value = radix_common::data::manifest::manifest_decode(&buf).unwrap();
+        radix_common::data::manifest::ManifestArgs::new_from_tuple_or_panic(value)
     }};
 }
 use manifest_args;
@@ -2110,5 +2109,110 @@ builder_alias! {
         method_ident: NATIVE_COMPONENT_ROYALTY_CLAIM_ROYALTIES_IDENT,
         instruction: CallRoyaltyMethod,
         args: NativeComponentClaimRoyaltiesInput {}
+    },
+    // ===============
+    // Account Locker
+    // ===============
+    {
+        builder_method: account_locker_instantiate,
+        package_address: NATIVE_LOCKER_PACKAGE,
+        blueprint_ident: NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
+        function_ident: NATIVE_ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+        args: NativeAccountLockerInstantiateManifestInput {
+            owner_role: (OwnerRole => NativeOwnerRole),
+            storer_role: (Arc<AccessRule> => NativeAccessRule),
+            storer_updater_role: (Arc<AccessRule> => NativeAccessRule),
+            recoverer_role: (Arc<AccessRule> => NativeAccessRule),
+            recoverer_updater_role: (Arc<AccessRule> => NativeAccessRule),
+            address_reservation: (Option<ManifestBuilderAddressReservation> => Option<NativeManifestAddressReservation>)
+        }
+    },
+    {
+        builder_method: account_locker_instantiate_simple,
+        package_address: NATIVE_LOCKER_PACKAGE,
+        blueprint_ident: NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
+        function_ident: NATIVE_ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT,
+        args: NativeAccountLockerInstantiateSimpleManifestInput {
+            allow_recover: (bool => bool),
+        }
+    },
+    {
+        builder_method: account_locker_store,
+        method_ident: NATIVE_ACCOUNT_LOCKER_STORE_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerStoreManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            bucket: (ManifestBuilderBucket => NativeManifestBucket),
+            try_direct_send: (bool => bool),
+        }
+    },
+    {
+        builder_method: account_locker_airdrop,
+        method_ident: NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerAirdropManifestInput {
+            claimants: (HashMap<String, ResourceSpecifier> => IndexMap<NativeComponentAddress, NativeLockerResourceSpecifier>),
+            bucket: (ManifestBuilderBucket => NativeManifestBucket),
+            try_direct_send: (bool => bool),
+        }
+    },
+    {
+        builder_method: account_locker_recover,
+        method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerRecoverManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            amount: (Arc<Decimal> => NativeDecimal),
+        }
+    },
+    {
+        builder_method: account_locker_recover_non_fungibles,
+        method_ident: NATIVE_ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerRecoverNonFungiblesManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        }
+    },
+    {
+        builder_method: account_locker_claim,
+        method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerClaimManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            amount: (Arc<Decimal> => NativeDecimal),
+        }
+    },
+    {
+        builder_method: account_locker_claim_non_fungibles,
+        method_ident: NATIVE_ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerClaimNonFungiblesManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            ids: (Vec<NonFungibleLocalId> => IndexSet<NativeNonFungibleLocalId>),
+        }
+    },
+    {
+        builder_method: account_locker_get_amount,
+        method_ident: NATIVE_ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerGetAmountManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+        }
+    },
+    {
+        builder_method: account_locker_get_non_fungible_local_ids,
+        method_ident: NATIVE_ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
+        instruction: CallMethod,
+        args: NativeAccountLockerGetNonFungibleLocalIdsManifestInput {
+            claimant: (Arc<Address> => NativeComponentAddress),
+            resource_address: (Arc<Address> => NativeResourceAddress),
+            limit: (u32 => u32)
+        }
     },
 }

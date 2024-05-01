@@ -15,16 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::NetworkDefinition;
+use radix_common::prelude::NetworkDefinition;
 
 use regex::Regex;
 use sbor::{
     generate_full_schema_from_single_type, validate_payload_against_schema,
 };
 
+use radix_transactions::model::IntentV1;
+use radix_transactions::prelude::{
+    DynamicGlobalAddress, TransactionManifestV1,
+};
 use scrypto::prelude::*;
-use transaction::model::IntentV1;
-use transaction::prelude::{DynamicGlobalAddress, TransactionManifestV1};
 
 pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
     let IntentV1 {
@@ -170,12 +172,12 @@ pub fn to_manifest_type<D: ManifestDecode>(value: &ManifestValue) -> Option<D> {
 pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     value: &ManifestValue,
 ) -> Result<(), ()> {
-    let (local_type_id, VersionedSchema::V1(schema)) =
+    let (local_type_id, schema) =
         generate_full_schema_from_single_type::<S, ScryptoCustomSchema>();
     let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
-        &schema,
+        &schema.v1(),
         local_type_id,
         &(),
         SCRYPTO_SBOR_V1_MAX_DEPTH,

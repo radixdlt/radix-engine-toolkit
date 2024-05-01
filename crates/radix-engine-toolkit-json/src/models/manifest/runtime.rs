@@ -15,9 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_common::prelude::{
+    ManifestAddressReservation, ManifestBucket, ManifestExpression,
+    ManifestProof,
+};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::*;
 
 use crate::prelude::*;
 

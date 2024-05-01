@@ -19,9 +19,10 @@ pub mod manifest_summary {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
     use radix_engine_interface::blueprints::account::*;
-    use transaction::prelude::*;
+    use radix_transactions::prelude::*;
+    use scrypto::prelude::*;
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
@@ -132,10 +133,13 @@ pub mod execution_summary {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_common::prelude::*;
+    use radix_engine::system::system_modules::execution_trace::{
+        ResourceSpecifier, WorktopChange,
+    };
     use radix_engine_interface::blueprints::account::*;
-    use transaction::prelude::*;
-    use transaction::validation::*;
+    use radix_transactions::prelude::*;
+    use radix_transactions::validation::*;
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
@@ -689,7 +693,7 @@ pub mod execution_summary {
             | InstructionV1::BurnResource { bucket_id } => {
                 // TODO: Do we want to check that the bucket was actually
                 // present and then removed?
-                bucket_tracker.remove(bucket_id);
+                bucket_tracker.swap_remove(bucket_id);
             }
             InstructionV1::CallFunction { args, .. }
             | InstructionV1::CallMethod { args, .. }
@@ -701,7 +705,7 @@ pub mod execution_summary {
                 for bucket in manifest_value.buckets() {
                     // TODO: Do we want to check that the bucket was actually
                     // present and then removed?
-                    bucket_tracker.remove(bucket);
+                    bucket_tracker.swap_remove(bucket);
                 }
             }
             /* Neither */

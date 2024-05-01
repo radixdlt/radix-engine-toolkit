@@ -15,13 +15,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::{
+use radix_common::prelude::{
     manifest_encode, AddressBech32Encoder, ManifestValue, ScryptoCustomSchema,
 };
-use radix_engine_common::{ManifestSbor, ScryptoSbor};
+use radix_common::{ManifestSbor, ScryptoSbor};
 use radix_engine_toolkit::functions::manifest_sbor::ManifestSborStringRepresentation;
+use sbor::generate_full_schema_from_single_type;
 use sbor::representations::SerializationMode;
-use sbor::{generate_full_schema_from_single_type, VersionedSchema};
 
 #[test]
 fn manifest_value_can_be_encoded() {
@@ -57,7 +57,7 @@ fn manifest_value_can_be_represented_as_a_string() {
     let value = MyStruct { value: true };
     let encoded_value = manifest_encode(&value).unwrap();
 
-    let (local_type_id, VersionedSchema::V1(schema)) =
+    let (local_type_id, schema) =
         generate_full_schema_from_single_type::<MyStruct, ScryptoCustomSchema>(
         );
 
@@ -67,7 +67,7 @@ fn manifest_value_can_be_represented_as_a_string() {
         ManifestSborStringRepresentation::JSON(SerializationMode::Natural),
         ManifestSborStringRepresentation::JSON(SerializationMode::Programmatic),
     ];
-    let schema_params = [None, Some((local_type_id, schema))];
+    let schema_params = [None, Some((local_type_id, schema.v1().clone()))];
     let bech32_encoder = AddressBech32Encoder::for_simulator();
 
     for representation in serialization_modes_params {

@@ -15,9 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::prelude::*;
 
 use crate::prelude::*;
 

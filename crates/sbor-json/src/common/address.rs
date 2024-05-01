@@ -17,7 +17,7 @@
 
 use std::fmt::Display;
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 
 /// A representation of a serializable NodeId made up of a node id and a
 /// network. The network here is:

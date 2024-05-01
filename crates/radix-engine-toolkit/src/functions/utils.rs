@@ -16,8 +16,8 @@
 // under the License.
 
 use bech32::{FromBase32, Variant};
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 pub fn decode_transaction_id(
     transaction_id: &str,

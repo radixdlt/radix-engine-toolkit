@@ -19,13 +19,12 @@ use radix_engine::blueprints::pool::v1::constants::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
-use radix_engine_queries::typed_substate_layout::UnstakeData;
 use radix_engine_toolkit::transaction_types::*;
-use scrypto_unit::*;
-use transaction::prelude::*;
+use radix_transactions::prelude::*;
+use scrypto_test::prelude::*;
 
 mod test_runner_extension;
-use test_runner_extension::TestRunnerEDExt;
+use test_runner_extension::LedgerSimulatorEDExt;
 
 macro_rules! assert_eq_three {
     (
@@ -50,11 +49,12 @@ macro_rules! assert_eq_three {
 #[test]
 fn empty_manifest_matches_none_of_the_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let manifest = ManifestBuilder::new().build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(manifest_summary.classification.len(), 0);
@@ -65,10 +65,11 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
 fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
 ) {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .lock_fee(account1, 10)
@@ -78,7 +79,7 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -163,10 +164,11 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
 #[test]
 fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account1, XRD, 10)
@@ -175,7 +177,7 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -260,10 +262,11 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 #[test]
 fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account1, XRD, 10)
@@ -275,7 +278,7 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -362,10 +365,11 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
 #[test]
 fn transfers_with_try_deposit_or_refund_are_invalid() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account1, XRD, 10)
@@ -374,7 +378,7 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -446,10 +450,11 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
 #[test]
 fn lock_fee_is_recognized_as_a_reserved_instruction1() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .lock_fee(account1, dec!("10"))
@@ -459,7 +464,7 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -531,10 +536,11 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
 #[test]
 fn lock_fee_is_recognized_as_a_reserved_instruction2() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
-    let (_, _, account2) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
+    let (_, _, account2) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .lock_fee_and_withdraw(account1, 10, XRD, 10)
@@ -543,7 +549,7 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -615,9 +621,10 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
 #[test]
 fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .get_free_xrd_from_faucet()
@@ -626,7 +633,7 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -695,9 +702,10 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
 #[test]
 fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .get_free_xrd_from_faucet()
@@ -706,7 +714,7 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -775,9 +783,10 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
 #[test]
 fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .get_free_xrd_from_faucet()
@@ -785,7 +794,7 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -850,9 +859,10 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
 #[test]
 fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account1) = test_runner.new_account(false);
+    let (_, _, account1) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .get_free_xrd_from_faucet()
@@ -861,7 +871,7 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -930,15 +940,16 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
 #[test]
 fn pool_contribution_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account) = test_runner.new_account(false);
+    let (_, _, account) = ledger.new_account(false);
 
     let (
         [resource1, resource2, resource3, resource4],
         [one_pool, two_pool, multi_pool],
         [one_pool_unit, two_pool_unit, multi_pool_unit],
-    ) = create_pools(&mut test_runner, account);
+    ) = create_pools(&mut ledger, account);
 
     let manifest = ManifestBuilder::new()
         /* One Resource Pool */
@@ -986,7 +997,7 @@ fn pool_contribution_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
     assert_eq_three!(
         manifest_summary.presented_proofs.len(),
         execution_summary.presented_proofs.len(),
@@ -1162,15 +1173,16 @@ fn pool_contribution_transactions_are_recognized() {
 #[test]
 fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (_, _, account) = test_runner.new_account(false);
+    let (_, _, account) = ledger.new_account(false);
 
     let (
         [resource1, resource2, resource3, resource4],
         [_, _, multi_pool],
         [_, _, multi_pool_unit],
-    ) = create_pools(&mut test_runner, account);
+    ) = create_pools(&mut ledger, account);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account, resource1, 100)
@@ -1196,7 +1208,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
     assert_eq_three!(
         manifest_summary.presented_proofs.len(),
         execution_summary.presented_proofs.len(),
@@ -1377,17 +1389,19 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
 #[test]
 fn pool_redemption_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (pk, _, account) = test_runner.new_account(false);
+    let (pk, _, account) = ledger.new_account(false);
 
     let (
         [resource1, resource2, resource3, resource4],
         [one_pool, two_pool, multi_pool],
         [one_pool_unit, two_pool_unit, multi_pool_unit],
-    ) = create_pools(&mut test_runner, account);
+    ) = create_pools(&mut ledger, account);
 
     let manifest = ManifestBuilder::new()
+        .lock_fee_from_faucet()
         /* One Resource Pool */
         .withdraw_from_account(account, resource1, 100)
         .take_from_worktop(resource1, 100, "one_pool_bucket1")
@@ -1431,8 +1445,8 @@ fn pool_redemption_transactions_are_recognized() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    test_runner
-        .execute_manifest_ignoring_fee(
+    ledger
+        .execute_manifest(
             manifest,
             vec![NonFungibleGlobalId::from_public_key(&pk)],
         )
@@ -1474,7 +1488,7 @@ fn pool_redemption_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
     assert_eq_three!(
         manifest_summary.presented_proofs.len(),
         execution_summary.presented_proofs.len(),
@@ -1637,11 +1651,12 @@ fn pool_redemption_transactions_are_recognized() {
 #[test]
 fn validator_stake_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (pk, _, account) = test_runner.new_account(false);
-    let (validator1, stake_unit1, _) = test_runner.new_validator(pk, account);
-    let (validator2, stake_unit2, _) = test_runner.new_validator(pk, account);
+    let (pk, _, account) = ledger.new_account(false);
+    let (validator1, stake_unit1, _) = ledger.new_validator(pk, account);
+    let (validator2, stake_unit2, _) = ledger.new_validator(pk, account);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account, XRD, 200)
@@ -1653,7 +1668,7 @@ fn validator_stake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -1757,15 +1772,16 @@ fn validator_stake_transactions_are_recognized() {
 #[test]
 fn validator_unstake_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (pk, _, account) = test_runner.new_account(false);
+    let (pk, _, account) = ledger.new_account(false);
     let (validator1, stake_unit1, claim_nft1) =
-        test_runner.new_validator(pk, account);
+        ledger.new_validator(pk, account);
     let (validator2, stake_unit2, claim_nft2) =
-        test_runner.new_validator(pk, account);
+        ledger.new_validator(pk, account);
 
-    test_runner
+    ledger
         .execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
@@ -1791,7 +1807,7 @@ fn validator_unstake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -1953,15 +1969,16 @@ fn validator_unstake_transactions_are_recognized() {
 #[test]
 fn validator_claim_transactions_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
-    let (pk, _, account) = test_runner.new_account(false);
+    let (pk, _, account) = ledger.new_account(false);
     let (validator1, stake_unit1, claim_nft1) =
-        test_runner.new_validator(pk, account);
+        ledger.new_validator(pk, account);
     let (validator2, stake_unit2, claim_nft2) =
-        test_runner.new_validator(pk, account);
+        ledger.new_validator(pk, account);
 
-    test_runner
+    ledger
         .execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
@@ -1975,7 +1992,7 @@ fn validator_claim_transactions_are_recognized() {
             vec![NonFungibleGlobalId::from_public_key(&pk)],
         )
         .expect_commit_success();
-    test_runner
+    ledger
         .execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
@@ -1991,7 +2008,7 @@ fn validator_claim_transactions_are_recognized() {
         )
         .expect_commit_success();
 
-    test_runner.advance_epoch(100);
+    ledger.advance_epoch(100);
 
     let manifest = ManifestBuilder::new()
         .withdraw_from_account(account, claim_nft1, 1)
@@ -2016,7 +2033,7 @@ fn validator_claim_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
@@ -2147,8 +2164,9 @@ fn validator_claim_transactions_are_recognized() {
 #[test]
 fn account_deposit_settings_changes_are_recognized() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_account(false);
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_account(false);
 
     let manifest = ManifestBuilder::new()
         .call_method(
@@ -2211,7 +2229,7 @@ fn account_deposit_settings_changes_are_recognized() {
             },
         )
         .build();
-    let (manifest_summary, execution_summary) = test_runner.summarize(manifest);
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 
     assert_eq_three!(
         manifest_summary.presented_proofs.len(),
@@ -2284,18 +2302,16 @@ fn account_deposit_settings_changes_are_recognized() {
 
 #[test]
 fn presented_proofs_fungible() {
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account_1) = test_runner.new_allocated_account();
-    let (_, _, account_2) = test_runner.new_allocated_account();
-    let address_1 =
-        test_runner.create_fungible_resource(dec!(100), 0, account_1);
-    let address_2 =
-        test_runner.create_fungible_resource(dec!(100), 0, account_1);
-    let address_3 =
-        test_runner.create_fungible_resource(dec!(100), 0, account_2);
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account_1) = ledger.new_allocated_account();
+    let (_, _, account_2) = ledger.new_allocated_account();
+    let address_1 = ledger.create_fungible_resource(dec!(100), 0, account_1);
+    let address_2 = ledger.create_fungible_resource(dec!(100), 0, account_1);
+    let address_3 = ledger.create_fungible_resource(dec!(100), 0, account_2);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -2306,7 +2322,7 @@ fn presented_proofs_fungible() {
         .create_proof_from_account_of_amount(account_1, address_1, 80)
         .create_proof_from_account_of_amount(account_2, address_3, 5)
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let (manifest_summary, _) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(manifest_summary.presented_proofs.len(), 2);
@@ -2340,15 +2356,16 @@ fn presented_proofs_fungible() {
 
 #[test]
 fn presented_proofs_non_fungible() {
-    use radix_engine::system::system_modules::execution_trace::*;
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account_1) = test_runner.new_allocated_account();
-    let (_, _, account_2) = test_runner.new_allocated_account();
-    let address_1 = test_runner.create_non_fungible_resource(account_1);
-    let address_2 = test_runner.create_non_fungible_resource(account_1);
-    let address_3 = test_runner.create_non_fungible_resource(account_2);
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account_1) = ledger.new_allocated_account();
+    let (_, _, account_2) = ledger.new_allocated_account();
+    let address_1 = ledger.create_non_fungible_resource(account_1);
+    let address_2 = ledger.create_non_fungible_resource(account_1);
+    let address_3 = ledger.create_non_fungible_resource(account_2);
 
     //Act
     let manifest = ManifestBuilder::new()
@@ -2385,7 +2402,7 @@ fn presented_proofs_non_fungible() {
             [NonFungibleLocalId::integer(2)],
         )
         .build();
-    let (manifest_summary, _) = test_runner.summarize(manifest);
+    let (manifest_summary, _) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(manifest_summary.presented_proofs.len(), 2);
@@ -2441,7 +2458,7 @@ fn presented_proofs_non_fungible() {
 }
 
 fn create_pools(
-    test_runner: &mut DefaultTestRunner,
+    ledger: &mut DefaultLedgerSimulator,
     account: ComponentAddress,
 ) -> (
     [ResourceAddress; 4],
@@ -2449,10 +2466,10 @@ fn create_pools(
     [ResourceAddress; 3],
 ) {
     let [resource1, resource2, resource3, resource4] = [0u8; 4].map(|_| {
-        test_runner.create_fungible_resource(dec!(100_000_000_000), 18, account)
+        ledger.create_fungible_resource(dec!(100_000_000_000), 18, account)
     });
 
-    let receipt = test_runner.execute_manifest(
+    let receipt = ledger.execute_manifest(
         ManifestBuilder::new()
             .lock_fee_from_faucet()
             .call_function(
@@ -2524,4 +2541,121 @@ fn create_pools(
             *multi_resource_pool_pool_unit,
         ],
     )
+}
+
+#[test]
+fn account_locker_is_recognized_as_general_transaction() {
+    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (public_key, _, account) = ledger.new_account(false);
+
+    let [owner_badge, storer_badge, recoverer_badge] =
+        std::array::from_fn(|_| {
+            ledger.create_fungible_resource(dec!(1), 0, account)
+        });
+
+    let account_locker = ledger
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(
+                    LOCKER_PACKAGE,
+                    ACCOUNT_LOCKER_BLUEPRINT,
+                    ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+                    AccountLockerInstantiateManifestInput {
+                        owner_role: OwnerRole::Fixed(rule!(require(
+                            owner_badge
+                        ))),
+                        storer_role: rule!(require(storer_badge)),
+                        storer_updater_role: rule!(require(storer_badge)),
+                        recoverer_role: rule!(require(recoverer_badge)),
+                        recoverer_updater_role: rule!(require(recoverer_badge)),
+                        address_reservation: None,
+                    },
+                )
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&public_key)],
+        )
+        .expect_commit_success()
+        .new_component_addresses()
+        .first()
+        .copied()
+        .unwrap();
+
+    // Act
+    let manifest = ManifestBuilder::new()
+        .get_free_xrd_from_faucet()
+        .create_proof_from_account_of_amount(account, storer_badge, dec!(1))
+        .take_from_worktop(XRD, dec!(1), "bucket")
+        .with_bucket("bucket", |builder, bucket| {
+            builder.call_method(
+                account_locker,
+                ACCOUNT_LOCKER_STORE_IDENT,
+                AccountLockerStoreManifestInput {
+                    bucket,
+                    claimant: account,
+                    try_direct_send: false,
+                },
+            )
+        })
+        .deposit_batch(account)
+        .build();
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
+    assert_eq_three!(
+        manifest_summary.presented_proofs.len(),
+        execution_summary.presented_proofs.len(),
+        1
+    );
+    let account_proofs =
+        manifest_summary.presented_proofs.get(&account).unwrap();
+    assert_eq!(account_proofs.len(), 1);
+    assert_eq!(
+        account_proofs[0],
+        ResourceSpecifier::Amount(storer_badge, dec!(1))
+    );
+
+    assert_eq_three!(
+        manifest_summary.encountered_entities,
+        execution_summary.encountered_entities,
+        indexset![
+            GlobalAddress::from(FAUCET),
+            GlobalAddress::from(account),
+            GlobalAddress::from(storer_badge),
+            GlobalAddress::from(XRD),
+            GlobalAddress::from(account_locker),
+        ]
+    );
+
+    assert_eq_three!(
+        manifest_summary.accounts_requiring_auth,
+        execution_summary.accounts_requiring_auth,
+        indexset![account]
+    );
+    assert_eq_three!(
+        manifest_summary.identities_requiring_auth,
+        execution_summary.identities_requiring_auth,
+        indexset![]
+    );
+
+    assert!(execution_summary.account_withdraws.is_empty());
+    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+
+    assert_eq!(manifest_summary.accounts_deposited_into.len(), 1);
+    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+
+    assert_eq!(execution_summary.new_entities, NewEntities::default());
 }

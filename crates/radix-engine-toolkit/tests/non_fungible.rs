@@ -15,18 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use scrypto_unit::*;
-use transaction::prelude::node_modules::ModuleConfig;
-use transaction::prelude::*;
+use scrypto_test::prelude::*;
 
 mod test_runner_extension;
-use test_runner_extension::TestRunnerEDExt;
+use test_runner_extension::LedgerSimulatorEDExt;
 
 #[test]
 fn execution_summary_new_non_fungible_list_initial_supply() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_allocated_account();
 
     // Act
     let nf_id_1 =
@@ -45,7 +44,7 @@ fn execution_summary_new_non_fungible_list_initial_supply() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (_, execution_summary) = ledger.summarize(manifest);
     let address = execution_summary
         .new_entities
         .resource_addresses
@@ -65,8 +64,9 @@ fn execution_summary_new_non_fungible_list_initial_supply() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_mint() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_allocated_account();
 
     let nf_id_1 =
         NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
@@ -84,7 +84,7 @@ fn execution_summary_new_non_fungible_list_after_mint() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let receipt = test_runner.execute_manifest(manifest, vec![]);
+    let receipt = ledger.execute_manifest(manifest, vec![]);
     let address = receipt
         .expect_commit_success()
         .new_resource_addresses()
@@ -97,7 +97,7 @@ fn execution_summary_new_non_fungible_list_after_mint() {
         .mint_non_fungible(*address, vec![(nf_id_2.clone(), ())])
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (_, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(execution_summary.newly_created_non_fungibles.len(), 1);
@@ -109,8 +109,9 @@ fn execution_summary_new_non_fungible_list_after_mint() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_burn() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_allocated_account();
 
     let nf_id_1 =
         NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
@@ -126,7 +127,7 @@ fn execution_summary_new_non_fungible_list_after_burn() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let receipt = test_runner.execute_manifest(manifest, vec![]);
+    let receipt = ledger.execute_manifest(manifest, vec![]);
     let address = receipt
         .expect_commit_success()
         .new_resource_addresses()
@@ -141,7 +142,7 @@ fn execution_summary_new_non_fungible_list_after_burn() {
             NonFungibleGlobalId::new(*address, nf_id_1),
         )
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (_, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
@@ -150,8 +151,9 @@ fn execution_summary_new_non_fungible_list_after_burn() {
 #[test]
 fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
     // Arrange
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_allocated_account();
 
     let nf_id_1 =
         NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
@@ -171,7 +173,7 @@ fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let receipt = test_runner.execute_manifest(manifest, vec![]);
+    let receipt = ledger.execute_manifest(manifest, vec![]);
     let address = receipt
         .expect_commit_success()
         .new_resource_addresses()
@@ -188,7 +190,7 @@ fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (_, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(execution_summary.newly_created_non_fungibles.len(), 1);
@@ -207,8 +209,9 @@ fn execution_summary_new_non_fungible_list_after_update() {
     impl NonFungibleData for NfData {
         const MUTABLE_FIELDS: &'static [&'static str] = &["name"];
     }
-    let mut test_runner = TestRunnerBuilder::new().without_trace().build();
-    let (_, _, account) = test_runner.new_allocated_account();
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_allocated_account();
 
     let nf_id_1 =
         NonFungibleLocalId::Integer(IntegerNonFungibleLocalId::new(1));
@@ -239,7 +242,7 @@ fn execution_summary_new_non_fungible_list_after_update() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let receipt = test_runner.execute_manifest(manifest, vec![]);
+    let receipt = ledger.execute_manifest(manifest, vec![]);
     let address = receipt
         .expect_commit_success()
         .new_resource_addresses()
@@ -251,7 +254,7 @@ fn execution_summary_new_non_fungible_list_after_update() {
         .lock_fee_from_faucet()
         .update_non_fungible_data(*address, nf_id_1, "name", "new_data")
         .build();
-    let (_, execution_summary) = test_runner.summarize(manifest);
+    let (_, execution_summary) = ledger.summarize(manifest);
 
     // Assert
     assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);

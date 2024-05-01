@@ -18,8 +18,8 @@
 use crate::statics::*;
 use crate::transaction_types::*;
 use crate::utils::*;
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 #[derive(Default)]
 pub struct StaticAccountResourceMovementsDetector {

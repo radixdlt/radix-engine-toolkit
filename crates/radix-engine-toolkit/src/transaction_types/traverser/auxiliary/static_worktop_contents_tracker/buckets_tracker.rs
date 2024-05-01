@@ -17,8 +17,8 @@
 
 use crate::transaction_types::types::ResourceSpecifierExt;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+use radix_transactions::validation::ManifestIdAllocator;
 use scrypto::prelude::*;
-use transaction::validation::ManifestIdAllocator;
 
 use super::TrackedResource;
 
@@ -143,7 +143,7 @@ impl BucketsTracker {
         &mut self,
         bucket_id: &ManifestBucket,
     ) -> Option<BucketContent> {
-        self.buckets.remove(bucket_id)
+        self.buckets.swap_remove(bucket_id)
     }
 
     pub fn try_consume_fungible_from_bucket(

@@ -97,7 +97,8 @@ impl WorktopContentTracker {
                             *amount = new_value;
 
                             if amount.is_zero() {
-                                self.worktop_content.remove(&resource_address);
+                                self.worktop_content
+                                    .swap_remove(&resource_address);
                             }
 
                             return true;
@@ -115,7 +116,7 @@ impl WorktopContentTracker {
                     ids.retain(|item| !incomming_ids.contains(item));
 
                     if ids.is_empty() {
-                        self.worktop_content.remove(&resource_address);
+                        self.worktop_content.swap_remove(&resource_address);
                     }
                     return true;
                 }
@@ -132,7 +133,7 @@ impl WorktopContentTracker {
         &mut self,
         resource_address: ResourceAddress,
     ) -> Option<ResourceSpecifier> {
-        self.worktop_content.remove(&resource_address)
+        self.worktop_content.swap_remove(&resource_address)
     }
 
     pub fn take_all_from_worktop(&mut self) -> Vec<ResourceSpecifier> {

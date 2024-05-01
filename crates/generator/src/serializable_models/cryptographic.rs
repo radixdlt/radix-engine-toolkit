@@ -15,13 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::PublicKey;
-use radix_engine_toolkit_json::prelude::*;
-use scrypto::prelude::{hash, Hash};
-use transaction::prelude::{
-    Ed25519PrivateKey, Secp256k1PrivateKey, SignatureV1,
-    SignatureWithPublicKeyV1,
+use radix_common::prelude::{
+    Ed25519PrivateKey, PublicKey, Secp256k1PrivateKey,
 };
+use radix_engine_toolkit_json::prelude::*;
+use radix_transactions::prelude::{SignatureV1, SignatureWithPublicKeyV1};
+use scrypto::prelude::{hash, Hash};
 
 use super::traits::HasExamples;
 

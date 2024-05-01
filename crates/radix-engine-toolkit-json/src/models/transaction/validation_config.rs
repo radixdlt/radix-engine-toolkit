@@ -15,9 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::validation::{
+    MessageValidationConfig, ValidationConfig,
+};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use transaction::validation::{MessageValidationConfig, ValidationConfig};
 
 use crate::prelude::*;
 

@@ -21,8 +21,8 @@ use radix_engine_interface::blueprints::{
     access_controller::*, account::*, consensus_manager::*, identity::*,
     package::*, pool::*,
 };
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 use super::{StaticWorktopContentsTracker, TrackedResource};
 

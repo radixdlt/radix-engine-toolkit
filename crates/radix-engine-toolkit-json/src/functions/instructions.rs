@@ -17,7 +17,7 @@
 
 use crate::prelude::*;
 
-use radix_engine_common::types::EntityType;
+use radix_common::types::EntityType;
 use radix_engine_toolkit::models::node_id::TypedNodeId;
 use sbor::prelude::{HashMap, HashSet};
 use schemars::JsonSchema;
@@ -324,6 +324,7 @@ pub enum SerializableEntityType {
     GlobalOneResourcePool,
     GlobalTwoResourcePool,
     GlobalMultiResourcePool,
+    GlobalAccountLocker,
     GlobalVirtualSecp256k1Account,
     GlobalVirtualSecp256k1Identity,
     GlobalVirtualEd25519Account,
@@ -408,6 +409,7 @@ impl From<EntityType> for SerializableEntityType {
                 Self::InternalGenericComponent
             }
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+            EntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
         }
     }
 }
@@ -469,6 +471,9 @@ impl From<SerializableEntityType> for EntityType {
             }
             SerializableEntityType::InternalKeyValueStore => {
                 Self::InternalKeyValueStore
+            }
+            SerializableEntityType::GlobalAccountLocker => {
+                Self::GlobalAccountLocker
             }
         }
     }

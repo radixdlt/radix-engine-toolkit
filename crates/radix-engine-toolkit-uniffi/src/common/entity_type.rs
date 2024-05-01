@@ -35,6 +35,7 @@ pub enum EntityType {
     GlobalOneResourcePool,
     GlobalTwoResourcePool,
     GlobalMultiResourcePool,
+    GlobalAccountLocker,
     GlobalTransactionTracker,
     InternalFungibleVault,
     InternalNonFungibleVault,
@@ -86,6 +87,7 @@ impl From<EntityType> for NativeEntityType {
                 Self::InternalGenericComponent
             }
             EntityType::InternalKeyValueStore => Self::InternalKeyValueStore,
+            EntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
         }
     }
 }
@@ -148,6 +150,7 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::InternalKeyValueStore => {
                 Self::InternalKeyValueStore
             }
+            NativeEntityType::GlobalAccountLocker => Self::GlobalAccountLocker,
         }
     }
 }

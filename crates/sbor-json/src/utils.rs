@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::NetworkDefinition;
+use radix_common::prelude::NetworkDefinition;
 use regex::Regex;
 
 // TODO: Deduplicate - this also exists in the core toolkit but we would like

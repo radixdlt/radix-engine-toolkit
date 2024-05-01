@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::{
+use radix_common::prelude::{
     AddressBech32DecodeError, AddressBech32Decoder, AddressBech32Encoder,
 };
 use schemars::JsonSchema;

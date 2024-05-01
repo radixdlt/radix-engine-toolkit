@@ -15,8 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::*;
 use scrypto::prelude::*;
-use transaction::prelude::*;
 
 use crate::statics::*;
 use crate::transaction_types::*;

@@ -16,13 +16,13 @@
 // under the License.
 
 use lazy_static::lazy_static;
+use radix_common::prelude::*;
 use radix_engine::blueprints::native_schema::*;
 use radix_engine::blueprints::package::*;
-use radix_engine::types::*;
-use scrypto::api::node_modules::auth::*;
-use scrypto::api::node_modules::royalty::*;
+use radix_engine_interface::prelude::*;
 use scrypto::blueprints::account::*;
 use scrypto::blueprints::identity::*;
+use scrypto::radix_blueprint_schema_init::*;
 
 use crate::schema_visitor::core::traverser::traverse;
 use crate::schema_visitor::visitors::bucket_in_path_visitor::BucketInPathVisitor;
@@ -153,9 +153,8 @@ fn path_contains_a_bucket(
     local_type_id: LocalTypeId,
     schema: &VersionedScryptoSchema,
 ) -> bool {
-    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = BucketInPathVisitor::default();
-    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
+    traverse(schema.v1(), local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_bucket()
 }
 
@@ -163,9 +162,8 @@ fn path_contains_a_proof(
     local_type_id: LocalTypeId,
     schema: &VersionedScryptoSchema,
 ) -> bool {
-    let VersionedScryptoSchema::V1(schema) = schema;
     let mut visitor = ProofInPathVisitor::default();
-    traverse(schema, local_type_id, &mut [&mut visitor]).unwrap();
+    traverse(schema.v1(), local_type_id, &mut [&mut visitor]).unwrap();
     visitor.path_contains_proof()
 }
 

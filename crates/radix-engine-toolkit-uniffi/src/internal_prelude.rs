@@ -164,14 +164,25 @@ mod core {
 #[rustfmt::skip]
 #[allow(unused_braces)]
 mod native {
-    pub use transaction::prelude::{
+    pub use radix_transactions::prelude::{
+        /* Cryptography */
+        Signer as NativeSigner,
+        PrivateKey as NativePrivateKey,
+
+        SignatureV1 as NativeSignature,
+
+        SignatureWithPublicKeyV1 as NativeSignatureWithPublicKey,
+    };
+    pub use radix_common::prelude::{
+        Epoch as NativeEpoch,
+        IsHash as NativeIsHash,
+        FromPublicKey as NativeFromPublicKey,
+
         /* Cryptography */
         Ed25519PrivateKey as NativeEd25519PrivateKey,
         Secp256k1PrivateKey as NativeSecp256k1PrivateKey,
 
-        Signer as NativeSigner,
         PublicKey as NativePublicKey,
-        PrivateKey as NativePrivateKey,
         Ed25519PublicKey as NativeEd25519PublicKey,
         Secp256k1PublicKey as NativeSecp256k1PublicKey,
 
@@ -180,13 +191,10 @@ mod native {
         Ed25519PublicKeyHash as NativeEd25519PublicKeyHash,
         Secp256k1PublicKeyHash as NativeSecp256k1PublicKeyHash,
 
-        SignatureV1 as NativeSignature,
         Ed25519Signature as NativeEd25519Signature,
         Secp256k1Signature as NativeSecp256k1Signature,
-
-        SignatureWithPublicKeyV1 as NativeSignatureWithPublicKey,
     };
-    pub use transaction::manifest::{
+    pub use radix_transactions::manifest::{
         compile as native_compile,
         decompile as native_decompile,
 
@@ -225,7 +233,9 @@ mod native {
         hash as native_hash,
 
         Decimal as NativeDecimal,
+        InnerDecimal as NativeInnerDecimal,
         PreciseDecimal as NativePreciseDecimal,
+        InnerPreciseDecimal as NativeInnerPreciseDecimal,
         RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,
@@ -259,6 +269,7 @@ mod native {
         GENESIS_HELPER as NATIVE_GENESIS_HELPER,
         FAUCET as NATIVE_FAUCET,
         TRANSACTION_TRACKER as NATIVE_TRANSACTION_TRACKER,
+        LOCKER_PACKAGE as NATIVE_LOCKER_PACKAGE,
 
         ManifestValue as NativeManifestValue,
         ManifestCustomValue as NativeManifestCustomValue,
@@ -322,7 +333,7 @@ mod native {
         AddressBech32Decoder as NativeAddressBech32Decoder,
         AddressBech32Encoder as NativeAddressBech32Encoder,
     };
-    pub use transaction::prelude::{
+    pub use radix_transactions::prelude::{
         InstructionV1 as NativeInstruction,
         InstructionsV1 as NativeInstructions,
         DynamicGlobalAddress as NativeDynamicGlobalAddress,
@@ -336,7 +347,6 @@ mod native {
         BlobV1 as NativeBlob,
         BlobsV1 as NativeBlobs,
 
-        Epoch as NativeEpoch,
 
         AesGcmPayload as NativeAesGcmPayload,
         AesWrapped128BitKey as NativeAesWrapped128BitKey,
@@ -362,25 +372,24 @@ mod native {
         SignedIntentHash as NativeSignedIntentHash,
         NotarizedTransactionHash as NativeNotarizedTransactionHash,
 
-        IsHash as NativeIsHash,
         HashHasHrp as NativeHashHasHrp,
         TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
         TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
 
         NamedManifestAddress as NativeNamedManifestAddress
     };
-    pub use transaction::validation::{
+    pub use radix_transactions::validation::{
         ValidationConfig as NativeValidationConfig,
         MessageValidationConfig as NativeMessageValidationConfig,
         ManifestIdAllocator as NativeManifestIdAllocator
     };
-    pub use transaction::errors::{
+    pub use radix_transactions::errors::{
         TransactionValidationError as NativeTransactionValidationError,
     };
-    pub use radix_engine_common::data::scrypto::model::{
+    pub use radix_common::data::scrypto::model::{
         ContentValidationError as NativeContentValidationError,
     };
-    pub use radix_engine_common::data::manifest::converter::{
+    pub use radix_common::data::manifest::converter::{
         from_decimal as native_from_decimal,
         from_precise_decimal as native_from_precise_decimal,
         from_non_fungible_local_id as native_from_non_fungible_local_id,
@@ -388,10 +397,10 @@ mod native {
         to_precise_decimal as native_to_precise_decimal,
         to_non_fungible_local_id as native_to_non_fungible_local_id,
     };
-    pub use scrypto::api::node_modules::{
+    pub use scrypto::object_modules:: {
         ModuleConfig as NativeModuleConfig,
     };
-    pub use scrypto::api::node_modules::metadata::{
+    pub use scrypto::object_modules::metadata::{
         MetadataValue as NativeMetadataValue,
         MetadataInit as NativeMetadataInit,
     };
@@ -406,7 +415,7 @@ mod native {
     pub use sbor::representations::{
         SerializationMode as NativeSerializationMode
     };
-    pub use radix_engine_common::prelude::{
+    pub use radix_common::prelude::{
         to_manifest_value_and_unwrap as native_to_manifest_value_and_unwrap,
         Schema as NativeSchema,
         VersionedSchema as NativeVersionedSchema,
@@ -420,13 +429,13 @@ mod native {
     pub use radix_engine::system::system_modules::execution_trace::{
         ResourceSpecifier as NativeResourceSpecifier,
     };
+    pub use radix_engine_interface::blueprints::locker::{
+        ResourceSpecifier as NativeLockerResourceSpecifier,
+    };
     pub use radix_engine::transaction::{
         VersionedTransactionReceipt as NativeVersionedTransactionReceipt,
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
-    };
-    pub use radix_engine::types::{
-        FromPublicKey as NativeFromPublicKey
     };
     pub use radix_engine::blueprints::account::{
         AccountNativePackage as NativeAccountNativePackage,
@@ -523,16 +532,16 @@ mod native {
         non_fungible_vault::DepositEvent as NativeNonFungibleVaultDepositEvent,
         non_fungible_vault::RecallEvent as NativeNonFungibleVaultRecallEvent,
     };
-    pub use radix_engine::system::attached_modules::role_assignment::{
+    pub use radix_engine::object_modules::role_assignment::{
         SetRoleEvent as NativeSetRoleEvent,
         SetOwnerRoleEvent as NativeSetOwnerRoleEvent,
         LockOwnerRoleEvent as NativeLockOwnerRoleEvent,
     };
-    pub use radix_engine::system::attached_modules::metadata::{
+    pub use radix_engine::object_modules::metadata::{
         SetMetadataEvent as NativeSetMetadataEvent,
         RemoveMetadataEvent as NativeRemoveMetadataEvent,
     };
-    pub use radix_engine_queries::typed_native_events::{
+    pub use radix_substate_store_queries::typed_native_events::{
         TypedNativeEvent as NativeTypedNativeEvent,
         TypedNativeEventError as NativeTypedNativeEventError
     };
@@ -540,7 +549,35 @@ mod native {
         KeyValueStoreInitEntry as NativeKeyValueStoreInitEntry,
         BlueprintId as NativeBlueprintId
     };
-    pub use radix_engine_interface::api::node_modules::royalty::{
+    pub use radix_engine_interface::blueprints::locker::{
+        ACCOUNT_LOCKER_BLUEPRINT as NATIVE_ACCOUNT_LOCKER_BLUEPRINT,
+        ACCOUNT_LOCKER_INSTANTIATE_IDENT as NATIVE_ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+        ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT as NATIVE_ACCOUNT_LOCKER_INSTANTIATE_SIMPLE_IDENT,
+        ACCOUNT_LOCKER_STORE_IDENT as NATIVE_ACCOUNT_LOCKER_STORE_IDENT,
+        ACCOUNT_LOCKER_AIRDROP_IDENT as NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
+        ACCOUNT_LOCKER_RECOVER_IDENT as NATIVE_ACCOUNT_LOCKER_RECOVER_IDENT,
+        ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_LOCKER_RECOVER_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCKER_CLAIM_IDENT as NATIVE_ACCOUNT_LOCKER_CLAIM_IDENT,
+        ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT,
+        ACCOUNT_LOCKER_GET_AMOUNT_IDENT as NATIVE_ACCOUNT_LOCKER_GET_AMOUNT_IDENT,
+        ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT as NATIVE_ACCOUNT_LOCKER_GET_NON_FUNGIBLE_LOCAL_IDS_IDENT,
+        AccountLockerInstantiateManifestInput as NativeAccountLockerInstantiateManifestInput,
+        AccountLockerInstantiateSimpleManifestInput as NativeAccountLockerInstantiateSimpleManifestInput,
+        AccountLockerStoreManifestInput as NativeAccountLockerStoreManifestInput,
+        AccountLockerAirdropManifestInput as NativeAccountLockerAirdropManifestInput,
+        AccountLockerRecoverManifestInput as NativeAccountLockerRecoverManifestInput,
+        AccountLockerRecoverNonFungiblesManifestInput as NativeAccountLockerRecoverNonFungiblesManifestInput,
+        AccountLockerClaimManifestInput as NativeAccountLockerClaimManifestInput,
+        AccountLockerClaimNonFungiblesManifestInput as NativeAccountLockerClaimNonFungiblesManifestInput,
+        AccountLockerGetAmountManifestInput as NativeAccountLockerGetAmountManifestInput,
+        AccountLockerGetNonFungibleLocalIdsManifestInput as NativeAccountLockerGetNonFungibleLocalIdsManifestInput,
+    };
+    pub use radix_engine::blueprints::locker::{
+        ClaimEvent as NativeClaimEvent,
+        RecoverEvent as NativeRecoverEvent,
+        StoreEvent as NativeStoreEvent
+    };
+    pub use radix_engine_interface::object_modules::royalty::{
         COMPONENT_ROYALTY_SETTER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_ROLE,
         COMPONENT_ROYALTY_SETTER_UPDATER_ROLE as NATIVE_COMPONENT_ROYALTY_SETTER_UPDATER_ROLE,
         COMPONENT_ROYALTY_LOCKER_ROLE as NATIVE_COMPONENT_ROYALTY_LOCKER_ROLE,
@@ -561,7 +598,7 @@ mod native {
         ComponentRoyaltyLockOutput as NativeComponentRoyaltyLockOutput,
         ComponentClaimRoyaltiesOutput as NativeComponentClaimRoyaltiesOutput,
     };
-    pub use radix_engine_interface::api::node_modules::auth::{
+    pub use radix_engine_interface::prelude::{
         RoleAssignmentCreateInput as NativeRoleAssignmentCreateInput,
         RoleAssignmentSetInput as NativeRoleAssignmentSetInput,
         RoleAssignmentSetOwnerInput as NativeRoleAssignmentSetOwnerInput,
@@ -573,8 +610,7 @@ mod native {
         ROLE_ASSIGNMENT_SET_OWNER_IDENT as NATIVE_ROLE_ASSIGNMENT_SET_OWNER_IDENT,
         ROLE_ASSIGNMENT_LOCK_OWNER_IDENT as NATIVE_ROLE_ASSIGNMENT_LOCK_OWNER_IDENT,
         ROLE_ASSIGNMENT_GET_IDENT as NATIVE_ROLE_ASSIGNMENT_GET_IDENT,
-    };
-    pub use radix_engine_interface::api::node_modules::metadata::{
+
         METADATA_BLUEPRINT as NATIVE_METADATA_BLUEPRINT,
         METADATA_VALUE_STRING_DISCRIMINATOR as NATIVE_METADATA_VALUE_STRING_DISCRIMINATOR,
         METADATA_VALUE_BOOLEAN_DISCRIMINATOR as NATIVE_METADATA_VALUE_BOOLEAN_DISCRIMINATOR,

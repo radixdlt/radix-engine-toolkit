@@ -19,7 +19,7 @@ use std::ops::Deref;
 
 use crate::prelude::*;
 
-use radix_engine_common::prelude::*;
+use radix_common::prelude::*;
 use radix_engine_toolkit::functions::manifest_sbor::*;
 use radix_engine_toolkit::utils::*;
 use sbor::{LocalTypeId, Schema};

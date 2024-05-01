@@ -15,10 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_common::prelude::AddressBech32Decoder;
+use radix_common::prelude::AddressBech32Decoder;
 use radix_engine_toolkit::functions::derive::{self, OlympiaNetwork};
 use scrypto::prelude::*;
-use transaction::prelude::Secp256k1PrivateKey;
 
 #[test]
 fn virtual_account_address_can_be_derived_from_public_key() {
