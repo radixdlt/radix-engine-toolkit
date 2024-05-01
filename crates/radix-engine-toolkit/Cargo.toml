@@ -1,6 +1,6 @@
 [package]
 name = "radix-engine-toolkit"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
 build = "build.rs"
 
@@ -15,7 +15,6 @@ radix-engine-common = { workspace = true }
 radix-engine-queries = { workspace = true }
 radix-engine-interface = { workspace = true }
 radix-engine-store-interface = { workspace = true }
-faucet = { workspace = true }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon address derivations.
 bech32 = { version = "0.9.1" }

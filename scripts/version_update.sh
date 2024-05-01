@@ -7,7 +7,7 @@
 #
 
 old_version="1.0.10"
-new_version="2.0.0"
+new_version="2.0.1"
 
 cd ..
 cargo set-version $new_version

@@ -835,11 +835,9 @@ impl StaticWorktopContentsTracker {
         if FAUCET_COMPONENT.as_node_id() == address.as_node_id() {
             match method_name {
                 "free" => {
-                    // puts on worktop faucet::FAUCET_FREE_AMOUNT XRD count
-                    let resources = ResourceSpecifier::Amount(
-                        XRD,
-                        faucet::FAUCET_FREE_AMOUNT.into(),
-                    );
+                    // puts on worktop dec!(10_000) XRD count
+                    let resources =
+                        ResourceSpecifier::Amount(XRD, dec!(10_000).into());
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
                     self.add_new_instruction(TrackedResource::StaticallyKnown(
