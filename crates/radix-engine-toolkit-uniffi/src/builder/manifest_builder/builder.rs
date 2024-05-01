@@ -2151,7 +2151,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_LOCKER_AIRDROP_IDENT,
         instruction: CallMethod,
         args: NativeAccountLockerAirdropManifestInput {
-            claimants: (HashMap<Arc<Address>, ResourceSpecifier> => IndexMap<NativeComponentAddress, NativeLockerResourceSpecifier>),
+            claimants: (HashMap<String, ResourceSpecifier> => IndexMap<NativeComponentAddress, NativeLockerResourceSpecifier>),
             bucket: (ManifestBuilderBucket => NativeManifestBucket),
             try_direct_send: (bool => bool),
         }
