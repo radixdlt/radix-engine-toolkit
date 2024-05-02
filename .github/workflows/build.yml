@@ -505,6 +505,7 @@ jobs:
         with:
           gradle-version: 8.0.2
           arguments: wrapper -p interop/android/ret-android
+          cache-read-only: false
       - name: Build and publish Android
         uses: RDXWorks-actions/gradle-build-action@main
         with:
