@@ -241,7 +241,7 @@ jobs:
           path: uniffi-bindings
   publish-swift-spm:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: read
       id-token: write
@@ -385,7 +385,7 @@ jobs:
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: read
       packages: write
@@ -477,7 +477,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: read
       packages: write
