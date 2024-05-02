@@ -391,7 +391,7 @@ jobs:
       - name: Setup Gradle
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          gradle-version: 8.4
+          gradle-version: 8.7
           arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Build and publish Kotlin
         uses: RDXWorks-actions/gradle-build-action@main
@@ -448,7 +448,7 @@ jobs:
       - name: Setup Gradle
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          gradle-version: 8.4
+          gradle-version: 8.7
           arguments: wrapper -p interop/kotlin/ret-kotlin
       - name: Get GPG key to sign
         working-directory: interop/kotlin/ret-kotlin
@@ -488,7 +488,7 @@ jobs:
       - name: Setup Gradle
         uses: RDXWorks-actions/gradle-build-action@main
         with:
-          gradle-version: 8.0.2
+          gradle-version: 8.7
           arguments: wrapper -p interop/android/ret-android
       - name: Build and publish Android
         uses: RDXWorks-actions/gradle-build-action@main
