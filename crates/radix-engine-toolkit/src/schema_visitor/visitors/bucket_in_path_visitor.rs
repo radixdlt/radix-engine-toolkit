@@ -33,10 +33,13 @@ impl SchemaVisitor<ScryptoCustomSchema> for BucketInPathVisitor {
         &mut self,
         local_type_id: LocalTypeId,
         schema: &Schema<ScryptoCustomSchema>,
-        custom_type_kind: &<ScryptoCustomSchema as sbor::CustomSchema>::CustomTypeKind<LocalTypeId>,
+        custom_type_kind: &<ScryptoCustomSchema as sbor::CustomSchema>::CustomTypeKind<
+            LocalTypeId,
+        >,
     ) -> Result<(), Self::Error> {
-        let type_validation =
-            schema.resolve_type_validation(local_type_id).map_or(
+        let type_validation = schema
+            .resolve_type_validation(local_type_id)
+            .map_or(
                 Err(SchemaVisitorError::InvalidLocalTypeId(local_type_id)),
                 Ok,
             )?;

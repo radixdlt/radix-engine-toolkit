@@ -120,13 +120,9 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
-        if address
-            .as_node_id()
-            .entity_type()
-            .is_some_and(|entity_type| {
-                matches!(entity_type, EntityType::GlobalValidator)
-            })
-        {
+        if address.as_node_id().entity_type().is_some_and(
+            |entity_type| matches!(entity_type, EntityType::GlobalValidator)
+        ) {
             self.validators.insert(
                 ComponentAddress::try_from(address).expect("Must succeed!"),
             );
@@ -202,53 +198,54 @@ impl ValidatorStakeDetector {
                     .entity_type()
                     .map(|entity_type| {
                         match entity_type {
-                        EntityType::GlobalAccount
-                        | EntityType::GlobalVirtualSecp256k1Account
-                        | EntityType::GlobalVirtualEd25519Account => FnRules {
-                            allowed: &[
-                                /* All withdraw methods */
-                                ACCOUNT_WITHDRAW_IDENT,
-                                /* All deposit methods */
-                                ACCOUNT_DEPOSIT_IDENT,
-                                ACCOUNT_DEPOSIT_BATCH_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
-                                /* Lock Fees */
-                                ACCOUNT_LOCK_FEE_IDENT,
-                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
-                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
-                            ],
-                            disallowed: &[],
-                            default: FnRule::Disallowed,
-                        },
-                        EntityType::GlobalValidator => FnRules {
-                            allowed: &[
-                                VALIDATOR_STAKE_IDENT
-                            ],
-                            disallowed: &[],
-                            default: FnRule::Disallowed
-                        },
-                        /* Disallowed */
-                        EntityType::GlobalGenericComponent
-                        | EntityType::GlobalIdentity
-                        | EntityType::GlobalVirtualSecp256k1Identity
-                        | EntityType::GlobalVirtualEd25519Identity
-                        | EntityType::InternalGenericComponent
-                        | EntityType::GlobalPackage
-                        | EntityType::GlobalFungibleResourceManager
-                        | EntityType::GlobalNonFungibleResourceManager
-                        | EntityType::GlobalConsensusManager
-                        | EntityType::InternalFungibleVault
-                        | EntityType::InternalNonFungibleVault
-                        | EntityType::InternalKeyValueStore
-                        | EntityType::GlobalTransactionTracker
-                        | EntityType::GlobalAccessController
-                        | EntityType::GlobalOneResourcePool
-                        | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                        | EntityType::GlobalAccountLocker
-                         => FnRules::all_disallowed(),
-                    }
+                            EntityType::GlobalAccount
+                            | EntityType::GlobalVirtualSecp256k1Account
+                            | EntityType::GlobalVirtualEd25519Account => {
+                                FnRules {
+                                    allowed: &[
+                                        /* All withdraw methods */
+                                        ACCOUNT_WITHDRAW_IDENT,
+                                        /* All deposit methods */
+                                        ACCOUNT_DEPOSIT_IDENT,
+                                        ACCOUNT_DEPOSIT_BATCH_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                                        /* Lock Fees */
+                                        ACCOUNT_LOCK_FEE_IDENT,
+                                        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                                    ],
+                                    disallowed: &[],
+                                    default: FnRule::Disallowed,
+                                }
+                            }
+                            EntityType::GlobalValidator => FnRules {
+                                allowed: &[VALIDATOR_STAKE_IDENT],
+                                disallowed: &[],
+                                default: FnRule::Disallowed,
+                            },
+                            /* Disallowed */
+                            EntityType::GlobalGenericComponent
+                            | EntityType::GlobalIdentity
+                            | EntityType::GlobalVirtualSecp256k1Identity
+                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalPackage
+                            | EntityType::GlobalFungibleResourceManager
+                            | EntityType::GlobalNonFungibleResourceManager
+                            | EntityType::GlobalConsensusManager
+                            | EntityType::InternalFungibleVault
+                            | EntityType::InternalNonFungibleVault
+                            | EntityType::InternalKeyValueStore
+                            | EntityType::GlobalTransactionTracker
+                            | EntityType::GlobalAccessController
+                            | EntityType::GlobalOneResourcePool
+                            | EntityType::GlobalTwoResourcePool
+                            | EntityType::GlobalMultiResourcePool
+                            | EntityType::GlobalAccountLocker => {
+                                FnRules::all_disallowed()
+                            }
+                        }
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }

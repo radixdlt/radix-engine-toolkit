@@ -199,7 +199,9 @@ fn royalty_blueprint_schema() -> BlueprintDefinitionInit {
     ROYALTY_PACKAGE_DEFINITION
         .blueprints
         .get(COMPONENT_ROYALTY_BLUEPRINT)
-        .expect("ComponentRoyalty package has no schema for the ComponentRoyalty blueprint?")
+        .expect(
+            "ComponentRoyalty package has no schema for the ComponentRoyalty blueprint?",
+        )
         .clone()
 }
 

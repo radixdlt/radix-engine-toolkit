@@ -140,9 +140,9 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
                     .insert(resource_address, Update::Set(resource_preference));
             }
         } else if method_name == ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT {
-            if let Ok(AccountRemoveResourcePreferenceInput {
-                resource_address,
-            }) = manifest_decode(&encoded_args)
+            if let Ok(
+                AccountRemoveResourcePreferenceInput { resource_address }
+            ) = manifest_decode(&encoded_args)
             {
                 self.resource_preferences
                     .entry(address)
@@ -193,47 +193,50 @@ impl AccountSettingsUpdateDetector {
                     .entity_type()
                     .map(|entity_type| {
                         match entity_type {
-                        EntityType::GlobalAccount
-                        | EntityType::GlobalVirtualSecp256k1Account
-                        | EntityType::GlobalVirtualEd25519Account => FnRules {
-                            allowed: &[
-                                /* Resource Preference */
-                                ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
-                                ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
-                                /* Authorized Depositors */
-                                ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
-                                /* Default Deposit Rule */
-                                ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
-                                /* Locking of fees */
-                                ACCOUNT_LOCK_FEE_IDENT,
-                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
-                            ],
-                            disallowed: &[],
-                            default: FnRule::Disallowed,
-                        },
-                        /* Disallowed */
-                        EntityType::GlobalGenericComponent
-                        | EntityType::GlobalIdentity
-                        | EntityType::GlobalVirtualSecp256k1Identity
-                        | EntityType::GlobalVirtualEd25519Identity
-                        | EntityType::InternalGenericComponent
-                        | EntityType::GlobalPackage
-                        | EntityType::GlobalValidator
-                        | EntityType::GlobalFungibleResourceManager
-                        | EntityType::GlobalNonFungibleResourceManager
-                        | EntityType::GlobalConsensusManager
-                        | EntityType::InternalFungibleVault
-                        | EntityType::InternalNonFungibleVault
-                        | EntityType::InternalKeyValueStore
-                        | EntityType::GlobalTransactionTracker
-                        | EntityType::GlobalAccessController
-                        | EntityType::GlobalOneResourcePool
-                        | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                        | EntityType::GlobalAccountLocker
-                         => FnRules::all_disallowed(),
-                    }
+                            EntityType::GlobalAccount
+                            | EntityType::GlobalVirtualSecp256k1Account
+                            | EntityType::GlobalVirtualEd25519Account => {
+                                FnRules {
+                                    allowed: &[
+                                        /* Resource Preference */
+                                        ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+                                        ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+                                        /* Authorized Depositors */
+                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                                        /* Default Deposit Rule */
+                                        ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+                                        /* Locking of fees */
+                                        ACCOUNT_LOCK_FEE_IDENT,
+                                        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                                    ],
+                                    disallowed: &[],
+                                    default: FnRule::Disallowed,
+                                }
+                            }
+                            /* Disallowed */
+                            EntityType::GlobalGenericComponent
+                            | EntityType::GlobalIdentity
+                            | EntityType::GlobalVirtualSecp256k1Identity
+                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalPackage
+                            | EntityType::GlobalValidator
+                            | EntityType::GlobalFungibleResourceManager
+                            | EntityType::GlobalNonFungibleResourceManager
+                            | EntityType::GlobalConsensusManager
+                            | EntityType::InternalFungibleVault
+                            | EntityType::InternalNonFungibleVault
+                            | EntityType::InternalKeyValueStore
+                            | EntityType::GlobalTransactionTracker
+                            | EntityType::GlobalAccessController
+                            | EntityType::GlobalOneResourcePool
+                            | EntityType::GlobalTwoResourcePool
+                            | EntityType::GlobalMultiResourcePool
+                            | EntityType::GlobalAccountLocker => {
+                                FnRules::all_disallowed()
+                            }
+                        }
                     })
                     .unwrap_or(FnRules::all_disallowed())
             }

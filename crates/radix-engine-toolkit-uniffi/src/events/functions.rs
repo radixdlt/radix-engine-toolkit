@@ -99,6 +99,16 @@ pub struct StopTimedRecoveryEvent {
 }
 
 #[derive(Clone, Debug, Record)]
+pub struct DepositRecoveryXrdEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct WithdrawRecoveryXrdEvent {
+    pub amount: Arc<Decimal>,
+}
+
+#[derive(Clone, Debug, Record)]
 pub struct RoundChangeEvent {
     pub round: u64,
 }
@@ -737,9 +747,9 @@ impl FromNative for OneResourcePoolContributionEvent {
     fn from_native(native: Self::Native) -> Self {
         Self {
             pool_units_minted: Arc::new(Decimal(native.pool_units_minted)),
-            amount_of_resources_contributed: Arc::new(Decimal(
-                native.amount_of_resources_contributed,
-            )),
+            amount_of_resources_contributed: Arc::new(
+                Decimal(native.amount_of_resources_contributed)
+            ),
         }
     }
 }
@@ -927,6 +937,26 @@ impl FromNative for UnlockPrimaryRoleEvent {
     fn from_native(_: Self::Native) -> Self {
         Self {
             placeholder_field: true,
+        }
+    }
+}
+
+impl FromNative for DepositRecoveryXrdEvent {
+    type Native = NativeDepositRecoveryXrdEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
+        }
+    }
+}
+
+impl FromNative for WithdrawRecoveryXrdEvent {
+    type Native = NativeWithdrawRecoveryXrdEvent;
+
+    fn from_native(native: Self::Native) -> Self {
+        Self {
+            amount: Arc::new(Decimal(native.amount)),
         }
     }
 }
@@ -1297,10 +1327,9 @@ impl FromNativeWithNetworkContext for ClaimEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
-                native.claimant.0,
-                network_id,
-            )),
+            claimant: Arc::new(
+                Address::from_typed_node_id(native.claimant.0, network_id)
+            ),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,
@@ -1320,10 +1349,9 @@ impl FromNativeWithNetworkContext for RecoverEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
-                native.claimant.0,
-                network_id,
-            )),
+            claimant: Arc::new(
+                Address::from_typed_node_id(native.claimant.0, network_id)
+            ),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,
@@ -1343,10 +1371,9 @@ impl FromNativeWithNetworkContext for StoreEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(Address::from_typed_node_id(
-                native.claimant.0,
-                network_id,
-            )),
+            claimant: Arc::new(
+                Address::from_typed_node_id(native.claimant.0, network_id)
+            ),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,
@@ -1398,6 +1425,8 @@ define_structure! {
             LockPrimaryRoleEvent,
             UnlockPrimaryRoleEvent,
             StopTimedRecoveryEvent,
+            DepositRecoveryXrdEvent,
+            WithdrawRecoveryXrdEvent
         ],
     },
     Account => {

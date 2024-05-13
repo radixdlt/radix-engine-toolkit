@@ -139,13 +139,10 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                         public_key_fingerprint_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
-                            .map_err(|value| {
-                                RadixEngineToolkitError::InvalidLength {
-                                    expected: NativePublicKeyFingerprint::LENGTH
-                                        as u64,
-                                    actual: value.len() as u64,
-                                    data: value,
-                                }
+                            .map_err(|value| RadixEngineToolkitError::InvalidLength {
+                                expected: NativePublicKeyFingerprint::LENGTH as u64,
+                                actual: value.len() as u64,
+                                data: value,
                             })
                             .and_then(|key| {
                                 value
@@ -153,9 +150,8 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                     .map(NativeAesWrapped128BitKey)
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
-                                            expected:
-                                            NativeAesWrapped128BitKey::LENGTH
-                                                    as u64,
+                                            expected: NativeAesWrapped128BitKey::LENGTH
+                                                as u64,
                                             actual: value.len() as u64,
                                             data: value,
                                         }
@@ -176,13 +172,10 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                         public_key_fingerprint_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
-                            .map_err(|value| {
-                                RadixEngineToolkitError::InvalidLength {
-                                    expected: NativePublicKeyFingerprint::LENGTH
-                                        as u64,
-                                    actual: value.len() as u64,
-                                    data: value,
-                                }
+                            .map_err(|value| RadixEngineToolkitError::InvalidLength {
+                                expected: NativePublicKeyFingerprint::LENGTH as u64,
+                                actual: value.len() as u64,
+                                data: value,
                             })
                             .and_then(|key| {
                                 value
@@ -190,9 +183,8 @@ impl TryFrom<DecryptorsByCurve> for NativeDecryptorsByCurve {
                                     .map(NativeAesWrapped128BitKey)
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
-                                            expected:
-                                            NativeAesWrapped128BitKey::LENGTH
-                                                    as u64,
+                                            expected: NativeAesWrapped128BitKey::LENGTH
+                                                as u64,
                                             actual: value.len() as u64,
                                             data: value,
                                         }

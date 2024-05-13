@@ -244,7 +244,9 @@ impl From<RoundingMode> for crate::prelude::NativeRoundingMode {
                 crate::prelude::NativeRoundingMode::ToNegativeInfinity
             }
             RoundingMode::ToZero => crate::prelude::NativeRoundingMode::ToZero,
-            RoundingMode::AwayFromZero => crate::prelude::NativeRoundingMode::AwayFromZero,
+            RoundingMode::AwayFromZero => {
+                crate::prelude::NativeRoundingMode::AwayFromZero
+            }
             RoundingMode::ToNearestMidpointTowardZero => {
                 crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero
             }
@@ -268,7 +270,9 @@ impl From<crate::prelude::NativeRoundingMode> for RoundingMode {
                 RoundingMode::ToNegativeInfinity
             }
             crate::prelude::NativeRoundingMode::ToZero => RoundingMode::ToZero,
-            crate::prelude::NativeRoundingMode::AwayFromZero => RoundingMode::AwayFromZero,
+            crate::prelude::NativeRoundingMode::AwayFromZero => {
+                RoundingMode::AwayFromZero
+            }
             crate::prelude::NativeRoundingMode::ToNearestMidpointTowardZero => {
                 RoundingMode::ToNearestMidpointTowardZero
             }

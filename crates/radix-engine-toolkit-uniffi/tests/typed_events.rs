@@ -23,12 +23,15 @@ use scrypto_test::prelude::*;
 #[test]
 pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
     // Arrange
-    DefaultTransactionScenarioExecutor::new( InMemorySubstateDatabase::standard(), NetworkDefinition::simulator())
+    DefaultTransactionScenarioExecutor::new(
+        InMemorySubstateDatabase::standard(),
+        &NetworkDefinition::simulator(),
+    )
     .on_transaction_executed(|_, _, receipt, _| {
         for (event_identifier, event_data) in receipt
-        .expect_commit_ignore_outcome()
-        .application_events
-        .iter()
+            .expect_commit_ignore_outcome()
+            .application_events
+            .iter()
         {
             let node_id = match event_identifier.0 {
                 Emitter::Function(BlueprintId {
@@ -50,22 +53,23 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             let event_type_identifier =
                 radix_engine_toolkit_uniffi::functions::EventTypeIdentifier {
                     emitter: match event_identifier.0 {
-                        radix_engine_interface::prelude::Emitter::Function(ref blueprint_id) => {
-                            radix_engine_toolkit_uniffi::functions::Emitter::Function {
-                                address: Address::from_raw(
-                                    blueprint_id.package_address.to_vec(),
-                                    0xf2,
-                                )
-                                .unwrap(),
-                                blueprint_name: blueprint_id.blueprint_name.clone(),
-                            }
-                        }
-                        radix_engine_interface::prelude::Emitter::Method(node_id, module_id) => {
-                            radix_engine_toolkit_uniffi::functions::Emitter::Method {
-                                address: Address::from_raw(node_id.to_vec(), 0xf2).unwrap(),
-                                object_module_id: module_id.into(),
-                            }
-                        }
+                        radix_engine_interface::prelude::Emitter::Function(
+                            ref blueprint_id,
+                        ) => radix_engine_toolkit_uniffi::functions::Emitter::Function {
+                            address: Address::from_raw(
+                                blueprint_id.package_address.to_vec(),
+                                0xf2,
+                            )
+                            .unwrap(),
+                            blueprint_name: blueprint_id.blueprint_name.clone(),
+                        },
+                        radix_engine_interface::prelude::Emitter::Method(
+                            node_id,
+                            module_id,
+                        ) => radix_engine_toolkit_uniffi::functions::Emitter::Method {
+                            address: Address::from_raw(node_id.to_vec(), 0xf2).unwrap(),
+                            object_module_id: module_id.into(),
+                        },
                     },
                     event_name: event_identifier.1.clone(),
                 };
@@ -81,8 +85,12 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
             // Assert
             match typed_event {
                 Ok(_typed_event) => {}
-                _ => panic!("Failed to convert to a typed event: {event_type_identifier:?}"),
+                _ => panic!(
+                    "Failed to convert to a typed event: {event_type_identifier:?}"
+                ),
             }
         }
-    }).execute_all().expect("Transaction scenarios execution failed.");
+    })
+    .execute_every_protocol_update_and_scenario()
+    .expect("Transaction scenarios execution failed.");
 }

@@ -35,16 +35,21 @@ impl From<ManifestAddress> for NativeManifestAddress {
 impl ManifestAddress {
     pub fn new(native: &NativeManifestAddress, network_id: u8) -> Self {
         match native {
-            NativeManifestAddress::Named(value) => Self::Named { value: *value },
-            NativeManifestAddress::Static(value) => Self::Static {
-                // The NativeManifestAddress has a custom implementation of decoding that ensures
-                // that the address indeed has an entity type.
-                value: Arc::new(Address::from_typed_node_id(
-                    CoreTypedNodeId::new(*value)
-                        .expect("Failed to create a TypedNodeId from a trusted manifest address"),
-                    network_id,
-                )),
-            },
+            NativeManifestAddress::Named(value) => {
+                Self::Named { value: *value }
+            }
+            NativeManifestAddress::Static(value) => {
+                Self::Static {
+                    // The NativeManifestAddress has a custom implementation of decoding that ensures
+                    // that the address indeed has an entity type.
+                    value: Arc::new(Address::from_typed_node_id(
+                        CoreTypedNodeId::new(*value).expect(
+                            "Failed to create a TypedNodeId from a trusted manifest address",
+                        ),
+                        network_id,
+                    )),
+                }
+            }
         }
     }
 
@@ -57,9 +62,7 @@ impl ManifestAddress {
                 Self::Named { value: *value }
             }
             NativeDynamicGlobalAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(
-                    *value, network_id,
-                )),
+                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
             },
         }
     }
@@ -73,9 +76,7 @@ impl ManifestAddress {
                 Self::Named { value: *value }
             }
             NativeDynamicPackageAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(
-                    *value, network_id,
-                )),
+                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
             },
         }
     }

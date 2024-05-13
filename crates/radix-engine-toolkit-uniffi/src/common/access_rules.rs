@@ -28,10 +28,11 @@ impl AccessRule {
     pub fn require(
         resource_or_non_fungible: ResourceOrNonFungible,
     ) -> Result<Arc<Self>> {
-        let access_rule =
-            NativeAccessRule::Protected(NativeAccessRuleNode::ProofRule(
-                NativeProofRule::Require(resource_or_non_fungible.to_native()?),
-            ));
+        let access_rule = NativeAccessRule::Protected(
+            NativeAccessRuleNode::ProofRule(
+                NativeProofRule::Require(resource_or_non_fungible.to_native()?)
+            ),
+        );
         Ok(Arc::new(Self(access_rule)))
     }
 
@@ -41,10 +42,11 @@ impl AccessRule {
         resource: Arc<Address>,
     ) -> Result<Arc<Self>> {
         let resource_address = NativeResourceAddress::try_from(*resource)?;
-        let access_rule =
-            NativeAccessRule::Protected(NativeAccessRuleNode::ProofRule(
-                NativeProofRule::AmountOf(amount.0, resource_address),
-            ));
+        let access_rule = NativeAccessRule::Protected(
+            NativeAccessRuleNode::ProofRule(
+                NativeProofRule::AmountOf(amount.0, resource_address)
+            ),
+        );
         Ok(Arc::new(Self(access_rule)))
     }
 
@@ -53,10 +55,11 @@ impl AccessRule {
         count: u8,
         resources: Vec<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
-        let access_rule =
-            NativeAccessRule::Protected(NativeAccessRuleNode::ProofRule(
-                NativeProofRule::CountOf(count, resources.to_native()?),
-            ));
+        let access_rule = NativeAccessRule::Protected(
+            NativeAccessRuleNode::ProofRule(
+                NativeProofRule::CountOf(count, resources.to_native()?)
+            ),
+        );
         Ok(Arc::new(Self(access_rule)))
     }
 
@@ -110,12 +113,9 @@ impl AccessRule {
             (
                 NativeAccessRule::Protected(rule1),
                 NativeAccessRule::Protected(rule2),
-            ) => {
-                NativeAccessRule::Protected(NativeAccessRuleNode::AnyOf(vec![
-                    rule1.clone(),
-                    rule2.clone(),
-                ]))
-            }
+            ) => NativeAccessRule::Protected(
+                NativeAccessRuleNode::AnyOf(vec![rule1.clone(), rule2.clone()])
+            ),
             (NativeAccessRule::DenyAll, r @ NativeAccessRule::Protected(_))
             | (r @ NativeAccessRule::Protected(_), NativeAccessRule::DenyAll) => {
                 r.clone()
@@ -128,28 +128,28 @@ impl AccessRule {
     }
 
     pub fn and(&self, other: Arc<Self>) -> Arc<Self> {
-        let access_rule =
-            match (&self.0, &other.0) {
-                (NativeAccessRule::AllowAll, NativeAccessRule::AllowAll) => {
-                    NativeAccessRule::AllowAll
-                }
-                (
-                    NativeAccessRule::AllowAll,
-                    r @ NativeAccessRule::Protected(_),
-                )
-                | (
-                    r @ NativeAccessRule::Protected(_),
-                    NativeAccessRule::AllowAll,
-                ) => r.clone(),
-                (
-                    NativeAccessRule::Protected(rule1),
-                    NativeAccessRule::Protected(rule2),
-                ) => NativeAccessRule::Protected(NativeAccessRuleNode::AllOf(
-                    vec![rule1.clone(), rule2.clone()],
-                )),
-                (NativeAccessRule::DenyAll, _)
-                | (_, NativeAccessRule::DenyAll) => NativeAccessRule::DenyAll,
-            };
+        let access_rule = match (&self.0, &other.0) {
+            (NativeAccessRule::AllowAll, NativeAccessRule::AllowAll) => {
+                NativeAccessRule::AllowAll
+            }
+            (
+                NativeAccessRule::AllowAll,
+                r @ NativeAccessRule::Protected(_),
+            )
+            | (
+                r @ NativeAccessRule::Protected(_),
+                NativeAccessRule::AllowAll,
+            ) => r.clone(),
+            (
+                NativeAccessRule::Protected(rule1),
+                NativeAccessRule::Protected(rule2),
+            ) => NativeAccessRule::Protected(
+                NativeAccessRuleNode::AllOf(vec![rule1.clone(), rule2.clone()])
+            ),
+            (NativeAccessRule::DenyAll, _) | (_, NativeAccessRule::DenyAll) => {
+                NativeAccessRule::DenyAll
+            }
+        };
         Arc::new(AccessRule(access_rule))
     }
 }
@@ -199,12 +199,14 @@ impl FromNativeWithNetworkContext for ResourceOrNonFungible {
             }
             NativeResourceOrNonFungible::NonFungible(
                 non_fungible_global_id,
-            ) => Self::NonFungible {
-                value: Arc::new(NonFungibleGlobalId(
-                    non_fungible_global_id,
-                    network_id,
-                )),
-            },
+            ) => {
+                Self::NonFungible {
+                    value: Arc::new(NonFungibleGlobalId(
+                        non_fungible_global_id,
+                        network_id,
+                    )),
+                }
+            }
         }
     }
 }

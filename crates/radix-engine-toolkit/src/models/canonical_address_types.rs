@@ -314,13 +314,15 @@ mod tests {
     fn canonical_non_fungible_resource_address_test() {
         let input =
             "9a5d92f6bc4a0a8b43abe39c0fba235e357fc89286111b78844c5b57e587";
-        let canonical_input = "resource_tdx_a_1nfwe9a4ufg9gksatuwwqlw3rtc6hljyjscg3k7yyf3d40ev85cjrzp";
+        let canonical_input =
+            "resource_tdx_a_1nfwe9a4ufg9gksatuwwqlw3rtc6hljyjscg3k7yyf3d40ev85cjrzp";
 
-        let x = CanonicalResourceAddress::new(
-            NodeId::try_from_hex(input).unwrap(),
-            0x0a,
-        )
-        .unwrap();
+        let x =
+            CanonicalResourceAddress::new(
+                NodeId::try_from_hex(input).unwrap(),
+                0x0a,
+            )
+            .unwrap();
 
         let input_vec: Vec<u8> = (0..input.len())
             .step_by(2)
@@ -344,13 +346,15 @@ mod tests {
     fn canonical_fungible_resource_address_test() {
         let input =
             "5dbd2333630248b3e688c93892cec2d199bd917b8a4e019864a552e1f774";
-        let canonical_input = "resource_rdx1tk7jxvmrqfyt8e5geyuf9nkz6xvmmytm3f8qrxry54fwram5cwvcw9";
+        let canonical_input =
+            "resource_rdx1tk7jxvmrqfyt8e5geyuf9nkz6xvmmytm3f8qrxry54fwram5cwvcw9";
 
-        let x = CanonicalResourceAddress::new(
-            NodeId::try_from_hex(input).unwrap(),
-            0x01,
-        )
-        .unwrap();
+        let x =
+            CanonicalResourceAddress::new(
+                NodeId::try_from_hex(input).unwrap(),
+                0x01,
+            )
+            .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(x.is_fungible());
     }
@@ -359,13 +363,15 @@ mod tests {
     fn canonical_non_fungible_vault_address_test() {
         let input =
             "9818740463586485efcbd5fcff22cc4fd0f401f44836cb53235fc42f9623";
-        let canonical_input = "internal_vault_rdx1nqv8gprrtpjgtm7t6h707gkvflg0gq05fqmvk5ertlzzl93rrmns58";
+        let canonical_input =
+            "internal_vault_rdx1nqv8gprrtpjgtm7t6h707gkvflg0gq05fqmvk5ertlzzl93rrmns58";
 
-        let x = CanonicalVaultAddress::new(
-            NodeId::try_from_hex(input).unwrap(),
-            0x01,
-        )
-        .unwrap();
+        let x =
+            CanonicalVaultAddress::new(
+                NodeId::try_from_hex(input).unwrap(),
+                0x01,
+            )
+            .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(!x.is_fungible());
     }
@@ -374,13 +380,15 @@ mod tests {
     fn canonical_fungible_vault_address_test() {
         let input =
             "58619833de031de3aad69cad02a22656e083e307fb617b28e1b275bd7ed7";
-        let canonical_input = "internal_vault_rdx1tpsesv77qvw782kknjks9g3x2msg8cc8ldshk28pkf6m6lkhzcw3fr";
+        let canonical_input =
+            "internal_vault_rdx1tpsesv77qvw782kknjks9g3x2msg8cc8ldshk28pkf6m6lkhzcw3fr";
 
-        let x = CanonicalVaultAddress::new(
-            NodeId::try_from_hex(input).unwrap(),
-            0x01,
-        )
-        .unwrap();
+        let x =
+            CanonicalVaultAddress::new(
+                NodeId::try_from_hex(input).unwrap(),
+                0x01,
+            )
+            .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(x.is_fungible());
     }

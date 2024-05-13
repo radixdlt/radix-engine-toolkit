@@ -85,7 +85,8 @@ impl<'f> HasExamples<'f, 1>
     fn example_inputs() -> [Self::Input; 1] {
         [Self::Input {
             olympia_account_address:
-                "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842".to_string(),
+                "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842"
+                    .to_string(),
             network_id: 1.into(),
         }]
     }

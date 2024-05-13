@@ -188,52 +188,59 @@ impl TransferDetector {
         match address {
             DynamicGlobalAddress::Named(..) => FnRules::all_disallowed(),
             DynamicGlobalAddress::Static(address) => {
-                address.as_node_id().entity_type().map(|entity_type| {
-                    match entity_type {
-                        EntityType::GlobalAccount
-                        | EntityType::GlobalVirtualSecp256k1Account
-                        | EntityType::GlobalVirtualEd25519Account => FnRules {
-                            allowed: &[
-                                /* All withdraw methods */
-                                ACCOUNT_WITHDRAW_IDENT,
-                                ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
-                                /* All deposit methods */
-                                ACCOUNT_DEPOSIT_IDENT,
-                                ACCOUNT_DEPOSIT_BATCH_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
-                                ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
-                                /* Account Lock Fees */
-                                ACCOUNT_LOCK_FEE_IDENT,
-                                ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
-                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
-                                ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
-                            ],
-                            disallowed: &[],
-                            default: FnRule::Disallowed,
-                        },
-                        /* Disallowed */
-                        EntityType::GlobalPackage
-                        | EntityType::GlobalValidator
-                        | EntityType::GlobalFungibleResourceManager
-                        | EntityType::GlobalNonFungibleResourceManager
-                        | EntityType::GlobalConsensusManager
-                        | EntityType::InternalFungibleVault
-                        | EntityType::InternalNonFungibleVault
-                        | EntityType::InternalKeyValueStore
-                        | EntityType::GlobalTransactionTracker
-                        | EntityType::GlobalAccessController
-                        | EntityType::GlobalGenericComponent
-                        | EntityType::GlobalIdentity
-                        | EntityType::GlobalOneResourcePool
-                        | EntityType::GlobalTwoResourcePool
-                        | EntityType::GlobalMultiResourcePool
-                        | EntityType::GlobalVirtualSecp256k1Identity
-                        | EntityType::GlobalVirtualEd25519Identity
-                        | EntityType::InternalGenericComponent
-                        | EntityType::GlobalAccountLocker
-                         => FnRules::all_disallowed(),
-                    }
-                }).unwrap_or(FnRules::all_disallowed())
+                address
+                    .as_node_id()
+                    .entity_type()
+                    .map(|entity_type| {
+                        match entity_type {
+                            EntityType::GlobalAccount
+                            | EntityType::GlobalVirtualSecp256k1Account
+                            | EntityType::GlobalVirtualEd25519Account => {
+                                FnRules {
+                                    allowed: &[
+                                        /* All withdraw methods */
+                                        ACCOUNT_WITHDRAW_IDENT,
+                                        ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+                                        /* All deposit methods */
+                                        ACCOUNT_DEPOSIT_IDENT,
+                                        ACCOUNT_DEPOSIT_BATCH_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                                        /* Account Lock Fees */
+                                        ACCOUNT_LOCK_FEE_IDENT,
+                                        ACCOUNT_LOCK_CONTINGENT_FEE_IDENT,
+                                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                                    ],
+                                    disallowed: &[],
+                                    default: FnRule::Disallowed,
+                                }
+                            }
+                            /* Disallowed */
+                            EntityType::GlobalPackage
+                            | EntityType::GlobalValidator
+                            | EntityType::GlobalFungibleResourceManager
+                            | EntityType::GlobalNonFungibleResourceManager
+                            | EntityType::GlobalConsensusManager
+                            | EntityType::InternalFungibleVault
+                            | EntityType::InternalNonFungibleVault
+                            | EntityType::InternalKeyValueStore
+                            | EntityType::GlobalTransactionTracker
+                            | EntityType::GlobalAccessController
+                            | EntityType::GlobalGenericComponent
+                            | EntityType::GlobalIdentity
+                            | EntityType::GlobalOneResourcePool
+                            | EntityType::GlobalTwoResourcePool
+                            | EntityType::GlobalMultiResourcePool
+                            | EntityType::GlobalVirtualSecp256k1Identity
+                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalAccountLocker => {
+                                FnRules::all_disallowed()
+                            }
+                        }
+                    })
+                    .unwrap_or(FnRules::all_disallowed())
             }
         }
     }

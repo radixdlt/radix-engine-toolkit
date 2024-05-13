@@ -469,7 +469,7 @@ mod native {
         ActiveValidatorSet as NativeActiveValidatorSet
     };
 
-    pub use radix_engine::blueprints::access_controller::{
+    pub use radix_engine::blueprints::access_controller::latest::{
         InitiateRecoveryEvent as NativeInitiateRecoveryEvent,
         InitiateBadgeWithdrawAttemptEvent as NativeInitiateBadgeWithdrawAttemptEvent,
         RuleSetUpdateEvent as NativeRuleSetUpdateEvent,
@@ -479,6 +479,8 @@ mod native {
         LockPrimaryRoleEvent as NativeLockPrimaryRoleEvent,
         UnlockPrimaryRoleEvent as NativeUnlockPrimaryRoleEvent,
         StopTimedRecoveryEvent as NativeStopTimedRecoveryEvent,
+        DepositRecoveryXrdEvent as NativeDepositRecoveryXrdEvent,
+        WithdrawRecoveryXrdEvent as NativeWithdrawRecoveryXrdEvent
     };
     pub use radix_engine::blueprints::consensus_manager::{
         RoundChangeEvent as NativeRoundChangeEvent,

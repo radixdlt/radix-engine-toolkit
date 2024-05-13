@@ -61,16 +61,17 @@ pub fn scrypto_sbor_decode_to_string_representation(
     let network_definition =
         core_network_definition_from_network_id(network_id);
     let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
-    let string = core_scrypto_decode_to_string_representation(
-        bytes,
-        representation.into(),
-        &bech32_encoder,
-        if let Some(schema) = schema {
-            Some(schema.try_into()?)
-        } else {
-            None
-        },
-    )?;
+    let string =
+        core_scrypto_decode_to_string_representation(
+            bytes,
+            representation.into(),
+            &bech32_encoder,
+            if let Some(schema) = schema {
+                Some(schema.try_into()?)
+            } else {
+                None
+            },
+        )?;
     Ok(string)
 }
 
@@ -92,16 +93,17 @@ pub fn manifest_sbor_decode_to_string_representation(
     let network_definition =
         core_network_definition_from_network_id(network_id);
     let bech32_encoder = NativeAddressBech32Encoder::new(&network_definition);
-    let string = core_manifest_decode_to_string_representation(
-        bytes,
-        representation.into(),
-        &bech32_encoder,
-        if let Some(schema) = schema {
-            Some(schema.try_into()?)
-        } else {
-            None
-        },
-    )?;
+    let string =
+        core_manifest_decode_to_string_representation(
+            bytes,
+            representation.into(),
+            &bech32_encoder,
+            if let Some(schema) = schema {
+                Some(schema.try_into()?)
+            } else {
+                None
+            },
+        )?;
     Ok(string)
 }
 

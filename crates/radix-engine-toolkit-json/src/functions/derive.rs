@@ -196,7 +196,8 @@ impl<'a> Function<'a> for DeriveVirtualAccountAddressFromOlympiaAccountAddress {
         let component_address =
             radix_engine_toolkit::functions::derive::virtual_account_address_from_olympia_account_address(
                 olympia_account_address,
-            ).map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
+            )
+            .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
 
         Ok(SerializableNodeId(SerializableNodeIdInternal {
             network_id: *network_id,
@@ -244,7 +245,8 @@ impl<'a> Function<'a> for DeriveResourceAddressFromOlympiaResourceAddress {
         let component_address =
             radix_engine_toolkit::functions::derive::resource_address_from_olympia_resource_address(
                 olympia_resource_address,
-            ).map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
+            )
+            .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
 
         Ok(SerializableNodeId(SerializableNodeIdInternal {
             network_id: *network_id,
@@ -281,10 +283,8 @@ impl<'a> Function<'a> for DerivePublicKeyFromOlympiaAccountAddress {
         input: Self::Input,
     ) -> Result<Self::Output, crate::error::InvocationHandlingError> {
         let public_key =
-            radix_engine_toolkit::functions::derive::public_key_from_olympia_account_address(
-                input,
-            )
-            .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
+            radix_engine_toolkit::functions::derive::public_key_from_olympia_account_address(input)
+                .map_err(|error| InvocationHandlingError::DerivationError(debug_string(error)))?;
 
         Ok(public_key.into())
     }

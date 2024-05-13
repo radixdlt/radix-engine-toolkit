@@ -233,10 +233,9 @@ impl ResourceSpecifier {
         resource_address: &NativeResourceAddress,
         network_id: u8,
     ) -> ResourceSpecifier {
-        let address = Arc::new(Address::from_typed_node_id(
-            *resource_address,
-            network_id,
-        ));
+        let address = Arc::new(
+            Address::from_typed_node_id(*resource_address, network_id)
+        );
         match native {
             NativeLockerResourceSpecifier::Fungible(amount) => {
                 ResourceSpecifier::Amount {
@@ -541,9 +540,7 @@ impl DetailedManifestClass {
                     .collect(),
                 pool_contributions: pool_contributions
                     .into_iter()
-                    .map(|item| {
-                        TrackedPoolContribution::from_native(item, network_id)
-                    })
+                    .map(|item| TrackedPoolContribution::from_native(item, network_id))
                     .collect(),
             },
             CoreDetailedManifestClass::PoolRedemption {
@@ -561,9 +558,7 @@ impl DetailedManifestClass {
                     .collect(),
                 pool_redemptions: pool_redemptions
                     .into_iter()
-                    .map(|item| {
-                        TrackedPoolRedemption::from_native(item, network_id)
-                    })
+                    .map(|item| TrackedPoolRedemption::from_native(item, network_id))
                     .collect(),
             },
             CoreDetailedManifestClass::ValidatorStake {
@@ -581,15 +576,13 @@ impl DetailedManifestClass {
                     .collect(),
                 validator_stakes: validator_stakes
                     .into_iter()
-                    .map(|item| {
-                        TrackedValidatorStake::from_native(item, network_id)
-                    })
+                    .map(|item| TrackedValidatorStake::from_native(item, network_id))
                     .collect(),
             },
             CoreDetailedManifestClass::ValidatorUnstake {
                 validator_addresses,
                 validator_unstakes,
-                claims_non_fungible_data
+                claims_non_fungible_data,
             } => Self::ValidatorUnstake {
                 validator_addresses: validator_addresses
                     .into_iter()
@@ -602,19 +595,17 @@ impl DetailedManifestClass {
                     .collect(),
                 validator_unstakes: validator_unstakes
                     .into_iter()
-                    .map(|item| {
-                        TrackedValidatorUnstake::from_native(item, network_id)
-                    })
+                    .map(|item| TrackedValidatorUnstake::from_native(item, network_id))
                     .collect(),
                 claims_non_fungible_data: claims_non_fungible_data
                     .into_iter()
-                    .map(|(id, value)|
-                        UnstakeDataEntry {
-                            non_fungible_global_id: Arc::new(NonFungibleGlobalId(id, network_id)),
-                            data: value.into()
-                        }
-                    )
-                    .collect()
+                    .map(|(id, value)| UnstakeDataEntry {
+                        non_fungible_global_id: Arc::new(
+                            NonFungibleGlobalId(id, network_id)
+                        ),
+                        data: value.into(),
+                    })
+                    .collect(),
             },
             CoreDetailedManifestClass::ValidatorClaim {
                 validator_addresses,
@@ -631,9 +622,7 @@ impl DetailedManifestClass {
                     .collect(),
                 validator_claims: validator_claims
                     .into_iter()
-                    .map(|item| {
-                        TrackedValidatorClaim::from_native(item, network_id)
-                    })
+                    .map(|item| TrackedValidatorClaim::from_native(item, network_id))
                     .collect(),
             },
             CoreDetailedManifestClass::AccountDepositSettingsUpdate {
@@ -645,11 +634,8 @@ impl DetailedManifestClass {
                     .into_iter()
                     .map(|(k, v)| {
                         (
-                            Address::unsafe_from_raw(
-                                k.into_node_id(),
-                                network_id,
-                            )
-                            .address_string(),
+                            Address::unsafe_from_raw(k.into_node_id(), network_id)
+                                .address_string(),
                             v.into_iter()
                                 .map(|(k, v)| {
                                     (
@@ -669,12 +655,9 @@ impl DetailedManifestClass {
                     .into_iter()
                     .map(|(k, v)| {
                         (
-                            Address::unsafe_from_raw(
-                                k.into_node_id(),
-                                network_id,
-                            )
-                            .address_string(),
-                            <AccountDefaultDepositRule as FromNative>::from_native(v)
+                            Address::unsafe_from_raw(k.into_node_id(), network_id)
+                                .address_string(),
+                            <AccountDefaultDepositRule as FromNative>::from_native(v),
                         )
                     })
                     .collect(),
@@ -682,21 +665,20 @@ impl DetailedManifestClass {
                     .iter()
                     .map(|(k, v)| {
                         (
-                            Address::unsafe_from_raw(
-                                k.into_node_id(),
-                                network_id,
-                            )
-                            .address_string(),
-                            v
-                                .into_iter()
+                            Address::unsafe_from_raw(k.into_node_id(), network_id)
+                                .address_string(),
+                            v.into_iter()
                                 .filter_map(|(k, v)| {
                                     if let CoreOperation::Added = v {
-                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                        Some(ResourceOrNonFungible::from_native(
+                                            k.clone(),
+                                            network_id,
+                                        ))
                                     } else {
                                         None
                                     }
                                 })
-                                .collect()
+                                .collect(),
                         )
                     })
                     .collect(),
@@ -704,21 +686,20 @@ impl DetailedManifestClass {
                     .iter()
                     .map(|(k, v)| {
                         (
-                            Address::unsafe_from_raw(
-                                k.into_node_id(),
-                                network_id,
-                            )
-                            .address_string(),
-                            v
-                                .into_iter()
+                            Address::unsafe_from_raw(k.into_node_id(), network_id)
+                                .address_string(),
+                            v.into_iter()
                                 .filter_map(|(k, v)| {
                                     if let CoreOperation::Removed = v {
-                                        Some(ResourceOrNonFungible::from_native(k.clone(), network_id))
+                                        Some(ResourceOrNonFungible::from_native(
+                                            k.clone(),
+                                            network_id,
+                                        ))
                                     } else {
                                         None
                                     }
                                 })
-                                .collect()
+                                .collect(),
                         )
                     })
                     .collect(),
@@ -839,13 +820,14 @@ impl ExecutionSummary {
                 .collect(),
             fee_locks: FeeLocks::from_native(&native.fee_locks),
             fee_summary: FeeSummary::from_native(&native.fee_summary),
-            detailed_classification: native
-                .detailed_classification
-                .into_iter()
-                .map(|item| {
-                    DetailedManifestClass::from_native(item, network_id)
-                })
-                .collect(),
+            detailed_classification:
+                native
+                    .detailed_classification
+                    .into_iter()
+                    .map(|item| {
+                        DetailedManifestClass::from_native(item, network_id)
+                    })
+                    .collect(),
             newly_created_non_fungibles: native
                 .newly_created_non_fungibles
                 .into_iter()
@@ -1351,17 +1333,20 @@ impl From<CoreNonFungibleResourceIndicator> for NonFungibleResourceIndicator {
             CoreNonFungibleResourceIndicator::ByAmount {
                 amount,
                 predicted_ids,
-            } => NonFungibleResourceIndicator::ByAmount {
-                amount: Arc::new(Decimal(amount)),
-                predicted_ids: PredictedNonFungibleIds {
-                    value: predicted_ids
-                        .value
-                        .into_iter()
-                        .map(Into::into)
-                        .collect(),
-                    instruction_index: predicted_ids.instruction_index as u64,
-                },
-            },
+            } => {
+                NonFungibleResourceIndicator::ByAmount {
+                    amount: Arc::new(Decimal(amount)),
+                    predicted_ids: PredictedNonFungibleIds {
+                        value: predicted_ids
+                            .value
+                            .into_iter()
+                            .map(Into::into)
+                            .collect(),
+                        instruction_index: predicted_ids.instruction_index
+                            as u64,
+                    },
+                }
+            }
             CoreNonFungibleResourceIndicator::ByIds(ids) => {
                 NonFungibleResourceIndicator::ByIds {
                     ids: ids.into_iter().map(Into::into).collect(),

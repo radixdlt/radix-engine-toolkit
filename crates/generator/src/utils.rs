@@ -157,27 +157,27 @@ fn traverse_and_convert_discriminator(
 
             // One of key
             mapping.insert(
-                Value::String("oneOf".to_string()),
-                Value::Sequence(
-                    enum_discriminators
-                        .iter()
-                        .map(|enum_discriminator| {
-                            Value::Mapping({
-                                let mut mapping = Mapping::new();
+                    Value::String("oneOf".to_string()),
+                    Value::Sequence(
+                        enum_discriminators
+                            .iter()
+                            .map(|enum_discriminator| {
+                                Value::Mapping({
+                                    let mut mapping = Mapping::new();
 
-                                mapping.insert(
-                                    Value::String("$ref".to_string()),
-                                    Value::String(format!(
-                                        "#/components/schemas/{enum_discriminator}"
-                                    )),
-                                );
+                                    mapping.insert(
+                                        Value::String("$ref".to_string()),
+                                        Value::String(format!(
+                                            "#/components/schemas/{enum_discriminator}"
+                                        )),
+                                    );
 
-                                mapping
+                                    mapping
+                                })
                             })
-                        })
-                        .collect(),
-                ),
-            );
+                            .collect(),
+                    ),
+                );
 
             // Discriminator key
             mapping.insert(

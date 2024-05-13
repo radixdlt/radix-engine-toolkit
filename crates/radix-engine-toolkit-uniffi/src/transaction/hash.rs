@@ -31,9 +31,9 @@ impl TransactionHash {
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let hash = core_decode_transaction_id(&string, &network_definition)
-            .map_err(|_| {
-                RadixEngineToolkitError::FailedToDecodeTransactionHash
-            })?;
+            .map_err(
+                |_| RadixEngineToolkitError::FailedToDecodeTransactionHash
+            )?;
         Ok(Arc::new(Self(hash, string, network_id)))
     }
 

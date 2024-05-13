@@ -56,22 +56,26 @@ impl TryFrom<SignatureWithPublicKey> for NativeSignatureWithPublicKey {
                 signature,
                 public_key,
             } => {
-                let public_key =
-                    public_key.try_into().map(NativeEd25519PublicKey).map_err(
-                        |public_key| RadixEngineToolkitError::InvalidLength {
+                let public_key = public_key
+                    .try_into()
+                    .map(NativeEd25519PublicKey)
+                    .map_err(|public_key| {
+                        RadixEngineToolkitError::InvalidLength {
                             expected: NativeEd25519PublicKey::LENGTH as u64,
                             actual: public_key.len() as u64,
                             data: public_key,
-                        },
-                    )?;
-                let signature =
-                    signature.try_into().map(NativeEd25519Signature).map_err(
-                        |signature| RadixEngineToolkitError::InvalidLength {
+                        }
+                    })?;
+                let signature = signature
+                    .try_into()
+                    .map(NativeEd25519Signature)
+                    .map_err(|signature| {
+                        RadixEngineToolkitError::InvalidLength {
                             expected: NativeEd25519Signature::LENGTH as u64,
                             actual: signature.len() as u64,
                             data: signature,
-                        },
-                    )?;
+                        }
+                    })?;
                 Ok(Self::Ed25519 {
                     public_key,
                     signature,
