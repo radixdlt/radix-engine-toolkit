@@ -67,6 +67,11 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
             logical_name: "ansharnet".to_string(),
             hrp_suffix: "tdx_d_".to_string(),
         },
+        0x0E => NetworkDefinition {
+            id: network_id,
+            logical_name: "ansharnet".to_string(),
+            hrp_suffix: "tdx_e_".to_string(),
+        },
 
         // RDX Works Development
         0x20 => NetworkDefinition {
@@ -115,7 +120,7 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
 
         // Unnamed
         network_id => NetworkDefinition {
-            id: 0x25,
+            id: network_id,
             logical_name: "unnamed".to_string(),
             hrp_suffix: format!("tdx_{:x}_", network_id),
         },
