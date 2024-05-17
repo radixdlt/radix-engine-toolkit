@@ -49,9 +49,9 @@ impl StaticWorktopContentsTracker {
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
-                    self.add_new_instruction(
-                        TrackedResource::StaticallyKnown(resources)
-                    );
+                    self.add_new_instruction(TrackedResource::StaticallyKnown(
+                        resources,
+                    ));
                 } else {
                     // put nonfungible by amount to worktop -> non trusted
                     // we don't know what is on worktop so entering untracked mode
@@ -71,9 +71,9 @@ impl StaticWorktopContentsTracker {
 
                 self.worktop_content_tracker
                     .put_to_worktop(resources.clone());
-                self.add_new_instruction(
-                    TrackedResource::StaticallyKnown(resources)
-                );
+                self.add_new_instruction(TrackedResource::StaticallyKnown(
+                    resources,
+                ));
             }
 
             // withdraw resources from account by address and amount
@@ -89,9 +89,9 @@ impl StaticWorktopContentsTracker {
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
-                    self.add_new_instruction(
-                        TrackedResource::StaticallyKnown(resources)
-                    );
+                    self.add_new_instruction(TrackedResource::StaticallyKnown(
+                        resources,
+                    ));
                 } else {
                     // put non fungible by amount to worktop -> non trusted,
                     // we don't know what is on worktop so entering untracked mode
@@ -111,9 +111,9 @@ impl StaticWorktopContentsTracker {
 
                 self.worktop_content_tracker
                     .put_to_worktop(resources.clone());
-                self.add_new_instruction(
-                    TrackedResource::StaticallyKnown(resources)
-                );
+                self.add_new_instruction(TrackedResource::StaticallyKnown(
+                    resources,
+                ));
             }
 
             // deposits into an account
@@ -195,7 +195,9 @@ impl StaticWorktopContentsTracker {
 
                                 (
                                     true,
-                                    Some(Self::merge_same_resources(&resources)),
+                                    Some(Self::merge_same_resources(
+                                        &resources,
+                                    )),
                                 )
                             } else {
                                 // take all from worktop will clear worktop so
@@ -565,9 +567,9 @@ impl StaticWorktopContentsTracker {
                         input_args.resource_address,
                         input_args.amount,
                     );
-                    self.add_new_instruction(
-                        TrackedResource::StaticallyKnown(resource.clone())
-                    );
+                    self.add_new_instruction(TrackedResource::StaticallyKnown(
+                        resource.clone(),
+                    ));
                     self.worktop_content_tracker.put_to_worktop(resource);
                 } else {
                     self.add_new_instruction(TrackedResource::Unknown);
@@ -840,9 +842,9 @@ impl StaticWorktopContentsTracker {
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
-                    self.add_new_instruction(
-                        TrackedResource::StaticallyKnown(resources)
-                    );
+                    self.add_new_instruction(TrackedResource::StaticallyKnown(
+                        resources,
+                    ));
                 }
                 "lock_fee" => {
                     self.add_new_instruction(

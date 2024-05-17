@@ -19,6 +19,7 @@
 #![allow(clippy::expect_fun_call)]
 
 use radix_common::prelude::*;
+use radix_engine_toolkit::functions::manifest::summary;
 use radix_engine_toolkit_json::models::transaction::instruction::*;
 use radix_transactions::manifest::*;
 use walkdir::WalkDir;
@@ -111,4 +112,44 @@ fn common_manifests_can_be_converted_to_serialized_and_back_and_are_equal() {
         // Assert
         assert_eq!(instructions, manifest.instructions, "{path:?}")
     }
+}
+
+#[test]
+fn manifest_with_invalid_invocation_can_be_summarized() {
+    // Arrange
+    let manifest = r#"
+    CALL_METHOD
+        Address("account_rdx12xk0w2lxmnkfnh88h42u38smw6fvh6ckufvjxph4ntvxg537eqyjra")
+        "lock_fee"
+        Decimal("5")
+    ;
+    CALL_METHOD
+        Address("account_rdx12xk0w2lxmnkfnh88h42u38smw6fvh6ckufvjxph4ntvxg537eqyjra")
+        "withdraw"
+        "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
+        Decimal("2")
+    ;
+    TAKE_ALL_FROM_WORKTOP
+        Address("resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd")
+        Bucket("bucket1")
+    ;
+    CALL_METHOD
+        Address("component_rdx1cze7e7437y9pmntk94w72eyanngw522j8yf07aa27frn63m9ezkfeu")
+        "swap"
+        "bucket1"
+        "resource_rdx1thyqj6yn4rmc8awxqhz6d60q9t677tre0ervrqpzfp4fzc20s4cmce"
+    ;
+    CALL_METHOD
+        Address("account_rdx12xk0w2lxmnkfnh88h42u38smw6fvh6ckufvjxph4ntvxg537eqyjra")
+        "try_deposit_batch_or_abort"
+        Expression("ENTIRE_WORKTOP")
+        Enum<0u8>()
+    ;
+    "#;
+    let manifest =
+        compile(manifest, &NetworkDefinition::mainnet(), MockBlobProvider)
+            .unwrap();
+
+    // Act & Assert
+    summary(&manifest);
 }
