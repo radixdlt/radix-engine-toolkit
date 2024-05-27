@@ -49,7 +49,6 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let mut validator_claim_detector = ValidatorClaimDetector::default();
     let mut accounts_settings_detector =
         AccountSettingsUpdateDetector::default();
-    let mut trusted_worktop = StaticWorktopContentsTracker::default();
 
     // Traversing the manifest with the passed detectors
     traverser::manifest_summary::traverse(
@@ -85,44 +84,47 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let reserved_instructions = reserved_instructions_detector.output();
     let (account_withdraws, account_deposits) =
         account_resource_movements_detector.output();
-    let classification = [
-        (
-            ManifestClass::General,
-            general_transaction_detector.is_valid(),
-        ),
-        (
-            ManifestClass::Transfer,
-            transfer_transaction_detector.is_valid(),
-        ),
-        (
-            ManifestClass::PoolContribution,
-            pool_contribution_detector.is_valid(),
-        ),
-        (
-            ManifestClass::PoolRedemption,
-            pool_redemption_detector.is_valid(),
-        ),
-        (
-            ManifestClass::ValidatorStake,
-            validator_stake_detector.is_valid(),
-        ),
-        (
-            ManifestClass::ValidatorUnstake,
-            validator_unstake_detector.is_valid(),
-        ),
-        (
-            ManifestClass::ValidatorClaim,
-            validator_claim_detector.is_valid(),
-        ),
-        (
-            ManifestClass::AccountDepositSettingsUpdate,
-            accounts_settings_detector.is_valid(),
-        ),
-    ]
-    .into_iter()
-    .filter_map(|(class, is_valid)| if is_valid { Some(class) } else { None })
-    .rev()
-    .collect::<IndexSet<ManifestClass>>();
+    let classification =
+        [
+            (
+                ManifestClass::General,
+                general_transaction_detector.is_valid(),
+            ),
+            (
+                ManifestClass::Transfer,
+                transfer_transaction_detector.is_valid(),
+            ),
+            (
+                ManifestClass::PoolContribution,
+                pool_contribution_detector.is_valid(),
+            ),
+            (
+                ManifestClass::PoolRedemption,
+                pool_redemption_detector.is_valid(),
+            ),
+            (
+                ManifestClass::ValidatorStake,
+                validator_stake_detector.is_valid(),
+            ),
+            (
+                ManifestClass::ValidatorUnstake,
+                validator_unstake_detector.is_valid(),
+            ),
+            (
+                ManifestClass::ValidatorClaim,
+                validator_claim_detector.is_valid(),
+            ),
+            (
+                ManifestClass::AccountDepositSettingsUpdate,
+                accounts_settings_detector.is_valid(),
+            ),
+        ]
+        .into_iter()
+        .filter_map(
+            |(class, is_valid)| if is_valid { Some(class) } else { None },
+        )
+        .rev()
+        .collect::<IndexSet<ManifestClass>>();
 
     ManifestSummary {
         presented_proofs,
@@ -205,9 +207,9 @@ pub fn execution_summary(
         general_transaction_detector
             .output()
             .map(|_| DetailedManifestClass::General),
-        transfer_transaction_detector.output().map(|is_one_to_one| {
-            DetailedManifestClass::Transfer { is_one_to_one }
-        }),
+        transfer_transaction_detector.output().map(
+            |is_one_to_one| DetailedManifestClass::Transfer { is_one_to_one }
+        ),
         pool_contribution_detector.output().map(
             |(pool_addresses, pool_contributions)| {
                 DetailedManifestClass::PoolContribution {

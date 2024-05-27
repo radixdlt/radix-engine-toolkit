@@ -15,17 +15,17 @@ members = [
 # Shared dependencies that all of the crates need - for now this is just the 
 # `radixdlt-scrypto` dependencies
 [workspace.dependencies]
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad", features = ["serde"] }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad", features = ["serde"] }
-scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad", features = ["serde"] }
-radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-substate-store-queries = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-substate-store-impls = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
-radix-transaction-scenarios = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "397a1bc0bb67429f1c82fbe0a62b3ac2f89a6fad" }
+sbor = { version = "1.2.0", features = ["serde"] }
+scrypto = { version = "1.2.0", features = ["serde"] }
+scrypto-test = { version = "1.2.0" }
+radix-common = { version = "1.2.0", features = ["serde"] }
+radix-engine = { version = "1.2.0" }
+radix-engine-interface = { version = "1.2.0" }
+radix-substate-store-queries = { version = "1.2.0" }
+radix-substate-store-impls = { version = "1.2.0" }
+radix-substate-store-interface = { version = "1.2.0" }
+radix-transactions = { version = "1.2.0" }
+radix-transaction-scenarios = { version = "1.2.0" }
 
 [profile.release]
 incremental = false
