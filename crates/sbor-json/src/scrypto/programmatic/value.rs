@@ -76,7 +76,6 @@ pub enum ProgrammaticScryptoValue {
     },
     Enum {
         #[serde(rename = "variant_id")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
         discriminator: u8,
         fields: Vec<ProgrammaticScryptoValue>,
     },
