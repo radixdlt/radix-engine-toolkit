@@ -1,5 +1,9 @@
 import org.gradle.jvm.tasks.Jar
 
+kotlin {
+    jvmToolchain(17)
+}
+
 plugins {
     kotlin("jvm") version "1.8.21"
     `java-library`

@@ -241,17 +241,30 @@ jobs:
           path: uniffi-bindings
   publish-swift-spm:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
         with:
           ref: ${{ inputs.ref }}
+      - name: Fetch secrets
+        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: ${{ secrets.SECRETS_ROLE_NAME }}
+          app_name: 'radix-engine-toolkit'
+          step_name: "swift"
+          secret_prefix: "SWIFT"
+          secret_name: "github-actions/radixdlt/radix-engine-toolkit/radix-bot-pat"
+          parse_json: true
       - name: Checkout Swift Engine Toolkit
         uses: RDXWorks-actions/checkout@main
         with:
           repository: radixdlt/swift-engine-toolkit
-          token: ${{ secrets.RADIX_BOT_PAT }}
+          token: ${{ env.SWIFT_RADIX_BOT_PAT }}
           path: ./swift-engine-toolkit
       - uses: RDXWorks-actions/download-artifact@main
         with:
@@ -372,10 +385,11 @@ jobs:
           path: "./artifacts/RadixEngineToolkit.xcframework"
   publish-kotlin-maven-github:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
@@ -406,6 +420,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      packages: write
     steps:
       - name: Install AWS CLI
         uses: RDXWorks-actions/install-aws-cli-action@master
@@ -418,10 +433,10 @@ jobs:
           ref: main
           token: ${{ github.token }}
           path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: 'https://github.com/github'
+#      - name: Debug OIDC Claims
+#        uses: ./.github/actions/actions-oidc-debugger
+#        with:
+#          audience: 'https://github.com/github'
       - name: Configure AWS credentials to fetch secrets
         uses: RDXWorks-actions/configure-aws-credentials@main
         with:
@@ -462,7 +477,7 @@ jobs:
           build-root-directory: interop/kotlin/ret-kotlin
   publish-android-maven:
     needs: [build, generate-uniffi-bindings]
-    runs-on: macos-latest
+    runs-on: macos-12
     permissions:
       contents: read
       packages: write
@@ -503,6 +518,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
@@ -542,9 +558,18 @@ jobs:
       - name: NuGet Pack
         working-directory: interop/csharp/
         run: dotnet pack --configuration Release --output .
+      - name: Fetch secrets
+        uses: radixdlt/public-iac-resuable-artifacts/fetch-secrets@main
+        with:
+          role_name: ${{ secrets.SECRETS_ROLE_NAME }}
+          app_name: 'radix-engine-toolkit'
+          step_name: 'nuget'
+          secret_prefix: 'NUGET'
+          secret_name: "github-actions/radixdlt/radix-engine-toolkit/nuget"
+          parse_json: true
       - name: Publish Packages
         working-directory: interop/csharp/
-        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_API_KEY }}
+        run: dotnet nuget push RadixDlt.RadixEngineToolkit.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_ORG_API_KEY }}
   publish-python-package:
     needs: [build, generate-uniffi-bindings]
     runs-on: ubuntu-latest
