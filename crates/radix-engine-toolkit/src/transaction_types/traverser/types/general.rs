@@ -32,7 +32,7 @@ impl GeneralDetector {
     }
 
     pub fn output(self) -> Option<()> {
-        if self.is_valid {
+        if self.is_valid(){
             Some(())
         } else {
             None

@@ -16,6 +16,7 @@
 // under the License.
 
 #![allow(clippy::type_complexity)]
+#![feature(trait_upcasting)]
 
 pub mod functions;
 pub mod models;

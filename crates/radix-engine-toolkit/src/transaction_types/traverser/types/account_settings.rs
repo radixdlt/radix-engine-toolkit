@@ -25,6 +25,8 @@ use crate::utils;
 
 pub struct AccountSettingsUpdateDetector {
     is_valid: bool,
+    /// Determines if one of the account setting update instructions were met.
+    account_settings_instruction_encountered: bool,
     /// Updated resource preferences
     resource_preferences: IndexMap<
         ComponentAddress,
@@ -48,7 +50,7 @@ impl AccountSettingsUpdateDetector {
         IndexMap<ComponentAddress, DefaultDepositRule>,
         IndexMap<ComponentAddress, IndexMap<ResourceOrNonFungible, Update<()>>>,
     )> {
-        if self.is_valid {
+        if self.is_valid() {
             Some((
                 self.resource_preferences,
                 self.default_deposit_rules,
@@ -108,6 +110,20 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
             | InstructionV1::AssertWorktopContainsNonFungibles { .. } => false,
         };
 
+        // Determine if the instruction is an account settings instruction.
+        self.account_settings_instruction_encountered |=
+            if let InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } = instruction
+            {
+                Self::construct_specific_fn_rules(address)
+                    .is_fn_permitted(method_name)
+            } else {
+                false
+            };
+
         // Process the instructions
         let InstructionV1::CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
@@ -140,9 +156,9 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
                     .insert(resource_address, Update::Set(resource_preference));
             }
         } else if method_name == ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT {
-            if let Ok(
-                AccountRemoveResourcePreferenceInput { resource_address }
-            ) = manifest_decode(&encoded_args)
+            if let Ok(AccountRemoveResourcePreferenceInput {
+                resource_address,
+            }) = manifest_decode(&encoded_args)
             {
                 self.resource_preferences
                     .entry(address)
@@ -181,7 +197,7 @@ impl ExecutionSummaryCallback for AccountSettingsUpdateDetector {}
 
 impl AccountSettingsUpdateDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.account_settings_instruction_encountered
     }
 
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
@@ -242,12 +258,69 @@ impl AccountSettingsUpdateDetector {
             }
         }
     }
+
+    fn construct_specific_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
+        match address {
+            DynamicGlobalAddress::Named(..) => FnRules::all_disallowed(),
+            DynamicGlobalAddress::Static(address) => {
+                address
+                    .as_node_id()
+                    .entity_type()
+                    .map(|entity_type| {
+                        match entity_type {
+                            EntityType::GlobalAccount
+                            | EntityType::GlobalVirtualSecp256k1Account
+                            | EntityType::GlobalVirtualEd25519Account => {
+                                FnRules {
+                                    allowed: &[
+                                        /* Resource Preference */
+                                        ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
+                                        ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
+                                        /* Authorized Depositors */
+                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                                        /* Default Deposit Rule */
+                                        ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
+                                    ],
+                                    disallowed: &[],
+                                    default: FnRule::Disallowed,
+                                }
+                            }
+                            /* Disallowed */
+                            EntityType::GlobalGenericComponent
+                            | EntityType::GlobalIdentity
+                            | EntityType::GlobalVirtualSecp256k1Identity
+                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalPackage
+                            | EntityType::GlobalValidator
+                            | EntityType::GlobalFungibleResourceManager
+                            | EntityType::GlobalNonFungibleResourceManager
+                            | EntityType::GlobalConsensusManager
+                            | EntityType::InternalFungibleVault
+                            | EntityType::InternalNonFungibleVault
+                            | EntityType::InternalKeyValueStore
+                            | EntityType::GlobalTransactionTracker
+                            | EntityType::GlobalAccessController
+                            | EntityType::GlobalOneResourcePool
+                            | EntityType::GlobalTwoResourcePool
+                            | EntityType::GlobalMultiResourcePool
+                            | EntityType::GlobalAccountLocker => {
+                                FnRules::all_disallowed()
+                            }
+                        }
+                    })
+                    .unwrap_or(FnRules::all_disallowed())
+            }
+        }
+    }
 }
 
 impl Default for AccountSettingsUpdateDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            account_settings_instruction_encountered: false,
             resource_preferences: Default::default(),
             default_deposit_rules: Default::default(),
             authorized_depositors: Default::default(),

@@ -27,17 +27,18 @@ use crate::utils::*;
 
 pub struct TransferDetector {
     is_valid: bool,
+    is_specific_instruction_encountered: bool,
     is_first_instruction_lock_fee: bool,
     instructions_match_simple_transfer: bool,
 }
 
 impl TransferDetector {
     pub fn is_valid(&self) -> bool {
-        self.is_valid
+        self.is_valid && self.is_specific_instruction_encountered
     }
 
     pub fn output(self) -> Option<bool> {
-        if self.is_valid {
+        if self.is_valid() {
             Some(self.instructions_match_simple_transfer)
         } else {
             None
@@ -157,6 +158,20 @@ impl ManifestSummaryCallback for TransferDetector {
             | InstructionV1::DropAllProofs
             | InstructionV1::AllocateGlobalAddress { .. } => false,
         };
+
+        // Determine if the instruction is a transfer instruction.
+        self.is_specific_instruction_encountered |=
+            if let InstructionV1::CallMethod {
+                address,
+                method_name,
+                ..
+            } = instruction
+            {
+                Self::construct_specific_fn_rules(address)
+                    .is_fn_permitted(method_name)
+            } else {
+                false
+            };
     }
 
     fn on_finish(&mut self, instructions_count: usize) {
@@ -244,12 +259,72 @@ impl TransferDetector {
             }
         }
     }
+
+    fn construct_specific_fn_rules(address: &DynamicGlobalAddress) -> FnRules {
+        match address {
+            DynamicGlobalAddress::Named(..) => FnRules::all_disallowed(),
+            DynamicGlobalAddress::Static(address) => {
+                address
+                    .as_node_id()
+                    .entity_type()
+                    .map(|entity_type| {
+                        match entity_type {
+                            EntityType::GlobalAccount
+                            | EntityType::GlobalVirtualSecp256k1Account
+                            | EntityType::GlobalVirtualEd25519Account => {
+                                FnRules {
+                                    allowed: &[
+                                        /* All withdraw methods */
+                                        ACCOUNT_WITHDRAW_IDENT,
+                                        ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT,
+                                        /* All deposit methods */
+                                        ACCOUNT_DEPOSIT_IDENT,
+                                        ACCOUNT_DEPOSIT_BATCH_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_OR_ABORT_IDENT,
+                                        ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
+                                        /* Account Lock Fees */
+                                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_IDENT,
+                                        ACCOUNT_LOCK_FEE_AND_WITHDRAW_NON_FUNGIBLES_IDENT,
+                                    ],
+                                    disallowed: &[],
+                                    default: FnRule::Disallowed,
+                                }
+                            }
+                            /* Disallowed */
+                            EntityType::GlobalPackage
+                            | EntityType::GlobalValidator
+                            | EntityType::GlobalFungibleResourceManager
+                            | EntityType::GlobalNonFungibleResourceManager
+                            | EntityType::GlobalConsensusManager
+                            | EntityType::InternalFungibleVault
+                            | EntityType::InternalNonFungibleVault
+                            | EntityType::InternalKeyValueStore
+                            | EntityType::GlobalTransactionTracker
+                            | EntityType::GlobalAccessController
+                            | EntityType::GlobalGenericComponent
+                            | EntityType::GlobalIdentity
+                            | EntityType::GlobalOneResourcePool
+                            | EntityType::GlobalTwoResourcePool
+                            | EntityType::GlobalMultiResourcePool
+                            | EntityType::GlobalVirtualSecp256k1Identity
+                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalAccountLocker => {
+                                FnRules::all_disallowed()
+                            }
+                        }
+                    })
+                    .unwrap_or(FnRules::all_disallowed())
+            }
+        }
+    }
 }
 
 impl Default for TransferDetector {
     fn default() -> Self {
         Self {
             is_valid: true,
+            is_specific_instruction_encountered: false,
             is_first_instruction_lock_fee: false,
             instructions_match_simple_transfer: true,
         }

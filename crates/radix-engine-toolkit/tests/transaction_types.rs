@@ -16,6 +16,7 @@
 // under the License.
 
 use radix_engine::blueprints::pool::v1::constants::*;
+use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_interface::blueprints::pool::*;
@@ -2465,10 +2466,9 @@ fn create_pools(
     [ComponentAddress; 3],
     [ResourceAddress; 3],
 ) {
-    let [resource1, resource2, resource3, resource4] =
-        [0u8; 4].map(|_| {
-            ledger.create_fungible_resource(dec!(100_000_000_000), 18, account)
-        });
+    let [resource1, resource2, resource3, resource4] = [0u8; 4].map(|_| {
+        ledger.create_fungible_resource(dec!(100_000_000_000), 18, account)
+    });
 
     let receipt = ledger.execute_manifest(
         ManifestBuilder::new()
@@ -2546,47 +2546,43 @@ fn create_pools(
 
 #[test]
 fn account_locker_is_recognized_as_general_transaction() {
-    use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
-
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
     let (public_key, _, account) = ledger.new_account(false);
 
-    let [owner_badge, storer_badge, recoverer_badge] = std::array::from_fn(
-        |_| ledger.create_fungible_resource(dec!(1), 0, account),
-    );
+    let [owner_badge, storer_badge, recoverer_badge] =
+        std::array::from_fn(|_| {
+            ledger.create_fungible_resource(dec!(1), 0, account)
+        });
 
-    let account_locker =
-        ledger
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(
-                        LOCKER_PACKAGE,
-                        ACCOUNT_LOCKER_BLUEPRINT,
-                        ACCOUNT_LOCKER_INSTANTIATE_IDENT,
-                        AccountLockerInstantiateManifestInput {
-                            owner_role: OwnerRole::Fixed(rule!(require(
-                                owner_badge
-                            ))),
-                            storer_role: rule!(require(storer_badge)),
-                            storer_updater_role: rule!(require(storer_badge)),
-                            recoverer_role: rule!(require(recoverer_badge)),
-                            recoverer_updater_role: rule!(require(
-                                recoverer_badge
-                            )),
-                            address_reservation: None,
-                        },
-                    )
-                    .build(),
-                vec![NonFungibleGlobalId::from_public_key(&public_key)],
-            )
-            .expect_commit_success()
-            .new_component_addresses()
-            .first()
-            .copied()
-            .unwrap();
+    let account_locker = ledger
+        .execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(
+                    LOCKER_PACKAGE,
+                    ACCOUNT_LOCKER_BLUEPRINT,
+                    ACCOUNT_LOCKER_INSTANTIATE_IDENT,
+                    AccountLockerInstantiateManifestInput {
+                        owner_role: OwnerRole::Fixed(rule!(require(
+                            owner_badge
+                        ))),
+                        storer_role: rule!(require(storer_badge)),
+                        storer_updater_role: rule!(require(storer_badge)),
+                        recoverer_role: rule!(require(recoverer_badge)),
+                        recoverer_updater_role: rule!(require(recoverer_badge)),
+                        address_reservation: None,
+                    },
+                )
+                .build(),
+            vec![NonFungibleGlobalId::from_public_key(&public_key)],
+        )
+        .expect_commit_success()
+        .new_component_addresses()
+        .first()
+        .copied()
+        .unwrap();
 
     // Act
     let manifest = ManifestBuilder::new()
@@ -2661,4 +2657,29 @@ fn account_locker_is_recognized_as_general_transaction() {
     assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
 
     assert_eq!(execution_summary.new_entities, NewEntities::default());
+}
+
+#[test]
+fn lock_fee_manifest_has_no_classification_except_general() {
+    // Arrange
+    let mut ledger =
+        LedgerSimulatorBuilder::new().without_kernel_trace().build();
+    let (_, _, account) = ledger.new_account(false);
+
+    // Act
+    let manifest = ManifestBuilder::new().lock_fee(account, 10).build();
+    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+
+    println!("{:#?}", manifest_summary.classification);
+
+    // Assert
+    assert_eq_three!(
+        manifest_summary.classification.len(),
+        execution_summary.detailed_classification.len(),
+        1
+    );
+    assert_eq!(
+        manifest_summary.classification,
+        indexset![ManifestClass::General]
+    );
 }
