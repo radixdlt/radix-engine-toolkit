@@ -10,7 +10,6 @@ package main
 
 import (
 	"encoding/hex"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -176,8 +175,6 @@ func TestRetNotarizedTransaction(t *testing.T) {
 	var transactionBytes, _ = notarizedTransaction.Compile()
 
 	transactionHex := hex.EncodeToString(transactionBytes)
-	fmt.Print(transactionHex)
-
 	assert(t, transactionHex == "4d22030221022104210707020a01000000000000000a0a00000000000000090100000022000" +
 		"12007210284bf7562262bbd6940085748f3be6afa52ae317155181ece31b66351ccffa4b0010108000020220341038000c0" +
 		"566318c6318c64f798cacc6318c6318cf7be8af78a78f8a6318c6318c60c086c6f636b5f666565210185000010632d5ec76" +
