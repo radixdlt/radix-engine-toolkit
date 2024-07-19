@@ -3,5 +3,5 @@ name: radix-engine-toolkit
 created_at: 2024-05-30T11:37:17.381554+02:00
 group_name: Protocol
 depfiles:
-- path: ./package-lock.json
-  type: npm
+- path: ./Cargo.lock
+  type: cargo
