@@ -258,6 +258,10 @@ define_canonical_addresses!(
         EntityType::GlobalOneResourcePool,
         EntityType::GlobalTwoResourcePool,
         EntityType::GlobalMultiResourcePool
+    ],
+    // CanonicalLockerAddress type definition
+    Locker =>  [
+        EntityType::GlobalAccountLocker,
     ]
 );
 
@@ -317,12 +321,11 @@ mod tests {
         let canonical_input =
             "resource_tdx_a_1nfwe9a4ufg9gksatuwwqlw3rtc6hljyjscg3k7yyf3d40ev85cjrzp";
 
-        let x =
-            CanonicalResourceAddress::new(
-                NodeId::try_from_hex(input).unwrap(),
-                0x0a,
-            )
-            .unwrap();
+        let x = CanonicalResourceAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
+            0x0a,
+        )
+        .unwrap();
 
         let input_vec: Vec<u8> = (0..input.len())
             .step_by(2)
@@ -349,12 +352,11 @@ mod tests {
         let canonical_input =
             "resource_rdx1tk7jxvmrqfyt8e5geyuf9nkz6xvmmytm3f8qrxry54fwram5cwvcw9";
 
-        let x =
-            CanonicalResourceAddress::new(
-                NodeId::try_from_hex(input).unwrap(),
-                0x01,
-            )
-            .unwrap();
+        let x = CanonicalResourceAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
+            0x01,
+        )
+        .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(x.is_fungible());
     }
@@ -366,12 +368,11 @@ mod tests {
         let canonical_input =
             "internal_vault_rdx1nqv8gprrtpjgtm7t6h707gkvflg0gq05fqmvk5ertlzzl93rrmns58";
 
-        let x =
-            CanonicalVaultAddress::new(
-                NodeId::try_from_hex(input).unwrap(),
-                0x01,
-            )
-            .unwrap();
+        let x = CanonicalVaultAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
+            0x01,
+        )
+        .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(!x.is_fungible());
     }
@@ -383,12 +384,11 @@ mod tests {
         let canonical_input =
             "internal_vault_rdx1tpsesv77qvw782kknjks9g3x2msg8cc8ldshk28pkf6m6lkhzcw3fr";
 
-        let x =
-            CanonicalVaultAddress::new(
-                NodeId::try_from_hex(input).unwrap(),
-                0x01,
-            )
-            .unwrap();
+        let x = CanonicalVaultAddress::new(
+            NodeId::try_from_hex(input).unwrap(),
+            0x01,
+        )
+        .unwrap();
         assert_eq!(x.to_string(), canonical_input);
         assert!(x.is_fungible());
     }
