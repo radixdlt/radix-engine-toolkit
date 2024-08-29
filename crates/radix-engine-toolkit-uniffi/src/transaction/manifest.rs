@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use native_radix_engine_toolkit::receipt::{
+    RuntimeToolkitTransactionReceipt, SerializableToolkitTransactionReceipt,
+};
 use sbor::Versioned;
 
 use crate::prelude::*;
@@ -98,16 +101,23 @@ impl TransactionManifest {
     pub fn execution_summary(
         &self,
         network_id: u8,
-        encoded_receipt: Vec<u8>,
+        toolkit_receipt: String,
     ) -> Result<ExecutionSummary> {
         let native = self.clone().to_native();
-        let versioned_transaction_receipt = native_scrypto_decode::<
-            NativeVersionedTransactionReceipt,
-        >(&encoded_receipt)?;
-        let receipt = versioned_transaction_receipt
-            .as_latest_version()
-            .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
-
+        let network_definition =
+            core_network_definition_from_network_id(network_id);
+        let receipt = serde_json::from_str::<
+            SerializableToolkitTransactionReceipt,
+        >(&toolkit_receipt)
+        .ok()
+        .and_then(|receipt| {
+            receipt
+                .into_runtime_receipt(&NativeAddressBech32Decoder::new(
+                    &network_definition,
+                ))
+                .ok()
+        })
+        .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
         core_manifest_execution_summary(&native, &receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
             .map(|summary| ExecutionSummary::from_native(summary, network_id))?
@@ -233,9 +243,10 @@ impl ResourceSpecifier {
         resource_address: &NativeResourceAddress,
         network_id: u8,
     ) -> ResourceSpecifier {
-        let address = Arc::new(
-            Address::from_typed_node_id(*resource_address, network_id)
-        );
+        let address = Arc::new(Address::from_typed_node_id(
+            *resource_address,
+            network_id,
+        ));
         match native {
             NativeLockerResourceSpecifier::Fungible(amount) => {
                 ResourceSpecifier::Amount {
@@ -820,14 +831,13 @@ impl ExecutionSummary {
                 .collect(),
             fee_locks: FeeLocks::from_native(&native.fee_locks),
             fee_summary: FeeSummary::from_native(&native.fee_summary),
-            detailed_classification:
-                native
-                    .detailed_classification
-                    .into_iter()
-                    .map(|item| {
-                        DetailedManifestClass::from_native(item, network_id)
-                    })
-                    .collect(),
+            detailed_classification: native
+                .detailed_classification
+                .into_iter()
+                .map(|item| {
+                    DetailedManifestClass::from_native(item, network_id)
+                })
+                .collect(),
             newly_created_non_fungibles: native
                 .newly_created_non_fungibles
                 .into_iter()
@@ -1333,20 +1343,17 @@ impl From<CoreNonFungibleResourceIndicator> for NonFungibleResourceIndicator {
             CoreNonFungibleResourceIndicator::ByAmount {
                 amount,
                 predicted_ids,
-            } => {
-                NonFungibleResourceIndicator::ByAmount {
-                    amount: Arc::new(Decimal(amount)),
-                    predicted_ids: PredictedNonFungibleIds {
-                        value: predicted_ids
-                            .value
-                            .into_iter()
-                            .map(Into::into)
-                            .collect(),
-                        instruction_index: predicted_ids.instruction_index
-                            as u64,
-                    },
-                }
-            }
+            } => NonFungibleResourceIndicator::ByAmount {
+                amount: Arc::new(Decimal(amount)),
+                predicted_ids: PredictedNonFungibleIds {
+                    value: predicted_ids
+                        .value
+                        .into_iter()
+                        .map(Into::into)
+                        .collect(),
+                    instruction_index: predicted_ids.instruction_index as u64,
+                },
+            },
             CoreNonFungibleResourceIndicator::ByIds(ids) => {
                 NonFungibleResourceIndicator::ByIds {
                     ids: ids.into_iter().map(Into::into).collect(),

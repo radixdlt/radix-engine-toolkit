@@ -13,6 +13,7 @@ radix-engine = { workspace = true }
 radix-engine-interface = { workspace = true }
 radix-substate-store-queries = { workspace = true }
 radix-transactions = { workspace = true }
+native-radix-engine-toolkit = { workspace = true }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }
@@ -22,6 +23,7 @@ uniffi = { git = "https://github.com/0xOmarA/uniffi-rs", tag = "v0.25.4", featur
 hex = "0.4.3"
 thiserror = "1.0.50"
 paste = "1.0.12"
+serde_json = "1.0.127"
 
 [build-dependencies]
 # The UniFFI crate for generating bindings to other languages

@@ -17,13 +17,18 @@
 
 use std::ops::*;
 
+use native_radix_engine_toolkit::receipt::{
+    MetadataUpdate, RuntimeToolkitTransactionReceipt, ToolkitTransactionReceipt,
+};
 use radix_engine::blueprints::models::KeyValueKeyPayload;
 use radix_engine::object_modules::metadata::MetadataEntryV1;
 use radix_engine::system::system_substates::*;
 use radix_substate_store_queries::typed_substate_layout::*;
 use scrypto::prelude::*;
 
-use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
+use radix_engine::system::system_modules::execution_trace::{
+    ResourceSpecifier, WorktopChange,
+};
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
 
@@ -237,126 +242,108 @@ impl From<DetailedManifestClass> for ManifestClass {
 /// must belong to a transaction that executed successfully and the execution
 /// trace must be present.
 #[derive(Clone, Debug)]
-pub struct TransactionTypesReceipt<'r> {
-    receipt: &'r TransactionReceipt,
-    commit_result: &'r CommitResult,
-    execution_trace: &'r TransactionExecutionTrace,
-}
+pub struct TransactionTypesReceipt<'r>(&'r RuntimeToolkitTransactionReceipt);
 
 impl<'r> TransactionTypesReceipt<'r> {
-    pub fn new(receipt: &'r TransactionReceipt) -> Option<Self> {
-        if let TransactionResult::Commit(
-            ref commit_result @ CommitResult {
-                execution_trace: Some(ref execution_trace),
-                outcome: TransactionOutcome::Success(..),
-                ..
-            },
-        ) = &receipt.result
-        {
-            Some(Self {
-                receipt,
-                commit_result,
-                execution_trace,
-            })
-        } else {
-            None
+    pub fn new(receipt: &'r RuntimeToolkitTransactionReceipt) -> Option<Self> {
+        match receipt {
+            ToolkitTransactionReceipt::CommitSuccess { .. } => {
+                Some(Self(receipt))
+            }
+            ToolkitTransactionReceipt::CommitFailure { .. }
+            | ToolkitTransactionReceipt::Reject { .. }
+            | ToolkitTransactionReceipt::Abort { .. } => None,
         }
     }
 }
 
 impl<'r> TransactionTypesReceipt<'r> {
-    pub fn new_components(&self) -> &'r IndexSet<ComponentAddress> {
-        self.commit_result.new_component_addresses()
+    pub fn new_components(&self) -> IndexSet<ComponentAddress> {
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .new_entities
+            .iter()
+            .filter_map(|entity| {
+                ComponentAddress::try_from(entity.as_bytes()).ok()
+            })
+            .collect()
     }
 
-    pub fn new_resources(&self) -> &'r IndexSet<ResourceAddress> {
-        self.commit_result.new_resource_addresses()
+    pub fn new_resources(&self) -> IndexSet<ResourceAddress> {
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .new_entities
+            .iter()
+            .filter_map(|entity| {
+                ResourceAddress::try_from(entity.as_bytes()).ok()
+            })
+            .collect()
     }
 
-    pub fn new_packages(&self) -> &'r IndexSet<PackageAddress> {
-        self.commit_result.new_package_addresses()
-    }
-
-    pub fn execution_trace(&self) -> &'r TransactionExecutionTrace {
-        self.execution_trace
+    pub fn new_packages(&self) -> IndexSet<PackageAddress> {
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .new_entities
+            .iter()
+            .filter_map(|entity| {
+                PackageAddress::try_from(entity.as_bytes()).ok()
+            })
+            .collect()
     }
 
     pub fn metadata_of_new_entities(
         &self,
     ) -> IndexMap<GlobalAddress, IndexMap<String, Option<MetadataValue>>> {
-        let mut map = IndexMap::<
-            GlobalAddress,
-            IndexMap<String, Option<MetadataValue>>,
-        >::new();
-
-        for global_address in self.new_entities() {
-            let entry = map.entry(global_address).or_default();
-            if let Some(NodeStateUpdates::Delta { by_partition }) = self
-                .commit_result
-                .state_updates
-                .by_node
-                .get(global_address.as_node_id())
-            {
-                let entries = match by_partition.get(&METADATA_BASE_PARTITION) {
-                    Some(PartitionStateUpdates::Delta { by_substate }) => {
-                        by_substate
-                            .iter()
-                            .filter_map(|(key, value)| match value {
-                                DatabaseUpdate::Set(value) => {
-                                    Some((key.clone(), value.clone()))
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .new_entities
+            .iter()
+            .filter_map(|entity| {
+                GlobalAddress::try_from(entity.as_bytes()).ok()
+            })
+            .fold(IndexMap::new(), |mut acc, address| {
+                match state_updates_summary
+                    .metadata_updates
+                    .get(address.as_node_id())
+                {
+                    Some(entry) => {
+                        acc.entry(address).or_default().extend(
+                            entry.iter().map(|(key, value)| match value {
+                                MetadataUpdate::Set(value) => {
+                                    (key.clone(), Some(value.clone()))
                                 }
-                                DatabaseUpdate::Delete => None,
-                            })
-                            .collect::<IndexMap<_, _>>()
-                    }
-                    Some(PartitionStateUpdates::Batch(
-                        BatchPartitionStateUpdate::Reset {
-                            new_substate_values,
-                        },
-                    )) => new_substate_values.clone(),
-                    None => continue,
-                };
-
-                for (substate_key, data) in entries.into_iter() {
-                    if let Ok((
-                        TypedSubstateKey::MetadataModule(key),
-                        TypedSubstateValue::MetadataModule(value),
-                    )) = to_typed_substate_key(
-                        global_address.as_node_id().entity_type().unwrap(),
-                        METADATA_BASE_PARTITION,
-                        &substate_key,
-                    )
-                    .and_then(|typed_substate_key| {
-                        to_typed_substate_value(&typed_substate_key, &data).map(
-                            |typed_substate_value| {
-                                (typed_substate_key, typed_substate_value)
-                            },
-                        )
-                    }) {
-                        let TypedMetadataModuleSubstateKey::MetadataEntryKey(
-                            key,
-                        ) = key;
-                        let value = match value {
-                            TypedMetadataModuleSubstateValue::MetadataEntry(
-                                KeyValueEntrySubstate::V1(
-                                    KeyValueEntrySubstateV1 { value, .. },
-                                ),
-                            ) => value,
-                        };
-                        entry.insert(
-                            key,
-                            value.map(|metadata_entry| {
-                                let metadata: MetadataEntryV1 =
-                                    metadata_entry.as_unique_version().clone();
-                                metadata
+                                MetadataUpdate::Delete => (key.clone(), None),
                             }),
                         );
+                        acc
                     }
+                    None => acc,
                 }
-            }
-        }
-
-        map
+            })
     }
 
     fn new_entities(&self) -> IndexSet<GlobalAddress> {
@@ -377,50 +364,18 @@ impl<'r> TransactionTypesReceipt<'r> {
     }
 
     pub fn new_non_fungibles(&self) -> HashSet<NonFungibleGlobalId> {
-        let mut minted_id_list = HashSet::new();
-        let mut burnt_id_list = HashSet::new();
-        for (event_type, event_payload) in
-            self.commit_result.application_events.iter()
-        {
-            match event_type.0 {
-                Emitter::Method(node_id, ..) => {
-                    match ResourceAddress::try_from(node_id.as_bytes()) {
-                        Ok(address) if !address.is_fungible() => {
-                            if event_type.1
-                                == MintNonFungibleResourceEvent::EVENT_NAME
-                            {
-                                let event: MintNonFungibleResourceEvent =
-                                    scrypto_decode(event_payload).unwrap();
-                                for local_id in event.ids {
-                                    minted_id_list.insert(
-                                        NonFungibleGlobalId::new(
-                                            address, local_id,
-                                        ),
-                                    );
-                                }
-                            } else if event_type.1
-                                == BurnNonFungibleResourceEvent::EVENT_NAME
-                            {
-                                let event: BurnNonFungibleResourceEvent =
-                                    scrypto_decode(event_payload).unwrap();
-                                for local_id in event.ids {
-                                    burnt_id_list.insert(
-                                        NonFungibleGlobalId::new(
-                                            address, local_id,
-                                        ),
-                                    );
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                _ => (),
-            }
-        }
-
-        minted_id_list.retain(|item| !burnt_id_list.contains(item));
-        minted_id_list
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .newly_minted_non_fungibles
+            .clone()
+            .into_iter()
+            .collect()
     }
 
     pub fn non_fungible_data(
@@ -428,59 +383,56 @@ impl<'r> TransactionTypesReceipt<'r> {
         resource_address: &ResourceAddress,
         non_fungible_local_id: &NonFungibleLocalId,
     ) -> Option<Vec<u8>> {
-        let key = NonFungibleResourceManagerDataKeyPayload::from_content(
-            non_fungible_local_id.clone(),
-        );
-
-        self.commit_result
-            .state_updates
-            .by_node
-            .get(resource_address.as_node_id())
-            .and_then(|item| {
-                let partition_number = MAIN_BASE_PARTITION
-                    .at_offset(
-                        NonFungibleResourceManagerPartitionOffset::DataKeyValue
-                            .as_partition_offset(),
-                    )
-                    .unwrap();
-
-                let NodeStateUpdates::Delta { by_partition } = item;
-
-                by_partition.get(&partition_number)
-            })
-            .and_then(|item| match item {
-                PartitionStateUpdates::Delta { by_substate } => by_substate
-                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
-                    .and_then(|item| match item {
-                        DatabaseUpdate::Set(value) => Some(value.clone()),
-                        DatabaseUpdate::Delete => None,
-                    }),
-                PartitionStateUpdates::Batch(
-                    BatchPartitionStateUpdate::Reset {
-                        new_substate_values,
-                    },
-                ) => new_substate_values
-                    .get(&SubstateKey::Map(scrypto_encode(&key).unwrap()))
-                    .cloned(),
-            })
-            .and_then(|item| {
-                scrypto_decode::<
-                    KeyValueEntrySubstate<
-                        NonFungibleResourceManagerDataEntryPayload,
-                    >,
-                >(&item)
-                .ok()
-                .and_then(|item| item.into_value())
-                .and_then(|item| scrypto_encode(&item).ok())
-            })
+        let ToolkitTransactionReceipt::CommitSuccess {
+            state_updates_summary,
+            ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        state_updates_summary
+            .non_fungible_data_updates
+            .get(&NonFungibleGlobalId::new(
+                *resource_address,
+                non_fungible_local_id.clone(),
+            ))
+            .map(|value| value.clone())
     }
-}
 
-impl<'r> Deref for TransactionTypesReceipt<'r> {
-    type Target = TransactionReceipt;
+    pub fn fee_locks(&self) -> FeeLocks {
+        let ToolkitTransactionReceipt::CommitSuccess { locked_fees, .. } =
+            self.0
+        else {
+            unreachable!()
+        };
+        FeeLocks {
+            lock: locked_fees.non_contingent,
+            contingent_lock: locked_fees.contingent,
+        }
+    }
 
-    fn deref(&self) -> &Self::Target {
-        self.receipt
+    pub fn fee_summary(&self) -> FeeSummary {
+        let ToolkitTransactionReceipt::CommitSuccess { fee_summary, .. } =
+            self.0
+        else {
+            unreachable!()
+        };
+        FeeSummary {
+            execution_cost: fee_summary.execution_fees_in_xrd,
+            finalization_cost: fee_summary.finalization_fees_in_xrd,
+            storage_expansion_cost: fee_summary.storage_fees_in_xrd,
+            royalty_cost: fee_summary.royalty_fees_in_xrd,
+        }
+    }
+
+    pub fn worktop_changes(&self) -> IndexMap<usize, Vec<WorktopChange>> {
+        let ToolkitTransactionReceipt::CommitSuccess {
+            worktop_changes, ..
+        } = self.0
+        else {
+            unreachable!()
+        };
+        worktop_changes.clone()
     }
 }
 

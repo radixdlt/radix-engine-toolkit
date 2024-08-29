@@ -1059,7 +1059,7 @@ dependencies = [
  "radix-common",
  "radix-engine",
  "radix-engine-interface",
- "radix-engine-toolkit",
+ "radix-engine-toolkit 2.1.0-dev1",
  "radix-engine-toolkit-json",
  "radix-substate-store-impls",
  "radix-transaction-scenarios",
@@ -2029,6 +2029,20 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit"
+version = "1.3.0-dev"
+source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=0e4cd26646f157298bee30487bf84f29e75e3aec#0e4cd26646f157298bee30487bf84f29e75e3aec"
+dependencies = [
+ "radix-common",
+ "radix-engine",
+ "radix-engine-interface",
+ "radix-rust",
+ "sbor",
+ "serde",
+ "serde_with",
+]
+
+[[package]]
+name = "radix-engine-toolkit"
 version = "2.1.0-dev1"
 dependencies = [
  "bech32",
@@ -2039,6 +2053,7 @@ dependencies = [
  "radix-common",
  "radix-engine",
  "radix-engine-interface",
+ "radix-engine-toolkit 1.3.0-dev",
  "radix-substate-store-impls",
  "radix-substate-store-interface",
  "radix-substate-store-queries",
@@ -2064,7 +2079,7 @@ dependencies = [
  "radix-common",
  "radix-engine",
  "radix-engine-interface",
- "radix-engine-toolkit",
+ "radix-engine-toolkit 2.1.0-dev1",
  "radix-substate-store-queries",
  "radix-transactions",
  "sbor",
@@ -2086,7 +2101,8 @@ dependencies = [
  "radix-common",
  "radix-engine",
  "radix-engine-interface",
- "radix-engine-toolkit",
+ "radix-engine-toolkit 1.3.0-dev",
+ "radix-engine-toolkit 2.1.0-dev1",
  "radix-substate-store-impls",
  "radix-substate-store-queries",
  "radix-transaction-scenarios",
@@ -2094,6 +2110,7 @@ dependencies = [
  "sbor",
  "scrypto",
  "scrypto-test",
+ "serde_json",
  "thiserror",
  "uniffi",
 ]

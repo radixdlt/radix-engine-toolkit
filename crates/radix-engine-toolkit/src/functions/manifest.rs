@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use native_radix_engine_toolkit::receipt::RuntimeToolkitTransactionReceipt;
 use radix_common::prelude::*;
 use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
@@ -227,7 +228,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
 
 pub fn execution_summary(
     manifest: &TransactionManifestV1,
-    receipt: &TransactionReceipt,
+    receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
     crate::transaction_types::execution_summary(manifest, receipt)
 }

@@ -19,8 +19,8 @@
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
 
+use native_radix_engine_toolkit::receipt::RuntimeToolkitTransactionReceipt;
 use radix_common::prelude::*;
-use radix_engine::transaction::*;
 use radix_substate_store_queries::typed_substate_layout::*;
 use radix_transactions::prelude::*;
 
@@ -84,47 +84,44 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     let reserved_instructions = reserved_instructions_detector.output();
     let (account_withdraws, account_deposits) =
         account_resource_movements_detector.output();
-    let classification =
-        [
-            (
-                ManifestClass::General,
-                general_transaction_detector.is_valid(),
-            ),
-            (
-                ManifestClass::Transfer,
-                transfer_transaction_detector.is_valid(),
-            ),
-            (
-                ManifestClass::PoolContribution,
-                pool_contribution_detector.is_valid(),
-            ),
-            (
-                ManifestClass::PoolRedemption,
-                pool_redemption_detector.is_valid(),
-            ),
-            (
-                ManifestClass::ValidatorStake,
-                validator_stake_detector.is_valid(),
-            ),
-            (
-                ManifestClass::ValidatorUnstake,
-                validator_unstake_detector.is_valid(),
-            ),
-            (
-                ManifestClass::ValidatorClaim,
-                validator_claim_detector.is_valid(),
-            ),
-            (
-                ManifestClass::AccountDepositSettingsUpdate,
-                accounts_settings_detector.is_valid(),
-            ),
-        ]
-        .into_iter()
-        .filter_map(
-            |(class, is_valid)| if is_valid { Some(class) } else { None },
-        )
-        .rev()
-        .collect::<IndexSet<ManifestClass>>();
+    let classification = [
+        (
+            ManifestClass::General,
+            general_transaction_detector.is_valid(),
+        ),
+        (
+            ManifestClass::Transfer,
+            transfer_transaction_detector.is_valid(),
+        ),
+        (
+            ManifestClass::PoolContribution,
+            pool_contribution_detector.is_valid(),
+        ),
+        (
+            ManifestClass::PoolRedemption,
+            pool_redemption_detector.is_valid(),
+        ),
+        (
+            ManifestClass::ValidatorStake,
+            validator_stake_detector.is_valid(),
+        ),
+        (
+            ManifestClass::ValidatorUnstake,
+            validator_unstake_detector.is_valid(),
+        ),
+        (
+            ManifestClass::ValidatorClaim,
+            validator_claim_detector.is_valid(),
+        ),
+        (
+            ManifestClass::AccountDepositSettingsUpdate,
+            accounts_settings_detector.is_valid(),
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(class, is_valid)| if is_valid { Some(class) } else { None })
+    .rev()
+    .collect::<IndexSet<ManifestClass>>();
 
     ManifestSummary {
         presented_proofs,
@@ -140,10 +137,10 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
 
 pub fn execution_summary(
     manifest: &TransactionManifestV1,
-    receipt: &TransactionReceipt,
+    receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
     // Attempt to create a tx types receipt from the passed receipt
-    let receipt = TransactionTypesReceipt::new(receipt)
+    let receipt = TransactionTypesReceipt::new(&receipt)
         .ok_or(TransactionTypesError::InvalidReceipt)?;
 
     // Settings up the various detectors
@@ -207,9 +204,9 @@ pub fn execution_summary(
         general_transaction_detector
             .output()
             .map(|_| DetailedManifestClass::General),
-        transfer_transaction_detector.output().map(
-            |is_one_to_one| DetailedManifestClass::Transfer { is_one_to_one }
-        ),
+        transfer_transaction_detector.output().map(|is_one_to_one| {
+            DetailedManifestClass::Transfer { is_one_to_one }
+        }),
         pool_contribution_detector.output().map(
             |(pool_addresses, pool_contributions)| {
                 DetailedManifestClass::PoolContribution {
@@ -317,16 +314,8 @@ pub fn execution_summary(
     .rev()
     .collect::<Vec<DetailedManifestClass>>();
 
-    let fee_locks = FeeLocks {
-        lock: receipt.execution_trace().fee_locks.lock,
-        contingent_lock: receipt.execution_trace().fee_locks.contingent_lock,
-    };
-    let fee_summary = FeeSummary {
-        execution_cost: receipt.fee_summary.total_execution_cost_in_xrd,
-        finalization_cost: receipt.fee_summary.total_finalization_cost_in_xrd,
-        storage_expansion_cost: receipt.fee_summary.total_storage_cost_in_xrd,
-        royalty_cost: receipt.fee_summary.total_royalty_cost_in_xrd,
-    };
+    let fee_locks = receipt.fee_locks();
+    let fee_summary = receipt.fee_summary();
 
     Ok(ExecutionSummary {
         account_withdraws,
