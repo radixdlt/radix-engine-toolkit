@@ -239,11 +239,11 @@ mod native {
         RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,
-        SECP256K1_SIGNATURE_VIRTUAL_BADGE as NATIVE_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
-        ED25519_SIGNATURE_VIRTUAL_BADGE as NATIVE_ED25519_SIGNATURE_VIRTUAL_BADGE,
-        PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE as NATIVE_PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE,
-        GLOBAL_CALLER_VIRTUAL_BADGE as NATIVE_GLOBAL_CALLER_VIRTUAL_BADGE,
-        SYSTEM_TRANSACTION_BADGE as NATIVE_SYSTEM_TRANSACTION_BADGE,
+        SECP256K1_SIGNATURE_RESOURCE as NATIVE_SECP256K1_SIGNATURE_RESOURCE,
+        ED25519_SIGNATURE_RESOURCE as NATIVE_ED25519_SIGNATURE_RESOURCE,
+        PACKAGE_OF_DIRECT_CALLER_RESOURCE as NATIVE_PACKAGE_OF_DIRECT_CALLER_RESOURCE,
+        GLOBAL_CALLER_RESOURCE as NATIVE_GLOBAL_CALLER_RESOURCE,
+        SYSTEM_EXECUTION_RESOURCE as NATIVE_SYSTEM_EXECUTION_RESOURCE,
         PACKAGE_OWNER_BADGE as NATIVE_PACKAGE_OWNER_BADGE,
         VALIDATOR_OWNER_BADGE as NATIVE_VALIDATOR_OWNER_BADGE,
         ACCOUNT_OWNER_BADGE as NATIVE_ACCOUNT_OWNER_BADGE,
@@ -301,9 +301,6 @@ mod native {
 
         ResourceOrNonFungible as NativeResourceOrNonFungible,
         ResourceOrNonFungibleList as NativeResourceOrNonFungibleList,
-        ProofRule as NativeProofRule,
-        AccessRule as NativeAccessRule,
-        AccessRuleNode as NativeAccessRuleNode,
         OwnerRole as NativeOwnerRole,
         RoleAssignmentInit as NativeRoleAssignmentInit,
         RoleKey as NativeRoleKey,
@@ -314,9 +311,15 @@ mod native {
         WithdrawRoles as NativeWithdrawRoles,
         DepositRoles as NativeDepositRoles,
         RoleDefinition as NativeRoleDefinition,
+        AccessRule as NativeAccessRule,
+        CompositeRequirement as NativeCompositeRequirement,
         manifest_args as native_manifest_args,
         rule as native_rule,
         require as native_require,
+        require_any_of as native_require_any_of,
+        require_all_of as native_require_all_of,
+        require_n_of as native_require_n_of,
+        require_amount as native_require_amount,
 
         dec as native_dec,
         CheckedAdd as NativeCheckedAdd,
@@ -360,8 +363,8 @@ mod native {
 
         TransactionPayload as NativeTransactionPayload,
         PrepareError as NativePrepareError,
-        HasIntentHash as NativeHasIntentHash,
-        HasSignedIntentHash as NativeHasSignedIntentHash,
+        HasTransactionIntentHash as NativeHasTransactionIntentHash,
+        HasSignedTransactionIntentHash as NativeHasSignedTransactionIntentHash,
         HasNotarizedTransactionHash as NativeHasNotarizedTransactionHash,
 
         IntentSignatureV1 as NativeIntentSignature,
@@ -369,10 +372,11 @@ mod native {
         NotarySignatureV1 as NativeNotarySignature,
 
         IntentHash as NativeIntentHash,
-        SignedIntentHash as NativeSignedIntentHash,
+        TransactionIntentHash as NativeTransactionIntentHash,
+        SignedTransactionIntentHash as NativeSignedTransactionIntentHash,
         NotarizedTransactionHash as NativeNotarizedTransactionHash,
 
-        HashHasHrp as NativeHashHasHrp,
+        IsTransactionHash as NativeIsTransactionHash,
         TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
         TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
 

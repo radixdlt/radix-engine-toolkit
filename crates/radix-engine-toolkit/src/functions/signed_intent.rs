@@ -28,7 +28,7 @@ pub fn hash(
 ) -> Result<TransactionHash, PrepareError> {
     signed_intent
         .prepare()
-        .map(|prepared| prepared.signed_intent_hash())
+        .map(|prepared| prepared.signed_transaction_intent_hash())
         .map(|hash| {
             TransactionHash::new(hash, signed_intent.intent.header.network_id)
         })
@@ -49,7 +49,7 @@ pub fn statically_validate(
     signed_intent: &SignedIntentV1,
     validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidator::new(validation_config);
+    let validator = NotarizedTransactionValidatorV1::new(validation_config);
     signed_intent
         .prepare()
         .map_err(TransactionValidationError::PrepareError)

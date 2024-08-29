@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use std::rc::Rc;
+
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
@@ -61,10 +63,13 @@ impl Intent {
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
         NativeIntent::try_from(self.clone()).and_then(|intent| {
             core_intent_hash(&intent).map_err(Into::into).map(|hash| {
-                let intent_hash = NativeIntentHash(hash.hash);
-                Arc::new(
-                    TransactionHash::new(&intent_hash, self.header.network_id)
-                )
+                let intent_hash = NativeIntentHash::Transaction(
+                    NativeTransactionIntentHash(hash.hash),
+                );
+                Arc::new(TransactionHash::new(
+                    &intent_hash,
+                    self.header.network_id,
+                ))
             })
         })
     }
@@ -102,7 +107,7 @@ impl From<NativeIntent> for Intent {
         let blobs = blobs.blobs;
         let instructions = instructions.0;
         let manifest = NativeTransactionManifest {
-            instructions,
+            instructions: Vec::clone(&instructions),
             blobs: blobs
                 .iter()
                 .map(|blob| (native_hash(&blob.0), blob.0.clone()))
@@ -110,9 +115,10 @@ impl From<NativeIntent> for Intent {
         };
 
         Self {
-            manifest: Arc::new(
-                TransactionManifest::from_native(&manifest, header.network_id)
-            ),
+            manifest: Arc::new(TransactionManifest::from_native(
+                &manifest,
+                header.network_id,
+            )),
             header: header.into(),
             message: message.into(),
         }
@@ -132,8 +138,9 @@ impl TryFrom<Intent> for NativeIntent {
                 .map(NativeBlob)
                 .collect(),
         };
-        let instructions =
-            NativeInstructions(value.manifest.instructions.0.clone());
+        let instructions = NativeInstructions(Rc::new(Vec::clone(
+            &value.manifest.instructions.0,
+        )));
         let header = value.header.try_into()?;
         let message = value.message.try_into()?;
 

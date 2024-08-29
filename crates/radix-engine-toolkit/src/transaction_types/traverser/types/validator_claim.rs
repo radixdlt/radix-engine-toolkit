@@ -119,9 +119,13 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
-        if address.as_node_id().entity_type().is_some_and(
-            |entity_type| matches!(entity_type, EntityType::GlobalValidator)
-        ) {
+        if address
+            .as_node_id()
+            .entity_type()
+            .is_some_and(|entity_type| {
+                matches!(entity_type, EntityType::GlobalValidator)
+            })
+        {
             self.validators.insert(
                 ComponentAddress::try_from(address).expect("Must succeed!"),
             );
@@ -189,8 +193,8 @@ impl ValidatorClaimDetector {
                     .map(|entity_type| {
                         match entity_type {
                             EntityType::GlobalAccount
-                            | EntityType::GlobalVirtualSecp256k1Account
-                            | EntityType::GlobalVirtualEd25519Account => {
+                            | EntityType::GlobalPreallocatedSecp256k1Account
+                            | EntityType::GlobalPreallocatedEd25519Account => {
                                 FnRules {
                                     allowed: &[
                                         /* All withdraw methods */
@@ -219,8 +223,8 @@ impl ValidatorClaimDetector {
                             /* Disallowed */
                             EntityType::GlobalGenericComponent
                             | EntityType::GlobalIdentity
-                            | EntityType::GlobalVirtualSecp256k1Identity
-                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::GlobalPreallocatedSecp256k1Identity
+                            | EntityType::GlobalPreallocatedEd25519Identity
                             | EntityType::InternalGenericComponent
                             | EntityType::GlobalPackage
                             | EntityType::GlobalFungibleResourceManager

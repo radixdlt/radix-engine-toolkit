@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use crate::models::node_id::TypedNodeId;
 use core::cell::RefCell;
 use radix_common::data::manifest::*;
 use radix_common::prelude::{
@@ -25,8 +26,6 @@ use sbor::rust::cell::Ref;
 use sbor::rust::prelude::*;
 use sbor::traversal::*;
 use sbor::*;
-
-use crate::models::node_id::TypedNodeId;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct IndexedManifestValue {
@@ -43,9 +42,11 @@ impl IndexedManifestValue {
     fn new(bytes: Vec<u8>) -> Result<Self, DecodeError> {
         let mut traverser = ManifestTraverser::new(
             &bytes,
-            MANIFEST_SBOR_V1_MAX_DEPTH,
             ExpectedStart::PayloadPrefix(MANIFEST_SBOR_V1_PAYLOAD_PREFIX),
-            true,
+            VecTraverserConfig {
+                max_depth: MANIFEST_SBOR_V1_MAX_DEPTH,
+                check_exact_end: true,
+            },
         );
         let mut static_addresses = Vec::new();
         let mut named_addresses = Vec::new();

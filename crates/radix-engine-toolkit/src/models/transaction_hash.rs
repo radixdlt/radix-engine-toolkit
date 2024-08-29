@@ -15,7 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::prelude::{HashHasHrp, TransactionHashBech32Encoder};
+use radix_transactions::prelude::{
+    IsTransactionHash, TransactionHashBech32Encoder,
+};
 use scrypto::prelude::*;
 
 pub struct TransactionHash {
@@ -26,7 +28,7 @@ pub struct TransactionHash {
 impl TransactionHash {
     pub fn new<H>(transaction_hash: H, network_id: u8) -> Self
     where
-        H: HashHasHrp + IsHash,
+        H: IsTransactionHash + IsHash,
     {
         let network_definition =
             crate::utils::network_definition_from_network_id(network_id);

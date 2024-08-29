@@ -182,12 +182,11 @@ impl<'a> Function<'a> for InstructionsDecompile {
                 )
             })?;
 
-        let instructions =
-            SerializableInstructions::new(
-                &instructions,
-                instructions_kind,
-                *network_id,
-            )?;
+        let instructions = SerializableInstructions::new(
+            &instructions,
+            instructions_kind,
+            *network_id,
+        )?;
 
         Ok(instructions)
     }
@@ -326,10 +325,10 @@ pub enum SerializableEntityType {
     GlobalTwoResourcePool,
     GlobalMultiResourcePool,
     GlobalAccountLocker,
-    GlobalVirtualSecp256k1Account,
-    GlobalVirtualSecp256k1Identity,
-    GlobalVirtualEd25519Account,
-    GlobalVirtualEd25519Identity,
+    GlobalPreallocatedSecp256k1Account,
+    GlobalPreallocatedSecp256k1Identity,
+    GlobalPreallocatedEd25519Account,
+    GlobalPreallocatedEd25519Identity,
     GlobalFungibleResourceManager,
     InternalFungibleVault,
     GlobalNonFungibleResourceManager,
@@ -352,10 +351,10 @@ impl SerializableEntityType {
             Self::GlobalOneResourcePool,
             Self::GlobalTwoResourcePool,
             Self::GlobalMultiResourcePool,
-            Self::GlobalVirtualSecp256k1Account,
-            Self::GlobalVirtualSecp256k1Identity,
-            Self::GlobalVirtualEd25519Account,
-            Self::GlobalVirtualEd25519Identity,
+            Self::GlobalPreallocatedSecp256k1Account,
+            Self::GlobalPreallocatedSecp256k1Identity,
+            Self::GlobalPreallocatedEd25519Account,
+            Self::GlobalPreallocatedEd25519Identity,
             Self::GlobalFungibleResourceManager,
             Self::InternalFungibleVault,
             Self::GlobalNonFungibleResourceManager,
@@ -384,17 +383,17 @@ impl From<EntityType> for SerializableEntityType {
             EntityType::GlobalMultiResourcePool => {
                 Self::GlobalMultiResourcePool
             }
-            EntityType::GlobalVirtualSecp256k1Account => {
-                Self::GlobalVirtualSecp256k1Account
+            EntityType::GlobalPreallocatedSecp256k1Account => {
+                Self::GlobalPreallocatedSecp256k1Account
             }
-            EntityType::GlobalVirtualSecp256k1Identity => {
-                Self::GlobalVirtualSecp256k1Identity
+            EntityType::GlobalPreallocatedSecp256k1Identity => {
+                Self::GlobalPreallocatedSecp256k1Identity
             }
-            EntityType::GlobalVirtualEd25519Account => {
-                Self::GlobalVirtualEd25519Account
+            EntityType::GlobalPreallocatedEd25519Account => {
+                Self::GlobalPreallocatedEd25519Account
             }
-            EntityType::GlobalVirtualEd25519Identity => {
-                Self::GlobalVirtualEd25519Identity
+            EntityType::GlobalPreallocatedEd25519Identity => {
+                Self::GlobalPreallocatedEd25519Identity
             }
             EntityType::GlobalFungibleResourceManager => {
                 Self::GlobalFungibleResourceManager
@@ -443,17 +442,17 @@ impl From<SerializableEntityType> for EntityType {
             SerializableEntityType::GlobalMultiResourcePool => {
                 Self::GlobalMultiResourcePool
             }
-            SerializableEntityType::GlobalVirtualSecp256k1Account => {
-                Self::GlobalVirtualSecp256k1Account
+            SerializableEntityType::GlobalPreallocatedSecp256k1Account => {
+                Self::GlobalPreallocatedSecp256k1Account
             }
-            SerializableEntityType::GlobalVirtualSecp256k1Identity => {
-                Self::GlobalVirtualSecp256k1Identity
+            SerializableEntityType::GlobalPreallocatedSecp256k1Identity => {
+                Self::GlobalPreallocatedSecp256k1Identity
             }
-            SerializableEntityType::GlobalVirtualEd25519Account => {
-                Self::GlobalVirtualEd25519Account
+            SerializableEntityType::GlobalPreallocatedEd25519Account => {
+                Self::GlobalPreallocatedEd25519Account
             }
-            SerializableEntityType::GlobalVirtualEd25519Identity => {
-                Self::GlobalVirtualEd25519Identity
+            SerializableEntityType::GlobalPreallocatedEd25519Identity => {
+                Self::GlobalPreallocatedEd25519Identity
             }
             SerializableEntityType::GlobalFungibleResourceManager => {
                 Self::GlobalFungibleResourceManager

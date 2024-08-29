@@ -91,11 +91,10 @@ impl ManifestBuilder {
                 .collect::<Result<Vec<_>>>()?;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction =
-                NativeInstruction::TakeNonFungiblesFromWorktop {
-                    resource_address,
-                    ids,
-                };
+            let instruction = NativeInstruction::TakeNonFungiblesFromWorktop {
+                resource_address,
+                ids,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -163,11 +162,10 @@ impl ManifestBuilder {
                 .map(NativeNonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
 
-            let instruction =
-                NativeInstruction::TakeNonFungiblesFromWorktop {
-                    resource_address,
-                    ids,
-                };
+            let instruction = NativeInstruction::TakeNonFungiblesFromWorktop {
+                resource_address,
+                ids,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -419,13 +417,12 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction =
-                NativeInstruction::CallFunction {
-                    package_address: address,
-                    blueprint_name,
-                    function_name,
-                    args,
-                };
+            let instruction = NativeInstruction::CallFunction {
+                package_address: address,
+                blueprint_name,
+                function_name,
+                args,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -454,12 +451,11 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction =
-                NativeInstruction::CallMethod {
-                    address,
-                    method_name,
-                    args,
-                };
+            let instruction = NativeInstruction::CallMethod {
+                address,
+                method_name,
+                args,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -606,11 +602,10 @@ impl ManifestBuilder {
                 .name_record
                 .new_named_address(&into_named_address.name)?;
 
-            let instruction =
-                NativeInstruction::AllocateGlobalAddress {
-                    package_address,
-                    blueprint_name,
-                };
+            let instruction = NativeInstruction::AllocateGlobalAddress {
+                package_address,
+                blueprint_name,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -645,13 +640,12 @@ impl ManifestBuilder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
-            let authorized_depositor_badge = if let Some(badge) =
-                authorized_depositor_badge
-            {
-                Some(badge.to_native()?)
-            } else {
-                None
-            };
+            let authorized_depositor_badge =
+                if let Some(badge) = authorized_depositor_badge {
+                    Some(badge.to_native()?)
+                } else {
+                    None
+                };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
@@ -675,13 +669,12 @@ impl ManifestBuilder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
-            let authorized_depositor_badge = if let Some(badge) =
-                authorized_depositor_badge
-            {
-                Some(badge.to_native()?)
-            } else {
-                None
-            };
+            let authorized_depositor_badge =
+                if let Some(badge) = authorized_depositor_badge {
+                    Some(badge.to_native()?)
+                } else {
+                    None
+                };
 
             let instruction = NativeInstruction::CallMethod {
                 address: NativeDynamicGlobalAddress::Static(address),
@@ -876,14 +869,13 @@ impl ManifestBuilder {
                 None => None,
             };
 
-            let rule_set =
-                NativeRuleSet {
-                    primary_role: NativeAccessRule::try_from(primary_role)?,
-                    recovery_role: NativeAccessRule::try_from(recovery_role)?,
-                    confirmation_role: NativeAccessRule::try_from(
-                        confirmation_role,
-                    )?,
-                };
+            let rule_set = NativeRuleSet {
+                primary_role: NativeAccessRule::try_from(primary_role)?,
+                recovery_role: NativeAccessRule::try_from(recovery_role)?,
+                confirmation_role: NativeAccessRule::try_from(
+                    confirmation_role,
+                )?,
+            };
 
             let instruction = NativeInstruction::CallFunction {
                 package_address: NativeDynamicPackageAddress::Static(
@@ -959,16 +951,15 @@ impl ManifestBuilder {
                 )
             };
 
-            let instruction =
-                NativeInstruction::CallFunction {
-                    package_address: NativeDynamicPackageAddress::Static(
-                        NATIVE_RESOURCE_PACKAGE,
-                    ),
-                    blueprint_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
-                        .to_owned(),
-                    function_name: function_name.to_owned(),
-                    args,
-                };
+            let instruction = NativeInstruction::CallFunction {
+                package_address: NativeDynamicPackageAddress::Static(
+                    NATIVE_RESOURCE_PACKAGE,
+                ),
+                blueprint_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
+                    .to_owned(),
+                function_name: function_name.to_owned(),
+                args,
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -984,17 +975,16 @@ impl ManifestBuilder {
                 NativeResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
 
-            let instruction =
-                NativeInstruction::CallMethod {
-                    address: NativeDynamicGlobalAddress::Static(
-                        resource_address.into(),
-                    ),
-                    method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
-                        .to_owned(),
-                    args: native_to_manifest_value_and_unwrap!(
-                        &NativeFungibleResourceManagerMintInput { amount }
-                    ),
-                };
+            let instruction = NativeInstruction::CallMethod {
+                address: NativeDynamicGlobalAddress::Static(
+                    resource_address.into(),
+                ),
+                method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
+                    .to_owned(),
+                args: native_to_manifest_value_and_unwrap!(
+                    &NativeFungibleResourceManagerMintInput { amount }
+                ),
+            };
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -1006,9 +996,10 @@ impl ManifestBuilder {
 
     pub fn build(self: Arc<Self>, network_id: u8) -> Arc<TransactionManifest> {
         Arc::new(TransactionManifest {
-            instructions: Arc::new(
-                Instructions(self.instructions.clone(), network_id)
-            ),
+            instructions: Arc::new(Instructions(
+                self.instructions.clone(),
+                network_id,
+            )),
             blobs: self.blobs.clone(),
         })
     }
@@ -1046,17 +1037,10 @@ impl TryFrom<SecurityStructureRole> for NativeAccessRule {
             })
             .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
 
-        Ok(NativeAccessRule::Protected(NativeAccessRuleNode::AnyOf(
-            vec![
-                NativeAccessRuleNode::ProofRule(NativeProofRule::CountOf(
-                    value.threshold,
-                    threshold_factors,
-                )),
-                NativeAccessRuleNode::ProofRule(
-                    NativeProofRule::AnyOf(super_admin_factors)
-                ),
-            ],
-        )))
+        Ok(native_rule!(
+            native_require_n_of(value.threshold, threshold_factors)
+                || native_require_any_of(super_admin_factors)
+        ))
     }
 }
 

@@ -31,9 +31,9 @@ impl TransactionHash {
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let hash = core_decode_transaction_id(&string, &network_definition)
-            .map_err(
-                |_| RadixEngineToolkitError::FailedToDecodeTransactionHash
-            )?;
+            .map_err(|_| {
+                RadixEngineToolkitError::FailedToDecodeTransactionHash
+            })?;
         Ok(Arc::new(Self(hash, string, network_id)))
     }
 
@@ -57,7 +57,7 @@ impl TransactionHash {
 impl TransactionHash {
     pub fn new<T>(hash: &T, network_id: u8) -> Self
     where
-        T: NativeHashHasHrp + NativeIsHash,
+        T: NativeIsTransactionHash,
     {
         let network_definition =
             core_network_definition_from_network_id(network_id);
@@ -66,6 +66,6 @@ impl TransactionHash {
         let encoded = bech32_encoder
             .encode(hash)
             .expect("Bech32m encoding tx hashes cant fail");
-        Self(*hash.as_hash(), encoded, network_id)
+        Self(*hash.as_inner_hash(), encoded, network_id)
     }
 }

@@ -17,40 +17,44 @@
 
 use radix_engine_toolkit_uniffi::Address;
 use radix_substate_store_impls::memory_db::*;
-use radix_transaction_scenarios::executor::DefaultTransactionScenarioExecutor;
+use radix_transaction_scenarios::executor::*;
 use scrypto_test::prelude::*;
 
 #[test]
 pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
     // Arrange
-    DefaultTransactionScenarioExecutor::new(
-        InMemorySubstateDatabase::standard(),
-        &NetworkDefinition::simulator(),
-    )
-    .on_transaction_executed(|_, _, receipt, _| {
-        for (event_identifier, event_data) in receipt
-            .expect_commit_ignore_outcome()
-            .application_events
-            .iter()
-        {
-            let node_id = match event_identifier.0 {
-                Emitter::Function(BlueprintId {
-                    package_address, ..
-                }) => package_address.into_node_id(),
-                Emitter::Method(node_id, ..) => node_id,
-            };
-            if matches!(
-                node_id.entity_type(),
-                Some(
-                    EntityType::GlobalGenericComponent
-                        | EntityType::InternalGenericComponent
-                        | EntityType::GlobalPackage
-                )
-            ) {
-                continue;
-            }
+    struct Hooks;
+    impl<D> ScenarioExecutionHooks<D> for Hooks
+    where
+        D: SubstateDatabase,
+    {
+        fn on_transaction_executed(
+            &mut self,
+            OnScenarioTransactionExecuted { receipt, .. }: OnScenarioTransactionExecuted<D>,
+        ) {
+            for (event_identifier, event_data) in receipt
+                .expect_commit_ignore_outcome()
+                .application_events
+                .iter()
+            {
+                let node_id = match event_identifier.0 {
+                    Emitter::Function(BlueprintId {
+                        package_address, ..
+                    }) => package_address.into_node_id(),
+                    Emitter::Method(node_id, ..) => node_id,
+                };
+                if matches!(
+                    node_id.entity_type(),
+                    Some(
+                        EntityType::GlobalGenericComponent
+                            | EntityType::InternalGenericComponent
+                            | EntityType::GlobalPackage
+                    )
+                ) {
+                    continue;
+                }
 
-            let event_type_identifier =
+                let event_type_identifier =
                 radix_engine_toolkit_uniffi::functions::EventTypeIdentifier {
                     emitter: match event_identifier.0 {
                         radix_engine_interface::prelude::Emitter::Function(
@@ -74,23 +78,29 @@ pub fn events_emitted_from_native_entities_can_be_converted_to_typed() {
                     event_name: event_identifier.1.clone(),
                 };
 
-            // Act
-            let typed_event =
+                // Act
+                let typed_event =
                 radix_engine_toolkit_uniffi::functions::sbor_decode_to_typed_native_event(
                     event_type_identifier.clone(),
                     event_data.clone(),
                     0xf2,
                 );
 
-            // Assert
-            match typed_event {
+                // Assert
+                match typed_event {
                 Ok(_typed_event) => {}
                 _ => panic!(
                     "Failed to convert to a typed event: {event_type_identifier:?}"
                 ),
             }
+            }
         }
-    })
-    .execute_every_protocol_update_and_scenario()
+    }
+
+    TransactionScenarioExecutor::new(
+        InMemorySubstateDatabase::standard(),
+        NetworkDefinition::simulator(),
+    )
+    .execute_every_protocol_update_and_scenario(&mut Hooks)
     .expect("Transaction scenarios execution failed.");
 }

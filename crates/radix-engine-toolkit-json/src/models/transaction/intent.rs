@@ -18,6 +18,7 @@
 use radix_transactions::prelude::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
 
 use crate::prelude::*;
 
@@ -44,7 +45,7 @@ impl FromNative for SerializableIntent {
 
         Ok(IntentV1 {
             header,
-            instructions: InstructionsV1(instructions),
+            instructions: InstructionsV1(Rc::new(instructions)),
             blobs: BlobsV1 {
                 blobs: blobs.into_values().map(BlobV1).collect(),
             },

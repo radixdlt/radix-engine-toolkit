@@ -20,8 +20,6 @@ use std::ops::*;
 use radix_engine::blueprints::models::KeyValueKeyPayload;
 use radix_engine::object_modules::metadata::MetadataEntryV1;
 use radix_engine::system::system_substates::*;
-use radix_engine::track::*;
-use radix_substate_store_interface::interface::*;
 use radix_substate_store_queries::typed_substate_layout::*;
 use scrypto::prelude::*;
 
@@ -634,9 +632,10 @@ impl From<ResourceIndicator> for ResourceSpecifier {
             )
             | ResourceIndicator::Fungible(
                 resource_address,
-                FungibleResourceIndicator::Predicted(
-                    Predicted { value: amount, .. }
-                ),
+                FungibleResourceIndicator::Predicted(Predicted {
+                    value: amount,
+                    ..
+                }),
             ) => ResourceSpecifier::Amount(resource_address, amount),
             ResourceIndicator::NonFungible(
                 resource_address,

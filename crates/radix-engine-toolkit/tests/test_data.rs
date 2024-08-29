@@ -86,17 +86,17 @@ pub fn private_key4() -> Ed25519PrivateKey {
 pub fn account1() -> ComponentAddress {
     let private_key = Secp256k1PrivateKey::from_u64(1).unwrap();
     let public_key = private_key.public_key();
-    ComponentAddress::virtual_account_from_public_key(&public_key)
+    ComponentAddress::preallocated_account_from_public_key(&public_key)
 }
 
 pub fn account2() -> ComponentAddress {
     let private_key = Secp256k1PrivateKey::from_u64(2).unwrap();
     let public_key = private_key.public_key();
-    ComponentAddress::virtual_account_from_public_key(&public_key)
+    ComponentAddress::preallocated_account_from_public_key(&public_key)
 }
 
 pub fn account3() -> ComponentAddress {
     let private_key = Secp256k1PrivateKey::from_u64(3).unwrap();
     let public_key = private_key.public_key();
-    ComponentAddress::virtual_account_from_public_key(&public_key)
+    ComponentAddress::preallocated_account_from_public_key(&public_key)
 }

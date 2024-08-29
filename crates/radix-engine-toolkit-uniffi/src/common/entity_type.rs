@@ -28,10 +28,10 @@ pub enum EntityType {
     GlobalAccount,
     GlobalIdentity,
     GlobalGenericComponent,
-    GlobalVirtualSecp256k1Account,
-    GlobalVirtualEd25519Account,
-    GlobalVirtualSecp256k1Identity,
-    GlobalVirtualEd25519Identity,
+    GlobalPreallocatedSecp256k1Account,
+    GlobalPreallocatedEd25519Account,
+    GlobalPreallocatedSecp256k1Identity,
+    GlobalPreallocatedEd25519Identity,
     GlobalOneResourcePool,
     GlobalTwoResourcePool,
     GlobalMultiResourcePool,
@@ -59,17 +59,17 @@ impl From<EntityType> for NativeEntityType {
             EntityType::GlobalAccount => Self::GlobalAccount,
             EntityType::GlobalIdentity => Self::GlobalIdentity,
             EntityType::GlobalGenericComponent => Self::GlobalGenericComponent,
-            EntityType::GlobalVirtualSecp256k1Account => {
-                Self::GlobalVirtualSecp256k1Account
+            EntityType::GlobalPreallocatedSecp256k1Account => {
+                Self::GlobalPreallocatedSecp256k1Account
             }
-            EntityType::GlobalVirtualEd25519Account => {
-                Self::GlobalVirtualEd25519Account
+            EntityType::GlobalPreallocatedEd25519Account => {
+                Self::GlobalPreallocatedEd25519Account
             }
-            EntityType::GlobalVirtualSecp256k1Identity => {
-                Self::GlobalVirtualSecp256k1Identity
+            EntityType::GlobalPreallocatedSecp256k1Identity => {
+                Self::GlobalPreallocatedSecp256k1Identity
             }
-            EntityType::GlobalVirtualEd25519Identity => {
-                Self::GlobalVirtualEd25519Identity
+            EntityType::GlobalPreallocatedEd25519Identity => {
+                Self::GlobalPreallocatedEd25519Identity
             }
             EntityType::GlobalOneResourcePool => Self::GlobalOneResourcePool,
             EntityType::GlobalTwoResourcePool => Self::GlobalTwoResourcePool,
@@ -114,17 +114,17 @@ impl From<NativeEntityType> for EntityType {
             NativeEntityType::GlobalGenericComponent => {
                 Self::GlobalGenericComponent
             }
-            NativeEntityType::GlobalVirtualSecp256k1Account => {
-                Self::GlobalVirtualSecp256k1Account
+            NativeEntityType::GlobalPreallocatedSecp256k1Account => {
+                Self::GlobalPreallocatedSecp256k1Account
             }
-            NativeEntityType::GlobalVirtualEd25519Account => {
-                Self::GlobalVirtualEd25519Account
+            NativeEntityType::GlobalPreallocatedEd25519Account => {
+                Self::GlobalPreallocatedEd25519Account
             }
-            NativeEntityType::GlobalVirtualSecp256k1Identity => {
-                Self::GlobalVirtualSecp256k1Identity
+            NativeEntityType::GlobalPreallocatedSecp256k1Identity => {
+                Self::GlobalPreallocatedSecp256k1Identity
             }
-            NativeEntityType::GlobalVirtualEd25519Identity => {
-                Self::GlobalVirtualEd25519Identity
+            NativeEntityType::GlobalPreallocatedEd25519Identity => {
+                Self::GlobalPreallocatedEd25519Identity
             }
             NativeEntityType::GlobalOneResourcePool => {
                 Self::GlobalOneResourcePool
