@@ -20,6 +20,7 @@ use scrypto::prelude::*;
 
 use crate::statics::*;
 use crate::transaction_types::*;
+use crate::utils::to_manifest_type;
 
 #[derive(Default)]
 pub struct RequiringAuthDetector {
@@ -41,6 +42,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
             InstructionV1::CallMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
+                args,
                 ..
             } => {
                 if is_account(address)
@@ -51,6 +53,32 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     && IDENTITY_METHODS_THAT_REQUIRE_AUTH.contains(method_name)
                 {
                     self.identities.insert(component_address!(*address));
+                } else if is_account_locker(address) {
+                    match method_name.as_str() {
+                        ACCOUNT_LOCKER_CLAIM_IDENT => {
+                            let Some(AccountLockerClaimManifestInput {
+                                claimant,
+                                ..
+                            }) = to_manifest_type(args)
+                            else {
+                                return;
+                            };
+                            self.accounts.insert(claimant);
+                        }
+                        ACCOUNT_LOCKER_CLAIM_NON_FUNGIBLES_IDENT => {
+                            let Some(
+                                AccountLockerClaimNonFungiblesManifestInput {
+                                    claimant,
+                                    ..
+                                },
+                            ) = to_manifest_type(args)
+                            else {
+                                return;
+                            };
+                            self.accounts.insert(claimant);
+                        }
+                        _ => {}
+                    }
                 }
             }
             InstructionV1::CallRoyaltyMethod {
@@ -112,6 +140,15 @@ fn is_account(address: &GlobalAddress) -> bool {
                     | EntityType::GlobalVirtualSecp256k1Account
                     | EntityType::GlobalVirtualEd25519Account
             )
+        })
+}
+
+fn is_account_locker(address: &GlobalAddress) -> bool {
+    address
+        .as_node_id()
+        .entity_type()
+        .is_some_and(|entity_type| {
+            matches!(entity_type, EntityType::GlobalAccountLocker)
         })
 }
 
