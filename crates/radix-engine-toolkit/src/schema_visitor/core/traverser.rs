@@ -31,10 +31,9 @@ pub fn traverse<T>(
 where
     T: CustomSchema,
 {
-    let type_kind = schema.resolve_type_kind(local_type_id).map_or(
-        Err(SchemaVisitorError::InvalidLocalTypeId(local_type_id)),
-        Ok,
-    )?;
+    let type_kind = schema
+        .resolve_type_kind(local_type_id)
+        .ok_or(SchemaVisitorError::InvalidLocalTypeId(local_type_id))?;
 
     match type_kind {
         SchemaTypeKind::<T>::Any => {

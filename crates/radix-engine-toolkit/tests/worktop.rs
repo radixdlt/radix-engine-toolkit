@@ -50,8 +50,7 @@ fn validate(
                     trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
-                        .find(|item| item.resource_address() == address)
-                        .is_some(),
+                        .any(|item| item.resource_address() == address),
                     "Instruction: {}, resource address not found: {:?}",
                     instruction,
                     address
@@ -78,8 +77,7 @@ fn validate(
                     trusted_worktop_instructions[instruction]
                         .resources
                         .iter()
-                        .find(|item| item.resource_address() == address)
-                        .is_some(),
+                        .any(|item| item.resource_address() == address),
                     "Instruction: {}, resource address not found: {:?}",
                     instruction,
                     address

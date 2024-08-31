@@ -39,10 +39,7 @@ impl SchemaVisitor<ScryptoCustomSchema> for ProofInPathVisitor {
     ) -> Result<(), Self::Error> {
         let type_validation = schema
             .resolve_type_validation(local_type_id)
-            .map_or(
-                Err(SchemaVisitorError::InvalidLocalTypeId(local_type_id)),
-                Ok,
-            )?;
+            .ok_or(SchemaVisitorError::InvalidLocalTypeId(local_type_id))?;
         if *custom_type_kind == ScryptoCustomTypeKind::Own
             && matches!(
                 type_validation,

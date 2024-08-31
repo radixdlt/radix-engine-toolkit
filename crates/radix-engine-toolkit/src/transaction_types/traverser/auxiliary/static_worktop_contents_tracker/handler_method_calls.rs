@@ -45,7 +45,7 @@ impl StaticWorktopContentsTracker {
                     // put fungible by amount to worktop -> trusted
                     let resources = ResourceSpecifier::Amount(
                         input_args.resource_address,
-                        input_args.amount.clone(),
+                        input_args.amount,
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
@@ -85,7 +85,7 @@ impl StaticWorktopContentsTracker {
                     // put fungible by amount to worktop -> trusted
                     let resources = ResourceSpecifier::Amount(
                         input_args.resource_address,
-                        input_args.amount.clone(),
+                        input_args.amount,
                     );
                     self.worktop_content_tracker
                         .put_to_worktop(resources.clone());
@@ -151,21 +151,19 @@ impl StaticWorktopContentsTracker {
                         }
                         _ => self.add_new_instruction(TrackedResource::Unknown),
                     }
+                } else if !self.bucket_tracker.is_untracked_mode() {
+                    assert_eq!(input_args.buckets().len(), 1);
+                    let bucket_id = input_args
+                        .buckets()
+                        .first()
+                        .expect("Expected bucket");
+                    let bucket = self
+                        .bucket_tracker
+                        .bucket_consumed(bucket_id)
+                        .expect("Bucket not found");
+                    self.add_new_instruction_from_bucket(&bucket);
                 } else {
-                    if !self.bucket_tracker.is_untracked_mode() {
-                        assert_eq!(input_args.buckets().len(), 1);
-                        let bucket_id = input_args
-                            .buckets()
-                            .first()
-                            .expect("Expected bucket");
-                        let bucket = self
-                            .bucket_tracker
-                            .bucket_consumed(bucket_id)
-                            .expect("Bucket not found");
-                        self.add_new_instruction_from_bucket(&bucket);
-                    } else {
-                        self.add_new_instruction(TrackedResource::Unknown);
-                    }
+                    self.add_new_instruction(TrackedResource::Unknown);
                 }
             }
             ACCOUNT_DEPOSIT_BATCH_IDENT
@@ -647,15 +645,14 @@ impl StaticWorktopContentsTracker {
                             .iter()
                             .map(|bucket| {
                                 self.bucket_tracker
-                                    .bucket_consumed(&bucket)
+                                    .bucket_consumed(bucket)
                                     .expect("Bucket not found")
                             })
                             .filter(|bucket| {
                                 !bucket.is_empty()
                                     && bucket.is_known_resources()
                             })
-                            .map(|bucket| bucket.take_resources())
-                            .flatten()
+                            .filter_map(|bucket| bucket.take_resources())
                             .collect();
 
                         // if we found all buckets in bucket tracker and all buckets has known resources

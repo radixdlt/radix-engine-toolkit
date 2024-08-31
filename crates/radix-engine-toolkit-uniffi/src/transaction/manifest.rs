@@ -108,7 +108,7 @@ impl TransactionManifest {
             .as_latest_version()
             .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
 
-        core_manifest_execution_summary(&native, &receipt)
+        core_manifest_execution_summary(&native, receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
             .map(|summary| ExecutionSummary::from_native(summary, network_id))?
     }
@@ -233,9 +233,10 @@ impl ResourceSpecifier {
         resource_address: &NativeResourceAddress,
         network_id: u8,
     ) -> ResourceSpecifier {
-        let address = Arc::new(
-            Address::from_typed_node_id(*resource_address, network_id)
-        );
+        let address = Arc::new(Address::from_typed_node_id(
+            *resource_address,
+            network_id,
+        ));
         match native {
             NativeLockerResourceSpecifier::Fungible(amount) => {
                 ResourceSpecifier::Amount {
@@ -820,14 +821,13 @@ impl ExecutionSummary {
                 .collect(),
             fee_locks: FeeLocks::from_native(&native.fee_locks),
             fee_summary: FeeSummary::from_native(&native.fee_summary),
-            detailed_classification:
-                native
-                    .detailed_classification
-                    .into_iter()
-                    .map(|item| {
-                        DetailedManifestClass::from_native(item, network_id)
-                    })
-                    .collect(),
+            detailed_classification: native
+                .detailed_classification
+                .into_iter()
+                .map(|item| {
+                    DetailedManifestClass::from_native(item, network_id)
+                })
+                .collect(),
             newly_created_non_fungibles: native
                 .newly_created_non_fungibles
                 .into_iter()
@@ -1333,20 +1333,17 @@ impl From<CoreNonFungibleResourceIndicator> for NonFungibleResourceIndicator {
             CoreNonFungibleResourceIndicator::ByAmount {
                 amount,
                 predicted_ids,
-            } => {
-                NonFungibleResourceIndicator::ByAmount {
-                    amount: Arc::new(Decimal(amount)),
-                    predicted_ids: PredictedNonFungibleIds {
-                        value: predicted_ids
-                            .value
-                            .into_iter()
-                            .map(Into::into)
-                            .collect(),
-                        instruction_index: predicted_ids.instruction_index
-                            as u64,
-                    },
-                }
-            }
+            } => NonFungibleResourceIndicator::ByAmount {
+                amount: Arc::new(Decimal(amount)),
+                predicted_ids: PredictedNonFungibleIds {
+                    value: predicted_ids
+                        .value
+                        .into_iter()
+                        .map(Into::into)
+                        .collect(),
+                    instruction_index: predicted_ids.instruction_index as u64,
+                },
+            },
             CoreNonFungibleResourceIndicator::ByIds(ids) => {
                 NonFungibleResourceIndicator::ByIds {
                     ids: ids.into_iter().map(Into::into).collect(),

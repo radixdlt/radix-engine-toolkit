@@ -143,7 +143,7 @@ fn uniffi_foreign_language_testcase_example_go() {
                     "CGO_LDFLAGS", // specify lib search path and lib name
                     &format!(
                         "-L{} -lradix_engine_toolkit_uniffi",
-                        target_dir.display().to_string()
+                        target_dir.display()
                     ),
                 ),
             ])

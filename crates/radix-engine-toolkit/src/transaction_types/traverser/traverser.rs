@@ -251,8 +251,7 @@ pub mod execution_summary {
         let worktop_changes_entry = receipt
             .execution_trace()
             .worktop_changes()
-            .get(&instruction_index)
-            .map(Clone::clone)
+            .get(&instruction_index).cloned()
             .unwrap_or_default();
 
         let inputs = {

@@ -91,7 +91,7 @@ pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programma
             custom_context: ScryptoValueDisplayContext::with_optional_bech32(
                 Some(&encoder),
             ),
-            schema: &schema.v1(),
+            schema: schema.v1(),
             type_id: local_type_id,
             depth_limit: SCRYPTO_SBOR_V1_MAX_DEPTH,
         };
@@ -134,13 +134,12 @@ pub fn value_with_no_address_has_no_network_mismatch() {
 #[test]
 pub fn value_with_one_address_has_no_network_mismatch() {
     // Arrange
-    let value =
-        ProgrammaticScryptoValue::Array {
-            element_value_kind: ProgrammaticScryptoValueKind::Reference,
-            elements: vec![ProgrammaticScryptoValue::Reference {
-                value: SerializableNodeId(XRD.into_node_id(), 1),
-            }],
-        };
+    let value = ProgrammaticScryptoValue::Array {
+        element_value_kind: ProgrammaticScryptoValueKind::Reference,
+        elements: vec![ProgrammaticScryptoValue::Reference {
+            value: SerializableNodeId(XRD.into_node_id(), 1),
+        }],
+    };
 
     // Act
     let contains_network_mismatch = value_contains_network_mismatch(&value);

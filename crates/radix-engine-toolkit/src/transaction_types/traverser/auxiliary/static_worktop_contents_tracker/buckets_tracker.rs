@@ -115,9 +115,9 @@ impl BucketsTracker {
         if !self.untracked_mode {
             self.buckets.insert(
                 self.id_allocator.new_bucket_id(),
-                BucketContent::new(
-                    TrackedResource::StaticallyKnownEmpty(*resource_address)
-                ),
+                BucketContent::new(TrackedResource::StaticallyKnownEmpty(
+                    *resource_address,
+                )),
             );
         }
     }
@@ -134,8 +134,7 @@ impl BucketsTracker {
     pub fn is_any_bucket_with_unknown_resources(&self) -> bool {
         self.buckets
             .iter()
-            .find(|i| matches!(i.1.resources, TrackedResource::Unknown))
-            .is_some()
+            .any(|i| matches!(i.1.resources, TrackedResource::Unknown))
     }
 
     // returns consumed resources if found
@@ -158,13 +157,11 @@ impl BucketsTracker {
             if let Some(resource) = bucket.take_resources() {
                 let address = resource.resource_address();
                 // if operation is done on fungible resource then try to remove amount from specified bucket
-                if address.is_fungible() {
-                    if bucket.try_remove_amount(amount).is_some() {
-                        // successfully subtracted amount
-                        return Some(
-                            ResourceSpecifier::Amount(address, *amount)
-                        );
-                    }
+                if address.is_fungible()
+                    && bucket.try_remove_amount(amount).is_some()
+                {
+                    // successfully subtracted amount
+                    return Some(ResourceSpecifier::Amount(address, *amount));
                 }
             }
         }
@@ -182,14 +179,13 @@ impl BucketsTracker {
 
             if let Some(resource) = bucket.take_resources() {
                 let address = resource.resource_address();
-                if !address.is_fungible() {
-                    if bucket.try_remove_non_fungible(ids) {
-                        // all ids are found in this bucket -> operation succeeded
-                        return Some(ResourceSpecifier::Ids(
-                            address,
-                            IndexSet::from_iter(ids.iter().cloned()),
-                        ));
-                    }
+                if !address.is_fungible() && bucket.try_remove_non_fungible(ids)
+                {
+                    // all ids are found in this bucket -> operation succeeded
+                    return Some(ResourceSpecifier::Ids(
+                        address,
+                        IndexSet::from_iter(ids.iter().cloned()),
+                    ));
                 }
             }
         }

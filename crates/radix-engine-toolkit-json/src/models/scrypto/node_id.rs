@@ -93,11 +93,10 @@ impl FromStr for SerializableNodeIdInternal {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let network_id =
             radix_engine_toolkit::utils::network_id_from_address_string(s)
-                .map_or(
-                    Err(SerializableNodeIdError::FailedToParseStringAsAddress(
+                .ok_or(
+                    SerializableNodeIdError::FailedToParseStringAsAddress(
                         s.to_owned(),
-                    )),
-                    Ok,
+                    ),
                 )?;
 
         let network_definition =

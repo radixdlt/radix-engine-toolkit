@@ -2450,7 +2450,7 @@ fn presented_proofs_non_fungible() {
         )
     );
     assert_eq!(
-        account_2_proofs[01],
+        account_2_proofs[1],
         ResourceSpecifier::Ids(
             address_3,
             [NonFungibleLocalId::integer(2)].into()

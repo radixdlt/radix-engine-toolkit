@@ -384,40 +384,37 @@ impl<'r> TransactionTypesReceipt<'r> {
         for (event_type, event_payload) in
             self.commit_result.application_events.iter()
         {
-            match event_type.0 {
-                Emitter::Method(node_id, ..) => {
-                    match ResourceAddress::try_from(node_id.as_bytes()) {
-                        Ok(address) if !address.is_fungible() => {
-                            if event_type.1
-                                == MintNonFungibleResourceEvent::EVENT_NAME
-                            {
-                                let event: MintNonFungibleResourceEvent =
-                                    scrypto_decode(event_payload).unwrap();
-                                for local_id in event.ids {
-                                    minted_id_list.insert(
-                                        NonFungibleGlobalId::new(
-                                            address, local_id,
-                                        ),
-                                    );
-                                }
-                            } else if event_type.1
-                                == BurnNonFungibleResourceEvent::EVENT_NAME
-                            {
-                                let event: BurnNonFungibleResourceEvent =
-                                    scrypto_decode(event_payload).unwrap();
-                                for local_id in event.ids {
-                                    burnt_id_list.insert(
-                                        NonFungibleGlobalId::new(
-                                            address, local_id,
-                                        ),
-                                    );
-                                }
+            if let Emitter::Method(node_id, ..) = event_type.0 {
+                match ResourceAddress::try_from(node_id.as_bytes()) {
+                    Ok(address) if !address.is_fungible() => {
+                        if event_type.1
+                            == MintNonFungibleResourceEvent::EVENT_NAME
+                        {
+                            let event: MintNonFungibleResourceEvent =
+                                scrypto_decode(event_payload).unwrap();
+                            for local_id in event.ids {
+                                minted_id_list.insert(
+                                    NonFungibleGlobalId::new(
+                                        address, local_id,
+                                    ),
+                                );
+                            }
+                        } else if event_type.1
+                            == BurnNonFungibleResourceEvent::EVENT_NAME
+                        {
+                            let event: BurnNonFungibleResourceEvent =
+                                scrypto_decode(event_payload).unwrap();
+                            for local_id in event.ids {
+                                burnt_id_list.insert(
+                                    NonFungibleGlobalId::new(
+                                        address, local_id,
+                                    ),
+                                );
                             }
                         }
-                        _ => {}
                     }
+                    _ => {}
                 }
-                _ => (),
             }
         }
 

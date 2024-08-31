@@ -132,7 +132,7 @@ where
 
         let mut trusted_worktop = StaticWorktopContentsTracker::default();
 
-        manifest_summary::traverse(&mut [&mut trusted_worktop], &manifest);
+        manifest_summary::traverse(&mut [&mut trusted_worktop], manifest);
 
         trusted_worktop.output()
     }

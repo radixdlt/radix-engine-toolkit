@@ -37,7 +37,7 @@ jobs:
           rustup toolchain install nightly-2024-02-01
 
           # Update both toolchains
-          rustup update nightly-2024-02-01-2023-11-24
+          rustup update nightly-nightly-2024-07-30
           rustup update nightly-2024-02-01
 
           # Add target

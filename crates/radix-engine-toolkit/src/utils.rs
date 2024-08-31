@@ -182,7 +182,7 @@ pub fn validate_manifest_value_against_schema<S: ScryptoDescribe>(
     let encoded_payload = manifest_encode(&value).map_err(|_| ())?;
     validate_payload_against_schema::<ManifestCustomExtension, _>(
         &encoded_payload,
-        &schema.v1(),
+        schema.v1(),
         local_type_id,
         &(),
         SCRYPTO_SBOR_V1_MAX_DEPTH,

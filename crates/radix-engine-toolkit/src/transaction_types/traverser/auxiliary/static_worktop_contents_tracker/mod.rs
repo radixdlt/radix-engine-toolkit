@@ -204,22 +204,20 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
                             self.bucket_tracker.new_bucket_unknown_resources();
                             self.add_new_instruction(TrackedResource::Unknown)
                         }
+                    } else if amount.is_zero() {
+                        let resources = ResourceSpecifier::Ids(
+                            *resource_address,
+                            indexset! {},
+                        );
+                        self.bucket_tracker
+                            .new_bucket_known_resources(resources.clone());
+                        self.add_new_instruction(
+                            TrackedResource::StaticallyKnown(resources),
+                        );
                     } else {
-                        if amount.is_zero() {
-                            let resources = ResourceSpecifier::Ids(
-                                *resource_address,
-                                indexset! {},
-                            );
-                            self.bucket_tracker
-                                .new_bucket_known_resources(resources.clone());
-                            self.add_new_instruction(
-                                TrackedResource::StaticallyKnown(resources),
-                            );
-                        } else {
-                            // non fungible take by amount
-                            self.bucket_tracker.new_bucket_unknown_resources();
-                            self.add_new_instruction(TrackedResource::Unknown)
-                        }
+                        // non fungible take by amount
+                        self.bucket_tracker.new_bucket_unknown_resources();
+                        self.add_new_instruction(TrackedResource::Unknown)
                     }
                 } else {
                     // we don't know what is taken from worktop
@@ -233,7 +231,7 @@ impl ManifestSummaryCallback for StaticWorktopContentsTracker {
             } => {
                 if !self.worktop_content_tracker.is_untracked_mode() {
                     let indexed_ids: IndexSet<NonFungibleLocalId> =
-                        ids.iter().map(|i| i.clone()).collect();
+                        ids.iter().cloned().collect();
                     let resources =
                         ResourceSpecifier::Ids(*resource_address, indexed_ids);
 

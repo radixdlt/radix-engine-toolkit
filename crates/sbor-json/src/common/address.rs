@@ -24,8 +24,7 @@ use radix_common::prelude::*;
 /// * The network that will be used during serialization to Bech32m encode the
 ///   node id.
 /// * The network that was encountered while deserializing into this type and
-///   was used to bech32m
-/// decode the address.
+///   was used to bech32m decode the address.
 #[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SerializableNodeId(pub NodeId, pub u8);
 

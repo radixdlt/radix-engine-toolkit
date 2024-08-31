@@ -69,6 +69,7 @@ typed_address_to_typed_node_id! {InternalAddress}
 typed_address_to_typed_node_id! {ResourceAddress}
 typed_address_to_typed_node_id! {ComponentAddress}
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct InvalidEntityTypeIdError(NodeId);
 

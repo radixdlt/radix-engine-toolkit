@@ -1,6 +1,6 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-cargo +nightly-2024-02-01-2023-11-24 build \
+cargo +nightly-nightly-2024-07-30 build \
     -Z build-std=std,panic_abort \
     -Z build-std-features=panic_immediate_abort \
     --manifest-path="$SCRIPT_DIR/../Cargo.toml" \

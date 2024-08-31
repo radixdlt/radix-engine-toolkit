@@ -53,7 +53,7 @@ impl NameRecordConvertible for ManifestBuilderBucket {
     type Native = NativeManifestBucket;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
-        name_record.get_bucket(&self.name).map(|value| *value)
+        name_record.get_bucket(&self.name).copied()
     }
 }
 
@@ -61,7 +61,7 @@ impl NameRecordConvertible for ManifestBuilderProof {
     type Native = NativeManifestProof;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
-        name_record.get_proof(&self.name).map(|value| *value)
+        name_record.get_proof(&self.name).copied()
     }
 }
 
@@ -69,9 +69,7 @@ impl NameRecordConvertible for ManifestBuilderAddressReservation {
     type Native = NativeManifestAddressReservation;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
-        name_record
-            .get_address_reservation(&self.name)
-            .map(|value| *value)
+        name_record.get_address_reservation(&self.name).copied()
     }
 }
 
@@ -79,9 +77,7 @@ impl NameRecordConvertible for ManifestBuilderNamedAddress {
     type Native = u32;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
-        name_record
-            .get_named_address(&self.name)
-            .map(|value| *value)
+        name_record.get_named_address(&self.name).copied()
     }
 }
 
