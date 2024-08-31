@@ -1977,6 +1977,7 @@ dependencies = [
  "radix-common",
  "radix-engine",
  "radix-engine-interface",
+ "radix-engine-toolkit 1.2.0",
  "radix-engine-toolkit 2.1.2",
  "radix-substate-store-impls",
  "radix-substate-store-queries",
@@ -1985,6 +1986,7 @@ dependencies = [
  "sbor",
  "scrypto",
  "scrypto-test",
+ "serde_json",
  "thiserror",
  "uniffi",
 ]
