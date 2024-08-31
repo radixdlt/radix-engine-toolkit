@@ -990,7 +990,7 @@ dependencies = [
 
 [[package]]
 name = "generator"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "heck 0.4.1",
  "indexmap 1.9.3",
@@ -1911,7 +1911,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "bech32",
  "cargo_toml",
@@ -1936,7 +1936,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-json"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "bech32",
  "getrandom 0.2.15",
@@ -1961,7 +1961,7 @@ dependencies = [
 
 [[package]]
 name = "radix-engine-toolkit-uniffi"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "hex",
  "paste",
@@ -2471,7 +2471,7 @@ dependencies = [
 
 [[package]]
 name = "sbor-json"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "bech32",
  "radix-common",
@@ -3333,7 +3333,7 @@ dependencies = [
 
 [[package]]
 name = "uniffi-bindgen"
-version = "2.1.1"
+version = "2.1.2"
 dependencies = [
  "uniffi",
 ]
