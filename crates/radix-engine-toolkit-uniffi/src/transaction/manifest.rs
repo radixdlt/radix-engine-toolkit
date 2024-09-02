@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_radix_engine_toolkit::receipt::{
+use radix_engine_toolkit_common::receipt::{
     RuntimeToolkitTransactionReceipt, SerializableToolkitTransactionReceipt,
 };
 use sbor::Versioned;

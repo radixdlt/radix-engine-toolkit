@@ -24,34 +24,42 @@ use scrypto::prelude::*;
 use crate::models::transaction_hash::TransactionHash;
 
 pub fn hash(
-    signed_intent: &SignedIntentV1,
+    notarized_transaction: &NotarizedTransactionV2,
 ) -> Result<TransactionHash, PrepareError> {
-    signed_intent
+    notarized_transaction
         .prepare()
         .map(|prepared| prepared.signed_transaction_intent_hash())
         .map(|hash| {
-            TransactionHash::new(hash, signed_intent.intent.header.network_id)
+            TransactionHash::new(
+                hash,
+                notarized_transaction
+                    .signed_intent
+                    .root_intent
+                    .root_intent_core
+                    .header
+                    .network_id,
+            )
         })
 }
 
-pub fn compile(signed_intent: &SignedIntentV1) -> Result<Vec<u8>, EncodeError> {
-    signed_intent.to_payload_bytes()
+pub fn to_payload_bytes(
+    notarized_transaction: &NotarizedTransactionV2,
+) -> Result<Vec<u8>, EncodeError> {
+    notarized_transaction.to_payload_bytes()
 }
 
-pub fn decompile<T>(payload_bytes: T) -> Result<SignedIntentV1, DecodeError>
+pub fn from_payload_bytes<T>(
+    payload_bytes: T,
+) -> Result<NotarizedTransactionV2, DecodeError>
 where
     T: AsRef<[u8]>,
 {
-    SignedIntentV1::from_payload_bytes(payload_bytes.as_ref())
+    NotarizedTransactionV2::from_payload_bytes(payload_bytes.as_ref())
 }
 
 pub fn statically_validate(
-    signed_intent: &SignedIntentV1,
-    validation_config: ValidationConfig,
+    _transaction_intent: &NotarizedTransactionV2,
+    _validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidatorV1::new(validation_config);
-    signed_intent
-        .prepare()
-        .map_err(TransactionValidationError::PrepareError)
-        .and_then(|prepared| validator.validate_intent_v1(&prepared.intent))
+    todo!()
 }

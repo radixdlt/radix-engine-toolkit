@@ -17,7 +17,7 @@
 
 use std::ops::*;
 
-use native_radix_engine_toolkit::receipt::{
+use radix_engine_toolkit_common::receipt::{
     MetadataUpdate, RuntimeToolkitTransactionReceipt, ToolkitTransactionReceipt,
 };
 use radix_substate_store_queries::typed_substate_layout::*;

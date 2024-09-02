@@ -19,15 +19,12 @@ pub mod information;
 
 pub mod derive;
 
-pub mod instructions;
-pub mod intent;
-pub mod manifest;
-pub mod notarized_transaction;
-pub mod signed_intent;
-
 pub mod manifest_sbor;
 pub mod scrypto_sbor;
 
 pub mod address;
 pub mod events;
 pub mod utils;
+
+pub mod transaction_v1;
+pub mod transaction_v2;

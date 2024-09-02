@@ -24,7 +24,8 @@ fn intent_hash_can_be_obtained() {
     let intent = test_data::intent();
 
     // Act
-    let hash = radix_engine_toolkit::functions::intent::hash(&intent);
+    let hash =
+        radix_engine_toolkit::functions::transaction_v1::intent::hash(&intent);
 
     // Assert
     assert!(hash.is_ok())
@@ -36,7 +37,10 @@ fn intent_can_be_compiled() {
     let intent = test_data::intent();
 
     // Act
-    let compiled = radix_engine_toolkit::functions::intent::compile(&intent);
+    let compiled =
+        radix_engine_toolkit::functions::transaction_v1::intent::to_payload_bytes(
+            &intent,
+        );
 
     // Assert
     assert!(compiled.is_ok())
@@ -47,11 +51,16 @@ fn intent_can_be_compiled_and_later_decompiled() {
     // Arrange
     let intent = test_data::intent();
     let compiled =
-        radix_engine_toolkit::functions::intent::compile(&intent).unwrap();
+        radix_engine_toolkit::functions::transaction_v1::intent::to_payload_bytes(
+            &intent,
+        )
+        .unwrap();
 
     // Act
     let decompiled =
-        radix_engine_toolkit::functions::intent::decompile(compiled);
+        radix_engine_toolkit::functions::transaction_v1::intent::from_payload_bytes(
+            compiled,
+        );
 
     // Assert
     assert!(decompiled.is_ok());
@@ -66,7 +75,7 @@ fn intent_can_be_statically_validated() {
 
     // Act
     let validation_result =
-        radix_engine_toolkit::functions::intent::statically_validate(
+        radix_engine_toolkit::functions::transaction_v1::intent::statically_validate(
             &intent,
             validation_config,
         );

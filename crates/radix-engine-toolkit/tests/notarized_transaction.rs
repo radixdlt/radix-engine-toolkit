@@ -24,7 +24,7 @@ fn notarized_transaction_hash_can_be_obtained() {
     let transaction = test_data::notarized_transaction();
 
     // Act
-    let hash = radix_engine_toolkit::functions::notarized_transaction::hash(
+    let hash = radix_engine_toolkit::functions::transaction_v1::notarized_transaction::hash(
         &transaction,
     );
 
@@ -39,7 +39,7 @@ fn notarized_transaction_can_be_compiled() {
 
     // Act
     let compiled =
-        radix_engine_toolkit::functions::notarized_transaction::compile(
+        radix_engine_toolkit::functions::transaction_v1::notarized_transaction::to_payload_bytes(
             &transaction,
         );
 
@@ -52,14 +52,14 @@ fn notarized_transaction_can_be_compiled_and_later_decompiled() {
     // Arrange
     let transaction = test_data::notarized_transaction();
     let compiled =
-        radix_engine_toolkit::functions::notarized_transaction::compile(
+        radix_engine_toolkit::functions::transaction_v1::notarized_transaction::to_payload_bytes(
             &transaction,
         )
         .unwrap();
 
     // Act
     let decompiled =
-        radix_engine_toolkit::functions::notarized_transaction::decompile(
+        radix_engine_toolkit::functions::transaction_v1::notarized_transaction::from_payload_bytes(
             compiled,
         );
 
@@ -76,7 +76,7 @@ fn notarized_transaction_can_be_statically_validated() {
 
     // Act
     let validation_result =
-        radix_engine_toolkit::functions::notarized_transaction::statically_validate(
+        radix_engine_toolkit::functions::transaction_v1::notarized_transaction::statically_validate(
             &transaction,
             validation_config,
         );

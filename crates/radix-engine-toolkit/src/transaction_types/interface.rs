@@ -19,8 +19,8 @@
 //! any of the implementation details of how the module finds and determines
 //! the transaction types.
 
-use native_radix_engine_toolkit::receipt::RuntimeToolkitTransactionReceipt;
 use radix_common::prelude::*;
+use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_substate_store_queries::typed_substate_layout::*;
 use radix_transactions::prelude::*;
 

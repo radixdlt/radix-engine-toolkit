@@ -15,7 +15,7 @@ radix-substate-store-impls = { workspace = true }
 radix-substate-store-queries = { workspace = true }
 radix-substate-store-interface = { workspace = true }
 radix-transactions = { workspace = true }
-native-radix-engine-toolkit = { workspace = true }
+radix-engine-toolkit-common = { workspace = true }
 
 # Bech32 encoding and decoding of addresses. Used for the Olympia <-> Babylon
 # address derivations.

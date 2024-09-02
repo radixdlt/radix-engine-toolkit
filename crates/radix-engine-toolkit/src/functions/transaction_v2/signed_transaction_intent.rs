@@ -24,42 +24,41 @@ use scrypto::prelude::*;
 use crate::models::transaction_hash::TransactionHash;
 
 pub fn hash(
-    notarized_transaction: &NotarizedTransactionV1,
+    signed_transaction_intent: &SignedTransactionIntentV2,
 ) -> Result<TransactionHash, PrepareError> {
-    notarized_transaction
+    signed_transaction_intent
         .prepare()
-        .map(|prepared| prepared.notarized_transaction_hash())
+        .map(|prepared| prepared.signed_transaction_intent_hash())
         .map(|hash| {
             TransactionHash::new(
                 hash,
-                notarized_transaction.signed_intent.intent.header.network_id,
+                signed_transaction_intent
+                    .root_intent
+                    .root_intent_core
+                    .header
+                    .network_id,
             )
         })
 }
 
-pub fn compile(
-    notarized_transaction: &NotarizedTransactionV1,
+pub fn to_payload_bytes(
+    signed_transaction_intent: &SignedTransactionIntentV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    notarized_transaction.to_payload_bytes()
+    signed_transaction_intent.to_payload_bytes()
 }
 
-pub fn decompile<T>(
+pub fn from_payload_bytes<T>(
     payload_bytes: T,
-) -> Result<NotarizedTransactionV1, DecodeError>
+) -> Result<SignedTransactionIntentV2, DecodeError>
 where
     T: AsRef<[u8]>,
 {
-    NotarizedTransactionV1::from_payload_bytes(payload_bytes.as_ref())
+    SignedTransactionIntentV2::from_payload_bytes(payload_bytes.as_ref())
 }
 
 pub fn statically_validate(
-    notarized_transaction: &NotarizedTransactionV1,
-    validation_config: ValidationConfig,
+    _transaction_intent: &SignedTransactionIntentV2,
+    _validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidatorV1::new(validation_config);
-    notarized_transaction
-        .prepare()
-        .map_err(TransactionValidationError::PrepareError)
-        .and_then(|prepared| validator.validate(prepared))
-        .map(|_| ())
+    todo!()
 }

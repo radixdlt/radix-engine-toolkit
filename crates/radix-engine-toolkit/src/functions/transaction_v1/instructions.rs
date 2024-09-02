@@ -26,14 +26,18 @@ use crate::models::node_id::TypedNodeId;
 use crate::sbor::indexed_manifest_value::*;
 
 pub fn hash(instructions: &[InstructionV1]) -> Result<Hash, EncodeError> {
-    compile(instructions).map(scrypto::prelude::hash)
+    to_payload_bytes(instructions).map(scrypto::prelude::hash)
 }
 
-pub fn compile(instructions: &[InstructionV1]) -> Result<Vec<u8>, EncodeError> {
+pub fn to_payload_bytes(
+    instructions: &[InstructionV1],
+) -> Result<Vec<u8>, EncodeError> {
     manifest_encode(instructions)
 }
 
-pub fn decompile<T>(payload_bytes: T) -> Result<Vec<InstructionV1>, DecodeError>
+pub fn from_payload_bytes<T>(
+    payload_bytes: T,
+) -> Result<Vec<InstructionV1>, DecodeError>
 where
     T: AsRef<[u8]>,
 {

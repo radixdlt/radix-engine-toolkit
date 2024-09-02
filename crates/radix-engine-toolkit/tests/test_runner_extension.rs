@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use native_radix_engine_toolkit::receipt::RuntimeToolkitTransactionReceipt;
+use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_engine::system::bootstrap::*;
 use radix_engine::transaction::*;
 use radix_engine::vm::*;

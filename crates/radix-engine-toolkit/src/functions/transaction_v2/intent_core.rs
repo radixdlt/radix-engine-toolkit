@@ -16,15 +16,32 @@
 // under the License.
 
 use radix_common::prelude::*;
-use radix_engine_interface::prelude::*;
-use radix_substate_store_queries::typed_native_events::*;
+use radix_transactions::errors::*;
+use radix_transactions::prelude::*;
+use radix_transactions::validation::*;
 
-/// Attempts to decode the passed in event into a structured
-/// [`TypedNativeEvent`] if the event is emitted from a native blueprint of a
-/// well-defined schema.
-pub fn scrypto_sbor_decode_to_native_event(
-    event_type_identifier: &EventTypeIdentifier,
-    event_data: &[u8],
-) -> Result<TypedNativeEvent, TypedNativeEventError> {
-    to_typed_native_event(event_type_identifier, event_data)
+pub fn hash(intent_core: &IntentCoreV2) -> Result<Hash, EncodeError> {
+    to_payload_bytes(intent_core).map(scrypto::prelude::hash)
+}
+
+pub fn to_payload_bytes(
+    intent_core: &IntentCoreV2,
+) -> Result<Vec<u8>, EncodeError> {
+    manifest_encode(intent_core)
+}
+
+pub fn from_payload_bytes<T>(
+    payload_bytes: T,
+) -> Result<IntentCoreV2, DecodeError>
+where
+    T: AsRef<[u8]>,
+{
+    manifest_decode(payload_bytes.as_ref())
+}
+
+pub fn statically_validate(
+    _intent_core: &IntentCoreV2,
+    _validation_config: ValidationConfig,
+) -> Result<(), TransactionValidationError> {
+    todo!()
 }
