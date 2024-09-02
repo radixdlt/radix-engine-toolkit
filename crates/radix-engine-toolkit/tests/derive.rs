@@ -20,17 +20,17 @@ use radix_engine_toolkit::functions::derive::{self, OlympiaNetwork};
 use scrypto::prelude::*;
 
 #[test]
-fn virtual_account_address_can_be_derived_from_public_key() {
+fn preallocated_account_address_can_be_derived_from_public_key() {
     // Arrange
     let public_key = public_key();
 
     // Act
-    let virtual_account_address =
-        derive::virtual_account_address_from_public_key(&public_key);
+    let preallocated_account_address =
+        derive::preallocated_account_address_from_public_key(&public_key);
 
     // Assert
     assert_eq!(
-        virtual_account_address,
+        preallocated_account_address,
         ComponentAddress::try_from_hex(
             "d1d28b92b6e84499b83b0797ef5235553eeb7edaa0cea243c1128c2fe737"
         )
@@ -39,17 +39,17 @@ fn virtual_account_address_can_be_derived_from_public_key() {
 }
 
 #[test]
-fn virtual_identity_address_can_be_derived_from_public_key() {
+fn preallocated_identity_address_can_be_derived_from_public_key() {
     // Arrange
     let public_key = public_key();
 
     // Act
-    let virtual_identity_address =
-        derive::virtual_identity_address_from_public_key(&public_key);
+    let preallocated_identity_address =
+        derive::preallocated_identity_address_from_public_key(&public_key);
 
     // Assert
     assert_eq!(
-        virtual_identity_address,
+        preallocated_identity_address,
         ComponentAddress::try_from_hex(
             "d2d28b92b6e84499b83b0797ef5235553eeb7edaa0cea243c1128c2fe737"
         )
@@ -58,7 +58,7 @@ fn virtual_identity_address_can_be_derived_from_public_key() {
 }
 
 #[test]
-fn virtual_account_address_can_be_derived_from_olympia_account_address() {
+fn preallocated_account_address_can_be_derived_from_olympia_account_address() {
     // Arrange
     let olympia_address =
         "rdx1qspx7zxmnrh36q33av24srdfzg7m3cj65968erpjuh7ja3rm3kmn6hq4j9842";
@@ -68,16 +68,16 @@ fn virtual_account_address_can_be_derived_from_olympia_account_address() {
             .unwrap();
 
     // Act
-    let virtual_account_address =
-        derive::virtual_account_address_from_olympia_account_address(
+    let preallocated_account_address =
+        derive::preallocated_account_address_from_olympia_account_address(
             olympia_address,
         )
         .unwrap();
 
     // Assert
     assert_eq!(
-        virtual_account_address,
-        derive::virtual_account_address_from_public_key(&public_key)
+        preallocated_account_address,
+        derive::preallocated_account_address_from_public_key(&public_key)
     )
 }
 

@@ -20,7 +20,7 @@ use scrypto::prelude::*;
 
 use crate::utils;
 
-pub fn virtual_account_address_from_public_key<P>(
+pub fn preallocated_account_address_from_public_key<P>(
     public_key: &P,
 ) -> ComponentAddress
 where
@@ -29,16 +29,16 @@ where
     ComponentAddress::preallocated_account_from_public_key(public_key)
 }
 
-pub fn virtual_identity_address_from_public_key<P>(
+pub fn preallocated_identity_address_from_public_key<P>(
     public_key: &P,
 ) -> ComponentAddress
 where
     P: Into<PublicKey> + Clone,
 {
-    ComponentAddress::virtual_identity_from_public_key(public_key)
+    ComponentAddress::preallocated_identity_from_public_key(public_key)
 }
 
-pub fn virtual_signature_non_fungible_global_id_from_public_key<P>(
+pub fn preallocated_signature_non_fungible_global_id_from_public_key<P>(
     public_key: &P,
 ) -> NonFungibleGlobalId
 where
@@ -47,14 +47,15 @@ where
     NonFungibleGlobalId::from_public_key(public_key)
 }
 
-pub fn virtual_account_address_from_olympia_account_address<S>(
+pub fn preallocated_account_address_from_olympia_account_address<S>(
     olympia_account_address: S,
 ) -> Result<ComponentAddress, DerivationError>
 where
     S: AsRef<str>,
 {
-    public_key_from_olympia_account_address(olympia_account_address)
-        .map(|public_key| virtual_account_address_from_public_key(&public_key))
+    public_key_from_olympia_account_address(olympia_account_address).map(
+        |public_key| preallocated_account_address_from_public_key(&public_key),
+    )
 }
 
 pub fn resource_address_from_olympia_resource_address<S>(

@@ -67,8 +67,8 @@ pub type NetworkId = u8;
 pub trait CanonicalAddress: FromStr + Display {
     /// A constant of the entity types that we are allowed to have on this
     /// canonical address. This is a static array to support addresses which
-    /// can have multiple entity types such as the account address with virtual
-    /// and non-virtual addresses.
+    /// can have multiple entity types such as the account address with preallocated
+    /// and non-preallocated addresses.
     const ALLOWED_ENTITY_TYPES: &'static [EntityType];
 
     fn node_id(&self) -> NodeId;

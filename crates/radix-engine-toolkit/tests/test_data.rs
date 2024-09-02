@@ -25,10 +25,10 @@ use radix_transactions::validation::*;
 use scrypto::prelude::*;
 
 pub fn notarized_transaction() -> NotarizedTransactionV1 {
-    let account1 = derive::virtual_account_address_from_public_key(
+    let account1 = derive::preallocated_account_address_from_public_key(
         &private_key1().public_key(),
     );
-    let account2 = derive::virtual_account_address_from_public_key(
+    let account2 = derive::preallocated_account_address_from_public_key(
         &private_key2().public_key(),
     );
 
