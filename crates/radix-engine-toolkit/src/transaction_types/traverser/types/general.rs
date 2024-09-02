@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -32,7 +33,7 @@ impl GeneralDetector {
     }
 
     pub fn output(self) -> Option<()> {
-        if self.is_valid(){
+        if self.is_valid() {
             Some(())
         } else {
             None
@@ -53,11 +54,13 @@ impl ManifestSummaryCallback for GeneralDetector {
         // 2. Whether the instruction contents are allowed.
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
-            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
+            }) => {
+                Self::construct_fn_rules(address).is_fn_permitted(method_name)
+            }
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -66,21 +69,21 @@ impl ManifestSummaryCallback for GeneralDetector {
             | InstructionV1::AssertWorktopContainsAny { .. }
             | InstructionV1::AssertWorktopContains { .. }
             | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV1::PopFromAuthZone
+            | InstructionV1::PopFromAuthZone { .. }
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs
-            | InstructionV1::DropAuthZoneRegularProofs
-            | InstructionV1::DropAuthZoneSignatureProofs
+            | InstructionV1::DropAuthZoneProofs { .. }
+            | InstructionV1::DropAuthZoneRegularProofs { .. }
+            | InstructionV1::DropAuthZoneSignatureProofs { .. }
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }
             | InstructionV1::CloneProof { .. }
             | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs
-            | InstructionV1::DropAllProofs
+            | InstructionV1::DropNamedProofs { .. }
+            | InstructionV1::DropAllProofs { .. }
             | InstructionV1::CallFunction { .. } => true,
             /* Not Permitted */
             InstructionV1::BurnResource { .. }
@@ -106,8 +109,8 @@ impl GeneralDetector {
                     .map(|entity_type| {
                         match entity_type {
                             EntityType::GlobalAccount
-                            | EntityType::GlobalVirtualSecp256k1Account
-                            | EntityType::GlobalVirtualEd25519Account => {
+                            | EntityType::GlobalPreallocatedSecp256k1Account
+                            | EntityType::GlobalPreallocatedEd25519Account => {
                                 FnRules {
                                     allowed: &[
                                         /* All withdraw methods */
@@ -133,8 +136,8 @@ impl GeneralDetector {
                             }
                             EntityType::GlobalGenericComponent
                             | EntityType::GlobalIdentity
-                            | EntityType::GlobalVirtualSecp256k1Identity
-                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::GlobalPreallocatedSecp256k1Identity
+                            | EntityType::GlobalPreallocatedEd25519Identity
                             | EntityType::InternalGenericComponent
                             | EntityType::GlobalAccountLocker => FnRules::all_allowed(),
                             /* Disallowed */

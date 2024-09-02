@@ -21,7 +21,7 @@ use radix_transactions::validation::ValidationConfig;
 use super::manifest_provider::*;
 use super::traits::HasExamples;
 
-impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for IntentHash {
+impl<'f> HasExamples<'f, NUMBER_OF_MANIFESTS_DOUBLE> for TransactionIntentHash {
     fn example_inputs() -> [Self::Input; NUMBER_OF_MANIFESTS_DOUBLE] {
         NotarizedTransactionHash::example_inputs()
             .map(|tx| tx.signed_intent.intent)

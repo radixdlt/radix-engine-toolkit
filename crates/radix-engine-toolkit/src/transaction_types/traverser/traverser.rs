@@ -21,6 +21,7 @@ pub mod manifest_summary {
     use crate::utils::*;
     use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
     use radix_engine_interface::blueprints::account::*;
+    use radix_transactions::prelude::manifest_instruction::*;
     use radix_transactions::prelude::*;
     use scrypto::prelude::*;
 
@@ -68,11 +69,11 @@ pub mod manifest_summary {
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
         instruction: &InstructionV1,
     ) {
-        if let InstructionV1::CallMethod {
+        if let InstructionV1::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
-        } = instruction
+        }) = instruction
         {
             if !is_account(dynamic_address) {
                 return;
@@ -138,6 +139,7 @@ pub mod execution_summary {
         ResourceSpecifier, WorktopChange,
     };
     use radix_engine_interface::blueprints::account::*;
+    use radix_transactions::prelude::manifest_instruction::*;
     use radix_transactions::prelude::*;
     use radix_transactions::validation::*;
 
@@ -268,12 +270,22 @@ pub mod execution_summary {
 
             match instruction {
                 /* Sink methods - Input resources into the instruction */
-                InstructionV1::CallFunction { args, .. }
-                | InstructionV1::CallMethod { args, .. }
-                | InstructionV1::CallRoyaltyMethod { args, .. }
-                | InstructionV1::CallMetadataMethod { args, .. }
-                | InstructionV1::CallRoleAssignmentMethod { args, .. }
-                | InstructionV1::CallDirectVaultMethod { args, .. } => {
+                InstructionV1::CallFunction(CallFunction { args, .. })
+                | InstructionV1::CallMethod(CallMethod { args, .. })
+                | InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+                    args,
+                    ..
+                })
+                | InstructionV1::CallMetadataMethod(CallMetadataMethod {
+                    args,
+                    ..
+                })
+                | InstructionV1::CallRoleAssignmentMethod(
+                    CallRoleAssignmentMethod { args, .. },
+                )
+                | InstructionV1::CallDirectVaultMethod(
+                    CallDirectVaultMethod { args, .. },
+                ) => {
                     let manifest_value = IndexedManifestValue::from_typed(args);
                     let additional_resources = manifest_value
                         .buckets()
@@ -284,8 +296,10 @@ pub mod execution_summary {
                         });
                     inputs.extend(additional_resources)
                 }
-                InstructionV1::BurnResource { bucket_id }
-                | InstructionV1::ReturnToWorktop { bucket_id } => {
+                InstructionV1::BurnResource(BurnResource { bucket_id })
+                | InstructionV1::ReturnToWorktop(ReturnToWorktop {
+                    bucket_id,
+                }) => {
                     if let Some(resource_indicator) =
                         bucket_tracker.get(bucket_id)
                     {
@@ -301,16 +315,16 @@ pub mod execution_summary {
                 | InstructionV1::AssertWorktopContainsAny { .. }
                 | InstructionV1::AssertWorktopContains { .. }
                 | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-                | InstructionV1::PopFromAuthZone
+                | InstructionV1::PopFromAuthZone { .. }
                 | InstructionV1::PushToAuthZone { .. }
                 | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
                 | InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
                     ..
                 }
                 | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-                | InstructionV1::DropAuthZoneProofs
-                | InstructionV1::DropAuthZoneRegularProofs
-                | InstructionV1::DropAuthZoneSignatureProofs
+                | InstructionV1::DropAuthZoneProofs { .. }
+                | InstructionV1::DropAuthZoneRegularProofs { .. }
+                | InstructionV1::DropAuthZoneSignatureProofs { .. }
                 | InstructionV1::CreateProofFromBucketOfAmount { .. }
                 | InstructionV1::CreateProofFromBucketOfNonFungibles {
                     ..
@@ -318,8 +332,8 @@ pub mod execution_summary {
                 | InstructionV1::CreateProofFromBucketOfAll { .. }
                 | InstructionV1::CloneProof { .. }
                 | InstructionV1::DropProof { .. }
-                | InstructionV1::DropNamedProofs
-                | InstructionV1::DropAllProofs
+                | InstructionV1::DropNamedProofs { .. }
+                | InstructionV1::DropAllProofs { .. }
                 | InstructionV1::AllocateGlobalAddress { .. } => { /* No-Op */ }
             };
 
@@ -352,11 +366,11 @@ pub mod execution_summary {
         instruction_index: usize,
         receipt: &TransactionTypesReceipt<'_>,
     ) {
-        let InstructionV1::CallMethod {
+        let InstructionV1::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
-        } = instruction
+        }) = instruction
         else {
             return;
         };
@@ -484,11 +498,11 @@ pub mod execution_summary {
         receipt: &TransactionTypesReceipt<'_>,
         bucket_tracker: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
-        if let InstructionV1::CallMethod {
+        if let InstructionV1::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
-        } = instruction
+        }) = instruction
         {
             if !is_account(dynamic_address) {
                 return;
@@ -602,10 +616,12 @@ pub mod execution_summary {
     ) {
         match instruction {
             /* Source */
-            InstructionV1::TakeNonFungiblesFromWorktop {
-                resource_address,
-                ids,
-            } => {
+            InstructionV1::TakeNonFungiblesFromWorktop(
+                TakeNonFungiblesFromWorktop {
+                    resource_address,
+                    ids,
+                },
+            ) => {
                 let bucket = id_allocator.new_bucket_id();
                 bucket_tracker.insert(
                     bucket,
@@ -617,10 +633,10 @@ pub mod execution_summary {
                     ),
                 );
             }
-            InstructionV1::TakeFromWorktop {
+            InstructionV1::TakeFromWorktop(TakeFromWorktop {
                 resource_address,
                 amount,
-            } => {
+            }) => {
                 let bucket = id_allocator.new_bucket_id();
                 let resource_indicator = if resource_address.is_fungible() {
                     ResourceIndicator::Fungible(
@@ -646,7 +662,9 @@ pub mod execution_summary {
                 };
                 bucket_tracker.insert(bucket, resource_indicator);
             }
-            InstructionV1::TakeAllFromWorktop { resource_address } => {
+            InstructionV1::TakeAllFromWorktop(TakeAllFromWorktop {
+                resource_address,
+            }) => {
                 let bucket = id_allocator.new_bucket_id();
                 let resource_indicator = if resource_address.is_fungible() {
                     ResourceIndicator::Fungible(
@@ -686,18 +704,29 @@ pub mod execution_summary {
                 bucket_tracker.insert(bucket, resource_indicator);
             }
             /* Sink */
-            InstructionV1::ReturnToWorktop { bucket_id }
-            | InstructionV1::BurnResource { bucket_id } => {
+            InstructionV1::ReturnToWorktop(ReturnToWorktop { bucket_id })
+            | InstructionV1::BurnResource(BurnResource { bucket_id }) => {
                 // TODO: Do we want to check that the bucket was actually
                 // present and then removed?
                 bucket_tracker.swap_remove(bucket_id);
             }
-            InstructionV1::CallFunction { args, .. }
-            | InstructionV1::CallMethod { args, .. }
-            | InstructionV1::CallRoyaltyMethod { args, .. }
-            | InstructionV1::CallMetadataMethod { args, .. }
-            | InstructionV1::CallRoleAssignmentMethod { args, .. }
-            | InstructionV1::CallDirectVaultMethod { args, .. } => {
+            InstructionV1::CallFunction(CallFunction { args, .. })
+            | InstructionV1::CallMethod(CallMethod { args, .. })
+            | InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+                args,
+                ..
+            })
+            | InstructionV1::CallMetadataMethod(CallMetadataMethod {
+                args,
+                ..
+            })
+            | InstructionV1::CallRoleAssignmentMethod(
+                CallRoleAssignmentMethod { args, .. },
+            )
+            | InstructionV1::CallDirectVaultMethod(CallDirectVaultMethod {
+                args,
+                ..
+            }) => {
                 let manifest_value = IndexedManifestValue::from_typed(args);
                 for bucket in manifest_value.buckets() {
                     // TODO: Do we want to check that the bucket was actually
@@ -709,21 +738,21 @@ pub mod execution_summary {
             InstructionV1::AssertWorktopContainsAny { .. }
             | InstructionV1::AssertWorktopContains { .. }
             | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV1::PopFromAuthZone
+            | InstructionV1::PopFromAuthZone { .. }
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs
-            | InstructionV1::DropAuthZoneRegularProofs
-            | InstructionV1::DropAuthZoneSignatureProofs
+            | InstructionV1::DropAuthZoneProofs { .. }
+            | InstructionV1::DropAuthZoneRegularProofs { .. }
+            | InstructionV1::DropAuthZoneSignatureProofs { .. }
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }
             | InstructionV1::CloneProof { .. }
             | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs
-            | InstructionV1::DropAllProofs
+            | InstructionV1::DropNamedProofs { .. }
+            | InstructionV1::DropAllProofs { .. }
             | InstructionV1::AllocateGlobalAddress { .. } => { /* No-op */ }
         }
     }

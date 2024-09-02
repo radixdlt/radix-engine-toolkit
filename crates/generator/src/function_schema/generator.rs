@@ -51,13 +51,13 @@ pub fn generate_function_schema(
             ManifestStaticallyValidate,
         ],
         "intent" => function_schema![
-            IntentHash,
+            TransactionIntentHash,
             IntentCompile,
             IntentDecompile,
             IntentStaticallyValidate,
         ],
         "signed_intent" => function_schema![
-            SignedIntentHash,
+            SignedTransactionIntentHash,
             SignedIntentCompile,
             SignedIntentDecompile,
             SignedIntentStaticallyValidate,

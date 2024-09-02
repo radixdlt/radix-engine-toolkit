@@ -29,8 +29,10 @@ impl AccessRule {
         resource_or_non_fungible: ResourceOrNonFungible,
     ) -> Result<Arc<Self>> {
         let access_rule = NativeAccessRule::Protected(
-            NativeAccessRuleNode::ProofRule(
-                NativeProofRule::Require(resource_or_non_fungible.to_native()?)
+            NativeCompositeRequirement::BasicRequirement(
+                NativeBasicRequirement::Require(
+                    resource_or_non_fungible.to_native()?,
+                ),
             ),
         );
         Ok(Arc::new(Self(access_rule)))
@@ -43,8 +45,8 @@ impl AccessRule {
     ) -> Result<Arc<Self>> {
         let resource_address = NativeResourceAddress::try_from(*resource)?;
         let access_rule = NativeAccessRule::Protected(
-            NativeAccessRuleNode::ProofRule(
-                NativeProofRule::AmountOf(amount.0, resource_address)
+            NativeCompositeRequirement::BasicRequirement(
+                NativeBasicRequirement::AmountOf(amount.0, resource_address),
             ),
         );
         Ok(Arc::new(Self(access_rule)))
@@ -56,8 +58,8 @@ impl AccessRule {
         resources: Vec<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
         let access_rule = NativeAccessRule::Protected(
-            NativeAccessRuleNode::ProofRule(
-                NativeProofRule::CountOf(count, resources.to_native()?)
+            NativeCompositeRequirement::BasicRequirement(
+                NativeBasicRequirement::CountOf(count, resources.to_native()?),
             ),
         );
         Ok(Arc::new(Self(access_rule)))
@@ -67,10 +69,11 @@ impl AccessRule {
     pub fn require_all_of(
         resources: Vec<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
-        let access_rule =
-            NativeAccessRule::Protected(NativeAccessRuleNode::ProofRule(
-                NativeProofRule::AllOf(resources.to_native()?),
-            ));
+        let access_rule = NativeAccessRule::Protected(
+            NativeCompositeRequirement::BasicRequirement(
+                NativeBasicRequirement::AllOf(resources.to_native()?),
+            ),
+        );
         Ok(Arc::new(Self(access_rule)))
     }
 
@@ -78,10 +81,11 @@ impl AccessRule {
     pub fn require_any_of(
         resources: Vec<ResourceOrNonFungible>,
     ) -> Result<Arc<Self>> {
-        let access_rule =
-            NativeAccessRule::Protected(NativeAccessRuleNode::ProofRule(
-                NativeProofRule::AnyOf(resources.to_native()?),
-            ));
+        let access_rule = NativeAccessRule::Protected(
+            NativeCompositeRequirement::BasicRequirement(
+                NativeBasicRequirement::AnyOf(resources.to_native()?),
+            ),
+        );
         Ok(Arc::new(Self(access_rule)))
     }
 
@@ -113,9 +117,11 @@ impl AccessRule {
             (
                 NativeAccessRule::Protected(rule1),
                 NativeAccessRule::Protected(rule2),
-            ) => NativeAccessRule::Protected(
-                NativeAccessRuleNode::AnyOf(vec![rule1.clone(), rule2.clone()])
-            ),
+            ) => {
+                NativeAccessRule::Protected(NativeCompositeRequirement::AnyOf(
+                    vec![rule1.clone(), rule2.clone()],
+                ))
+            }
             (NativeAccessRule::DenyAll, r @ NativeAccessRule::Protected(_))
             | (r @ NativeAccessRule::Protected(_), NativeAccessRule::DenyAll) => {
                 r.clone()
@@ -143,9 +149,11 @@ impl AccessRule {
             (
                 NativeAccessRule::Protected(rule1),
                 NativeAccessRule::Protected(rule2),
-            ) => NativeAccessRule::Protected(
-                NativeAccessRuleNode::AllOf(vec![rule1.clone(), rule2.clone()])
-            ),
+            ) => {
+                NativeAccessRule::Protected(NativeCompositeRequirement::AllOf(
+                    vec![rule1.clone(), rule2.clone()],
+                ))
+            }
             (NativeAccessRule::DenyAll, _) | (_, NativeAccessRule::DenyAll) => {
                 NativeAccessRule::DenyAll
             }
@@ -199,14 +207,12 @@ impl FromNativeWithNetworkContext for ResourceOrNonFungible {
             }
             NativeResourceOrNonFungible::NonFungible(
                 non_fungible_global_id,
-            ) => {
-                Self::NonFungible {
-                    value: Arc::new(NonFungibleGlobalId(
-                        non_fungible_global_id,
-                        network_id,
-                    )),
-                }
-            }
+            ) => Self::NonFungible {
+                value: Arc::new(NonFungibleGlobalId(
+                    non_fungible_global_id,
+                    network_id,
+                )),
+            },
         }
     }
 }

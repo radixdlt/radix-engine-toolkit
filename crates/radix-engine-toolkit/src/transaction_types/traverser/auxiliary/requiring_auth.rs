@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -39,12 +40,12 @@ impl RequiringAuthDetector {
 impl ManifestSummaryCallback for RequiringAuthDetector {
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         match instruction {
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 args,
                 ..
-            } => {
+            }) => {
                 if is_account(address)
                     && ACCOUNT_METHODS_THAT_REQUIRE_AUTH.contains(method_name)
                 {
@@ -81,11 +82,11 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallRoyaltyMethod {
+            InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 ..
-            } => {
+            }) => {
                 if ROYALTY_METHODS_THAT_REQUIRE_AUTH.contains(method_name) {
                     if is_account(address) {
                         self.accounts.insert(component_address!(*address));
@@ -94,11 +95,11 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallMetadataMethod {
+            InstructionV1::CallMetadataMethod(CallMetadataMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 ..
-            } => {
+            }) => {
                 if METADATA_METHODS_THAT_REQUIRE_AUTH.contains(method_name) {
                     if is_account(address) {
                         self.accounts.insert(component_address!(*address));
@@ -107,11 +108,13 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallRoleAssignmentMethod {
-                address: DynamicGlobalAddress::Static(address),
-                method_name,
-                ..
-            } => {
+            InstructionV1::CallRoleAssignmentMethod(
+                CallRoleAssignmentMethod {
+                    address: DynamicGlobalAddress::Static(address),
+                    method_name,
+                    ..
+                },
+            ) => {
                 if ROLE_ASSIGNMENT_METHODS_THAT_REQUIRE_AUTH
                     .contains(method_name)
                 {
@@ -137,8 +140,8 @@ fn is_account(address: &GlobalAddress) -> bool {
             matches!(
                 entity_type,
                 EntityType::GlobalAccount
-                    | EntityType::GlobalVirtualSecp256k1Account
-                    | EntityType::GlobalVirtualEd25519Account
+                    | EntityType::GlobalPreallocatedSecp256k1Account
+                    | EntityType::GlobalPreallocatedEd25519Account
             )
         })
 }
@@ -160,8 +163,8 @@ fn is_identity(address: &GlobalAddress) -> bool {
             matches!(
                 entity_type,
                 EntityType::GlobalIdentity
-                    | EntityType::GlobalVirtualSecp256k1Identity
-                    | EntityType::GlobalVirtualEd25519Identity
+                    | EntityType::GlobalPreallocatedSecp256k1Identity
+                    | EntityType::GlobalPreallocatedEd25519Identity
             )
         })
 }

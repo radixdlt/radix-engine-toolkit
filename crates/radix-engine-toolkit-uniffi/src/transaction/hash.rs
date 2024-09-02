@@ -57,7 +57,7 @@ impl TransactionHash {
 impl TransactionHash {
     pub fn new<T>(hash: &T, network_id: u8) -> Self
     where
-        T: NativeHashHasHrp + NativeIsHash,
+        T: NativeIsTransactionHash + NativeIsHash,
     {
         let network_definition =
             core_network_definition_from_network_id(network_id);

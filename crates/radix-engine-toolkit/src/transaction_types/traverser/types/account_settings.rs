@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -73,11 +74,13 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
         // Determine the validity based on the instructions
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
-            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
+            }) => {
+                Self::construct_fn_rules(address).is_fn_permitted(method_name)
+            }
             /* Not Permitted */
             InstructionV1::BurnResource { .. }
             | InstructionV1::CallRoyaltyMethod { .. }
@@ -86,21 +89,21 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
             | InstructionV1::CallDirectVaultMethod { .. }
             | InstructionV1::AllocateGlobalAddress { .. }
             | InstructionV1::ReturnToWorktop { .. }
-            | InstructionV1::PopFromAuthZone
+            | InstructionV1::PopFromAuthZone { .. }
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs
-            | InstructionV1::DropAuthZoneRegularProofs
-            | InstructionV1::DropAuthZoneSignatureProofs
+            | InstructionV1::DropAuthZoneProofs { .. }
+            | InstructionV1::DropAuthZoneRegularProofs { .. }
+            | InstructionV1::DropAuthZoneSignatureProofs { .. }
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }
             | InstructionV1::CloneProof { .. }
             | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs
-            | InstructionV1::DropAllProofs
+            | InstructionV1::DropNamedProofs { .. }
+            | InstructionV1::DropAllProofs { .. }
             | InstructionV1::CallFunction { .. }
             | InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -112,11 +115,11 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
 
         // Determine if the instruction is an account settings instruction.
         self.account_settings_instruction_encountered |=
-            if let InstructionV1::CallMethod {
+            if let InstructionV1::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
-            } = instruction
+            }) = instruction
             {
                 Self::construct_specific_fn_rules(address)
                     .is_fn_permitted(method_name)
@@ -125,11 +128,11 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
             };
 
         // Process the instructions
-        let InstructionV1::CallMethod {
+        let InstructionV1::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
-        } = instruction
+        }) = instruction
         else {
             // Case already accounted for in the above validity check - no need
             // to invalidate here as it's impossible for us to get here in the
@@ -210,8 +213,8 @@ impl AccountSettingsUpdateDetector {
                     .map(|entity_type| {
                         match entity_type {
                             EntityType::GlobalAccount
-                            | EntityType::GlobalVirtualSecp256k1Account
-                            | EntityType::GlobalVirtualEd25519Account => {
+                            | EntityType::GlobalPreallocatedSecp256k1Account
+                            | EntityType::GlobalPreallocatedEd25519Account => {
                                 FnRules {
                                     allowed: &[
                                         /* Resource Preference */
@@ -233,8 +236,8 @@ impl AccountSettingsUpdateDetector {
                             /* Disallowed */
                             EntityType::GlobalGenericComponent
                             | EntityType::GlobalIdentity
-                            | EntityType::GlobalVirtualSecp256k1Identity
-                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::GlobalPreallocatedSecp256k1Identity
+                            | EntityType::GlobalPreallocatedEd25519Identity
                             | EntityType::InternalGenericComponent
                             | EntityType::GlobalPackage
                             | EntityType::GlobalValidator
@@ -269,8 +272,8 @@ impl AccountSettingsUpdateDetector {
                     .map(|entity_type| {
                         match entity_type {
                             EntityType::GlobalAccount
-                            | EntityType::GlobalVirtualSecp256k1Account
-                            | EntityType::GlobalVirtualEd25519Account => {
+                            | EntityType::GlobalPreallocatedSecp256k1Account
+                            | EntityType::GlobalPreallocatedEd25519Account => {
                                 FnRules {
                                     allowed: &[
                                         /* Resource Preference */
@@ -289,8 +292,8 @@ impl AccountSettingsUpdateDetector {
                             /* Disallowed */
                             EntityType::GlobalGenericComponent
                             | EntityType::GlobalIdentity
-                            | EntityType::GlobalVirtualSecp256k1Identity
-                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::GlobalPreallocatedSecp256k1Identity
+                            | EntityType::GlobalPreallocatedEd25519Identity
                             | EntityType::InternalGenericComponent
                             | EntityType::GlobalPackage
                             | EntityType::GlobalValidator

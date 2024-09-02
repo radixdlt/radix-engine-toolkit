@@ -239,11 +239,11 @@ mod native {
         RoundingMode as NativeRoundingMode,
 
         XRD as NATIVE_XRD,
-        SECP256K1_SIGNATURE_VIRTUAL_BADGE as NATIVE_SECP256K1_SIGNATURE_VIRTUAL_BADGE,
-        ED25519_SIGNATURE_VIRTUAL_BADGE as NATIVE_ED25519_SIGNATURE_VIRTUAL_BADGE,
-        PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE as NATIVE_PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE,
-        GLOBAL_CALLER_VIRTUAL_BADGE as NATIVE_GLOBAL_CALLER_VIRTUAL_BADGE,
-        SYSTEM_TRANSACTION_BADGE as NATIVE_SYSTEM_TRANSACTION_BADGE,
+        SECP256K1_SIGNATURE_RESOURCE as NATIVE_SECP256K1_SIGNATURE_RESOURCE,
+        ED25519_SIGNATURE_RESOURCE as NATIVE_ED25519_SIGNATURE_RESOURCE,
+        PACKAGE_OF_DIRECT_CALLER_RESOURCE as NATIVE_PACKAGE_OF_DIRECT_CALLER_RESOURCE,
+        GLOBAL_CALLER_RESOURCE as NATIVE_GLOBAL_CALLER_RESOURCE,
+        SYSTEM_EXECUTION_RESOURCE as NATIVE_SYSTEM_EXECUTION_RESOURCE,
         PACKAGE_OWNER_BADGE as NATIVE_PACKAGE_OWNER_BADGE,
         VALIDATOR_OWNER_BADGE as NATIVE_VALIDATOR_OWNER_BADGE,
         ACCOUNT_OWNER_BADGE as NATIVE_ACCOUNT_OWNER_BADGE,
@@ -301,9 +301,9 @@ mod native {
 
         ResourceOrNonFungible as NativeResourceOrNonFungible,
         ResourceOrNonFungibleList as NativeResourceOrNonFungibleList,
-        ProofRule as NativeProofRule,
+        BasicRequirement as NativeBasicRequirement,
         AccessRule as NativeAccessRule,
-        AccessRuleNode as NativeAccessRuleNode,
+        CompositeRequirement as NativeCompositeRequirement,
         OwnerRole as NativeOwnerRole,
         RoleAssignmentInit as NativeRoleAssignmentInit,
         RoleKey as NativeRoleKey,
@@ -360,19 +360,19 @@ mod native {
 
         TransactionPayload as NativeTransactionPayload,
         PrepareError as NativePrepareError,
-        HasIntentHash as NativeHasIntentHash,
-        HasSignedIntentHash as NativeHasSignedIntentHash,
+        HasTransactionIntentHash as NativeHasTransactionIntentHash,
+        HasSignedTransactionIntentHash as NativeHasSignedTransactionIntentHash,
         HasNotarizedTransactionHash as NativeHasNotarizedTransactionHash,
 
         IntentSignatureV1 as NativeIntentSignature,
         IntentSignaturesV1 as NativeIntentSignatures,
         NotarySignatureV1 as NativeNotarySignature,
 
-        IntentHash as NativeIntentHash,
-        SignedIntentHash as NativeSignedIntentHash,
+        TransactionIntentHash as NativeIntentHash,
+        SignedTransactionIntentHash as NativeSignedIntentHash,
         NotarizedTransactionHash as NativeNotarizedTransactionHash,
 
-        HashHasHrp as NativeHashHasHrp,
+        IsTransactionHash as NativeIsTransactionHash,
         TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
         TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
 

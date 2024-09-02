@@ -791,7 +791,7 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
 
     let manifest = ManifestBuilder::new()
         .get_free_xrd_from_faucet()
-        .deposit_batch(account1)
+        .deposit_entire_worktop(account1)
         .build();
 
     // Act
@@ -2600,7 +2600,7 @@ fn account_locker_is_recognized_as_general_transaction() {
                 },
             )
         })
-        .deposit_batch(account)
+        .deposit_entire_worktop(account)
         .build();
     let (manifest_summary, execution_summary) = ledger.summarize(manifest);
 

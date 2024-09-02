@@ -20,6 +20,7 @@ use std::ops::Deref;
 use crate::prelude::*;
 
 use radix_common::prelude::*;
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use schemars::*;
 use serde::*;
@@ -162,328 +163,313 @@ impl SerializableInstruction {
         instruction: &InstructionV1,
         network_id: u8,
     ) -> Result<Self, InstructionConversionError> {
-        let instruction =
-            match instruction {
-                InstructionV1::TakeFromWorktop {
-                    resource_address,
-                    amount,
-                } => Self::TakeFromWorktop {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                    amount: SerializableDecimal::from(*amount),
-                },
-                InstructionV1::TakeNonFungiblesFromWorktop {
-                    resource_address,
-                    ids,
-                } => Self::TakeNonFungiblesFromWorktop {
-                    ids: ids
-                        .iter()
-                        .map(|local_id| {
-                            SerializableNonFungibleLocalId::from(
-                                local_id.clone(),
-                            )
-                        })
-                        .collect(),
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                },
-                InstructionV1::TakeAllFromWorktop { resource_address } => {
-                    Self::TakeAllFromWorktop {
-                        resource_address: SerializableNodeId::new(
-                            resource_address.into_node_id(),
-                            network_id,
-                        ),
-                    }
-                }
-                InstructionV1::ReturnToWorktop { bucket_id } => {
-                    Self::ReturnToWorktop {
-                        bucket_id: SerializableU32::from(bucket_id.0),
-                    }
-                }
-                InstructionV1::AssertWorktopContains {
-                    resource_address,
-                    amount,
-                } => Self::AssertWorktopContains {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                    amount: SerializableDecimal::from(*amount),
-                },
-                InstructionV1::AssertWorktopContainsAny {
-                    resource_address,
-                } => Self::AssertWorktopContainsAny {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                },
-                InstructionV1::AssertWorktopContainsNonFungibles {
+        let instruction = match instruction {
+            InstructionV1::TakeFromWorktop(TakeFromWorktop {
+                resource_address,
+                amount,
+            }) => Self::TakeFromWorktop {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: SerializableDecimal::from(*amount),
+            },
+            InstructionV1::TakeNonFungiblesFromWorktop(
+                TakeNonFungiblesFromWorktop {
                     resource_address,
                     ids,
-                } => Self::AssertWorktopContainsNonFungibles {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                    ids: ids
-                        .iter()
-                        .map(|local_id| {
-                            SerializableNonFungibleLocalId::from(
-                                local_id.clone(),
-                            )
-                        })
-                        .collect(),
                 },
-                InstructionV1::PopFromAuthZone => Self::PopFromAuthZone,
-                InstructionV1::PushToAuthZone { proof_id } => {
-                    Self::PushToAuthZone {
-                        proof_id: SerializableU32::from(proof_id.0),
-                    }
-                }
-                InstructionV1::DropAuthZoneProofs => Self::DropAuthZoneProofs,
-                InstructionV1::CreateProofFromAuthZoneOfAll {
-                    resource_address,
-                } => Self::CreateProofFromAuthZoneOfAll {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                },
-                InstructionV1::CreateProofFromAuthZoneOfAmount {
-                    amount,
-                    resource_address,
-                } => Self::CreateProofFromAuthZoneOfAmount {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                    amount: SerializableDecimal::from(*amount),
-                },
-                InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
-                    ids,
-                    resource_address,
-                } => Self::CreateProofFromAuthZoneOfNonFungibles {
-                    resource_address: SerializableNodeId::new(
-                        resource_address.into_node_id(),
-                        network_id,
-                    ),
-                    ids: ids
-                        .iter()
-                        .map(|local_id| {
-                            SerializableNonFungibleLocalId::from(
-                                local_id.clone(),
-                            )
-                        })
-                        .collect(),
-                },
-                InstructionV1::DropNamedProofs => Self::DropNamedProofs,
-                InstructionV1::DropAuthZoneRegularProofs => {
-                    Self::DropAuthZoneRegularProofs
-                }
-                InstructionV1::DropAuthZoneSignatureProofs => {
-                    Self::DropAuthZoneSignatureProofs
-                }
-                InstructionV1::CreateProofFromBucketOfAll { bucket_id } => {
-                    Self::CreateProofFromBucketOfAll {
-                        bucket_id: SerializableU32::from(bucket_id.0),
-                    }
-                }
-                InstructionV1::CreateProofFromBucketOfAmount {
-                    amount,
-                    bucket_id,
-                } => Self::CreateProofFromBucketOfAmount {
+            ) => Self::TakeNonFungiblesFromWorktop {
+                ids: ids
+                    .iter()
+                    .map(|local_id| {
+                        SerializableNonFungibleLocalId::from(local_id.clone())
+                    })
+                    .collect(),
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+            },
+            InstructionV1::TakeAllFromWorktop(TakeAllFromWorktop {
+                resource_address,
+            }) => Self::TakeAllFromWorktop {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+            },
+            InstructionV1::ReturnToWorktop(ReturnToWorktop { bucket_id }) => {
+                Self::ReturnToWorktop {
                     bucket_id: SerializableU32::from(bucket_id.0),
-                    amount: SerializableDecimal::from(*amount),
-                },
-                InstructionV1::CreateProofFromBucketOfNonFungibles {
+                }
+            }
+            InstructionV1::AssertWorktopContains(AssertWorktopContains {
+                resource_address,
+                amount,
+            }) => Self::AssertWorktopContains {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: SerializableDecimal::from(*amount),
+            },
+            InstructionV1::AssertWorktopContainsAny(
+                AssertWorktopContainsAny { resource_address },
+            ) => Self::AssertWorktopContainsAny {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+            },
+            InstructionV1::AssertWorktopContainsNonFungibles(
+                AssertWorktopContainsNonFungibles {
+                    resource_address,
                     ids,
-                    bucket_id,
-                } => Self::CreateProofFromBucketOfNonFungibles {
+                },
+            ) => Self::AssertWorktopContainsNonFungibles {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                ids: ids
+                    .iter()
+                    .map(|local_id| {
+                        SerializableNonFungibleLocalId::from(local_id.clone())
+                    })
+                    .collect(),
+            },
+            InstructionV1::PopFromAuthZone => Self::PopFromAuthZone,
+            InstructionV1::PushToAuthZone(PushToAuthZone { proof_id }) => {
+                Self::PushToAuthZone {
+                    proof_id: SerializableU32::from(proof_id.0),
+                }
+            }
+            InstructionV1::DropAuthZoneProofs => Self::DropAuthZoneProofs,
+            InstructionV1::CreateProofFromAuthZoneOfAll(
+                CreateProofFromAuthZoneOfAll { resource_address },
+            ) => Self::CreateProofFromAuthZoneOfAll {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+            },
+            InstructionV1::CreateProofFromAuthZoneOfAmount(
+                CreateProofFromAuthZoneOfAmount {
+                    amount,
+                    resource_address,
+                },
+            ) => Self::CreateProofFromAuthZoneOfAmount {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                amount: SerializableDecimal::from(*amount),
+            },
+            InstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                CreateProofFromAuthZoneOfNonFungibles {
+                    ids,
+                    resource_address,
+                },
+            ) => Self::CreateProofFromAuthZoneOfNonFungibles {
+                resource_address: SerializableNodeId::new(
+                    resource_address.into_node_id(),
+                    network_id,
+                ),
+                ids: ids
+                    .iter()
+                    .map(|local_id| {
+                        SerializableNonFungibleLocalId::from(local_id.clone())
+                    })
+                    .collect(),
+            },
+            InstructionV1::DropNamedProofs => Self::DropNamedProofs,
+            InstructionV1::DropAuthZoneRegularProofs => {
+                Self::DropAuthZoneRegularProofs
+            }
+            InstructionV1::DropAuthZoneSignatureProofs => {
+                Self::DropAuthZoneSignatureProofs
+            }
+            InstructionV1::CreateProofFromBucketOfAll(
+                CreateProofFromBucketOfAll { bucket_id },
+            ) => Self::CreateProofFromBucketOfAll {
+                bucket_id: SerializableU32::from(bucket_id.0),
+            },
+            InstructionV1::CreateProofFromBucketOfAmount(
+                CreateProofFromBucketOfAmount { amount, bucket_id },
+            ) => Self::CreateProofFromBucketOfAmount {
+                bucket_id: SerializableU32::from(bucket_id.0),
+                amount: SerializableDecimal::from(*amount),
+            },
+            InstructionV1::CreateProofFromBucketOfNonFungibles(
+                CreateProofFromBucketOfNonFungibles { ids, bucket_id },
+            ) => Self::CreateProofFromBucketOfNonFungibles {
+                bucket_id: SerializableU32::from(bucket_id.0),
+                ids: ids
+                    .iter()
+                    .map(|local_id| {
+                        SerializableNonFungibleLocalId::from(local_id.clone())
+                    })
+                    .collect(),
+            },
+            InstructionV1::BurnResource(BurnResource { bucket_id }) => {
+                Self::BurnResource {
                     bucket_id: SerializableU32::from(bucket_id.0),
-                    ids: ids
-                        .iter()
-                        .map(|local_id| {
-                            SerializableNonFungibleLocalId::from(
-                                local_id.clone(),
-                            )
-                        })
-                        .collect(),
-                },
-                InstructionV1::BurnResource { bucket_id } => {
-                    Self::BurnResource {
-                        bucket_id: SerializableU32::from(bucket_id.0),
-                    }
                 }
-                InstructionV1::CloneProof { proof_id } => Self::CloneProof {
+            }
+            InstructionV1::CloneProof(CloneProof { proof_id }) => {
+                Self::CloneProof {
                     proof_id: SerializableU32::from(proof_id.0),
-                },
-                InstructionV1::DropProof { proof_id } => Self::DropProof {
+                }
+            }
+            InstructionV1::DropProof(DropProof { proof_id }) => {
+                Self::DropProof {
                     proof_id: SerializableU32::from(proof_id.0),
-                },
-                InstructionV1::DropAllProofs => Self::DropAllProofs,
-                InstructionV1::CallFunction {
-                    package_address,
-                    blueprint_name,
-                    function_name,
-                    args,
-                } => Self::CallFunction {
-                    package_address: match package_address {
-                        DynamicPackageAddress::Named(named) => {
-                            SerializableManifestAddress::Named(
-                                SerializableU32::from(*named),
-                            )
-                        }
-                        DynamicPackageAddress::Static(global_address) => {
-                            SerializableManifestAddress::Static(
-                                SerializableNodeId::new(
-                                    global_address.into_node_id(),
-                                    network_id,
-                                ),
-                            )
-                        }
-                    },
-                    blueprint_name: blueprint_name.to_string(),
-                    function_name: function_name.to_string(),
-                    args: SerializableManifestValue::from_typed(
-                        args, network_id,
-                    )?,
-                },
-                InstructionV1::CallMethod {
-                    address,
-                    method_name,
-                    args,
-                } => Self::CallMethod {
-                    address: match address {
-                        DynamicGlobalAddress::Named(named) => {
-                            SerializableManifestAddress::Named(
-                                SerializableU32::from(*named),
-                            )
-                        }
-                        DynamicGlobalAddress::Static(global_address) => {
-                            SerializableManifestAddress::Static(
-                                SerializableNodeId::new(
-                                    global_address.into_node_id(),
-                                    network_id,
-                                ),
-                            )
-                        }
-                    },
-                    method_name: method_name.clone(),
-                    args: SerializableManifestValue::from_typed(
-                        args, network_id,
-                    )?,
-                },
-                InstructionV1::CallRoyaltyMethod {
-                    address,
-                    method_name,
-                    args,
-                } => {
-                    Self::CallRoyaltyMethod {
-                        address: match address {
-                            DynamicGlobalAddress::Named(named) => {
-                                SerializableManifestAddress::Named(
-                                    SerializableU32::from(*named),
-                                )
-                            }
-                            DynamicGlobalAddress::Static(global_address) => {
-                                SerializableManifestAddress::Static(
-                                    SerializableNodeId::new(
-                                        global_address.into_node_id(),
-                                        network_id,
-                                    ),
-                                )
-                            }
-                        },
-                        method_name: method_name.clone(),
-                        args: SerializableManifestValue::from_typed(
-                            args, network_id,
-                        )?,
-                    }
                 }
-                InstructionV1::CallMetadataMethod {
-                    address,
-                    method_name,
-                    args,
-                } => {
-                    Self::CallMetadataMethod {
-                        address: match address {
-                            DynamicGlobalAddress::Named(named) => {
-                                SerializableManifestAddress::Named(
-                                    SerializableU32::from(*named),
-                                )
-                            }
-                            DynamicGlobalAddress::Static(global_address) => {
-                                SerializableManifestAddress::Static(
-                                    SerializableNodeId::new(
-                                        global_address.into_node_id(),
-                                        network_id,
-                                    ),
-                                )
-                            }
-                        },
-                        method_name: method_name.clone(),
-                        args: SerializableManifestValue::from_typed(
-                            args, network_id,
-                        )?,
+            }
+            InstructionV1::DropAllProofs => Self::DropAllProofs,
+            InstructionV1::CallFunction(CallFunction {
+                package_address,
+                blueprint_name,
+                function_name,
+                args,
+            }) => Self::CallFunction {
+                package_address: match package_address {
+                    DynamicPackageAddress::Named(named) => {
+                        SerializableManifestAddress::Named(
+                            SerializableU32::from(*named),
+                        )
                     }
-                }
-                InstructionV1::CallRoleAssignmentMethod {
-                    address,
-                    method_name,
-                    args,
-                } => {
-                    Self::CallRoleAssignmentMethod {
-                        address: match address {
-                            DynamicGlobalAddress::Named(named) => {
-                                SerializableManifestAddress::Named(
-                                    SerializableU32::from(*named),
-                                )
-                            }
-                            DynamicGlobalAddress::Static(global_address) => {
-                                SerializableManifestAddress::Static(
-                                    SerializableNodeId::new(
-                                        global_address.into_node_id(),
-                                        network_id,
-                                    ),
-                                )
-                            }
-                        },
-                        method_name: method_name.clone(),
-                        args: SerializableManifestValue::from_typed(
-                            args, network_id,
-                        )?,
+                    DynamicPackageAddress::Static(global_address) => {
+                        SerializableManifestAddress::Static(
+                            SerializableNodeId::new(
+                                global_address.into_node_id(),
+                                network_id,
+                            ),
+                        )
                     }
-                }
-                InstructionV1::CallDirectVaultMethod {
+                },
+                blueprint_name: blueprint_name.to_string(),
+                function_name: function_name.to_string(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::CallMethod(CallMethod {
+                address,
+                method_name,
+                args,
+            }) => Self::CallMethod {
+                address: match address {
+                    DynamicGlobalAddress::Named(named) => {
+                        SerializableManifestAddress::Named(
+                            SerializableU32::from(*named),
+                        )
+                    }
+                    DynamicGlobalAddress::Static(global_address) => {
+                        SerializableManifestAddress::Static(
+                            SerializableNodeId::new(
+                                global_address.into_node_id(),
+                                network_id,
+                            ),
+                        )
+                    }
+                },
+                method_name: method_name.clone(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+                address,
+                method_name,
+                args,
+            }) => Self::CallRoyaltyMethod {
+                address: match address {
+                    DynamicGlobalAddress::Named(named) => {
+                        SerializableManifestAddress::Named(
+                            SerializableU32::from(*named),
+                        )
+                    }
+                    DynamicGlobalAddress::Static(global_address) => {
+                        SerializableManifestAddress::Static(
+                            SerializableNodeId::new(
+                                global_address.into_node_id(),
+                                network_id,
+                            ),
+                        )
+                    }
+                },
+                method_name: method_name.clone(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::CallMetadataMethod(CallMetadataMethod {
+                address,
+                method_name,
+                args,
+            }) => Self::CallMetadataMethod {
+                address: match address {
+                    DynamicGlobalAddress::Named(named) => {
+                        SerializableManifestAddress::Named(
+                            SerializableU32::from(*named),
+                        )
+                    }
+                    DynamicGlobalAddress::Static(global_address) => {
+                        SerializableManifestAddress::Static(
+                            SerializableNodeId::new(
+                                global_address.into_node_id(),
+                                network_id,
+                            ),
+                        )
+                    }
+                },
+                method_name: method_name.clone(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::CallRoleAssignmentMethod(
+                CallRoleAssignmentMethod {
                     address,
                     method_name,
                     args,
-                } => Self::CallDirectVaultMethod {
-                    address: SerializableNodeId::new(
-                        address.into_node_id(),
-                        network_id,
-                    ),
-                    method_name: method_name.clone(),
-                    args: SerializableManifestValue::from_typed(
-                        args, network_id,
-                    )?,
                 },
-                InstructionV1::AllocateGlobalAddress {
-                    package_address,
-                    blueprint_name,
-                } => Self::AllocateGlobalAddress {
-                    package_address: SerializableNodeId::new(
-                        package_address.into_node_id(),
-                        network_id,
-                    ),
-                    blueprint_name: blueprint_name.clone(),
+            ) => Self::CallRoleAssignmentMethod {
+                address: match address {
+                    DynamicGlobalAddress::Named(named) => {
+                        SerializableManifestAddress::Named(
+                            SerializableU32::from(*named),
+                        )
+                    }
+                    DynamicGlobalAddress::Static(global_address) => {
+                        SerializableManifestAddress::Static(
+                            SerializableNodeId::new(
+                                global_address.into_node_id(),
+                                network_id,
+                            ),
+                        )
+                    }
                 },
-            };
+                method_name: method_name.clone(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::CallDirectVaultMethod(CallDirectVaultMethod {
+                address,
+                method_name,
+                args,
+            }) => Self::CallDirectVaultMethod {
+                address: SerializableNodeId::new(
+                    address.into_node_id(),
+                    network_id,
+                ),
+                method_name: method_name.clone(),
+                args: SerializableManifestValue::from_typed(args, network_id)?,
+            },
+            InstructionV1::AllocateGlobalAddress(AllocateGlobalAddress {
+                package_address,
+                blueprint_name,
+            }) => Self::AllocateGlobalAddress {
+                package_address: SerializableNodeId::new(
+                    package_address.into_node_id(),
+                    network_id,
+                ),
+                blueprint_name: blueprint_name.clone(),
+            },
+        };
         Ok(instruction)
     }
 
@@ -545,10 +531,10 @@ impl SerializableInstruction {
             Self::DropNamedProofs => InstructionV1::DropNamedProofs,
             Self::DropAuthZoneProofs => InstructionV1::DropAuthZoneProofs,
             Self::DropAuthZoneRegularProofs => {
-                InstructionV1::DropAuthZoneRegularProofs
+                InstructionV1::DropAuthZoneRegularProofs { .. }
             }
             Self::DropAuthZoneSignatureProofs => {
-                InstructionV1::DropAuthZoneSignatureProofs
+                InstructionV1::DropAuthZoneSignatureProofs { .. }
             }
             Self::CreateProofFromAuthZoneOfAll {
                 resource_address, ..

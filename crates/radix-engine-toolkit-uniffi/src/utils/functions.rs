@@ -79,11 +79,11 @@ macro_rules! define_known_addresses {
 define_known_addresses! {
     resource_addresses => [
         xrd,
-        secp256k1_signature_virtual_badge,
-        ed25519_signature_virtual_badge,
-        package_of_direct_caller_virtual_badge,
-        global_caller_virtual_badge,
-        system_transaction_badge,
+        secp256k1_signature_resource,
+        ed25519_signature_resource,
+        package_of_direct_caller_resource,
+        global_caller_resource,
+        system_execution_resource,
         package_owner_badge,
         validator_owner_badge,
         account_owner_badge,

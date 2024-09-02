@@ -414,7 +414,7 @@ impl<'a> Function<'a> for DeriveBech32mTransactionIdentifierFromIntentHash {
             hash,
         } = input;
 
-        let intent_hash = radix_transactions::prelude::IntentHash(
+        let intent_hash = radix_transactions::prelude::TransactionIntentHash(
             scrypto::prelude::Hash(hash.0),
         );
         let network_definition =

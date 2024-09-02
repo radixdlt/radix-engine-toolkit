@@ -183,7 +183,7 @@ where
         &mut self,
         local_type_id: LocalTypeId,
         schema: &Schema<T>,
-        custom_type_kind: &T::CustomTypeKind<LocalTypeId>,
+        custom_type_kind: &T::CustomLocalTypeKind,
     ) -> Result<(), Self::Error> {
         Ok(())
     }

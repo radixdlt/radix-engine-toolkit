@@ -49,7 +49,7 @@ pub fn statically_validate(
     .map_err(
         InstructionValidationError::LocatedInstructionSchemaValidationError,
     )?;
-    NotarizedTransactionValidator::validate_instructions_v1(instructions)
+    NotarizedTransactionValidatorV1::validate_instructions_v1(instructions)
         .map_err(InstructionValidationError::TransactionValidationError)?;
     Ok(())
 }

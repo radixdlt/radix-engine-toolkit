@@ -223,14 +223,14 @@ define_canonical_addresses!(
     // CanonicalAccountAddress type definition
     Account => [
         EntityType::GlobalAccount,
-        EntityType::GlobalVirtualSecp256k1Account,
-        EntityType::GlobalVirtualEd25519Account
+        EntityType::GlobalPreallocatedSecp256k1Account,
+        EntityType::GlobalPreallocatedEd25519Account
     ],
     // CanonicalIdentityAddress type definition
     Identity => [
         EntityType::GlobalIdentity,
-        EntityType::GlobalVirtualSecp256k1Identity,
-        EntityType::GlobalVirtualEd25519Identity
+        EntityType::GlobalPreallocatedSecp256k1Identity,
+        EntityType::GlobalPreallocatedEd25519Identity
     ],
     // CanonicalResourceAddress type definition
     Resource => [

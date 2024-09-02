@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -66,11 +67,13 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
-            } => Self::construct_fn_rules(address).is_fn_permitted(method_name),
+            }) => {
+                Self::construct_fn_rules(address).is_fn_permitted(method_name)
+            }
             /* Permitted */
             InstructionV1::TakeFromWorktop { .. }
             | InstructionV1::TakeNonFungiblesFromWorktop { .. }
@@ -86,31 +89,31 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
             | InstructionV1::CallDirectVaultMethod { .. }
             | InstructionV1::AllocateGlobalAddress { .. }
             | InstructionV1::ReturnToWorktop { .. }
-            | InstructionV1::PopFromAuthZone
+            | InstructionV1::PopFromAuthZone { .. }
             | InstructionV1::PushToAuthZone { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
             | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
             | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs
-            | InstructionV1::DropAuthZoneRegularProofs
-            | InstructionV1::DropAuthZoneSignatureProofs
+            | InstructionV1::DropAuthZoneProofs { .. }
+            | InstructionV1::DropAuthZoneRegularProofs { .. }
+            | InstructionV1::DropAuthZoneSignatureProofs { .. }
             | InstructionV1::CreateProofFromBucketOfAmount { .. }
             | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
             | InstructionV1::CreateProofFromBucketOfAll { .. }
             | InstructionV1::CloneProof { .. }
             | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs
-            | InstructionV1::DropAllProofs
+            | InstructionV1::DropNamedProofs { .. }
+            | InstructionV1::DropAllProofs { .. }
             | InstructionV1::CallFunction { .. } => false,
         };
 
         // Handle required method call
         match instruction {
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
-            } if is_validator(address)
+            }) if is_validator(address)
                 && method_name == VALIDATOR_STAKE_IDENT =>
             {
                 self.required_method_called = true
@@ -120,9 +123,13 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
     }
 
     fn on_global_entity_encounter(&mut self, address: GlobalAddress) {
-        if address.as_node_id().entity_type().is_some_and(
-            |entity_type| matches!(entity_type, EntityType::GlobalValidator)
-        ) {
+        if address
+            .as_node_id()
+            .entity_type()
+            .is_some_and(|entity_type| {
+                matches!(entity_type, EntityType::GlobalValidator)
+            })
+        {
             self.validators.insert(
                 ComponentAddress::try_from(address).expect("Must succeed!"),
             );
@@ -139,11 +146,11 @@ impl ExecutionSummaryCallback for ValidatorStakeDetector {
         output_resources: &[ResourceSpecifier],
     ) {
         match instruction {
-            InstructionV1::CallMethod {
+            InstructionV1::CallMethod(CallMethod {
                 address: dynamic_address @ DynamicGlobalAddress::Static(address),
                 method_name,
                 ..
-            } if is_validator(dynamic_address)
+            }) if is_validator(dynamic_address)
                 && (method_name == VALIDATOR_STAKE_IDENT) =>
             {
                 let validator_component = ComponentAddress::try_from(*address)
@@ -199,8 +206,8 @@ impl ValidatorStakeDetector {
                     .map(|entity_type| {
                         match entity_type {
                             EntityType::GlobalAccount
-                            | EntityType::GlobalVirtualSecp256k1Account
-                            | EntityType::GlobalVirtualEd25519Account => {
+                            | EntityType::GlobalPreallocatedSecp256k1Account
+                            | EntityType::GlobalPreallocatedEd25519Account => {
                                 FnRules {
                                     allowed: &[
                                         /* All withdraw methods */
@@ -227,8 +234,8 @@ impl ValidatorStakeDetector {
                             /* Disallowed */
                             EntityType::GlobalGenericComponent
                             | EntityType::GlobalIdentity
-                            | EntityType::GlobalVirtualSecp256k1Identity
-                            | EntityType::GlobalVirtualEd25519Identity
+                            | EntityType::GlobalPreallocatedSecp256k1Identity
+                            | EntityType::GlobalPreallocatedEd25519Identity
                             | EntityType::InternalGenericComponent
                             | EntityType::GlobalPackage
                             | EntityType::GlobalFungibleResourceManager

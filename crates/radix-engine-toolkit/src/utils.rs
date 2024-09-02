@@ -35,7 +35,7 @@ pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
         ..
     } = intent;
     TransactionManifestV1 {
-        instructions: instructions.0.clone(),
+        instructions: Vec::clone(&instructions.0),
         blobs: blobs
             .blobs
             .iter()
@@ -198,8 +198,8 @@ pub fn is_account<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
                 address.as_node_id().entity_type(),
                 Some(
                     EntityType::GlobalAccount
-                        | EntityType::GlobalVirtualSecp256k1Account
-                        | EntityType::GlobalVirtualEd25519Account
+                        | EntityType::GlobalPreallocatedSecp256k1Account
+                        | EntityType::GlobalPreallocatedEd25519Account
                 )
             )
         }
@@ -242,8 +242,8 @@ pub fn is_identity<A: Into<DynamicGlobalAddress> + Clone>(node_id: &A) -> bool {
                 address.as_node_id().entity_type(),
                 Some(
                     EntityType::GlobalIdentity
-                        | EntityType::GlobalVirtualSecp256k1Identity
-                        | EntityType::GlobalVirtualEd25519Identity
+                        | EntityType::GlobalPreallocatedSecp256k1Identity
+                        | EntityType::GlobalPreallocatedEd25519Identity
                 )
             )
         }

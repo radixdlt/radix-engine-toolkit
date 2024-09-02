@@ -29,8 +29,8 @@ pub type IntentHashInput = SerializableIntent;
 #[typeshare::typeshare]
 pub type IntentHashOutput = SerializableTransactionHash;
 
-pub struct IntentHash;
-impl<'f> Function<'f> for IntentHash {
+pub struct TransactionIntentHash;
+impl<'f> Function<'f> for TransactionIntentHash {
     type Input = IntentHashInput;
     type Output = IntentHashOutput;
 
@@ -49,8 +49,8 @@ impl<'f> Function<'f> for IntentHash {
     }
 }
 
-export_function!(IntentHash as intent_hash);
-export_jni_function!(IntentHash as intentHash);
+export_function!(TransactionIntentHash as intent_hash);
+export_jni_function!(TransactionIntentHash as TransactionIntentHash);
 
 //================
 // Intent Compile

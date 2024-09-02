@@ -29,8 +29,8 @@ pub type SignedIntentHashInput = SerializableSignedIntent;
 #[typeshare::typeshare]
 pub type SignedIntentHashOutput = SerializableTransactionHash;
 
-pub struct SignedIntentHash;
-impl<'f> Function<'f> for SignedIntentHash {
+pub struct SignedTransactionIntentHash;
+impl<'f> Function<'f> for SignedTransactionIntentHash {
     type Input = SignedIntentHashInput;
     type Output = SignedIntentHashOutput;
 
@@ -52,8 +52,10 @@ impl<'f> Function<'f> for SignedIntentHash {
     }
 }
 
-export_function!(SignedIntentHash as signed_intent_hash);
-export_jni_function!(SignedIntentHash as signedIntentHash);
+export_function!(SignedTransactionIntentHash as signed_intent_hash);
+export_jni_function!(
+    SignedTransactionIntentHash as SignedTransactionIntentHash
+);
 
 //=======================
 // Signed Intent Compile

@@ -18,6 +18,7 @@
 use crate::statics::*;
 use crate::transaction_types::*;
 use crate::utils::*;
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -39,11 +40,11 @@ impl StaticAccountResourceMovementsDetector {
 
 impl ManifestSummaryCallback for StaticAccountResourceMovementsDetector {
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
-        if let InstructionV1::CallMethod {
+        if let InstructionV1::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             ..
-        } = instruction
+        }) = instruction
         {
             if !is_account(dynamic_address) {
                 return;

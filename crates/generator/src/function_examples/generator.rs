@@ -56,13 +56,13 @@ pub fn generate_function_examples() -> IndexMap<
             ManifestStaticallyValidate,
         ],
         "intent" => function_examples![
-            IntentHash,
+            TransactionIntentHash,
             IntentCompile,
             IntentDecompile,
             IntentStaticallyValidate,
         ],
         "signed_intent" => function_examples![
-            SignedIntentHash,
+            SignedTransactionIntentHash,
             SignedIntentCompile,
             SignedIntentDecompile,
             SignedIntentStaticallyValidate,

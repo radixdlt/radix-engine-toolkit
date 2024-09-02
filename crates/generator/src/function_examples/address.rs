@@ -27,23 +27,23 @@ impl<'f> HasExamples<'f, EXAMPLE_SIZE> for AddressEntityType {
         [
             SerializableNodeId::new(XRD.into_node_id(), 0xf2),
             SerializableNodeId::new(
-                SECP256K1_SIGNATURE_VIRTUAL_BADGE.into_node_id(),
+                SECP256K1_SIGNATURE_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                ED25519_SIGNATURE_VIRTUAL_BADGE.into_node_id(),
+                ED25519_SIGNATURE_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.into_node_id(),
+                PACKAGE_OF_DIRECT_CALLER_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                GLOBAL_CALLER_VIRTUAL_BADGE.into_node_id(),
+                GLOBAL_CALLER_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                SYSTEM_TRANSACTION_BADGE.into_node_id(),
+                SYSTEM_EXECUTION_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(PACKAGE_OWNER_BADGE.into_node_id(), 0xf2),
@@ -101,23 +101,23 @@ impl<'f> HasExamples<'f, EXAMPLE_SIZE> for AddressDecode {
         [
             SerializableNodeId::new(XRD.into_node_id(), 0xf2),
             SerializableNodeId::new(
-                SECP256K1_SIGNATURE_VIRTUAL_BADGE.into_node_id(),
+                SECP256K1_SIGNATURE_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                ED25519_SIGNATURE_VIRTUAL_BADGE.into_node_id(),
+                ED25519_SIGNATURE_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                PACKAGE_OF_DIRECT_CALLER_VIRTUAL_BADGE.into_node_id(),
+                PACKAGE_OF_DIRECT_CALLER_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                GLOBAL_CALLER_VIRTUAL_BADGE.into_node_id(),
+                GLOBAL_CALLER_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(
-                SYSTEM_TRANSACTION_BADGE.into_node_id(),
+                SYSTEM_EXECUTION_RESOURCE.into_node_id(),
                 0xf2,
             ),
             SerializableNodeId::new(PACKAGE_OWNER_BADGE.into_node_id(), 0xf2),

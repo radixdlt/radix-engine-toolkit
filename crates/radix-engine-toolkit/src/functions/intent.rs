@@ -26,7 +26,7 @@ use crate::models::transaction_hash::TransactionHash;
 pub fn hash(intent: &IntentV1) -> Result<TransactionHash, PrepareError> {
     intent
         .prepare()
-        .map(|prepared| prepared.intent_hash())
+        .map(|prepared| prepared.transaction_intent_hash())
         .map(|hash| TransactionHash::new(hash, intent.header.network_id))
 }
 
@@ -45,7 +45,7 @@ pub fn statically_validate(
     intent: &IntentV1,
     validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidator::new(validation_config);
+    let validator = NotarizedTransactionValidatorV1::new(validation_config);
     intent
         .prepare()
         .map_err(TransactionValidationError::PrepareError)

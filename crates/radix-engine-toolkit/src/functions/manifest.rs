@@ -20,6 +20,7 @@ use radix_common::prelude::*;
 use radix_engine_interface::blueprints::access_controller::*;
 use radix_engine_interface::blueprints::account::*;
 use radix_transactions::errors::*;
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use radix_transactions::validation::*;
 
@@ -47,7 +48,7 @@ where
 pub fn statically_validate(
     manifest: &TransactionManifestV1,
 ) -> Result<(), TransactionValidationError> {
-    NotarizedTransactionValidator::validate_instructions_v1(
+    NotarizedTransactionValidatorV1::validate_instructions_v1(
         &manifest.instructions,
     )
 }
@@ -104,11 +105,11 @@ pub fn modify(
         modifications.add_lock_fee
     {
         match instructions.first_mut() {
-            Some(InstructionV1::CallMethod {
+            Some(InstructionV1::CallMethod(CallMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 args,
-            }) if *address == GlobalAddress::from(lock_fee_account)
+            })) if *address == GlobalAddress::from(lock_fee_account)
                 && (method_name == ACCOUNT_WITHDRAW_IDENT
                     || method_name == ACCOUNT_WITHDRAW_NON_FUNGIBLES_IDENT) =>
             {
@@ -184,7 +185,7 @@ pub fn modify(
                 //    withdraw methods.
                 instructions.insert(
                     0,
-                    InstructionV1::CallMethod {
+                    InstructionV1::CallMethod(CallMethod {
                         address: DynamicGlobalAddress::Static(
                             lock_fee_account.into(),
                         ),
@@ -194,7 +195,7 @@ pub fn modify(
                                 amount: lock_fee_amount
                             }
                         ),
-                    },
+                    }),
                 )
             }
         };
@@ -204,12 +205,14 @@ pub fn modify(
     let instructions = modifications
         .add_access_controller_proofs
         .into_iter()
-        .map(|component_address| InstructionV1::CallMethod {
-            address: DynamicGlobalAddress::Static(component_address.into()),
-            method_name: ACCESS_CONTROLLER_CREATE_PROOF_IDENT.to_owned(),
-            args: to_manifest_value_and_unwrap!(
-                &AccessControllerCreateProofInput {}
-            ),
+        .map(|component_address| {
+            InstructionV1::CallMethod(CallMethod {
+                address: DynamicGlobalAddress::Static(component_address.into()),
+                method_name: ACCESS_CONTROLLER_CREATE_PROOF_IDENT.to_owned(),
+                args: to_manifest_value_and_unwrap!(
+                    &AccessControllerCreateProofInput {}
+                ),
+            })
         })
         .chain(instructions)
         .collect::<Vec<_>>();
@@ -262,17 +265,19 @@ impl From<Assertion> for InstructionV1 {
             Assertion::Amount {
                 resource_address,
                 amount,
-            } => InstructionV1::AssertWorktopContains {
+            } => InstructionV1::AssertWorktopContains(AssertWorktopContains {
                 resource_address,
                 amount,
-            },
+            }),
             Assertion::Ids {
                 resource_address,
                 ids,
-            } => InstructionV1::AssertWorktopContainsNonFungibles {
-                resource_address,
-                ids: ids.into_iter().collect(),
-            },
+            } => InstructionV1::AssertWorktopContainsNonFungibles(
+                AssertWorktopContainsNonFungibles {
+                    resource_address,
+                    ids: ids.into_iter().collect(),
+                },
+            ),
         }
     }
 }

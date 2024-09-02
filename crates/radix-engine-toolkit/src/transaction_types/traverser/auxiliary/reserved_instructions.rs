@@ -18,6 +18,7 @@
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::identity::*;
 
+use radix_transactions::prelude::manifest_instruction::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -38,11 +39,11 @@ impl ReservedInstructionsDetector {
 
 impl ManifestSummaryCallback for ReservedInstructionsDetector {
     fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
-        let InstructionV1::CallMethod {
+        let InstructionV1::CallMethod(CallMethod {
             address,
             method_name,
             ..
-        } = instruction
+        }) = instruction
         else {
             return;
         };
