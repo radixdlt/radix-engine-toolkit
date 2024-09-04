@@ -29,7 +29,7 @@ pub trait ManifestSummaryCallback {
     #[inline]
     fn on_instruction(
         &mut self,
-        _instruction: &InstructionV1,
+        _instruction: &InstructionV2,
         _instruction_index: usize,
     ) {
     }
@@ -62,7 +62,7 @@ where
     #[inline]
     fn on_instruction(
         &mut self,
-        _instruction: &InstructionV1,
+        _instruction: &InstructionV2,
         _instruction_index: usize,
         _input_resources: &[ResourceSpecifier],
         _output_resources: &[ResourceSpecifier],

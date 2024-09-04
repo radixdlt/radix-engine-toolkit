@@ -38,8 +38,8 @@ impl ReservedInstructionsDetector {
 }
 
 impl ManifestSummaryCallback for ReservedInstructionsDetector {
-    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
-        let InstructionV1::CallMethod(CallMethod {
+    fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
+        let InstructionV2::CallMethod(CallMethod {
             address,
             method_name,
             ..

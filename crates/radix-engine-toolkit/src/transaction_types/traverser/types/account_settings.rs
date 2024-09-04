@@ -70,11 +70,11 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
         }
     }
 
-    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
+    fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         // Determine the validity based on the instructions
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
-            InstructionV1::CallMethod(CallMethod {
+            InstructionV2::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
@@ -82,40 +82,43 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
                 Self::construct_fn_rules(address).is_fn_permitted(method_name)
             }
             /* Not Permitted */
-            InstructionV1::BurnResource { .. }
-            | InstructionV1::CallRoyaltyMethod { .. }
-            | InstructionV1::CallMetadataMethod { .. }
-            | InstructionV1::CallRoleAssignmentMethod { .. }
-            | InstructionV1::CallDirectVaultMethod { .. }
-            | InstructionV1::AllocateGlobalAddress { .. }
-            | InstructionV1::ReturnToWorktop { .. }
-            | InstructionV1::PopFromAuthZone { .. }
-            | InstructionV1::PushToAuthZone { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs { .. }
-            | InstructionV1::DropAuthZoneRegularProofs { .. }
-            | InstructionV1::DropAuthZoneSignatureProofs { .. }
-            | InstructionV1::CreateProofFromBucketOfAmount { .. }
-            | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromBucketOfAll { .. }
-            | InstructionV1::CloneProof { .. }
-            | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs { .. }
-            | InstructionV1::DropAllProofs { .. }
-            | InstructionV1::CallFunction { .. }
-            | InstructionV1::TakeFromWorktop { .. }
-            | InstructionV1::TakeNonFungiblesFromWorktop { .. }
-            | InstructionV1::TakeAllFromWorktop { .. }
-            | InstructionV1::AssertWorktopContainsAny { .. }
-            | InstructionV1::AssertWorktopContains { .. }
-            | InstructionV1::AssertWorktopContainsNonFungibles { .. } => false,
+            InstructionV2::BurnResource(..)
+            | InstructionV2::CallRoyaltyMethod(..)
+            | InstructionV2::CallMetadataMethod(..)
+            | InstructionV2::CallRoleAssignmentMethod(..)
+            | InstructionV2::CallDirectVaultMethod(..)
+            | InstructionV2::AllocateGlobalAddress(..)
+            | InstructionV2::ReturnToWorktop(..)
+            | InstructionV2::PopFromAuthZone(..)
+            | InstructionV2::PushToAuthZone(..)
+            | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
+            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
+            | InstructionV2::CreateProofFromAuthZoneOfAll(..)
+            | InstructionV2::DropAuthZoneProofs(..)
+            | InstructionV2::DropAuthZoneRegularProofs(..)
+            | InstructionV2::DropAuthZoneSignatureProofs(..)
+            | InstructionV2::CreateProofFromBucketOfAmount(..)
+            | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
+            | InstructionV2::CreateProofFromBucketOfAll(..)
+            | InstructionV2::CloneProof(..)
+            | InstructionV2::DropProof(..)
+            | InstructionV2::DropNamedProofs(..)
+            | InstructionV2::DropAllProofs(..)
+            | InstructionV2::CallFunction(..)
+            | InstructionV2::TakeFromWorktop(..)
+            | InstructionV2::TakeNonFungiblesFromWorktop(..)
+            | InstructionV2::TakeAllFromWorktop(..)
+            | InstructionV2::AssertWorktopContainsAny(..)
+            | InstructionV2::AssertWorktopContains(..)
+            | InstructionV2::AssertWorktopContainsNonFungibles(..)
+            | InstructionV2::YieldToParent(_)
+            | InstructionV2::YieldToChild(_)
+            | InstructionV2::AuthenticateParent(_) => false,
         };
 
         // Determine if the instruction is an account settings instruction.
         self.account_settings_instruction_encountered |=
-            if let InstructionV1::CallMethod(CallMethod {
+            if let InstructionV2::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
@@ -128,7 +131,7 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
             };
 
         // Process the instructions
-        let InstructionV1::CallMethod(CallMethod {
+        let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,

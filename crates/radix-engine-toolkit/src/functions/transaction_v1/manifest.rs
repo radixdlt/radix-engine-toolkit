@@ -50,13 +50,30 @@ pub fn statically_validate(
     )
 }
 
-pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
-    crate::transaction_types::summary(manifest)
+pub fn statically_analyze(manifest: &TransactionManifestV1) -> ManifestSummary {
+    crate::transaction_types::statically_analyze(
+        manifest
+            .instructions
+            .iter()
+            .cloned()
+            .map(|value| value.into())
+            .collect::<Vec<_>>()
+            .as_slice(),
+    )
 }
 
-pub fn execution_summary(
+pub fn dynamically_analyze(
     manifest: &TransactionManifestV1,
     receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
-    crate::transaction_types::execution_summary(manifest, receipt)
+    crate::transaction_types::dynamically_analyze(
+        manifest
+            .instructions
+            .iter()
+            .cloned()
+            .map(|value| value.into())
+            .collect::<Vec<_>>()
+            .as_slice(),
+        receipt,
+    )
 }

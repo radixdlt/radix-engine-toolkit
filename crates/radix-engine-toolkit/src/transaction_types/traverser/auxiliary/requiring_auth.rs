@@ -38,9 +38,9 @@ impl RequiringAuthDetector {
 }
 
 impl ManifestSummaryCallback for RequiringAuthDetector {
-    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
+    fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         match instruction {
-            InstructionV1::CallMethod(CallMethod {
+            InstructionV2::CallMethod(CallMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 args,
@@ -82,7 +82,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+            InstructionV2::CallRoyaltyMethod(CallRoyaltyMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 ..
@@ -95,7 +95,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallMetadataMethod(CallMetadataMethod {
+            InstructionV2::CallMetadataMethod(CallMetadataMethod {
                 address: DynamicGlobalAddress::Static(address),
                 method_name,
                 ..
@@ -108,7 +108,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
                     }
                 }
             }
-            InstructionV1::CallRoleAssignmentMethod(
+            InstructionV2::CallRoleAssignmentMethod(
                 CallRoleAssignmentMethod {
                     address: DynamicGlobalAddress::Static(address),
                     method_name,

@@ -47,11 +47,13 @@ pub fn statically_validate(
     todo!()
 }
 
-pub fn summary(_manifest: &TransactionManifestV2) -> ManifestSummary {
+pub fn statically_analyze(
+    _manifest: &TransactionManifestV2,
+) -> ManifestSummary {
     todo!()
 }
 
-pub fn execution_summary(
+pub fn dynamically_analyze(
     _manifest: &TransactionManifestV2,
     _receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {

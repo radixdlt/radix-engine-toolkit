@@ -39,8 +39,8 @@ impl StaticAccountResourceMovementsDetector {
 }
 
 impl ManifestSummaryCallback for StaticAccountResourceMovementsDetector {
-    fn on_instruction(&mut self, instruction: &InstructionV1, _: usize) {
-        if let InstructionV1::CallMethod(CallMethod {
+    fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
+        if let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             ..

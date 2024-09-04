@@ -21,7 +21,7 @@ mod test_runner_extension;
 use test_runner_extension::LedgerSimulatorEDExt;
 
 #[test]
-fn execution_summary_new_non_fungible_list_initial_supply() {
+fn dynamic_analysis_new_non_fungible_list_initial_supply() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -44,25 +44,29 @@ fn execution_summary_new_non_fungible_list_initial_supply() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = ledger.summarize(manifest);
-    let address = execution_summary
+    let (_, dynamic_analysis) = ledger.summarize(manifest);
+    let address = dynamic_analysis
         .new_entities
         .resource_addresses
         .first()
         .unwrap();
 
     // Assert
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 2);
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_1)));
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(*address, nf_id_1))
+    );
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(*address, nf_id_2))
+    );
 }
 
 #[test]
-fn execution_summary_new_non_fungible_list_after_mint() {
+fn dynamic_analysis_new_non_fungible_list_after_mint() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -97,17 +101,19 @@ fn execution_summary_new_non_fungible_list_after_mint() {
         .mint_non_fungible(*address, vec![(nf_id_2.clone(), ())])
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 1);
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_2)));
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(*address, nf_id_2))
+    );
 }
 
 #[test]
-fn execution_summary_new_non_fungible_list_after_burn() {
+fn dynamic_analysis_new_non_fungible_list_after_burn() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -142,14 +148,14 @@ fn execution_summary_new_non_fungible_list_after_burn() {
             NonFungibleGlobalId::new(*address, nf_id_1),
         )
         .build();
-    let (_, execution_summary) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
-fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
+fn dynamic_analysis_new_non_fungible_list_after_mint_and_burn() {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -190,17 +196,19 @@ fn execution_summary_new_non_fungible_list_after_mint_and_burn() {
         )
         .try_deposit_entire_worktop_or_abort(account, None)
         .build();
-    let (_, execution_summary) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 1);
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(*address, nf_id_3)));
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 1);
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(*address, nf_id_3))
+    );
 }
 
 #[test]
-fn execution_summary_new_non_fungible_list_after_update() {
+fn dynamic_analysis_new_non_fungible_list_after_update() {
     // Arrange
     #[derive(Clone, PartialEq, Eq, ScryptoSbor, ManifestSbor)]
     pub struct NfData {
@@ -254,8 +262,8 @@ fn execution_summary_new_non_fungible_list_after_update() {
         .lock_fee_from_faucet()
         .update_non_fungible_data(*address, nf_id_1, "name", "new_data")
         .build();
-    let (_, execution_summary) = ledger.summarize(manifest);
+    let (_, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }

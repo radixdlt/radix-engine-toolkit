@@ -15,12 +15,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_engine::system::bootstrap::*;
 use radix_engine::transaction::*;
 use radix_engine::vm::*;
 use radix_engine_interface::blueprints::consensus_manager::*;
 use radix_engine_toolkit::transaction_types::*;
+use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use scrypto_test::prelude::*;
 
 #[extend::ext]
@@ -55,16 +55,30 @@ where
             panic!("Not commit success: {receipt:?}")
         }
 
-        let manifest_summary =
-            radix_engine_toolkit::transaction_types::summary(&manifest);
-        let execution_summary =
-            radix_engine_toolkit::transaction_types::execution_summary(
-                &manifest,
+        let static_analysis =
+            radix_engine_toolkit::transaction_types::statically_analyze(
+                manifest
+                    .instructions
+                    .iter()
+                    .cloned()
+                    .map(|value| value.into())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
+            );
+        let dynamic_analysis =
+            radix_engine_toolkit::transaction_types::dynamically_analyze(
+                manifest
+                    .instructions
+                    .iter()
+                    .cloned()
+                    .map(|value| value.into())
+                    .collect::<Vec<_>>()
+                    .as_slice(),
                 &RuntimeToolkitTransactionReceipt::try_from(receipt).unwrap(),
             )
             .unwrap();
 
-        (manifest_summary, execution_summary)
+        (static_analysis, dynamic_analysis)
     }
 
     fn new_validator(

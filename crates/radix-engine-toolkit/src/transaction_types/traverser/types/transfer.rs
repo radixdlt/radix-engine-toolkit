@@ -50,13 +50,13 @@ impl TransferDetector {
 impl ManifestSummaryCallback for TransferDetector {
     fn on_instruction(
         &mut self,
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
     ) {
         if instruction_index == 0 {
             self.is_first_instruction_lock_fee = matches!(
                 instruction,
-                InstructionV1::CallMethod(CallMethod {
+                InstructionV2::CallMethod(CallMethod {
                     address,
                     method_name,
                     ..
@@ -79,7 +79,7 @@ impl ManifestSummaryCallback for TransferDetector {
         self.instructions_match_simple_transfer &= (instruction_index == 0
             && matches!(
                 instruction,
-                InstructionV1::CallMethod(CallMethod {
+                InstructionV2::CallMethod(CallMethod {
                     address,
                     method_name,
                     ..
@@ -92,7 +92,7 @@ impl ManifestSummaryCallback for TransferDetector {
                     ])
             ))
             || (instruction_index == offset
-                && matches!(instruction, InstructionV1::CallMethod(CallMethod {
+                && matches!(instruction, InstructionV2::CallMethod(CallMethod {
                     address,
                     method_name,
                     ..
@@ -102,12 +102,12 @@ impl ManifestSummaryCallback for TransferDetector {
             || (instruction_index == 1 + offset
                 && matches!(
                     instruction,
-                    InstructionV1::TakeFromWorktop { .. }
+                    InstructionV2::TakeFromWorktop { .. }
                 ))
             || (instruction_index == 2 + offset
                 && matches!(
                     instruction,
-                    InstructionV1::CallMethod(CallMethod {
+                    InstructionV2::CallMethod(CallMethod {
                         address,
                         method_name,
                         ..
@@ -122,7 +122,7 @@ impl ManifestSummaryCallback for TransferDetector {
         // 2. Whether the instruction contents are allowed.
         self.is_valid &= match instruction {
             /* Maybe Permitted - Need more info */
-            InstructionV1::CallMethod(CallMethod {
+            InstructionV2::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..
@@ -130,41 +130,44 @@ impl ManifestSummaryCallback for TransferDetector {
                 Self::construct_fn_rules(address).is_fn_permitted(method_name)
             }
             /* Not Permitted */
-            InstructionV1::TakeFromWorktop { .. }
-            | InstructionV1::TakeNonFungiblesFromWorktop { .. } => true,
+            InstructionV2::TakeFromWorktop { .. }
+            | InstructionV2::TakeNonFungiblesFromWorktop { .. } => true,
             /* Not Permitted */
-            InstructionV1::TakeAllFromWorktop { .. }
-            | InstructionV1::ReturnToWorktop { .. }
-            | InstructionV1::AssertWorktopContainsAny { .. }
-            | InstructionV1::AssertWorktopContains { .. }
-            | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV1::PopFromAuthZone { .. }
-            | InstructionV1::PushToAuthZone { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs { .. }
-            | InstructionV1::DropAuthZoneRegularProofs { .. }
-            | InstructionV1::DropAuthZoneSignatureProofs { .. }
-            | InstructionV1::CreateProofFromBucketOfAmount { .. }
-            | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromBucketOfAll { .. }
-            | InstructionV1::BurnResource { .. }
-            | InstructionV1::CloneProof { .. }
-            | InstructionV1::DropProof { .. }
-            | InstructionV1::CallFunction { .. }
-            | InstructionV1::CallRoyaltyMethod { .. }
-            | InstructionV1::CallMetadataMethod { .. }
-            | InstructionV1::CallRoleAssignmentMethod { .. }
-            | InstructionV1::CallDirectVaultMethod { .. }
-            | InstructionV1::DropNamedProofs { .. }
-            | InstructionV1::DropAllProofs { .. }
-            | InstructionV1::AllocateGlobalAddress { .. } => false,
+            InstructionV2::TakeAllFromWorktop { .. }
+            | InstructionV2::ReturnToWorktop { .. }
+            | InstructionV2::AssertWorktopContainsAny { .. }
+            | InstructionV2::AssertWorktopContains { .. }
+            | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV2::PopFromAuthZone { .. }
+            | InstructionV2::PushToAuthZone { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAmount { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromAuthZoneOfAll { .. }
+            | InstructionV2::DropAuthZoneProofs { .. }
+            | InstructionV2::DropAuthZoneRegularProofs { .. }
+            | InstructionV2::DropAuthZoneSignatureProofs { .. }
+            | InstructionV2::CreateProofFromBucketOfAmount { .. }
+            | InstructionV2::CreateProofFromBucketOfNonFungibles { .. }
+            | InstructionV2::CreateProofFromBucketOfAll { .. }
+            | InstructionV2::BurnResource { .. }
+            | InstructionV2::CloneProof { .. }
+            | InstructionV2::DropProof { .. }
+            | InstructionV2::CallFunction { .. }
+            | InstructionV2::CallRoyaltyMethod { .. }
+            | InstructionV2::CallMetadataMethod { .. }
+            | InstructionV2::CallRoleAssignmentMethod { .. }
+            | InstructionV2::CallDirectVaultMethod { .. }
+            | InstructionV2::DropNamedProofs { .. }
+            | InstructionV2::DropAllProofs { .. }
+            | InstructionV2::AllocateGlobalAddress { .. }
+            | InstructionV2::YieldToParent(_)
+            | InstructionV2::YieldToChild(_)
+            | InstructionV2::AuthenticateParent(_) => false,
         };
 
         // Determine if the instruction is a transfer instruction.
         self.is_specific_instruction_encountered |=
-            if let InstructionV1::CallMethod(CallMethod {
+            if let InstructionV2::CallMethod(CallMethod {
                 address,
                 method_name,
                 ..

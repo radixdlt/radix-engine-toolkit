@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod manifest_summary {
+pub mod static_analysis {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
@@ -27,9 +27,8 @@ pub mod manifest_summary {
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
-        manifest: &TransactionManifestV1,
+        instructions: &[InstructionV2],
     ) {
-        let TransactionManifestV1 { instructions, .. } = manifest;
         for (instruction_index, instruction) in instructions.iter().enumerate()
         {
             on_instruction(callbacks, instruction, instruction_index);
@@ -39,7 +38,7 @@ pub mod manifest_summary {
 
     pub(super) fn on_instruction(
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
     ) {
         // At the beginning of an instruction, call the on_instruction callback
@@ -67,9 +66,9 @@ pub mod manifest_summary {
 
     fn handle_on_create_proof(
         callbacks: &mut [&mut dyn ManifestSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
     ) {
-        if let InstructionV1::CallMethod(CallMethod {
+        if let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
@@ -130,7 +129,7 @@ pub mod manifest_summary {
     }
 }
 
-pub mod execution_summary {
+pub mod dynamic_analysis {
     use crate::sbor::indexed_manifest_value::*;
     use crate::transaction_types::*;
     use crate::utils::*;
@@ -145,10 +144,9 @@ pub mod execution_summary {
 
     pub fn traverse(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
-        manifest: &TransactionManifestV1,
+        instructions: &[InstructionV2],
         receipt: &TransactionTypesReceipt<'_>,
     ) {
-        let TransactionManifestV1 { instructions, .. } = manifest;
         let mut id_allocator = ManifestIdAllocator::new();
         let mut bucket_tracker = Default::default();
         for (instruction_index, instruction) in instructions.iter().enumerate()
@@ -167,7 +165,7 @@ pub mod execution_summary {
 
     pub(super) fn on_instruction(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
         receipt: &TransactionTypesReceipt<'_>,
@@ -177,7 +175,7 @@ pub mod execution_summary {
         // Calling the on_instruction handler of the `ManifestSummaryCallback`
         // to handle the manifest summary bits of this manifest and then we can
         // move on to the other aspects.
-        super::manifest_summary::on_instruction(
+        super::static_analysis::on_instruction(
             // This is the reason why we need to depend on nightly builds of
             // rust. The manifest summary traverser takes in an array of
             // &mut [&mut dyn ManifestSummaryCallback] and the only way to cast
@@ -228,7 +226,7 @@ pub mod execution_summary {
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
         instructions_count: usize,
     ) {
-        super::manifest_summary::on_finish(
+        super::static_analysis::on_finish(
             // This is the reason why we need to depend on nightly builds of
             // rust. The manifest summary traverser takes in an array of
             // &mut [&mut dyn ManifestSummaryCallback] and the only way to cast
@@ -244,7 +242,7 @@ pub mod execution_summary {
 
     fn handle_on_instruction(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
         receipt: &TransactionTypesReceipt<'_>,
@@ -270,22 +268,24 @@ pub mod execution_summary {
 
             match instruction {
                 /* Sink methods - Input resources into the instruction */
-                InstructionV1::CallFunction(CallFunction { args, .. })
-                | InstructionV1::CallMethod(CallMethod { args, .. })
-                | InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+                InstructionV2::CallFunction(CallFunction { args, .. })
+                | InstructionV2::CallMethod(CallMethod { args, .. })
+                | InstructionV2::CallRoyaltyMethod(CallRoyaltyMethod {
                     args,
                     ..
                 })
-                | InstructionV1::CallMetadataMethod(CallMetadataMethod {
+                | InstructionV2::CallMetadataMethod(CallMetadataMethod {
                     args,
                     ..
                 })
-                | InstructionV1::CallRoleAssignmentMethod(
+                | InstructionV2::CallRoleAssignmentMethod(
                     CallRoleAssignmentMethod { args, .. },
                 )
-                | InstructionV1::CallDirectVaultMethod(
+                | InstructionV2::CallDirectVaultMethod(
                     CallDirectVaultMethod { args, .. },
-                ) => {
+                )
+                | InstructionV2::YieldToParent(YieldToParent { args })
+                | InstructionV2::YieldToChild(YieldToChild { args, .. }) => {
                     let manifest_value = IndexedManifestValue::from_typed(args);
                     let additional_resources = manifest_value
                         .buckets()
@@ -296,8 +296,8 @@ pub mod execution_summary {
                         });
                     inputs.extend(additional_resources)
                 }
-                InstructionV1::BurnResource(BurnResource { bucket_id })
-                | InstructionV1::ReturnToWorktop(ReturnToWorktop {
+                InstructionV2::BurnResource(BurnResource { bucket_id })
+                | InstructionV2::ReturnToWorktop(ReturnToWorktop {
                     bucket_id,
                 }) => {
                     if let Some(resource_indicator) =
@@ -309,32 +309,29 @@ pub mod execution_summary {
                     }
                 }
                 /* Non-sink methods */
-                InstructionV1::TakeAllFromWorktop { .. }
-                | InstructionV1::TakeFromWorktop { .. }
-                | InstructionV1::TakeNonFungiblesFromWorktop { .. }
-                | InstructionV1::AssertWorktopContainsAny { .. }
-                | InstructionV1::AssertWorktopContains { .. }
-                | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-                | InstructionV1::PopFromAuthZone { .. }
-                | InstructionV1::PushToAuthZone { .. }
-                | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
-                | InstructionV1::CreateProofFromAuthZoneOfNonFungibles {
-                    ..
-                }
-                | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-                | InstructionV1::DropAuthZoneProofs { .. }
-                | InstructionV1::DropAuthZoneRegularProofs { .. }
-                | InstructionV1::DropAuthZoneSignatureProofs { .. }
-                | InstructionV1::CreateProofFromBucketOfAmount { .. }
-                | InstructionV1::CreateProofFromBucketOfNonFungibles {
-                    ..
-                }
-                | InstructionV1::CreateProofFromBucketOfAll { .. }
-                | InstructionV1::CloneProof { .. }
-                | InstructionV1::DropProof { .. }
-                | InstructionV1::DropNamedProofs { .. }
-                | InstructionV1::DropAllProofs { .. }
-                | InstructionV1::AllocateGlobalAddress { .. } => { /* No-Op */ }
+                InstructionV2::TakeAllFromWorktop(..)
+                | InstructionV2::TakeFromWorktop(..)
+                | InstructionV2::TakeNonFungiblesFromWorktop(..)
+                | InstructionV2::AssertWorktopContainsAny(..)
+                | InstructionV2::AssertWorktopContains(..)
+                | InstructionV2::AssertWorktopContainsNonFungibles(..)
+                | InstructionV2::PopFromAuthZone(..)
+                | InstructionV2::PushToAuthZone(..)
+                | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
+                | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
+                | InstructionV2::CreateProofFromAuthZoneOfAll(..)
+                | InstructionV2::DropAuthZoneProofs(..)
+                | InstructionV2::DropAuthZoneRegularProofs(..)
+                | InstructionV2::DropAuthZoneSignatureProofs(..)
+                | InstructionV2::CreateProofFromBucketOfAmount(..)
+                | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
+                | InstructionV2::CreateProofFromBucketOfAll(..)
+                | InstructionV2::CloneProof(..)
+                | InstructionV2::DropProof(..)
+                | InstructionV2::DropNamedProofs(..)
+                | InstructionV2::DropAllProofs(..)
+                | InstructionV2::AllocateGlobalAddress(..)
+                | InstructionV2::AuthenticateParent(..) => { /* No-Op */ }
             };
 
             inputs
@@ -362,11 +359,11 @@ pub mod execution_summary {
 
     fn handle_account_withdraws(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
         receipt: &TransactionTypesReceipt<'_>,
     ) {
-        let InstructionV1::CallMethod(CallMethod {
+        let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
@@ -492,13 +489,13 @@ pub mod execution_summary {
 
     fn handle_account_deposits(
         callbacks: &mut [&mut dyn ExecutionSummaryCallback],
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
         receipt: &TransactionTypesReceipt<'_>,
         bucket_tracker: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
-        if let InstructionV1::CallMethod(CallMethod {
+        if let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
             method_name,
             args,
@@ -607,7 +604,7 @@ pub mod execution_summary {
     }
 
     fn handle_buckets(
-        instruction: &InstructionV1,
+        instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
         receipt: &TransactionTypesReceipt<'_>,
@@ -616,7 +613,7 @@ pub mod execution_summary {
     ) {
         match instruction {
             /* Source */
-            InstructionV1::TakeNonFungiblesFromWorktop(
+            InstructionV2::TakeNonFungiblesFromWorktop(
                 TakeNonFungiblesFromWorktop {
                     resource_address,
                     ids,
@@ -633,7 +630,7 @@ pub mod execution_summary {
                     ),
                 );
             }
-            InstructionV1::TakeFromWorktop(TakeFromWorktop {
+            InstructionV2::TakeFromWorktop(TakeFromWorktop {
                 resource_address,
                 amount,
             }) => {
@@ -662,7 +659,7 @@ pub mod execution_summary {
                 };
                 bucket_tracker.insert(bucket, resource_indicator);
             }
-            InstructionV1::TakeAllFromWorktop(TakeAllFromWorktop {
+            InstructionV2::TakeAllFromWorktop(TakeAllFromWorktop {
                 resource_address,
             }) => {
                 let bucket = id_allocator.new_bucket_id();
@@ -704,29 +701,31 @@ pub mod execution_summary {
                 bucket_tracker.insert(bucket, resource_indicator);
             }
             /* Sink */
-            InstructionV1::ReturnToWorktop(ReturnToWorktop { bucket_id })
-            | InstructionV1::BurnResource(BurnResource { bucket_id }) => {
+            InstructionV2::ReturnToWorktop(ReturnToWorktop { bucket_id })
+            | InstructionV2::BurnResource(BurnResource { bucket_id }) => {
                 // TODO: Do we want to check that the bucket was actually
                 // present and then removed?
                 bucket_tracker.swap_remove(bucket_id);
             }
-            InstructionV1::CallFunction(CallFunction { args, .. })
-            | InstructionV1::CallMethod(CallMethod { args, .. })
-            | InstructionV1::CallRoyaltyMethod(CallRoyaltyMethod {
+            InstructionV2::CallFunction(CallFunction { args, .. })
+            | InstructionV2::CallMethod(CallMethod { args, .. })
+            | InstructionV2::CallRoyaltyMethod(CallRoyaltyMethod {
                 args,
                 ..
             })
-            | InstructionV1::CallMetadataMethod(CallMetadataMethod {
+            | InstructionV2::CallMetadataMethod(CallMetadataMethod {
                 args,
                 ..
             })
-            | InstructionV1::CallRoleAssignmentMethod(
+            | InstructionV2::CallRoleAssignmentMethod(
                 CallRoleAssignmentMethod { args, .. },
             )
-            | InstructionV1::CallDirectVaultMethod(CallDirectVaultMethod {
+            | InstructionV2::CallDirectVaultMethod(CallDirectVaultMethod {
                 args,
                 ..
-            }) => {
+            })
+            | InstructionV2::YieldToParent(YieldToParent { args })
+            | InstructionV2::YieldToChild(YieldToChild { args, .. }) => {
                 let manifest_value = IndexedManifestValue::from_typed(args);
                 for bucket in manifest_value.buckets() {
                     // TODO: Do we want to check that the bucket was actually
@@ -735,25 +734,26 @@ pub mod execution_summary {
                 }
             }
             /* Neither */
-            InstructionV1::AssertWorktopContainsAny { .. }
-            | InstructionV1::AssertWorktopContains { .. }
-            | InstructionV1::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV1::PopFromAuthZone { .. }
-            | InstructionV1::PushToAuthZone { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAmount { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromAuthZoneOfAll { .. }
-            | InstructionV1::DropAuthZoneProofs { .. }
-            | InstructionV1::DropAuthZoneRegularProofs { .. }
-            | InstructionV1::DropAuthZoneSignatureProofs { .. }
-            | InstructionV1::CreateProofFromBucketOfAmount { .. }
-            | InstructionV1::CreateProofFromBucketOfNonFungibles { .. }
-            | InstructionV1::CreateProofFromBucketOfAll { .. }
-            | InstructionV1::CloneProof { .. }
-            | InstructionV1::DropProof { .. }
-            | InstructionV1::DropNamedProofs { .. }
-            | InstructionV1::DropAllProofs { .. }
-            | InstructionV1::AllocateGlobalAddress { .. } => { /* No-op */ }
+            InstructionV2::AssertWorktopContainsAny(..)
+            | InstructionV2::AssertWorktopContains(..)
+            | InstructionV2::AssertWorktopContainsNonFungibles(..)
+            | InstructionV2::PopFromAuthZone(..)
+            | InstructionV2::PushToAuthZone(..)
+            | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
+            | InstructionV2::CreateProofFromAuthZoneOfNonFungibles(..)
+            | InstructionV2::CreateProofFromAuthZoneOfAll(..)
+            | InstructionV2::DropAuthZoneProofs(..)
+            | InstructionV2::DropAuthZoneRegularProofs(..)
+            | InstructionV2::DropAuthZoneSignatureProofs(..)
+            | InstructionV2::CreateProofFromBucketOfAmount(..)
+            | InstructionV2::CreateProofFromBucketOfNonFungibles(..)
+            | InstructionV2::CreateProofFromBucketOfAll(..)
+            | InstructionV2::CloneProof(..)
+            | InstructionV2::DropProof(..)
+            | InstructionV2::DropNamedProofs(..)
+            | InstructionV2::DropAllProofs(..)
+            | InstructionV2::AllocateGlobalAddress(..)
+            | InstructionV2::AuthenticateParent(..) => { /* No-op */ }
         }
     }
 

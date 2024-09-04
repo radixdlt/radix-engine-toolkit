@@ -393,7 +393,7 @@ impl<'r> TransactionTypesReceipt<'r> {
                 *resource_address,
                 non_fungible_local_id.clone(),
             ))
-            .map(|value| value.clone())
+            .cloned()
     }
 
     pub fn fee_locks(&self) -> FeeLocks {

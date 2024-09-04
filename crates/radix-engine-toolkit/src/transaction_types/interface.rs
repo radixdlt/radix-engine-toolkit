@@ -29,7 +29,7 @@ use crate::transaction_types::*;
 use super::error::*;
 use super::types::*;
 
-pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
+pub fn statically_analyze(instructions: &[InstructionV2]) -> ManifestSummary {
     // Settings up the various detectors
     let mut presented_proofs_detector = PresentedProofsDetector::default();
     let mut encountered_entities_detector =
@@ -51,7 +51,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::manifest_summary::traverse(
+    traverser::static_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -67,7 +67,7 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
         ],
-        manifest,
+        instructions,
     );
 
     // Extracting the data out of the detectors and into the ManifestSummary
@@ -129,12 +129,12 @@ pub fn summary(manifest: &TransactionManifestV1) -> ManifestSummary {
     }
 }
 
-pub fn execution_summary(
-    manifest: &TransactionManifestV1,
+pub fn dynamically_analyze(
+    instructions: &[InstructionV2],
     receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<ExecutionSummary, TransactionTypesError> {
     // Attempt to create a tx types receipt from the passed receipt
-    let receipt = TransactionTypesReceipt::new(&receipt)
+    let receipt = TransactionTypesReceipt::new(receipt)
         .ok_or(TransactionTypesError::InvalidReceipt)?;
 
     // Settings up the various detectors
@@ -159,7 +159,7 @@ pub fn execution_summary(
         AccountSettingsUpdateDetector::default();
 
     // Traversing the manifest with the passed detectors
-    traverser::execution_summary::traverse(
+    traverser::dynamic_analysis::traverse(
         &mut [
             &mut presented_proofs_detector,
             &mut encountered_entities_detector,
@@ -175,7 +175,7 @@ pub fn execution_summary(
             &mut validator_claim_detector,
             &mut accounts_settings_detector,
         ],
-        manifest,
+        instructions,
         &receipt,
     );
 

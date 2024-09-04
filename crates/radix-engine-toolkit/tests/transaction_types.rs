@@ -55,16 +55,16 @@ fn empty_manifest_matches_none_of_the_transaction_types() {
     let manifest = ManifestBuilder::new().build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.classification.len(), 0);
-    assert_eq!(execution_summary.detailed_classification.len(), 0);
+    assert_eq!(static_analysis.classification.len(), 0);
+    assert_eq!(dynamic_analysis.detailed_classification.len(), 0);
 }
 
 #[test]
-fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction(
-) {
+fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruction()
+ {
     // Arrange
     let mut ledger =
         LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -80,17 +80,17 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -98,41 +98,35 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![ReservedInstruction::AccountLockFee]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         2
     );
 
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::Transfer, ManifestClass::General]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
@@ -140,26 +134,26 @@ fn lock_fee_still_keeps_the_transfer_classification_but_adds_a_reserved_instruct
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        &execution_summary.detailed_classification[0],
+        &dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::Transfer {
             is_one_to_one: true
         }
     ));
     assert!(matches!(
-        execution_summary.detailed_classification[1],
+        dynamic_analysis.detailed_classification[1],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -178,17 +172,17 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -196,41 +190,35 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         2
     );
 
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::Transfer, ManifestClass::General]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
@@ -238,26 +226,26 @@ fn simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::Transfer {
             is_one_to_one: true
         }
     ));
     assert!(matches!(
-        execution_summary.detailed_classification[1],
+        dynamic_analysis.detailed_classification[1],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -279,17 +267,17 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -297,41 +285,35 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         2
     );
 
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
     assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::Transfer, ManifestClass::General]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
@@ -340,7 +322,7 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10))),
@@ -348,19 +330,19 @@ fn non_simple_transfer_satisfies_the_transfer_and_general_transaction_types() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::Transfer {
             is_one_to_one: false
         }
     ));
     assert!(matches!(
-        execution_summary.detailed_classification[1],
+        dynamic_analysis.detailed_classification[1],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -379,17 +361,17 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -397,38 +379,32 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         0
     );
 
-    assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(manifest_summary.classification, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
+    assert_eq!(static_analysis.classification, indexset![]);
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
@@ -436,16 +412,16 @@ fn transfers_with_try_deposit_or_refund_are_invalid() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -465,17 +441,17 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -483,38 +459,32 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![ReservedInstruction::AccountLockFee]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         0
     );
 
-    assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(manifest_summary.classification, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
+    assert_eq!(static_analysis.classification, indexset![]);
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
@@ -522,16 +492,16 @@ fn lock_fee_is_recognized_as_a_reserved_instruction1() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -550,17 +520,17 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account1),
             GlobalAddress::from(XRD),
@@ -568,38 +538,32 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![ReservedInstruction::AccountLockFee]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         0
     );
 
-    assert_eq!(
-        manifest_summary.accounts_withdrawn_from,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account2]
-    );
-    assert_eq!(manifest_summary.classification, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account1]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account2]);
+    assert_eq!(static_analysis.classification, indexset![]);
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
@@ -607,16 +571,16 @@ fn lock_fee_is_recognized_as_a_reserved_instruction2() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account2 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10)))
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -634,17 +598,17 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(FAUCET),
             GlobalAddress::from(XRD),
@@ -652,52 +616,49 @@ fn faucet_fee_xrd_is_recognized_as_a_general_transaction() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
     assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
 
-    assert!(execution_summary.account_withdraws.is_empty());
+    assert!(dynamic_analysis.account_withdraws.is_empty());
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -715,17 +676,17 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(FAUCET),
             GlobalAddress::from(XRD),
@@ -733,52 +694,49 @@ fn account_deposit_is_recognized_as_a_method_that_requires_auth() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
     assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
 
-    assert!(execution_summary.account_withdraws.is_empty());
+    assert!(dynamic_analysis.account_withdraws.is_empty());
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Guaranteed(dec!(10_000))),
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -795,66 +753,63 @@ fn account_deposit_batch_is_recognized_as_a_method_that_requires_auth() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![GlobalAddress::from(FAUCET), GlobalAddress::from(account1),]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
     assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
 
-    assert!(execution_summary.account_withdraws.is_empty());
+    assert!(dynamic_analysis.account_withdraws.is_empty());
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -872,17 +827,17 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(FAUCET),
             GlobalAddress::from(XRD),
@@ -890,52 +845,49 @@ fn instruction_index_of_predicted_bucket_is_its_creation_instruction() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account1]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account1]);
     assert_eq!(
-        manifest_summary.accounts_deposited_into,
-        indexset![account1]
-    );
-    assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
 
-    assert!(execution_summary.account_withdraws.is_empty());
+    assert!(dynamic_analysis.account_withdraws.is_empty());
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account1 => vec![
                 ResourceIndicator::Fungible(XRD, FungibleResourceIndicator::Predicted(Predicted { value: dec!(10_000), instruction_index: 1 })),
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert!(matches!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::General
     ));
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -998,15 +950,15 @@ fn pool_contribution_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(resource1),
@@ -1019,35 +971,35 @@ fn pool_contribution_transactions_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::PoolContribution]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 /* One pool contribution */
@@ -1085,7 +1037,7 @@ fn pool_contribution_transactions_are_recognized() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 /* One Pool Units */
@@ -1121,12 +1073,14 @@ fn pool_contribution_transactions_are_recognized() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [DetailedManifestClass::PoolContribution {
-        pool_addresses,
-        pool_contributions,
-    }] = execution_summary.detailed_classification.as_slice()
+    let [
+        DetailedManifestClass::PoolContribution {
+            pool_addresses,
+            pool_contributions,
+        },
+    ] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1168,7 +1122,7 @@ fn pool_contribution_transactions_are_recognized() {
         ]
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1209,15 +1163,15 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(resource1),
@@ -1228,35 +1182,35 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::PoolContribution]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1295,7 +1249,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1346,12 +1300,14 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [DetailedManifestClass::PoolContribution {
-        pool_addresses,
-        pool_contributions,
-    }] = execution_summary.detailed_classification.as_slice()
+    let [
+        DetailedManifestClass::PoolContribution {
+            pool_addresses,
+            pool_contributions,
+        },
+    ] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1384,7 +1340,7 @@ fn multi_resource_pool_contribution_with_change_is_correctly_handled() {
         ]
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1489,15 +1445,15 @@ fn pool_redemption_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(one_pool_unit),
@@ -1509,35 +1465,35 @@ fn pool_redemption_transactions_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::PoolRedemption]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1556,7 +1512,7 @@ fn pool_redemption_transactions_are_recognized() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 /* One pool contribution */
@@ -1599,12 +1555,14 @@ fn pool_redemption_transactions_are_recognized() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 
-    let [DetailedManifestClass::PoolRedemption {
-        pool_addresses,
-        pool_redemptions,
-    }] = execution_summary.detailed_classification.as_slice()
+    let [
+        DetailedManifestClass::PoolRedemption {
+            pool_addresses,
+            pool_redemptions,
+        },
+    ] = dynamic_analysis.detailed_classification.as_slice()
     else {
         panic!("Unexpected contents")
     };
@@ -1646,7 +1604,7 @@ fn pool_redemption_transactions_are_recognized() {
         ]
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1669,17 +1627,17 @@ fn validator_stake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(XRD),
@@ -1688,35 +1646,35 @@ fn validator_stake_transactions_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::ValidatorStake]
     );
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1727,7 +1685,7 @@ fn validator_stake_transactions_are_recognized() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1745,9 +1703,9 @@ fn validator_stake_transactions_are_recognized() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::ValidatorStake {
             validator_addresses: indexset![validator1, validator2],
             validator_stakes: vec![
@@ -1767,7 +1725,7 @@ fn validator_stake_transactions_are_recognized() {
         }
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -1808,17 +1766,17 @@ fn validator_unstake_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(stake_unit1),
@@ -1828,30 +1786,30 @@ fn validator_unstake_transactions_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::ValidatorUnstake]
     );
 
@@ -1865,7 +1823,7 @@ fn validator_unstake_transactions_are_recognized() {
     .unwrap();
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -1880,7 +1838,7 @@ fn validator_unstake_transactions_are_recognized() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 ResourceIndicator::NonFungible(
@@ -1916,9 +1874,9 @@ fn validator_unstake_transactions_are_recognized() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::ValidatorUnstake {
             validator_addresses: indexset![validator1, validator2],
             validator_unstakes: vec![
@@ -1958,13 +1916,17 @@ fn validator_unstake_transactions_are_recognized() {
         }
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 2);
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1)));
-    assert!(execution_summary
-        .newly_created_non_fungibles
-        .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2)));
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 2);
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(claim_nft1, nf_id_local_1))
+    );
+    assert!(
+        dynamic_analysis
+            .newly_created_non_fungibles
+            .contains(&NonFungibleGlobalId::new(claim_nft2, nf_id_local_2))
+    );
 }
 
 #[test]
@@ -2034,17 +1996,17 @@ fn validator_claim_transactions_are_recognized() {
         .build();
 
     // Act
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(claim_nft1),
@@ -2054,30 +2016,30 @@ fn validator_claim_transactions_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![account]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::ValidatorClaim]
     );
 
@@ -2091,7 +2053,7 @@ fn validator_claim_transactions_are_recognized() {
     .unwrap();
 
     assert_eq!(
-        execution_summary.account_withdraws,
+        dynamic_analysis.account_withdraws,
         indexmap! {
             account => vec![
                 ResourceIndicator::NonFungible(
@@ -2122,7 +2084,7 @@ fn validator_claim_transactions_are_recognized() {
         }
     );
     assert_eq!(
-        execution_summary.account_deposits,
+        dynamic_analysis.account_deposits,
         indexmap! {
             account => vec![
                 ResourceIndicator::Fungible(
@@ -2137,9 +2099,9 @@ fn validator_claim_transactions_are_recognized() {
             ]
         }
     );
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::ValidatorClaim {
             validator_addresses: indexset![validator1, validator2],
             validator_claims: vec![
@@ -2159,7 +2121,7 @@ fn validator_claim_transactions_are_recognized() {
         }
     );
 
-    assert_eq!(execution_summary.newly_created_non_fungibles.len(), 0);
+    assert_eq!(dynamic_analysis.newly_created_non_fungibles.len(), 0);
 }
 
 #[test]
@@ -2230,16 +2192,16 @@ fn account_deposit_settings_changes_are_recognized() {
             },
         )
         .build();
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         0
     );
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(account),
             GlobalAddress::from(XRD),
@@ -2249,37 +2211,37 @@ fn account_deposit_settings_changes_are_recognized() {
         ]
     );
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
     assert_eq_three!(
-        manifest_summary.reserved_instructions,
-        execution_summary.reserved_instructions,
+        static_analysis.reserved_instructions,
+        dynamic_analysis.reserved_instructions,
         indexset![ReservedInstruction::AccountUpdateSettings]
     );
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
 
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![]);
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![]);
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::AccountDepositSettingsUpdate]
     );
-    assert!(execution_summary.account_withdraws.is_empty());
-    assert!(execution_summary.account_deposits.is_empty());
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert!(dynamic_analysis.account_withdraws.is_empty());
+    assert!(dynamic_analysis.account_deposits.is_empty());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
     assert_eq!(
-        execution_summary.detailed_classification[0],
+        dynamic_analysis.detailed_classification[0],
         DetailedManifestClass::AccountDepositSettingsUpdate {
             resource_preferences_updates: indexmap! {
                 account => indexmap! {
@@ -2323,12 +2285,12 @@ fn presented_proofs_fungible() {
         .create_proof_from_account_of_amount(account_1, address_1, 80)
         .create_proof_from_account_of_amount(account_2, address_3, 5)
         .build();
-    let (manifest_summary, _) = ledger.summarize(manifest);
+    let (static_analysis, _) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.presented_proofs.len(), 2);
+    assert_eq!(static_analysis.presented_proofs.len(), 2);
     let account_1_proofs =
-        manifest_summary.presented_proofs.get(&account_1).unwrap();
+        static_analysis.presented_proofs.get(&account_1).unwrap();
     assert_eq!(account_1_proofs.len(), 3);
     assert_eq!(
         account_1_proofs[0],
@@ -2343,7 +2305,7 @@ fn presented_proofs_fungible() {
         ResourceSpecifier::Amount(address_1, dec!(80))
     );
     let account_2_proofs =
-        manifest_summary.presented_proofs.get(&account_2).unwrap();
+        static_analysis.presented_proofs.get(&account_2).unwrap();
     assert_eq!(account_2_proofs.len(), 2);
     assert_eq!(
         account_2_proofs[0],
@@ -2403,12 +2365,12 @@ fn presented_proofs_non_fungible() {
             [NonFungibleLocalId::integer(2)],
         )
         .build();
-    let (manifest_summary, _) = ledger.summarize(manifest);
+    let (static_analysis, _) = ledger.summarize(manifest);
 
     // Assert
-    assert_eq!(manifest_summary.presented_proofs.len(), 2);
+    assert_eq!(static_analysis.presented_proofs.len(), 2);
     let account_1_proofs =
-        manifest_summary.presented_proofs.get(&account_1).unwrap();
+        static_analysis.presented_proofs.get(&account_1).unwrap();
     assert_eq!(account_1_proofs.len(), 3);
     assert_eq!(
         account_1_proofs[0],
@@ -2436,7 +2398,7 @@ fn presented_proofs_non_fungible() {
         )
     );
     let account_2_proofs =
-        manifest_summary.presented_proofs.get(&account_2).unwrap();
+        static_analysis.presented_proofs.get(&account_2).unwrap();
     assert_eq!(account_2_proofs.len(), 2);
     assert_eq!(
         account_2_proofs[0],
@@ -2602,25 +2564,25 @@ fn account_locker_is_recognized_as_general_transaction() {
         })
         .deposit_entire_worktop(account)
         .build();
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
     assert_eq_three!(
-        manifest_summary.presented_proofs.len(),
-        execution_summary.presented_proofs.len(),
+        static_analysis.presented_proofs.len(),
+        dynamic_analysis.presented_proofs.len(),
         1
     );
     let account_proofs =
-        manifest_summary.presented_proofs.get(&account).unwrap();
+        static_analysis.presented_proofs.get(&account).unwrap();
     assert_eq!(account_proofs.len(), 1);
     assert_eq!(
         account_proofs[0],
@@ -2628,8 +2590,8 @@ fn account_locker_is_recognized_as_general_transaction() {
     );
 
     assert_eq_three!(
-        manifest_summary.encountered_entities,
-        execution_summary.encountered_entities,
+        static_analysis.encountered_entities,
+        dynamic_analysis.encountered_entities,
         indexset![
             GlobalAddress::from(FAUCET),
             GlobalAddress::from(account),
@@ -2640,23 +2602,23 @@ fn account_locker_is_recognized_as_general_transaction() {
     );
 
     assert_eq_three!(
-        manifest_summary.accounts_requiring_auth,
-        execution_summary.accounts_requiring_auth,
+        static_analysis.accounts_requiring_auth,
+        dynamic_analysis.accounts_requiring_auth,
         indexset![account]
     );
     assert_eq_three!(
-        manifest_summary.identities_requiring_auth,
-        execution_summary.identities_requiring_auth,
+        static_analysis.identities_requiring_auth,
+        dynamic_analysis.identities_requiring_auth,
         indexset![]
     );
 
-    assert!(execution_summary.account_withdraws.is_empty());
-    assert_eq!(manifest_summary.accounts_withdrawn_from, indexset![]);
+    assert!(dynamic_analysis.account_withdraws.is_empty());
+    assert_eq!(static_analysis.accounts_withdrawn_from, indexset![]);
 
-    assert_eq!(manifest_summary.accounts_deposited_into.len(), 1);
-    assert_eq!(manifest_summary.accounts_deposited_into, indexset![account]);
+    assert_eq!(static_analysis.accounts_deposited_into.len(), 1);
+    assert_eq!(static_analysis.accounts_deposited_into, indexset![account]);
 
-    assert_eq!(execution_summary.new_entities, NewEntities::default());
+    assert_eq!(dynamic_analysis.new_entities, NewEntities::default());
 }
 
 #[test]
@@ -2668,18 +2630,18 @@ fn lock_fee_manifest_has_no_classification_except_general() {
 
     // Act
     let manifest = ManifestBuilder::new().lock_fee(account, 10).build();
-    let (manifest_summary, execution_summary) = ledger.summarize(manifest);
+    let (static_analysis, dynamic_analysis) = ledger.summarize(manifest);
 
-    println!("{:#?}", manifest_summary.classification);
+    println!("{:#?}", static_analysis.classification);
 
     // Assert
     assert_eq_three!(
-        manifest_summary.classification.len(),
-        execution_summary.detailed_classification.len(),
+        static_analysis.classification.len(),
+        dynamic_analysis.detailed_classification.len(),
         1
     );
     assert_eq!(
-        manifest_summary.classification,
+        static_analysis.classification,
         indexset![ManifestClass::General]
     );
 }

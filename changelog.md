@@ -13,3 +13,5 @@ This changelog captures the changes made to the toolkit between releases.
 * Renamed all `compile` and `decompile` functions in `instruction`, `manifest`, `intent`, `signed_intent`, and `notarized_transaction` functions to `to_payload_bytes` and `from_payload_bytes` respectively.
 * Added a new `transaction_v2` namespace with the modules `instructions`, `manifest`, `intent_core`, `subintent`, `signed_transaction_intent`, `transaction_intent`, `notarized_transaction` with functions for transactions v2.
 * Removed the `modify` manifest function since it was unused by the toolkit's main clients.
+* Renamed the `summary` function to `statically_analyze`.
+* Renamed the `execution_summary` function to `dynamically_analyze`.
