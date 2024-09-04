@@ -47,6 +47,10 @@ pub fn statically_validate(
     todo!()
 }
 
+pub fn is_enclosed(_manifest: &TransactionManifestV2) -> bool {
+    todo!()
+}
+
 pub fn statically_analyze(
     _manifest: &TransactionManifestV2,
 ) -> ManifestSummary {
