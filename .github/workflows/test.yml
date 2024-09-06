@@ -67,7 +67,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-2024-07-30
+        toolchain: stable
         default: true
         components: rustfmt
     - name: Check formatting
