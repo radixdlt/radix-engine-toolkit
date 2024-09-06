@@ -199,6 +199,72 @@ pub fn value_with_two_address_of_the_differing_networks_has_a_network_mismatch()
     assert!(contains_network_mismatch)
 }
 
+#[test]
+pub fn enum_with_string_variant_id_can_be_deserialized() {
+    // Arrange
+    let value = r#"
+    {
+        "kind": "Enum",
+        "variant_id": "10",
+        "fields": []
+    }
+    "#;
+
+    // Act
+    let value = serde_json::from_str::<ProgrammaticScryptoValue>(&value);
+
+    // Assert
+    assert!(matches!(
+        value,
+        Ok(ProgrammaticScryptoValue::Enum {
+            discriminator: 10,
+            fields,
+        }) if fields.is_empty()
+    ))
+}
+
+#[test]
+pub fn enum_with_numeric_variant_id_can_be_deserialized() {
+    // Arrange
+    let value = r#"
+    {
+        "kind": "Enum",
+        "variant_id": 10,
+        "fields": []
+    }
+    "#;
+
+    // Act
+    let value = serde_json::from_str::<ProgrammaticScryptoValue>(&value);
+
+    // Assert
+    assert!(matches!(
+        value,
+        Ok(ProgrammaticScryptoValue::Enum {
+            discriminator: 10,
+            fields,
+        }) if fields.is_empty()
+    ))
+}
+
+#[test]
+pub fn enum_is_serialized_with_string_variant_id() {
+    // Arrange
+    let value = ProgrammaticScryptoValue::Enum {
+        discriminator: 10,
+        fields: vec![],
+    };
+
+    // Act
+    let value = serde_json::to_value(&value);
+
+    // Assert
+    assert_eq!(
+        value.unwrap().get("variant_id").unwrap().as_str().unwrap(),
+        "10"
+    )
+}
+
 /// Tests that the programmatic JSON representation from the
 /// radixdlt/radixdlt-scrypto repo and the one in this repo match.
 pub fn programmatic_json_representations_match<T>(object: &T)

@@ -76,7 +76,10 @@ pub enum ProgrammaticScryptoValue {
     },
     Enum {
         #[serde(rename = "variant_id")]
-        #[serde_as(as = "serde_with::DisplayFromStr")]
+        // TODO: Revert back once the gateway is past the transition phase.
+        // #[serde_as(as = "serde_with::DisplayFromStr")]
+        #[serde(serialize_with = "serialize_enum_discriminator")]
+        #[serde(deserialize_with = "deserialize_enum_discriminator")]
         discriminator: u8,
         fields: Vec<ProgrammaticScryptoValue>,
     },
@@ -416,5 +419,32 @@ impl ProgrammaticScryptoValue {
                 value: value.clone(),
             },
         }
+    }
+}
+
+fn serialize_enum_discriminator<S>(
+    value: &u8,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::ser::Serializer,
+{
+    serializer.serialize_str(&value.to_string())
+}
+
+fn deserialize_enum_discriminator<'de, D>(
+    deserializer: D,
+) -> Result<u8, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    match serde_json::Value::deserialize(deserializer)? {
+        serde_json::Value::Number(number) => number
+            .as_u64()
+            .and_then(|value| u8::try_from(value).ok())
+            .ok_or(serde::de::Error::custom("Not a valid number")),
+        serde_json::Value::String(string) => u8::from_str(&string)
+            .map_err(|_| serde::de::Error::custom("Not a valid number")),
+        _ => Err(serde::de::Error::custom("Neither a number nor a string")),
     }
 }
