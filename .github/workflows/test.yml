@@ -33,7 +33,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-nightly-2024-07-30
+        toolchain: nightly-2024-07-30
         default: true
         components: rustfmt, clippy
     - name: Install cargo nextest
@@ -67,7 +67,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-nightly-2024-07-30
+        toolchain: nightly-2024-07-30
         default: true
         components: rustfmt
     - name: Check formatting
@@ -79,7 +79,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-nightly-2024-07-30
+        toolchain: nightly-2024-07-30
         default: true
         profile: minimal
     - name: Cargo Check
@@ -91,7 +91,7 @@ jobs:
     - name: Install Rust Toolchain
       uses: RDXWorks-actions/toolchain@master
       with:
-        toolchain: nightly-nightly-2024-07-30
+        toolchain: nightly-2024-07-30
         default: true
         components: rustfmt, clippy
     - name: Clippy Check
