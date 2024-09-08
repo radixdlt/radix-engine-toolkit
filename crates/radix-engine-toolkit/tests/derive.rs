@@ -145,8 +145,7 @@ fn olympia_address_can_be_derived_from_public_key() {
 #[test]
 fn node_address_can_be_derived_from_public_key() {
     // Arrange
-    let expected_node_address =
-        "node_tdx_21_1qfk895krd3l8t8z7z7p9sxpjdszpal24f6y2sjtqe7mdkhdele5az658ak2";
+    let expected_node_address = "node_tdx_21_1qfk895krd3l8t8z7z7p9sxpjdszpal24f6y2sjtqe7mdkhdele5az658ak2";
     let public_key =
         "026c72d2c36c7e759c5e17825818326c041efd554e88a84960cfb6db5db9fe69d1"
             .parse::<Secp256k1PublicKey>()

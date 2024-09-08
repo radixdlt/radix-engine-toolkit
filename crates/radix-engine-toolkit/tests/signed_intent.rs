@@ -53,12 +53,16 @@ fn signed_intent_can_be_compiled_and_later_decompiled() {
     // Arrange
     let signed_intent = test_data::signed_intent();
     let compiled =
-        radix_engine_toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(&signed_intent)
-            .unwrap();
+        radix_engine_toolkit::functions::transaction_v1::signed_intent::to_payload_bytes(
+            &signed_intent,
+        )
+        .unwrap();
 
     // Act
     let decompiled =
-        radix_engine_toolkit::functions::transaction_v1::signed_intent::from_payload_bytes(compiled);
+        radix_engine_toolkit::functions::transaction_v1::signed_intent::from_payload_bytes(
+            compiled,
+        );
 
     // Assert
     assert!(decompiled.is_ok());

@@ -24,9 +24,10 @@ fn notarized_transaction_hash_can_be_obtained() {
     let transaction = test_data::notarized_transaction();
 
     // Act
-    let hash = radix_engine_toolkit::functions::transaction_v1::notarized_transaction::hash(
-        &transaction,
-    );
+    let hash =
+        radix_engine_toolkit::functions::transaction_v1::notarized_transaction::hash(
+            &transaction,
+        );
 
     // Assert
     assert!(hash.is_ok())

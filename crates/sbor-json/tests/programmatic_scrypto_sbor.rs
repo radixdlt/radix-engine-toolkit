@@ -76,8 +76,8 @@ serialization_tests! {
 }
 
 #[test]
-pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model(
-) {
+pub fn payload_serialized_with_schema_can_be_deserialized_as_no_schema_programmatic_json_model()
+ {
     // Arrange
     let value = MyEnum::VariantWithFieldNames { field: 1 };
     let payload = scrypto_encode(&value).unwrap();
@@ -232,8 +232,7 @@ where
 
     // Assert
     assert_eq!(
-        actual,
-        expected,
+        actual, expected,
         "The serialization of \"{object:?}\" produced different programmatic JSON representations:\nExpected: \"{expected:?}\"\nActual:   \"{actual:?}\""
     )
 }
