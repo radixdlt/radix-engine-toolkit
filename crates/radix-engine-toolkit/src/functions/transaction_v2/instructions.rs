@@ -43,12 +43,6 @@ where
     manifest_decode(payload_bytes.as_ref())
 }
 
-pub fn statically_validate(
-    _instructions: &[InstructionV2],
-) -> Result<(), InstructionValidationError> {
-    todo!("")
-}
-
 pub fn extract_addresses(
     instructions: &[InstructionV2],
 ) -> (HashSet<TypedNodeId>, HashSet<ManifestNamedAddress>) {

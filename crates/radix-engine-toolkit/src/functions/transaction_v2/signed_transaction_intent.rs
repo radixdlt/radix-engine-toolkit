@@ -15,9 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::errors::*;
 use radix_transactions::model::*;
-use radix_transactions::validation::*;
 use sbor::*;
 use scrypto::prelude::*;
 
@@ -54,11 +52,4 @@ where
     T: AsRef<[u8]>,
 {
     SignedTransactionIntentV2::from_payload_bytes(payload_bytes.as_ref())
-}
-
-pub fn statically_validate(
-    _transaction_intent: &SignedTransactionIntentV2,
-    _validation_config: ValidationConfig,
-) -> Result<(), TransactionValidationError> {
-    todo!()
 }

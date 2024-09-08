@@ -16,9 +16,7 @@
 // under the License.
 
 use radix_common::prelude::*;
-use radix_transactions::errors::*;
 use radix_transactions::prelude::*;
-use radix_transactions::validation::*;
 
 pub fn hash(intent_core: &IntentCoreV2) -> Result<Hash, EncodeError> {
     to_payload_bytes(intent_core).map(scrypto::prelude::hash)
@@ -37,11 +35,4 @@ where
     T: AsRef<[u8]>,
 {
     manifest_decode(payload_bytes.as_ref())
-}
-
-pub fn statically_validate(
-    _intent_core: &IntentCoreV2,
-    _validation_config: ValidationConfig,
-) -> Result<(), TransactionValidationError> {
-    todo!()
 }

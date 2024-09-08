@@ -17,7 +17,6 @@
 
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
-use radix_transactions::errors::*;
 use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
@@ -41,23 +40,35 @@ where
     manifest_decode(payload_bytes.as_ref())
 }
 
-pub fn statically_validate(
-    _manifest: &TransactionManifestV2,
-) -> Result<(), TransactionValidationError> {
-    todo!()
+pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {
+    let [
+        InstructionV2::AssertWorktopIsEmpty(..),
+        other_instructions @ ..,
+        InstructionV2::YieldToParent(..),
+    ] = manifest.instructions.as_slice()
+    else {
+        return false;
+    };
+    !other_instructions.iter().any(|instruction| {
+        matches!(
+            instruction,
+            InstructionV2::YieldToChild(..) | InstructionV2::YieldToParent(..)
+        )
+    })
 }
 
-pub fn is_enclosed(_manifest: &TransactionManifestV2) -> bool {
-    todo!()
-}
-
-pub fn statically_analyze(_manifest: &TransactionManifestV2) -> StaticAnalysis {
-    todo!()
+pub fn statically_analyze(
+    manifest: &TransactionManifestV2,
+) -> Option<StaticAnalysis> {
+    crate::transaction_types::statically_analyze(&manifest.instructions)
 }
 
 pub fn dynamically_analyze(
-    _manifest: &TransactionManifestV2,
-    _receipt: &RuntimeToolkitTransactionReceipt,
+    manifest: &TransactionManifestV2,
+    receipt: &RuntimeToolkitTransactionReceipt,
 ) -> Result<DynamicAnalysis, TransactionTypesError> {
-    todo!()
+    crate::transaction_types::dynamically_analyze(
+        &manifest.instructions,
+        receipt,
+    )
 }

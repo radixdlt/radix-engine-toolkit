@@ -58,8 +58,13 @@ where
 }
 
 pub fn statically_validate(
-    _transaction_intent: &NotarizedTransactionV2,
-    _validation_config: ValidationConfig,
+    notarized_transaction: &NotarizedTransactionV2,
+    validation_config: ValidationConfig,
 ) -> Result<(), TransactionValidationError> {
-    todo!()
+    let validator = NotarizedTransactionValidatorV2::new(validation_config);
+    notarized_transaction
+        .prepare()
+        .map_err(TransactionValidationError::PrepareError)
+        .and_then(|prepared| validator.validate(prepared))
+        .map(|_| ())
 }
