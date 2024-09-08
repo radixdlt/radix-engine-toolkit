@@ -51,15 +51,13 @@ pub fn is_enclosed(_manifest: &TransactionManifestV2) -> bool {
     todo!()
 }
 
-pub fn statically_analyze(
-    _manifest: &TransactionManifestV2,
-) -> ManifestSummary {
+pub fn statically_analyze(_manifest: &TransactionManifestV2) -> StaticAnalysis {
     todo!()
 }
 
 pub fn dynamically_analyze(
     _manifest: &TransactionManifestV2,
     _receipt: &RuntimeToolkitTransactionReceipt,
-) -> Result<ExecutionSummary, TransactionTypesError> {
+) -> Result<DynamicAnalysis, TransactionTypesError> {
     todo!()
 }

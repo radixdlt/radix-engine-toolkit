@@ -50,7 +50,9 @@ pub fn statically_validate(
     )
 }
 
-pub fn statically_analyze(manifest: &TransactionManifestV1) -> ManifestSummary {
+pub fn statically_analyze(
+    manifest: &TransactionManifestV1,
+) -> Option<StaticAnalysis> {
     crate::transaction_types::statically_analyze(
         manifest
             .instructions
@@ -65,7 +67,7 @@ pub fn statically_analyze(manifest: &TransactionManifestV1) -> ManifestSummary {
 pub fn dynamically_analyze(
     manifest: &TransactionManifestV1,
     receipt: &RuntimeToolkitTransactionReceipt,
-) -> Result<ExecutionSummary, TransactionTypesError> {
+) -> Result<DynamicAnalysis, TransactionTypesError> {
     crate::transaction_types::dynamically_analyze(
         manifest
             .instructions

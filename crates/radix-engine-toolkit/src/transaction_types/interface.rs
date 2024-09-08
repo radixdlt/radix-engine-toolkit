@@ -22,6 +22,8 @@
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_substate_store_queries::typed_substate_layout::*;
+use radix_transactions::manifest::static_resource_movements_visitor::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
@@ -29,7 +31,9 @@ use crate::transaction_types::*;
 use super::error::*;
 use super::types::*;
 
-pub fn statically_analyze(instructions: &[InstructionV2]) -> ManifestSummary {
+pub fn statically_analyze(
+    instructions: &[InstructionV2],
+) -> Option<StaticAnalysis> {
     // Settings up the various detectors
     let mut presented_proofs_detector = PresentedProofsDetector::default();
     let mut encountered_entities_detector =
@@ -117,7 +121,23 @@ pub fn statically_analyze(instructions: &[InstructionV2]) -> ManifestSummary {
     .rev()
     .collect::<IndexSet<ManifestClass>>();
 
-    ManifestSummary {
+    let (deposits, withdraws) = {
+        let manifest = TransactionManifestV2 {
+            instructions: instructions.to_vec(),
+            blobs: Default::default(),
+            children: vec![],
+            object_names: Default::default(),
+        };
+        let interpreter =
+            StaticManifestInterpreter::new(ValidationRuleset::all(), &manifest);
+        let mut visitor = StaticResourceMovementsVisitor::new(true);
+        interpreter.interpret_or_err(&mut visitor).ok()?;
+        visitor.output()
+    };
+
+    Some(StaticAnalysis {
+        account_deposits: deposits,
+        account_withdraws: withdraws,
         presented_proofs,
         accounts_withdrawn_from: account_withdraws,
         accounts_deposited_into: account_deposits,
@@ -126,13 +146,13 @@ pub fn statically_analyze(instructions: &[InstructionV2]) -> ManifestSummary {
         identities_requiring_auth,
         reserved_instructions,
         classification,
-    }
+    })
 }
 
 pub fn dynamically_analyze(
     instructions: &[InstructionV2],
     receipt: &RuntimeToolkitTransactionReceipt,
-) -> Result<ExecutionSummary, TransactionTypesError> {
+) -> Result<DynamicAnalysis, TransactionTypesError> {
     // Attempt to create a tx types receipt from the passed receipt
     let receipt = TransactionTypesReceipt::new(receipt)
         .ok_or(TransactionTypesError::InvalidReceipt)?;
@@ -311,7 +331,7 @@ pub fn dynamically_analyze(
     let fee_locks = receipt.fee_locks();
     let fee_summary = receipt.fee_summary();
 
-    Ok(ExecutionSummary {
+    Ok(DynamicAnalysis {
         account_withdraws,
         account_deposits,
         presented_proofs,

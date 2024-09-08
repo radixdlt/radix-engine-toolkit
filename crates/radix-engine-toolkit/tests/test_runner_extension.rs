@@ -49,7 +49,7 @@ where
     fn summarize(
         &mut self,
         manifest: TransactionManifestV1,
-    ) -> (ManifestSummary, ExecutionSummary) {
+    ) -> (StaticAnalysis, DynamicAnalysis) {
         let receipt = LedgerSimulatorEDExt::preview(self, manifest.clone());
         if !receipt.is_commit_success() {
             panic!("Not commit success: {receipt:?}")
@@ -64,7 +64,8 @@ where
                     .map(|value| value.into())
                     .collect::<Vec<_>>()
                     .as_slice(),
-            );
+            )
+            .unwrap();
         let dynamic_analysis =
             radix_engine_toolkit::transaction_types::dynamically_analyze(
                 manifest

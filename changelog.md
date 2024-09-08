@@ -15,3 +15,7 @@ This changelog captures the changes made to the toolkit between releases.
 * Removed the `modify` manifest function since it was unused by the toolkit's main clients.
 * Renamed the `summary` function to `statically_analyze`.
 * Renamed the `execution_summary` function to `dynamically_analyze`.
+* Renamed `ManifestSummary` to `StaticAnalysis`.
+* Renamed `ExecutionSummary` to `DynamicAnalysis`.
+* Added two new fields to the `ManifestSummary`: `account_withdraws` and `account_deposits`.
+* Changed the `statically_analyze` to return an `Option` 

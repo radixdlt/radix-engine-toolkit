@@ -28,12 +28,17 @@ use radix_engine::system::system_modules::execution_trace::{
 };
 use radix_engine::transaction::*;
 use radix_engine_interface::blueprints::account::*;
+use radix_transactions::manifest::static_resource_movements_visitor::*;
 
 use super::*;
 
 /// A summary of the manifest
 #[derive(Clone, Debug)]
-pub struct ManifestSummary {
+pub struct StaticAnalysis {
+    /// The withdraws done in the manifest.
+    pub account_withdraws: IndexMap<ComponentAddress, Vec<AccountWithdraw>>,
+    /// The deposits done in the manifest.
+    pub account_deposits: IndexMap<ComponentAddress, Vec<AccountDeposit>>,
     /// The list of the resources of proofs that were presented in the manifest.
     pub presented_proofs: IndexMap<ComponentAddress, Vec<ResourceSpecifier>>,
     /// The set of accounts withdrawn from observed in the manifest.
@@ -60,7 +65,7 @@ pub struct ManifestSummary {
 
 /// A summary of the execution of the manifest and the information that can
 #[derive(Clone, Debug)]
-pub struct ExecutionSummary {
+pub struct DynamicAnalysis {
     /// The withdraws done in the manifest.
     pub account_withdraws: IndexMap<ComponentAddress, Vec<ResourceIndicator>>,
     /// The deposits done in the manifest.
