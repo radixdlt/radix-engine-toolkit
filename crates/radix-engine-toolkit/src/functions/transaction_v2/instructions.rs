@@ -51,7 +51,7 @@ pub fn statically_validate(
 
 pub fn extract_addresses(
     instructions: &[InstructionV2],
-) -> (HashSet<TypedNodeId>, HashSet<u32>) {
+) -> (HashSet<TypedNodeId>, HashSet<ManifestNamedAddress>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
     let static_addresses = indexed_manifest_value
         .static_addresses()

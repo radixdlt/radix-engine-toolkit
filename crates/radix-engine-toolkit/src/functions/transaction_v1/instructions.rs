@@ -48,7 +48,11 @@ pub fn statically_validate(
     instructions: &[InstructionV1],
 ) -> Result<(), InstructionValidationError> {
     radix_engine::utils::validate_call_arguments_to_native_components(
-        instructions,
+        &TransactionManifestV1 {
+            instructions: instructions.to_vec(),
+            blobs: Default::default(),
+            object_names: Default::default(),
+        },
     )
     .map_err(
         InstructionValidationError::LocatedInstructionSchemaValidationError,
@@ -60,7 +64,7 @@ pub fn statically_validate(
 
 pub fn extract_addresses(
     instructions: &[InstructionV1],
-) -> (HashSet<TypedNodeId>, HashSet<u32>) {
+) -> (HashSet<TypedNodeId>, HashSet<ManifestNamedAddress>) {
     let indexed_manifest_value = IndexedManifestValue::from_typed(instructions);
     let static_addresses = indexed_manifest_value
         .static_addresses()

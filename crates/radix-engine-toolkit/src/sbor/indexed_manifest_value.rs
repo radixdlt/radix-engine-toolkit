@@ -16,15 +16,11 @@
 // under the License.
 
 use core::cell::RefCell;
+use model::ManifestNamedAddress;
 use radix_common::data::manifest::*;
-use radix_common::prelude::{
-    ManifestAddress, ManifestBucket, ManifestExpression,
-};
-use radix_common::types::*;
+use radix_common::prelude::*;
 use sbor::rust::cell::Ref;
-use sbor::rust::prelude::*;
 use sbor::traversal::*;
-use sbor::*;
 
 use crate::models::node_id::TypedNodeId;
 
@@ -34,7 +30,7 @@ pub struct IndexedManifestValue {
     manifest_value: RefCell<Option<ManifestValue>>,
 
     static_addresses: Vec<NodeId>,
-    named_addresses: Vec<u32>,
+    named_addresses: Vec<ManifestNamedAddress>,
     buckets: Vec<ManifestBucket>,
     expressions: Vec<ManifestExpression>,
 }
@@ -166,7 +162,7 @@ impl IndexedManifestValue {
             .collect()
     }
 
-    pub fn named_addresses(&self) -> &Vec<u32> {
+    pub fn named_addresses(&self) -> &Vec<ManifestNamedAddress> {
         &self.named_addresses
     }
 

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::prelude::manifest_instruction::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
@@ -81,7 +81,8 @@ impl ManifestSummaryCallback for ValidatorUnstakeDetector {
             | InstructionV2::TakeAllFromWorktop { .. }
             | InstructionV2::AssertWorktopContainsAny { .. }
             | InstructionV2::AssertWorktopContains { .. }
-            | InstructionV2::AssertWorktopContainsNonFungibles { .. } => true,
+            | InstructionV2::AssertWorktopContainsNonFungibles { .. }
+            | InstructionV2::AssertWorktopIsEmpty { .. } => true,
             /* Not Permitted */
             InstructionV2::BurnResource { .. }
             | InstructionV2::CallRoyaltyMethod { .. }
@@ -108,7 +109,7 @@ impl ManifestSummaryCallback for ValidatorUnstakeDetector {
             | InstructionV2::CallFunction { .. }
             | InstructionV2::YieldToParent(_)
             | InstructionV2::YieldToChild(_)
-            | InstructionV2::AuthenticateParent(_) => false,
+            | InstructionV2::VerifyParent(_) => false,
         };
 
         // Handle required method call

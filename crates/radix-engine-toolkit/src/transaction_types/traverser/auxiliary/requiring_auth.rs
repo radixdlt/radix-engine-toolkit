@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::prelude::manifest_instruction::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 

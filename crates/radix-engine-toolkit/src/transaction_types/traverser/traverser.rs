@@ -21,7 +21,7 @@ pub mod static_analysis {
     use crate::utils::*;
     use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
     use radix_engine_interface::blueprints::account::*;
-    use radix_transactions::prelude::manifest_instruction::*;
+    use radix_transactions::manifest::*;
     use radix_transactions::prelude::*;
     use scrypto::prelude::*;
 
@@ -138,7 +138,7 @@ pub mod dynamic_analysis {
         ResourceSpecifier, WorktopChange,
     };
     use radix_engine_interface::blueprints::account::*;
-    use radix_transactions::prelude::manifest_instruction::*;
+    use radix_transactions::manifest::*;
     use radix_transactions::prelude::*;
     use radix_transactions::validation::*;
 
@@ -315,6 +315,7 @@ pub mod dynamic_analysis {
                 | InstructionV2::AssertWorktopContainsAny(..)
                 | InstructionV2::AssertWorktopContains(..)
                 | InstructionV2::AssertWorktopContainsNonFungibles(..)
+                | InstructionV2::AssertWorktopIsEmpty(..)
                 | InstructionV2::PopFromAuthZone(..)
                 | InstructionV2::PushToAuthZone(..)
                 | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
@@ -331,7 +332,7 @@ pub mod dynamic_analysis {
                 | InstructionV2::DropNamedProofs(..)
                 | InstructionV2::DropAllProofs(..)
                 | InstructionV2::AllocateGlobalAddress(..)
-                | InstructionV2::AuthenticateParent(..) => { /* No-Op */ }
+                | InstructionV2::VerifyParent(..) => { /* No-Op */ }
             };
 
             inputs
@@ -737,6 +738,7 @@ pub mod dynamic_analysis {
             InstructionV2::AssertWorktopContainsAny(..)
             | InstructionV2::AssertWorktopContains(..)
             | InstructionV2::AssertWorktopContainsNonFungibles(..)
+            | InstructionV2::AssertWorktopIsEmpty(..)
             | InstructionV2::PopFromAuthZone(..)
             | InstructionV2::PushToAuthZone(..)
             | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
@@ -753,7 +755,7 @@ pub mod dynamic_analysis {
             | InstructionV2::DropNamedProofs(..)
             | InstructionV2::DropAllProofs(..)
             | InstructionV2::AllocateGlobalAddress(..)
-            | InstructionV2::AuthenticateParent(..) => { /* No-op */ }
+            | InstructionV2::VerifyParent(..) => { /* No-op */ }
         }
     }
 

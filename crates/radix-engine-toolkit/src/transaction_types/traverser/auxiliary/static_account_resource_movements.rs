@@ -18,7 +18,7 @@
 use crate::statics::*;
 use crate::transaction_types::*;
 use crate::utils::*;
-use radix_transactions::prelude::manifest_instruction::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 

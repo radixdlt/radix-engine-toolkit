@@ -41,6 +41,7 @@ pub fn manifest_from_intent(intent: &IntentV1) -> TransactionManifestV1 {
             .iter()
             .map(|blob| (hash(&blob.0), blob.0.clone()))
             .collect(),
+        object_names: Default::default(),
     }
 }
 

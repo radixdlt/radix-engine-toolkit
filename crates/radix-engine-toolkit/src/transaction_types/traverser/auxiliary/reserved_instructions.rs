@@ -18,7 +18,7 @@
 use radix_engine_interface::blueprints::account::*;
 use radix_engine_interface::blueprints::identity::*;
 
-use radix_transactions::prelude::manifest_instruction::*;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 use scrypto::prelude::*;
 
