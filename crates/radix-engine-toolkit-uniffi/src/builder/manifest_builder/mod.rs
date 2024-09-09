@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod builder;
+pub mod builder_v1;
+pub mod builder_v2;
 pub mod name_record;
 pub mod traits;
 pub mod types;

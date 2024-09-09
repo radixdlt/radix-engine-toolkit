@@ -780,7 +780,7 @@ pub struct StaticAnalysis {
 }
 
 impl StaticAnalysis {
-    fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
+    pub fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
         Self {
             presented_proofs: native
                 .presented_proofs

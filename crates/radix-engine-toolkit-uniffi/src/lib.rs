@@ -57,7 +57,7 @@ pub mod prelude {
     pub use crate::blueprints::resource_manager::*;
 
     /* Builders */
-    pub use crate::builder::manifest_builder::builder::*;
+    pub use crate::builder::manifest_builder::builder_v1::*;
     pub use crate::builder::manifest_builder::name_record::*;
     pub use crate::builder::manifest_builder::types::*;
     pub use crate::builder::manifest_builder::utils::*;
@@ -106,7 +106,9 @@ pub mod prelude {
     pub use crate::transaction_v2::instructions::*;
     pub use crate::transaction_v2::intent_core::*;
     pub use crate::transaction_v2::intent_header::*;
+    pub use crate::transaction_v2::manifest::*;
     pub use crate::transaction_v2::message::*;
+    pub use crate::transaction_v2::notarized_transaction::*;
     pub use crate::transaction_v2::signed_intent::*;
     pub use crate::transaction_v2::transaction_header::*;
     pub use crate::transaction_v2::transaction_intent::*;
