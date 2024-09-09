@@ -15,12 +15,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-pub mod header;
-pub mod instruction;
-pub mod instructions;
-pub mod intent;
-pub mod manifest;
+pub mod hash;
 pub mod message;
-pub mod notarized_transaction;
-pub mod signed_intent;
-pub mod validation;

@@ -37,7 +37,9 @@ impl SignedTransactionIntentV1 {
     }
 
     #[uniffi::constructor]
-    pub fn decompile(compiled_signed_intent: Vec<u8>) -> Result<Arc<Self>> {
+    pub fn from_payload_bytes(
+        compiled_signed_intent: Vec<u8>,
+    ) -> Result<Arc<Self>> {
         core_transaction_v1_signed_intent_from_payload_bytes(
             compiled_signed_intent,
         )
@@ -76,7 +78,7 @@ impl SignedTransactionIntentV1 {
         self.intent.hash()
     }
 
-    pub fn compile(&self) -> Result<Vec<u8>> {
+    pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         NativeSignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
             core_transaction_v1_signed_intent_to_payload_bytes(&signed_intent)
                 .map_err(Into::into)

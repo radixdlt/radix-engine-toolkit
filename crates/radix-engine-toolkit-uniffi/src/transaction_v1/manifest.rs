@@ -49,13 +49,16 @@ impl TransactionManifestV1 {
         self.blobs.clone()
     }
 
-    pub fn compile(&self) -> Result<Vec<u8>> {
+    pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
         Ok(core_transaction_v1_manifest_to_payload_bytes(&native)?)
     }
 
     #[uniffi::constructor]
-    pub fn decompile(compiled: Vec<u8>, network_id: u8) -> Result<Arc<Self>> {
+    pub fn from_payload_bytes(
+        compiled: Vec<u8>,
+        network_id: u8,
+    ) -> Result<Arc<Self>> {
         let decompiled =
             core_transaction_v1_manifest_from_payload_bytes(compiled)?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))

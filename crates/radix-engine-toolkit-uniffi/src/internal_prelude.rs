@@ -99,14 +99,19 @@ mod core {
         dynamically_analyze as core_transaction_v2_manifest_dynamically_analyze,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::intent_core::{
-        hash as core_transaction_v2_intent_hash,
-        to_payload_bytes as core_transaction_v2_intent_to_payload_bytes,
-        from_payload_bytes as core_transaction_v2_intent_from_payload_bytes,
+        hash as core_transaction_v2_intent_core_hash,
+        to_payload_bytes as core_transaction_v2_intent_core_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_intent_core_from_payload_bytes,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::subintent::{
         hash as core_transaction_v2_subintent_hash,
         to_payload_bytes as core_transaction_v2_subintent_to_payload_bytes,
         from_payload_bytes as core_transaction_v2_subintent_from_payload_bytes,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::transaction_intent::{
+        hash as core_transaction_v2_transaction_intent_hash,
+        to_payload_bytes as core_transaction_v2_transaction_intent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_transaction_intent_from_payload_bytes,
     };
     pub use radix_engine_toolkit::functions::transaction_v2::signed_transaction_intent::{
         hash as core_transaction_v2_signed_transaction_intent_hash,
@@ -264,6 +269,10 @@ mod native {
         DropNamedProofs as NativeDropNamedProofs,
         DropAllProofs as NativeDropAllProofs,
         AllocateGlobalAddress as NativeAllocateGlobalAddress,
+        AssertWorktopIsEmpty as NativeAssertWorktopIsEmpty,
+        YieldToParent as NativeYieldToParent,
+        YieldToChild as NativeYieldToChild,
+        VerifyParent as NativeVerifyParent,
     };
 
     pub use scrypto::prelude::{
@@ -395,6 +404,7 @@ mod native {
         AddressBech32Encoder as NativeAddressBech32Encoder,
     };
     pub use radix_transactions::prelude::{
+        IntentSignaturesV1 as NativeIntentSignaturesV1,
         InstructionV1 as NativeInstructionV1,
         InstructionsV1 as NativeInstructionsV1,
         TransactionHeaderV1 as NativeTransactionHeaderV1,
@@ -404,6 +414,24 @@ mod native {
         NotarizedTransactionV1 as NativeNotarizedTransactionV1,
         BlobV1 as NativeBlobV1,
         BlobsV1 as NativeBlobsV1,
+        NotarySignatureV1 as NativeNotarySignatureV1,
+
+        IntentHeaderV2 as NativeIntentHeaderV2,
+        InstructionV2 as NativeInstructionV2,
+        InstructionsV2 as NativeInstructionsV2,
+        MessageV2 as NativeMessageV2,
+        TransactionManifestV2 as NativeTransactionManifestV2,
+        IntentCoreV2 as NativeIntentCoreV2,
+        TransactionIntentV2 as NativeTransactionIntentV2,
+        SubintentV2 as NativeSubintentV2,
+        SubintentsV2 as NativeSubintentsV2,
+        SignedTransactionIntentV2 as NativeSignedTransactionIntentV2,
+        NotarizedTransactionV2 as NativeNotarizedTransactionV2,
+        IntentSignaturesV2 as NativeIntentSignaturesV2,
+        MultipleIntentSignaturesV2 as NativeMultipleIntentSignaturesV2,
+        TransactionHeaderV2 as NativeTransactionHeaderV2,
+        DecryptorsByCurveV2 as NativeDecryptorsByCurveV2,
+        EncryptedMessageV2 as NativeEncryptedMessageV2,
         
         DynamicGlobalAddress as NativeDynamicGlobalAddress,
         DynamicPackageAddress as NativeDynamicPackageAddress,
@@ -411,12 +439,15 @@ mod native {
         MessageV1 as NativeMessageV1,
         AesGcmPayload as NativeAesGcmPayload,
         AesWrapped128BitKey as NativeAesWrapped128BitKey,
+        AesWrapped256BitKey as NativeAesWrapped256BitKey,
         CurveType as NativeCurveType,
-        DecryptorsByCurve as NativeDecryptorsByCurve,
-        EncryptedMessageV1 as NativeEncryptedMessage,
-        MessageContentsV1 as NativeMessageContents,
-        PlaintextMessageV1 as NativePlaintextMessage,
+        DecryptorsByCurve as NativeDecryptorsByCurveV1,
+        EncryptedMessageV1 as NativeEncryptedMessageV1,
+        MessageContentsV1 as NativeMessageContentsV1,
+        PlaintextMessageV1 as NativePlaintextMessageV1,
         PublicKeyFingerprint as NativePublicKeyFingerprint,
+
+        ManifestIntent as NativeManifestIntent,
 
         TransactionPayload as NativeTransactionPayload,
         PrepareError as NativePrepareError,
@@ -436,7 +467,11 @@ mod native {
         TransactionHashBech32Encoder as NativeTransactionHashBech32Encoder,
         TransactionHashBech32Decoder as NativeTransactionHashBech32Decoder,
 
-        NamedManifestAddress as NativeNamedManifestAddress
+        NamedManifestAddress as NativeNamedManifestAddress,
+
+        SubintentHash as NativeSubintentHash,
+        ChildSubintent as NativeChildSubintent,
+        ChildIntentsV2 as NativeChildIntentsV2
     };
     pub use radix_transactions::validation::{
         ValidationConfig as NativeValidationConfig,

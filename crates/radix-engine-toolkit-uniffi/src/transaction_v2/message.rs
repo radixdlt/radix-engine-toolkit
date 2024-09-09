@@ -19,71 +19,71 @@ use crate::prelude::*;
 use crate::utils::hashable_bytes::HashableBytes;
 
 #[derive(Clone, Debug, Enum)]
-pub enum MessageV1 {
+pub enum MessageV2 {
     None,
-    PlainText { value: PlainTextMessageV1 },
-    Encrypted { value: EncryptedMessageV1 },
+    PlainText { value: PlainTextMessageV2 },
+    Encrypted { value: EncryptedMessageV2 },
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct PlainTextMessageV1 {
+pub struct PlainTextMessageV2 {
     pub mime_type: String,
-    pub message: MessageContentV1,
+    pub message: MessageContentsV2,
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum MessageContentV1 {
+pub enum MessageContentsV2 {
     Str { value: String },
     Bytes { value: Vec<u8> },
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct EncryptedMessageV1 {
+pub struct EncryptedMessageV2 {
     pub encrypted: Vec<u8>,
-    pub decryptors_by_curve: HashMap<CurveTypeV1, DecryptorsByCurveV1>,
+    pub decryptors_by_curve: HashMap<CurveTypeV2, DecryptorsByCurveV2>,
 }
 
 #[derive(Clone, Debug, Enum, Hash, PartialEq, Eq)]
-pub enum CurveTypeV1 {
+pub enum CurveTypeV2 {
     Ed25519,
     Secp256k1,
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum DecryptorsByCurveV1 {
+pub enum DecryptorsByCurveV2 {
     Ed25519 {
         dh_ephemeral_public_key: Ed25519PublicKey,
         decryptors:
-            HashMap<PublicKeyFingerprintV1, AesWrappedVariableLengthKeyV1>,
+            HashMap<PublicKeyFingerprint, AesWrappedVariableLengthKeyV2>,
     },
     Secp256k1 {
         dh_ephemeral_public_key: Secp256k1PublicKey,
         decryptors:
-            HashMap<PublicKeyFingerprintV1, AesWrappedVariableLengthKeyV1>,
+            HashMap<PublicKeyFingerprint, AesWrappedVariableLengthKeyV2>,
     },
 }
 
-pub type AesWrappedVariableLengthKeyV1 = Vec<u8>;
+pub type AesWrappedVariableLengthKeyV2 = Vec<u8>;
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq, Record)]
-pub struct PublicKeyFingerprintV1 {
+pub struct PublicKeyFingerprint {
     bytes: HashableBytes,
 }
 
 // required for conversion tests on bindgen side
 #[uniffi::export]
-pub fn public_key_fingerprint_v1_from_vec(
+pub fn public_key_fingerprint_v2_from_vec(
     bytes: Vec<u8>,
-) -> PublicKeyFingerprintV1 {
-    PublicKeyFingerprintV1 {
+) -> PublicKeyFingerprint {
+    PublicKeyFingerprint {
         bytes: HashableBytes(bytes),
     }
 }
 
 // required for conversion tests on bindgen side
 #[uniffi::export]
-pub fn public_key_fingerprint_v1_to_vec(
-    value: PublicKeyFingerprintV1,
+pub fn public_key_fingerprint_v2_to_vec(
+    value: PublicKeyFingerprint,
 ) -> Vec<u8> {
     value.bytes.0
 }
@@ -92,10 +92,10 @@ pub fn public_key_fingerprint_v1_to_vec(
 // From Trait Impls
 //==================
 
-impl From<NativeDecryptorsByCurveV1> for DecryptorsByCurveV1 {
-    fn from(value: NativeDecryptorsByCurveV1) -> Self {
+impl From<NativeDecryptorsByCurveV2> for DecryptorsByCurveV2 {
+    fn from(value: NativeDecryptorsByCurveV2) -> Self {
         match value {
-            NativeDecryptorsByCurveV1::Secp256k1 {
+            NativeDecryptorsByCurveV2::Secp256k1 {
                 dh_ephemeral_public_key,
                 decryptors,
             } => Self::Secp256k1 {
@@ -104,13 +104,13 @@ impl From<NativeDecryptorsByCurveV1> for DecryptorsByCurveV1 {
                     .into_iter()
                     .map(|(key, value)| {
                         (
-                            public_key_fingerprint_v1_from_vec(key.0.into()),
+                            public_key_fingerprint_v2_from_vec(key.0.into()),
                             value.0.into(),
                         )
                     })
                     .collect(),
             },
-            NativeDecryptorsByCurveV1::Ed25519 {
+            NativeDecryptorsByCurveV2::Ed25519 {
                 dh_ephemeral_public_key,
                 decryptors,
             } => Self::Ed25519 {
@@ -119,7 +119,7 @@ impl From<NativeDecryptorsByCurveV1> for DecryptorsByCurveV1 {
                     .into_iter()
                     .map(|(key, value)| {
                         (
-                            public_key_fingerprint_v1_from_vec(key.0.into()),
+                            public_key_fingerprint_v2_from_vec(key.0.into()),
                             value.0.into(),
                         )
                     })
@@ -129,12 +129,12 @@ impl From<NativeDecryptorsByCurveV1> for DecryptorsByCurveV1 {
     }
 }
 
-impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
+impl TryFrom<DecryptorsByCurveV2> for NativeDecryptorsByCurveV2 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: DecryptorsByCurveV1) -> Result<Self> {
+    fn try_from(value: DecryptorsByCurveV2) -> Result<Self> {
         match value {
-            DecryptorsByCurveV1::Ed25519 {
+            DecryptorsByCurveV2::Ed25519 {
                 dh_ephemeral_public_key,
                 decryptors,
             } => Ok(Self::Ed25519 {
@@ -142,7 +142,7 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        public_key_fingerprint_v1_to_vec(key)
+                        public_key_fingerprint_v2_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| RadixEngineToolkitError::InvalidLength {
@@ -153,10 +153,10 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
                             .and_then(|key| {
                                 value
                                     .try_into()
-                                    .map(NativeAesWrapped128BitKey)
+                                    .map(NativeAesWrapped256BitKey)
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
-                                            expected: NativeAesWrapped128BitKey::LENGTH
+                                            expected: NativeAesWrapped256BitKey::LENGTH
                                                 as u64,
                                             actual: value.len() as u64,
                                             data: value,
@@ -167,7 +167,7 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
                     })
                     .collect::<Result<_>>()?,
             }),
-            DecryptorsByCurveV1::Secp256k1 {
+            DecryptorsByCurveV2::Secp256k1 {
                 dh_ephemeral_public_key,
                 decryptors,
             } => Ok(Self::Secp256k1 {
@@ -175,7 +175,7 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
                 decryptors: decryptors
                     .into_iter()
                     .map(|(key, value)| {
-                        public_key_fingerprint_v1_to_vec(key)
+                        public_key_fingerprint_v2_to_vec(key)
                             .try_into()
                             .map(NativePublicKeyFingerprint)
                             .map_err(|value| RadixEngineToolkitError::InvalidLength {
@@ -186,10 +186,10 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
                             .and_then(|key| {
                                 value
                                     .try_into()
-                                    .map(NativeAesWrapped128BitKey)
+                                    .map(NativeAesWrapped256BitKey)
                                     .map_err(|value| {
                                         RadixEngineToolkitError::InvalidLength {
-                                            expected: NativeAesWrapped128BitKey::LENGTH
+                                            expected: NativeAesWrapped256BitKey::LENGTH
                                                 as u64,
                                             actual: value.len() as u64,
                                             data: value,
@@ -204,16 +204,16 @@ impl TryFrom<DecryptorsByCurveV1> for NativeDecryptorsByCurveV1 {
     }
 }
 
-impl From<CurveTypeV1> for NativeCurveType {
-    fn from(value: CurveTypeV1) -> Self {
+impl From<CurveTypeV2> for NativeCurveType {
+    fn from(value: CurveTypeV2) -> Self {
         match value {
-            CurveTypeV1::Ed25519 => Self::Ed25519,
-            CurveTypeV1::Secp256k1 => Self::Secp256k1,
+            CurveTypeV2::Ed25519 => Self::Ed25519,
+            CurveTypeV2::Secp256k1 => Self::Secp256k1,
         }
     }
 }
 
-impl From<NativeCurveType> for CurveTypeV1 {
+impl From<NativeCurveType> for CurveTypeV2 {
     fn from(value: NativeCurveType) -> Self {
         match value {
             NativeCurveType::Ed25519 => Self::Ed25519,
@@ -222,12 +222,12 @@ impl From<NativeCurveType> for CurveTypeV1 {
     }
 }
 
-impl From<NativeEncryptedMessageV1> for EncryptedMessageV1 {
+impl From<NativeEncryptedMessageV2> for EncryptedMessageV2 {
     fn from(
-        NativeEncryptedMessageV1 {
+        NativeEncryptedMessageV2 {
             encrypted,
             decryptors_by_curve,
-        }: NativeEncryptedMessageV1,
+        }: NativeEncryptedMessageV2,
     ) -> Self {
         let encrypted = encrypted.0;
         let decryptors_by_curve = decryptors_by_curve
@@ -242,14 +242,14 @@ impl From<NativeEncryptedMessageV1> for EncryptedMessageV1 {
     }
 }
 
-impl TryFrom<EncryptedMessageV1> for NativeEncryptedMessageV1 {
+impl TryFrom<EncryptedMessageV2> for NativeEncryptedMessageV2 {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        EncryptedMessageV1 {
+        EncryptedMessageV2 {
             encrypted,
             decryptors_by_curve,
-        }: EncryptedMessageV1,
+        }: EncryptedMessageV2,
     ) -> Result<Self> {
         let encrypted = NativeAesGcmPayload(encrypted);
         let decryptors_by_curve = decryptors_by_curve
@@ -264,16 +264,16 @@ impl TryFrom<EncryptedMessageV1> for NativeEncryptedMessageV1 {
     }
 }
 
-impl From<MessageContentV1> for NativeMessageContentsV1 {
-    fn from(value: MessageContentV1) -> Self {
+impl From<MessageContentsV2> for NativeMessageContentsV1 {
+    fn from(value: MessageContentsV2) -> Self {
         match value {
-            MessageContentV1::Str { value } => Self::String(value),
-            MessageContentV1::Bytes { value } => Self::Bytes(value),
+            MessageContentsV2::Str { value } => Self::String(value),
+            MessageContentsV2::Bytes { value } => Self::Bytes(value),
         }
     }
 }
 
-impl From<NativeMessageContentsV1> for MessageContentV1 {
+impl From<NativeMessageContentsV1> for MessageContentsV2 {
     fn from(value: NativeMessageContentsV1) -> Self {
         match value {
             NativeMessageContentsV1::String(value) => Self::Str { value },
@@ -282,9 +282,9 @@ impl From<NativeMessageContentsV1> for MessageContentV1 {
     }
 }
 
-impl From<PlainTextMessageV1> for NativePlaintextMessageV1 {
+impl From<PlainTextMessageV2> for NativePlaintextMessageV1 {
     fn from(
-        PlainTextMessageV1 { message, mime_type }: PlainTextMessageV1,
+        PlainTextMessageV2 { message, mime_type }: PlainTextMessageV2,
     ) -> Self {
         Self {
             message: message.into(),
@@ -293,7 +293,7 @@ impl From<PlainTextMessageV1> for NativePlaintextMessageV1 {
     }
 }
 
-impl From<NativePlaintextMessageV1> for PlainTextMessageV1 {
+impl From<NativePlaintextMessageV1> for PlainTextMessageV2 {
     fn from(
         NativePlaintextMessageV1 { message, mime_type }: NativePlaintextMessageV1,
     ) -> Self {
@@ -304,30 +304,30 @@ impl From<NativePlaintextMessageV1> for PlainTextMessageV1 {
     }
 }
 
-impl TryFrom<MessageV1> for NativeMessageV1 {
+impl TryFrom<MessageV2> for NativeMessageV2 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: MessageV1) -> Result<Self> {
+    fn try_from(value: MessageV2) -> Result<Self> {
         match value {
-            MessageV1::None => Ok(NativeMessageV1::None),
-            MessageV1::Encrypted { value } => {
-                value.try_into().map(NativeMessageV1::Encrypted)
+            MessageV2::None => Ok(NativeMessageV2::None),
+            MessageV2::Encrypted { value } => {
+                value.try_into().map(NativeMessageV2::Encrypted)
             }
-            MessageV1::PlainText { value } => {
-                Ok(NativeMessageV1::Plaintext(value.into()))
+            MessageV2::PlainText { value } => {
+                Ok(NativeMessageV2::Plaintext(value.into()))
             }
         }
     }
 }
 
-impl From<NativeMessageV1> for MessageV1 {
-    fn from(value: NativeMessageV1) -> Self {
+impl From<NativeMessageV2> for MessageV2 {
+    fn from(value: NativeMessageV2) -> Self {
         match value {
-            NativeMessageV1::None => Self::None,
-            NativeMessageV1::Encrypted(value) => Self::Encrypted {
+            NativeMessageV2::None => Self::None,
+            NativeMessageV2::Encrypted(value) => Self::Encrypted {
                 value: value.into(),
             },
-            NativeMessageV1::Plaintext(value) => Self::PlainText {
+            NativeMessageV2::Plaintext(value) => Self::PlainText {
                 value: value.into(),
             },
         }

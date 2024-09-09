@@ -40,7 +40,7 @@ impl IntentV1 {
     }
 
     #[uniffi::constructor]
-    pub fn decompile(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
+    pub fn from_payload_bytes(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
         core_transaction_v1_intent_from_payload_bytes(compiled_intent)
             .map(|intent| Arc::new(intent.into()))
             .map_err(Into::into)
@@ -76,7 +76,7 @@ impl IntentV1 {
         self.hash()
     }
 
-    pub fn compile(&self) -> Result<Vec<u8>> {
+    pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         NativeIntentV1::try_from(self.clone()).and_then(|intent| {
             core_transaction_v1_intent_to_payload_bytes(&intent)
                 .map_err(Into::into)

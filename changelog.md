@@ -58,3 +58,6 @@ The changes here apply to the UniFFI toolkit which is the toolkit published in t
     * `virtual_identity_address_from_public_key` => `preallocated_identity_address_from_public_key`
     * `virtual_account_address_from_olympia_address` => `preallocated_account_address_from_olympia_address`
     * `is_global_virtual` => `is_global_preallocated`
+* Renamed all `compile` and `decompile` functions in `instruction`, `manifest`, `intent`, `signed_intent`, and `notarized_transaction` functions to `to_payload_bytes` and `from_payload_bytes` respectively.
+* Renamed the `Message` functions `public_key_fingerprint_from_vec` and `public_key_fingerprint_to_vec` to `public_key_fingerprint_v1_from_vec` and `public_key_fingerprint_v1_to_vec`.
+* Renamed `PublicKeyFingerprint` to `PublicKeyFingerprintV1`.
