@@ -13,7 +13,7 @@ radix-engine = { workspace = true }
 radix-engine-interface = { workspace = true }
 radix-substate-store-queries = { workspace = true }
 radix-transactions = { workspace = true }
-native-radix-engine-toolkit = { workspace = true }
+radix-engine-toolkit-common = { workspace = true }
 
 # Core Radix Engine Toolkit
 radix-engine-toolkit = { path = "../radix-engine-toolkit" }

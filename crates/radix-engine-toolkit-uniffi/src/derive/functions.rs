@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[uniffi::export]
-pub fn derive_virtual_account_address_from_public_key(
+pub fn derive_preallocated_account_address_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<Address>> {
@@ -30,24 +30,25 @@ pub fn derive_virtual_account_address_from_public_key(
 }
 
 #[uniffi::export]
-pub fn derive_virtual_identity_address_from_public_key(
+pub fn derive_preallocated_identity_address_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<Address>> {
     let public_key = NativePublicKey::try_from(public_key)?;
-    let address =
-        NativeComponentAddress::virtual_identity_from_public_key(&public_key);
+    let address = NativeComponentAddress::preallocated_identity_from_public_key(
+        &public_key,
+    );
     Ok(Arc::new(Address::from_typed_node_id(address, network_id)))
 }
 
 #[uniffi::export]
-pub fn derive_virtual_signature_non_fungible_global_id_from_public_key(
+pub fn derive_signature_badge_non_fungible_global_id_from_public_key(
     public_key: PublicKey,
     network_id: u8,
 ) -> Result<Arc<NonFungibleGlobalId>> {
     let public_key = NativePublicKey::try_from(public_key)?;
     let non_fungible_global_id =
-        core_virtual_signature_non_fungible_global_id_from_public_key(
+        core_preallocated_signature_non_fungible_global_id_from_public_key(
             &public_key,
         );
     Ok(Arc::new(NonFungibleGlobalId(
@@ -57,12 +58,12 @@ pub fn derive_virtual_signature_non_fungible_global_id_from_public_key(
 }
 
 #[uniffi::export]
-pub fn derive_virtual_account_address_from_olympia_account_address(
+pub fn derive_preallocated_account_address_from_olympia_account_address(
     olympia_account_address: Arc<OlympiaAddress>,
     network_id: u8,
 ) -> Result<Arc<Address>> {
     let component_address =
-        core_virtual_account_address_from_olympia_account_address(
+        core_preallocated_account_address_from_olympia_account_address(
             &olympia_account_address.0,
         )?;
     Ok(Arc::new(Address::from_typed_node_id(

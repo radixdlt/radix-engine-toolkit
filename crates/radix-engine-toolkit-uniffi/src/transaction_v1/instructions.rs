@@ -18,23 +18,23 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct Instructions(pub(crate) Vec<NativeInstruction>, pub(crate) u8);
+pub struct InstructionsV1(pub(crate) Vec<NativeInstructionV1>, pub(crate) u8);
 
 #[uniffi::export]
-impl Instructions {
+impl InstructionsV1 {
     #[uniffi::constructor]
     pub fn from_string(string: String, network_id: u8) -> Result<Arc<Self>> {
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let blob_provider = NativeMockBlobProvider::new();
-        native_compile(&string, &network_definition, blob_provider)
+        native_to_payload_bytes(&string, &network_definition, blob_provider)
             .map_err(Into::into)
             .map(|manifest| Arc::new(Self(manifest.instructions, network_id)))
     }
 
     #[uniffi::constructor]
     pub fn from_instructions(
-        instructions: Vec<Instruction>,
+        instructions: Vec<InstructionV1>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
         let instructions = instructions
@@ -47,13 +47,21 @@ impl Instructions {
     pub fn as_str(&self) -> Result<String> {
         let network_definition =
             core_network_definition_from_network_id(self.1);
-        native_decompile(&self.0, &network_definition).map_err(Into::into)
+        native_from_payload_bytes(
+            &NativeTransactionManifestV1 {
+                instructions: self.0.clone(),
+                blobs: Default::default(),
+                object_names: Default::default(),
+            },
+            &network_definition,
+        )
+        .map_err(Into::into)
     }
 
-    pub fn instructions_list(&self) -> Vec<Instruction> {
+    pub fn instructions_list(&self) -> Vec<InstructionV1> {
         self.0
             .iter()
-            .map(|instruction| Instruction::from_native(instruction, self.1))
+            .map(|instruction| InstructionV1::from_native(instruction, self.1))
             .collect()
     }
 

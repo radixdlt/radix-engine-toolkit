@@ -87,7 +87,7 @@ impl NonFungibleGlobalId {
         public_key: PublicKey,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_virtual_signature_non_fungible_global_id_from_public_key(
+        derive_signature_badge_non_fungible_global_id_from_public_key(
             public_key, network_id,
         )
     }
@@ -179,10 +179,10 @@ pub fn non_fungible_local_id_sbor_decode(
     bytes: Vec<u8>,
 ) -> Result<NonFungibleLocalId> {
     let native = match bytes.first().copied() {
-        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => native_scrypto_decode::<
-            NativeNonFungibleLocalId,
-        >(&bytes)
-        .map_err(Into::into),
+        Some(NATIVE_SCRYPTO_SBOR_V1_PAYLOAD_PREFIX) => {
+            native_scrypto_decode::<NativeNonFungibleLocalId>(&bytes)
+                .map_err(Into::into)
+        }
         Some(NATIVE_MANIFEST_SBOR_V1_PAYLOAD_PREFIX) => {
             native_manifest_decode::<NativeNonFungibleLocalId>(&bytes)
                 .map_err(Into::into)

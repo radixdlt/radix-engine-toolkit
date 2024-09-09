@@ -37,10 +37,10 @@ mod core {
         DependencyInformation as CoreDependencyInformation,
     };
     pub use radix_engine_toolkit::functions::derive::{
-        virtual_account_address_from_public_key as core_virtual_account_address_from_public_key,
-        virtual_identity_address_from_public_key as core_virtual_identity_address_from_public_key,
-        virtual_signature_non_fungible_global_id_from_public_key as core_virtual_signature_non_fungible_global_id_from_public_key,
-        virtual_account_address_from_olympia_account_address as core_virtual_account_address_from_olympia_account_address,
+        preallocated_account_address_from_public_key as core_preallocated_account_address_from_public_key,
+        preallocated_identity_address_from_public_key as core_preallocated_identity_address_from_public_key,
+        preallocated_signature_non_fungible_global_id_from_public_key as core_preallocated_signature_non_fungible_global_id_from_public_key,
+        preallocated_account_address_from_olympia_account_address as core_preallocated_account_address_from_olympia_account_address,
         resource_address_from_olympia_resource_address as core_resource_address_from_olympia_resource_address,
         public_key_from_olympia_account_address as core_public_key_from_olympia_account_address,
         olympia_account_address_from_public_key as core_olympia_account_address_from_public_key,
@@ -48,46 +48,76 @@ mod core {
         DerivationError as CoreDerivationError,
         OlympiaNetwork as CoreOlympiaNetwork,
     };
-    pub use radix_engine_toolkit::functions::instructions::{
-        hash as core_instructions_hash,
-        compile as core_instructions_compile,
-        decompile as core_instructions_decompile,
-        statically_validate as core_instructions_statically_validate,
-        extract_addresses as core_instructions_extract_addresses,
+    pub use radix_engine_toolkit::functions::transaction_v1::instructions::{
+        hash as core_transaction_v1_instructions_hash,
+        to_payload_bytes as core_transaction_v1_instructions_to_payload_bytes,
+        from_payload_bytes as core_transaction_v1_instructions_from_payload_bytes,
+        statically_validate as core_transaction_v1_instructions_statically_validate,
+        extract_addresses as core_transaction_v1_instructions_extract_addresses,
         InstructionValidationError as CoreInstructionValidationError,
     };
     pub use radix_engine_toolkit::functions::utils::{
         decode_transaction_id as core_decode_transaction_id
     };
-    pub use radix_engine_toolkit::functions::manifest::{
-        hash as core_manifest_hash,
-        compile as core_manifest_compile,
-        decompile as core_manifest_decompile,
-        statically_validate as core_manifest_statically_validate,
-        modify as core_manifest_modify,
-        summary as core_manifest_summary,
-        execution_summary as core_manifest_execution_summary,
-        TransactionManifestModifications as CoreManifestTransactionManifestModifications,
-        Assertion as CoreManifestAssertion,
-        ManifestModificationError as CoreManifestModificationError
+    pub use radix_engine_toolkit::functions::transaction_v1::manifest::{
+        hash as core_transaction_v1_manifest_hash,
+        to_payload_bytes as core_transaction_v1_manifest_to_payload_bytes,
+        from_payload_bytes as core_transaction_v1_manifest_from_payload_bytes,
+        statically_validate as core_transaction_v1_manifest_statically_validate,
+        statically_analyze as core_transaction_v1_manifest_statically_analyze,
+        dynamically_analyze as core_transaction_v1_manifest_dynamically_analyze,
     };
-    pub use radix_engine_toolkit::functions::intent::{
-        hash as core_intent_hash,
-        compile as core_intent_compile,
-        decompile as core_intent_decompile,
-        statically_validate as core_intent_statically_validate,
+    pub use radix_engine_toolkit::functions::transaction_v1::intent::{
+        hash as core_transaction_v1_intent_hash,
+        to_payload_bytes as core_transaction_v1_intent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v1_intent_from_payload_bytes,
+        statically_validate as core_transaction_v1_intent_statically_validate,
     };
-    pub use radix_engine_toolkit::functions::signed_intent::{
-        hash as core_signed_intent_hash,
-        compile as core_signed_intent_compile,
-        decompile as core_signed_intent_decompile,
-        statically_validate as core_signed_intent_statically_validate,
+    pub use radix_engine_toolkit::functions::transaction_v1::signed_intent::{
+        hash as core_transaction_v1_signed_intent_hash,
+        to_payload_bytes as core_transaction_v1_signed_intent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v1_signed_intent_from_payload_bytes,
+        statically_validate as core_transaction_v1_signed_intent_statically_validate,
     };
-    pub use radix_engine_toolkit::functions::notarized_transaction::{
-        hash as core_notarized_transaction_hash,
-        compile as core_notarized_transaction_compile,
-        decompile as core_notarized_transaction_decompile,
-        statically_validate as core_notarized_transaction_statically_validate,
+    pub use radix_engine_toolkit::functions::transaction_v1::notarized_transaction::{
+        hash as core_transaction_v1_notarized_transaction_hash,
+        to_payload_bytes as core_transaction_v1_notarized_transaction_to_payload_bytes,
+        from_payload_bytes as core_transaction_v1_notarized_transaction_from_payload_bytes,
+        statically_validate as core_transaction_v1_notarized_transaction_statically_validate,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::instructions::{
+        hash as core_transaction_v2_instructions_hash,
+        to_payload_bytes as core_transaction_v2_instructions_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_instructions_from_payload_bytes,
+        extract_addresses as core_transaction_v2_instructions_extract_addresses,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::manifest::{
+        hash as core_transaction_v2_manifest_hash,
+        to_payload_bytes as core_transaction_v2_manifest_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_manifest_from_payload_bytes,
+        statically_analyze as core_transaction_v2_manifest_statically_analyze,
+        dynamically_analyze as core_transaction_v2_manifest_dynamically_analyze,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::intent_core::{
+        hash as core_transaction_v2_intent_hash,
+        to_payload_bytes as core_transaction_v2_intent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_intent_from_payload_bytes,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::subintent::{
+        hash as core_transaction_v2_subintent_hash,
+        to_payload_bytes as core_transaction_v2_subintent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_subintent_from_payload_bytes,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::signed_transaction_intent::{
+        hash as core_transaction_v2_signed_transaction_intent_hash,
+        to_payload_bytes as core_transaction_v2_signed_transaction_intent_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_signed_transaction_intent_from_payload_bytes,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::notarized_transaction::{
+        hash as core_transaction_v2_notarized_transaction_hash,
+        to_payload_bytes as core_transaction_v2_notarized_transaction_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_notarized_transaction_from_payload_bytes,
+        statically_validate as core_transaction_v2_notarized_transaction_statically_validate,
     };
     pub use radix_engine_toolkit::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
@@ -101,16 +131,15 @@ mod core {
         encode_string_representation as core_scrypto_encode_string_representation,
     };
     pub use radix_engine_toolkit::functions::events::{
-        sbor_decode_to_native_event as core_events_sbor_decode_to_native_event
+        scrypto_sbor_decode_to_native_event as core_scrypto_sbor_decode_to_native_event
     };
-
     /* TransactionTypes */
     pub use radix_engine_toolkit::transaction_types::{
-        ManifestSummaryCallback as CoreManifestSummaryCallback,
-        ExecutionSummaryCallback as CoreExecutionSummaryCallback,
+        StaticAnalysisCallback as CoreStaticAnalysisCallback,
+        DynamicAnalysisCallback as CoreDynamicAnalysisCallback,
         TransactionTypesError as CoreTransactionTypesError,
-        ManifestSummary as CoreManifestSummary,
-        ExecutionSummary as CoreExecutionSummary,
+        StaticAnalysis as CoreStaticAnalysis,
+        DynamicAnalysis as CoreDynamicAnalysis,
         TransactionTypesReceipt as CoreTransactionTypesReceipt,
         NewEntities as CoreNewEntities,
         FnRules as CoreFnRules,
@@ -144,8 +173,8 @@ mod core {
         TrackedValidatorUnstake as CoreTrackedValidatorUnstake,
         ValidatorClaimDetector as CoreValidatorClaimDetector,
         TrackedValidatorClaim as CoreTrackedValidatorClaim,
-        summary as core_summary,
-        execution_summary as core_execution_summary,
+        static_analysis as core_static_analysis,
+        dynamic_analysis as core_dynamic_analysis,
     };
 
     /* Utils */
@@ -169,9 +198,9 @@ mod native {
         Signer as NativeSigner,
         PrivateKey as NativePrivateKey,
 
-        SignatureV1 as NativeSignature,
+        SignatureV1 as NativeSignatureV1,
 
-        SignatureWithPublicKeyV1 as NativeSignatureWithPublicKey,
+        SignatureWithPublicKeyV1 as NativeSignatureWithPublicKeyV1,
     };
     pub use radix_common::prelude::{
         Epoch as NativeEpoch,
@@ -195,8 +224,8 @@ mod native {
         Secp256k1Signature as NativeSecp256k1Signature,
     };
     pub use radix_transactions::manifest::{
-        compile as native_compile,
-        decompile as native_decompile,
+        compile as native_to_payload_bytes,
+        decompile as native_from_payload_bytes,
 
         IsBlobProvider as NativeIsBlobProvider,
         BlobProvider as NativeBlobProvider,
@@ -204,6 +233,37 @@ mod native {
 
         CompileError as NativeCompileError,
         DecompileError as NativeDecompileError,
+
+        TakeAllFromWorktop as NativeTakeAllFromWorktop,
+        TakeFromWorktop as NativeTakeFromWorktop,
+        TakeNonFungiblesFromWorktop as NativeTakeNonFungiblesFromWorktop,
+        ReturnToWorktop as NativeReturnToWorktop,
+        AssertWorktopContainsAny as NativeAssertWorktopContainsAny,
+        AssertWorktopContains as NativeAssertWorktopContains,
+        AssertWorktopContainsNonFungibles as NativeAssertWorktopContainsNonFungibles,
+        PopFromAuthZone as NativePopFromAuthZone,
+        PushToAuthZone as NativePushToAuthZone,
+        CreateProofFromAuthZoneOfAmount as NativeCreateProofFromAuthZoneOfAmount,
+        CreateProofFromAuthZoneOfNonFungibles as NativeCreateProofFromAuthZoneOfNonFungibles,
+        CreateProofFromAuthZoneOfAll as NativeCreateProofFromAuthZoneOfAll,
+        DropAuthZoneProofs as NativeDropAuthZoneProofs,
+        DropAuthZoneRegularProofs as NativeDropAuthZoneRegularProofs,
+        DropAuthZoneSignatureProofs as NativeDropAuthZoneSignatureProofs,
+        CreateProofFromBucketOfAmount as NativeCreateProofFromBucketOfAmount,
+        CreateProofFromBucketOfNonFungibles as NativeCreateProofFromBucketOfNonFungibles,
+        CreateProofFromBucketOfAll as NativeCreateProofFromBucketOfAll,
+        BurnResource as NativeBurnResource,
+        CloneProof as NativeCloneProof,
+        DropProof as NativeDropProof,
+        CallFunction as NativeCallFunction,
+        CallMethod as NativeCallMethod,
+        CallRoyaltyMethod as NativeCallRoyaltyMethod,
+        CallMetadataMethod as NativeCallMetadataMethod,
+        CallRoleAssignmentMethod as NativeCallRoleAssignmentMethod,
+        CallDirectVaultMethod as NativeCallDirectVaultMethod,
+        DropNamedProofs as NativeDropNamedProofs,
+        DropAllProofs as NativeDropAllProofs,
+        AllocateGlobalAddress as NativeAllocateGlobalAddress,
     };
 
     pub use scrypto::prelude::{
@@ -286,6 +346,7 @@ mod native {
         ManifestProof as NativeManifestProof,
         ManifestExpression as NativeManifestExpression,
         ManifestBlobRef as NativeManifestBlobRef,
+        ManifestNamedAddress as NativeManifestNamedAddress,
         ManifestAddressReservation as NativeManifestAddressReservation,
 
         scrypto_encode as native_scrypto_encode,
@@ -334,27 +395,26 @@ mod native {
         AddressBech32Encoder as NativeAddressBech32Encoder,
     };
     pub use radix_transactions::prelude::{
-        InstructionV1 as NativeInstruction,
-        InstructionsV1 as NativeInstructions,
+        InstructionV1 as NativeInstructionV1,
+        InstructionsV1 as NativeInstructionsV1,
+        TransactionHeaderV1 as NativeTransactionHeaderV1,
+        TransactionManifestV1 as NativeTransactionManifestV1,
+        IntentV1 as NativeIntentV1,
+        SignedIntentV1 as NativeSignedIntentV1,
+        NotarizedTransactionV1 as NativeNotarizedTransactionV1,
+        BlobV1 as NativeBlobV1,
+        BlobsV1 as NativeBlobsV1,
+        
         DynamicGlobalAddress as NativeDynamicGlobalAddress,
         DynamicPackageAddress as NativeDynamicPackageAddress,
 
-        TransactionHeaderV1 as NativeTransactionHeader,
-        TransactionManifestV1 as NativeTransactionManifest,
-        IntentV1 as NativeIntent,
-        SignedIntentV1 as NativeSignedIntent,
-        NotarizedTransactionV1 as NativeNotarizedTransaction,
-        BlobV1 as NativeBlob,
-        BlobsV1 as NativeBlobs,
-
-
+        MessageV1 as NativeMessageV1,
         AesGcmPayload as NativeAesGcmPayload,
         AesWrapped128BitKey as NativeAesWrapped128BitKey,
         CurveType as NativeCurveType,
         DecryptorsByCurve as NativeDecryptorsByCurve,
         EncryptedMessageV1 as NativeEncryptedMessage,
         MessageContentsV1 as NativeMessageContents,
-        MessageV1 as NativeMessage,
         PlaintextMessageV1 as NativePlaintextMessage,
         PublicKeyFingerprint as NativePublicKeyFingerprint,
 
@@ -369,7 +429,7 @@ mod native {
         NotarySignatureV1 as NativeNotarySignature,
 
         TransactionIntentHash as NativeIntentHash,
-        SignedTransactionIntentHash as NativeSignedIntentHash,
+        SignedTransactionIntentHash as NativeSignedTransactionIntentHash,
         NotarizedTransactionHash as NativeNotarizedTransactionHash,
 
         IsTransactionHash as NativeIsTransactionHash,

@@ -23,16 +23,16 @@ use sbor::Versioned;
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionManifest {
-    pub instructions: Arc<Instructions>,
+pub struct TransactionManifestV1 {
+    pub instructions: Arc<InstructionsV1>,
     pub blobs: Vec<Vec<u8>>,
 }
 
 #[uniffi::export]
-impl TransactionManifest {
+impl TransactionManifestV1 {
     #[uniffi::constructor]
     pub fn new(
-        instructions: Arc<Instructions>,
+        instructions: Arc<InstructionsV1>,
         blobs: Vec<Vec<u8>>,
     ) -> Arc<Self> {
         Arc::new(Self {
@@ -41,7 +41,7 @@ impl TransactionManifest {
         })
     }
 
-    pub fn instructions(&self) -> Arc<Instructions> {
+    pub fn instructions(&self) -> Arc<InstructionsV1> {
         self.instructions.clone()
     }
 
@@ -51,25 +51,29 @@ impl TransactionManifest {
 
     pub fn compile(&self) -> Result<Vec<u8>> {
         let native = self.clone().to_native();
-        Ok(core_manifest_compile(&native)?)
+        Ok(core_transaction_v1_manifest_to_payload_bytes(&native)?)
     }
 
     #[uniffi::constructor]
     pub fn decompile(compiled: Vec<u8>, network_id: u8) -> Result<Arc<Self>> {
-        let decompiled = core_manifest_decompile(compiled)?;
+        let decompiled =
+            core_transaction_v1_manifest_from_payload_bytes(compiled)?;
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 
     pub fn statically_validate(&self) -> Result<()> {
-        core_instructions_statically_validate(&self.instructions.0)?;
-        core_manifest_statically_validate(&self.to_native())?;
+        core_transaction_v1_instructions_statically_validate(
+            &self.instructions.0,
+        )?;
+        core_transaction_v1_manifest_statically_validate(&self.to_native())?;
         Ok(())
     }
 
     pub fn extract_addresses(&self) -> HashMap<EntityType, Vec<Arc<Address>>> {
         let network_id = self.instructions.1;
-        let (addresses, _) =
-            core_instructions_extract_addresses(&self.instructions.0);
+        let (addresses, _) = core_transaction_v1_instructions_extract_addresses(
+            &self.instructions.0,
+        );
 
         let mut map = HashMap::<EntityType, Vec<Arc<Address>>>::new();
         for address in addresses {
@@ -81,28 +85,20 @@ impl TransactionManifest {
         map
     }
 
-    pub fn modify(
-        &self,
-        modifications: TransactionManifestModifications,
-    ) -> Result<Arc<Self>> {
-        let modifications = modifications.to_native()?;
-        let native_manifest =
-            core_manifest_modify(&self.to_native(), modifications)?;
-        let manifest =
-            Self::from_native(&native_manifest, self.instructions.network_id());
-        Ok(Arc::new(manifest))
-    }
-
-    pub fn summary(&self, network_id: u8) -> ManifestSummary {
+    pub fn static_analysis(&self, network_id: u8) -> Result<StaticAnalysis> {
         let native = self.clone().to_native();
-        ManifestSummary::from_native(core_manifest_summary(&native), network_id)
+        core_transaction_v1_manifest_statically_analyze(&native)
+            .ok_or(RadixEngineToolkitError::StaticAnalysisFailed)
+            .map(|static_analysis| {
+                StaticAnalysis::from_native(static_analysis, network_id)
+            })
     }
 
-    pub fn execution_summary(
+    pub fn dynamic_analysis(
         &self,
         network_id: u8,
         toolkit_receipt: String,
-    ) -> Result<ExecutionSummary> {
+    ) -> Result<DynamicAnalysis> {
         let native = self.clone().to_native();
         let network_definition =
             core_network_definition_from_network_id(network_id);
@@ -118,29 +114,30 @@ impl TransactionManifest {
                 .ok()
         })
         .ok_or(RadixEngineToolkitError::InvalidReceipt)?;
-        core_manifest_execution_summary(&native, &receipt)
+        core_transaction_v1_manifest_dynamically_analyze(&native, &receipt)
             .map_err(|_| RadixEngineToolkitError::InvalidReceipt)
-            .map(|summary| ExecutionSummary::from_native(summary, network_id))?
+            .map(|summary| DynamicAnalysis::from_native(summary, network_id))?
     }
 }
 
-impl TransactionManifest {
+impl TransactionManifestV1 {
     pub fn from_native(
-        NativeTransactionManifest {
+        NativeTransactionManifestV1 {
             instructions,
             blobs,
-        }: &NativeTransactionManifest,
+            ..
+        }: &NativeTransactionManifestV1,
         network_id: u8,
     ) -> Self {
         let blobs = blobs.iter().map(|(_, v)| v.clone()).collect::<Vec<_>>();
-        let instructions = Instructions(instructions.clone(), network_id);
+        let instructions = InstructionsV1(instructions.clone(), network_id);
         Self {
             instructions: Arc::new(instructions),
             blobs,
         }
     }
 
-    pub fn to_native(&self) -> NativeTransactionManifest {
+    pub fn to_native(&self) -> NativeTransactionManifestV1 {
         let blobs = self
             .blobs
             .iter()
@@ -148,9 +145,10 @@ impl TransactionManifest {
             .collect::<IndexMap<_, _>>();
         let instructions = self.instructions.0.clone();
 
-        NativeTransactionManifest {
+        NativeTransactionManifestV1 {
             instructions,
             blobs,
+            ..Default::default()
         }
     }
 }
@@ -325,95 +323,6 @@ impl ToNative for AccountDefaultDepositRule {
             AccountDefaultDepositRule::AllowExisting => {
                 Ok(Self::Native::AllowExisting)
             }
-        }
-    }
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct TransactionManifestModifications {
-    pub add_access_controller_proofs: Vec<Arc<Address>>,
-    pub add_lock_fee: Option<LockFeeModification>,
-    pub add_assertions: Vec<IndexedAssertion>,
-}
-
-impl ToNative for TransactionManifestModifications {
-    type Native = CoreManifestTransactionManifestModifications;
-
-    fn to_native(self) -> Result<Self::Native> {
-        Ok(Self::Native {
-            add_access_controller_proofs: self
-                .add_access_controller_proofs
-                .into_iter()
-                .map(|value| (*value).try_into())
-                .collect::<Result<_>>()?,
-            add_assertions: self
-                .add_assertions
-                .into_iter()
-                .map(|IndexedAssertion { index, assertion }| {
-                    assertion
-                        .to_native()
-                        .map(|assertion| (index as usize, assertion))
-                })
-                .collect::<Result<_>>()?,
-            add_lock_fee: if let Some(LockFeeModification {
-                account_address,
-                amount,
-            }) = self.add_lock_fee
-            {
-                Some(((*account_address).try_into()?, amount.0))
-            } else {
-                None
-            },
-        })
-    }
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct LockFeeModification {
-    pub account_address: Arc<Address>,
-    pub amount: Arc<Decimal>,
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct IndexedAssertion {
-    pub index: u64,
-    pub assertion: Assertion,
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum Assertion {
-    Amount {
-        resource_address: Arc<Address>,
-        amount: Arc<Decimal>,
-    },
-    Ids {
-        resource_address: Arc<Address>,
-        ids: Vec<NonFungibleLocalId>,
-    },
-}
-
-impl ToNative for Assertion {
-    type Native = CoreManifestAssertion;
-
-    fn to_native(self) -> Result<Self::Native> {
-        match self {
-            Self::Amount {
-                resource_address,
-                amount,
-            } => Ok(Self::Native::Amount {
-                resource_address: (*resource_address).try_into()?,
-                amount: amount.0,
-            }),
-            Self::Ids {
-                resource_address,
-                ids,
-            } => Ok(Self::Native::Ids {
-                resource_address: (*resource_address).try_into()?,
-                ids: ids
-                    .into_iter()
-                    .map(NativeNonFungibleLocalId::try_from)
-                    .collect::<Result<_>>()?,
-            }),
         }
     }
 }
@@ -720,7 +629,7 @@ impl DetailedManifestClass {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct ExecutionSummary {
+pub struct DynamicAnalysis {
     pub account_withdraws: HashMap<String, Vec<ResourceIndicator>>,
     pub account_deposits: HashMap<String, Vec<ResourceIndicator>>,
     pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
@@ -735,9 +644,9 @@ pub struct ExecutionSummary {
     pub newly_created_non_fungibles: Vec<Arc<NonFungibleGlobalId>>,
 }
 
-impl ExecutionSummary {
+impl DynamicAnalysis {
     pub fn from_native(
-        native: CoreExecutionSummary,
+        native: CoreDynamicAnalysis,
         network_id: u8,
     ) -> Result<Self> {
         Ok(Self {
@@ -856,7 +765,7 @@ impl ExecutionSummary {
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct ManifestSummary {
+pub struct StaticAnalysis {
     pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
     pub accounts_withdrawn_from: Vec<Arc<Address>>,
     pub accounts_deposited_into: Vec<Arc<Address>>,
@@ -867,8 +776,8 @@ pub struct ManifestSummary {
     pub classification: Vec<ManifestClass>,
 }
 
-impl ManifestSummary {
-    fn from_native(native: CoreManifestSummary, network_id: u8) -> Self {
+impl StaticAnalysis {
+    fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
         Self {
             presented_proofs: native
                 .presented_proofs

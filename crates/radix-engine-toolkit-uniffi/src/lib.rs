@@ -28,7 +28,7 @@ pub mod events;
 pub mod manifest;
 pub mod sbor;
 pub mod traits;
-pub mod transaction;
+pub mod transaction_v1;
 pub mod utils;
 
 pub(crate) mod internal_prelude;
@@ -88,16 +88,16 @@ pub mod prelude {
     pub use crate::manifest::value::*;
 
     /* Transaction */
-    pub use crate::transaction::hash::*;
-    pub use crate::transaction::header::*;
-    pub use crate::transaction::instruction::*;
-    pub use crate::transaction::instructions::*;
-    pub use crate::transaction::intent::*;
-    pub use crate::transaction::manifest::*;
-    pub use crate::transaction::message::*;
-    pub use crate::transaction::notarized_transaction::*;
-    pub use crate::transaction::signed_intent::*;
-    pub use crate::transaction::validation::*;
+    pub use crate::transaction_v1::hash::*;
+    pub use crate::transaction_v1::header::*;
+    pub use crate::transaction_v1::instruction::*;
+    pub use crate::transaction_v1::instructions::*;
+    pub use crate::transaction_v1::intent::*;
+    pub use crate::transaction_v1::manifest::*;
+    pub use crate::transaction_v1::message::*;
+    pub use crate::transaction_v1::notarized_transaction::*;
+    pub use crate::transaction_v1::signed_intent::*;
+    pub use crate::transaction_v1::validation::*;
 
     /* SBOR */
     pub use crate::sbor::functions::*;

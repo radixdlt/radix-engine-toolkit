@@ -37,7 +37,7 @@ impl ReservedInstructionsDetector {
     }
 }
 
-impl ManifestSummaryCallback for ReservedInstructionsDetector {
+impl StaticAnalysisCallback for ReservedInstructionsDetector {
     fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         let InstructionV2::CallMethod(CallMethod {
             address,
@@ -86,4 +86,4 @@ impl ManifestSummaryCallback for ReservedInstructionsDetector {
     }
 }
 
-impl ExecutionSummaryCallback for ReservedInstructionsDetector {}
+impl DynamicAnalysisCallback for ReservedInstructionsDetector {}

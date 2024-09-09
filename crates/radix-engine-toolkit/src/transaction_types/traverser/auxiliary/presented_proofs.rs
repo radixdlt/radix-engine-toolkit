@@ -31,7 +31,7 @@ impl PresentedProofsDetector {
     }
 }
 
-impl ManifestSummaryCallback for PresentedProofsDetector {
+impl StaticAnalysisCallback for PresentedProofsDetector {
     fn on_create_proof(
         &mut self,
         account: &ComponentAddress,
@@ -44,4 +44,4 @@ impl ManifestSummaryCallback for PresentedProofsDetector {
     }
 }
 
-impl ExecutionSummaryCallback for PresentedProofsDetector {}
+impl DynamicAnalysisCallback for PresentedProofsDetector {}

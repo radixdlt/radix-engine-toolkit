@@ -84,7 +84,7 @@ define_name_record! {
     },
     {
         name: named_address,
-        ty: u32,
+        ty: crate::prelude::NativeManifestNamedAddress,
         allocation_fn: new_address_id
     },
 }

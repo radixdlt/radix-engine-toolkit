@@ -37,9 +37,9 @@ impl AccountResourceMovementsDetector {
     }
 }
 
-impl ManifestSummaryCallback for AccountResourceMovementsDetector {}
+impl StaticAnalysisCallback for AccountResourceMovementsDetector {}
 
-impl ExecutionSummaryCallback for AccountResourceMovementsDetector {
+impl DynamicAnalysisCallback for AccountResourceMovementsDetector {
     fn on_account_deposit(
         &mut self,
         account: &ComponentAddress,

@@ -37,7 +37,7 @@ impl GeneralDetector {
     }
 }
 
-impl ManifestSummaryCallback for GeneralDetector {
+impl StaticAnalysisCallback for GeneralDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -96,7 +96,7 @@ impl ManifestSummaryCallback for GeneralDetector {
     }
 }
 
-impl ExecutionSummaryCallback for GeneralDetector {}
+impl DynamicAnalysisCallback for GeneralDetector {}
 
 impl GeneralDetector {
     fn construct_fn_rules(address: &DynamicGlobalAddress) -> FnRules {

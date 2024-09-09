@@ -18,17 +18,17 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct SignedIntent {
-    pub intent: Arc<Intent>,
-    pub intent_signatures: Vec<SignatureWithPublicKey>,
+pub struct SignedTransactionIntentV1 {
+    pub intent: Arc<IntentV1>,
+    pub intent_signatures: Vec<SignatureWithPublicKeyV1>,
 }
 
 #[uniffi::export]
-impl SignedIntent {
+impl SignedTransactionIntentV1 {
     #[uniffi::constructor]
     pub fn new(
-        intent: Arc<Intent>,
-        intent_signatures: Vec<SignatureWithPublicKey>,
+        intent: Arc<IntentV1>,
+        intent_signatures: Vec<SignatureWithPublicKeyV1>,
     ) -> Arc<Self> {
         Arc::new(Self {
             intent,
@@ -38,25 +38,28 @@ impl SignedIntent {
 
     #[uniffi::constructor]
     pub fn decompile(compiled_signed_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_signed_intent_decompile(compiled_signed_intent)
-            .map(|signed_intent| Arc::new(signed_intent.into()))
-            .map_err(Into::into)
+        core_transaction_v1_signed_intent_from_payload_bytes(
+            compiled_signed_intent,
+        )
+        .map(|signed_intent| Arc::new(signed_intent.into()))
+        .map_err(Into::into)
     }
 
-    pub fn intent(&self) -> Arc<Intent> {
+    pub fn intent(&self) -> Arc<IntentV1> {
         self.intent.clone()
     }
 
-    pub fn intent_signatures(&self) -> Vec<SignatureWithPublicKey> {
+    pub fn intent_signatures(&self) -> Vec<SignatureWithPublicKeyV1> {
         self.intent_signatures.clone()
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeSignedIntent::try_from(self.clone()).and_then(|signed_intent| {
-            core_signed_intent_hash(&signed_intent)
+        NativeSignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
+            core_transaction_v1_signed_intent_hash(&signed_intent)
                 .map_err(Into::into)
                 .map(|hash| {
-                    let signed_intent_hash = NativeSignedIntentHash(hash.hash);
+                    let signed_intent_hash =
+                        NativeSignedTransactionIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
                         self.intent.header.network_id,
@@ -74,8 +77,9 @@ impl SignedIntent {
     }
 
     pub fn compile(&self) -> Result<Vec<u8>> {
-        NativeSignedIntent::try_from(self.clone()).and_then(|signed_intent| {
-            core_signed_intent_compile(&signed_intent).map_err(Into::into)
+        NativeSignedIntentV1::try_from(self.clone()).and_then(|signed_intent| {
+            core_transaction_v1_signed_intent_to_payload_bytes(&signed_intent)
+                .map_err(Into::into)
         })
     }
 
@@ -83,7 +87,7 @@ impl SignedIntent {
         &self,
         validation_config: Arc<ValidationConfig>,
     ) -> Result<()> {
-        core_signed_intent_statically_validate(
+        core_transaction_v1_signed_intent_statically_validate(
             &self.clone().try_into()?,
             validation_config.as_ref().clone().into(),
         )
@@ -91,18 +95,18 @@ impl SignedIntent {
     }
 }
 
-impl From<NativeSignedIntent> for SignedIntent {
+impl From<NativeSignedIntentV1> for SignedTransactionIntentV1 {
     fn from(
-        NativeSignedIntent {
+        NativeSignedIntentV1 {
             intent,
             intent_signatures,
-        }: NativeSignedIntent,
+        }: NativeSignedIntentV1,
     ) -> Self {
-        let intent = Intent::from(intent);
+        let intent = IntentV1::from(intent);
         let intent_signatures = intent_signatures
             .signatures
             .into_iter()
-            .map(|signature| SignatureWithPublicKey::from(signature.0))
+            .map(|signature| SignatureWithPublicKeyV1::from(signature.0))
             .collect::<Vec<_>>();
 
         Self {
@@ -112,11 +116,11 @@ impl From<NativeSignedIntent> for SignedIntent {
     }
 }
 
-impl TryFrom<SignedIntent> for NativeSignedIntent {
+impl TryFrom<SignedTransactionIntentV1> for NativeSignedIntentV1 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: SignedIntent) -> Result<Self> {
-        let intent = NativeIntent::try_from(value.intent.as_ref().clone())?;
+    fn try_from(value: SignedTransactionIntentV1) -> Result<Self> {
+        let intent = NativeIntentV1::try_from(value.intent.as_ref().clone())?;
         let intent_signatures = value
             .intent_signatures
             .into_iter()

@@ -26,7 +26,9 @@ pub enum ManifestAddress {
 impl From<ManifestAddress> for NativeManifestAddress {
     fn from(value: ManifestAddress) -> Self {
         match value {
-            ManifestAddress::Named { value } => Self::Named(value),
+            ManifestAddress::Named { value } => {
+                Self::Named(NativeManifestNamedAddress(value))
+            }
             ManifestAddress::Static { value } => Self::Static((*value).into()),
         }
     }
@@ -36,7 +38,7 @@ impl ManifestAddress {
     pub fn new(native: &NativeManifestAddress, network_id: u8) -> Self {
         match native {
             NativeManifestAddress::Named(value) => {
-                Self::Named { value: *value }
+                Self::Named { value: value.0 }
             }
             NativeManifestAddress::Static(value) => {
                 Self::Static {
@@ -59,10 +61,12 @@ impl ManifestAddress {
     ) -> Self {
         match native {
             NativeDynamicGlobalAddress::Named(value) => {
-                Self::Named { value: *value }
+                Self::Named { value: value.0 }
             }
             NativeDynamicGlobalAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
+                value: Arc::new(Address::from_typed_node_id(
+                    *value, network_id,
+                )),
             },
         }
     }
@@ -73,10 +77,12 @@ impl ManifestAddress {
     ) -> Self {
         match native {
             NativeDynamicPackageAddress::Named(value) => {
-                Self::Named { value: *value }
+                Self::Named { value: value.0 }
             }
             NativeDynamicPackageAddress::Static(value) => Self::Static {
-                value: Arc::new(Address::from_typed_node_id(*value, network_id)),
+                value: Arc::new(Address::from_typed_node_id(
+                    *value, network_id,
+                )),
             },
         }
     }
@@ -89,7 +95,9 @@ impl TryFrom<ManifestAddress> for NativeDynamicPackageAddress {
         value: ManifestAddress,
     ) -> std::result::Result<Self, Self::Error> {
         match value {
-            ManifestAddress::Named { value } => Ok(Self::Named(value)),
+            ManifestAddress::Named { value } => {
+                Ok(Self::Named(NativeManifestNamedAddress(value)))
+            }
             ManifestAddress::Static { value } => {
                 (*value).try_into().map(Self::Static).map_err(Into::into)
             }
@@ -104,7 +112,9 @@ impl TryFrom<ManifestAddress> for NativeDynamicGlobalAddress {
         value: ManifestAddress,
     ) -> std::result::Result<Self, Self::Error> {
         match value {
-            ManifestAddress::Named { value } => Ok(Self::Named(value)),
+            ManifestAddress::Named { value } => {
+                Ok(Self::Named(NativeManifestNamedAddress(value)))
+            }
             ManifestAddress::Static { value } => {
                 (*value).try_into().map(Self::Static).map_err(Into::into)
             }

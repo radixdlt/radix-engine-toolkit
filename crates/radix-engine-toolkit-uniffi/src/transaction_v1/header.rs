@@ -18,7 +18,7 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Record)]
-pub struct TransactionHeader {
+pub struct TransactionHeaderV1 {
     pub network_id: u8,
     pub start_epoch_inclusive: u64,
     pub end_epoch_exclusive: u64,
@@ -28,10 +28,10 @@ pub struct TransactionHeader {
     pub tip_percentage: u16,
 }
 
-impl TryFrom<TransactionHeader> for NativeTransactionHeader {
+impl TryFrom<TransactionHeaderV1> for NativeTransactionHeaderV1 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: TransactionHeader) -> Result<Self> {
+    fn try_from(value: TransactionHeaderV1) -> Result<Self> {
         Ok(Self {
             network_id: value.network_id,
             start_epoch_inclusive: NativeEpoch::of(value.start_epoch_inclusive),
@@ -44,8 +44,8 @@ impl TryFrom<TransactionHeader> for NativeTransactionHeader {
     }
 }
 
-impl From<NativeTransactionHeader> for TransactionHeader {
-    fn from(value: NativeTransactionHeader) -> Self {
+impl From<NativeTransactionHeaderV1> for TransactionHeaderV1 {
+    fn from(value: NativeTransactionHeaderV1) -> Self {
         Self {
             network_id: value.network_id,
             start_epoch_inclusive: value.start_epoch_inclusive.number(),

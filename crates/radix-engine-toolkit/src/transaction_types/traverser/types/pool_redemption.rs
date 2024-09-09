@@ -59,7 +59,7 @@ impl PoolRedemptionDetector {
     }
 }
 
-impl ManifestSummaryCallback for PoolRedemptionDetector {
+impl StaticAnalysisCallback for PoolRedemptionDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -152,7 +152,7 @@ impl ManifestSummaryCallback for PoolRedemptionDetector {
     }
 }
 
-impl ExecutionSummaryCallback for PoolRedemptionDetector {
+impl DynamicAnalysisCallback for PoolRedemptionDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV2,

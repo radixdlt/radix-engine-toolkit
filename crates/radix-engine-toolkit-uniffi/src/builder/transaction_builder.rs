@@ -22,22 +22,22 @@ use std::ops::Deref;
 pub struct TransactionBuilder;
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionBuilderHeaderStep(pub(crate) TransactionHeader);
+pub struct TransactionBuilderHeaderStep(pub(crate) TransactionHeaderV1);
 
 #[derive(Clone, Debug, Object)]
 pub struct TransactionBuilderMessageStep(
-    pub(crate) TransactionHeader,
-    pub(crate) TransactionManifest,
-    pub(crate) Message,
+    pub(crate) TransactionHeaderV1,
+    pub(crate) TransactionManifestV1,
+    pub(crate) MessageV1,
 );
 
 #[derive(Clone, Object)]
 pub struct TransactionBuilderIntentSignaturesStep(
-    pub(crate) TransactionHeader,
-    pub(crate) TransactionManifest,
-    pub(crate) Message,
+    pub(crate) TransactionHeaderV1,
+    pub(crate) TransactionManifestV1,
+    pub(crate) MessageV1,
     pub(crate) Hash,
-    pub(crate) Vec<SignatureWithPublicKey>,
+    pub(crate) Vec<SignatureWithPublicKeyV1>,
 );
 
 #[uniffi::export]
@@ -49,7 +49,7 @@ impl TransactionBuilder {
 
     pub fn header(
         self: Arc<Self>,
-        header: TransactionHeader,
+        header: TransactionHeaderV1,
     ) -> Arc<TransactionBuilderHeaderStep> {
         Arc::new(TransactionBuilderHeaderStep(header))
     }
@@ -59,13 +59,13 @@ impl TransactionBuilder {
 impl TransactionBuilderHeaderStep {
     pub fn manifest(
         self: Arc<Self>,
-        manifest: Arc<TransactionManifest>,
+        manifest: Arc<TransactionManifestV1>,
     ) -> Arc<TransactionBuilderMessageStep> {
         let header = self.0.clone();
         Arc::new(TransactionBuilderMessageStep(
             header,
             manifest.as_ref().clone(),
-            Message::None,
+            MessageV1::None,
         ))
     }
 }
@@ -74,7 +74,7 @@ impl TransactionBuilderHeaderStep {
 impl TransactionBuilderMessageStep {
     pub fn message(
         self: Arc<Self>,
-        message: Message,
+        message: MessageV1,
     ) -> Arc<TransactionBuilderIntentSignaturesStep> {
         TransactionBuilderIntentSignaturesStep::new(
             &TransactionBuilderMessageStep(
@@ -106,7 +106,7 @@ impl TransactionBuilderMessageStep {
 impl TransactionBuilderIntentSignaturesStep {
     #[uniffi::constructor]
     fn new(message_step: &TransactionBuilderMessageStep) -> Arc<Self> {
-        let intent = Intent {
+        let intent = IntentV1 {
             header: message_step.0.clone(),
             manifest: Arc::new(message_step.1.clone()),
             message: message_step.2.clone(),
@@ -151,22 +151,22 @@ impl TransactionBuilderIntentSignaturesStep {
     pub fn notarize_with_private_key(
         self: Arc<Self>,
         private_key: Arc<PrivateKey>,
-    ) -> Result<Arc<NotarizedTransaction>> {
+    ) -> Result<Arc<NotarizedTransactionV1>> {
         self.notarize(private_key.as_ref()).map(Arc::new)
     }
 
     pub fn notarize_with_signer(
         self: Arc<Self>,
         signer: Box<dyn Signer>,
-    ) -> Result<Arc<NotarizedTransaction>> {
+    ) -> Result<Arc<NotarizedTransactionV1>> {
         self.notarize(signer.as_ref()).map(Arc::new)
     }
 }
 
 impl TransactionBuilderIntentSignaturesStep {
-    fn notarize(&self, notary: &dyn Signer) -> Result<NotarizedTransaction> {
+    fn notarize(&self, notary: &dyn Signer) -> Result<NotarizedTransactionV1> {
         /* Processing the intent */
-        let intent = Intent {
+        let intent = IntentV1 {
             header: self.0.clone(),
             manifest: Arc::new(self.1.clone()),
             message: self.2.clone(),
@@ -177,14 +177,14 @@ impl TransactionBuilderIntentSignaturesStep {
             .4
             .clone()
             .into_iter()
-            .map(NativeSignatureWithPublicKey::try_from)
+            .map(NativeSignatureWithPublicKeyV1::try_from)
             .map(|signature| signature.map(NativeIntentSignature))
             .collect::<Result<Vec<_>>>()?;
 
         /* Preparing the signed intent */
-        let intent = NativeIntent::try_from(intent)
+        let intent = NativeIntentV1::try_from(intent)
             .expect("Everything about this is trusted at this point");
-        let signed_intent = NativeSignedIntent {
+        let signed_intent = NativeSignedIntentV1 {
             intent,
             intent_signatures: NativeIntentSignatures {
                 signatures: intent_signatures,
@@ -193,14 +193,13 @@ impl TransactionBuilderIntentSignaturesStep {
 
         /* Preparing the notarized intent */
         let notarized_transaction = {
-            let signed_intent = SignedIntent::from(signed_intent);
+            let signed_intent = SignedTransactionIntentV1::from(signed_intent);
             let signed_intent_hash = Arc::new(Hash(signed_intent.hash()?.0));
             let notary_signature = notary.sign_to_signature(signed_intent_hash);
-            let notarized_transaction =
-                NotarizedTransaction {
-                    signed_intent: Arc::new(signed_intent),
-                    notary_signature,
-                };
+            let notarized_transaction = NotarizedTransactionV1 {
+                signed_intent: Arc::new(signed_intent),
+                notary_signature,
+            };
             let _ = notarized_transaction.hash()?;
             notarized_transaction
         };

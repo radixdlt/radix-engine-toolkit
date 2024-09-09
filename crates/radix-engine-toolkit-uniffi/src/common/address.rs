@@ -24,12 +24,11 @@ pub struct Address(CoreTypedNodeId, u8);
 impl Address {
     #[uniffi::constructor]
     pub fn new(address: String) -> Result<Arc<Self>> {
-        let network_id =
-            core_network_id_from_address_string(&address).ok_or(
-                RadixEngineToolkitError::FailedToExtractNetwork {
-                    address: address.clone(),
-                },
-            )?;
+        let network_id = core_network_id_from_address_string(&address).ok_or(
+            RadixEngineToolkitError::FailedToExtractNetwork {
+                address: address.clone(),
+            },
+        )?;
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let bech32_decoder =
@@ -67,27 +66,31 @@ impl Address {
     }
 
     #[uniffi::constructor]
-    pub fn virtual_account_address_from_public_key(
+    pub fn preallocated_account_address_from_public_key(
         public_key: PublicKey,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_virtual_account_address_from_public_key(public_key, network_id)
+        derive_preallocated_account_address_from_public_key(
+            public_key, network_id,
+        )
     }
 
     #[uniffi::constructor]
-    pub fn virtual_identity_address_from_public_key(
+    pub fn preallocated_identity_address_from_public_key(
         public_key: PublicKey,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_virtual_identity_address_from_public_key(public_key, network_id)
+        derive_preallocated_identity_address_from_public_key(
+            public_key, network_id,
+        )
     }
 
     #[uniffi::constructor]
-    pub fn virtual_account_address_from_olympia_address(
+    pub fn preallocated_account_address_from_olympia_address(
         olympia_account_address: Arc<OlympiaAddress>,
         network_id: u8,
     ) -> Result<Arc<Self>> {
-        derive_virtual_account_address_from_olympia_account_address(
+        derive_preallocated_account_address_from_olympia_account_address(
             olympia_account_address,
             network_id,
         )
@@ -156,8 +159,8 @@ impl Address {
             .entity_type()
             .is_global_non_fungible_resource_manager()
     }
-    pub fn is_global_virtual(&self) -> bool {
-        self.0.entity_type().is_global_virtual()
+    pub fn is_global_preallocated(&self) -> bool {
+        self.0.entity_type().is_global_preallocated()
     }
     pub fn is_internal_kv_store(&self) -> bool {
         self.0.entity_type().is_internal_kv_store()

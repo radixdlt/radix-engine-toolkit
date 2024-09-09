@@ -59,11 +59,3 @@ pub fn extract_addresses(
 
     (static_addresses, named_addresses)
 }
-
-#[derive(Clone, Debug)]
-pub enum InstructionValidationError {
-    TransactionValidationError(TransactionValidationError),
-    LocatedInstructionSchemaValidationError(
-        LocatedInstructionSchemaValidationError,
-    ),
-}

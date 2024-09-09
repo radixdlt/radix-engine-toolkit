@@ -74,7 +74,7 @@ impl NameRecordConvertible for ManifestBuilderAddressReservation {
 }
 
 impl NameRecordConvertible for ManifestBuilderNamedAddress {
-    type Native = u32;
+    type Native = NativeManifestNamedAddress;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_named_address(&self.name).copied()

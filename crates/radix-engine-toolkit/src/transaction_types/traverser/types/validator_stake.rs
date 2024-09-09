@@ -57,7 +57,7 @@ impl ValidatorStakeDetector {
     }
 }
 
-impl ManifestSummaryCallback for ValidatorStakeDetector {
+impl StaticAnalysisCallback for ValidatorStakeDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -141,7 +141,7 @@ impl ManifestSummaryCallback for ValidatorStakeDetector {
     }
 }
 
-impl ExecutionSummaryCallback for ValidatorStakeDetector {
+impl DynamicAnalysisCallback for ValidatorStakeDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV2,

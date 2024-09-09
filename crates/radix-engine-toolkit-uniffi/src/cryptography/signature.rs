@@ -18,20 +18,20 @@
 use crate::prelude::*;
 
 #[derive(Clone, Enum, Debug)]
-pub enum Signature {
+pub enum SignatureV1 {
     Secp256k1 { value: Vec<u8> },
     Ed25519 { value: Vec<u8> },
 }
 
-impl From<NativeSignature> for Signature {
-    fn from(value: NativeSignature) -> Self {
+impl From<NativeSignatureV1> for SignatureV1 {
+    fn from(value: NativeSignatureV1) -> Self {
         match value {
-            NativeSignature::Secp256k1(NativeSecp256k1Signature(value)) => {
+            NativeSignatureV1::Secp256k1(NativeSecp256k1Signature(value)) => {
                 Self::Secp256k1 {
                     value: value.to_vec(),
                 }
             }
-            NativeSignature::Ed25519(NativeEd25519Signature(value)) => {
+            NativeSignatureV1::Ed25519(NativeEd25519Signature(value)) => {
                 Self::Ed25519 {
                     value: value.to_vec(),
                 }
@@ -40,12 +40,12 @@ impl From<NativeSignature> for Signature {
     }
 }
 
-impl TryFrom<Signature> for NativeSignature {
+impl TryFrom<SignatureV1> for NativeSignatureV1 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: Signature) -> Result<Self> {
+    fn try_from(value: SignatureV1) -> Result<Self> {
         match value {
-            Signature::Ed25519 { value } => value
+            SignatureV1::Ed25519 { value } => value
                 .try_into()
                 .map(NativeEd25519Signature)
                 .map(Self::Ed25519)
@@ -54,7 +54,7 @@ impl TryFrom<Signature> for NativeSignature {
                     actual: value.len() as u64,
                     data: value,
                 }),
-            Signature::Secp256k1 { value } => value
+            SignatureV1::Secp256k1 { value } => value
                 .try_into()
                 .map(NativeSecp256k1Signature)
                 .map(Self::Secp256k1)

@@ -58,7 +58,7 @@ impl ValidatorUnstakeDetector {
     }
 }
 
-impl ManifestSummaryCallback for ValidatorUnstakeDetector {
+impl StaticAnalysisCallback for ValidatorUnstakeDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -142,7 +142,7 @@ impl ManifestSummaryCallback for ValidatorUnstakeDetector {
     }
 }
 
-impl ExecutionSummaryCallback for ValidatorUnstakeDetector {
+impl DynamicAnalysisCallback for ValidatorUnstakeDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV2,

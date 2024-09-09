@@ -3,14 +3,13 @@ resolver = "2"
 members = [
     # Core RET crates
     "crates/radix-engine-toolkit",
-    # TODO: Temporarily disabled while updating the core toolkit for cuttlefish.
     # "crates/radix-engine-toolkit-json",
-    # "crates/radix-engine-toolkit-uniffi",
+    "crates/radix-engine-toolkit-uniffi",
     # Auxiliary Crates
-    # "crates/sbor-json",
+    "crates/sbor-json",
     # Bindings Crates
     # "crates/generator",
-    # "crates/uniffi-bindgen",
+    "crates/uniffi-bindgen",
 ]
 
 # Shared dependencies that all of the crates need - for now this is just the 

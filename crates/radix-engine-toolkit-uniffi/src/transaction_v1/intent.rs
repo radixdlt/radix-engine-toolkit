@@ -18,19 +18,19 @@
 use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
-pub struct Intent {
-    pub header: TransactionHeader,
-    pub manifest: Arc<TransactionManifest>,
-    pub message: Message,
+pub struct IntentV1 {
+    pub header: TransactionHeaderV1,
+    pub manifest: Arc<TransactionManifestV1>,
+    pub message: MessageV1,
 }
 
 #[uniffi::export]
-impl Intent {
+impl IntentV1 {
     #[uniffi::constructor]
     pub fn new(
-        header: TransactionHeader,
-        manifest: Arc<TransactionManifest>,
-        message: Message,
+        header: TransactionHeaderV1,
+        manifest: Arc<TransactionManifestV1>,
+        message: MessageV1,
     ) -> Arc<Self> {
         Arc::new(Self {
             header,
@@ -41,31 +41,34 @@ impl Intent {
 
     #[uniffi::constructor]
     pub fn decompile(compiled_intent: Vec<u8>) -> Result<Arc<Self>> {
-        core_intent_decompile(compiled_intent)
+        core_transaction_v1_intent_from_payload_bytes(compiled_intent)
             .map(|intent| Arc::new(intent.into()))
             .map_err(Into::into)
     }
 
-    pub fn header(&self) -> TransactionHeader {
+    pub fn header(&self) -> TransactionHeaderV1 {
         self.header.clone()
     }
 
-    pub fn manifest(&self) -> Arc<TransactionManifest> {
+    pub fn manifest(&self) -> Arc<TransactionManifestV1> {
         self.manifest.clone()
     }
 
-    pub fn message(&self) -> Message {
+    pub fn message(&self) -> MessageV1 {
         self.message.clone()
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
-        NativeIntent::try_from(self.clone()).and_then(|intent| {
-            core_intent_hash(&intent).map_err(Into::into).map(|hash| {
-                let intent_hash = NativeIntentHash(hash.hash);
-                Arc::new(
-                    TransactionHash::new(&intent_hash, self.header.network_id)
-                )
-            })
+        NativeIntentV1::try_from(self.clone()).and_then(|intent| {
+            core_transaction_v1_intent_hash(&intent)
+                .map_err(Into::into)
+                .map(|hash| {
+                    let intent_hash = NativeIntentHash(hash.hash);
+                    Arc::new(TransactionHash::new(
+                        &intent_hash,
+                        self.header.network_id,
+                    ))
+                })
         })
     }
 
@@ -74,15 +77,17 @@ impl Intent {
     }
 
     pub fn compile(&self) -> Result<Vec<u8>> {
-        NativeIntent::try_from(self.clone())
-            .and_then(|intent| core_intent_compile(&intent).map_err(Into::into))
+        NativeIntentV1::try_from(self.clone()).and_then(|intent| {
+            core_transaction_v1_intent_to_payload_bytes(&intent)
+                .map_err(Into::into)
+        })
     }
 
     pub fn statically_validate(
         &self,
         validation_config: Arc<ValidationConfig>,
     ) -> Result<()> {
-        core_intent_statically_validate(
+        core_transaction_v1_intent_statically_validate(
             &self.clone().try_into()?,
             validation_config.as_ref().clone().into(),
         )
@@ -90,50 +95,53 @@ impl Intent {
     }
 }
 
-impl From<NativeIntent> for Intent {
+impl From<NativeIntentV1> for IntentV1 {
     fn from(
-        NativeIntent {
+        NativeIntentV1 {
             blobs,
             header,
             instructions,
             message,
-        }: NativeIntent,
+        }: NativeIntentV1,
     ) -> Self {
         let blobs = blobs.blobs;
         let instructions = instructions.0;
-        let manifest = NativeTransactionManifest {
-            instructions,
+        let manifest = NativeTransactionManifestV1 {
+            instructions: instructions.as_ref().clone(),
             blobs: blobs
                 .iter()
                 .map(|blob| (native_hash(&blob.0), blob.0.clone()))
                 .collect::<IndexMap<_, _>>(),
+            object_names: Default::default(),
         };
 
         Self {
-            manifest: Arc::new(
-                TransactionManifest::from_native(&manifest, header.network_id)
-            ),
+            manifest: Arc::new(TransactionManifestV1::from_native(
+                &manifest,
+                header.network_id,
+            )),
             header: header.into(),
             message: message.into(),
         }
     }
 }
 
-impl TryFrom<Intent> for NativeIntent {
+impl TryFrom<IntentV1> for NativeIntentV1 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: Intent) -> Result<Self> {
-        let blobs = NativeBlobs {
+    fn try_from(value: IntentV1) -> Result<Self> {
+        let blobs = NativeBlobsV1 {
             blobs: value
                 .manifest
                 .blobs
                 .iter()
                 .cloned()
-                .map(NativeBlob)
+                .map(NativeBlobV1)
                 .collect(),
         };
-        let instructions =
-            NativeInstructions(value.manifest.instructions.0.clone());
+        let instructions = NativeInstructionsV1(std::rc::Rc::new(
+            value.manifest.instructions.0.clone(),
+        ));
         let header = value.header.try_into()?;
         let message = value.message.try_into()?;
 

@@ -89,11 +89,10 @@ pub enum RadixEngineToolkitError {
     #[error("An error occurred when trying to decode the transaction hash")]
     FailedToDecodeTransactionHash,
 
-    #[error("An error ocurred when building the manifest due to the naming of objects")]
+    #[error(
+        "An error ocurred when building the manifest due to the naming of objects"
+    )]
     ManifestBuilderNameRecordError { error: NameRecordError },
-
-    #[error("An error ocurred when trying to modify the manifest")]
-    ManifestModificationError { error: String },
 
     #[error("The node id has no valid entity type")]
     InvalidEntityTypeIdError { error: String },
@@ -108,6 +107,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("The receipt is not a valid preview receipt")]
     InvalidReceipt,
+
+    #[error("The static analysis of the manifest failed")]
+    StaticAnalysisFailed,
 }
 
 macro_rules! dbg_str {
@@ -168,7 +170,6 @@ impl_dbg_str_from! { CoreInstructionValidationError, TransactionValidationFailed
 impl_dbg_str_from! { CoreManifestSborError, ManifestSborError }
 impl_dbg_str_from! { CoreScryptoSborError, ScryptoSborError }
 impl_dbg_str_from! { NativeTypedNativeEventError, TypedNativeEventError }
-impl_dbg_str_from! { CoreManifestModificationError, ManifestModificationError }
 impl_dbg_str_from! { CoreInvalidEntityTypeIdError, InvalidEntityTypeIdError }
 
 impl From<NameRecordError> for RadixEngineToolkitError {

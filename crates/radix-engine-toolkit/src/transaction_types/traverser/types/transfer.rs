@@ -47,7 +47,7 @@ impl TransferDetector {
     }
 }
 
-impl ManifestSummaryCallback for TransferDetector {
+impl StaticAnalysisCallback for TransferDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV2,
@@ -195,7 +195,7 @@ impl ManifestSummaryCallback for TransferDetector {
     }
 }
 
-impl ExecutionSummaryCallback for TransferDetector {}
+impl DynamicAnalysisCallback for TransferDetector {}
 
 impl TransferDetector {
     pub fn is_transfer(&self) -> bool {

@@ -73,14 +73,14 @@ impl PrivateKey {
         Signer::sign(self, hash)
     }
 
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature {
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> SignatureV1 {
         Signer::sign_to_signature(self, hash)
     }
 
     fn sign_to_signature_with_public_key(
         &self,
         hash: Arc<Hash>,
-    ) -> SignatureWithPublicKey {
+    ) -> SignatureWithPublicKeyV1 {
         Signer::sign_to_signature_with_public_key(self, hash)
     }
 
@@ -100,20 +100,19 @@ impl PrivateKey {
 impl Signer for PrivateKey {
     fn sign(&self, hash: Arc<Hash>) -> Vec<u8> {
         match self.sign_to_signature(hash) {
-            Signature::Ed25519 { value } | Signature::Secp256k1 { value } => {
-                value
-            }
+            SignatureV1::Ed25519 { value }
+            | SignatureV1::Secp256k1 { value } => value,
         }
     }
 
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature {
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> SignatureV1 {
         self.0.sign_without_public_key(&hash.0).into()
     }
 
     fn sign_to_signature_with_public_key(
         &self,
         hash: Arc<Hash>,
-    ) -> SignatureWithPublicKey {
+    ) -> SignatureWithPublicKeyV1 {
         self.0.sign_with_public_key(&hash.0).into()
     }
 
@@ -125,10 +124,10 @@ impl Signer for PrivateKey {
 #[uniffi::export(callback_interface)]
 pub trait Signer: Send + Sync {
     fn sign(&self, hash: Arc<Hash>) -> Vec<u8>;
-    fn sign_to_signature(&self, hash: Arc<Hash>) -> Signature;
+    fn sign_to_signature(&self, hash: Arc<Hash>) -> SignatureV1;
     fn sign_to_signature_with_public_key(
         &self,
         hash: Arc<Hash>,
-    ) -> SignatureWithPublicKey;
+    ) -> SignatureWithPublicKeyV1;
     fn public_key(&self) -> PublicKey;
 }

@@ -63,7 +63,7 @@ impl AccountSettingsUpdateDetector {
     }
 }
 
-impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
+impl StaticAnalysisCallback for AccountSettingsUpdateDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -200,7 +200,7 @@ impl ManifestSummaryCallback for AccountSettingsUpdateDetector {
     }
 }
 
-impl ExecutionSummaryCallback for AccountSettingsUpdateDetector {}
+impl DynamicAnalysisCallback for AccountSettingsUpdateDetector {}
 
 impl AccountSettingsUpdateDetector {
     pub fn is_valid(&self) -> bool {

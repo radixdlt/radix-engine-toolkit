@@ -38,7 +38,7 @@ impl StaticAccountResourceMovementsDetector {
     }
 }
 
-impl ManifestSummaryCallback for StaticAccountResourceMovementsDetector {
+impl StaticAnalysisCallback for StaticAccountResourceMovementsDetector {
     fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         if let InstructionV2::CallMethod(CallMethod {
             address: dynamic_address @ DynamicGlobalAddress::Static(address),
@@ -61,4 +61,4 @@ impl ManifestSummaryCallback for StaticAccountResourceMovementsDetector {
     }
 }
 
-impl ExecutionSummaryCallback for StaticAccountResourceMovementsDetector {}
+impl DynamicAnalysisCallback for StaticAccountResourceMovementsDetector {}

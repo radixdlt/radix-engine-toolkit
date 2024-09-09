@@ -37,7 +37,7 @@ impl RequiringAuthDetector {
     }
 }
 
-impl ManifestSummaryCallback for RequiringAuthDetector {
+impl StaticAnalysisCallback for RequiringAuthDetector {
     fn on_instruction(&mut self, instruction: &InstructionV2, _: usize) {
         match instruction {
             InstructionV2::CallMethod(CallMethod {
@@ -130,7 +130,7 @@ impl ManifestSummaryCallback for RequiringAuthDetector {
     }
 }
 
-impl ExecutionSummaryCallback for RequiringAuthDetector {}
+impl DynamicAnalysisCallback for RequiringAuthDetector {}
 
 fn is_account(address: &GlobalAddress) -> bool {
     address

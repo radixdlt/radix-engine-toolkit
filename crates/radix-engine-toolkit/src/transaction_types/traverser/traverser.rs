@@ -26,7 +26,7 @@ pub mod static_analysis {
     use scrypto::prelude::*;
 
     pub fn traverse(
-        callbacks: &mut [&mut dyn ManifestSummaryCallback],
+        callbacks: &mut [&mut dyn StaticAnalysisCallback],
         instructions: &[InstructionV2],
     ) {
         for (instruction_index, instruction) in instructions.iter().enumerate()
@@ -37,7 +37,7 @@ pub mod static_analysis {
     }
 
     pub(super) fn on_instruction(
-        callbacks: &mut [&mut dyn ManifestSummaryCallback],
+        callbacks: &mut [&mut dyn StaticAnalysisCallback],
         instruction: &InstructionV2,
         instruction_index: usize,
     ) {
@@ -65,7 +65,7 @@ pub mod static_analysis {
     }
 
     fn handle_on_create_proof(
-        callbacks: &mut [&mut dyn ManifestSummaryCallback],
+        callbacks: &mut [&mut dyn StaticAnalysisCallback],
         instruction: &InstructionV2,
     ) {
         if let InstructionV2::CallMethod(CallMethod {
@@ -119,7 +119,7 @@ pub mod static_analysis {
     }
 
     pub(super) fn on_finish(
-        callbacks: &mut [&mut dyn ManifestSummaryCallback],
+        callbacks: &mut [&mut dyn StaticAnalysisCallback],
         instructions_count: usize,
     ) {
         // After the iteration finishes inform the callbacks.
@@ -143,7 +143,7 @@ pub mod dynamic_analysis {
     use radix_transactions::validation::*;
 
     pub fn traverse(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instructions: &[InstructionV2],
         receipt: &TransactionTypesReceipt<'_>,
     ) {
@@ -164,7 +164,7 @@ pub mod dynamic_analysis {
     }
 
     pub(super) fn on_instruction(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
@@ -183,7 +183,7 @@ pub mod dynamic_analysis {
             // through nightly rust.
             &mut callbacks
                 .iter_mut()
-                .map(|item| *item as &mut dyn ManifestSummaryCallback)
+                .map(|item| *item as &mut dyn StaticAnalysisCallback)
                 .collect::<Vec<_>>(),
             instruction,
             instruction_index,
@@ -223,7 +223,7 @@ pub mod dynamic_analysis {
     }
 
     pub(super) fn on_finish(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instructions_count: usize,
     ) {
         super::static_analysis::on_finish(
@@ -234,14 +234,14 @@ pub mod dynamic_analysis {
             // through nightly rust.
             &mut callbacks
                 .iter_mut()
-                .map(|item| *item as &mut dyn ManifestSummaryCallback)
+                .map(|item| *item as &mut dyn StaticAnalysisCallback)
                 .collect::<Vec<_>>(),
             instructions_count,
         )
     }
 
     fn handle_on_instruction(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instruction: &InstructionV2,
         instruction_index: usize,
         /* State */
@@ -348,7 +348,7 @@ pub mod dynamic_analysis {
             })
             .collect::<Vec<_>>();
         callbacks.iter_mut().for_each(|callback| {
-            ExecutionSummaryCallback::on_instruction(
+            DynamicAnalysisCallback::on_instruction(
                 *callback,
                 instruction,
                 instruction_index,
@@ -359,7 +359,7 @@ pub mod dynamic_analysis {
     }
 
     fn handle_account_withdraws(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instruction: &InstructionV2,
         instruction_index: usize,
         receipt: &TransactionTypesReceipt<'_>,
@@ -489,7 +489,7 @@ pub mod dynamic_analysis {
     }
 
     fn handle_account_deposits(
-        callbacks: &mut [&mut dyn ExecutionSummaryCallback],
+        callbacks: &mut [&mut dyn DynamicAnalysisCallback],
         instruction: &InstructionV2,
         instruction_index: usize,
         /* State */

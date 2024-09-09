@@ -56,7 +56,7 @@ impl ValidatorClaimDetector {
     }
 }
 
-impl ManifestSummaryCallback for ValidatorClaimDetector {
+impl StaticAnalysisCallback for ValidatorClaimDetector {
     fn on_finish(&mut self, instructions_count: usize) {
         if instructions_count == 0 {
             self.is_valid = false
@@ -140,7 +140,7 @@ impl ManifestSummaryCallback for ValidatorClaimDetector {
     }
 }
 
-impl ExecutionSummaryCallback for ValidatorClaimDetector {
+impl DynamicAnalysisCallback for ValidatorClaimDetector {
     fn on_instruction(
         &mut self,
         instruction: &InstructionV2,

@@ -20,12 +20,12 @@
 use crate::prelude::*;
 
 #[uniffi::export]
-pub fn sbor_decode_to_typed_native_event(
+pub fn scrypto_sbor_decode_to_native_event(
     event_type_identifier: EventTypeIdentifier,
     event_data: Vec<u8>,
     network_id: u8,
 ) -> Result<TypedNativeEvent> {
-    core_events_sbor_decode_to_native_event(
+    core_scrypto_sbor_decode_to_native_event(
         &event_type_identifier.try_into()?,
         &event_data,
     )
@@ -747,9 +747,9 @@ impl FromNative for OneResourcePoolContributionEvent {
     fn from_native(native: Self::Native) -> Self {
         Self {
             pool_units_minted: Arc::new(Decimal(native.pool_units_minted)),
-            amount_of_resources_contributed: Arc::new(
-                Decimal(native.amount_of_resources_contributed)
-            ),
+            amount_of_resources_contributed: Arc::new(Decimal(
+                native.amount_of_resources_contributed,
+            )),
         }
     }
 }
@@ -1327,9 +1327,10 @@ impl FromNativeWithNetworkContext for ClaimEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(
-                Address::from_typed_node_id(native.claimant.0, network_id)
-            ),
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,
@@ -1349,9 +1350,10 @@ impl FromNativeWithNetworkContext for RecoverEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(
-                Address::from_typed_node_id(native.claimant.0, network_id)
-            ),
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,
@@ -1371,9 +1373,10 @@ impl FromNativeWithNetworkContext for StoreEvent {
             network_id,
         ));
         Self {
-            claimant: Arc::new(
-                Address::from_typed_node_id(native.claimant.0, network_id)
-            ),
+            claimant: Arc::new(Address::from_typed_node_id(
+                native.claimant.0,
+                network_id,
+            )),
             resource_address: address.clone(),
             resources: ResourceSpecifier::from_native_for_locker_blueprint(
                 &native.resources,

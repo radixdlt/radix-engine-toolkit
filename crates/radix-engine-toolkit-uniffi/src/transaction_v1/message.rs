@@ -19,26 +19,26 @@ use crate::prelude::*;
 use crate::utils::hashable_bytes::HashableBytes;
 
 #[derive(Clone, Debug, Enum)]
-pub enum Message {
+pub enum MessageV1 {
     None,
-    PlainText { value: PlainTextMessage },
-    Encrypted { value: EncryptedMessage },
+    PlainText { value: PlainTextMessageV1 },
+    Encrypted { value: EncryptedMessageV1 },
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct PlainTextMessage {
+pub struct PlainTextMessageV1 {
     pub mime_type: String,
-    pub message: MessageContent,
+    pub message: MessageContentV1,
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum MessageContent {
+pub enum MessageContentV1 {
     Str { value: String },
     Bytes { value: Vec<u8> },
 }
 
 #[derive(Clone, Debug, Record)]
-pub struct EncryptedMessage {
+pub struct EncryptedMessageV1 {
     pub encrypted: Vec<u8>,
     pub decryptors_by_curve: HashMap<CurveType, DecryptorsByCurve>,
 }
@@ -216,7 +216,7 @@ impl From<NativeCurveType> for CurveType {
     }
 }
 
-impl From<NativeEncryptedMessage> for EncryptedMessage {
+impl From<NativeEncryptedMessage> for EncryptedMessageV1 {
     fn from(
         NativeEncryptedMessage {
             encrypted,
@@ -236,14 +236,14 @@ impl From<NativeEncryptedMessage> for EncryptedMessage {
     }
 }
 
-impl TryFrom<EncryptedMessage> for NativeEncryptedMessage {
+impl TryFrom<EncryptedMessageV1> for NativeEncryptedMessage {
     type Error = RadixEngineToolkitError;
 
     fn try_from(
-        EncryptedMessage {
+        EncryptedMessageV1 {
             encrypted,
             decryptors_by_curve,
-        }: EncryptedMessage,
+        }: EncryptedMessageV1,
     ) -> Result<Self> {
         let encrypted = NativeAesGcmPayload(encrypted);
         let decryptors_by_curve = decryptors_by_curve
@@ -258,16 +258,16 @@ impl TryFrom<EncryptedMessage> for NativeEncryptedMessage {
     }
 }
 
-impl From<MessageContent> for NativeMessageContents {
-    fn from(value: MessageContent) -> Self {
+impl From<MessageContentV1> for NativeMessageContents {
+    fn from(value: MessageContentV1) -> Self {
         match value {
-            MessageContent::Str { value } => Self::String(value),
-            MessageContent::Bytes { value } => Self::Bytes(value),
+            MessageContentV1::Str { value } => Self::String(value),
+            MessageContentV1::Bytes { value } => Self::Bytes(value),
         }
     }
 }
 
-impl From<NativeMessageContents> for MessageContent {
+impl From<NativeMessageContents> for MessageContentV1 {
     fn from(value: NativeMessageContents) -> Self {
         match value {
             NativeMessageContents::String(value) => Self::Str { value },
@@ -276,8 +276,10 @@ impl From<NativeMessageContents> for MessageContent {
     }
 }
 
-impl From<PlainTextMessage> for NativePlaintextMessage {
-    fn from(PlainTextMessage { message, mime_type }: PlainTextMessage) -> Self {
+impl From<PlainTextMessageV1> for NativePlaintextMessage {
+    fn from(
+        PlainTextMessageV1 { message, mime_type }: PlainTextMessageV1,
+    ) -> Self {
         Self {
             message: message.into(),
             mime_type,
@@ -285,7 +287,7 @@ impl From<PlainTextMessage> for NativePlaintextMessage {
     }
 }
 
-impl From<NativePlaintextMessage> for PlainTextMessage {
+impl From<NativePlaintextMessage> for PlainTextMessageV1 {
     fn from(
         NativePlaintextMessage { message, mime_type }: NativePlaintextMessage,
     ) -> Self {
@@ -296,30 +298,30 @@ impl From<NativePlaintextMessage> for PlainTextMessage {
     }
 }
 
-impl TryFrom<Message> for NativeMessage {
+impl TryFrom<MessageV1> for NativeMessageV1 {
     type Error = RadixEngineToolkitError;
 
-    fn try_from(value: Message) -> Result<Self> {
+    fn try_from(value: MessageV1) -> Result<Self> {
         match value {
-            Message::None => Ok(NativeMessage::None),
-            Message::Encrypted { value } => {
-                value.try_into().map(NativeMessage::Encrypted)
+            MessageV1::None => Ok(NativeMessageV1::None),
+            MessageV1::Encrypted { value } => {
+                value.try_into().map(NativeMessageV1::Encrypted)
             }
-            Message::PlainText { value } => {
-                Ok(NativeMessage::Plaintext(value.into()))
+            MessageV1::PlainText { value } => {
+                Ok(NativeMessageV1::Plaintext(value.into()))
             }
         }
     }
 }
 
-impl From<NativeMessage> for Message {
-    fn from(value: NativeMessage) -> Self {
+impl From<NativeMessageV1> for MessageV1 {
+    fn from(value: NativeMessageV1) -> Self {
         match value {
-            NativeMessage::None => Self::None,
-            NativeMessage::Encrypted(value) => Self::Encrypted {
+            NativeMessageV1::None => Self::None,
+            NativeMessageV1::Encrypted(value) => Self::Encrypted {
                 value: value.into(),
             },
-            NativeMessage::Plaintext(value) => Self::PlainText {
+            NativeMessageV1::Plaintext(value) => Self::PlainText {
                 value: value.into(),
             },
         }

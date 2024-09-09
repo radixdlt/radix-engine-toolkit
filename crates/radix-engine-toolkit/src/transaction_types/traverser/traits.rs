@@ -23,7 +23,7 @@ use crate::transaction_types::types::*;
 
 /// A callback for information that can be obtained statically from the manifest
 /// without the need for the receipt or execution trace.
-pub trait ManifestSummaryCallback {
+pub trait StaticAnalysisCallback {
     /// Called when the traverser starts going through a new instruction with
     /// the new instruction and the index that it is at.
     #[inline]
@@ -52,9 +52,9 @@ pub trait ManifestSummaryCallback {
     fn on_finish(&mut self, _instructions_count: usize) {}
 }
 
-pub trait ExecutionSummaryCallback
+pub trait DynamicAnalysisCallback
 where
-    Self: ManifestSummaryCallback,
+    Self: StaticAnalysisCallback,
 {
     /// Called when the traverser starts going through a new instruction with
     /// the new instruction and the index that it is at and information on the

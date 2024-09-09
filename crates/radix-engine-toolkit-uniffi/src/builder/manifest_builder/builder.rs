@@ -21,14 +21,14 @@ use crate::prelude::*;
 use radix_common::prelude::{to_manifest_value, FromPublicKey};
 
 #[derive(Debug, Clone, Object, Default)]
-pub struct ManifestBuilder {
+pub struct ManifestV1Builder {
     name_record: NameRecord,
-    instructions: Vec<NativeInstruction>,
+    instructions: Vec<NativeInstructionV1>,
     blobs: Vec<Vec<u8>>,
 }
 
 #[uniffi::export]
-impl ManifestBuilder {
+impl ManifestV1Builder {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Default::default())
@@ -48,8 +48,9 @@ impl ManifestBuilder {
                 NativeResourceAddress::try_from(*resource_address)?;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction =
-                NativeInstruction::TakeAllFromWorktop { resource_address };
+            let instruction = NativeInstructionV1::TakeAllFromWorktop(
+                NativeTakeAllFromWorktop { resource_address },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -67,10 +68,11 @@ impl ManifestBuilder {
             let amount = amount.0;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction = NativeInstruction::TakeFromWorktop {
-                resource_address,
-                amount,
-            };
+            let instruction =
+                NativeInstructionV1::TakeFromWorktop(NativeTakeFromWorktop {
+                    resource_address,
+                    amount,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -91,10 +93,12 @@ impl ManifestBuilder {
                 .collect::<Result<Vec<_>>>()?;
             builder.name_record.new_bucket(&into_bucket.name)?;
 
-            let instruction = NativeInstruction::TakeNonFungiblesFromWorktop {
-                resource_address,
-                ids,
-            };
+            let instruction = NativeInstructionV1::TakeNonFungiblesFromWorktop(
+                NativeTakeNonFungiblesFromWorktop {
+                    resource_address,
+                    ids,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -108,7 +112,9 @@ impl ManifestBuilder {
             let bucket = bucket.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstruction::ReturnToWorktop { bucket_id: bucket };
+                NativeInstructionV1::ReturnToWorktop(NativeReturnToWorktop {
+                    bucket_id: bucket,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -122,9 +128,9 @@ impl ManifestBuilder {
             let resource_address =
                 NativeResourceAddress::try_from(*resource_address)?;
 
-            let instruction = NativeInstruction::AssertWorktopContainsAny {
-                resource_address,
-            };
+            let instruction = NativeInstructionV1::AssertWorktopContainsAny(
+                NativeAssertWorktopContainsAny { resource_address },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -140,10 +146,12 @@ impl ManifestBuilder {
                 NativeResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
 
-            let instruction = NativeInstruction::AssertWorktopContains {
-                resource_address,
-                amount,
-            };
+            let instruction = NativeInstructionV1::AssertWorktopContains(
+                NativeAssertWorktopContains {
+                    resource_address,
+                    amount,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -162,10 +170,12 @@ impl ManifestBuilder {
                 .map(NativeNonFungibleLocalId::try_from)
                 .collect::<Result<Vec<_>>>()?;
 
-            let instruction = NativeInstruction::TakeNonFungiblesFromWorktop {
-                resource_address,
-                ids,
-            };
+            let instruction = NativeInstructionV1::TakeNonFungiblesFromWorktop(
+                NativeTakeNonFungiblesFromWorktop {
+                    resource_address,
+                    ids,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -178,7 +188,8 @@ impl ManifestBuilder {
         builder_arc_map(self, |builder| {
             builder.name_record.new_proof(&into_proof.name)?;
 
-            let instruction = NativeInstruction::PopFromAuthZone;
+            let instruction =
+                NativeInstructionV1::PopFromAuthZone(NativePopFromAuthZone);
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -192,7 +203,9 @@ impl ManifestBuilder {
             let proof = proof.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstruction::PushToAuthZone { proof_id: proof };
+                NativeInstructionV1::PushToAuthZone(NativePushToAuthZone {
+                    proof_id: proof,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -200,7 +213,9 @@ impl ManifestBuilder {
 
     pub fn drop_auth_zone_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::DropAuthZoneProofs;
+            let instruction = NativeInstructionV1::DropAuthZoneProofs(
+                NativeDropAuthZoneProofs,
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -210,7 +225,9 @@ impl ManifestBuilder {
         self: Arc<Self>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::DropAuthZoneSignatureProofs;
+            let instruction = NativeInstructionV1::DropAuthZoneSignatureProofs(
+                NativeDropAuthZoneSignatureProofs,
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -218,7 +235,8 @@ impl ManifestBuilder {
 
     pub fn drop_all_proofs(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::DropAllProofs;
+            let instruction =
+                NativeInstructionV1::DropAllProofs(NativeDropAllProofs);
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -234,9 +252,9 @@ impl ManifestBuilder {
                 NativeResourceAddress::try_from(*resource_address)?;
             builder.name_record.new_proof(&into_proof.name)?;
 
-            let instruction = NativeInstruction::CreateProofFromAuthZoneOfAll {
-                resource_address,
-            };
+            let instruction = NativeInstructionV1::CreateProofFromAuthZoneOfAll(
+                NativeCreateProofFromAuthZoneOfAll { resource_address },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -255,10 +273,12 @@ impl ManifestBuilder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstruction::CreateProofFromAuthZoneOfAmount {
-                    resource_address,
-                    amount,
-                };
+                NativeInstructionV1::CreateProofFromAuthZoneOfAmount(
+                    NativeCreateProofFromAuthZoneOfAmount {
+                        resource_address,
+                        amount,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -280,10 +300,12 @@ impl ManifestBuilder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstruction::CreateProofFromAuthZoneOfNonFungibles {
-                    resource_address,
-                    ids,
-                };
+                NativeInstructionV1::CreateProofFromAuthZoneOfNonFungibles(
+                    NativeCreateProofFromAuthZoneOfNonFungibles {
+                        resource_address,
+                        ids,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -298,9 +320,9 @@ impl ManifestBuilder {
             let bucket = bucket.to_native(&builder.name_record)?;
             builder.name_record.new_proof(&into_proof.name)?;
 
-            let instruction = NativeInstruction::CreateProofFromBucketOfAll {
-                bucket_id: bucket,
-            };
+            let instruction = NativeInstructionV1::CreateProofFromBucketOfAll(
+                NativeCreateProofFromBucketOfAll { bucket_id: bucket },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -318,10 +340,12 @@ impl ManifestBuilder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstruction::CreateProofFromBucketOfAmount {
-                    bucket_id: bucket,
-                    amount,
-                };
+                NativeInstructionV1::CreateProofFromBucketOfAmount(
+                    NativeCreateProofFromBucketOfAmount {
+                        bucket_id: bucket,
+                        amount,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -342,10 +366,12 @@ impl ManifestBuilder {
             builder.name_record.new_proof(&into_proof.name)?;
 
             let instruction =
-                NativeInstruction::CreateProofFromBucketOfNonFungibles {
-                    bucket_id: bucket,
-                    ids,
-                };
+                NativeInstructionV1::CreateProofFromBucketOfNonFungibles(
+                    NativeCreateProofFromBucketOfNonFungibles {
+                        bucket_id: bucket,
+                        ids,
+                    },
+                );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -359,7 +385,9 @@ impl ManifestBuilder {
             let bucket = bucket.to_native(&builder.name_record)?;
 
             let instruction =
-                NativeInstruction::BurnResource { bucket_id: bucket };
+                NativeInstructionV1::BurnResource(NativeBurnResource {
+                    bucket_id: bucket,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -374,7 +402,10 @@ impl ManifestBuilder {
             builder.name_record.new_proof(&into_proof.name)?;
             let proof = proof.to_native(&builder.name_record)?;
 
-            let instruction = NativeInstruction::CloneProof { proof_id: proof };
+            let instruction =
+                NativeInstructionV1::CloneProof(NativeCloneProof {
+                    proof_id: proof,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -387,7 +418,9 @@ impl ManifestBuilder {
         builder_arc_map(self, |builder| {
             let proof = proof.to_native(&builder.name_record)?;
 
-            let instruction = NativeInstruction::DropProof { proof_id: proof };
+            let instruction = NativeInstructionV1::DropProof(NativeDropProof {
+                proof_id: proof,
+            });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -417,12 +450,13 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: address,
-                blueprint_name,
-                function_name,
-                args,
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: address,
+                    blueprint_name,
+                    function_name,
+                    args,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -451,11 +485,12 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallMethod {
-                address,
-                method_name,
-                args,
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address,
+                    method_name,
+                    args,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -484,11 +519,13 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallRoyaltyMethod {
-                address,
-                method_name,
-                args,
-            };
+            let instruction = NativeInstructionV1::CallRoyaltyMethod(
+                NativeCallRoyaltyMethod {
+                    address,
+                    method_name,
+                    args,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -517,11 +554,13 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallMetadataMethod {
-                address,
-                method_name,
-                args,
-            };
+            let instruction = NativeInstructionV1::CallMetadataMethod(
+                NativeCallMetadataMethod {
+                    address,
+                    method_name,
+                    args,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -550,11 +589,13 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallRoleAssignmentMethod {
-                address,
-                method_name,
-                args,
-            };
+            let instruction = NativeInstructionV1::CallRoleAssignmentMethod(
+                NativeCallRoleAssignmentMethod {
+                    address,
+                    method_name,
+                    args,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -575,11 +616,13 @@ impl ManifestBuilder {
                     .collect::<Result<_>>()?,
             };
 
-            let instruction = NativeInstruction::CallDirectVaultMethod {
-                address,
-                method_name,
-                args,
-            };
+            let instruction = NativeInstructionV1::CallDirectVaultMethod(
+                NativeCallDirectVaultMethod {
+                    address,
+                    method_name,
+                    args,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -602,10 +645,12 @@ impl ManifestBuilder {
                 .name_record
                 .new_named_address(&into_named_address.name)?;
 
-            let instruction = NativeInstruction::AllocateGlobalAddress {
-                package_address,
-                blueprint_name,
-            };
+            let instruction = NativeInstructionV1::AllocateGlobalAddress(
+                NativeAllocateGlobalAddress {
+                    package_address,
+                    blueprint_name,
+                },
+            );
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -622,12 +667,15 @@ impl ManifestBuilder {
         builder_arc_map(self, |builder| {
             let address = NativeGlobalAddress::try_from(*account_address)?;
 
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
-                args: manifest_args!(NativeManifestExpression::EntireWorktop)
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(address),
+                    method_name: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT.to_owned(),
+                    args: manifest_args!(
+                        NativeManifestExpression::EntireWorktop
+                    )
                     .into(),
-            };
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -647,16 +695,18 @@ impl ManifestBuilder {
                     None
                 };
 
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT
-                    .to_owned(),
-                args: manifest_args!(
-                    NativeManifestExpression::EntireWorktop,
-                    authorized_depositor_badge
-                )
-                .into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(address),
+                    method_name:
+                        NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT
+                            .to_owned(),
+                    args: manifest_args!(
+                        NativeManifestExpression::EntireWorktop,
+                        authorized_depositor_badge
+                    )
+                    .into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -676,16 +726,18 @@ impl ManifestBuilder {
                     None
                 };
 
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(address),
-                method_name: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
-                    .to_owned(),
-                args: manifest_args!(
-                    NativeManifestExpression::EntireWorktop,
-                    authorized_depositor_badge
-                )
-                .into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(address),
+                    method_name:
+                        NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT
+                            .to_owned(),
+                    args: manifest_args!(
+                        NativeManifestExpression::EntireWorktop,
+                        authorized_depositor_badge
+                    )
+                    .into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -701,20 +753,21 @@ impl ManifestBuilder {
             let code_blob = NativeManifestBlobRef(native_hash(&code).0);
             builder.blobs.push(code);
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(
-                    NATIVE_PACKAGE_PACKAGE,
-                ),
-                blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
-                function_name: NATIVE_PACKAGE_PUBLISH_WASM_IDENT.to_owned(),
-                args: native_to_manifest_value_and_unwrap!(
-                    &NativePackagePublishWasmManifestInput {
-                        code: code_blob,
-                        definition: native_manifest_decode(&definition)?,
-                        metadata: metadata.to_native()?,
-                    }
-                ),
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: NativeDynamicPackageAddress::Static(
+                        NATIVE_PACKAGE_PACKAGE,
+                    ),
+                    blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
+                    function_name: NATIVE_PACKAGE_PUBLISH_WASM_IDENT.to_owned(),
+                    args: native_to_manifest_value_and_unwrap!(
+                        &NativePackagePublishWasmManifestInput {
+                            code: code_blob,
+                            definition: native_manifest_decode(&definition)?,
+                            metadata: metadata.to_native()?,
+                        }
+                    ),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -740,23 +793,24 @@ impl ManifestBuilder {
                 None => None,
             };
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(
-                    NATIVE_PACKAGE_PACKAGE,
-                ),
-                blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
-                function_name: NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
-                    .to_owned(),
-                args: native_to_manifest_value_and_unwrap!(
-                    &NativePackagePublishWasmAdvancedManifestInput {
-                        code: code_blob,
-                        definition: native_manifest_decode(&definition)?,
-                        metadata: metadata.to_native()?,
-                        owner_role: owner_role.to_native()?,
-                        package_address: address_reservation
-                    }
-                ),
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: NativeDynamicPackageAddress::Static(
+                        NATIVE_PACKAGE_PACKAGE,
+                    ),
+                    blueprint_name: NATIVE_PACKAGE_BLUEPRINT.to_owned(),
+                    function_name: NATIVE_PACKAGE_PUBLISH_WASM_ADVANCED_IDENT
+                        .to_owned(),
+                    args: native_to_manifest_value_and_unwrap!(
+                        &NativePackagePublishWasmAdvancedManifestInput {
+                            code: code_blob,
+                            definition: native_manifest_decode(&definition)?,
+                            metadata: metadata.to_native()?,
+                            owner_role: owner_role.to_native()?,
+                            package_address: address_reservation
+                        }
+                    ),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -764,13 +818,14 @@ impl ManifestBuilder {
 
     pub fn faucet_free_xrd(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(
-                    NATIVE_FAUCET.into(),
-                ),
-                method_name: "free".to_owned(),
-                args: manifest_args!().into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(
+                        NATIVE_FAUCET.into(),
+                    ),
+                    method_name: "free".to_owned(),
+                    args: manifest_args!().into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -778,13 +833,14 @@ impl ManifestBuilder {
 
     pub fn faucet_lock_fee(self: Arc<Self>) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(
-                    NATIVE_FAUCET.into(),
-                ),
-                method_name: "lock_fee".to_owned(),
-                args: manifest_args!(native_dec!("100")).into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(
+                        NATIVE_FAUCET.into(),
+                    ),
+                    method_name: "lock_fee".to_owned(),
+                    args: manifest_args!(native_dec!("100")).into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -829,20 +885,23 @@ impl ManifestBuilder {
                 )),
             };
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(
-                    NATIVE_ACCESS_CONTROLLER_PACKAGE,
-                ),
-                blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
-                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
-                args: manifest_args!(
-                    bucket,
-                    rule_set,
-                    timed_recovery_delay_in_minutes,
-                    address_reservation
-                )
-                .into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: NativeDynamicPackageAddress::Static(
+                        NATIVE_ACCESS_CONTROLLER_PACKAGE,
+                    ),
+                    blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT
+                        .to_owned(),
+                    function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT
+                        .to_owned(),
+                    args: manifest_args!(
+                        bucket,
+                        rule_set,
+                        timed_recovery_delay_in_minutes,
+                        address_reservation
+                    )
+                    .into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -877,20 +936,23 @@ impl ManifestBuilder {
                 )?,
             };
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(
-                    NATIVE_ACCESS_CONTROLLER_PACKAGE,
-                ),
-                blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT.to_owned(),
-                function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT.to_owned(),
-                args: manifest_args!(
-                    bucket,
-                    rule_set,
-                    timed_recovery_delay_in_minutes,
-                    address_reservation
-                )
-                .into(),
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: NativeDynamicPackageAddress::Static(
+                        NATIVE_ACCESS_CONTROLLER_PACKAGE,
+                    ),
+                    blueprint_name: NATIVE_ACCESS_CONTROLLER_BLUEPRINT
+                        .to_owned(),
+                    function_name: NATIVE_ACCESS_CONTROLLER_CREATE_IDENT
+                        .to_owned(),
+                    args: manifest_args!(
+                        bucket,
+                        rule_set,
+                        timed_recovery_delay_in_minutes,
+                        address_reservation
+                    )
+                    .into(),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -951,15 +1013,16 @@ impl ManifestBuilder {
                 )
             };
 
-            let instruction = NativeInstruction::CallFunction {
-                package_address: NativeDynamicPackageAddress::Static(
-                    NATIVE_RESOURCE_PACKAGE,
-                ),
-                blueprint_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
-                    .to_owned(),
-                function_name: function_name.to_owned(),
-                args,
-            };
+            let instruction =
+                NativeInstructionV1::CallFunction(NativeCallFunction {
+                    package_address: NativeDynamicPackageAddress::Static(
+                        NATIVE_RESOURCE_PACKAGE,
+                    ),
+                    blueprint_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT
+                        .to_owned(),
+                    function_name: function_name.to_owned(),
+                    args,
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -975,16 +1038,17 @@ impl ManifestBuilder {
                 NativeResourceAddress::try_from(*resource_address)?;
             let amount = amount.0;
 
-            let instruction = NativeInstruction::CallMethod {
-                address: NativeDynamicGlobalAddress::Static(
-                    resource_address.into(),
-                ),
-                method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
-                    .to_owned(),
-                args: native_to_manifest_value_and_unwrap!(
-                    &NativeFungibleResourceManagerMintInput { amount }
-                ),
-            };
+            let instruction =
+                NativeInstructionV1::CallMethod(NativeCallMethod {
+                    address: NativeDynamicGlobalAddress::Static(
+                        resource_address.into(),
+                    ),
+                    method_name: NATIVE_FUNGIBLE_RESOURCE_MANAGER_MINT_IDENT
+                        .to_owned(),
+                    args: native_to_manifest_value_and_unwrap!(
+                        &NativeFungibleResourceManagerMintInput { amount }
+                    ),
+                });
             builder.instructions.push(instruction);
             Ok(())
         })
@@ -994,9 +1058,12 @@ impl ManifestBuilder {
     // Builder Methods
     //=================
 
-    pub fn build(self: Arc<Self>, network_id: u8) -> Arc<TransactionManifest> {
-        Arc::new(TransactionManifest {
-            instructions: Arc::new(Instructions(
+    pub fn build(
+        self: Arc<Self>,
+        network_id: u8,
+    ) -> Arc<TransactionManifestV1> {
+        Arc::new(TransactionManifestV1 {
+            instructions: Arc::new(InstructionsV1(
                 self.instructions.clone(),
                 network_id,
             )),
@@ -1223,33 +1290,35 @@ macro_rules! builder_alias_internal {
             ),* $(,)?
         ] $(,)?
     ) => {
-        #[uniffi::export]
-        impl ManifestBuilder {
-            pub fn $builder_method(
-                self: $crate::prelude::Arc<Self>,
-                address: $crate::prelude::Arc<$crate::prelude::Address>,
-                $(
-                    $interface_arg_name: $interface_arg_type
-                ),*
-            ) -> $crate::prelude::Result<Arc<Self>> {
-                $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
-                    let instruction = $crate::prelude::NativeInstruction::$instruction {
-                        address: $crate::prelude::NativeDynamicGlobalAddress::Static((*address).try_into()?),
-                        method_name: $method_ident.to_owned(),
-                        args: $crate::prelude::native_to_manifest_value_and_unwrap! {
-                            &$input_type {
-                                $(
-                                    $input_arg_name: <
-                                        $input_arg_type
-                                        as $crate::builder::manifest_builder::traits::FromWithNameRecordContext<$interface_arg_type>
-                                    >::from($interface_arg_name, &builder.name_record)?
-                                ),*
+        paste::paste! {
+            #[uniffi::export]
+            impl ManifestV1Builder {
+                pub fn $builder_method(
+                    self: $crate::prelude::Arc<Self>,
+                    address: $crate::prelude::Arc<$crate::prelude::Address>,
+                    $(
+                        $interface_arg_name: $interface_arg_type
+                    ),*
+                ) -> $crate::prelude::Result<Arc<Self>> {
+                    $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
+                        let instruction = $crate::prelude::NativeInstructionV1::$instruction( [< Native $instruction >]{
+                            address: $crate::prelude::NativeDynamicGlobalAddress::Static((*address).try_into()?),
+                            method_name: $method_ident.to_owned(),
+                            args: $crate::prelude::native_to_manifest_value_and_unwrap! {
+                                &$input_type {
+                                    $(
+                                        $input_arg_name: <
+                                            $input_arg_type
+                                            as $crate::builder::manifest_builder::traits::FromWithNameRecordContext<$interface_arg_type>
+                                        >::from($interface_arg_name, &builder.name_record)?
+                                    ),*
+                                }
                             }
-                        }
-                    };
-                    builder.instructions.push(instruction);
-                    Ok(())
-                })
+                        });
+                        builder.instructions.push(instruction);
+                        Ok(())
+                    })
+                }
             }
         }
     };
@@ -1273,7 +1342,7 @@ macro_rules! builder_alias_internal {
         ] $(,)?
     ) => {
         #[uniffi::export]
-        impl ManifestBuilder {
+        impl ManifestV1Builder {
             pub fn $builder_method(
                 self: $crate::prelude::Arc<Self>,
                 $(
@@ -1281,7 +1350,7 @@ macro_rules! builder_alias_internal {
                 ),*
             ) -> $crate::prelude::Result<Arc<Self>> {
                 $crate::builder::manifest_builder::utils::builder_arc_map(self, |builder| {
-                    let instruction = $crate::prelude::NativeInstruction::CallFunction {
+                    let instruction = $crate::prelude::NativeInstructionV1::CallFunction(NativeCallFunction {
                         package_address: $crate::prelude::NativeDynamicPackageAddress::Static($package_address),
                         blueprint_name: $blueprint_ident.to_owned(),
                         function_name: $function_ident.to_owned(),
@@ -1295,7 +1364,7 @@ macro_rules! builder_alias_internal {
                                 ),*
                             }
                         }
-                    };
+                    });
                     builder.instructions.push(instruction);
                     Ok(())
                 })
@@ -1316,8 +1385,9 @@ builder_alias! {
         args: NativeAccountCreateAdvancedManifestInput {
             owner_role: (OwnerRole => NativeOwnerRole),
             address_reservation: (
-                Option<ManifestBuilderAddressReservation> =>
-             Option<NativeManifestAddressReservation>             )
+                Option<ManifestBuilderAddressReservation>
+                    => Option<NativeManifestAddressReservation>
+            )
         }
     },
     {
