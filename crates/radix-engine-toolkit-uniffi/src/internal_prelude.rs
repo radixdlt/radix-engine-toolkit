@@ -207,6 +207,16 @@ mod native {
 
         SignatureWithPublicKeyV1 as NativeSignatureWithPublicKeyV1,
     };
+    pub use radix_transactions::manifest::static_resource_movements_visitor::{
+        AccountWithdraw as NativeAccountWithdraw,
+        AccountDeposit as NativeAccountDeposit,
+        WorktopUncertaintySource as NativeWorktopUncertaintySource,
+        FungibleBounds as NativeFungibleBounds,
+        NonFungibleBounds as NativeNonFungibleBounds,
+        NonFungibleIdBounds as NativeNonFungibleIdBounds,
+        LowerFungibleBound as NativeLowerFungibleBound,
+        UpperFungibleBound as NativeUpperFungibleBound,
+    };
     pub use radix_common::prelude::{
         Epoch as NativeEpoch,
         IsHash as NativeIsHash,

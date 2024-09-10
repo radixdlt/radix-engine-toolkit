@@ -767,8 +767,201 @@ impl DynamicAnalysis {
     }
 }
 
+#[derive(Clone, Debug, Enum)]
+pub enum AccountWithdraw {
+    Amount {
+        resource_address: Arc<Address>,
+        amount: Arc<Decimal>,
+    },
+    Ids {
+        resource_address: Arc<Address>,
+        ids: Vec<NonFungibleLocalId>,
+    },
+}
+
+impl FromNativeWithNetworkContext for AccountWithdraw {
+    type Native = NativeAccountWithdraw;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            NativeAccountWithdraw::Amount(address, amount) => Self::Amount {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    address, network_id,
+                )),
+                amount: Arc::new(Decimal(amount)),
+            },
+            NativeAccountWithdraw::Ids(address, ids) => Self::Ids {
+                resource_address: Arc::new(Address::from_typed_node_id(
+                    address, network_id,
+                )),
+                ids: ids.into_iter().map(|value| value.into()).collect(),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AccountDeposit {
+    KnownFungible {
+        address: Arc<Address>,
+        bounds: FungibleBounds,
+    },
+    KnownNonFungible {
+        address: Arc<Address>,
+        bounds: NonFungibleBounds,
+    },
+    Unknown {
+        source: WorktopUncertaintySource,
+    },
+}
+
+impl FromNativeWithNetworkContext for AccountDeposit {
+    type Native = NativeAccountDeposit;
+
+    fn from_native(native: Self::Native, network_id: u8) -> Self {
+        match native {
+            NativeAccountDeposit::KnownFungible(address, bound) => {
+                Self::KnownFungible {
+                    address: Arc::new(Address::from_typed_node_id(
+                        address, network_id,
+                    )),
+                    bounds: bound.into(),
+                }
+            }
+            NativeAccountDeposit::KnownNonFungible(address, bound) => {
+                Self::KnownNonFungible {
+                    address: Arc::new(Address::from_typed_node_id(
+                        address, network_id,
+                    )),
+                    bounds: bound.into(),
+                }
+            }
+            NativeAccountDeposit::Unknown(source) => Self::Unknown {
+                source: source.into(),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum WorktopUncertaintySource {
+    YieldFromParent,
+    Invocation { instruction_index: u64 },
+}
+
+impl From<NativeWorktopUncertaintySource> for WorktopUncertaintySource {
+    fn from(value: NativeWorktopUncertaintySource) -> Self {
+        match value {
+            NativeWorktopUncertaintySource::YieldFromParent => {
+                Self::YieldFromParent
+            }
+            NativeWorktopUncertaintySource::Invocation {
+                instruction_index,
+            } => Self::Invocation {
+                instruction_index: instruction_index as u64,
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct FungibleBounds {
+    pub lower: LowerFungibleBound,
+    pub upper: UpperFungibleBound,
+}
+
+impl From<NativeFungibleBounds> for FungibleBounds {
+    fn from(
+        NativeFungibleBounds { lower, upper }: NativeFungibleBounds,
+    ) -> Self {
+        Self {
+            lower: lower.into(),
+            upper: upper.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Record)]
+pub struct NonFungibleBounds {
+    pub amount_bounds: FungibleBounds,
+    pub id_bounds: NonFungibleIdBounds,
+}
+
+impl From<NativeNonFungibleBounds> for NonFungibleBounds {
+    fn from(
+        NativeNonFungibleBounds {
+            amount_bounds,
+            id_bounds,
+        }: NativeNonFungibleBounds,
+    ) -> Self {
+        Self {
+            amount_bounds: amount_bounds.into(),
+            id_bounds: id_bounds.into(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum NonFungibleIdBounds {
+    FullyKnown { ids: Vec<NonFungibleLocalId> },
+    PartiallyKnown { ids: Vec<NonFungibleLocalId> },
+    Unknown,
+}
+
+impl From<NativeNonFungibleIdBounds> for NonFungibleIdBounds {
+    fn from(value: NativeNonFungibleIdBounds) -> Self {
+        match value {
+            NativeNonFungibleIdBounds::FullyKnown(ids) => Self::FullyKnown {
+                ids: ids.into_iter().map(|value| value.into()).collect(),
+            },
+            NativeNonFungibleIdBounds::PartiallyKnown(ids) => {
+                Self::PartiallyKnown {
+                    ids: ids.into_iter().map(|value| value.into()).collect(),
+                }
+            }
+            NativeNonFungibleIdBounds::Unknown => Self::Unknown,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum LowerFungibleBound {
+    NonZero,
+    Amount { value: Arc<Decimal> },
+}
+
+impl From<NativeLowerFungibleBound> for LowerFungibleBound {
+    fn from(value: NativeLowerFungibleBound) -> Self {
+        match value {
+            NativeLowerFungibleBound::NonZero => Self::NonZero,
+            NativeLowerFungibleBound::Amount(value) => Self::Amount {
+                value: Arc::new(Decimal(value)),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum UpperFungibleBound {
+    Amount { value: Arc<Decimal> },
+    Unbounded,
+}
+
+impl From<NativeUpperFungibleBound> for UpperFungibleBound {
+    fn from(value: NativeUpperFungibleBound) -> Self {
+        match value {
+            NativeUpperFungibleBound::Amount(value) => Self::Amount {
+                value: Arc::new(Decimal(value)),
+            },
+            NativeUpperFungibleBound::Unbounded => Self::Unbounded,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Record)]
 pub struct StaticAnalysis {
+    pub account_withdraws: HashMap<String, Vec<AccountWithdraw>>,
+    pub account_deposits: HashMap<String, Vec<AccountDeposit>>,
     pub presented_proofs: HashMap<String, Vec<ResourceSpecifier>>,
     pub accounts_withdrawn_from: Vec<Arc<Address>>,
     pub accounts_deposited_into: Vec<Arc<Address>>,
@@ -782,6 +975,38 @@ pub struct StaticAnalysis {
 impl StaticAnalysis {
     pub fn from_native(native: CoreStaticAnalysis, network_id: u8) -> Self {
         Self {
+            account_withdraws: native
+                .account_withdraws
+                .into_iter()
+                .map(|(key, value)| {
+                    (
+                        Address::unsafe_from_raw(*key.as_node_id(), network_id)
+                            .address_string(),
+                        value
+                            .into_iter()
+                            .map(|value| {
+                                AccountWithdraw::from_native(value, network_id)
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
+            account_deposits: native
+                .account_deposits
+                .into_iter()
+                .map(|(key, value)| {
+                    (
+                        Address::unsafe_from_raw(*key.as_node_id(), network_id)
+                            .address_string(),
+                        value
+                            .into_iter()
+                            .map(|value| {
+                                AccountDeposit::from_native(value, network_id)
+                            })
+                            .collect(),
+                    )
+                })
+                .collect(),
             presented_proofs: native
                 .presented_proofs
                 .into_iter()
