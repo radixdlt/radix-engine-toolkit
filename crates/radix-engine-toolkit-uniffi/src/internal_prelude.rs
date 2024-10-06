@@ -426,6 +426,8 @@ mod native {
         BlobsV1 as NativeBlobsV1,
         NotarySignatureV1 as NativeNotarySignatureV1,
 
+        ManifestIntent as NativeManifestIntent,
+
         IntentHeaderV2 as NativeIntentHeaderV2,
         InstructionV2 as NativeInstructionV2,
         InstructionsV2 as NativeInstructionsV2,
@@ -456,8 +458,6 @@ mod native {
         MessageContentsV1 as NativeMessageContentsV1,
         PlaintextMessageV1 as NativePlaintextMessageV1,
         PublicKeyFingerprint as NativePublicKeyFingerprint,
-
-        ManifestIntent as NativeManifestIntent,
 
         TransactionPayload as NativeTransactionPayload,
         PrepareError as NativePrepareError,

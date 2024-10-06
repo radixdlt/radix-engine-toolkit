@@ -87,6 +87,11 @@ define_name_record! {
         ty: crate::prelude::NativeManifestNamedAddress,
         allocation_fn: new_address_id
     },
+    {
+        name: intent,
+        ty: crate::prelude::NativeManifestIntent,
+        allocation_fn: new_intent_id
+    },
 }
 
 #[derive(Clone, Debug, Enum)]

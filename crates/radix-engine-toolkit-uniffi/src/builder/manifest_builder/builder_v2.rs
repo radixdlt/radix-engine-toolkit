@@ -25,6 +25,7 @@ pub struct ManifestV2Builder {
     name_record: NameRecord,
     instructions: Vec<NativeInstructionV2>,
     blobs: Vec<Vec<u8>>,
+    children: Vec<NativeHash>,
 }
 
 #[uniffi::export]
@@ -1075,12 +1076,27 @@ impl ManifestV2Builder {
         })
     }
 
+    pub fn register_subintent(
+        self: Arc<Self>,
+        subintent: Arc<IntentCoreV2>,
+        name: ManifestBuilderIntent,
+    ) -> Result<Arc<Self>> {
+        builder_arc_map(self, |builder| {
+            builder.name_record.new_intent(&name.name)?;
+            let intent_hash = subintent.intent_hash()?.0;
+            builder.children.push(intent_hash);
+            Ok(())
+        })
+    }
+
     pub fn yield_to_child(
         self: Arc<Self>,
-        child_index: u32,
+        name: ManifestBuilderIntent,
         args: Vec<ManifestBuilderValue>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
+            let child_index = *builder.name_record.get_intent(&name.name)?;
+
             let args = NativeManifestValue::Tuple {
                 fields: args
                     .into_iter()
@@ -1089,10 +1105,7 @@ impl ManifestV2Builder {
             };
 
             builder.instructions.push(NativeInstructionV2::YieldToChild(
-                NativeYieldToChild {
-                    args,
-                    child_index: NativeManifestIntent(child_index),
-                },
+                NativeYieldToChild { args, child_index },
             ));
             Ok(())
         })
@@ -1131,7 +1144,13 @@ impl ManifestV2Builder {
                 network_id,
             )),
             blobs: self.blobs.clone(),
-            children: Default::default(),
+            children: self
+                .children
+                .iter()
+                .copied()
+                .map(Hash)
+                .map(Arc::new)
+                .collect(),
         })
     }
 }

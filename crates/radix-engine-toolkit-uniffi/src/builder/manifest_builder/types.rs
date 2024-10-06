@@ -18,6 +18,11 @@
 use crate::prelude::*;
 
 #[derive(Debug, Clone, Record)]
+pub struct ManifestBuilderIntent {
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Record)]
 pub struct ManifestBuilderBucket {
     pub name: String,
 }
@@ -47,6 +52,14 @@ pub trait NameRecordConvertible {
     type Native;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native>;
+}
+
+impl NameRecordConvertible for ManifestBuilderIntent {
+    type Native = NativeManifestIntent;
+
+    fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
+        name_record.get_intent(&self.name).copied()
+    }
 }
 
 impl NameRecordConvertible for ManifestBuilderBucket {
