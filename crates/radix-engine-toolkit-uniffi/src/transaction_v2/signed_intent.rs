@@ -19,23 +19,23 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
 pub struct SignedTransactionIntentV2 {
-    pub intent: Arc<TransactionIntentV2>,
-    pub intent_signatures: Vec<SignatureWithPublicKeyV1>,
-    pub subintent_signatures: Vec<Vec<SignatureWithPublicKeyV1>>,
+    pub transaction_intent: Arc<TransactionIntentV2>,
+    pub transaction_intent_signatures: Vec<SignatureWithPublicKeyV1>,
+    pub non_root_subintent_signatures: Vec<Vec<SignatureWithPublicKeyV1>>,
 }
 
 #[uniffi::export]
 impl SignedTransactionIntentV2 {
     #[uniffi::constructor]
     pub fn new(
-        intent: Arc<TransactionIntentV2>,
-        intent_signatures: Vec<SignatureWithPublicKeyV1>,
-        subintent_signatures: Vec<Vec<SignatureWithPublicKeyV1>>,
+        transaction_intent: Arc<TransactionIntentV2>,
+        transaction_intent_signatures: Vec<SignatureWithPublicKeyV1>,
+        non_root_subintent_signatures: Vec<Vec<SignatureWithPublicKeyV1>>,
     ) -> Arc<Self> {
         Arc::new(Self {
-            intent,
-            intent_signatures,
-            subintent_signatures,
+            transaction_intent,
+            transaction_intent_signatures,
+            non_root_subintent_signatures,
         })
     }
 
@@ -47,15 +47,19 @@ impl SignedTransactionIntentV2 {
             compiled_signed_intent,
         )
         .map_err(RadixEngineToolkitError::from)
-        .and_then(|intent| intent.try_into().map(Arc::new))
+        .and_then(|transaction_intent| {
+            transaction_intent.try_into().map(Arc::new)
+        })
     }
 
-    pub fn intent(&self) -> Arc<TransactionIntentV2> {
-        self.intent.clone()
+    pub fn transaction_intent(&self) -> Arc<TransactionIntentV2> {
+        self.transaction_intent.clone()
     }
 
-    pub fn intent_signatures(&self) -> Vec<SignatureWithPublicKeyV1> {
-        self.intent_signatures.clone()
+    pub fn transaction_intent_signatures(
+        &self,
+    ) -> Vec<SignatureWithPublicKeyV1> {
+        self.transaction_intent_signatures.clone()
     }
 
     pub fn hash(&self) -> Result<Arc<TransactionHash>> {
@@ -70,7 +74,10 @@ impl SignedTransactionIntentV2 {
                         NativeSignedTransactionIntentHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &signed_intent_hash,
-                        self.intent.root_intent_core.header.network_id,
+                        self.transaction_intent
+                            .root_intent_core
+                            .header
+                            .network_id,
                     ))
                 })
             },
@@ -82,7 +89,7 @@ impl SignedTransactionIntentV2 {
     }
 
     pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.intent.hash()
+        self.transaction_intent.hash()
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
@@ -102,20 +109,20 @@ impl TryFrom<NativeSignedTransactionIntentV2> for SignedTransactionIntentV2 {
 
     fn try_from(
         NativeSignedTransactionIntentV2 {
-            root_intent,
-            root_intent_signatures,
-            subintent_signatures,
+            transaction_intent,
+            transaction_intent_signatures,
+            non_root_subintent_signatures,
         }: NativeSignedTransactionIntentV2,
     ) -> Result<Self> {
         Ok(Self {
-            intent: root_intent.try_into().map(Arc::new)?,
-            intent_signatures: root_intent_signatures
+            transaction_intent: transaction_intent.try_into().map(Arc::new)?,
+            transaction_intent_signatures: transaction_intent_signatures
                 .signatures
                 .into_iter()
                 .map(|value| value.0)
                 .map(SignatureWithPublicKeyV1::from)
                 .collect(),
-            subintent_signatures: subintent_signatures
+            non_root_subintent_signatures: non_root_subintent_signatures
                 .by_subintent
                 .into_iter()
                 .map(|value| {
@@ -136,24 +143,24 @@ impl TryFrom<SignedTransactionIntentV2> for NativeSignedTransactionIntentV2 {
 
     fn try_from(
         SignedTransactionIntentV2 {
-            intent,
-            intent_signatures,
-            subintent_signatures,
+            transaction_intent,
+            transaction_intent_signatures,
+            non_root_subintent_signatures,
         }: SignedTransactionIntentV2,
     ) -> Result<Self> {
         Ok(Self {
-            root_intent: NativeTransactionIntentV2::try_from(
-                intent.as_ref().clone(),
+            transaction_intent: NativeTransactionIntentV2::try_from(
+                transaction_intent.as_ref().clone(),
             )?,
-            root_intent_signatures: intent_signatures
+            transaction_intent_signatures: transaction_intent_signatures
                 .into_iter()
                 .map(|value| {
                     NativeSignatureWithPublicKeyV1::try_from(value)
                         .map(NativeIntentSignature)
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeIntentSignaturesV1 { signatures: value })?,
-            subintent_signatures: subintent_signatures
+                .map(|value| NativeIntentSignaturesV2 { signatures: value })?,
+            non_root_subintent_signatures: non_root_subintent_signatures
                 .into_iter()
                 .map(|value| {
                     value
@@ -168,7 +175,7 @@ impl TryFrom<SignedTransactionIntentV2> for NativeSignedTransactionIntentV2 {
                         })
                 })
                 .collect::<Result<_>>()
-                .map(|value| NativeMultipleIntentSignaturesV2 {
+                .map(|value| NativeNonRootSubintentSignaturesV2 {
                     by_subintent: value,
                 })?,
         })

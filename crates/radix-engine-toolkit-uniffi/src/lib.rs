@@ -62,7 +62,7 @@ pub mod prelude {
     pub use crate::builder::manifest_builder::types::*;
     pub use crate::builder::manifest_builder::utils::*;
     pub use crate::builder::manifest_builder::value::*;
-    pub use crate::builder::transaction_builder::*;
+    pub use crate::builder::transaction_v1_builder::*;
 
     /* Errors */
     pub use crate::error::*;
@@ -85,6 +85,7 @@ pub mod prelude {
     pub use crate::manifest::address_reservation::*;
     pub use crate::manifest::blob::*;
     pub use crate::manifest::bucket::*;
+    pub use crate::manifest::constraints::*;
     pub use crate::manifest::expression::*;
     pub use crate::manifest::proof::*;
     pub use crate::manifest::value::*;
@@ -100,7 +101,6 @@ pub mod prelude {
     pub use crate::transaction_v1::message::*;
     pub use crate::transaction_v1::notarized_transaction::*;
     pub use crate::transaction_v1::signed_intent::*;
-    pub use crate::transaction_v1::validation::*;
 
     pub use crate::transaction_v2::instruction::*;
     pub use crate::transaction_v2::instructions::*;

@@ -381,6 +381,25 @@ impl FromWithNameRecordContext<WithdrawStrategy> for NativeWithdrawStrategy {
     }
 }
 
+impl FromWithNameRecordContext<Vec<ManifestBuilderBucket>>
+    for NativeBucketBatch
+{
+    fn from(
+        item: Vec<ManifestBuilderBucket>,
+        name_record: &NameRecord,
+    ) -> Result<Self> {
+        item.into_iter()
+            .map(|value| {
+                FromWithNameRecordContext::<ManifestBuilderBucket>::from(
+                    value,
+                    name_record,
+                )
+            })
+            .collect::<Result<_>>()
+            .map(Self::ManifestBuckets)
+    }
+}
+
 impl FromWithNameRecordContext<PublicKey> for NativeSecp256k1PublicKey {
     fn from(item: PublicKey, _: &NameRecord) -> Result<Self> {
         if let NativePublicKey::Secp256k1(public_key) =

@@ -85,7 +85,11 @@ impl StaticAnalysisCallback for PoolContributionDetector {
             | InstructionV2::AssertWorktopContainsAny { .. }
             | InstructionV2::AssertWorktopContains { .. }
             | InstructionV2::AssertWorktopContainsNonFungibles { .. }
-            | InstructionV2::AssertWorktopIsEmpty { .. } => true,
+            | InstructionV2::AssertWorktopResourcesOnly(..)
+            | InstructionV2::AssertWorktopResourcesInclude(..)
+            | InstructionV2::AssertNextCallReturnsOnly(..)
+            | InstructionV2::AssertNextCallReturnsInclude(..)
+            | InstructionV2::AssertBucketContents(..) => true,
             /* Not Permitted */
             InstructionV2::BurnResource { .. }
             | InstructionV2::CallRoyaltyMethod { .. }

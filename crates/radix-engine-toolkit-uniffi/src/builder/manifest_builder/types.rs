@@ -55,7 +55,7 @@ pub trait NameRecordConvertible {
 }
 
 impl NameRecordConvertible for ManifestBuilderIntent {
-    type Native = NativeManifestIntent;
+    type Native = NativeManifestNamedIntent;
 
     fn to_native(&self, name_record: &NameRecord) -> Result<Self::Native> {
         name_record.get_intent(&self.name).copied()

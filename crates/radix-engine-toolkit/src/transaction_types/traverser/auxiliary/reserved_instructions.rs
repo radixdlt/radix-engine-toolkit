@@ -69,8 +69,8 @@ impl StaticAnalysisCallback for ReservedInstructionsDetector {
         } else if is_account(address)
             && contains!(
                 method_name => [
-                    ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                    ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                    ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
+                    ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
                     ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
                     ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
                     ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,

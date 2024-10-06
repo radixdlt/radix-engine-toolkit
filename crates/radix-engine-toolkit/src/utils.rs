@@ -51,8 +51,8 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         0x01 => NetworkDefinition::mainnet(),
         0x02 => NetworkDefinition {
             id: network_id,
-            logical_name: "stokenet".to_string(),
-            hrp_suffix: "tdx_2_".to_string(),
+            logical_name: "stokenet".into(),
+            hrp_suffix: "tdx_2_".into(),
         },
 
         // Babylon Temporary Testnets
@@ -60,70 +60,70 @@ pub fn network_definition_from_network_id(network_id: u8) -> NetworkDefinition {
         0x0B => NetworkDefinition::nebunet(),
         0x0C => NetworkDefinition {
             id: network_id,
-            logical_name: "kisharnet".to_string(),
-            hrp_suffix: "tdx_c_".to_string(),
+            logical_name: "kisharnet".into(),
+            hrp_suffix: "tdx_c_".into(),
         },
         0x0D => NetworkDefinition {
             id: network_id,
-            logical_name: "ansharnet".to_string(),
-            hrp_suffix: "tdx_d_".to_string(),
+            logical_name: "ansharnet".into(),
+            hrp_suffix: "tdx_d_".into(),
         },
         0x0E => NetworkDefinition {
             id: network_id,
-            logical_name: "ansharnet".to_string(),
-            hrp_suffix: "tdx_e_".to_string(),
+            logical_name: "ansharnet".into(),
+            hrp_suffix: "tdx_e_".into(),
         },
 
         // RDX Works Development
         0x20 => NetworkDefinition {
             id: 0x20,
-            logical_name: "gilganet".to_string(),
-            hrp_suffix: "tdx_20_".to_string(),
+            logical_name: "gilganet".into(),
+            hrp_suffix: "tdx_20_".into(),
         },
         0x21 => NetworkDefinition {
             id: 0x21,
-            logical_name: "enkinet".to_string(),
-            hrp_suffix: "tdx_21_".to_string(),
+            logical_name: "enkinet".into(),
+            hrp_suffix: "tdx_21_".into(),
         },
         0x22 => NetworkDefinition {
             id: 0x22,
-            logical_name: "hammunet".to_string(),
-            hrp_suffix: "tdx_22_".to_string(),
+            logical_name: "hammunet".into(),
+            hrp_suffix: "tdx_22_".into(),
         },
         0x23 => NetworkDefinition {
             id: 0x23,
-            logical_name: "nergalnet".to_string(),
-            hrp_suffix: "tdx_23_".to_string(),
+            logical_name: "nergalnet".into(),
+            hrp_suffix: "tdx_23_".into(),
         },
         0x24 => NetworkDefinition {
             id: 0x24,
-            logical_name: "mardunet".to_string(),
-            hrp_suffix: "tdx_24_".to_string(),
+            logical_name: "mardunet".into(),
+            hrp_suffix: "tdx_24_".into(),
         },
         0x25 => NetworkDefinition {
             id: 0x25,
-            logical_name: "dumunet".to_string(),
-            hrp_suffix: "tdx_25_".to_string(),
+            logical_name: "dumunet".into(),
+            hrp_suffix: "tdx_25_".into(),
         },
 
         // Ephemeral Networks
         0xF0 => NetworkDefinition {
             id: 240,
-            logical_name: "localnet".to_string(),
-            hrp_suffix: "loc".to_string(),
+            logical_name: "localnet".into(),
+            hrp_suffix: "loc".into(),
         },
         0xF1 => NetworkDefinition {
             id: 241,
-            logical_name: "inttestnet".to_string(),
-            hrp_suffix: "test".to_string(),
+            logical_name: "inttestnet".into(),
+            hrp_suffix: "test".into(),
         },
         0xF2 => NetworkDefinition::simulator(),
 
         // Unnamed
         network_id => NetworkDefinition {
             id: network_id,
-            logical_name: "unnamed".to_string(),
-            hrp_suffix: format!("tdx_{:x}_", network_id),
+            logical_name: "unnamed".into(),
+            hrp_suffix: format!("tdx_{:x}_", network_id).into(),
         },
     }
 }

@@ -23,7 +23,7 @@ use crate::models::transaction_hash::TransactionHash;
 
 pub fn hash(subintent: &SubintentV2) -> Result<TransactionHash, PrepareError> {
     subintent
-        .prepare()
+        .prepare(&PreparationSettings::latest())
         .map(|prepared| prepared.subintent_hash())
         .map(|hash| {
             TransactionHash::new(hash, subintent.intent_core.header.network_id)
@@ -33,7 +33,7 @@ pub fn hash(subintent: &SubintentV2) -> Result<TransactionHash, PrepareError> {
 pub fn to_payload_bytes(
     subintent: &SubintentV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    subintent.to_payload_bytes()
+    subintent.to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
@@ -42,5 +42,5 @@ pub fn from_payload_bytes<T>(
 where
     T: AsRef<[u8]>,
 {
-    SubintentV2::from_payload_bytes(payload_bytes.as_ref())
+    SubintentV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }

@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::validation::ValidationConfig;
+use scrypto::prelude::*;
 mod test_data;
 
 #[test]
@@ -73,13 +73,12 @@ fn notarized_transaction_can_be_compiled_and_later_decompiled() {
 fn notarized_transaction_can_be_statically_validated() {
     // Arrange
     let transaction = test_data::notarized_transaction();
-    let validation_config = ValidationConfig::default(0x01);
 
     // Act
     let validation_result =
         radix_engine_toolkit::functions::transaction_v1::notarized_transaction::statically_validate(
             &transaction,
-            validation_config,
+            &NetworkDefinition::mainnet(),
         );
 
     // Assert

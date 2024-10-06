@@ -25,13 +25,13 @@ pub fn hash(
     signed_transaction_intent: &SignedTransactionIntentV2,
 ) -> Result<TransactionHash, PrepareError> {
     signed_transaction_intent
-        .prepare()
+        .prepare(&PreparationSettings::latest())
         .map(|prepared| prepared.signed_transaction_intent_hash())
         .map(|hash| {
             TransactionHash::new(
                 hash,
                 signed_transaction_intent
-                    .root_intent
+                    .transaction_intent
                     .root_intent_core
                     .header
                     .network_id,
@@ -42,7 +42,7 @@ pub fn hash(
 pub fn to_payload_bytes(
     signed_transaction_intent: &SignedTransactionIntentV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    signed_transaction_intent.to_payload_bytes()
+    signed_transaction_intent.to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
@@ -51,5 +51,5 @@ pub fn from_payload_bytes<T>(
 where
     T: AsRef<[u8]>,
 {
-    SignedTransactionIntentV2::from_payload_bytes(payload_bytes.as_ref())
+    SignedTransactionIntentV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }

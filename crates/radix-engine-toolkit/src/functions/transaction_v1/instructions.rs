@@ -46,6 +46,8 @@ where
 
 pub fn statically_validate(
     instructions: &[InstructionV1],
+    blobs: &IndexMap<Hash, Vec<u8>>,
+    network_definition: &NetworkDefinition,
 ) -> Result<(), InstructionValidationError> {
     radix_engine::utils::validate_call_arguments_to_native_components(
         &TransactionManifestV1 {
@@ -57,7 +59,8 @@ pub fn statically_validate(
     .map_err(
         InstructionValidationError::LocatedInstructionSchemaValidationError,
     )?;
-    NotarizedTransactionValidatorV1::validate_instructions_v1(instructions)
+    TransactionValidator::new_with_latest_config(network_definition)
+        .validate_instructions_v1(instructions, blobs)
         .map_err(InstructionValidationError::TransactionValidationError)?;
     Ok(())
 }

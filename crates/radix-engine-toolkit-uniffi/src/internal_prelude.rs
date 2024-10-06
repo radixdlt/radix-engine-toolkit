@@ -207,17 +207,25 @@ mod native {
 
         SignatureWithPublicKeyV1 as NativeSignatureWithPublicKeyV1,
     };
-    pub use radix_transactions::manifest::static_resource_movements_visitor::{
+    pub use radix_transactions::manifest::static_resource_movements::{
         AccountWithdraw as NativeAccountWithdraw,
         AccountDeposit as NativeAccountDeposit,
-        WorktopUncertaintySource as NativeWorktopUncertaintySource,
-        FungibleBounds as NativeFungibleBounds,
-        NonFungibleBounds as NativeNonFungibleBounds,
-        NonFungibleIdBounds as NativeNonFungibleIdBounds,
-        LowerFungibleBound as NativeLowerFungibleBound,
-        UpperFungibleBound as NativeUpperFungibleBound,
+        ResourceBounds as NativeResourceBounds,
+        UnspecifiedResources as NativeUnspecifiedResources,
+        SimpleResourceBounds as NativeSimpleResourceBounds,
+        SimpleFungibleResourceBounds as NativeSimpleFungibleResourceBounds,
+        SimpleNonFungibleResourceBounds as NativeSimpleNonFungibleResourceBounds,
     };
     pub use radix_common::prelude::{
+        LowerBound as NativeLowerBound,
+        UpperBound as NativeUpperBound,
+        AllowedIds as NativeAllowedIds,
+        ManifestResourceConstraint as NativeManifestResourceConstraint,
+        ManifestResourceConstraints as NativeManifestResourceConstraints,
+        GeneralResourceConstraint as NativeGeneralResourceConstraint,
+
+        BucketBatch as NativeBucketBatch,
+
         Epoch as NativeEpoch,
         IsHash as NativeIsHash,
         FromPublicKey as NativeFromPublicKey,
@@ -279,10 +287,14 @@ mod native {
         DropNamedProofs as NativeDropNamedProofs,
         DropAllProofs as NativeDropAllProofs,
         AllocateGlobalAddress as NativeAllocateGlobalAddress,
-        AssertWorktopIsEmpty as NativeAssertWorktopIsEmpty,
         YieldToParent as NativeYieldToParent,
         YieldToChild as NativeYieldToChild,
         VerifyParent as NativeVerifyParent,
+        AssertWorktopResourcesOnly as NativeAssertWorktopResourcesOnly,
+        AssertWorktopResourcesInclude as NativeAssertWorktopResourcesInclude,
+        AssertNextCallReturnsOnly as NativeAssertNextCallReturnsOnly,
+        AssertNextCallReturnsInclude as NativeAssertNextCallReturnsInclude,
+        AssertBucketContents as NativeAssertBucketContents,
     };
 
     pub use scrypto::prelude::{
@@ -425,8 +437,10 @@ mod native {
         BlobV1 as NativeBlobV1,
         BlobsV1 as NativeBlobsV1,
         NotarySignatureV1 as NativeNotarySignatureV1,
+        NotarySignatureV2 as NativeNotarySignatureV2,
 
-        ManifestIntent as NativeManifestIntent,
+        ManifestNamedIntent as NativeManifestNamedIntent,
+        ManifestNamedIntentIndex as NativeManifestNamedIntentIndex,
 
         IntentHeaderV2 as NativeIntentHeaderV2,
         InstructionV2 as NativeInstructionV2,
@@ -436,11 +450,11 @@ mod native {
         IntentCoreV2 as NativeIntentCoreV2,
         TransactionIntentV2 as NativeTransactionIntentV2,
         SubintentV2 as NativeSubintentV2,
-        SubintentsV2 as NativeSubintentsV2,
+        NonRootSubintentsV2 as NativeNonRootSubintentsV2,
         SignedTransactionIntentV2 as NativeSignedTransactionIntentV2,
         NotarizedTransactionV2 as NativeNotarizedTransactionV2,
         IntentSignaturesV2 as NativeIntentSignaturesV2,
-        MultipleIntentSignaturesV2 as NativeMultipleIntentSignaturesV2,
+        NonRootSubintentSignaturesV2 as NativeNonRootSubintentSignaturesV2,
         TransactionHeaderV2 as NativeTransactionHeaderV2,
         DecryptorsByCurveV2 as NativeDecryptorsByCurveV2,
         EncryptedMessageV2 as NativeEncryptedMessageV2,
@@ -484,7 +498,6 @@ mod native {
         ChildIntentsV2 as NativeChildIntentsV2
     };
     pub use radix_transactions::validation::{
-        ValidationConfig as NativeValidationConfig,
         MessageValidationConfig as NativeMessageValidationConfig,
         ManifestIdAllocator as NativeManifestIdAllocator
     };
@@ -538,7 +551,7 @@ mod native {
         ResourceSpecifier as NativeLockerResourceSpecifier,
     };
     pub use radix_engine::transaction::{
-        VersionedTransactionReceipt as NativeVersionedTransactionReceipt,
+        TransactionReceiptV1 as NativeTransactionReceiptV1,
         TransactionReceipt as NativeTransactionReceipt,
         CommitResult as NativeCommitResult
     };
@@ -868,8 +881,8 @@ mod native {
         ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT as NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
         ACCOUNT_BURN_IDENT as NATIVE_ACCOUNT_BURN_IDENT,
         ACCOUNT_BURN_NON_FUNGIBLES_IDENT as NATIVE_ACCOUNT_BURN_NON_FUNGIBLES_IDENT,
-        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR as NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT as NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
+        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT as NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
     };
     pub use radix_engine_interface::blueprints::identity::{
         IDENTITY_BLUEPRINT as NATIVE_IDENTITY_BLUEPRINT,
@@ -895,7 +908,7 @@ mod native {
         VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT as NATIVE_VALIDATOR_TOTAL_STAKE_XRD_AMOUNT_IDENT,
         VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT as NATIVE_VALIDATOR_TOTAL_STAKE_UNIT_SUPPLY_IDENT,
         VALIDATOR_GET_REDEMPTION_VALUE_IDENT as NATIVE_VALIDATOR_GET_REDEMPTION_VALUE_IDENT,
-        VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS as NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS,
+        VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT as NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT,
         VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT as NATIVE_VALIDATOR_GET_PROTOCOL_UPDATE_READINESS_IDENT,
         VALIDATOR_APPLY_EMISSION_IDENT as NATIVE_VALIDATOR_APPLY_EMISSION_IDENT,
         VALIDATOR_APPLY_REWARD_IDENT as NATIVE_VALIDATOR_APPLY_REWARD_IDENT,

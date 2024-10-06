@@ -44,10 +44,10 @@ where
 
 pub fn statically_validate(
     manifest: &TransactionManifestV1,
+    network_definition: &NetworkDefinition,
 ) -> Result<(), TransactionValidationError> {
-    NotarizedTransactionValidatorV1::validate_instructions_v1(
-        &manifest.instructions,
-    )
+    TransactionValidator::new_with_latest_config(network_definition)
+        .validate_instructions_v1(&manifest.instructions, &manifest.blobs)
 }
 
 pub fn statically_analyze(

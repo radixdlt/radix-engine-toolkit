@@ -2148,14 +2148,14 @@ fn account_deposit_settings_changes_are_recognized() {
         )
         .call_method(
             account,
-            ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+            ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
             AccountAddAuthorizedDepositorInput {
                 badge: ResourceOrNonFungible::Resource(XRD),
             },
         )
         .call_method(
             account,
-            ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+            ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
             AccountRemoveAuthorizedDepositorInput {
                 badge: ResourceOrNonFungible::Resource(ACCOUNT_OWNER_BADGE),
             },

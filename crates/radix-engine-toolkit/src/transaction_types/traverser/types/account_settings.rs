@@ -114,7 +114,11 @@ impl StaticAnalysisCallback for AccountSettingsUpdateDetector {
             | InstructionV2::YieldToParent(_)
             | InstructionV2::YieldToChild(_)
             | InstructionV2::VerifyParent(_)
-            | InstructionV2::AssertWorktopIsEmpty(_) => false,
+            | InstructionV2::AssertWorktopResourcesOnly(..)
+            | InstructionV2::AssertWorktopResourcesInclude(..)
+            | InstructionV2::AssertNextCallReturnsOnly(..)
+            | InstructionV2::AssertNextCallReturnsInclude(..)
+            | InstructionV2::AssertBucketContents(..) => false,
         };
 
         // Determine if the instruction is an account settings instruction.
@@ -172,7 +176,7 @@ impl StaticAnalysisCallback for AccountSettingsUpdateDetector {
                     .or_default()
                     .insert(resource_address, Update::Remove);
             }
-        } else if method_name == ACCOUNT_ADD_AUTHORIZED_DEPOSITOR {
+        } else if method_name == ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT {
             if let Ok(AccountAddAuthorizedDepositorInput { badge }) =
                 manifest_decode(&encoded_args)
             {
@@ -181,7 +185,7 @@ impl StaticAnalysisCallback for AccountSettingsUpdateDetector {
                     .or_default()
                     .insert(badge, Update::Set(()));
             }
-        } else if method_name == ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR {
+        } else if method_name == ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT {
             if let Ok(AccountRemoveAuthorizedDepositorInput { badge }) =
                 manifest_decode(&encoded_args)
             {
@@ -225,8 +229,8 @@ impl AccountSettingsUpdateDetector {
                                         ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
                                         ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
                                         /* Authorized Depositors */
-                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
+                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
                                         /* Default Deposit Rule */
                                         ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
                                         /* Locking of fees */
@@ -284,8 +288,8 @@ impl AccountSettingsUpdateDetector {
                                         ACCOUNT_SET_RESOURCE_PREFERENCE_IDENT,
                                         ACCOUNT_REMOVE_RESOURCE_PREFERENCE_IDENT,
                                         /* Authorized Depositors */
-                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
-                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+                                        ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
+                                        ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
                                         /* Default Deposit Rule */
                                         ACCOUNT_SET_DEFAULT_DEPOSIT_RULE_IDENT,
                                     ],

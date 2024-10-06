@@ -315,7 +315,6 @@ pub mod dynamic_analysis {
                 | InstructionV2::AssertWorktopContainsAny(..)
                 | InstructionV2::AssertWorktopContains(..)
                 | InstructionV2::AssertWorktopContainsNonFungibles(..)
-                | InstructionV2::AssertWorktopIsEmpty(..)
                 | InstructionV2::PopFromAuthZone(..)
                 | InstructionV2::PushToAuthZone(..)
                 | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
@@ -332,7 +331,12 @@ pub mod dynamic_analysis {
                 | InstructionV2::DropNamedProofs(..)
                 | InstructionV2::DropAllProofs(..)
                 | InstructionV2::AllocateGlobalAddress(..)
-                | InstructionV2::VerifyParent(..) => { /* No-Op */ }
+                | InstructionV2::VerifyParent(..)
+                | InstructionV2::AssertWorktopResourcesOnly(..)
+                | InstructionV2::AssertWorktopResourcesInclude(..)
+                | InstructionV2::AssertNextCallReturnsOnly(..)
+                | InstructionV2::AssertNextCallReturnsInclude(..)
+                | InstructionV2::AssertBucketContents(..) => { /* No-Op */ }
             };
 
             inputs
@@ -738,7 +742,6 @@ pub mod dynamic_analysis {
             InstructionV2::AssertWorktopContainsAny(..)
             | InstructionV2::AssertWorktopContains(..)
             | InstructionV2::AssertWorktopContainsNonFungibles(..)
-            | InstructionV2::AssertWorktopIsEmpty(..)
             | InstructionV2::PopFromAuthZone(..)
             | InstructionV2::PushToAuthZone(..)
             | InstructionV2::CreateProofFromAuthZoneOfAmount(..)
@@ -755,7 +758,12 @@ pub mod dynamic_analysis {
             | InstructionV2::DropNamedProofs(..)
             | InstructionV2::DropAllProofs(..)
             | InstructionV2::AllocateGlobalAddress(..)
-            | InstructionV2::VerifyParent(..) => { /* No-op */ }
+            | InstructionV2::VerifyParent(..)
+            | InstructionV2::AssertWorktopResourcesOnly(..)
+            | InstructionV2::AssertWorktopResourcesInclude(..)
+            | InstructionV2::AssertNextCallReturnsOnly(..)
+            | InstructionV2::AssertNextCallReturnsInclude(..)
+            | InstructionV2::AssertBucketContents(..) => { /* No-op */ }
         }
     }
 

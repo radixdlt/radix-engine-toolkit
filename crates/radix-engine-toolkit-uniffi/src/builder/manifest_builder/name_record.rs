@@ -89,8 +89,8 @@ define_name_record! {
     },
     {
         name: intent,
-        ty: crate::prelude::NativeManifestIntent,
-        allocation_fn: new_intent_id
+        ty: crate::prelude::NativeManifestNamedIntent,
+        allocation_fn: new_named_intent_id
     },
 }
 

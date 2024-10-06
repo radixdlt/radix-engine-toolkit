@@ -85,13 +85,10 @@ impl SignedTransactionIntentV1 {
         })
     }
 
-    pub fn statically_validate(
-        &self,
-        validation_config: Arc<ValidationConfig>,
-    ) -> Result<()> {
+    pub fn statically_validate(&self, network_id: u8) -> Result<()> {
         core_transaction_v1_signed_intent_statically_validate(
             &self.clone().try_into()?,
-            validation_config.as_ref().clone().into(),
+            &core_network_definition_from_network_id(network_id),
         )
         .map_err(Into::into)
     }

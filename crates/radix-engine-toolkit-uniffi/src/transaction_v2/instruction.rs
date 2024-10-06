@@ -145,8 +145,6 @@ pub enum InstructionV2 {
         blueprint_name: String,
     },
 
-    AssertWorktopIsEmpty,
-
     YieldToParent {
         args: ManifestValue,
     },
@@ -157,7 +155,24 @@ pub enum InstructionV2 {
     },
 
     VerifyParent {
-        access_rule: ManifestValue,
+        access_rule: Arc<AccessRule>,
+    },
+
+    AssertWorktopResourcesOnly {
+        constraints: HashMap<String, ManifestResourceConstraint>,
+    },
+    AssertWorktopResourcesInclude {
+        constraints: HashMap<String, ManifestResourceConstraint>,
+    },
+    AssertNextCallReturnsOnly {
+        constraints: HashMap<String, ManifestResourceConstraint>,
+    },
+    AssertNextCallReturnsInclude {
+        constraints: HashMap<String, ManifestResourceConstraint>,
+    },
+    AssertBucketContents {
+        bucket_id: ManifestBucket,
+        constraint: ManifestResourceConstraint,
     },
 }
 
@@ -403,9 +418,6 @@ impl InstructionV2 {
                 method_name: method_name.to_owned(),
                 args: ManifestValue::from_native(args, network_id),
             },
-            NativeInstructionV2::AssertWorktopIsEmpty(
-                NativeAssertWorktopIsEmpty {},
-            ) => Self::AssertWorktopIsEmpty,
             NativeInstructionV2::YieldToParent(NativeYieldToParent {
                 args,
             }) => Self::YieldToParent {
@@ -421,10 +433,85 @@ impl InstructionV2 {
             NativeInstructionV2::VerifyParent(NativeVerifyParent {
                 access_rule,
             }) => Self::VerifyParent {
-                access_rule: ManifestValue::from_native(
-                    access_rule,
-                    network_id,
-                ),
+                access_rule: Arc::new(AccessRule(access_rule.clone())),
+            },
+            NativeInstructionV2::AssertWorktopResourcesOnly(
+                assert_worktop_resources_only,
+            ) => Self::AssertWorktopResourcesOnly {
+                constraints: assert_worktop_resources_only
+                    .constraints
+                    .iter()
+                    .map(|(address, constraint)| {
+                        (
+                            Address::unsafe_from_raw(
+                                address.into_node_id(),
+                                network_id,
+                            )
+                            .as_str(),
+                            constraint.clone().into(),
+                        )
+                    })
+                    .collect(),
+            },
+            NativeInstructionV2::AssertWorktopResourcesInclude(
+                assert_worktop_resources_include,
+            ) => Self::AssertWorktopResourcesInclude {
+                constraints: assert_worktop_resources_include
+                    .constraints
+                    .iter()
+                    .map(|(address, constraint)| {
+                        (
+                            Address::unsafe_from_raw(
+                                address.into_node_id(),
+                                network_id,
+                            )
+                            .as_str(),
+                            constraint.clone().into(),
+                        )
+                    })
+                    .collect(),
+            },
+            NativeInstructionV2::AssertNextCallReturnsOnly(
+                assert_next_call_returns_only,
+            ) => Self::AssertNextCallReturnsOnly {
+                constraints: assert_next_call_returns_only
+                    .constraints
+                    .iter()
+                    .map(|(address, constraint)| {
+                        (
+                            Address::unsafe_from_raw(
+                                address.into_node_id(),
+                                network_id,
+                            )
+                            .as_str(),
+                            constraint.clone().into(),
+                        )
+                    })
+                    .collect(),
+            },
+            NativeInstructionV2::AssertNextCallReturnsInclude(
+                assert_next_call_returns_include,
+            ) => Self::AssertNextCallReturnsInclude {
+                constraints: assert_next_call_returns_include
+                    .constraints
+                    .iter()
+                    .map(|(address, constraint)| {
+                        (
+                            Address::unsafe_from_raw(
+                                address.into_node_id(),
+                                network_id,
+                            )
+                            .as_str(),
+                            constraint.clone().into(),
+                        )
+                    })
+                    .collect(),
+            },
+            NativeInstructionV2::AssertBucketContents(
+                assert_bucket_contents,
+            ) => Self::AssertBucketContents {
+                constraint: assert_bucket_contents.constraint.clone().into(),
+                bucket_id: assert_bucket_contents.bucket_id.into(),
             },
         }
     }
@@ -673,11 +760,6 @@ impl InstructionV2 {
                     blueprint_name: blueprint_name.to_string(),
                 },
             ),
-            Self::AssertWorktopIsEmpty => {
-                NativeInstructionV2::AssertWorktopIsEmpty(
-                    NativeAssertWorktopIsEmpty {},
-                )
-            }
             Self::YieldToParent { args } => {
                 NativeInstructionV2::YieldToParent(NativeYieldToParent {
                     args: args.to_native()?,
@@ -685,15 +767,156 @@ impl InstructionV2 {
             }
             Self::YieldToChild { child_index, args } => {
                 NativeInstructionV2::YieldToChild(NativeYieldToChild {
-                    child_index: NativeManifestIntent(*child_index),
+                    child_index: NativeManifestNamedIntentIndex(*child_index),
                     args: args.to_native()?,
                 })
             }
             Self::VerifyParent { access_rule } => {
                 NativeInstructionV2::VerifyParent(NativeVerifyParent {
-                    access_rule: access_rule.to_native()?,
+                    access_rule: access_rule.0.clone(),
                 })
             }
+            Self::AssertWorktopResourcesOnly { constraints } => {
+                NativeInstructionV2::AssertWorktopResourcesOnly(
+                    NativeAssertWorktopResourcesOnly {
+                        constraints: constraints
+                            .iter()
+                            .map(|(address, constraint)| -> Result<_> {
+                                let address = Address::new(address.to_owned())?;
+                                let resource_address =
+                                    NativeResourceAddress::try_from(
+                                        address.as_bytes(),
+                                    )?;
+                                let constraint =
+                                    constraint.clone().try_into()?;
+
+                                Ok((resource_address, constraint))
+                            })
+                            .collect::<Result<
+                                Vec<(
+                                    NativeResourceAddress,
+                                    NativeManifestResourceConstraint,
+                                )>,
+                            >>()
+                            .map(|constraints| {
+                                constraints.into_iter().fold(
+                                    NativeManifestResourceConstraints::new(),
+                                    |acc, (address, constraint)| {
+                                        acc.with(address, constraint)
+                                    },
+                                )
+                            })?,
+                    },
+                )
+            }
+            Self::AssertWorktopResourcesInclude { constraints } => {
+                NativeInstructionV2::AssertWorktopResourcesInclude(
+                    NativeAssertWorktopResourcesInclude {
+                        constraints: constraints
+                            .iter()
+                            .map(|(address, constraint)| -> Result<_> {
+                                let address = Address::new(address.to_owned())?;
+                                let resource_address =
+                                    NativeResourceAddress::try_from(
+                                        address.as_bytes(),
+                                    )?;
+                                let constraint =
+                                    constraint.clone().try_into()?;
+
+                                Ok((resource_address, constraint))
+                            })
+                            .collect::<Result<
+                                Vec<(
+                                    NativeResourceAddress,
+                                    NativeManifestResourceConstraint,
+                                )>,
+                            >>()
+                            .map(|constraints| {
+                                constraints.into_iter().fold(
+                                    NativeManifestResourceConstraints::new(),
+                                    |acc, (address, constraint)| {
+                                        acc.with(address, constraint)
+                                    },
+                                )
+                            })?,
+                    },
+                )
+            }
+            Self::AssertNextCallReturnsOnly { constraints } => {
+                NativeInstructionV2::AssertNextCallReturnsOnly(
+                    NativeAssertNextCallReturnsOnly {
+                        constraints: constraints
+                            .iter()
+                            .map(|(address, constraint)| -> Result<_> {
+                                let address = Address::new(address.to_owned())?;
+                                let resource_address =
+                                    NativeResourceAddress::try_from(
+                                        address.as_bytes(),
+                                    )?;
+                                let constraint =
+                                    constraint.clone().try_into()?;
+
+                                Ok((resource_address, constraint))
+                            })
+                            .collect::<Result<
+                                Vec<(
+                                    NativeResourceAddress,
+                                    NativeManifestResourceConstraint,
+                                )>,
+                            >>()
+                            .map(|constraints| {
+                                constraints.into_iter().fold(
+                                    NativeManifestResourceConstraints::new(),
+                                    |acc, (address, constraint)| {
+                                        acc.with(address, constraint)
+                                    },
+                                )
+                            })?,
+                    },
+                )
+            }
+            Self::AssertNextCallReturnsInclude { constraints } => {
+                NativeInstructionV2::AssertNextCallReturnsInclude(
+                    NativeAssertNextCallReturnsInclude {
+                        constraints: constraints
+                            .iter()
+                            .map(|(address, constraint)| -> Result<_> {
+                                let address = Address::new(address.to_owned())?;
+                                let resource_address =
+                                    NativeResourceAddress::try_from(
+                                        address.as_bytes(),
+                                    )?;
+                                let constraint =
+                                    constraint.clone().try_into()?;
+
+                                Ok((resource_address, constraint))
+                            })
+                            .collect::<Result<
+                                Vec<(
+                                    NativeResourceAddress,
+                                    NativeManifestResourceConstraint,
+                                )>,
+                            >>()
+                            .map(|constraints| {
+                                constraints.into_iter().fold(
+                                    NativeManifestResourceConstraints::new(),
+                                    |acc, (address, constraint)| {
+                                        acc.with(address, constraint)
+                                    },
+                                )
+                            })?,
+                    },
+                )
+            }
+            Self::AssertBucketContents {
+                bucket_id,
+                constraint,
+            } => NativeInstructionV2::AssertBucketContents(
+                NativeAssertBucketContents {
+                    bucket_id: (*bucket_id).into(),
+                    constraint: constraint.clone().try_into()?,
+                },
+            ),
         };
         Ok(value)
     }

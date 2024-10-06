@@ -23,4 +23,3 @@ pub mod manifest;
 pub mod message;
 pub mod notarized_transaction;
 pub mod signed_intent;
-pub mod validation;

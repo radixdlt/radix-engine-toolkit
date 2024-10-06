@@ -19,7 +19,7 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Object)]
 pub struct NotarizedTransactionV2 {
-    pub signed_intent: Arc<SignedTransactionIntentV2>,
+    pub signed_transaction_intent: Arc<SignedTransactionIntentV2>,
     pub notary_signature: SignatureV1,
 }
 
@@ -27,11 +27,11 @@ pub struct NotarizedTransactionV2 {
 impl NotarizedTransactionV2 {
     #[uniffi::constructor]
     pub fn new(
-        signed_intent: Arc<SignedTransactionIntentV2>,
+        signed_transaction_intent: Arc<SignedTransactionIntentV2>,
         notary_signature: SignatureV1,
     ) -> Arc<Self> {
         Arc::new(Self {
-            signed_intent,
+            signed_transaction_intent,
             notary_signature,
         })
     }
@@ -47,8 +47,8 @@ impl NotarizedTransactionV2 {
         .and_then(|intent| intent.try_into().map(Arc::new))
     }
 
-    pub fn signed_intent(&self) -> Arc<SignedTransactionIntentV2> {
-        self.signed_intent.clone()
+    pub fn signed_transaction_intent(&self) -> Arc<SignedTransactionIntentV2> {
+        self.signed_transaction_intent.clone()
     }
 
     pub fn notary_signature(&self) -> SignatureV1 {
@@ -67,8 +67,8 @@ impl NotarizedTransactionV2 {
                         NativeNotarizedTransactionHash(hash.hash);
                     Arc::new(TransactionHash::new(
                         &notarized_transaction_hash,
-                        self.signed_intent
-                            .intent
+                        self.signed_transaction_intent
+                            .transaction_intent
                             .root_intent_core
                             .header
                             .network_id,
@@ -82,12 +82,14 @@ impl NotarizedTransactionV2 {
         self.hash()
     }
 
-    pub fn signed_intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.signed_intent.hash()
+    pub fn signed_transaction_intent_hash(
+        &self,
+    ) -> Result<Arc<TransactionHash>> {
+        self.signed_transaction_intent.hash()
     }
 
     pub fn intent_hash(&self) -> Result<Arc<TransactionHash>> {
-        self.signed_intent.intent.hash()
+        self.signed_transaction_intent.transaction_intent.hash()
     }
 
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
@@ -108,11 +110,13 @@ impl TryFrom<NativeNotarizedTransactionV2> for NotarizedTransactionV2 {
     fn try_from(
         NativeNotarizedTransactionV2 {
             notary_signature,
-            signed_intent,
+            signed_transaction_intent,
         }: NativeNotarizedTransactionV2,
     ) -> Result<Self> {
         Ok(Self {
-            signed_intent: Arc::new(signed_intent.try_into()?),
+            signed_transaction_intent: Arc::new(
+                signed_transaction_intent.try_into()?,
+            ),
             notary_signature: notary_signature.0.into(),
         })
     }
@@ -123,8 +127,12 @@ impl TryFrom<NotarizedTransactionV2> for NativeNotarizedTransactionV2 {
 
     fn try_from(value: NotarizedTransactionV2) -> Result<Self> {
         Ok(Self {
-            signed_intent: value.signed_intent.as_ref().clone().try_into()?,
-            notary_signature: NativeNotarySignatureV1(
+            signed_transaction_intent: value
+                .signed_transaction_intent
+                .as_ref()
+                .clone()
+                .try_into()?,
+            notary_signature: NativeNotarySignatureV2(
                 value.notary_signature.try_into()?,
             ),
         })

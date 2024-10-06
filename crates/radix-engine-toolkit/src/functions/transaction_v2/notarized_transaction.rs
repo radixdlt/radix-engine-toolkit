@@ -27,14 +27,14 @@ pub fn hash(
     notarized_transaction: &NotarizedTransactionV2,
 ) -> Result<TransactionHash, PrepareError> {
     notarized_transaction
-        .prepare()
+        .prepare(&PreparationSettings::latest())
         .map(|prepared| prepared.signed_transaction_intent_hash())
         .map(|hash| {
             TransactionHash::new(
                 hash,
                 notarized_transaction
-                    .signed_intent
-                    .root_intent
+                    .signed_transaction_intent
+                    .transaction_intent
                     .root_intent_core
                     .header
                     .network_id,
@@ -45,7 +45,7 @@ pub fn hash(
 pub fn to_payload_bytes(
     notarized_transaction: &NotarizedTransactionV2,
 ) -> Result<Vec<u8>, EncodeError> {
-    notarized_transaction.to_payload_bytes()
+    notarized_transaction.to_raw().map(|raw| raw.to_vec())
 }
 
 pub fn from_payload_bytes<T>(
@@ -54,17 +54,18 @@ pub fn from_payload_bytes<T>(
 where
     T: AsRef<[u8]>,
 {
-    NotarizedTransactionV2::from_payload_bytes(payload_bytes.as_ref())
+    NotarizedTransactionV2::from_raw(&payload_bytes.as_ref().to_vec().into())
 }
 
 pub fn statically_validate(
     notarized_transaction: &NotarizedTransactionV2,
-    validation_config: ValidationConfig,
+    network_definition: &NetworkDefinition,
 ) -> Result<(), TransactionValidationError> {
-    let validator = NotarizedTransactionValidatorV2::new(validation_config);
+    let validator =
+        TransactionValidator::new_with_latest_config(network_definition);
     notarized_transaction
-        .prepare()
+        .prepare(&PreparationSettings::latest())
         .map_err(TransactionValidationError::PrepareError)
-        .and_then(|prepared| validator.validate(prepared))
+        .and_then(|prepared| validator.validate_notarized_v2(prepared))
         .map(|_| ())
 }

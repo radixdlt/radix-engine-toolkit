@@ -19,20 +19,20 @@ use crate::prelude::*;
 use std::ops::Deref;
 
 #[derive(Clone, Copy, Debug, Object)]
-pub struct TransactionBuilder;
+pub struct TransactionV1Builder;
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionBuilderHeaderStep(pub(crate) TransactionHeaderV1);
+pub struct TransactionV1BuilderHeaderStep(pub(crate) TransactionHeaderV1);
 
 #[derive(Clone, Debug, Object)]
-pub struct TransactionBuilderMessageStep(
+pub struct TransactionV1BuilderMessageStep(
     pub(crate) TransactionHeaderV1,
     pub(crate) TransactionManifestV1,
     pub(crate) MessageV1,
 );
 
 #[derive(Clone, Object)]
-pub struct TransactionBuilderIntentSignaturesStep(
+pub struct TransactionV1BuilderIntentSignaturesStep(
     pub(crate) TransactionHeaderV1,
     pub(crate) TransactionManifestV1,
     pub(crate) MessageV1,
@@ -41,7 +41,7 @@ pub struct TransactionBuilderIntentSignaturesStep(
 );
 
 #[uniffi::export]
-impl TransactionBuilder {
+impl TransactionV1Builder {
     #[uniffi::constructor]
     pub fn new() -> Arc<Self> {
         Arc::new(Self)
@@ -50,19 +50,19 @@ impl TransactionBuilder {
     pub fn header(
         self: Arc<Self>,
         header: TransactionHeaderV1,
-    ) -> Arc<TransactionBuilderHeaderStep> {
-        Arc::new(TransactionBuilderHeaderStep(header))
+    ) -> Arc<TransactionV1BuilderHeaderStep> {
+        Arc::new(TransactionV1BuilderHeaderStep(header))
     }
 }
 
 #[uniffi::export]
-impl TransactionBuilderHeaderStep {
+impl TransactionV1BuilderHeaderStep {
     pub fn manifest(
         self: Arc<Self>,
         manifest: Arc<TransactionManifestV1>,
-    ) -> Arc<TransactionBuilderMessageStep> {
+    ) -> Arc<TransactionV1BuilderMessageStep> {
         let header = self.0.clone();
-        Arc::new(TransactionBuilderMessageStep(
+        Arc::new(TransactionV1BuilderMessageStep(
             header,
             manifest.as_ref().clone(),
             MessageV1::None,
@@ -71,13 +71,13 @@ impl TransactionBuilderHeaderStep {
 }
 
 #[uniffi::export]
-impl TransactionBuilderMessageStep {
+impl TransactionV1BuilderMessageStep {
     pub fn message(
         self: Arc<Self>,
         message: MessageV1,
-    ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        TransactionBuilderIntentSignaturesStep::new(
-            &TransactionBuilderMessageStep(
+    ) -> Arc<TransactionV1BuilderIntentSignaturesStep> {
+        TransactionV1BuilderIntentSignaturesStep::new(
+            &TransactionV1BuilderMessageStep(
                 self.0.clone(),
                 self.1.clone(),
                 message,
@@ -88,24 +88,24 @@ impl TransactionBuilderMessageStep {
     pub fn sign_with_private_key(
         self: Arc<Self>,
         private_key: Arc<PrivateKey>,
-    ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        let builder = TransactionBuilderIntentSignaturesStep::new(&self);
+    ) -> Arc<TransactionV1BuilderIntentSignaturesStep> {
+        let builder = TransactionV1BuilderIntentSignaturesStep::new(&self);
         builder.sign_with_private_key(private_key)
     }
 
     pub fn sign_with_signer(
         self: Arc<Self>,
         signer: Box<dyn Signer>,
-    ) -> Arc<TransactionBuilderIntentSignaturesStep> {
-        let builder = TransactionBuilderIntentSignaturesStep::new(&self);
+    ) -> Arc<TransactionV1BuilderIntentSignaturesStep> {
+        let builder = TransactionV1BuilderIntentSignaturesStep::new(&self);
         builder.sign_with_signer(signer)
     }
 }
 
 #[uniffi::export]
-impl TransactionBuilderIntentSignaturesStep {
+impl TransactionV1BuilderIntentSignaturesStep {
     #[uniffi::constructor]
-    fn new(message_step: &TransactionBuilderMessageStep) -> Arc<Self> {
+    fn new(message_step: &TransactionV1BuilderMessageStep) -> Arc<Self> {
         let intent = IntentV1 {
             header: message_step.0.clone(),
             manifest: Arc::new(message_step.1.clone()),
@@ -113,7 +113,7 @@ impl TransactionBuilderIntentSignaturesStep {
         };
         let hash = Hash(intent.hash().unwrap().0);
 
-        Arc::new(TransactionBuilderIntentSignaturesStep(
+        Arc::new(TransactionV1BuilderIntentSignaturesStep(
             message_step.0.clone(),
             message_step.1.clone(),
             message_step.2.clone(),
@@ -163,7 +163,7 @@ impl TransactionBuilderIntentSignaturesStep {
     }
 }
 
-impl TransactionBuilderIntentSignaturesStep {
+impl TransactionV1BuilderIntentSignaturesStep {
     fn notarize(&self, notary: &dyn Signer) -> Result<NotarizedTransactionV1> {
         /* Processing the intent */
         let intent = IntentV1 {

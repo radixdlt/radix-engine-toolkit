@@ -1105,7 +1105,10 @@ impl ManifestV2Builder {
             };
 
             builder.instructions.push(NativeInstructionV2::YieldToChild(
-                NativeYieldToChild { args, child_index },
+                NativeYieldToChild {
+                    args,
+                    child_index: NativeManifestNamedIntentIndex(child_index.0),
+                },
             ));
             Ok(())
         })
@@ -1113,18 +1116,12 @@ impl ManifestV2Builder {
 
     pub fn verify_parent(
         self: Arc<Self>,
-        args: Vec<ManifestBuilderValue>,
+        access_rule: Arc<AccessRule>,
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
-            let args = NativeManifestValue::Tuple {
-                fields: args
-                    .into_iter()
-                    .map(|value| value.to_native(&builder.name_record))
-                    .collect::<Result<_>>()?,
-            };
-
+            let access_rule = access_rule.0.clone();
             builder.instructions.push(NativeInstructionV2::VerifyParent(
-                NativeVerifyParent { access_rule: args },
+                NativeVerifyParent { access_rule },
             ));
             Ok(())
         })
@@ -1533,7 +1530,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_DEPOSIT_BATCH_IDENT,
         instruction: CallMethod,
         args: NativeAccountDepositBatchManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => Vec<NativeManifestBucket>)
+            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch)
         }
     },
     {
@@ -1541,7 +1538,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_ABORT_IDENT,
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrAbortManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => Vec<NativeManifestBucket>),
+            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
             authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
         }
     },
@@ -1550,7 +1547,7 @@ builder_alias! {
         method_ident: NATIVE_ACCOUNT_TRY_DEPOSIT_BATCH_OR_REFUND_IDENT,
         instruction: CallMethod,
         args: NativeAccountTryDepositBatchOrRefundManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => Vec<NativeManifestBucket>),
+            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch),
             authorized_depositor_badge: (Option<ResourceOrNonFungible> => Option<NativeResourceOrNonFungible>),
         }
     },
@@ -1655,7 +1652,7 @@ builder_alias! {
     },
     {
         builder_method: account_add_authorized_depositor,
-        method_ident: NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR,
+        method_ident: NATIVE_ACCOUNT_ADD_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
         args: NativeAccountAddAuthorizedDepositorInput {
             badge: (ResourceOrNonFungible => NativeResourceOrNonFungible),
@@ -1663,7 +1660,7 @@ builder_alias! {
     },
     {
         builder_method: account_remove_authorized_depositor,
-        method_ident: NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR,
+        method_ident: NATIVE_ACCOUNT_REMOVE_AUTHORIZED_DEPOSITOR_IDENT,
         instruction: CallMethod,
         args: NativeAccountRemoveAuthorizedDepositorInput {
             badge: (ResourceOrNonFungible => NativeResourceOrNonFungible),
@@ -1768,7 +1765,7 @@ builder_alias! {
     },
     {
         builder_method: validator_signal_protocol_update_readiness,
-        method_ident: NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS,
+        method_ident: NATIVE_VALIDATOR_SIGNAL_PROTOCOL_UPDATE_READINESS_IDENT,
         instruction: CallMethod,
         args: NativeValidatorSignalProtocolUpdateReadinessInput {
             vote: (String => String)
@@ -2124,7 +2121,7 @@ builder_alias! {
         method_ident: NATIVE_MULTI_RESOURCE_POOL_CONTRIBUTE_IDENT,
         instruction: CallMethod,
         args: NativeMultiResourcePoolContributeManifestInput {
-            buckets: (Vec<ManifestBuilderBucket> => Vec<NativeManifestBucket>)
+            buckets: (Vec<ManifestBuilderBucket> => NativeBucketBatch)
         }
     },
     {

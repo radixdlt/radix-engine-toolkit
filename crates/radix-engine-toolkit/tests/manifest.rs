@@ -79,6 +79,7 @@ fn manifest_can_be_statically_validated() {
     let validation_result =
         radix_engine_toolkit::functions::transaction_v1::manifest::statically_validate(
             &manifest,
+            &NetworkDefinition::mainnet()
         );
 
     // Assert

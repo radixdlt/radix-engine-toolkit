@@ -21,6 +21,7 @@ This section is primarily relevant for internal integrators such as Sargon. The 
 * Renamed `ExecutionSummary` to `DynamicAnalysis`.
 * Added two new fields to the `ManifestSummary`: `account_withdraws` and `account_deposits`.
 * Changed the `statically_analyze` to return an `Option` 
+* All of the transaction v2 and v1 methods for static validation no longer take a validation config and now take in a network definition or id to validate against.
 
 ### `radix-engine-toolkit-uniffi` Crate (The UniFFI toolkit published in the various programming languages)
 
@@ -61,3 +62,5 @@ The changes here apply to the UniFFI toolkit which is the toolkit published in t
 * Renamed all `compile` and `decompile` functions in `instruction`, `manifest`, `intent`, `signed_intent`, and `notarized_transaction` functions to `to_payload_bytes` and `from_payload_bytes` respectively.
 * Renamed the `Message` functions `public_key_fingerprint_from_vec` and `public_key_fingerprint_to_vec` to `public_key_fingerprint_v1_from_vec` and `public_key_fingerprint_v1_to_vec`.
 * Renamed `PublicKeyFingerprint` to `PublicKeyFingerprintV1`.
+* All of the transaction v2 and v1 methods for static validation no longer take a validation config and now take in a network definition or id to validate against.
+* Renamed the transaction builder and all of the associated types to include the version of the transactions that they're building. It is now clear that they build v1 or v2 transactions. As an example, the `TransactionBuilder` has been renamed to `TransactionV1Builder`.

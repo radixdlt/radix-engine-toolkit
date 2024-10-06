@@ -17,6 +17,7 @@
 
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
+use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 
 use crate::transaction_types::*;
@@ -42,13 +43,19 @@ where
 
 pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {
     let [
-        InstructionV2::AssertWorktopIsEmpty(..),
+        InstructionV2::AssertWorktopResourcesOnly(AssertWorktopResourcesOnly {
+            constraints,
+        }),
         other_instructions @ ..,
         InstructionV2::YieldToParent(..),
     ] = manifest.instructions.as_slice()
     else {
         return false;
     };
+    if constraints.specified_resources().len() != 0 {
+        return false;
+    }
+
     !other_instructions.iter().any(|instruction| {
         matches!(
             instruction,

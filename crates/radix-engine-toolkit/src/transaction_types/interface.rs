@@ -22,7 +22,7 @@
 use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_substate_store_queries::typed_substate_layout::*;
-use radix_transactions::manifest::static_resource_movements_visitor::*;
+use radix_transactions::manifest::static_resource_movements::*;
 use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
 
@@ -131,8 +131,9 @@ pub fn statically_analyze(
         let interpreter =
             StaticManifestInterpreter::new(ValidationRuleset::all(), &manifest);
         let mut visitor = StaticResourceMovementsVisitor::new(true);
-        interpreter.interpret_or_err(&mut visitor).ok()?;
-        visitor.output()
+        interpreter.validate_and_apply_visitor(&mut visitor).ok()?;
+        let output = visitor.output();
+        (output.account_deposits(), output.account_withdraws())
     };
 
     Some(StaticAnalysis {

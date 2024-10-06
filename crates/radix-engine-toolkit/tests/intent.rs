@@ -15,7 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_transactions::validation::ValidationConfig;
+use scrypto::network::NetworkDefinition;
+
 mod test_data;
 
 #[test]
@@ -71,13 +72,12 @@ fn intent_can_be_compiled_and_later_decompiled() {
 fn intent_can_be_statically_validated() {
     // Arrange
     let intent = test_data::intent();
-    let validation_config = ValidationConfig::default(0x01);
 
     // Act
     let validation_result =
         radix_engine_toolkit::functions::transaction_v1::intent::statically_validate(
             &intent,
-            validation_config,
+            &NetworkDefinition::mainnet(),
         );
 
     // Assert

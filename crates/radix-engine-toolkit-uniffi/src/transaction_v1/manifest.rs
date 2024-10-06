@@ -64,11 +64,21 @@ impl TransactionManifestV1 {
         Ok(Arc::new(Self::from_native(&decompiled, network_id)))
     }
 
-    pub fn statically_validate(&self) -> Result<()> {
+    pub fn statically_validate(&self, network_id: u8) -> Result<()> {
         core_transaction_v1_instructions_statically_validate(
             &self.instructions.0,
+            &self
+                .blobs
+                .iter()
+                .cloned()
+                .map(|blob| (native_hash(&blob), blob))
+                .collect(),
+            &core_network_definition_from_network_id(network_id),
         )?;
-        core_transaction_v1_manifest_statically_validate(&self.to_native())?;
+        core_transaction_v1_manifest_statically_validate(
+            &self.to_native(),
+            &core_network_definition_from_network_id(network_id),
+        )?;
         Ok(())
     }
 
@@ -803,157 +813,231 @@ impl FromNativeWithNetworkContext for AccountWithdraw {
 #[derive(Clone, Debug, Enum)]
 pub enum AccountDeposit {
     KnownFungible {
-        address: Arc<Address>,
-        bounds: FungibleBounds,
+        resource_address: Arc<Address>,
+        bounds: SimpleFungibleResourceBounds,
     },
     KnownNonFungible {
-        address: Arc<Address>,
-        bounds: NonFungibleBounds,
+        resource_address: Arc<Address>,
+        bounds: SimpleNonFungibleResourceBounds,
     },
-    Unknown {
-        source: WorktopUncertaintySource,
-    },
-}
-
-impl FromNativeWithNetworkContext for AccountDeposit {
-    type Native = NativeAccountDeposit;
-
-    fn from_native(native: Self::Native, network_id: u8) -> Self {
-        match native {
-            NativeAccountDeposit::KnownFungible(address, bound) => {
-                Self::KnownFungible {
-                    address: Arc::new(Address::from_typed_node_id(
-                        address, network_id,
-                    )),
-                    bounds: bound.into(),
-                }
-            }
-            NativeAccountDeposit::KnownNonFungible(address, bound) => {
-                Self::KnownNonFungible {
-                    address: Arc::new(Address::from_typed_node_id(
-                        address, network_id,
-                    )),
-                    bounds: bound.into(),
-                }
-            }
-            NativeAccountDeposit::Unknown(source) => Self::Unknown {
-                source: source.into(),
-            },
-        }
-    }
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum WorktopUncertaintySource {
-    YieldFromParent,
-    Invocation { instruction_index: u64 },
-}
-
-impl From<NativeWorktopUncertaintySource> for WorktopUncertaintySource {
-    fn from(value: NativeWorktopUncertaintySource) -> Self {
-        match value {
-            NativeWorktopUncertaintySource::YieldFromParent => {
-                Self::YieldFromParent
-            }
-            NativeWorktopUncertaintySource::Invocation {
-                instruction_index,
-            } => Self::Invocation {
-                instruction_index: instruction_index as u64,
-            },
-        }
-    }
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct FungibleBounds {
-    pub lower: LowerFungibleBound,
-    pub upper: UpperFungibleBound,
-}
-
-impl From<NativeFungibleBounds> for FungibleBounds {
-    fn from(
-        NativeFungibleBounds { lower, upper }: NativeFungibleBounds,
-    ) -> Self {
-        Self {
-            lower: lower.into(),
-            upper: upper.into(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Record)]
-pub struct NonFungibleBounds {
-    pub amount_bounds: FungibleBounds,
-    pub id_bounds: NonFungibleIdBounds,
-}
-
-impl From<NativeNonFungibleBounds> for NonFungibleBounds {
-    fn from(
-        NativeNonFungibleBounds {
-            amount_bounds,
-            id_bounds,
-        }: NativeNonFungibleBounds,
-    ) -> Self {
-        Self {
-            amount_bounds: amount_bounds.into(),
-            id_bounds: id_bounds.into(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Enum)]
-pub enum NonFungibleIdBounds {
-    FullyKnown { ids: Vec<NonFungibleLocalId> },
-    PartiallyKnown { ids: Vec<NonFungibleLocalId> },
     Unknown,
 }
 
-impl From<NativeNonFungibleIdBounds> for NonFungibleIdBounds {
-    fn from(value: NativeNonFungibleIdBounds) -> Self {
+impl AccountDeposit {
+    pub fn from_native(
+        native: NativeAccountDeposit,
+        network_id: u8,
+    ) -> Vec<Self> {
+        let mut returns = Vec::default();
+
+        // Convert all of the unknown deposits into unknowns.
+        if let NativeUnspecifiedResources::MayBePresent(sources) =
+            native.unspecified_resources()
+        {
+            returns.extend(sources.iter().map(|_| AccountDeposit::Unknown));
+        }
+
+        // Convert each of the specified resources into either a known fungible
+        // or a known non-fungible.
+        for (resource_address, bounds) in native.specified_resources() {
+            let resource_address = Arc::new(Address::unsafe_from_raw(
+                resource_address.into_node_id(),
+                network_id,
+            ));
+            let bounds = match bounds {
+                NativeSimpleResourceBounds::Fungible(bounds) => {
+                    Self::KnownFungible {
+                        resource_address,
+                        bounds: bounds.clone().into(),
+                    }
+                }
+                NativeSimpleResourceBounds::NonFungible(bounds) => {
+                    Self::KnownNonFungible {
+                        resource_address,
+                        bounds: bounds.clone().into(),
+                    }
+                }
+            };
+            returns.push(bounds)
+        }
+
+        returns
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum SimpleFungibleResourceBounds {
+    Exact {
+        value: Arc<Decimal>,
+    },
+    AtMost {
+        value: Arc<Decimal>,
+    },
+    AtLeast {
+        value: Arc<Decimal>,
+    },
+    Between {
+        lower_bound_inclusive: Arc<Decimal>,
+        upper_bound_inclusive: Arc<Decimal>,
+    },
+    UnknownAmount,
+}
+
+impl From<NativeSimpleFungibleResourceBounds> for SimpleFungibleResourceBounds {
+    fn from(value: NativeSimpleFungibleResourceBounds) -> Self {
         match value {
-            NativeNonFungibleIdBounds::FullyKnown(ids) => Self::FullyKnown {
-                ids: ids.into_iter().map(|value| value.into()).collect(),
+            NativeSimpleFungibleResourceBounds::Exact(value) => Self::Exact {
+                value: Arc::new(Decimal(value)),
             },
-            NativeNonFungibleIdBounds::PartiallyKnown(ids) => {
-                Self::PartiallyKnown {
-                    ids: ids.into_iter().map(|value| value.into()).collect(),
+            NativeSimpleFungibleResourceBounds::AtMost(value) => Self::AtMost {
+                value: Arc::new(Decimal(value)),
+            },
+            NativeSimpleFungibleResourceBounds::AtLeast(value) => {
+                Self::AtLeast {
+                    value: Arc::new(Decimal(value)),
                 }
             }
-            NativeNonFungibleIdBounds::Unknown => Self::Unknown,
+            NativeSimpleFungibleResourceBounds::Between(
+                lower_bound_inclusive,
+                upper_bound_inclusive,
+            ) => Self::Between {
+                lower_bound_inclusive: Arc::new(Decimal(lower_bound_inclusive)),
+                upper_bound_inclusive: Arc::new(Decimal(upper_bound_inclusive)),
+            },
+            NativeSimpleFungibleResourceBounds::UnknownAmount => {
+                Self::UnknownAmount
+            }
         }
     }
 }
 
 #[derive(Clone, Debug, Enum)]
-pub enum LowerFungibleBound {
-    NonZero,
-    Amount { value: Arc<Decimal> },
+pub enum SimpleNonFungibleResourceBounds {
+    Exact {
+        amount: Arc<Decimal>,
+        certain_ids: Vec<NonFungibleLocalId>,
+    },
+    NotExact {
+        certain_ids: Vec<NonFungibleLocalId>,
+        lower_bound: LowerBound,
+        upper_bound: UpperBound,
+        allowed_ids: AllowedIds,
+    },
 }
 
-impl From<NativeLowerFungibleBound> for LowerFungibleBound {
-    fn from(value: NativeLowerFungibleBound) -> Self {
+impl From<NativeSimpleNonFungibleResourceBounds>
+    for SimpleNonFungibleResourceBounds
+{
+    fn from(value: NativeSimpleNonFungibleResourceBounds) -> Self {
         match value {
-            NativeLowerFungibleBound::NonZero => Self::NonZero,
-            NativeLowerFungibleBound::Amount(value) => Self::Amount {
+            NativeSimpleNonFungibleResourceBounds::Exact {
+                amount,
+                certain_ids,
+            } => Self::Exact {
+                amount: Arc::new(Decimal(amount)),
+                certain_ids: certain_ids
+                    .into_iter()
+                    .map(|item| item.into())
+                    .collect(),
+            },
+            NativeSimpleNonFungibleResourceBounds::NotExact {
+                certain_ids,
+                lower_bound,
+                upper_bound,
+                allowed_ids,
+            } => Self::NotExact {
+                certain_ids: certain_ids
+                    .into_iter()
+                    .map(|item| item.into())
+                    .collect(),
+                lower_bound: lower_bound.into(),
+                upper_bound: upper_bound.into(),
+                allowed_ids: allowed_ids.into(),
+            },
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum AllowedIds {
+    Allowlist { ids: Vec<NonFungibleLocalId> },
+    Any,
+}
+
+impl From<NativeAllowedIds> for AllowedIds {
+    fn from(value: NativeAllowedIds) -> Self {
+        match value {
+            NativeAllowedIds::Allowlist(index_set) => Self::Allowlist {
+                ids: index_set.into_iter().map(|item| item.into()).collect(),
+            },
+            NativeAllowedIds::Any => Self::Any,
+        }
+    }
+}
+
+impl TryFrom<AllowedIds> for NativeAllowedIds {
+    type Error = RadixEngineToolkitError;
+
+    fn try_from(value: AllowedIds) -> std::result::Result<Self, Self::Error> {
+        match value {
+            AllowedIds::Allowlist { ids } => ids
+                .into_iter()
+                .map(TryInto::try_into)
+                .collect::<Result<_>>()
+                .map(Self::Allowlist),
+            AllowedIds::Any => Ok(Self::Any),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Enum)]
+pub enum LowerBound {
+    NonZero,
+    Inclusive { value: Arc<Decimal> },
+}
+
+impl From<NativeLowerBound> for LowerBound {
+    fn from(value: NativeLowerBound) -> Self {
+        match value {
+            NativeLowerBound::NonZero => Self::NonZero,
+            NativeLowerBound::Inclusive(value) => Self::Inclusive {
                 value: Arc::new(Decimal(value)),
             },
         }
     }
 }
 
+impl From<LowerBound> for NativeLowerBound {
+    fn from(value: LowerBound) -> Self {
+        match value {
+            LowerBound::NonZero => Self::NonZero,
+            LowerBound::Inclusive { value } => Self::Inclusive(value.0),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Enum)]
-pub enum UpperFungibleBound {
-    Amount { value: Arc<Decimal> },
+pub enum UpperBound {
+    Inclusive { value: Arc<Decimal> },
     Unbounded,
 }
 
-impl From<NativeUpperFungibleBound> for UpperFungibleBound {
-    fn from(value: NativeUpperFungibleBound) -> Self {
+impl From<NativeUpperBound> for UpperBound {
+    fn from(value: NativeUpperBound) -> Self {
         match value {
-            NativeUpperFungibleBound::Amount(value) => Self::Amount {
+            NativeUpperBound::Inclusive(value) => Self::Inclusive {
                 value: Arc::new(Decimal(value)),
             },
-            NativeUpperFungibleBound::Unbounded => Self::Unbounded,
+            NativeUpperBound::Unbounded => Self::Unbounded,
+        }
+    }
+}
+
+impl From<UpperBound> for NativeUpperBound {
+    fn from(value: UpperBound) -> Self {
+        match value {
+            UpperBound::Inclusive { value } => Self::Inclusive(value.0),
+            UpperBound::Unbounded => Self::Unbounded,
         }
     }
 }
@@ -1003,6 +1087,7 @@ impl StaticAnalysis {
                             .map(|value| {
                                 AccountDeposit::from_native(value, network_id)
                             })
+                            .flatten()
                             .collect(),
                     )
                 })

@@ -110,7 +110,11 @@ impl StaticAnalysisCallback for PoolRedemptionDetector {
             | InstructionV2::YieldToParent(_)
             | InstructionV2::YieldToChild(_)
             | InstructionV2::VerifyParent(_)
-            | InstructionV2::AssertWorktopIsEmpty(_) => false,
+            | InstructionV2::AssertWorktopResourcesOnly(..)
+            | InstructionV2::AssertWorktopResourcesInclude(..)
+            | InstructionV2::AssertNextCallReturnsOnly(..)
+            | InstructionV2::AssertNextCallReturnsInclude(..)
+            | InstructionV2::AssertBucketContents(..) => false,
         };
 
         // Handle required method call

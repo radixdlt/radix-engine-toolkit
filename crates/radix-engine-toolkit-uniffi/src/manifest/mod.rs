@@ -19,6 +19,7 @@ pub mod address;
 pub mod address_reservation;
 pub mod blob;
 pub mod bucket;
+pub mod constraints;
 pub mod expression;
 pub mod proof;
 pub mod value;
