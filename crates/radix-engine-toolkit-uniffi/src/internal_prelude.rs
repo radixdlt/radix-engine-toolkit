@@ -247,8 +247,11 @@ mod native {
         Secp256k1Signature as NativeSecp256k1Signature,
     };
     pub use radix_transactions::manifest::{
-        compile as native_to_payload_bytes,
-        decompile as native_from_payload_bytes,
+        compile as native_compile,
+        decompile as native_decompile,
+
+        compile_manifest as native_compile_manifest,
+        decompile_any as native_decompile_any,
 
         IsBlobProvider as NativeIsBlobProvider,
         BlobProvider as NativeBlobProvider,

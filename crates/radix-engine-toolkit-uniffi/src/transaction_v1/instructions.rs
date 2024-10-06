@@ -27,7 +27,7 @@ impl InstructionsV1 {
         let network_definition =
             core_network_definition_from_network_id(network_id);
         let blob_provider = NativeMockBlobProvider::new();
-        native_to_payload_bytes(&string, &network_definition, blob_provider)
+        native_compile(&string, &network_definition, blob_provider)
             .map_err(Into::into)
             .map(|manifest| Arc::new(Self(manifest.instructions, network_id)))
     }
@@ -47,7 +47,7 @@ impl InstructionsV1 {
     pub fn as_str(&self) -> Result<String> {
         let network_definition =
             core_network_definition_from_network_id(self.1);
-        native_from_payload_bytes(
+        native_decompile(
             &NativeTransactionManifestV1 {
                 instructions: self.0.clone(),
                 blobs: Default::default(),
