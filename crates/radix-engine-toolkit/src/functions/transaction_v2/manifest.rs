@@ -19,6 +19,7 @@ use radix_common::prelude::*;
 use radix_engine_toolkit_common::receipt::RuntimeToolkitTransactionReceipt;
 use radix_transactions::manifest::*;
 use radix_transactions::prelude::*;
+use scrypto::prelude::*;
 
 use crate::transaction_types::*;
 
@@ -52,7 +53,7 @@ pub fn is_enclosed(manifest: &TransactionManifestV2) -> bool {
     else {
         return false;
     };
-    if constraints.specified_resources().len() != 0 {
+    if constraints.specified_resources().len().is_zero() {
         return false;
     }
 
