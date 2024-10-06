@@ -15,6 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use native_radix_engine_toolkit::receipt::RuntimeToolkitTransactionReceipt;
 use radix_engine::system::bootstrap::*;
 use radix_engine::transaction::*;
 use radix_engine::vm::*;
@@ -58,7 +59,8 @@ where
             radix_engine_toolkit::transaction_types::summary(&manifest);
         let execution_summary =
             radix_engine_toolkit::transaction_types::execution_summary(
-                &manifest, &receipt,
+                &manifest,
+                &RuntimeToolkitTransactionReceipt::try_from(receipt).unwrap(),
             )
             .unwrap();
 

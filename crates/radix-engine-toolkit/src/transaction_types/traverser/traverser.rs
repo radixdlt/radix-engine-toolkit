@@ -42,9 +42,9 @@ pub mod manifest_summary {
         instruction_index: usize,
     ) {
         // At the beginning of an instruction, call the on_instruction callback
-        callbacks.iter_mut().for_each(
-            |callback| callback.on_instruction(instruction, instruction_index)
-        );
+        callbacks.iter_mut().for_each(|callback| {
+            callback.on_instruction(instruction, instruction_index)
+        });
 
         // Notify the callbacks of the created account proofs
         handle_on_create_proof(callbacks, instruction);
@@ -58,9 +58,9 @@ pub mod manifest_summary {
             let Ok(global_address) = GlobalAddress::try_from(node_id) else {
                 continue;
             };
-            callbacks.iter_mut().for_each(
-                |callback| callback.on_global_entity_encounter(global_address)
-            );
+            callbacks.iter_mut().for_each(|callback| {
+                callback.on_global_entity_encounter(global_address)
+            });
         }
     }
 
@@ -249,9 +249,9 @@ pub mod execution_summary {
         bucket_tracker: &IndexMap<ManifestBucket, ResourceIndicator>,
     ) {
         let worktop_changes_entry = receipt
-            .execution_trace()
             .worktop_changes()
-            .get(&instruction_index).cloned()
+            .get(&instruction_index)
+            .cloned()
             .unwrap_or_default();
 
         let inputs = {
@@ -289,9 +289,9 @@ pub mod execution_summary {
                     if let Some(resource_indicator) =
                         bucket_tracker.get(bucket_id)
                     {
-                        inputs.push(
-                            ResourceSpecifier::from(resource_indicator.clone())
-                        )
+                        inputs.push(ResourceSpecifier::from(
+                            resource_indicator.clone(),
+                        ))
                     }
                 }
                 /* Non-sink methods */
@@ -325,17 +325,16 @@ pub mod execution_summary {
 
             inputs
         };
-        let outputs =
-            worktop_changes_entry
-                .iter()
-                .filter_map(|item| {
-                    if let WorktopChange::Put(resource_specifier) = item {
-                        Some(resource_specifier.clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
+        let outputs = worktop_changes_entry
+            .iter()
+            .filter_map(|item| {
+                if let WorktopChange::Put(resource_specifier) = item {
+                    Some(resource_specifier.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
         callbacks.iter_mut().for_each(|callback| {
             ExecutionSummaryCallback::on_instruction(
                 *callback,
@@ -531,10 +530,8 @@ pub mod execution_summary {
                     .expressions()
                     .contains(&ManifestExpression::EntireWorktop)
                 {
-                    if let Some(worktop_changes) = receipt
-                        .execution_trace()
-                        .worktop_changes()
-                        .get(&instruction_index)
+                    if let Some(worktop_changes) =
+                        receipt.worktop_changes().get(&instruction_index)
                     {
                         for resource_indicator in worktop_changes
                             .iter()
@@ -737,7 +734,6 @@ pub mod execution_summary {
         resource_address: ResourceAddress,
     ) -> Option<Decimal> {
         receipt
-            .execution_trace()
             .worktop_changes()
             .entry(instruction_index)
             .or_default()
@@ -760,7 +756,6 @@ pub mod execution_summary {
         resource_address: ResourceAddress,
     ) -> Option<IndexSet<NonFungibleLocalId>> {
         receipt
-            .execution_trace()
             .worktop_changes()
             .entry(instruction_index)
             .or_default()
@@ -787,7 +782,6 @@ pub mod execution_summary {
         resource_address: ResourceAddress,
     ) -> Option<IndexSet<NonFungibleLocalId>> {
         receipt
-            .execution_trace()
             .worktop_changes()
             .entry(instruction_index)
             .or_default()
