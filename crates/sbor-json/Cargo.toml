@@ -1,6 +1,6 @@
 [package]
 name = "sbor-json"
-version = "2.1.2"
+version = "2.2.0-dev1"
 edition = "2021"
 description = "The implementation of the SBOR JSON representations"
 
