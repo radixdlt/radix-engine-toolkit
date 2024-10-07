@@ -17,8 +17,14 @@
 
 use crate::prelude::*;
 
+// TODO: Why make the fields private when this crate is not supposed to be
+// consumed as a library anyway? Might as well just make them public so that
+// we can use them in tests instead of adding weird constructors for tests.
+// This was changed to be `pub` for the time being but more thought should be
+// put into whether this is public within the crate alone or public in general.
+
 #[derive(Object)]
-pub struct PrivateKey(pub(crate) NativePrivateKey);
+pub struct PrivateKey(pub NativePrivateKey);
 
 #[uniffi::export]
 impl PrivateKey {

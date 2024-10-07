@@ -1083,7 +1083,7 @@ impl ManifestV2Builder {
     ) -> Result<Arc<Self>> {
         builder_arc_map(self, |builder| {
             builder.name_record.new_intent(&name.name)?;
-            let intent_hash = subintent.intent_hash()?.0;
+            let intent_hash = subintent.subintent_hash()?.0;
             builder.children.push(intent_hash);
             Ok(())
         })
@@ -1149,54 +1149,6 @@ impl ManifestV2Builder {
                 .map(Arc::new)
                 .collect(),
         })
-    }
-}
-
-#[derive(Debug, Clone, Record)]
-pub struct SecurityStructureRole {
-    pub super_admin_factors: Vec<PublicKey>,
-    pub threshold_factors: Vec<PublicKey>,
-    pub threshold: u8,
-}
-
-impl TryFrom<SecurityStructureRole> for NativeAccessRule {
-    type Error = RadixEngineToolkitError;
-
-    fn try_from(
-        value: SecurityStructureRole,
-    ) -> std::result::Result<Self, Self::Error> {
-        let super_admin_factors = value
-            .super_admin_factors
-            .into_iter()
-            .map(|pk| {
-                NativePublicKey::try_from(pk)
-                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
-                    .map(NativeResourceOrNonFungible::NonFungible)
-            })
-            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
-        let threshold_factors = value
-            .threshold_factors
-            .into_iter()
-            .map(|pk| {
-                NativePublicKey::try_from(pk)
-                    .map(|pk| NativeNonFungibleGlobalId::from_public_key(&pk))
-                    .map(NativeResourceOrNonFungible::NonFungible)
-            })
-            .collect::<Result<Vec<NativeResourceOrNonFungible>>>()?;
-
-        Ok(NativeAccessRule::Protected(
-            NativeCompositeRequirement::AnyOf(vec![
-                NativeCompositeRequirement::BasicRequirement(
-                    NativeBasicRequirement::CountOf(
-                        value.threshold,
-                        threshold_factors,
-                    ),
-                ),
-                NativeCompositeRequirement::BasicRequirement(
-                    NativeBasicRequirement::AnyOf(super_admin_factors),
-                ),
-            ]),
-        ))
     }
 }
 

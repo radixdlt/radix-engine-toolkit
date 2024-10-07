@@ -58,11 +58,14 @@ pub mod prelude {
 
     /* Builders */
     pub use crate::builder::manifest_builder::builder_v1::*;
+    pub use crate::builder::manifest_builder::builder_v2::*;
     pub use crate::builder::manifest_builder::name_record::*;
     pub use crate::builder::manifest_builder::types::*;
     pub use crate::builder::manifest_builder::utils::*;
     pub use crate::builder::manifest_builder::value::*;
+    pub use crate::builder::signed_partial_transaction_v2_builder::*;
     pub use crate::builder::transaction_v1_builder::*;
+    pub use crate::builder::transaction_v2_builder::*;
 
     /* Errors */
     pub use crate::error::*;
@@ -109,7 +112,9 @@ pub mod prelude {
     pub use crate::transaction_v2::manifest::*;
     pub use crate::transaction_v2::message::*;
     pub use crate::transaction_v2::notarized_transaction::*;
+    pub use crate::transaction_v2::partial_transaction::*;
     pub use crate::transaction_v2::signed_intent::*;
+    pub use crate::transaction_v2::signed_partial_transaction::*;
     pub use crate::transaction_v2::transaction_header::*;
     pub use crate::transaction_v2::transaction_intent::*;
 
@@ -125,8 +130,8 @@ pub mod prelude {
     /* Derive */
     pub use crate::derive::functions::*;
 
-    /* Internal Prelude */
-    pub(crate) use crate::internal_prelude::*;
+    /* Internal Prelude - Pub because of tests*/
+    pub use crate::internal_prelude::*;
 
     /* Often needed */
     pub(crate) use sbor::prelude::IndexMap;

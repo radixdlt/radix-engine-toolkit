@@ -18,11 +18,16 @@
 use crate::prelude::*;
 use crate::utils::hashable_bytes::HashableBytes;
 
-#[derive(Clone, Debug, Enum)]
+#[derive(Clone, Debug, Enum, Default)]
 pub enum MessageV2 {
+    #[default]
     None,
-    PlainText { value: PlainTextMessageV2 },
-    Encrypted { value: EncryptedMessageV2 },
+    PlainText {
+        value: PlainTextMessageV2,
+    },
+    Encrypted {
+        value: EncryptedMessageV2,
+    },
 }
 
 #[derive(Clone, Debug, Record)]

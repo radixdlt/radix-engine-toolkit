@@ -124,6 +124,16 @@ mod core {
         from_payload_bytes as core_transaction_v2_notarized_transaction_from_payload_bytes,
         statically_validate as core_transaction_v2_notarized_transaction_statically_validate,
     };
+    pub use radix_engine_toolkit::functions::transaction_v2::partial_transaction::{
+        hash as core_transaction_v2_partial_transaction_hash,
+        to_payload_bytes as core_transaction_v2_partial_transaction_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_partial_transaction_from_payload_bytes,
+    };
+    pub use radix_engine_toolkit::functions::transaction_v2::signed_partial_transaction::{
+        hash as core_transaction_v2_signed_partial_transaction_hash,
+        to_payload_bytes as core_transaction_v2_signed_partial_transaction_to_payload_bytes,
+        from_payload_bytes as core_transaction_v2_signed_partial_transaction_from_payload_bytes,
+    };
     pub use radix_engine_toolkit::functions::manifest_sbor::{
         ManifestSborError as CoreManifestSborError,
         ManifestSborStringRepresentation as CoreManifestSborStringRepresentation,
@@ -206,6 +216,10 @@ mod native {
         SignatureV1 as NativeSignatureV1,
 
         SignatureWithPublicKeyV1 as NativeSignatureWithPublicKeyV1,
+
+        PreparationSettings as NativePreparationSettings,
+
+        HasSubintentHash as NativeHasSubintentHash,
     };
     pub use radix_transactions::manifest::static_resource_movements::{
         AccountWithdraw as NativeAccountWithdraw,
@@ -217,6 +231,8 @@ mod native {
         SimpleNonFungibleResourceBounds as NativeSimpleNonFungibleResourceBounds,
     };
     pub use radix_common::prelude::{
+        NetworkDefinition as NativeNetworkDefinition,
+
         LowerBound as NativeLowerBound,
         UpperBound as NativeUpperBound,
         AllowedIds as NativeAllowedIds,
@@ -445,6 +461,8 @@ mod native {
         ManifestNamedIntent as NativeManifestNamedIntent,
         ManifestNamedIntentIndex as NativeManifestNamedIntentIndex,
 
+        PartialTransactionV2 as NativePartialTransactionV2,
+        SignedPartialTransactionV2 as NativeSignedPartialTransactionV2,
         IntentHeaderV2 as NativeIntentHeaderV2,
         InstructionV2 as NativeInstructionV2,
         InstructionsV2 as NativeInstructionsV2,
@@ -502,7 +520,8 @@ mod native {
     };
     pub use radix_transactions::validation::{
         MessageValidationConfig as NativeMessageValidationConfig,
-        ManifestIdAllocator as NativeManifestIdAllocator
+        ManifestIdAllocator as NativeManifestIdAllocator,
+        TransactionValidator as NativeTransactionValidator,
     };
     pub use radix_transactions::errors::{
         TransactionValidationError as NativeTransactionValidationError,

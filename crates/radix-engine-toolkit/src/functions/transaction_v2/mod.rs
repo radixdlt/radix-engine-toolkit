@@ -19,6 +19,8 @@ pub mod instructions;
 pub mod intent_core;
 pub mod manifest;
 pub mod notarized_transaction;
+pub mod partial_transaction;
+pub mod signed_partial_transaction;
 pub mod signed_transaction_intent;
 pub mod subintent;
 pub mod transaction_intent;

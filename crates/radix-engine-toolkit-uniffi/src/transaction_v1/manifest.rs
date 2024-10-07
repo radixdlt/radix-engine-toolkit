@@ -1084,10 +1084,9 @@ impl StaticAnalysis {
                             .address_string(),
                         value
                             .into_iter()
-                            .map(|value| {
+                            .flat_map(|value| {
                                 AccountDeposit::from_native(value, network_id)
                             })
-                            .flatten()
                             .collect(),
                     )
                 })

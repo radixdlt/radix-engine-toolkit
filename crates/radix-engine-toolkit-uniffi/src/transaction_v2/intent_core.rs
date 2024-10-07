@@ -90,6 +90,17 @@ impl IntentCoreV2 {
         self.hash()
     }
 
+    pub fn subintent_hash(&self) -> Result<Arc<TransactionHash>> {
+        let hash = NativeIntentCoreV2::try_from(self.clone())
+            .map(|intent_core| NativeSubintentV2 { intent_core })?
+            .prepare(&NativePreparationSettings::latest())?
+            .subintent_hash();
+        Ok(Arc::new(TransactionHash::new(
+            &NativeIntentHash(hash.0),
+            self.header.network_id,
+        )))
+    }
+
     pub fn to_payload_bytes(&self) -> Result<Vec<u8>> {
         NativeIntentCoreV2::try_from(self.clone()).and_then(|intent| {
             core_transaction_v2_intent_core_to_payload_bytes(&intent)

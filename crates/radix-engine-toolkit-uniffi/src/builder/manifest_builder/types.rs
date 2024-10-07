@@ -48,6 +48,42 @@ pub enum ManifestBuilderAddress {
     Static { value: Arc<Address> },
 }
 
+impl<'a> From<&'a str> for ManifestBuilderIntent {
+    fn from(value: &'a str) -> Self {
+        Self {
+            name: value.to_owned(),
+        }
+    }
+}
+impl<'a> From<&'a str> for ManifestBuilderBucket {
+    fn from(value: &'a str) -> Self {
+        Self {
+            name: value.to_owned(),
+        }
+    }
+}
+impl<'a> From<&'a str> for ManifestBuilderProof {
+    fn from(value: &'a str) -> Self {
+        Self {
+            name: value.to_owned(),
+        }
+    }
+}
+impl<'a> From<&'a str> for ManifestBuilderAddressReservation {
+    fn from(value: &'a str) -> Self {
+        Self {
+            name: value.to_owned(),
+        }
+    }
+}
+impl<'a> From<&'a str> for ManifestBuilderNamedAddress {
+    fn from(value: &'a str) -> Self {
+        Self {
+            name: value.to_owned(),
+        }
+    }
+}
+
 pub trait NameRecordConvertible {
     type Native;
 

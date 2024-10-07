@@ -110,6 +110,9 @@ pub enum RadixEngineToolkitError {
 
     #[error("The static analysis of the manifest failed")]
     StaticAnalysisFailed,
+
+    #[error("Not all of the builder items were specified, progressing failed.")]
+    NotAllBuilderItemsWereSpecified,
 }
 
 macro_rules! dbg_str {

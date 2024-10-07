@@ -16,4 +16,8 @@
 // under the License.
 
 pub mod manifest_builder;
+
 pub mod transaction_v1_builder;
+pub mod transaction_v2_builder;
+
+pub mod signed_partial_transaction_v2_builder;
