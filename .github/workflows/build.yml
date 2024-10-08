@@ -33,11 +33,14 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   test-gradle:
-    runs-on: macos-11
+    runs-on: macos-12
     permissions:
       contents: read
       packages: write
     steps:
+      - name: Check architecture
+        shell: bash
+        run: echo "ARCH $(uname -m)"
       - name: Checkout
         uses: RDXWorks-actions/checkout@main
         with:
